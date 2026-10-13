@@ -36,6 +36,12 @@ DEFAULT_HINT = "Hover a control to see what it does."
 BAR_NAME = "HintBar"
 
 
+#: The height of four laid-out rows of text, by font key: the help strip
+#: measured them with a fresh text document at every style or font change,
+#: and a popup made frameless sends one of each.
+_FOUR_ROWS: Dict[str, int] = {}
+
+
 class _HintResizeHandle(QFrame):
     """Move the top edge of a help strip without resizing its window."""
 
@@ -150,12 +156,20 @@ class HintBar(QLabel):
     def _four_painted_rows(self) -> int:
         """Measure four laid-out rows, which can exceed four rounded line spacings."""
         view = getattr(self, "_view", None)
-        document = QTextDocument()
-        document.setDocumentMargin(0)
-        document.setDefaultFont(view.font() if view is not None else self.font())
-        document.setPlainText("\n".join(("Xg",) * 4))
+        font = view.font() if view is not None else self.font()
         frame = 0 if view is None else 2 * view.frameWidth()
-        return math.ceil(document.size().height()) + frame
+        key = font.key()
+        height = _FOUR_ROWS.get(key)
+        if height is None:
+            document = QTextDocument()
+            document.setDocumentMargin(0)
+            document.setDefaultFont(font)
+            document.setPlainText("\n".join(("Xg",) * 4))
+            height = math.ceil(document.size().height())
+            if len(_FOUR_ROWS) > 64:
+                _FOUR_ROWS.clear()
+            _FOUR_ROWS[key] = height
+        return height + frame
 
     def _maximum_help_height(self) -> int:
         """Keep the preceding page and the dialog's action buttons visible."""
@@ -219,11 +233,13 @@ class HintBar(QLabel):
         """Paint the help at the strip's font size despite inherited editor rules."""
         view = getattr(self, "_view", None)
         if view is not None:
-            view.setFont(self.font())
+            if view.font() != self.font():
+                view.setFont(self.font())
             pixels = self.fontInfo().pixelSize()
-            view.setStyleSheet(
-                "background: transparent; border: none; padding: 0px; margin: 0px;"
-                f"font-size: {pixels}px;")
+            sheet = ("background: transparent; border: none; padding: 0px; "
+                     "margin: 0px;" f"font-size: {pixels}px;")
+            if view.styleSheet() != sheet:
+                view.setStyleSheet(sheet)
 
 
     def explain(self, widget: QWidget, text: str = "") -> str:

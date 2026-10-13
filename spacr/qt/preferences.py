@@ -8883,7 +8883,7 @@ def _warm_one_slice(window) -> None:
         _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
         return
     if _the_application_sheet_is_behind():
-        apply_preferences_to_app()
+        apply_preferences_to_app(in_slices=True)
         _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
         return
     if _sheet_the_kept_dialog(dialog):

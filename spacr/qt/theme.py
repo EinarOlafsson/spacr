@@ -2517,12 +2517,47 @@ def font_px(role_or_px, scale: Optional[float] = None) -> int:
         except (TypeError, ValueError):
             base = FONT_SIZE["body"]
     if scale is None:
+        scale = _PINNED_FONT_SCALE[0]
+    if scale is None:
         try:
             from .preferences import get_font_scale
             scale = get_font_scale()
         except Exception:
             scale = 1.0
     return max(_QT_MIN_FONT_PX, int(round(float(base) * float(scale))))
+
+
+#: The font scale :func:`font_px` uses while :func:`_font_scale_pinned` is
+#: in force, or None to read the preference each time.
+_PINNED_FONT_SCALE: list = [None]
+
+
+@contextmanager
+def _font_scale_pinned():
+    """Read the font scale once for a block that restyles many widgets.
+
+    Putting a sheet on a window sends every close mark in it a
+    ``StyleChange``, and each re-measures itself through :func:`font_px`,
+    which opened the preference store to read the scale: one store per
+    mark, the innermost frames of a whole-window restyle in lesson 07. The
+    scale cannot change inside one ``setStyleSheet``, so it is read once at
+    the start and forgotten at the end; nested blocks keep the outer one.
+
+    :yields: the scale in force for the block.
+    """
+    if _PINNED_FONT_SCALE[0] is not None:
+        yield _PINNED_FONT_SCALE[0]
+        return
+    try:
+        from .preferences import get_font_scale
+        scale = float(get_font_scale())
+    except Exception:
+        scale = 1.0
+    _PINNED_FONT_SCALE[0] = scale
+    try:
+        yield scale
+    finally:
+        _PINNED_FONT_SCALE[0] = None
 
 
 TYPOGRAPHY = {
@@ -3874,7 +3909,8 @@ def _sheet_one_window(window) -> bool:
         window.setProperty(_WINDOW_SHEET_SERIAL, serial)
         own = _the_windows_own_stylesheet(window)
         text = preserve_widget_qss_overlay(window, sheet + own)
-        window.setStyleSheet(text)
+        with _font_scale_pinned():
+            window.setStyleSheet(text)
         window.setProperty(_WINDOW_SHEET_DIGEST, _sheet_digest(text))
         window.setProperty(_WINDOW_SHEET_BASE_LEN, len(sheet))
         window.setProperty(_WINDOW_SHEET_BASE_DIGEST, _sheet_digest(sheet))
