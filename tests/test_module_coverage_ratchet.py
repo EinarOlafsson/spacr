@@ -447,6 +447,15 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         'spacr/qt/widgets/calibration_preview.py',
         'spacr/qt/mask_thumbnail_quality.py',
         'spacr/qt/widgets/collapse_arrow.py',
+        # 662 -> 664 on 2026-10-13, +2/-0: the model cards (e84e5a9a1).
+        # spacr/model_cards.py builds a card per model and
+        # spacr/qt/widgets/model_card_viewer.py shows it; both are installed
+        # Python and belong in the denominator. The tools/ scripts added the
+        # same day (build_glyph_fonts, build_readme_images, build_score_cards,
+        # build_splash_mosaic, build_plaque_all_queue) are not under spacr/
+        # and never entered it.
+        'spacr/model_cards.py',
+        'spacr/qt/widgets/model_card_viewer.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -457,7 +466,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
                          'spacr/qt/tutorial/scripts.py'}
     assert not retired_since_608 & shipped
     assert (len(shipped) == 608 + len(added_since_608)
-            - len(retired_since_608) == 662)
+            - len(retired_since_608) == 664)
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
