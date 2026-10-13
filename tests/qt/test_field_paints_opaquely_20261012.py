@@ -201,8 +201,37 @@ def _compare(window, field, label, qtbot=None):
             break
         assert qtbot is not None, label
         qtbot.wait(700)
-    assert flushed == classic_flushed, label
-    assert grabbed == classic_grabbed, label
+    assert flushed == classic_flushed, label + _where(flushed,
+                                                      classic_flushed, window)
+    assert grabbed == classic_grabbed, label + _where(grabbed,
+                                                      classic_grabbed, window)
+
+
+def _where(opaque: QImage, classic: QImage, window) -> tuple:
+    """Where two paints of ``window`` differ, for a failure to name it.
+
+    Every fourth pixel is compared; the answer is how many differ, their
+    bounding box, a pair of differing colours, and the widgets under the
+    box's centre, innermost first.
+    """
+    xs, ys, sample = [], [], None
+    for y in range(0, min(opaque.height(), classic.height()), 4):
+        for x in range(0, min(opaque.width(), classic.width()), 4):
+            if opaque.pixel(x, y) != classic.pixel(x, y):
+                xs.append(x)
+                ys.append(y)
+                if sample is None:
+                    sample = (opaque.pixelColor(x, y).name(),
+                              classic.pixelColor(x, y).name())
+    if not xs:
+        return ("no sampled pixel differs",)
+    centre = QPoint((min(xs) + max(xs)) // 2, (min(ys) + max(ys)) // 2)
+    chain, widget = [], window.childAt(centre)
+    while widget is not None and widget is not window:
+        chain.append(f"{type(widget).__name__}#{widget.objectName()}")
+        widget = widget.parentWidget()
+    return (len(xs), (min(xs), min(ys), max(xs), max(ys)), sample,
+            tuple(chain))
 
 
 def test_a_small_scene_is_identical_on_every_first_frame(qtbot):
