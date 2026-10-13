@@ -203,4 +203,8 @@ def test_noting_the_time_on_something_that_takes_no_attributes_is_harmless():
     class Sealed:
         __slots__ = ()
 
-    fq._note_raster_seconds(Sealed(), 1.0)
+    sealed = Sealed()
+    fq._note_raster_seconds(sealed, 60.0)
+
+    assert not hasattr(sealed, fq._RASTER_SECONDS_ATTR)
+    assert not fq._too_slow_for_the_live_canvas(sealed)

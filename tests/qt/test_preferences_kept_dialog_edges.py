@@ -223,6 +223,15 @@ def test_the_first_tab_is_chosen_only_where_there_are_tabs(qtbot):
     dialog = _bare_window()
     qtbot.addWidget(dialog)
     preferences._back_to_the_first_tab(dialog)
+    assert getattr(dialog, "_page_tabs", None) is None
+
+    tabs = QTabWidget(dialog)
+    tabs.addTab(QWidget(), "one")
+    tabs.addTab(QWidget(), "two")
+    tabs.setCurrentIndex(1)
+    dialog._page_tabs = tabs
+    preferences._back_to_the_first_tab(dialog)
+    assert tabs.currentIndex() == 0
 
 
 def test_a_window_whose_look_cannot_be_read_is_redrawn(qtbot, monkeypatch):
@@ -463,16 +472,25 @@ def test_an_icon_rescale_or_a_redraw_that_fails_does_not_stop_the_rest(
     def _refuse(*_a, **_k):
         raise RuntimeError("no")
 
+    from spacr.qt import verbose_logger
+
+    levels = []
     monkeypatch.setattr(preferences, "_rescale_icon_sizes", _refuse)
+    monkeypatch.setattr(verbose_logger, "apply_verbose_logging", levels.append)
     preferences.apply_preferences_to_app()
+    assert len(levels) == 1, "the steps after the icon rescale did not run"
+
+    asked = []
 
     class _Broken(QWidget):
         def refresh_theme(self):
+            asked.append(1)
             raise RuntimeError("cannot redraw")
 
     window = _Broken()
     qtbot.addWidget(window)
     preferences._refresh_owner_window(window)
+    assert asked == [1]
 
 
 def test_a_whole_sheet_counts_only_the_roots_that_took_it(

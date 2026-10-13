@@ -273,6 +273,7 @@ def test_the_menu_labels_ai_review_without_native_speaker_signoff():
 def test_the_page_and_the_readmes_are_regenerated_not_hand_written(
         tmp_path, monkeypatch):
     """Running the generator again must change nothing."""
+    pytest.importorskip("uharfbuzz", reason="drawing the README images needs uharfbuzz")
     generator = _generator()
     assert PICKER_PAGE.read_text(encoding="utf-8") == \
         generator._language_picker_page()

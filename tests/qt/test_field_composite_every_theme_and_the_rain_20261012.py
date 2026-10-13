@@ -284,9 +284,7 @@ def test_a_widget_that_says_it_covers_its_area_paints_over():
         def autoFillBackground():
             return False
 
-        @staticmethod
-        def testAttribute(_attribute):
-            return False
+        testAttribute = staticmethod(lambda _attribute: False)
 
         @staticmethod
         def mask():

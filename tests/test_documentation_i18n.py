@@ -4540,6 +4540,7 @@ def test_visual_regeneration_preserves_complete_native_hardware_block(language, 
     legend's three labels in the README's own language
     (``readme_i18n.HARDWARE_LEGEND_LABELS``).
     """
+    pytest.importorskip("uharfbuzz", reason="drawing the README images needs uharfbuzz")
     import importlib.util
     from readme_i18n import HARDWARE_LEGEND_LABELS
 

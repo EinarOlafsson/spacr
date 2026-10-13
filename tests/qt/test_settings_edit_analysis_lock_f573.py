@@ -42,6 +42,7 @@ def tiny_screen(qtbot, source):
         "channels": [0, 1],
     }
     model._controls_arriving = 0
+    model._collect_hooks = []
     model._widgets = _ControlsBuiltWhenAskedFor(model)
     model._widgets["src"] = QLineEdit(str(source), parent)
     model._widgets["n_jobs"] = QLineEdit("2", parent)

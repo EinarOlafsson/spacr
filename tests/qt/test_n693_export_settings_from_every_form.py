@@ -41,15 +41,20 @@ def _app_screen_keys():
 
     The window builds an :class:`AppScreen` for each titled key that its
     screen factory does not route to a dedicated screen, and the Cellpose
-    workbench builds one per tab.
+    workbench builds one per tab. A key with a registered factory is a
+    dedicated screen too; reading the registry from ``spacr.qt.app`` also
+    fixes ``APP_TITLES``, which that import extends, whatever ran first.
     """
+    from spacr.qt.app import APP_FACTORIES
+
     source = (ROOT / "spacr" / "qt" / "app.py").read_text(encoding="utf-8")
     body = source.split("def _build_screen_timed", 1)[1].split(
         "screen = AppScreen(app_key=key)", 1)[0]
     dedicated = set(re.findall(r'if key == "([a-z_]+)"', body))
     from spacr.qt.screens.train_cellpose import TABS
 
-    keys = [key for key in APP_TITLES if key not in dedicated]
+    keys = [key for key in APP_TITLES
+            if key not in dedicated and key not in APP_FACTORIES]
     keys += [key for key, _label, _hint in TABS if key not in keys]
     return keys
 

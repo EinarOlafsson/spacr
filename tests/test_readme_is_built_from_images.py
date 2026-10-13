@@ -216,6 +216,7 @@ def test_chinese_wraps_between_characters_and_keeps_punctuation_attached():
 @pytest.mark.skipif(not _tool().fonts_available(),
                     reason="the pinned Noto fonts are not cached here")
 def test_the_english_images_redraw_byte_for_byte():
+    pytest.importorskip("uharfbuzz", reason="drawing the README images needs uharfbuzz")
     tool = _tool()
     output = tool.compose("en")
     stale = [name for name, svg in output.images.items()
