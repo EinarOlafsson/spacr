@@ -1,12 +1,18 @@
-Home/Work progress — 2026-10-13 18:21 EDT
+Home/Work progress — 2026-10-13 19:24 EDT
 
-Source: current dated item notes and Home/Work handoffs. — means no reliable measured percentage or ETA. ✅ denotes achieved in the last 12 hours. CI implementation is local accepted scope; N43, F288 and release remain open until hosted acceptance.
+— means no defensible percentage or elapsed-time estimate. ✅ marks verified recent achievements; descriptions identify any remaining publication gate.
 
 | item | percent done | time left | owner | detailed description |
-|---|---:|---|---|---|
-| Release 1.5.1.5 | — | CI-dependent | Home | Local CI repairs validated; publish one combined code batch and run full nightly CI. Release, notes and README refresh follow green hosted acceptance. |
-| CI repair implementation | ✅ | Done locally; CI pending | Home Codex team | Five known blockers repaired: cached paint palette, harmless import fallback, navigation walkthrough setup, exact sparse colour crossfade, and real settings-source coverage. 74 regression checks, 106 timing/parity checks, 185 functional coverage cases and 48 API/i18n/701 checks pass; nine pre-existing locale findings remain report-only. |
-| N43 | — | CI-dependent | Home | Known failures repaired and validated locally. Full nightly CI remains required before this parent item closes. |
+|---|---|---|---|---|
+| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Main promotion authorized after full green CI. Current run has three independent compatibility failures: popup repaired locally; tutorial publication receipt, cache key and native-timing metadata are being reconciled. |
+| CI repair implementation | ✅ | Done; fullCIpending | Home Codex team | Published at9af7f3dc12: cached painting palette, safe import fallback, walkthrough-aware navigation test, exact sparse colour crossfade and real source-default coverage. Localchecks74+106+185+48PASS;9existinglocale findingsreport-only. |
+| CI N701 layout compatibility | ✅ | Done locally; publish pending | Home Qt agent | Private 1a9a138c76 adds the shipped Hide judged fields button to the full order contract. 38 tests pass; exit 0 and JUnit verified. |
+| CI tutorial publication integrity | — | Work checkpoint export needed | Home + Work | Current public HF root is verified. Obtain matching generated receipt/manifest, current audit pin and truthful native-timings bindings; preserve readback/hash checks. |
+| Lesson 20 reference checks | ✅ | Done | Work | Both r28 captures match three saved masks and three figure arrays to their source outputs. This verifies attribution, not segmentation accuracy or capture acceptance. |
+| Lesson 20 telemetry correction | — | Validated; held for release | Work | Private 6dfed0613: 15 new plus 11 gate tests pass; corrected replay still rejects both opening captures at unchanged 26.96/26.92 fps. |
+| Lesson 20 staging contract | — | Validated; held for release | Work | Private 67dbbd20b checks exact scientific, clip and gate evidence with video/native/receipt hash bindings; 63 owning cases pass. |
+| Tutorial queue preflight | — | Validated; held for release | Work | Private 6487de73a/facc4b16a detect capture placeholders and missing paths before jobs are emitted; 12 cases pass. Dispatcher remains inactive. |
+| N43 | — | CI-dependent | Home | Known blockers repaired. Full nightly run38477246153 must pass before this parent closes; duplicatepush38477235004 andsuperseded38470784040 cancelled. |
 | F288 | — | CI/GPU-dependent | Home + Work | Settings-model regression covered; new crossfade path has no uncovered lines/arcs in its owning test run. Full hosted ratchet remains pending; retain the existing CUDA exemption. |
 | Make Masks lesson 14 performance | — | After release | Home | Review held edits, finish repaint/stall fixes, test owning files and stress the lesson driver for crashes. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |
@@ -23,12 +29,12 @@ Source: current dated item notes and Home/Work handoffs. — means no reliable m
 | Tutorial 08 | ✅ | Done | Work | Measure published with current GNOME recordings, HF r26, nightly 52d5d99bf. |
 | Tutorial 14 | — | Waiting for Home branch | Work | Re-record after final Make Masks performance and brush changes land. |
 | Tutorial 20 | — | Held on opening stall | Work | Ten clips pass. Opening failed at 26.96 fps and retry 26.92; no audio/render/upload started. Work holds telemetry correction; Home must repair cold Workbench opening. |
-| Cellpose Workbench opening stall | 0% | After CI; patch held | Home | Investigate cold construction, preview installation and splitter layout producing a 1.1–1.2 s GUI pause. Preserve release candidate during CI; validate fix before Work retakes lesson 20. |
+| Cellpose Workbench opening stall | — | After CI/release; validated patch held | Home | Private b28b35b0d2 defers closed categories and hidden preview construction. 156 owning tests pass; cold first-show median 720 to 458 ms, widgets 837 to 426. Publish only after release, then Work validates with corrected telemetry and a fresh GNOME recording. |
 | Tutorial 43 | — | After 20 | Work | Fresh Illumination controls, narration, translations and publication. |
 | Tutorial 24 | — | After 43 | Work | Record and publish current alpha-off layout. |
 | Tutorial 26 | — | After 24 | Work | Record and publish current alpha-off layout and updated controls. |
-| Remaining tutorial remakes | — | Not estimated | Work | Continue remaining lessons by number using AGENTS rules 7 and 17. |
-| Held tutorial tooling | — | After release | Work | Held narration guards and 07/08 checkpoints remain held until Home records release done. |
+| Remaining tutorial remakes | — | Not estimated | Work | Work audited 84 routes: 04/05/07/08 complete, 80 remain. Source bindings checked for 210 inventory files; drivers and input gaps recorded. |
+| Held tutorial tooling | — | After release | Work | Narration guards, staging/queue checks, corrected telemetry and 07/08 checkpoints stay held; current published metadata needs a narrowly scoped CI repair. |
 | Shutdown exit verification | ✅ | Done | Work | Measure Templates/shortcuts capture r25-08-templates-b on d0c99e841 includes a540d62b5 and exited rc 0; Work recorded provenance in b394f90407. |
 | N615 | — | Ongoing | Work | Keep API, runtime, guides and tutorial records source-current; close outstanding catalogue arrivals. |
 | Dynamic animation wording | — | Docs queue | Work | Tooltip and AmbientWidget.stop docstring must describe slowing to 30 fps during CPU work. |

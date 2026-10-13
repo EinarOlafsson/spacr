@@ -22,6 +22,23 @@ the exact existing generated candidate/commit so it can integrate only the
 CI-required publication record. The held capture/narration tooling and
 07/08 checkpoint branches remain held; do not push the whole tools branch.
 
+Coverage shard 8 and minimum-dependency shard 2 also expose the stale catalog
+audit key and missing 07/08 native-timing manifest entries. Home verified both
+timing files exist on the immutable current HF revision. Home owns a minimal
+audit correction: read the lesson_catalog.js key from the receipt's actual
+versioned_assets map and classify 07/08 as the verified native publications.
+All inventory, pronunciation, hashes and integrity assertions stay intact.
+Please export the existing, normally generated 04 checkpoint and its bound
+manifest/receipt/browser evidence, not only the smaller portable receipt.
+The retained log says the 145-file checkpoint export completed. Candidate:
+/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i.
+Its manifest SHA256 is
+8dd2e98facc69ea62721498db0b3b30f9b38c760b9d7bd65fa36795c850e8660.
+No re-recording, rendering or uploading is needed for this published snapshot.
+
+Maintainer authorized promotion of the final tested nightly source to main
+and the existing release workflow, conditional on a fully green CI run.
+
 Release is still pending. The separate Workbench opening repair is prepared
 at private b28b35b0d2: 156 owning tests pass, cold first-show median falls
 from 720 to 458 ms and widgets from 837 to 426. It stays held until release,
