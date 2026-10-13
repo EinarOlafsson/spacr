@@ -91,7 +91,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
         scene["visual"] for scene in make_masks["scenes"]
     }
     assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1159
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1227
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1220
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
