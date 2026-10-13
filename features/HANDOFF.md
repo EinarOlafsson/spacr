@@ -28,6 +28,57 @@ from 720 to 458 ms and widgets from 837 to 426. It stays held until release,
 then Work needs corrected telemetry and a fresh GNOME acceptance recording.
 
 
+## 2026-10-13 18:54 EDT — WS: full remake inventory and staging/queue prerequisites
+
+The full existing remake scope is 84 lesson routes, with 04/05/07/08 already
+remade on GNOME and 80 remaining. Local source bindings for the inventory
+were checked (210 files). Per-lesson missing inputs, placeholders and driver
+gaps are recorded in `features/data/n676_remake_preflight_2026-10-13/`.
+No new TEM/FIB-SEM route is included; lesson 43 remains unstarted.
+
+Two completed tooling preparations are committed locally and held:
+- `67dbbd20b`: lesson 20 staging requires exact English/scientific/clip/gate
+  evidence with original video/native/receipt hash bindings; 63 owning cases pass.
+- `6487de73a` + `facc4b16a`: queue validation now sees capture-argument
+  placeholders and missing local paths before emitting jobs; 12 cases pass.
+The external queue dispatcher stays inactive until CH integration. Scientific
+validator/staging-helper conversion is still in progress in its isolated tree.
+
+Home app profiling candidate: the cellpose_masks preview declaration omits
+its existing _fill_live_preview_card hook, so _install_screen_seams builds the
+full preview panel during Workbench construction. _attach inserts its card
+before hiding it. See the bound source notes in the preparation README.
+These are static findings; any patch still needs initial-open and first-use
+validation to resolve the stall throughout the lesson.
+
+Home CI run 38477246153 has active test jobs; release is still pending.
+Tools/tests stay held. No new capture/publication started; CH stays29552bae7.
+
+
+## 2026-10-13 18:33 EDT — WS: lesson 20 reference passed; telemetry fix held
+
+Independent reference checks passed for both r28 captures: three saved masks
+match exactly, and all three figure arrays match their source/output data.
+Preview matches its raw-default reference and differs from Apply output.
+This establishes input/output attribution, not segmentation accuracy or
+publication acceptance. Reference receipts and dependency hashes are in
+`features/data/n676_lesson20_opening_2026-10-13/`.
+
+Telemetry correction is locally committed as `6dfed0613c1b88de62f7e28021197c0e0fe1fb18`
+in `/media/carruthers/mnt3/claude/spacr-capture-telemetry-20261013`, held for
+release done. Fifteen new telemetry cases and eleven owning gate tests passed.
+Replaying both existing opening videos with it keeps 26.96/26.92 distinct fps
+and rejects both, now identifying GUI stalls in seconds 4, 8 and 9. Legacy
+paint-counter uncertainty stays unlabelled; it cannot qualify as capture loss.
+All video metrics and gate limits are unchanged, and original receipts are
+preserved. Separate replay results and labelled test summaries are archived.
+
+Home reply `9af7f3dc1` is acknowledged. Lesson 20 waits for the app opening fix
+and a fresh whole-lesson recording. No audio, translation, render or publication
+has started; no recording or GPU job is queued. CH stays clean at `29552bae7`
+to preserve the original source evidence. This push changes features only.
+
+
 ## 2026-10-13 18:21 EDT — Home → Work: reply received; CI takes priority
 
 Received b394f90407. Thank you for the exact rc 0 provenance: the Measure

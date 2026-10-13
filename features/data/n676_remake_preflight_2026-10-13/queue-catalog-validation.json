@@ -1,0 +1,60 @@
+[
+  {
+    "lesson": "10_classify_cv",
+    "run": "classify_cv_gui",
+    "errors": [],
+    "terminal_only": false
+  },
+  {
+    "lesson": "10_classify_cv",
+    "run": "classify_cv_existing_split",
+    "errors": [
+      "capture: unresolved placeholder '<STAGE>/classify_canonical_split_v2'"
+    ],
+    "terminal_only": false
+  },
+  {
+    "lesson": "10_classify_cv",
+    "run": "classify_prepare_terminal",
+    "errors": [
+      "env SPACR_TUTORIAL_CV_SOURCE: unresolved placeholder '<STAGE>/annotate_fresh/example_data/plate1'",
+      "env SPACR_TUTORIAL_CV_DESTINATION: unresolved placeholder '<STAGE>/classify_canonical_split_v2'"
+    ],
+    "terminal_only": true
+  },
+  {
+    "lesson": "31_external_masks",
+    "run": "external_masks",
+    "errors": [
+      "run_native: unresolved placeholder '<prepared dir with captures-free copy of the preserved Foreign inputs>'",
+      "capture: unresolved placeholder '<stage-relative dir of byte-identical Foreign TIFF copies, e.g. foreign_inputs>'"
+    ],
+    "terminal_only": false
+  },
+  {
+    "lesson": "75_regression_diagnostics",
+    "run": "regression_diagnostics",
+    "errors": [
+      "capture: unresolved placeholder '<STAGE>/regression_runs/<completed project>'"
+    ],
+    "terminal_only": false
+  },
+  {
+    "lesson": "21_model_compare",
+    "run": "model_compare_gui",
+    "errors": [
+      "env SPACR_TUTORIAL_MODEL_FIELDS: missing local path /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks"
+    ],
+    "terminal_only": false
+  },
+  {
+    "lesson": "22_model_zoo",
+    "run": "model_zoo_benchmark",
+    "errors": [
+      "env SPACR_TUTORIAL_MODEL_FIELDS: missing local path /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks",
+      "env SPACR_TUTORIAL_MODEL_DIRECTORY: missing local path /home/olafsson/.cellpose/models",
+      "run_native --ro-bind source: missing local path /home/olafsson/.cellpose/models"
+    ],
+    "terminal_only": false
+  }
+]
