@@ -1378,50 +1378,14 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     if show:
         display(df)
 
-    if setting_key not in df.columns or setting_value not in df.columns:
-        if 'Key' in df.columns and 'Value' in df.columns:
-            setting_key, setting_value = 'Key', 'Value'
-        else:
-            raise ValueError(
-                f"CSV file must contain {setting_key} and {setting_value} "
-                f"columns (or the Key/Value pair save_settings writes); "
-                f"{os.path.basename(str(csv_file_path))} has "
-                f"{list(df.columns)}.")
+    setting_key, setting_value = tabular._settings_columns(
+        df, setting_key, setting_value, source=csv_file_path)
 
     def parse_value(value):
         """Parse the string value into the appropriate Python data type."""
-        if pd.isna(value) or value == '':
-            return None
+        return tabular._parse_setting_value(value)
 
-        if not isinstance(value, str):
-            return value
-
-        if value.strip().lower() == 'true':
-            return True
-        if value.strip().lower() == 'false':
-            return False
-
-        if value.startswith(('(', '[', '{')):
-            try:
-                parsed_value = ast.literal_eval(value)
-                if isinstance(parsed_value, dict):
-                    parsed_value = {k: parse_value(v) for k, v in parsed_value.items()}
-                return parsed_value
-            except (ValueError, SyntaxError):
-                pass
-        
-        try:
-            if '.' in value:
-                return float(value)
-            return int(value)
-        except ValueError:
-            pass
-
-        return value
-
-    result_dict = {key: parse_value(value) for key, value in zip(df[setting_key], df[setting_value])}
-
-    return result_dict
+    return {key: parse_value(value) for key, value in zip(df[setting_key], df[setting_value])}
 
 def console_encoding(stream=None):
     """Return the name of the encoding used for text printed to ``stream``.

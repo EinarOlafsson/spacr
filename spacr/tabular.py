@@ -269,6 +269,91 @@ def read_table(source: Any, *, table: Optional[str] = None,
     return _canonicalise(frame, canonicalise, report, warn, repair_plate_ids)
 
 
+def _parse_setting_value(value: Any) -> Any:
+    """Turn one cell of a settings CSV back into the Python value it was.
+
+    ``True``/``False`` (any case), a literal list, tuple or dict (whose
+    values are parsed the same way), an int, a float, an empty cell
+    (``None``), or the text as written.
+
+    :param value: the cell as pandas read it.
+    :returns: the parsed value.
+    """
+    if pd.isna(value) or value == '':
+        return None
+    if not isinstance(value, str):
+        return value
+    if value.strip().lower() == 'true':
+        return True
+    if value.strip().lower() == 'false':
+        return False
+    if value.startswith(('(', '[', '{')):
+        import ast
+        try:
+            parsed = ast.literal_eval(value)
+            if isinstance(parsed, dict):
+                parsed = {k: _parse_setting_value(v) for k, v in parsed.items()}
+            return parsed
+        except (ValueError, SyntaxError):
+            pass
+    try:
+        if '.' in value:
+            return float(value)
+        return int(value)
+    except ValueError:
+        pass
+    return value
+
+
+def _settings_columns(frame: pd.DataFrame, setting_key: str, setting_value: str,
+                      source: Any = '') -> Tuple[str, str]:
+    """The key and value columns of a settings table.
+
+    ``setting_key``/``setting_value`` when both are columns, otherwise the
+    ``Key``/``Value`` pair :func:`spacr.utils.save_settings` writes.
+
+    :param frame: the table as :func:`read_table` read it.
+    :param setting_key: the key column asked for.
+    :param setting_value: the value column asked for.
+    :param source: the file the table came from, named in the error.
+    :returns: ``(key column, value column)``.
+    :raises ValueError: when neither pair is present.
+    """
+    if setting_key in frame.columns and setting_value in frame.columns:
+        return setting_key, setting_value
+    if 'Key' in frame.columns and 'Value' in frame.columns:
+        return 'Key', 'Value'
+    raise ValueError(
+        f"CSV file must contain {setting_key} and {setting_value} "
+        f"columns (or the Key/Value pair save_settings writes); "
+        f"{os.path.basename(str(source))} has "
+        f"{list(frame.columns)}.")
+
+
+def _settings_from_table(frame: pd.DataFrame, setting_key: str = 'setting_key',
+                         setting_value: str = 'setting_value',
+                         source: Any = '') -> Dict[str, Any]:
+    """The settings dict a two-column settings table holds.
+
+    What :func:`spacr.utils.load_settings` returns for the same table, here
+    so the GUI can read a settings CSV without importing :mod:`spacr.utils`
+    (torch, torchvision, scikit-image, statsmodels: seconds the first time,
+    on the GUI thread).
+
+    :param frame: the table as :func:`read_table` read it.
+    :param setting_key: the key column.
+    :param setting_value: the value column.
+    :param source: the file the table came from, named in the error.
+    :returns: ``{key: parsed value}``, see :func:`_parse_setting_value`.
+    :raises ValueError: when neither column pair is present
+        (:func:`_settings_columns`).
+    """
+    setting_key, setting_value = _settings_columns(
+        frame, setting_key, setting_value, source=source)
+    return {key: _parse_setting_value(value)
+            for key, value in zip(frame[setting_key], frame[setting_value])}
+
+
 def write_table(frame: pd.DataFrame, path: Any, *,
                 canonicalise: bool = True, index: bool = False,
                 **kwargs) -> str:

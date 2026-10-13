@@ -12066,16 +12066,24 @@ class AppScreen(QWidget):
         ``spacr.io.save_settings_to_db`` — the ``setting_key``/
         ``setting_value`` spelling — fail to import with "Import failed".
 
+        The file is read once and parsed by the code
+        :func:`spacr.utils.load_settings` uses, through :mod:`spacr.tabular`,
+        so reading a settings file does not import :mod:`spacr.utils`
+        (torch, torchvision, statsmodels). That import held the GUI thread
+        for seconds when a session imported a settings CSV before its first
+        run.
+
         :param path: path to the CSV.
         :returns: the parsed settings dict.
         :raises ValueError: when no recognised column pair is present.
         """
-        from spacr.utils import load_settings
+        from spacr import tabular
+        table = tabular.read_table(path, report=None)
         first_error = None
         for key_col, value_col in cls._CSV_COLUMNS:
             try:
-                return load_settings(path, setting_key=key_col,
-                                     setting_value=value_col)
+                return tabular._settings_from_table(
+                    table, key_col, value_col, source=path)
             except ValueError as e:
                 if first_error is None:
                     first_error = e
