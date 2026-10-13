@@ -67,12 +67,18 @@ class _Recorder(QObject):
         return self.answer
 
 
-def _calls_to(code, action):
-    """How many times ``code`` runs while ``action()`` does."""
+def _calls_to(code, action, owner=None):
+    """How many times ``code`` runs while ``action()`` does.
+
+    With ``owner``, only the calls whose ``self`` is ``owner`` count. A hub
+    an earlier test left on the shared application is asked about the same
+    events as the one under test, and is no measure of it.
+    """
     calls = [0]
 
     def profile(frame, event, _arg):
-        if event == "call" and frame.f_code is code:
+        if (event == "call" and frame.f_code is code
+                and (owner is None or frame.f_locals.get("self") is owner)):
             calls[0] += 1
 
     sys.setprofile(profile)
@@ -112,9 +118,9 @@ def test_a_repaint_asks_the_hub_once_not_once_a_widget(hub, painted):
     window, labels = painted
     code = type(hub).eventFilter.__code__
     assert hub._paints_unheard
-    past = _calls_to(code, window.repaint)
+    past = _calls_to(code, window.repaint, hub)
     hub._paints_unheard = False
-    through = _calls_to(code, window.repaint)
+    through = _calls_to(code, window.repaint, hub)
     assert past == 1
     assert through > len(labels)
 
