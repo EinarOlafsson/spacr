@@ -737,14 +737,22 @@ def _action_bar_geometry(screen):
 
 @pytest.mark.parametrize("size", [(1200, 720), (1400, 900)])
 def test_a_verdict_no_longer_moves_the_run_row(qtbot, stepped_project, size):
-    """The verdict used to sit above the Run row and push it up the panel."""
+    """The verdict used to sit above the Run row and push it up the panel.
+
+    Both rows are measured at the same moment, once the QC screen has
+    settled, so anything the second build changes for the whole
+    application in between reaches both. Measured before the second build,
+    loaded CI runners twice saw the plain row 2 px shorter (86 against 88),
+    which never happened on the workstation.
+    """
     plain, _ = _laid_out_measure(qtbot, with_qc=False, src=stepped_project,
                                  size=size)
-    before = _action_bar_geometry(plain)
 
     screen, banner = _laid_out_measure(qtbot, with_qc=True,
                                        src=stepped_project, size=size)
     assert banner.digest is not None and banner.digest.verdict == "fail"
+    _wait_for_a_settled_action_bar(qtbot, plain)
+    before = _action_bar_geometry(plain)
     after = _action_bar_geometry(screen)
 
     assert after["row"].height() == before["row"].height()
