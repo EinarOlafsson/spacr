@@ -1393,7 +1393,7 @@ def _fit_nested_mixedlm(formula, df, groups, vc_formula, guide_column, design):
               (_MIXED_MODEL_GENE_ONLY, reduced))
     last_error = None
     for stage, (label, vc) in enumerate(stages):
-        unconverged = None
+        unusable = None
         for name, options in _MIXED_OPTIMISERS:
             try:
                 model = smf.mixedlm(formula, data=df, groups=groups,
@@ -1408,21 +1408,41 @@ def _fit_nested_mixedlm(formula, df, groups, vc_formula, guide_column, design):
                     f"{type(error).__name__}: {error}")
                 continue
             converged = bool(getattr(result, 'converged', True))
+            finite = _fixed_effect_errors_are_finite(result)
             record['attempts'].append(
                 f"{label}: {name} "
-                f"{'converged' if converged else 'did not converge'}")
-            if not converged:
-                if unconverged is None:
-                    unconverged = (name, result)
-                continue
-            return result, _mixed_record(record, label, name, vc, stage)
-        if unconverged is not None:
-            name, result = unconverged
+                f"{'converged' if converged else 'did not converge'}"
+                + ("" if finite else
+                   ", with fixed-effect standard errors that are not finite"))
+            if converged and finite:
+                return result, _mixed_record(record, label, name, vc, stage)
+            rank = (finite, converged)
+            if unusable is None or rank > unusable[0]:
+                unusable = (rank, name, result)
+        if unusable is not None:
+            _rank, name, result = unusable
             return result, _mixed_record(record, label, name, vc, stage)
     raise ValueError(
         "no optimiser could fit the nested model, with or without the guide "
         "variance component. Attempts: " + '; '.join(record['attempts'])
     ) from last_error
+
+
+def _fixed_effect_errors_are_finite(result):
+    """Whether every fixed effect of a MixedLM fit has a finite standard error.
+
+    An optimiser can report convergence at a variance on its boundary where
+    the Hessian is singular; the fixed effects then carry no standard error
+    and no p-value, so that fit answers nothing the gene test asks.
+
+    :param result: A fitted ``MixedLMResults``.
+    :returns: ``True`` when the errors are all finite, or there are none.
+    """
+    try:
+        errors = np.asarray(result.bse_fe, dtype=float)
+    except Exception:
+        return False
+    return bool(np.isfinite(errors).all())
 
 
 def _mixed_record(record, label, optimiser, vc, stage):
