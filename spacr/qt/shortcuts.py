@@ -1196,11 +1196,17 @@ def _open_palette(window: QMainWindow) -> None:
     """Open the command palette.
 
     :param window: the main window. A build without the palette logs and
-        does nothing rather than raising out of a key press.
+        does nothing rather than raising out of a key press. The palette is
+        released once it closes, so each Ctrl+K does not leave another
+        hidden palette, with its full command list, under the window.
     """
     try:
         from .command_palette import CommandPalette
-        CommandPalette(window).exec()
+        palette = CommandPalette(window)
+        try:
+            palette.exec()
+        finally:
+            palette.deleteLater()
     except Exception as e:
         LOG.debug("command palette not available: %s", e)
 

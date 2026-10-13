@@ -29,7 +29,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSignalBlocker, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QDialog, QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
@@ -104,11 +104,15 @@ class CommandPalette(QDialog):
         outer.addWidget(self._list, 1)
 
         self._commands: List[Command] = []
+        self._rendering = False
+        self._pending: Optional[List[Command]] = None
+        self._closed = False
         self._collect_commands()
         self._render(self._commands)
 
         self._input.textChanged.connect(self._on_filter)
         self._input.returnPressed.connect(self._on_activate)
+        self.finished.connect(self._stop_rendering)
         self._list.itemActivated.connect(lambda _i: self._on_activate())
 
     def _collect_commands(self) -> None:
@@ -310,22 +314,73 @@ class CommandPalette(QDialog):
         a heading. Every command follows a heading, so the first command is
         always the second row.
 
+        A render never runs inside another one. A keystroke that arrives
+        while the list is being rebuilt -- a key dispatched from a slot or an
+        event filter that the rebuild itself set off -- only records its
+        commands, and the running render draws them once it has finished, so
+        ``clear`` never deletes items an outer rebuild is still adding. A
+        palette that has closed renders nothing.
+
         :param cmds: the commands to show, in section order.
         """
-        self._list.clear()
-        current_section = None
-        for cmd in cmds:
-            if cmd.section != current_section:
-                header = QListWidgetItem(cmd.section.upper())
-                header.setFlags(Qt.NoItemFlags)
-                header.setForeground(Qt.gray)
-                self._list.addItem(header)
-                current_section = cmd.section
-            item = QListWidgetItem(cmd.label)
-            item.setData(Qt.UserRole, cmd)
-            self._list.addItem(item)
-        if self._list.count() > 1:
-            self._list.setCurrentRow(1)
+        if self._closed:
+            return
+        if self._rendering:
+            self._pending = list(cmds)
+            return
+        self._rendering = True
+        try:
+            while True:
+                self._fill(cmds)
+                if self._pending is None:
+                    break
+                cmds, self._pending = self._pending, None
+        finally:
+            self._pending = None
+            self._rendering = False
+
+    def _fill(self, cmds: List[Command]) -> None:
+        """Replace the rows with ``cmds`` while the list is quiet.
+
+        The list's signals are blocked and its painting is suspended for the
+        whole rebuild, so neither ``clear`` nor the new current row calls
+        anything back while items are being deleted and added. No item
+        outlives the rebuild in Python; rows are always read back from the
+        list.
+
+        :param cmds: the commands to show, in section order.
+        """
+        blocker = QSignalBlocker(self._list)
+        self._list.setUpdatesEnabled(False)
+        try:
+            self._list.clear()
+            current_section = None
+            for cmd in cmds:
+                if cmd.section != current_section:
+                    header = QListWidgetItem(cmd.section.upper())
+                    header.setFlags(Qt.NoItemFlags)
+                    header.setForeground(Qt.gray)
+                    self._list.addItem(header)
+                    current_section = cmd.section
+                item = QListWidgetItem(cmd.label)
+                item.setData(Qt.UserRole, cmd)
+                self._list.addItem(item)
+            if self._list.count() > 1:
+                self._list.setCurrentRow(1)
+        finally:
+            self._list.setUpdatesEnabled(True)
+            blocker.unblock()
+
+    def _stop_rendering(self, _result: int = 0) -> None:
+        """Stop the palette from rendering once it has closed.
+
+        Typing still queued behind the closing key would otherwise rebuild
+        the list of a dialog that is going away.
+
+        :param _result: the dialog result ``finished`` carries; unused.
+        """
+        self._closed = True
+        self._pending = None
 
     def _on_filter(self, needle: str) -> None:
         """Narrow the list to commands matching the typed text.

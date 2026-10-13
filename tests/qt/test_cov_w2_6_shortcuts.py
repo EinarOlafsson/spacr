@@ -381,11 +381,15 @@ def test_the_palette_key_opens_the_palette(monkeypatch, window):
             opened.append(parent)
 
         def exec(self):
+            opened.append("exec")
             return 0
+
+        def deleteLater(self):
+            opened.append("released")
 
     monkeypatch.setattr(command_palette, "CommandPalette", FakePalette)
     sc._open_palette(window)
-    assert opened == [window]
+    assert opened == [window, "exec", "released"]
 
 
 def test_a_palette_that_cannot_be_built_is_not_a_crash(monkeypatch, window,

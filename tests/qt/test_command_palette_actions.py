@@ -644,3 +644,61 @@ def test_the_palette_opens_even_if_the_menu_bar_raises(window, monkeypatch,
     qtbot.addWidget(pal)
     assert not [c for c in pal._commands if c.section == "Menu"]
     assert any("Preferences" in c.label for c in pal._commands)
+
+
+def _rows(palette):
+    return [palette._list.item(i).text() for i in range(palette._list.count())]
+
+
+def _cmd(label, section="Test"):
+    return CP.Command(label=label, section=section, action=lambda: None)
+
+
+def test_a_render_asked_for_inside_a_render_waits_and_then_draws(palette):
+    """The model's reset is mid-way when the nested call lands; it only leaves
+    its commands, and the list ends with them, whole, not two lists mixed."""
+    first, second, third = [_cmd("One")], [_cmd("Two")], [_cmd("Three")]
+    asked = []
+
+    def nested():
+        if not asked:
+            asked.append(1)
+            palette._render(second)
+            palette._render(third)
+
+    palette._list.model().modelAboutToBeReset.connect(nested)
+    palette._render(first)
+
+    assert asked == [1]
+    assert _rows(palette) == ["TEST", "Three"]
+    assert palette._pending is None and palette._rendering is False
+
+
+def test_the_list_says_nothing_while_it_is_rebuilt(palette):
+    rows = []
+    palette._list.currentRowChanged.connect(rows.append)
+    palette._render([_cmd("One"), _cmd("Two")])
+    assert rows == []
+    assert palette._list.currentRow() == 1
+    assert palette._list.updatesEnabled()
+    assert not palette._list.signalsBlocked()
+
+
+def test_a_palette_closed_inside_a_render_stops_there(palette):
+    def close_and_ask():
+        palette._render([_cmd("Later")])
+        palette.reject()
+
+    palette._list.model().modelAboutToBeReset.connect(close_and_ask)
+    palette._render([_cmd("Now")])
+
+    assert _rows(palette) == ["TEST", "Now"]
+    assert palette._pending is None
+
+
+def test_a_closed_palette_ignores_late_typing(palette):
+    before = _rows(palette)
+    palette.reject()
+    palette._input.setText("zzzz-no-such-command-zzzz")
+    assert _rows(palette) == before
+    assert palette._closed
