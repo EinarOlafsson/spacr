@@ -77,11 +77,6 @@ class ModelCardViewer(QFrame):
     """Page through the card of one model.
 
     :param parent: parent widget.
-    :param threaded: fetch the images on a worker thread; ``False`` fetches
-        inline, for tests.
-    :param fetch: byte source taking a URL, handed to
-        :func:`spacr.model_cards.fetch_pages`; ``None`` uses the network.
-    :param enlargeable: clicking the image opens a larger dialog.
     """
 
     #: Emitted with the zero-based page after every page change.
@@ -91,11 +86,10 @@ class ModelCardViewer(QFrame):
     def __init__(self, parent=None, *, threaded: bool = True,
                  fetch: Optional[Callable[[str], bytes]] = None,
                  enlargeable: bool = True):
-        """Build the page area, the status line and the page row.
-
-        :param parent: parent widget.
-        :param threaded: fetch the images on a worker thread.
-        :param fetch: byte source taking a URL, or ``None`` for the network.
+        """:param threaded: fetch the images on a worker thread; ``False`` fetches
+            inline, for tests.
+        :param fetch: byte source taking a URL, handed to
+            :func:`spacr.model_cards.fetch_pages`; ``None`` uses the network.
         :param enlargeable: clicking the image opens a larger dialog.
         """
         super().__init__(parent)

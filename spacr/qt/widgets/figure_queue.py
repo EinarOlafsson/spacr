@@ -622,6 +622,10 @@ class _Ratio:
     """A stand-in paint device that answers one device pixel ratio."""
 
     def __init__(self, ratio: float) -> None:
+        """Stand for ``ratio``.
+
+        :param ratio: the device pixel ratio to answer.
+        """
         self._ratio = float(ratio)
 
     def devicePixelRatioF(self) -> float:
