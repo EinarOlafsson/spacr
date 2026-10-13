@@ -21,7 +21,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QObject, QRect, Qt  # noqa: E402
 from PySide6.QtGui import QImage, QRegion  # noqa: E402
-from PySide6.QtWidgets import QFrame, QWidget  # noqa: E402
+from PySide6.QtWidgets import QApplication, QFrame, QWidget  # noqa: E402
 from shiboken6 import delete, isValid  # noqa: E402
 
 from spacr.qt.widgets import ambient  # noqa: E402
@@ -58,7 +58,16 @@ def _card(parent, rect, name="Card"):
 
 @pytest.fixture
 def scene(qtbot):
-    """A field behind two nested cards and every kind of non-card."""
+    """A field behind two nested cards and every kind of non-card.
+
+    With no application stylesheet: an earlier test in the same process
+    that applied spaCR's theme leaves its sheet on the QApplication, and
+    under it the walk found a third card here (CI coverage shard 0,
+    2026-10-13). The scene declares its own sheet on the host.
+    """
+    app = QApplication.instance()
+    sheet = app.styleSheet()
+    app.setStyleSheet("")
     host = QWidget()
     host.setProperty("spacrIndependentBackdrop", True)
     host.setStyleSheet(SHEET)
@@ -88,9 +97,12 @@ def scene(qtbot):
     qtbot.waitUntil(lambda: backdrop._producer_box[0] is not None,
                     timeout=10000)
     backdrop._timer.stop()
-    yield host, backdrop, outer, inner
-    if isValid(backdrop):
-        backdrop._card_tints.invalidate()
+    try:
+        yield host, backdrop, outer, inner
+    finally:
+        if isValid(backdrop):
+            backdrop._card_tints.invalidate()
+        app.setStyleSheet(sheet)
 
 
 def _settle(qtbot, backdrop):

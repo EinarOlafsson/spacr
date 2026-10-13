@@ -257,10 +257,10 @@ def test_producer_keeps_previous_owned_frame_until_packed_alpha_is_restored(
     producer.publish(initial)
     original_publish = producer.publish
 
-    def publish(image):
+    def publish(image, composed=None):
         published_alpha.append(bool(np.all(np.frombuffer(image.constBits(), np.uint32)
                                           >> 24 == 255)))
-        original_publish(image)
+        original_publish(image, composed)
         published.set()
 
     monkeypatch.setattr(producer, 'publish', publish)

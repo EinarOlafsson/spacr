@@ -187,6 +187,10 @@ def _shade_ms(engine, clock):
     return statistics.median(spent)
 
 
+@pytest.mark.skipif(
+    sys.gettrace() is not None,
+    reason="wall-clock performance budgets require an uninstrumented process",
+)
 def test_a_colour_wave_frame_stays_within_a_few_plain_frames_at_1440p():
     _compiled_mixer()
     plain, waved = _engine(), _engine()
