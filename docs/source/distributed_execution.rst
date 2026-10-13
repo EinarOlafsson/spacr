@@ -54,6 +54,8 @@ Settings can be dragged onto the Distributed Jobs screen, selected with
 **Browse**, or handed off directly with **Submit remote…** in any ordinary
 module.
 
+.. _settings-files-from-the-gui:
+
 Settings files from the GUI
 ---------------------------
 

@@ -100,6 +100,19 @@ families cover continuous, fractional, binary and count responses, robust and
 quantile fits, penalised high-dimensional designs, mixed effects and guide
 permutation. Diagnostics and run summaries are written beside the result.
 
+``dependent_variable``, the response, is a drop-down of the numeric columns of
+the selected score file or files, with ``pred`` first when present. Identifier
+columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``,
+``objectID`` and ``count`` are not offered. The list is read from each file's
+header and its first 200 rows when the files change. A saved value that is not
+in the file is kept and flagged. ``pred`` is the probability a classifier
+writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to
+the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``.
+When a score file has no ``pred`` column, a note under the field says so,
+names those two outputs and lists the columns that can be used; spaCR does not
+pick a response for you. A run whose response is not a numeric column of the
+score file stops with the same list.
+
 Planning, quality control and exploration
 -----------------------------------------
 
@@ -180,6 +193,26 @@ Make Masks    Cellpose Workbench, Mask the whole folder, Model Compare,
 Parameter Sweep is reached a third way: it is a panel on the Regression
 screen, opened by the **Parameter sweep** switch on its settings form.
 
+Starting spaCR
+--------------
+
+spaCR opens with a black container holding the spaCR logo as a photomosaic.
+The logo holds still while the window loads, then the mosaic blows away tile
+by tile and the container fades to show the window. A click or a key skips
+it. The sequence is off when **Preferences → Animation → Startup animation**
+is cleared (the mosaic then shows without the animation), while **Reduce
+motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set
+to ``1`` (the mosaic is then not shown at all). **Help → Show startup
+animation** plays it again inside the open window, even when Startup
+animation is off; under Reduce motion the logo holds and then cross-fades
+away.
+
+The window opens **Borderless** by default: it has no title bar, fills the
+work area of its screen, and its menu bar moves it while the marks at the
+right end of the bar minimise, maximise and close it. Clear **Help → Window →
+Borderless window** to use the platform's own framed window instead. The
+choice is remembered.
+
 Picking up where you left off
 -----------------------------
 
@@ -196,6 +229,16 @@ Picking up where you left off
   closing, the next start asks once whether to restore them (drafts identical
   to the reopened session are not asked about). The same behaviour applies on
   Linux, macOS and Windows, because the store is Qt's own settings store.
+
+Settings files
+--------------
+
+**Export settings…**, next to **Import settings…** on every module screen,
+saves the form's current values as a settings CSV without running anything.
+On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a
+**Submit remote…** sent. Both write the file that ``spacr-run --settings``
+reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>`
+and :doc:`shortcuts_and_templates` for settings templates.
 
 Undo and redo
 -------------
@@ -215,6 +258,26 @@ settings panel, in the Gate Editor and in Annotate:
 The **Edit** menu has **Undo** and **Redo** for the editor on screen. They
 act on a focused text field first, otherwise on the screen's own history, and
 are greyed out when there is nothing to undo or redo.
+
+Gate Editor keys and overlapping elements
+-----------------------------------------
+
+While the Gate Editor has focus, these keys choose its drag mode and, in 3D,
+the plane or axis. They are listed under **Change shortcuts** with the scope
+*Gate Editor* and can be rebound there:
+
+- **Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;
+- **Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed
+  within 1.5 s of **Shift+S**, they choose the spin axis instead.
+
+Make Masks uses the same keys in its True 3D view. When a click lands on more
+than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under
+it are highlighted and listed at the top left of the graph under **Elements
+under the click**, in layer order with sheets before anchors; the top layer is
+blue and the others white. The click still grabs the first element. Click a
+row or press the Up and Down arrows to choose which element the next click on
+that overlap selects and moves. **Escape**, a click on empty space, leaving
+Edit, switching between 2D and 3D, or replacing the gate set closes the list.
 
 Running jobs
 ------------
@@ -385,6 +448,10 @@ Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by
 default; hold Ctrl while clicking to remove it. The
 :doc:`Make Masks reference <make_masks>` covers these tools, Levels,
 detection settings, primary/secondary pairing, saving and measurement.
+Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice
+slider and a View list of Default, Orthogonal and True 3D; electron
+micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See
+:ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.
 
 **Box** draws independent class-labelled rectangles for YOLO annotation.
 Move or resize a box, undo or redo edits, and use **Save boxes** to preserve

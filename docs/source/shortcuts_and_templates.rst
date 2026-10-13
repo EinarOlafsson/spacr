@@ -50,6 +50,9 @@ for example ``Toxo PVM, 40x``. Open a module with a settings panel and press
   template of the module already uses is refused.
 * **Delete** removes the selected template.
 
+**Export settings…** on a module screen saves the form as a settings CSV
+without running it; see :ref:`settings-files-from-the-gui`.
+
 Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per
 template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in
 another folder, for example a shared lab folder.

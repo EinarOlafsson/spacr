@@ -121,6 +121,13 @@ narration voices and captions. New English lessons can appear while their
 translations are being prepared. Open the library from the GUI through
 **Help → Tutorial**.
 
+From a terminal, ``spacr-tutorial`` lists the lessons by number, title and
+screen and then opens the library in your web browser. ``spacr-tutorial mask``
+opens one lesson, named by number, slug or screen; ``--list`` prints the lessons
+and opens nothing, and ``--print-url`` prints the address instead of opening a
+browser. A name that matches no lesson exits with code 2 and suggests close
+matches.
+
 
 Contents
 --------
