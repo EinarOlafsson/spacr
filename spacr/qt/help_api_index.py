@@ -8232,6 +8232,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.console_panel.ConsolePanel.shutdown', 'Cancel any active stream and block until its QThread has exited. Must be called before the panel (or its parent window) is destroyed — othe…'),
     ('spacr.qt.widgets.console_panel.ConsolePanel.split_sizes', 'Current ``[console_height, chat_height]`` in pixels.'),
     ('spacr.qt.widgets.console_panel.ConsolePanel.toggle_section', 'Scroll to the section first; fold it on a second click.'),
+    ('spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs', 'Lay out :data:`NOTICE_GLYPHS` once in the size new entries get.'),
     ('spacr.qt.widgets.console_panel.ai_color_for_provider', 'Return the spaCR-AI text colour for a provider name.'),
     ('spacr.qt.widgets.console_panel.color_error', 'Error colour for the theme on screen right now.'),
     ('spacr.qt.widgets.console_panel.color_output', 'Pipeline stdout colour for the theme on screen right now.'),

@@ -82141,6 +82141,15 @@
       "source_sha256": "164d65769e1a7cdc656a2bb8a673cbacc45fb6f0e78fa609a8c9a25c85fc2d14",
       "text": "Scroll to the section first; fold it on a second click.\n\nSections are created expanded, so a plain expanded/collapsed toggle\nwould hide the section on the first click without scrolling to it.\n\nA heading that is not already at the top of the viewport is therefore a\nrequest to scroll there, whatever its state. Only a heading already at\nthe top is collapsed by the click.\n\n:param bar: the topic bar (section heading) whose section is meant."
     },
+    "spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs": {
+      "source_blocks_sha256": [
+        "ab00dcb15c7638edc493f11851b6cb290410120b6692a2a30eca831eb791c411",
+        "7edd98869adc85c733aa9a157c5611855245922b4fd88772b55043d00c9b8091",
+        "2d63c86eb17c9de4e7fa9bf4f0b9ac9dce4c8f76eea25ec0f15506f39bac6fcf"
+      ],
+      "source_sha256": "4f6d7b8c898381df81d2706a32fd8220e0a37c0aa044d4deac0d7f555581ada9",
+      "text": "Lay out :data:`NOTICE_GLYPHS` once in the size new entries get.\n\nThe first \"→ Starting ...\" notice of a session cost 33 ms on the GUI\nthread, almost all of it Qt looking up a fallback font for the arrow\nat the console's size; the same text costs 0.5 ms after that. The\nlookup is cached per thread and per size, so it can only be done here,\non the GUI thread, ahead of the notice: a Run waiting on its\npipeline's import calls this while the busy bar is already showing.\nThe font is taken from a stand-in entry, because the one an entry\ndraws with carries the family list its sheet gives it, and a font\nthat differs only in that list is a different cache entry.\n\n:returns: whether a layout was made (``False`` when this size was\n    warmed before)."
+    },
     "spacr.qt.widgets.console_panel.__getattr__": {
       "source_blocks_sha256": [
         "4110aee1da10e6d9fa988ea6c74470a1b85192185aee8b13d791c14c5660bda9",

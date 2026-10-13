@@ -2508,6 +2508,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
                      "model_cards_api_arrivals_2026-10-12.json",
                      "mask_live_filter_debounce_api_arrivals_2026-10-13.json",
+                     "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4038,6 +4039,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in debounce_additions} == debounce_additions
     assert not debounce_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **debounce_additions}
+    # 2026-10-13: ConsolePanel.warm_notice_glyphs (71a7563af) lays out the notice glyphs ahead of a first Run; one named contract.
+    warm_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text())
+    assert len(warm_additions) == 1
+    assert {key: docs[key] for key in warm_additions} == warm_additions
+    assert not warm_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **warm_additions}
     # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
     dna_rain_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
@@ -4431,6 +4439,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
                      "model_cards_api_arrivals_2026-10-12.json",
                      "mask_live_filter_debounce_api_arrivals_2026-10-13.json",
+                     "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4470,6 +4479,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
                      "model_cards_api_arrivals_2026-10-12.json",
                      "mask_live_filter_debounce_api_arrivals_2026-10-13.json",
+                     "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
