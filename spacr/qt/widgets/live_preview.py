@@ -1323,6 +1323,42 @@ def _apply_size_filter(mask: np.ndarray,
     ).astype(mask.dtype)
 
 
+FILTER_DEBOUNCE_MS = 275
+"""How long the live preview waits after the last filter edit before it
+re-filters. Typing ``510`` into a minimum-area box used to re-filter, redraw
+and propagate three times, about half a second each on a 2000 x 2000 field,
+on the GUI thread; the tutorial capture of lesson 07 froze for that second."""
+
+
+def _filter_preview_masks(raw: Dict[str, np.ndarray],
+                          post: Dict[str, Any],
+                          intensities: Dict[str, np.ndarray],
+                          render: Optional[Dict[str, Any]] = None
+                          ) -> Dict[str, Any]:
+    """Filter the cached raw masks and, when asked, draw their overlay.
+
+    Pure: it reads only its arguments, so it is safe on a worker thread.
+
+    :param raw: the cached Cellpose masks by compartment.
+    :param post: the settings the filters read.
+    :param intensities: each compartment's own intensity plane.
+    :param render: the :func:`overlay_masks` arguments without ``masks``,
+        or ``None`` to skip drawing.
+    :returns: ``{"masks": ..., "overlay": ...}``, or ``{"error": exc}``
+        when filtering or drawing raised.
+    """
+    try:
+        out = {obj: _apply_size_filter(mask, post, obj,
+                                       intensity_img=intensities.get(obj))
+               for obj, mask in raw.items()}
+        overlay = None
+        if render is not None:
+            overlay = overlay_masks(masks=out, **render)
+    except Exception as exc:
+        return {"error": exc}
+    return {"masks": out, "overlay": overlay}
+
+
 
 #: How far the pointer may travel and still count as a click rather than a
 #: drag. This view pans with the left button, so without a slop threshold
@@ -2087,6 +2123,20 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                                      user_visible=False)
         self._image_load_token: int = 0
         self._run_token: int = 0
+        self._filter_jobs = JobRunner(self, threaded=threaded,
+                                      app_key="preview filter",
+                                      user_visible=False)
+        self._filter_token: int = 0
+        self._canvas_epoch: int = 0
+        self._filter_debounce_ms: int = FILTER_DEBOUNCE_MS if threaded else 0
+        self._filter_timer = QTimer(self)
+        self._filter_timer.setSingleShot(True)
+        self._filter_timer.timeout.connect(self._start_filter_job)
+        self._propagate_timer = QTimer(self)
+        self._propagate_timer.setSingleShot(True)
+        self._propagate_timer.timeout.connect(self._propagate_now)
+        self._propagation_waiting = False
+        self._filter_jobs.job_finished.connect(self._after_filter_job)
         self._propagate_cb = None
         self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
         self._loading_fov = False
@@ -2726,7 +2776,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 signal.disconnect()
             drain_thread(worker, timeout_ms=0)
             self._worker = None
-        for name in ("_load_jobs", "_model_jobs"):
+        self._filter_timer.stop()
+        self._filter_token += 1
+        self.flush_propagation()
+        for name in ("_load_jobs", "_model_jobs", "_filter_jobs"):
             runner = getattr(self, name, None)
             if runner is not None:
                 runner.shutdown()
@@ -3586,6 +3639,44 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 return {"plaque_model": model}
         return {}
 
+    def schedule_propagation(self, *_args) -> None:
+        """Propagate once the user stops editing, not on every keystroke.
+
+        Writing ``object_filters`` into the main panel redraws its object
+        grid, 10 to 30 ms a time. :meth:`flush_propagation` sends a pending
+        push at once; the dialog calls it when an edit finishes or the
+        toggle goes off, so a run never starts from stale settings.
+        """
+        if self._filter_debounce_ms <= 0:
+            self.propagate_settings()
+            return
+        self._propagate_timer.start(self._filter_debounce_ms)
+
+    def flush_propagation(self, *_args) -> None:
+        """Send a propagation that is still waiting out its delay."""
+        if self._propagate_timer.isActive() or self._propagation_waiting:
+            self._propagate_timer.stop()
+            self._propagation_waiting = False
+            self.propagate_settings()
+
+    def _propagate_now(self) -> None:
+        """The delayed push, held back while a filter job is running.
+
+        The two share the interpreter; run together, the push took twice as
+        long. It goes out when the job settles, see
+        :meth:`_after_filter_job`.
+        """
+        if self._filter_jobs.is_busy():
+            self._propagation_waiting = True
+            return
+        self.propagate_settings()
+
+    def _after_filter_job(self, _ok: bool = True) -> None:
+        """Send a push that waited for the filter jobs to settle."""
+        if self._propagation_waiting and not self._filter_jobs.is_busy():
+            self._propagation_waiting = False
+            self.propagate_settings()
+
     def propagate_settings(self) -> None:
         """Send the current live settings to the main panel (if a callback is
         registered). Called on any live-settings change while the dialog's
@@ -3866,6 +3957,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         The guard, the refusals and the busy state are the shared ones —
         see :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`.
         """
+        self.flush_propagation()
         if not self.begin_preview():
             return
         self._release_worker()
@@ -4047,7 +4139,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                                  self._pathogen_channel,
                                  self._organelle_channel):
             _channel_spinner.valueChanged.connect(
-                lambda *_: self._recompute_masks())
+                lambda *_: self._schedule_recompute())
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
             "intensity range for the chosen object's channel.")
@@ -4142,8 +4234,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             for sig_name in ("valueChanged", "currentTextChanged", "toggled"):
                 sig = getattr(w, sig_name, None)
                 if sig is not None:
+                    typed = sig_name == "valueChanged"
                     try:
-                        sig.connect(lambda *_: self._recompute_masks())
+                        sig.connect(
+                            lambda *_, debounce=typed:
+                            self._schedule_recompute(debounce=debounce))
                     except (TypeError, RuntimeError):
                         pass
 
@@ -4155,7 +4250,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if text_edited or self._widget_value(widget) != remembered[0]:
             self._clamped_on_seeding.pop(id(widget))
             if text_edited:
-                self._recompute_masks()
+                self._schedule_recompute()
 
     def _all_compartment_widgets(self) -> List[QWidget]:
         """Collect every control the Live Settings dialog manages.
@@ -4902,6 +4997,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _refresh_canvases(self):
         """Re-render both views from the current image + masks."""
+        self._canvas_epoch += 1
         if self._image is None:
             return
         norm = self._normalise_check.isChecked()
@@ -5176,34 +5272,63 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _recompute_masks(self, snapshot: bool = False) -> None:
         """Re-apply the current per-compartment filters to the cached raw
-        masks and refresh the views — no Cellpose re-run. Called both after a
-        preview and whenever a filter widget changes."""
+        masks and refresh the views — no Cellpose re-run. Runs on the
+        calling thread; edits go through :meth:`_schedule_recompute`. A
+        filter job still in flight is superseded, so it cannot overwrite
+        what this installs."""
+        self._filter_timer.stop()
+        self._filter_token += 1
         raw = getattr(self, "_raw_masks", None)
         if not raw:
             return
         if snapshot:
             self._roll_auto_outline_colours()
         try:
-            if self._image is None:
-                raise ValueError(self.PREVIEW_SOURCE_HINT)
-            post = dict(self._settings)
-            if hasattr(self, "_compartment_widgets"):
-                post.update(self._compartment_settings())
-            out = {}
-            for obj, raw_mask in raw.items():
-                intensity = _select_channel(self._image, self._obj_channel(obj))
-                out[obj] = _apply_size_filter(raw_mask, post, obj,
-                                              intensity_img=intensity)
+            post, intensities = self._filter_inputs()
+            out = {obj: _apply_size_filter(raw_mask, post, obj,
+                                           intensity_img=intensities[obj])
+                   for obj, raw_mask in raw.items()}
         except Exception as exc:
-            LOG.debug("preview filtering failed", exc_info=True)
-            self._masks = {}
-            self._status.setText(preview_failure_message(exc))
-            if self._image is None:
-                self._mask_view.set_pixmap(QPixmap())
-            else:
-                self._refresh_canvases()
-            self.preview_ready.emit(None)
+            self._filtering_failed(exc)
             return
+        self._install_filtered(out, snapshot=snapshot)
+
+    def _filter_inputs(self):
+        """What the filters read, gathered on the GUI thread.
+
+        :returns: ``(settings, intensity plane by compartment)``.
+        :raises ValueError: when no image is loaded.
+        """
+        if self._image is None:
+            raise ValueError(self.PREVIEW_SOURCE_HINT)
+        post = dict(self._settings)
+        if hasattr(self, "_compartment_widgets"):
+            post.update(self._compartment_settings())
+        intensities = {obj: _select_channel(self._image,
+                                            self._obj_channel(obj))
+                       for obj in self._raw_masks}
+        return post, intensities
+
+    def _filtering_failed(self, exc: Exception) -> None:
+        """Show a filter failure and clear the masks it would have made."""
+        LOG.debug("preview filtering failed", exc_info=exc)
+        self._masks = {}
+        self._status.setText(preview_failure_message(exc))
+        if self._image is None:
+            self._mask_view.set_pixmap(QPixmap())
+        else:
+            self._refresh_canvases()
+        self.preview_ready.emit(None)
+
+    def _install_filtered(self, out, *, snapshot: bool = False,
+                          overlay: Optional[np.ndarray] = None) -> None:
+        """Show filtered masks: the counts, the views and the signal.
+
+        :param out: the filtered masks by compartment.
+        :param snapshot: also record the run for comparison.
+        :param overlay: the overlay a filter job already drew, shown as the
+            mask view instead of drawing both views again.
+        """
         self._masks = out
         counts = [f"{k}={int(v.max() if v.size else 0)}"
                     for k, v in out.items()]
@@ -5219,11 +5344,100 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 'Enhancement: {steps} (preview field).',
                 steps=', '.join(step for step in enhancement
                                 if step != 'order')))
-        self._refresh_canvases()
+        if overlay is not None:
+            self._mask_view.set_picture_name("overlay")
+            self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
+        else:
+            self._refresh_canvases()
         if snapshot:
             self._snapshot_run(out, counts)
         self.preview_ready.emit(out)
 
+    def _schedule_recompute(self, debounce: bool = True) -> None:
+        """Re-filter after an edit, off the GUI thread.
+
+        A typed value waits :data:`FILTER_DEBOUNCE_MS` for the next
+        keystroke, so ``510`` filters once rather than three times; a toggle
+        or a choice starts at once.
+
+        :param debounce: wait for the edit to settle first.
+        """
+        if not getattr(self, "_raw_masks", None):
+            return
+        if debounce and self._filter_debounce_ms > 0:
+            self._filter_timer.start(self._filter_debounce_ms)
+            return
+        self._start_filter_job()
+
+    def _overlay_arguments(self) -> Optional[Dict[str, Any]]:
+        """What :func:`overlay_masks` needs besides the masks, or ``None``.
+
+        ``None`` when the mask view shows something other than the overlay;
+        those views are drawn on the GUI thread as before.
+        """
+        if self._view_mode_choice() != "Overlay":
+            return None
+        return {
+            "image": self._display_image(),
+            "outline_rgb": self._outline_rgb(),
+            "outline_thickness": self._outline_thickness.value(),
+            "normalise": self._normalise_check.isChecked(),
+            "lo_pct": float(self._lo_pct.value()),
+            "hi_pct": float(self._hi_pct.value()),
+            "random_outline": self._outline_choice() == "color (random)",
+            "outline_colors": dict(self._auto_outline_map()),
+            "primaries": self.display_primaries(),
+        }
+
+    def _start_filter_job(self) -> None:
+        """Hand the filtering, and the overlay it feeds, to a worker.
+
+        Only the inputs are gathered here. The result comes back through
+        :meth:`_on_filter_result`, which drops it when newer edits have
+        superseded it.
+        """
+        self._filter_timer.stop()
+        raw = getattr(self, "_raw_masks", None)
+        if not raw:
+            return
+        if self._image is None:
+            self._recompute_masks()
+            return
+        self._filter_token += 1
+        token = self._filter_token
+        try:
+            post, intensities = self._filter_inputs()
+            render = self._overlay_arguments()
+        except Exception as exc:
+            self._filtering_failed(exc)
+            return
+        epoch = self._canvas_epoch
+        raw = dict(raw)
+        self._filter_jobs.submit(
+            lambda: _filter_preview_masks(raw, post, intensities, render),
+            lambda result, _t=token, _e=epoch: self._on_filter_result(
+                _t, _e, result))
+
+    def _on_filter_result(self, token: int, epoch: int, result) -> None:
+        """Install a filter job's result unless newer edits replaced it.
+
+        :param token: the job's filter token; a stale one is dropped.
+        :param epoch: :attr:`_canvas_epoch` when the job started. If the
+            views were redrawn since, the job's overlay may use an old
+            colour or channel, so both views are drawn again instead.
+        :param result: what :func:`_filter_preview_masks` returned.
+        """
+        if token != self._filter_token:
+            LOG.debug("dropping stale filter result (token %s, now %s)",
+                      token, self._filter_token)
+            return
+        if "error" in result:
+            self._filtering_failed(result["error"])
+            return
+        overlay = result.get("overlay")
+        if epoch != self._canvas_epoch:
+            overlay = None
+        self._install_filtered(result["masks"], overlay=overlay)
 
     def _snapshot_run(self, masks, counts) -> None:
         """Record a preview run (image + masks + display params) so the user
@@ -5603,13 +5817,24 @@ class LiveSettingsDialog(QDialog):
                     continue
                 try:
                     if on:
-                        sig.connect(self._panel.propagate_settings)
+                        sig.connect(self._panel.schedule_propagation)
                     else:
-                        sig.disconnect(self._panel.propagate_settings)
+                        sig.disconnect(self._panel.schedule_propagation)
+                except (TypeError, RuntimeError):
+                    pass
+            finished = getattr(w, "editingFinished", None)
+            if finished is not None:
+                try:
+                    if on:
+                        finished.connect(self._panel.flush_propagation)
+                    else:
+                        finished.disconnect(self._panel.flush_propagation)
                 except (TypeError, RuntimeError):
                     pass
         if on:
             self._panel.propagate_settings()
+        else:
+            self._panel.flush_propagation()
 
     def _managed_widgets(self):
         """List the panel controls this dialog re-parents.

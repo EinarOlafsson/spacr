@@ -9537,6 +9537,7 @@ class SettingsWidgets:
         """
         self.app_key = app_key
         self._parent = parent
+        self._collect_hooks: List[Callable[[], None]] = []
         self._unmounted_control_owner = None
         if parent is not None:
             self._unmounted_control_owner = QWidget(parent)
@@ -10920,12 +10921,28 @@ class SettingsWidgets:
                     raise ValueError("Invalid numeric list item")
         return value
 
+    def add_collect_hook(self, hook: Callable[[], None]) -> None:
+        """Call ``hook`` at the start of every :meth:`collect`.
+
+        A Live Preview holds a typed value back until the typing pauses;
+        its hook writes that value in first, so a run started inside the
+        pause reads it.
+
+        :param hook: a callable taking no arguments.
+        """
+        self._collect_hooks.append(hook)
+
     def collect(self) -> Dict[str, Any]:
         """Read all widgets and return the current settings dict.
 
         A control still waiting for its category to be opened is read
         without being built; see :meth:`_read_value`.
         """
+        for hook in list(self._collect_hooks):
+            try:
+                hook()
+            except Exception:
+                LOGGER.debug("a collect hook failed", exc_info=True)
         out: Dict[str, Any] = {}
         for key in self._widgets:
             out[key] = self._canonical(

@@ -7516,6 +7516,9 @@ class AppScreen(QWidget):
         panel = _fill_live_preview_card(self, self._live_preview_card)
         self._live_preview = panel
         panel.set_propagate_callback(self._propagate_live_settings)
+        model = getattr(self, "_settings_model", None)
+        if model is not None:
+            model.add_collect_hook(panel.flush_propagation)
         waiting = self.__dict__.pop("_live_src_waiting", None)
         if waiting is not None:
             self._autoload_live_preview(waiting)
