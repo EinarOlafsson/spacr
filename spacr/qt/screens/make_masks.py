@@ -514,6 +514,7 @@ OTSU_HISTOGRAM_BINS = 256
 #: than believed.
 SHORTCUT_HINTS = (
     ("Shift or Alt + drag", "Pan, from any tool"),
+    ("Brush: Shift + drag", "Keep painting the last object across a gap"),
     ("Wheel", "Zoom about the cursor"),
     ("Right button", "Sweep away the objects it passes"),
     ("Ctrl + left click", "Split the object at its waist"),
@@ -1437,6 +1438,21 @@ class _MaskCanvas(QLabel):
         self._gesture_button = None
         self.manual_ids = False
         self._brush_value = 255
+        #: The label the last brush stroke on this field painted, or None.
+        #: A Shift stroke paints it again (item 697).
+        self._stroke_label: Optional[int] = None
+        #: The open brush stroke still paints a label of its own that it
+        #: gives up for the first object it touches.
+        self._stroke_pending = False
+        #: The open brush stroke was started with Shift and continues
+        #: :attr:`_stroke_label`.
+        self._stroke_shift = False
+        #: Where the continued label lay before a Shift stroke, as a boolean
+        #: mask, or None; and whether the stroke has reached it yet.
+        self._stroke_origin: Optional[np.ndarray] = None
+        self._stroke_joined = False
+        #: What :attr:`volume_neighbours` returned when the open stroke began.
+        self._stroke_context = None
 
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"background: {active_palette()['bg']};")
@@ -1463,6 +1479,11 @@ class _MaskCanvas(QLabel):
         #: While a volume is open: what the brush paints, as a callable
         #: returning the chosen 3-D object ID; None paints as in 2-D.
         self.volume_label = None
+        #: While a volume is open: a callable returning ``(free, sections)``,
+        #: the first object ID the volume does not use and the label
+        #: sections on either side of the one shown, shaped as it is. A brush
+        #: stroke touching an object in one of them extends that object.
+        self.volume_neighbours = None
         #: While the Z wheel is on: called with +1 or -1 per wheel notch to
         #: change the slice instead of zooming.
         self.slice_wheel = None
@@ -1505,6 +1526,7 @@ class _MaskCanvas(QLabel):
         self._gesture_points = []
         self._gesture_button = None
         self.manual_ids = False
+        self._stroke_label = None
         self.recrop_boxes = []
         self._inverted = self._inverted_of = None
         self._bounds_cache = None
@@ -2955,7 +2977,7 @@ class _MaskCanvas(QLabel):
             return
 
         if event.button() == Qt.LeftButton and (
-                event.modifiers() & PAN_MODIFIERS):
+                event.modifiers() & self._pan_modifiers()):
             self._pan_from = event.position().toPoint()
             self.setCursor(Qt.ClosedHandCursor)
             return
@@ -2994,12 +3016,7 @@ class _MaskCanvas(QLabel):
             return
 
         if self.mode == MODE_BRUSH:
-            self._brush_value = int(engine.next_label(self.mask)) if self.manual_ids else 255
-            if self.volume_label is not None:
-                self._brush_value = int(self.volume_label())
-            if self.manual_ids or self.volume_label is not None:
-                self.mask = self.mask.astype(np.result_type(
-                    self.mask.dtype, np.min_scalar_type(self._brush_value)), copy=False)
+            self._begin_brush_stroke(pt, bool(event.modifiers() & Qt.ShiftModifier))
         self._emit_stroke_start()
 
         if self.mode == MODE_ERASE_OBJECT:
@@ -3010,10 +3027,154 @@ class _MaskCanvas(QLabel):
             return
 
         radius = self._mask_radius_for_brush()
-        value = self._brush_value if self.mode == MODE_BRUSH else 0
-        engine.paint_disk(self.mask, pt[0], pt[1], radius, value)
+        self._stamp(pt[0], pt[1], pt[0], pt[1], radius)
         self._last_pt = QPoint(*pt)
         self.refresh()
+
+    def _pan_modifiers(self):
+        """The modifiers that turn a left drag into a pan with this tool.
+
+        Shift or Alt, except with the Brush, where Shift keeps painting the
+        last object across a gap (item 697) and only Alt pans.
+        """
+        return Qt.AltModifier if self.mode == MODE_BRUSH else PAN_MODIFIERS
+
+    def _begin_brush_stroke(self, pt, shift: bool) -> None:
+        """Choose the label a brush stroke starting at ``pt`` paints.
+
+        THE RULE (item 697). A Shift stroke paints the current label: the
+        chosen object of an open volume, or the label the last stroke on
+        this field painted. Otherwise a stroke that starts on an object
+        extends it, and one that starts on background paints the next free
+        label until it first touches an object -- one of its pixels
+        8-connected (26-connected in a volume, through the sections on
+        either side) to an object pixel -- and from then on extends that
+        object. Only the first object touched is taken: a stroke reaching
+        a second one paints over its edge and never merges the two, which
+        stays the Divide / Merge tool's job.
+
+        A binary mask (every object 255) carries no identities to extend,
+        so it is first numbered by connected component, as saving it would.
+
+        :param pt: image coordinates of the press.
+        :param shift: whether Shift was held.
+        """
+        volume = self.volume_label is not None
+        if not volume and not self.retain_label_ids():
+            top = int(self.mask.max()) if self.mask.size else 0
+            if top == 255 and not np.any((self.mask != 0) & (self.mask != 255)):
+                self.mask = engine._fit_label_width(
+                    engine.canonical_labels(self.mask).astype(np.int64), self.mask)
+        self._stroke_context = (self.volume_neighbours()
+                                if self.volume_neighbours is not None else None)
+        current = int(self.volume_label()) if volume else self._stroke_label
+        under = int(self.mask[pt[1], pt[0]])
+        self._stroke_shift = bool(shift and current)
+        self._stroke_pending = False
+        self._stroke_origin = None
+        self._stroke_joined = False
+        if self._stroke_shift:
+            value = int(current)
+            self._stroke_origin = self.mask == value
+            self._stroke_joined = bool(self._stroke_origin[pt[1], pt[0]])
+        elif under:
+            value = under
+        else:
+            value = self._free_label()
+            self._stroke_pending = True
+        self._brush_value = value
+        self.mask = self.mask.astype(np.result_type(
+            self.mask.dtype, np.min_scalar_type(value)), copy=False)
+
+    def _free_label(self) -> int:
+        """The label a stroke on background paints: unused here and in the volume."""
+        if self._stroke_context is not None:
+            return max(int(self._stroke_context[0]), 1)
+        return int(engine.next_label(self.mask))
+
+    def _stroke_sections(self):
+        """The label sections beside the shown one in an open volume, or ()."""
+        if self._stroke_context is None:
+            return ()
+        return tuple(self._stroke_context[1])
+
+    def _stamp(self, x0, y0, x1, y1, radius) -> None:
+        """Paint or erase one segment of the open stroke, from (x0, y0) to (x1, y1).
+
+        With the Brush, the pixels the segment newly painted are compared
+        with what lay under and beside them (8-connected, plus the volume's
+        neighbouring sections) to settle a pending label or to note that a
+        Shift stroke has reached its object; see :meth:`_begin_brush_stroke`.
+        """
+        value = self._brush_value if self.mode == MODE_BRUSH else 0
+        track = self.mode == MODE_BRUSH and (
+            self._stroke_pending or (self._stroke_shift and not self._stroke_joined))
+        if not track:
+            if (x0, y0) == (x1, y1):
+                engine.paint_disk(self.mask, x1, y1, radius, value)
+            else:
+                engine.paint_line(self.mask, x0, y0, x1, y1, radius, value)
+            return
+        r = max(1, int(radius))
+        h, w = self.mask.shape[:2]
+        rows = slice(max(0, min(y0, y1) - r - 1), min(h, max(y0, y1) + r + 1))
+        cols = slice(max(0, min(x0, x1) - r - 1), min(w, max(x0, x1) + r + 1))
+        before = np.array(self.mask[rows, cols], copy=True)
+        if (x0, y0) == (x1, y1):
+            engine.paint_disk(self.mask, x1, y1, radius, value)
+        else:
+            engine.paint_line(self.mask, x0, y0, x1, y1, radius, value)
+        painted = (self.mask[rows, cols] == value) & (before != value)
+        if not painted.any():
+            return
+        reach = painted.copy()
+        reach[1:, :] |= painted[:-1, :]
+        reach[:-1, :] |= painted[1:, :]
+        grown = reach.copy()
+        grown[:, 1:] |= reach[:, :-1]
+        grown[:, :-1] |= reach[:, 1:]
+        sections = [np.asarray(section)[rows, cols] for section in self._stroke_sections()]
+        if self._stroke_shift:
+            self._stroke_joined = bool(
+                self._stroke_origin[rows, cols][grown].any()
+                or any(np.any(section[grown] == value) for section in sections))
+            return
+        best = None
+        for labels in (before, *sections):
+            hit = grown & (labels != 0) & (labels != value)
+            if not hit.any():
+                continue
+            ys, xs = np.nonzero(hit)
+            far = (ys + rows.start - y0) ** 2 + (xs + cols.start - x0) ** 2
+            for index in np.lexsort((labels[ys, xs], far)):
+                candidate = (int(far[index]), int(labels[ys[index], xs[index]]))
+                if best is None or candidate < best:
+                    best = candidate
+                break
+        if best is None:
+            return
+        label = best[1]
+        self.mask[self.mask == value] = label
+        self._brush_value = label
+        self._stroke_pending = False
+
+    def _end_brush_stroke(self) -> None:
+        """Settle the brush stroke that is ending: remember its label.
+
+        A Shift stroke that never reached the object it continued has drawn
+        a separate piece of it on purpose. On a 2-D field that grouping is
+        kept like a merge, through :attr:`manual_ids`, so saving does not
+        split the pieces into objects of their own again.
+        """
+        if self.mode != MODE_BRUSH:
+            return
+        if (self._stroke_shift and not self._stroke_joined
+                and self.volume_label is None
+                and self._stroke_origin is not None and self._stroke_origin.any()):
+            self.manual_ids = True
+        self._stroke_label = int(self._brush_value)
+        self._stroke_pending = self._stroke_shift = False
+        self._stroke_origin = self._stroke_context = None
 
     def _wand_edit_at(self, pt, *, action):
         """Apply one bounded intensity-region edit with the Wand settings.
@@ -3193,15 +3354,16 @@ class _MaskCanvas(QLabel):
             pt = self._canvas_to_image(event.position().x(), event.position().y())
             if pt is None:
                 return
+            if self.mode == MODE_BRUSH and not self._stroke_in_progress:
+                self._begin_brush_stroke(
+                    pt, bool(event.modifiers() & Qt.ShiftModifier))
             self._emit_stroke_start()
             radius = self._mask_radius_for_brush()
-            value = self._brush_value if self.mode == MODE_BRUSH else 0
             if self._last_pt is not None:
-                engine.paint_line(self.mask,
-                                    self._last_pt.x(), self._last_pt.y(),
-                                    pt[0], pt[1], radius, value)
+                self._stamp(self._last_pt.x(), self._last_pt.y(),
+                            pt[0], pt[1], radius)
             else:
-                engine.paint_disk(self.mask, pt[0], pt[1], radius, value)
+                self._stamp(pt[0], pt[1], pt[0], pt[1], radius)
             self._last_pt = QPoint(*pt)
             self.refresh()
 
@@ -3301,6 +3463,8 @@ class _MaskCanvas(QLabel):
             return
         if self._last_pt is not None:
             self._last_pt = None
+        if self._stroke_in_progress:
+            self._end_brush_stroke()
         self._emit_stroke_end(
             kind="erase" if self.mode == MODE_ERASE else "paint",
             target=(0 if self.mode == MODE_ERASE else self._brush_value),
@@ -9408,6 +9572,7 @@ class _VolumeStage(QWidget):
         for widget in (self._strip, self._rail, self.view_picker):
             widget.show()
         self.canvas.volume_label = self.draw_label
+        self.canvas.volume_neighbours = partial(self._stroke_context, self.canvas)
         self._wheel_toggled(self._z_wheel.isChecked())
         self.refresh(reset=True)
         self.set_view('default')
@@ -9428,6 +9593,8 @@ class _VolumeStage(QWidget):
         self.view = 'default'
         self._pages.setCurrentWidget(self._slices)
         self.canvas.volume_label = self.canvas.slice_wheel = self.canvas.crosshair = None
+        for view in (self.canvas, self._xz, self._yz):
+            view.volume_neighbours = None
 
     def shutdown(self):
         """Cancel any running 3-D edit as the screen closes."""
@@ -9588,7 +9755,28 @@ class _VolumeStage(QWidget):
                                 else MODE_NONE)
                 watched.brush_radius = self.canvas.brush_radius
                 watched.volume_label = self.draw_label
+                watched.volume_neighbours = partial(self._stroke_context, watched)
         return super().eventFilter(watched, event)
+
+    def _stroke_context(self, view):
+        """What a brush stroke in ``view`` needs to know about the volume.
+
+        :param view: the canvas the stroke is drawn on.
+        :returns: ``(free, sections)``: the first object ID the volume does
+            not use, and the label sections on either side of the one
+            ``view`` shows, shaped as it shows them.
+        """
+        session = self.session
+        if session is None:
+            return 1, ()
+        axis = {id(self._xz): 'Y', id(self._yz): 'X'}.get(id(view), 'Z')
+        index = self._cursor['XYZ'.index(axis)]
+        sections = []
+        for near in (index - 1, index + 1):
+            if 0 <= near < session.section_count(axis):
+                labels = np.asarray(session._section(session.mask, axis, near))
+                sections.append(labels.T if axis == 'X' else labels)
+        return self._next, tuple(sections)
 
     def _aim(self, view, position):
         """Move the crosshair to the voxel under ``position`` in ``view``."""
@@ -9619,9 +9807,11 @@ class _VolumeStage(QWidget):
         if axis == 'X':
             edited = edited.T
         label = self.draw_label()
+        view = {'Y': self._xz, 'X': self._yz}.get(axis, self.canvas)
+        stroke = view._stroke_label if view.mode == MODE_BRUSH else None
         try:
             count = self.session.replace_plane(axis, self._cursor['XYZ'.index(axis)], edited,
-                                               keep=(label,))
+                                               keep=(label,) if stroke is None else (label, stroke))
         except ValueError as exc:
             self._say(str(exc))
             count = 0
@@ -9629,7 +9819,9 @@ class _VolumeStage(QWidget):
             self._say(tr('Updated {n} voxels in the volume.', n=count))
         if count:
             self.dirty = True
-            if not self._selected and np.any(edited == label):
+            if stroke is not None and np.any(edited == stroke):
+                self._selected = stroke
+            elif not self._selected and np.any(edited == label):
                 self._selected = label
         self.refresh()
         return count
@@ -12342,6 +12534,11 @@ class MakeMasksScreen(QWidget):
             from ..i18n import tr
 
             btn = QPushButton(tr(label))
+            if mode == MODE_BRUSH:
+                btn.setToolTip(tr(
+                    "Each separate stroke paints a new object; a stroke that "
+                    "starts on or touches an object extends it. Hold Shift "
+                    "to keep painting the last object across a gap."))
             if mode == MODE_WAND_ADD:
                 btn.setToolTip(tr("Click to add an intensity region. Hold Ctrl and click to remove it."))
             if mode == MODE_DIVIDE:
