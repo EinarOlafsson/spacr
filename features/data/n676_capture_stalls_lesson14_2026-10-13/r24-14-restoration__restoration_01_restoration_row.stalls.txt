@@ -1,0 +1,47 @@
+--- GUI thread stalled 0.40 s at clip second 15.81 ---
+Current thread 0x000078e69b356640 (most recent call first):
+  File "tools/tutorials/capture_host_mode.py", line 274 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000078e69a354640 (most recent call first):
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 363 in wait
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 660 in wait
+  File "spacr/qt/widgets/ambient.py", line 9289 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000078e7e13ff640 (most recent call first):
+  File "spacr/qt/widgets/ambient.py", line 7846 in _flicker_field_dots
+  File "spacr/qt/widgets/ambient.py", line 7070 in _point_material
+  File "spacr/qt/widgets/ambient.py", line 7826 in _frame_impulse_lens
+  File "spacr/qt/widgets/ambient.py", line 7224 in _shade
+  File "spacr/qt/widgets/ambient.py", line 7235 in shade
+  File "spacr/qt/widgets/ambient.py", line 9270 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000078e8276844c0 (most recent call first):
+  File "spacr/qt/mask_engine.py", line 2292 in _stretch_between
+  File "spacr/qt/screens/make_masks.py", line 1702 in refresh
+  File "spacr/qt/screens/make_masks.py", line 3119 in resizeEvent
+  File "spacr/qt/screens/make_masks.py", line 2425 in event
+  File "spacr/qt/screens/make_masks.py", line 18233 in _open_folder
+  File "spacr/qt/screens/make_masks.py", line 17817 in _on_pick_folder
+  File "tools/tutorials/capture_host_adapter.py", line 131 in once
+  File "tools/tutorials/capture_host_adapter.py", line 136 in run
+  File "tools/tutorials/capture_host_adapter.py", line 377 in mouseClick
+  File "tools/tutorials/capture_restoration.py", line 62 in record_restoration
+  File "tools/tutorials/capture_ui_drv_e.py", line 51 in run
+  File "tools/tutorials/capture_refresh.py", line 1049 in main
+  File "tools/tutorials/capture_host_mode.py", line 556 in driver
+  File "tools/tutorials/human_input.py", line 537 in run
+  File "spacr/qt/app.py", line 8035 in launch
+  File "spacr/qt/__init__.py", line 425 in run
+  File "tools/tutorials/capture_host_mode.py", line 592 in run_child
+  File "tools/tutorials/run_native_capture.py", line 262 in gnome_child
+  File "tools/tutorials/run_native_capture.py", line 194 in main
+  File "tools/tutorials/run_native_capture.py", line 270 in <module>
