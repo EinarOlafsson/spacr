@@ -37,7 +37,8 @@
   {
     "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks-b/captures/cellpose_masks/host_gate_summary.json",
     "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks-b/host_gate_summary.json",
-    "sha256": "e44ff619f103f6b147923ef87f28e71fb88b847777a1c1536ad2acd8c079107b"
+    "sha256": "e44ff619f103f6b147923ef87f28e71fb88b847777a1c1536ad2acd8c079107b",
+    "source_snapshot_note": "Archived before reference retry; helper later added only accepted_near_miss: []. Original snapshot retained."
   },
   {
     "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks-b/captures/cellpose_masks/02_actual_train_and_apply_tabs.gate.json",
@@ -58,5 +59,45 @@
     "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks-b/captures/cellpose_masks/02_actual_train_and_apply_tabs.stalls.txt",
     "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks-b/02_actual_train_and_apply_tabs.stalls.txt",
     "sha256": "06cc5ca5c2fefa54bcc34fcce803668d7926caff7cf13aa93d1815cf7da7cd13"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/verification_run_retry.json",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks/verification_run_retry.json",
+    "sha256": "9f6978cba13f6fbd02cbb4a7278de92e69d1d8dc4fe32fec0738c7e0621af1e8"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/independent_reference.json",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks/independent_reference.json",
+    "sha256": "d379d7a839c6d6ab0b8ec377851a494c66a8459ba5d54bd922d24752c50c1bc8"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks-b/captures/cellpose_masks/verification_run_retry.json",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks-b/verification_run_retry.json",
+    "sha256": "0a6dc63ba76e10ccf2c5412adc1c8a45b21a8ce75d93c25e1761e576e8833c19"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks-b/captures/cellpose_masks/independent_reference.json",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks-b/independent_reference.json",
+    "sha256": "b2ea553343ad6a5c0c32e96af79fb5b775a0e88a249810cac29fe0ba0498d720"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-preflight/telemetry-replay/r28-20-cellpose_masks.json",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks/opening_telemetry_replay.json",
+    "sha256": "b1917074d478c2322c34dbe6c74db830f842930f27163b4e169823f0a034bc59"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-preflight/telemetry-replay/r28-20-cellpose_masks-b.json",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks-b/opening_telemetry_replay.json",
+    "sha256": "8a5b12e431a1dafa3a99dc4ab055d6f0de2f2229eb112ce387cffbbbf9affdba"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/spacr-capture-telemetry-20261013/.pytest_cache/telemetry-verification-20261013.log",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/telemetry_test_run_summaries.txt",
+    "sha256": "e45d5a37b67b7cfd55554086a36bfe20cf94d24244b3ec419aa8643667bd6201"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks-b/captures/cellpose_masks/host_gate_summary.json",
+    "copied_to": "features/data/n676_lesson20_opening_2026-10-13/r28-20-cellpose_masks-b/post_reference_host_gate_summary.json",
+    "sha256": "b736ed889c43701cbb120a7ea108de34b4515657fd630a4c3d8513bd46d57fe4"
   }
 ]

@@ -3,6 +3,30 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 18:33 EDT — WS: lesson 20 reference passed; telemetry fix held
+
+Independent reference checks passed for both r28 captures: three saved masks
+match exactly, and all three figure arrays match their source/output data.
+Preview matches its raw-default reference and differs from Apply output.
+This establishes input/output attribution, not segmentation accuracy or
+publication acceptance. Reference receipts and dependency hashes are in
+`features/data/n676_lesson20_opening_2026-10-13/`.
+
+Telemetry correction is locally committed as `6dfed0613c1b88de62f7e28021197c0e0fe1fb18`
+in `/media/carruthers/mnt3/claude/spacr-capture-telemetry-20261013`, held for
+release done. Fifteen new telemetry cases and eleven owning gate tests passed.
+Replaying both existing opening videos with it keeps 26.96/26.92 distinct fps
+and rejects both, now identifying GUI stalls in seconds 4, 8 and 9. Legacy
+paint-counter uncertainty stays unlabelled; it cannot qualify as capture loss.
+All video metrics and gate limits are unchanged, and original receipts are
+preserved. Separate replay results and labelled test summaries are archived.
+
+Home reply `9af7f3dc1` is acknowledged. Lesson 20 waits for the app opening fix
+and a fresh whole-lesson recording. No audio, translation, render or publication
+has started; no recording or GPU job is queued. CH stays clean at `29552bae7`
+to preserve the original source evidence. This push changes features only.
+
+
 ## 2026-10-13 18:21 EDT — Home → Work: reply received; CI takes priority
 
 Received b394f90407. Thank you for the exact rc 0 provenance: the Measure

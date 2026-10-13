@@ -1,0 +1,68 @@
+{
+  "accepted": true,
+  "scope": "input/output attribution, not segmentation accuracy",
+  "checkpoint": "/home/carruthers/.cellpose/models/cpsam",
+  "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "files": [
+    {
+      "name": "cell_pair_01.tif",
+      "checked_pixels": 262144,
+      "objects": 9,
+      "exact_mask_equal": true,
+      "source_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "saved_mask_sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa"
+    },
+    {
+      "name": "cell_pair_02.tif",
+      "checked_pixels": 262144,
+      "objects": 94,
+      "exact_mask_equal": true,
+      "source_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "saved_mask_sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8"
+    },
+    {
+      "name": "cell_pair_03.tif",
+      "checked_pixels": 262144,
+      "objects": 46,
+      "exact_mask_equal": true,
+      "source_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "saved_mask_sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89"
+    }
+  ],
+  "figures": [
+    {
+      "file": "batch_figure_00_arrays.npz",
+      "source_image": "cell_pair_03.tif",
+      "exact_values_checked": {
+        "original": 262144,
+        "overlay": 786432,
+        "flow": 262144
+      }
+    },
+    {
+      "file": "batch_figure_01_arrays.npz",
+      "source_image": "cell_pair_02.tif",
+      "exact_values_checked": {
+        "original": 262144,
+        "overlay": 786432,
+        "flow": 262144
+      }
+    },
+    {
+      "file": "batch_figure_02_arrays.npz",
+      "source_image": "cell_pair_01.tif",
+      "exact_values_checked": {
+        "original": 262144,
+        "overlay": 786432,
+        "flow": 262144
+      }
+    }
+  ],
+  "preview_default_reference": {
+    "checked_pixels": 262144,
+    "objects": 95,
+    "exact_mask_equal": true,
+    "differs_from_batch": true,
+    "meaning": "Matches raw-image Cellpose defaults, not the Apply preprocessing settings."
+  }
+}
