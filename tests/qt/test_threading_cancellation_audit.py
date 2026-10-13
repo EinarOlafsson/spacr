@@ -30,6 +30,12 @@ def _console_text(console) -> str:
         block.text() for block in console.findChildren(_StdoutBlock))
 
 
+# A Run's worker opens the run journal before the job starts, and the first one
+# in a process captures the environment lock (pip freeze, conda list): about
+# 3 s alone, memoised after. The wait is for that cold start, not for the job.
+_COLD_START_S = 30
+
+
 def _cooperative_job(started: threading.Event):
     def run(_settings):
         started.set()
@@ -260,7 +266,7 @@ def test_registry_cancel_all_joins_cooperative_workers(
         journal=False,
     )
     thread.start()
-    assert started.wait(2)
+    assert started.wait(_COLD_START_S)
 
     remaining = registry().cancel_all(timeout_ms=3000, reason="test shutdown")
 
@@ -346,7 +352,7 @@ def test_app_screen_stop_asks_then_cooperates_and_stays_live_to_escalate(
     qtbot.addWidget(screen)
     screen.show()
     screen._on_run()
-    assert started.wait(2)
+    assert started.wait(_COLD_START_S)
 
     screen._on_stop()
 
@@ -392,7 +398,7 @@ def test_app_screen_stop_cancelled_at_the_prompt_leaves_a_real_run_alone(
     qtbot.addWidget(screen)
     screen.show()
     screen._on_run()
-    assert started.wait(2)
+    assert started.wait(_COLD_START_S)
     thread, worker = screen._thread, screen._worker
 
     try:
