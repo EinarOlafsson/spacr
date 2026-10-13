@@ -1835,9 +1835,10 @@ Read by ``preprocess_generate_masks``, ``_cellpose3_eval_settings``, ``_cellpose
 cell_dim
 --------
 
-| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
+| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`
+|     ``_annotate_crops`` **-- reads it**
 
-Read by ``annotate_crops``.
+Read by ``_annotate_crops``.
 
 .. _setting-flow-cell_flow_threshold:
 
@@ -5717,9 +5718,10 @@ Read by ``_on_measure_clicked``.
 dims
 ----
 
-| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
+| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`
+|     ``_annotate_crops`` **-- reads it**
 
-Read by ``annotate_crops``.
+Read by ``_annotate_crops``.
 
 .. _setting-flow-direction:
 
@@ -12407,9 +12409,10 @@ Read by ``train_cellpose``.
 minima
 ------
 
-| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
+| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`
+|     ``_annotate_crops`` **-- reads it**
 
-Read by ``annotate_crops``.
+Read by ``_annotate_crops``.
 
 .. _setting-flow-mix:
 
@@ -14466,9 +14469,10 @@ Read by ``organelle_count``, ``apply_settings``.
 object
 ------
 
-| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
+| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`
+|     ``_annotate_crops`` **-- reads it**
 
-Read by ``annotate_crops``.
+Read by ``_annotate_crops``.
 
 .. _setting-flow-object_array:
 
@@ -25006,9 +25010,10 @@ uninfected
 | ``_plan_gains``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
-| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
+| :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`
+|     ``_annotate_crops`` **-- reads it**
 
-Read by ``_measure_crop_core``, ``measure_crop``, ``annotate_crops``, ``get_measure_crop_settings``.
+Read by ``_measure_crop_core``, ``measure_crop``, ``_annotate_crops``, ``get_measure_crop_settings``.
 
 .. _setting-flow-unmix:
 
