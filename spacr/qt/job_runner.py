@@ -36,6 +36,7 @@ caller doing anything.
 from __future__ import annotations
 
 import logging
+import time
 import weakref
 from typing import Any, Callable, Dict, Optional, Tuple
 
@@ -71,17 +72,34 @@ def _capture(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
 _LIVE_RUNNERS: "weakref.WeakSet" = weakref.WeakSet()
 
 
-def shutdown_all(timeout_ms: int = 3000) -> int:
+#: The whole budget :func:`shutdown_all` may spend waiting, in milliseconds.
+SHUTDOWN_BUDGET_MS = 2000
+
+
+def shutdown_all(timeout_ms: int = SHUTDOWN_BUDGET_MS) -> int:
     """Stop every live JobRunner. Returns how many were asked.
 
-    Call once on the way out, before Qt starts destroying widgets. Ordering
-    matters more than completeness here: a runner that cannot stop in time is
-    parked by `bridge.drain_thread` rather than terminated, so this is bounded.
+    Call once on the way out, before Qt starts destroying widgets. Every
+    runner is cancelled first, so all their threads are asked to stop at the
+    same moment, and then they are waited for against ONE deadline: a window
+    with ten busy screens quits in ``timeout_ms``, not ten times that. A
+    runner that cannot stop in time is parked by `bridge.drain_thread` rather
+    than terminated, so this is bounded.
+
+    :param timeout_ms: the total wait budget across every runner.
     """
-    asked = 0
-    for runner in list(_LIVE_RUNNERS):
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+    runners = list(_LIVE_RUNNERS)
+    for runner in runners:
         try:
-            runner.shutdown(timeout_ms)
+            runner.cancel()
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not cancel a job runner", exc_info=True)
+    asked = 0
+    for runner in runners:
+        remaining = max(0, int((deadline - time.monotonic()) * 1000))
+        try:
+            runner.shutdown(remaining)
             asked += 1
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not shut down a job runner", exc_info=True)
@@ -275,7 +293,10 @@ class JobRunner(QObject):
         busy = bool(busy)
         if busy != self._busy:
             self._busy = busy
-            self.busy_changed.emit(busy)
+            try:
+                self.busy_changed.emit(busy)
+            except RuntimeError:
+                return
 
     def is_busy(self) -> bool:
         """True while a submitted job has not yet delivered its result."""
@@ -312,15 +333,18 @@ class JobRunner(QObject):
 
         Call from ``closeEvent``. Qt aborts the process if a running QThread is
         destroyed, so a bounded wait is needed when a screen closes mid-load.
-        Threads that outlast the budget are parked by
+        ``timeout_ms`` is shared by every thread of this runner. Threads that
+        outlast it are parked by
         :func:`spacr.qt.bridge.drain_thread` rather than terminated.
         """
         from .bridge import drain_thread
 
+        deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
         self.cancel()
         for thread, worker in list(self._jobs.values()):
+            remaining = max(0, int((deadline - time.monotonic()) * 1000))
             try:
-                drain_thread(thread, worker, timeout_ms=timeout_ms)
+                drain_thread(thread, worker, timeout_ms=remaining)
             except RuntimeError:
                 pass
         self._jobs.clear()

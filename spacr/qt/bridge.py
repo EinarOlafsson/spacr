@@ -1012,6 +1012,155 @@ def _drain_parked_threads_at_exit() -> None:
             "stop request.", still_running)
 
 
+#: The total budget for asking in-flight work to stop when the process ends,
+#: in milliseconds. Threads still running after it are parked, and the parked
+#: drain gives them :data:`PARKED_EXIT_WAIT_MS` more.
+EXIT_STOP_BUDGET_MS = 2000
+
+
+def _park_still_running(pairs) -> int:
+    """Park every ``(thread, worker)`` pair whose thread is still running.
+
+    :param pairs: ``(thread, worker)`` pairs to check.
+    :returns: how many were parked.
+    """
+    parked = 0
+    for thread, worker in pairs:
+        if thread_has_stopped(thread):
+            continue
+        with _PARKED_LOCK:
+            if not any(entry[0] is thread for entry in _PARKED_THREADS):
+                _PARKED_THREADS.append((thread, worker))
+                parked += 1
+    return parked
+
+
+def retire_live_work(timeout_ms: int = EXIT_STOP_BUDGET_MS) -> int:
+    """Stop every job runner and registered run within one shared budget.
+
+    The application's ``aboutToQuit`` drain and the interpreter's exit hook
+    both end here. ``aboutToQuit`` only fires when an event loop quits, so a
+    process that builds windows and then simply ends (a script, a test
+    subprocess, a capture run that returns early) never sees it, and the
+    QThreads its widgets started are destroyed during interpreter teardown
+    while they still run. Qt treats that as fatal. Whatever cannot stop in
+    the budget is parked, never terminated.
+
+    :param timeout_ms: total wait budget across every runner and run.
+    :returns: how many threads are still running afterwards.
+    """
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+
+    def remaining() -> int:
+        """What is left of the shared budget, in milliseconds."""
+        return max(0, int((deadline - time.monotonic()) * 1000))
+
+    runners = sys.modules.get(__package__ + ".job_runner")
+    if runners is not None:
+        try:
+            runners.shutdown_all(remaining())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not shut down the job runners", exc_info=True)
+    if _REGISTRY is not None:
+        try:
+            handles = _REGISTRY.active()
+            _REGISTRY.cancel_all(timeout_ms=remaining(),
+                                 reason="application exit")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not cancel the registered runs", exc_info=True)
+        else:
+            _park_still_running(
+                (getattr(handle, "thread", None),
+                 getattr(handle, "worker", None))
+                for handle in handles if isinstance(handle, RunHandle))
+    _stop_loose_qthreads(remaining())
+    return prune_parked_threads()
+
+
+def _loose_qthreads() -> List[Any]:
+    """Every running QThread this process created and nothing has parked.
+
+    A screen that subclasses QThread itself (the updater's news fetch, a
+    model download, a folder scan) is neither a job runner nor a registered
+    run, so the two drains above never see it. It is found here instead,
+    among the Python-created QThread wrappers that are still alive. The
+    GUI thread and threads Qt adopted are skipped: neither is ours to stop.
+    ``type()`` rather than ``isinstance``: the heap holds lazy module proxies
+    whose ``__class__`` warns or imports when asked, and this runs while the
+    interpreter is on its way out.
+    """
+    import gc
+
+    try:
+        from shiboken6 import Shiboken
+    except ImportError:
+        return []
+    current = QThread.currentThread()
+    with _PARKED_LOCK:
+        parked = [entry[0] for entry in _PARKED_THREADS]
+    found: List[Any] = []
+    for candidate in gc.get_objects():
+        if not issubclass(type(candidate), QThread):
+            continue
+        try:
+            if (candidate is current or candidate == current
+                    or not Shiboken.isValid(candidate)
+                    or not Shiboken.createdByPython(candidate)
+                    or not candidate.isRunning()):
+                continue
+        except RuntimeError:
+            continue
+        if any(candidate is entry for entry in parked + found):
+            continue
+        found.append(candidate)
+    return found
+
+
+def _stop_loose_qthreads(timeout_ms: int) -> int:
+    """Ask every loose QThread to stop, wait within ``timeout_ms``, park the rest.
+
+    A thread that outlasts the budget is taken off its parent before it is
+    parked: a parent widget destroyed at exit takes its QThread children
+    with it whatever Python still holds, and that is the abort.
+
+    :param timeout_ms: the shared wait budget, in milliseconds.
+    :returns: how many were parked.
+    """
+    threads = _loose_qthreads()
+    for thread in threads:
+        try:
+            thread.requestInterruption()
+            thread.quit()
+        except RuntimeError:
+            pass
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+    stubborn = []
+    for thread in threads:
+        remaining = max(0, int((deadline - time.monotonic()) * 1000))
+        try:
+            if thread.wait(remaining):
+                continue
+            thread.setParent(None)
+        except RuntimeError:
+            continue
+        stubborn.append((thread, None))
+    return _park_still_running(stubborn)
+
+
+def _retire_live_work_at_exit() -> None:
+    """``atexit`` hook: stop live work, then wait for whatever was parked.
+
+    Registered when this module is imported, which is after PySide6 is, so
+    it runs before PySide6's own teardown destroys the Qt objects.
+    """
+    try:
+        retire_live_work()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not retire the live work at exit", exc_info=True)
+    if parked_thread_count():
+        _drain_parked_threads_at_exit()
+
+
 def _install_parked_exit_hook() -> None:
     """Register the exit hook once, and only if something has been parked."""
     global _PARKED_EXIT_HOOK_INSTALLED
@@ -2136,3 +2285,6 @@ def make_thread(
     reg.register(handle)
     thread.finished.connect(handle.retire)
     return thread, worker
+
+
+atexit.register(_retire_live_work_at_exit)

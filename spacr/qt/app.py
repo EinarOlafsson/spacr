@@ -7988,8 +7988,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
         not only the consoles.
         """
         try:
-            from .job_runner import shutdown_all
-            shutdown_all()
+            from .bridge import retire_live_work
+            retire_live_work()
         except Exception:
             LOG.debug("Could not drain the job runners", exc_info=True)
         from .widgets.console_panel import ConsolePanel
