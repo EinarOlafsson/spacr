@@ -55718,6 +55718,17 @@
       "source_sha256": "7b285252efbb670f7dc61c793b4a98b99370ca408aa2103042eff496f6c4a2f4",
       "text": "Have the first show style only the page of the current tab.\n\nCalled once the build is finished. The pages stay where they\nare until the show, so the navigation that picks the tab to\nopen on finds each control on its tab.\n\n:param tabs: the dialog's ``QTabWidget``; every page is a scroll\n    area holding the page."
     },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.event": {
+      "source_blocks_sha256": [
+        "136c19e6c88ad91f6f29ee4fe8cc4edd64452228739c023d1907e16dafc150ad",
+        "e730cf27ca7d4f1081e47e94d55f2c730d7d33c800f14b424053f2224d1a42a0",
+        "c5a06bef60872f5d3f79a2707d387dcc43af477b3aca687ea608bb7361060a4c",
+        "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+        "54e76f099a05432b5a94429d5394b4817fdf1c6c259fdd369b815cc9d1fd35e9"
+      ],
+      "source_sha256": "7441517d91abd9bd83e3fd5a6b776244e11855cd7f18600d9b726b961bb5a76f",
+      "text": "Send the unseen pages away before a polish that precedes the show.\n\nTHE WARM-UP POLISHES BEFORE IT SHOWS. Qt posts every new widget\na ``PolishRequest``, and a dialog built ahead in an idle slice\n(:func:`_warm_the_preferences`) answers it in the next pass of\nthe event loop, long before :meth:`setVisible`. The window\nsheet and the glass then walked all ~967 widgets of every tab\nin that one event: 425-484 ms offscreen, 0.36 s on the lesson\ncapture host. The pages leave here as they would at the show,\nand the polish styles the open tab only.\n\nONLY FOR A DIALOG THE WARM-UP BUILT, which says so through\n``_pages_leave_at_the_polish``. Anything else that builds the\ndialog and lets the event loop run before walking a page --\nthe help search index reads every tab's form rows that way --\nstill finds every page where the builder put it until the show.\n\n:param event: the event.\n:returns: as for ``QDialog.event``."
+    },
     "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild": {
       "source_blocks_sha256": [
         "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
@@ -75308,11 +75319,11 @@
       "source_blocks_sha256": [
         "ab94247db6f6da84f2452f909e6f6a4657fc7e094b9aef7da45e486d83b8cf70",
         "2428d791b7ac5d8dda44cb7cc5d3f552871485163d38ca26ce59630c518e7b3e",
-        "80690a329e8d5ab970aed64c3715f5ecc552f639d91459f4408e4a683da72cff",
+        "9caad87749eafea72a3f3879eaa7626697fd9600409ba44d9238170d63bdfe1a",
         "492328b356a80cafe1187a558cdce94db1036258ab64f26fba999c6758c6b24b"
       ],
-      "source_sha256": "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2",
-      "text": "Stop ``widgets`` painting a background of their own.\n\nA backdrop — the theme's wallpaper, or the DNA rain on the\nsequencing screen — is behind the *page*, and in the opaque themes\nevery container between it and the eye is an opaque ``bg`` by\nvirtue of the blanket ``QWidget`` rule. One container is enough to\nbury it: a screen's header widget, its splitter, a scroll area and\nthat scroll area's viewport are each a QWidget, and each one used to\npaint solid black over the animation the screen had just installed.\n\nTag the layout containers with this and the backdrop reaches the\neye; leave the cards, panels and inputs alone and they stay the\nreadable surface on top of it. Safe to call on a widget that is\nalready visible — the style is re-polished so the change takes\neffect immediately rather than at the next theme switch.\n\nA ``QScrollArea``'s ``viewport()`` is tagged automatically along\nwith it: they are two widgets, the viewport is the one that\nactually paints, and forgetting it is the obvious way to get this\nwrong."
+      "source_sha256": "79c4bf93a0dbcc756c0e52c2ae387a1624e116fe9750255674d405ff59a492a7",
+      "text": "Stop ``widgets`` painting a background of their own.\n\nA backdrop — the theme's wallpaper, or the DNA rain on the\nsequencing screen — is behind the *page*, and in the opaque themes\nevery container between it and the eye is an opaque ``bg`` by\nvirtue of the blanket ``QWidget`` rule. One container is enough to\nbury it: a screen's header widget, its splitter, a scroll area and\nthat scroll area's viewport are each a QWidget, and each one used to\npaint solid black over the animation the screen had just installed.\n\nTag the layout containers with this and the backdrop reaches the\neye; leave the cards, panels and inputs alone and they stay the\nreadable surface on top of it. Safe to call on a widget that is\nalready visible — the style is re-polished so the change takes\neffect immediately rather than at the next theme switch. A widget no\nstylesheet reaches yet, or one in a window whose sheet is held\n(:func:`_one_sheet_for`), is only tagged: nothing reads the tag until\na sheet arrives, and putting a sheet on polishes every widget it\nreaches. Glassing Preferences tags about 400 containers, and polishing\neach one before its sheet went on cost 53-64 ms for nothing.\n\nA ``QScrollArea``'s ``viewport()`` is tagged automatically along\nwith it: they are two widgets, the viewport is the one that\nactually paints, and forgetting it is the obvious way to get this\nwrong."
     },
     "spacr.qt.theme.mark_as_a_sheet_target": {
       "source_blocks_sha256": [
@@ -95389,10 +95400,11 @@
       "source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ],
-      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
-      "text": "Give one dialog the card and the rim. True if it was applied.\n\nIdempotent: a dialog that already carries :data:`GLASSED` is left alone,\nso a dialog shown, closed and shown again does not accumulate cards.\n\n:param dialog: the dialog to decorate; it is left alone unless\n    :func:`wants_glass` accepts it."
+      "source_sha256": "911d51ee59d650bccb5d2923b55d3ada0ff7b21e8f7e9e3068f6c7593cfc6c35",
+      "text": "Give one dialog the card and the rim. True if it was applied.\n\nIdempotent: a dialog that already carries :data:`GLASSED` is left alone,\nso a dialog shown, closed and shown again does not accumulate cards.\n\nTHE SHEET GOES ON ONCE, LAST. Every step below restyles a dialog that\nalready wears the window sheet: its own rule is one more sheet, the\nframeless flags make Qt repolish every widget of a styled window, and\neach transparent container is polished again. On Preferences (967\nwidgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of\nlesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`,\nthe steps run on an unstyled dialog and the same sheet text goes on\nonce at the end.\n\n:param dialog: the dialog to decorate; it is left alone unless\n    :func:`wants_glass` accepts it."
     },
     "spacr.qt.widgets.glass.install_glass_everywhere": {
       "source_blocks_sha256": [

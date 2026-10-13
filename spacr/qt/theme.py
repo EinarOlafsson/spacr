@@ -2906,7 +2906,12 @@ def make_transparent(*widgets) -> None:
     eye; leave the cards, panels and inputs alone and they stay the
     readable surface on top of it. Safe to call on a widget that is
     already visible — the style is re-polished so the change takes
-    effect immediately rather than at the next theme switch.
+    effect immediately rather than at the next theme switch. A widget no
+    stylesheet reaches yet, or one in a window whose sheet is held
+    (:func:`_one_sheet_for`), is only tagged: nothing reads the tag until
+    a sheet arrives, and putting a sheet on polishes every widget it
+    reaches. Glassing Preferences tags about 400 containers, and polishing
+    each one before its sheet went on cost 53-64 ms for nothing.
 
     A ``QScrollArea``'s ``viewport()`` is tagged automatically along
     with it: they are two widgets, the viewport is the one that
@@ -2928,6 +2933,10 @@ def make_transparent(*widgets) -> None:
                     and target.testAttribute(Qt.WA_StyleSheetTarget)):
                 continue
             target.setProperty(TRANSPARENT_PROPERTY, True)
+            if not target.testAttribute(Qt.WA_StyleSheet):
+                continue
+            if _owe_the_polish_to_a_held_sheet(target):
+                continue
             style = target.style()
             if style is not None:
                 style.unpolish(target)
@@ -3776,6 +3785,155 @@ def _sheets_itself_before_it_shows(widget) -> bool:
     return True
 
 
+#: Marks a window whose sheet is held back while something decorates it:
+#: the rules it gains meanwhile are written down, and the sheet goes on
+#: once, when :func:`_one_sheet_for` lets go.
+_SHEET_HELD = "_spacr_sheet_held"
+
+#: Tests, each answering whether a window is about to be decorated by
+#: something that will sheet it itself, through :func:`_one_sheet_for`.
+_DECORATORS_THAT_SHEET: list = []
+
+
+def _let_a_decorator_sheet(wants) -> None:
+    """Leave the windows ``wants`` accepts to the decorator that sheets them.
+
+    WHY A DECORATOR SHEETS ITS OWN WINDOWS. The glass treatment of a dialog
+    restyles it three times when the sheet is already on: its own rule
+    (one more sheet), the frameless window flags (Qt repolishes every
+    widget of a styled window it reparents) and the transparent containers
+    (one polish per container). Measured on Preferences, 967 widgets,
+    offscreen: 425-484 ms in one ``Polish``, and 610-680 ms when this
+    filter had sheeted it first. With the sheet held until the decorator is
+    done it is one sheet, put on last.
+
+    :param wants: a callable taking a window and answering ``True`` when
+        the decorator will sheet it. Added once however often it is passed.
+    """
+    if wants not in _DECORATORS_THAT_SHEET:
+        _DECORATORS_THAT_SHEET.append(wants)
+
+
+def _stop_letting_a_decorator_sheet(wants) -> None:
+    """Undo :func:`_let_a_decorator_sheet`; unknown callables are ignored.
+
+    :param wants: the callable that was passed.
+    """
+    while wants in _DECORATORS_THAT_SHEET:
+        _DECORATORS_THAT_SHEET.remove(wants)
+
+
+def _a_decorator_sheets_it(window) -> bool:
+    """Whether a decorator will sheet ``window`` itself, now or already is.
+
+    :param window: a window being polished or shown.
+    :returns: ``True`` to leave its sheet to the decorator.
+    """
+    if window.property(_SHEET_HELD):
+        return True
+    for wants in _DECORATORS_THAT_SHEET:
+        try:
+            if wants(window):
+                return True
+        except Exception:                                    # noqa: BLE001
+            continue
+    return False
+
+
+#: Marks a held window one of whose widgets skipped a polish it was owed,
+#: so the sheet goes on at the release even if its text is unchanged.
+_SHEET_OWES_A_POLISH = "_spacr_sheet_owes_a_polish"
+
+
+def _owe_the_polish_to_a_held_sheet(widget) -> bool:
+    """Leave ``widget``'s repolish to its window's held sheet, if it has one.
+
+    :param widget: a widget whose QSS-visible state has just changed.
+    :returns: ``True`` when its window's sheet is held and will repolish
+        it at the release; the window is marked so that it does.
+    """
+    try:
+        window = widget.window()
+        if window is None or not window.property(_SHEET_HELD):
+            return False
+        window.setProperty(_SHEET_OWES_A_POLISH, True)
+    except (AttributeError, RuntimeError):
+        return False
+    return True
+
+
+@contextmanager
+def _one_sheet_for(window):
+    """Hold ``window``'s sheet back for the block, then put it on once.
+
+    Inside the block a rule given to the window through
+    :func:`set_a_sheeted_widgets_own_rule` is written down and not
+    applied, and :func:`_sheet_one_window` leaves the window alone. On the
+    way out the sheet in force goes on with every rule written down, the
+    same text it would have worn had each been applied as it came, so the
+    window looks the same and is restyled once. It goes on even when the
+    block raised, so a window is never left unsheeted. A parentless window
+    nobody has shown yet is left for its first ``Show`` instead, as
+    :func:`set_a_sheeted_widgets_own_rule` leaves it.
+
+    Nested blocks for the same window sheet it once, at the outer exit.
+
+    :param window: the window being decorated.
+    :yields: ``window``.
+    """
+    try:
+        held_already = bool(window.property(_SHEET_HELD))
+    except (AttributeError, RuntimeError):
+        yield window
+        return
+    if held_already:
+        yield window
+        return
+    window.setProperty(_SHEET_HELD, True)
+    try:
+        yield window
+    finally:
+        try:
+            window.setProperty(_SHEET_HELD, None)
+            owed = bool(window.property(_SHEET_OWES_A_POLISH))
+            window.setProperty(_SHEET_OWES_A_POLISH, None)
+            if window_stylesheet() is None:
+                if owed:
+                    _repolish_the_tagged(window)
+            elif _the_sheet_can_wait_for_the_show(window):
+                window.setProperty(_WINDOW_SHEET_SERIAL, None)
+                window.setProperty(_WINDOW_SHEET_DIGEST,
+                                   _sheet_digest(window.styleSheet()))
+                window.setProperty(_WINDOW_SHEET_WAITS, True)
+                mark_as_a_sheet_target(window)
+            else:
+                if owed:
+                    window.setProperty(_WINDOW_SHEET_SERIAL, None)
+                _sheet_one_window(window)
+        except (AttributeError, RuntimeError):
+            pass
+
+
+def _repolish_the_tagged(window) -> None:
+    """Polish the widgets of ``window`` that a held sheet left untouched.
+
+    Only reached when no window sheet is in force -- the styling is an
+    application sheet or the window's own -- so nothing goes on at the
+    release to repolish them.
+
+    :param window: the window whose transparent containers are repolished.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    for target in [window, *window.findChildren(QWidget)]:
+        if (target.property(TRANSPARENT_PROPERTY) is True
+                and target.testAttribute(Qt.WA_StyleSheet)):
+            style = target.style()
+            if style is not None:
+                style.unpolish(target)
+                style.polish(target)
+
+
 class _SheetsEveryWindowThatAppears(QObject):
     """Gives a window born after a theme change the theme, not the last one.
 
@@ -3823,6 +3981,8 @@ class _SheetsEveryWindowThatAppears(QObject):
         if kind in _SHEETING_MOMENTS:
             try:
                 if watched.isWindow():
+                    if _a_decorator_sheets_it(watched):
+                        return False
                     if kind == QEvent.Polish:
                         if _a_window_for_want_of_a_parent(watched):
                             return False
@@ -3902,6 +4062,8 @@ def _sheet_one_window(window) -> bool:
         return False
     serial = getattr(app, _WINDOW_SHEET_SERIAL, 0)
     try:
+        if window.property(_SHEET_HELD):
+            return False
         if (window.property(_WINDOW_SHEET_SERIAL) == serial
                 and window.property(_WINDOW_SHEET_DIGEST)
                 == _sheet_digest(window.styleSheet())):
@@ -4014,6 +4176,9 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
     try:
         widget.setProperty(_WINDOW_OWN_SHEET, rule)
         widget.setProperty(_WINDOW_SHEET_SERIAL, None)
+        if (widget.property(_SHEET_HELD)
+                and window_stylesheet() is not None):
+            return
         if _the_sheet_can_wait_for_the_show(widget):
             widget.setProperty(_WINDOW_SHEET_DIGEST,
                                _sheet_digest(widget.styleSheet()))

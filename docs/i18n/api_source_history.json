@@ -1,6 +1,15 @@
 {
   "schema": 1,
   "sources": {
+    "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df": {
+      "source_blocks_sha256": [
+        "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
+        "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
+      ],
+      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
+      "text": "Give one dialog the card and the rim. True if it was applied.\n\nIdempotent: a dialog that already carries :data:`GLASSED` is left alone,\nso a dialog shown, closed and shown again does not accumulate cards.\n\n:param dialog: the dialog to decorate; it is left alone unless\n    :func:`wants_glass` accepts it."
+    },
     "23bafc7319af9cb7102cb843454669557b6440d1a99e091ddf6ee3e3c7f2956e": {
       "source_blocks_sha256": [
         "91c212f59b5444a610147d73e9b3234dda62e86771c0fbc4ca936a227ae70c24",
@@ -33,6 +42,16 @@
       ],
       "source_sha256": "4c9005419e7ae8085a496769d929fc5111fa1537e91cb1c1cff442bfa09e4ee4",
       "text": "Fit a mixed model with guides nested within genes.\n\nThe model treats genes as fixed effects and guides as random effects\nnested within genes. In statsmodels notation, ``groups=gene`` supplies the\nouter random intercept and ``vc_formula={'grna': '0 + C(grna)'}`` supplies\nthe guide-within-gene variance component.\n\nA blockable ``screenID`` supplied by :func:`prepare_formula` remains a\nfixed effect. With only two screen levels, a random screen variance would\nbe estimated from one degree of freedom. The plate is not nested within\nthe screen because plate position is already represented by the row and\ncolumn structure. Single-screen data omit the constant screen term to\navoid a rank-deficient design.\n\nParameters\n----------\ndf : pandas.DataFrame\n    Model data containing the formula variables and the gene and guide\n    grouping columns.\nformula : str\n    Fixed-effects formula, normally returned by :func:`prepare_formula`\n    with ``level='gene'``.\ndst : path-like\n    Destination for the residual histogram.\nrandom_row_column_effects : bool, default False\n    Add row and column variance components instead of fixed terms.\ngene_column : str, default 'gene'\n    Column containing the outer gene groups.\nguide_column : str, default 'grna'\n    Column containing guides nested within each gene.\nregression_backend : {'statsmodels', 'torch'}, default 'statsmodels'\n    Mixed-model backend. The torch backend fits the same nested model\n    with GPU acceleration when available.\n\nReturns\n-------\nmixed_model\n    Fitted backend-specific mixed-model result.\ncoef_df : pandas.DataFrame\n    Fixed effects, variance components, and guide BLUPs. Variance\n    components and BLUPs have ``NaN`` p-values because they are not\n    fixed-effect hypothesis tests.\n\nRaises\n------\nValueError\n    If required grouping columns are missing, no gene has multiple\n    guides, or the backend cannot fit the nested design.\nMixedBackendUnavailable\n    If the selected mixed-model backend is unavailable."
+    },
+    "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2": {
+      "source_blocks_sha256": [
+        "ab94247db6f6da84f2452f909e6f6a4657fc7e094b9aef7da45e486d83b8cf70",
+        "2428d791b7ac5d8dda44cb7cc5d3f552871485163d38ca26ce59630c518e7b3e",
+        "80690a329e8d5ab970aed64c3715f5ecc552f639d91459f4408e4a683da72cff",
+        "492328b356a80cafe1187a558cdce94db1036258ab64f26fba999c6758c6b24b"
+      ],
+      "source_sha256": "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2",
+      "text": "Stop ``widgets`` painting a background of their own.\n\nA backdrop — the theme's wallpaper, or the DNA rain on the\nsequencing screen — is behind the *page*, and in the opaque themes\nevery container between it and the eye is an opaque ``bg`` by\nvirtue of the blanket ``QWidget`` rule. One container is enough to\nbury it: a screen's header widget, its splitter, a scroll area and\nthat scroll area's viewport are each a QWidget, and each one used to\npaint solid black over the animation the screen had just installed.\n\nTag the layout containers with this and the backdrop reaches the\neye; leave the cards, panels and inputs alone and they stay the\nreadable surface on top of it. Safe to call on a widget that is\nalready visible — the style is re-polished so the change takes\neffect immediately rather than at the next theme switch.\n\nA ``QScrollArea``'s ``viewport()`` is tagged automatically along\nwith it: they are two widgets, the viewport is the one that\nactually paints, and forgetting it is the obvious way to get this\nwrong."
     },
     "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8": {
       "source_blocks_sha256": [

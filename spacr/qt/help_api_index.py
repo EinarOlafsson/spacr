@@ -5312,6 +5312,7 @@ API_ENTRIES = (
     ('spacr.qt.preferences._preferences_window_class._PreferencesWindow._bring_the_page_back', 'Put a waiting page back in its tab as the tab is chosen.'),
     ('spacr.qt.preferences._preferences_window_class._PreferencesWindow._send_the_unseen_pages_away', "Take every page but the current tab's out of the window."),
     ('spacr.qt.preferences._preferences_window_class._PreferencesWindow._show_only_the_open_page_at_first', 'Have the first show style only the page of the current tab.'),
+    ('spacr.qt.preferences._preferences_window_class._PreferencesWindow.event', 'Send the unseen pages away before a polish that precedes the show.'),
     ('spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild', '``QObject.findChild``, finding a control whose page is waiting.'),
     ('spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChildren', '``QObject.findChildren`` over every page, waiting or not.'),
     ('spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible', 'Send the unseen pages away just before the first show.'),

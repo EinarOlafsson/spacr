@@ -8277,6 +8277,7 @@ def _preferences_window_class():
     global _PREFERENCES_WINDOW_CLASS
     if _PREFERENCES_WINDOW_CLASS is not None:
         return _PREFERENCES_WINDOW_CLASS
+    from PySide6.QtCore import QEvent
     from PySide6.QtWidgets import QDialog, QWidget
 
     from .i18n import TRANSLATE_ONCE_PER_LANGUAGE
@@ -8323,6 +8324,7 @@ def _preferences_window_class():
             super().__init__(parent)
             self._page_tabs = None
             self._pages_wait_for_the_show = False
+            self._pages_leave_at_the_polish = False
             self._window_only = 0
             self._pages_away = {}
             self._window_signature_seen = None
@@ -8382,6 +8384,39 @@ def _preferences_window_class():
                 self._window_signature_seen = _window_signature()
             except Exception:                                # noqa: BLE001
                 self._window_signature_seen = None
+
+        def event(self, event):                   # noqa: A003 - Qt naming
+            """Send the unseen pages away before a polish that precedes the show.
+
+            THE WARM-UP POLISHES BEFORE IT SHOWS. Qt posts every new widget
+            a ``PolishRequest``, and a dialog built ahead in an idle slice
+            (:func:`_warm_the_preferences`) answers it in the next pass of
+            the event loop, long before :meth:`setVisible`. The window
+            sheet and the glass then walked all ~967 widgets of every tab
+            in that one event: 425-484 ms offscreen, 0.36 s on the lesson
+            capture host. The pages leave here as they would at the show,
+            and the polish styles the open tab only.
+
+            ONLY FOR A DIALOG THE WARM-UP BUILT, which says so through
+            ``_pages_leave_at_the_polish``. Anything else that builds the
+            dialog and lets the event loop run before walking a page --
+            the help search index reads every tab's form rows that way --
+            still finds every page where the builder put it until the show.
+
+            :param event: the event.
+            :returns: as for ``QDialog.event``.
+            """
+            if (event.type() == QEvent.PolishRequest
+                    and self._pages_leave_at_the_polish
+                    and self._pages_wait_for_the_show):
+                self._pages_wait_for_the_show = False
+                self._send_the_unseen_pages_away()
+                self._window_only += 1
+                try:
+                    return super().event(event)
+                finally:
+                    self._window_only -= 1
+            return super().event(event)
 
         def findChild(self, *args, **kwargs):     # noqa: N802 - Qt naming
             """``QObject.findChild``, finding a control whose page is waiting.
@@ -8865,6 +8900,7 @@ def _warm_one_slice(window) -> None:
     if dialog is None:
         try:
             dialog = PreferencesDialog(window)
+            dialog._pages_leave_at_the_polish = True
             _note_what_the_dialog_shows(dialog)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not build Preferences ahead", exc_info=True)
