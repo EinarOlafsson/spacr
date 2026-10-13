@@ -739,20 +739,22 @@ def _action_bar_geometry(screen):
 def test_a_verdict_no_longer_moves_the_run_row(qtbot, stepped_project, size):
     """The verdict used to sit above the Run row and push it up the panel.
 
-    Both rows are measured at the same moment, once the QC screen has
-    settled, so anything the second build changes for the whole
-    application in between reaches both. Measured before the second build,
-    loaded CI runners twice saw the plain row 2 px shorter (86 against 88),
-    which never happened on the workstation.
+    One screen, with the QC switch, is measured before its project gives a
+    verdict and after. It was compared with a screen built without the
+    switch, which measured the switch instead: the switch takes 32 px of
+    the action row, the button strip wraps in what is left, and with a CI
+    runner's wider text the strip broke its lines differently in the
+    narrower row (86 against 88 px at 1200x720, on 4874baa11, 386444b92 and
+    c921b5dc5), while the workstation's two lines fitted either way.
     """
-    plain, _ = _laid_out_measure(qtbot, with_qc=False, src=stepped_project,
-                                 size=size)
+    screen, banner = _laid_out_measure(qtbot, with_qc=True, size=size)
+    assert banner.digest is None or banner.digest.verdict != "fail"
+    before = _action_bar_geometry(screen)
 
-    screen, banner = _laid_out_measure(qtbot, with_qc=True,
-                                       src=stepped_project, size=size)
+    _set(screen, "src", stepped_project)
+    banner.refresh()
     assert banner.digest is not None and banner.digest.verdict == "fail"
-    _wait_for_a_settled_action_bar(qtbot, plain)
-    before = _action_bar_geometry(plain)
+    _wait_for_a_settled_action_bar(qtbot, screen)
     after = _action_bar_geometry(screen)
 
     assert after["row"].height() == before["row"].height()
