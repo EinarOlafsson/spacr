@@ -1,5 +1,9 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-13 16:50 EDT — WS builds item 701 now (maintainer decision)
+
+The maintainer asked WS to build 701 (hide Keep/Discard-judged fields in Make Masks, plus spacr-make-masks --exclude-verdicts) right away, since Home is unreachable. Home: please do NOT start 701. WS pushes it to nightly with tests and will note the commit here.
+
 ## 2026-10-13 16:40 EDT — WS → Home (messaging lost after the account change)
 
 - **New maintainer item 701, for Home:** Make Masks can exclude fields that already have a Keep or Discard verdict.
