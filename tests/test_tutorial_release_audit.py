@@ -50,6 +50,39 @@ live = _load("verify_tutorial_live", "tools/verify_tutorial_live.py")
 frames = _load("sample_tutorial_frames", "tools/sample_tutorial_frames.py")
 
 
+def test_catalog_cache_key_preserves_an_unchanged_asset_across_publications():
+    receipt = {"pages": {
+        "cache_key": "tutorial-04-installers-20261013-r23b-verified",
+        "versioned_assets": {
+            "lesson_catalog.js": "tutorial-08-measure-20261013-r26-verified",
+            "module_navigation.js": "tutorial-04-installers-20261013-r23b-verified",
+        },
+    }}
+
+    assert live._catalog_cache_key(receipt) == "tutorial-08-measure-20261013-r26-verified"
+
+
+def test_catalog_cache_key_reads_the_legacy_receipt_without_asset_mapping():
+    receipt = {"pages": {"cache_key": "legacy-catalog-publication"}}
+
+    assert live._catalog_cache_key(receipt) == "legacy-catalog-publication"
+
+
+@pytest.mark.parametrize("mapping, error", [
+    ({}, KeyError),
+    ({"module_navigation.js": "a-new-release"}, KeyError),
+    (None, TypeError),
+])
+def test_catalog_cache_key_rejects_a_present_malformed_asset_mapping(mapping, error):
+    receipt = {"pages": {
+        "cache_key": "a-release-key-cannot-repair-missing-asset-evidence",
+        "versioned_assets": mapping,
+    }}
+
+    with pytest.raises(error):
+        live._catalog_cache_key(receipt)
+
+
 def test_release_audit_parsers_pin_the_current_inventory():
     tutorial_root = ROOT / "docs" / "source" / "_extra" / "tutorials"
     catalog = frames.load_catalog(tutorial_root / "lesson_catalog.js")
@@ -480,12 +513,14 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
             visual_references[lesson["id"]] = visual
             record = media_records["media_host/" + visual]
             assert record["bytes"] > 0 and re.fullmatch(r"[0-9a-f]{64}", record["sha256"])
-    # 14_make_masks became a native live-video lesson in N676 phase 1
-    # (2026-10-11).
+    # 14_make_masks became native in N676 phase 1 (2026-10-11).
+    # 07_mask and 08_measure were verified native publications on 2026-10-13:
+    # 438464849 (07 r26b) and 52d5d99bf (08 r26), with dated publication
+    # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
     native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
-                  "14_make_masks", "80_image_analysis_pathways", "82_toxoplasma"}
-    original_ids = {"07_mask", "08_measure", "18_motility",
-                    "19_train_cellpose", "20_cellpose_masks", "24_plaque",
+                  "07_mask", "08_measure", "14_make_masks",
+                  "80_image_analysis_pathways", "82_toxoplasma"}
+    original_ids = {"18_motility", "19_train_cellpose", "20_cellpose_masks", "24_plaque",
                     "74_import_images", "85_host_pathogen", "87_alpha_features"}
     assert visual_references == {
         **{identity: identity + "/video/native-live-timings.json" for identity in native_ids},
