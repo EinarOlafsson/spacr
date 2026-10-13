@@ -1,5 +1,0 @@
-{
-  "spacr._parascape.MINIMUM_VERSION": "Oldest release spaCR installs; compared with ``packaging.version.Version``.",
-  "spacr._parascape.gui_command": "Return the ``parascape`` console script of an environment.\n\n:param env: ParaScape's virtual environment.\n:returns: the script beside the environment's interpreter, with the\n    interpreter's suffix (``.exe`` on Windows).",
-  "spacr._parascape.pypi_requirement": "Return the pip requirement that installs or upgrades from PyPI.\n\n:returns: the package name with its minimum supported release."
-}

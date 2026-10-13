@@ -1,8 +1,0 @@
-{
- "schema": 1,
- "language": "es",
- "source": "spacr.qt.i18n.tr (runtime UI catalogs)",
- "note": "Bold UI names in the guides must use the name the app shows in this language.",
- "terms": {},
- "runtime_suspect": {}
-}

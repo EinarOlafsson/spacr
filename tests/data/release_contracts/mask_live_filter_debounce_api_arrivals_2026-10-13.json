@@ -1,6 +1,0 @@
-{
-  "spacr.qt.screens.settings_model.SettingsWidgets.add_collect_hook": "Call ``hook`` at the start of every :meth:`collect`.\n\nA Live Preview holds a typed value back until the typing pauses;\nits hook writes that value in first, so a run started inside the\npause reads it.\n\n:param hook: a callable taking no arguments.",
-  "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS": "How long the live preview waits after the last filter edit before it\nre-filters. Typing ``510`` into a minimum-area box used to re-filter, redraw\nand propagate three times, about half a second each on a 2000 x 2000 field,\non the GUI thread; the tutorial capture of lesson 07 froze for that second.",
-  "spacr.qt.widgets.live_preview.LivePreviewPanel.flush_propagation": "Send a propagation that is still waiting out its delay.",
-  "spacr.qt.widgets.live_preview.LivePreviewPanel.schedule_propagation": "Propagate once the user stops editing, not on every keystroke.\n\nWriting ``object_filters`` into the main panel redraws its object\ngrid, 10 to 30 ms a time. :meth:`flush_propagation` sends a pending\npush at once; the dialog calls it when an edit finishes or the\ntoggle goes off, so a run never starts from stale settings."
-}

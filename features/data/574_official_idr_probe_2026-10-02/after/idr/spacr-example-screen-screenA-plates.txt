@@ -1,2 +1,0 @@
-Plate	Directory
-plate1	.

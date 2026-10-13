@@ -1,3 +1,0 @@
-{
-  "spacr.qt.widgets.dna_rain.DnaRainWidget.changeEvent": "Claim opaque painting again after a restyle.\n\n:param event: the change event, passed to the base class first."
-}
