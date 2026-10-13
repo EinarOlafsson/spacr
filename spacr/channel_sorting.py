@@ -112,11 +112,12 @@ def list_folder_images(folder: str) -> List[str]:
     """
     if not folder or not os.path.isdir(folder):
         return []
-    return sorted((name for name in os.listdir(folder)
-                   if not name.startswith(".")
-                   and name.lower().endswith(IMAGE_EXTS)
-                   and os.path.isfile(os.path.join(folder, name))),
-                  key=natural_key)
+    with os.scandir(folder) as entries:
+        return sorted((entry.name for entry in entries
+                       if not entry.name.startswith(".")
+                       and entry.name.lower().endswith(IMAGE_EXTS)
+                       and entry.is_file()),
+                      key=natural_key)
 
 
 def masks_folder(folder: str, masks_dir: Optional[str] = None) -> str:
@@ -232,6 +233,34 @@ def image_shape(path: str) -> Optional[Tuple[int, ...]]:
     return tuple(n for n in shape if n != 1) or (1,)
 
 
+def _plain_tiff_plane(path: str) -> Optional[np.ndarray]:
+    """A one-page, one-sample TIFF's plane, read by tifffile; else None.
+
+    Pillow builds the array through ``tobytes`` in small encoder steps that
+    hold the interpreter lock; for a 2000 x 2000 16-bit plane that is about
+    35 ms, during which a popup's GUI thread waits for its thumbnails.
+    tifffile reads the same plane in a few milliseconds and lets go of the
+    lock while it reads. Only a file where both give the same array is read
+    here: one page of one sample. Anything else, or anything tifffile cannot
+    read, answers None and is read as before.
+
+    :param path: the TIFF file.
+    :returns: the plane, or None.
+    """
+    try:
+        import tifffile
+
+        with tifffile.TiffFile(path) as tif:
+            if len(tif.pages) != 1:
+                return None
+            page = tif.pages[0]
+            if page.samplesperpixel != 1 or len(page.shape) != 2:
+                return None
+            return page.asarray()
+    except Exception:
+        return None
+
+
 def thumbnail(path: str, size: int = 96) -> Optional[np.ndarray]:
     """A small 8-bit grey preview of an image, contrast-stretched.
 
@@ -244,6 +273,9 @@ def thumbnail(path: str, size: int = 96) -> Optional[np.ndarray]:
             from .convert import read_scn
 
             array = read_scn(path)[0]
+        elif (path.lower().endswith((".tif", ".tiff"))
+              and (plane := _plain_tiff_plane(path)) is not None):
+            array = plane
         else:
             from PIL import Image
 

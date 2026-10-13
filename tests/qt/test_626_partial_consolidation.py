@@ -82,6 +82,7 @@ def test_failed_copy_preserves_working_state_and_aborts_every_action(qtbot, qt_t
     # Fixing the copy problem and retrying uses a new complete output folder;
     # partial output and its diagnostic manifest remain available for inspection.
     qtbot.mouseClick(dialog.sort_button, Qt.LeftButton)
+    qtbot.waitUntil(lambda: not dialog._sort_busy(), timeout=30000)
     assert dialog.source_edit.text() == str(tmp_path / 'experiment_renamed_2')
     assert not dialog.consolidate_check.isChecked()
     assert 'Consolidation failed' not in dialog.status.text()
