@@ -4228,6 +4228,8 @@ API_ENTRIES = (
     ('spacr.qt.bridge.registry', 'The process-wide :class:`RunRegistry` (created on first use).'),
     ('spacr.qt.bridge.resolve_pipeline_entry', 'Return the pipeline function that runs a given app, or None if the app is interactive-only (annotate / make_masks) or unknown.'),
     ('spacr.qt.bridge.resolve_pipeline_entry._ret', 'Tag the entry point with its app key and its settings check.'),
+    ('spacr.qt.bridge.retire_live_work', 'Stop every job runner and registered run within one shared budget.'),
+    ('spacr.qt.bridge.retire_live_work.remaining', 'What is left of the shared budget, in milliseconds.'),
     ('spacr.qt.bridge.thread_has_stopped', 'True when ``thread`` is finished, never started, or already deleted.'),
     ('spacr.qt.bridge.wait_for_parked_threads', 'Wait for parked Qt threads within a shared time limit.'),
     ('spacr.qt.bridge.worker_capacity', 'Logical CPU capacity used by the cooperative run allocator.'),

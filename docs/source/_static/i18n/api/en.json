@@ -45468,6 +45468,23 @@
       "source_sha256": "17d29713da065e594a9e231eab8585cf2bfe65bb2b1e23e28239a9b807c05c71",
       "text": "Tag the entry point with its app key and its settings check."
     },
+    "spacr.qt.bridge.retire_live_work": {
+      "source_blocks_sha256": [
+        "3ca642289a115a7926c91ee12f28f541e84128d62fd2a20421e160ef7eac5f05",
+        "ee763032a7f94653ce19783e69b889b50599c467165fc3d3d03d1eac8be75f25",
+        "fed1571141deedea5557ab6836e8b86e00e04e2503b38c4c47ae806245e83722",
+        "4daa01c4fae8a398f444191c309fdb0153abb9a4d515cde6b398ef5df4c460ed"
+      ],
+      "source_sha256": "320e61cac2f91f9e099f0c28a405256ee7f83c5c08ad385f6e9a3a5e0687527f",
+      "text": "Stop every job runner and registered run within one shared budget.\n\nThe application's ``aboutToQuit`` drain and the interpreter's exit hook\nboth end here. ``aboutToQuit`` only fires when an event loop quits, so a\nprocess that builds windows and then simply ends (a script, a test\nsubprocess, a capture run that returns early) never sees it, and the\nQThreads its widgets started are destroyed during interpreter teardown\nwhile they still run. Qt treats that as fatal. Whatever cannot stop in\nthe budget is parked, never terminated.\n\n:param timeout_ms: total wait budget across every runner and run.\n:returns: how many threads are still running afterwards."
+    },
+    "spacr.qt.bridge.retire_live_work.remaining": {
+      "source_blocks_sha256": [
+        "39b5ca38ac066b107d52e78a97ab8a4a6738b4d8162f62b5fcbb393ea54e8b35"
+      ],
+      "source_sha256": "39b5ca38ac066b107d52e78a97ab8a4a6738b4d8162f62b5fcbb393ea54e8b35",
+      "text": "What is left of the shared budget, in milliseconds."
+    },
     "spacr.qt.bridge.thread_has_stopped": {
       "source_blocks_sha256": [
         "96f37c824e794cfe0e7a1fe83e7ae675060a83cbd164803335f0c7754acd6c9d",
@@ -51083,10 +51100,10 @@
     "spacr.qt.job_runner.JobRunner.shutdown": {
       "source_blocks_sha256": [
         "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "0816cfadd686e835c533d078a9ff374dbff4740a8ea48b59e01c3cefd988cb16"
+        "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e"
       ],
-      "source_sha256": "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
-      "text": "Cancel, then wait briefly so no QThread outlives the widget.\n\nCall from ``closeEvent``. Qt aborts the process if a running QThread is\ndestroyed, so a bounded wait is needed when a screen closes mid-load.\nThreads that outlast the budget are parked by\n:func:`spacr.qt.bridge.drain_thread` rather than terminated."
+      "source_sha256": "c75704a86994056080b2ba05cc7f8ec33a50c2c3ddbd54b9706373c9e3cb24f5",
+      "text": "Cancel, then wait briefly so no QThread outlives the widget.\n\nCall from ``closeEvent``. Qt aborts the process if a running QThread is\ndestroyed, so a bounded wait is needed when a screen closes mid-load.\n``timeout_ms`` is shared by every thread of this runner. Threads that\noutlast it are parked by\n:func:`spacr.qt.bridge.drain_thread` rather than terminated."
     },
     "spacr.qt.job_runner.JobRunner.submit": {
       "source_blocks_sha256": [
@@ -51101,10 +51118,11 @@
     "spacr.qt.job_runner.shutdown_all": {
       "source_blocks_sha256": [
         "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "fe9aad91fd2a10bc057676ef699cdbc5bef46de5c4056dbdd45fdf7f96ba302b",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ],
-      "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
-      "text": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Ordering\nmatters more than completeness here: a runner that cannot stop in time is\nparked by `bridge.drain_thread` rather than terminated, so this is bounded."
+      "source_sha256": "02588b27acda7fe618264858a278c8b3b6e782572311ac75b4eb4a5ea0eb39b6",
+      "text": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Every\nrunner is cancelled first, so all their threads are asked to stop at the\nsame moment, and then they are waited for against ONE deadline: a window\nwith ten busy screens quits in ``timeout_ms``, not ten times that. A\nrunner that cannot stop in time is parked by `bridge.drain_thread` rather\nthan terminated, so this is bounded.\n\n:param timeout_ms: the total wait budget across every runner."
     },
     "spacr.qt.laptop_mode": {
       "source_blocks_sha256": [

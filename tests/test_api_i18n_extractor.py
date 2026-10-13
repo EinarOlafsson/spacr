@@ -1556,6 +1556,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in warm_arrivals} == warm_arrivals
     assert not warm_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **warm_arrivals}
+    # 2026-10-13: Quitting with work in flight (retire_live_work) and the Preferences warm-up polish (_PreferencesWindow.event); one named contract.
+    quit_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text())
+    assert len(quit_arrivals) == 3
+    assert {key: docs[key] for key in quit_arrivals} == quit_arrivals
+    assert not quit_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **quit_arrivals}
     # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
     dna_rain_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
