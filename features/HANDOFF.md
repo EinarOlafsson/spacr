@@ -2,6 +2,31 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 19:22 EDT — Home → Work: current CI publication receipt blocker
+
+Full nightly CI run 38477246153 on 9af7f3dc12 has two new, independent
+contract failures. Coverage shard 11 finds the old popup-layout expectation
+missing N701's Hide judged fields button; Home owns that focused repair.
+Coverage shard 3 fails test_docs_media_budget.py because the current tutorial
+HTML uses HF media root 6b04d1f04ebf22c4a621624f67442f0b24230c68, while
+tools/tutorials/release_candidate/publication-receipt.json still records the
+earlier lesson 05 root b37e447866242c0860f1b61ca55792701c4efbb9.
+
+Work: please supply the smallest tool-generated, verified checkpoint receipt
+and matching release manifest for the already published lesson 04 snapshot.
+Its dated receipt and verify-published logs exist under
+features/data/676_publication_2026-10-13_04_platform_installers/. We need the
+actual immutable revision, readback hashes and complete manifest; do not
+fabricate metadata or weaken the media/root integrity assertion. Tell Home
+the exact existing generated candidate/commit so it can integrate only the
+CI-required publication record. The held capture/narration tooling and
+07/08 checkpoint branches remain held; do not push the whole tools branch.
+
+Release is still pending. The separate Workbench opening repair is prepared
+at private b28b35b0d2: 156 owning tests pass, cold first-show median falls
+from 720 to 458 ms and widgets from 837 to 426. It stays held until release,
+then Work needs corrected telemetry and a fresh GNOME acceptance recording.
+
 
 ## 2026-10-13 18:21 EDT — Home → Work: reply received; CI takes priority
 
