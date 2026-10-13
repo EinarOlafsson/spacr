@@ -19,7 +19,8 @@ from copy import deepcopy
 import logging
 import os
 import threading
-from collections import defaultdict
+import time
+from collections import defaultdict, deque
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from .. import _after
@@ -62,7 +63,7 @@ from .preview_contract import (
 from .channel_mapping import ChannelMappingWidget
 from .percentile_pair import DECIMALS as PERCENTILE_DECIMALS
 from .toggle import Toggle
-from ..hidpi import logical_size, scaled_for
+from ..hidpi import device_ratio, logical_size, scaled_for
 from ..job_runner import JobRunner
 from ..i18n import tr
 from ...crops import DEFAULT_MASK_DIMS
@@ -84,6 +85,124 @@ def _preview_crop_pixels(crop, primaries):
         from ...crops import apply_display_primaries
         array = np.ascontiguousarray(apply_display_primaries(array, primaries))
     return array
+
+
+_RENDER_SLICE_S = 0.008
+"""How long one turn of the event loop may spend adding crops to the grid.
+A two-field preview is a hundred-odd thumbnails, 40 ms or more to build in
+one go on a 2560 x 1440 screen; in slices of this size the window keeps its
+frame rate while the grid fills."""
+
+
+def _opaque_pixmap_format() -> QImage.Format:
+    """The format an opaque ``QPixmap`` holds its pixels in on this platform.
+
+    Asked of Qt once, on the GUI thread, so a worker can draw a thumbnail
+    in exactly the format :meth:`MeasurePreviewPanel._crop_pixmap` scales.
+    """
+    probe = QImage(1, 1, QImage.Format_RGB888)
+    probe.fill(0)
+    return QPixmap.fromImage(probe).toImage().format()
+
+
+def _rounded_image(image: QImage, radius: int = 8) -> QImage:
+    """:func:`_rounded_pixmap` for a ``QImage``, which a worker may paint."""
+    out = QImage(image.size(), QImage.Format_ARGB32_Premultiplied)
+    out.setDevicePixelRatio(image.devicePixelRatio())
+    out.fill(Qt.transparent)
+    painter = QPainter(out)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    shown = logical_size(image)
+    path = QPainterPath()
+    path.addRoundedRect(QRectF(0, 0, shown.width(), shown.height()),
+                        radius, radius)
+    painter.setClipPath(path)
+    painter.drawImage(0, 0, image)
+    painter.end()
+    return out
+
+
+def _thumbnail_image(crop, primaries: str, side: int, ratio: float,
+                     opaque: QImage.Format) -> QImage:
+    """One crop drawn as its grid thumbnail, off the GUI thread.
+
+    The same pixels :meth:`MeasurePreviewPanel._crop_pixmap` draws, made
+    where they are allowed to be: a ``QImage`` may be scaled and painted on
+    any thread, a ``QPixmap`` only on the GUI thread. The GUI then only wraps
+    the result.
+
+    :param crop: the crop's RGB pixels.
+    :param primaries: the display primaries, see :func:`_preview_crop_pixels`.
+    :param side: the thumbnail's side in logical pixels.
+    :param ratio: the device pixel ratio it is drawn for.
+    :param opaque: :func:`_opaque_pixmap_format`.
+    """
+    array = _preview_crop_pixels(crop, primaries)
+    height, width = array.shape[:2]
+    image = QImage(array.data, width, height, 3 * width,
+                   QImage.Format_RGB888).convertToFormat(opaque)
+    image.setDevicePixelRatio(ratio)
+    return _rounded_image(scaled_for(image, image, side), radius=8)
+
+
+def _thumbnail_images(crops, spec) -> List[Tuple[Any, QImage]]:
+    """:func:`_thumbnail_image` for every crop, paired with its pixels.
+
+    :param spec: ``(primaries, side, ratio, opaque format)``.
+    :returns: ``(crop array, image)`` pairs; the array identifies which crop
+        an image belongs to when the grid is drawn.
+    """
+    return [(entry["crop"], _thumbnail_image(entry["crop"], *spec))
+            for entry in crops]
+
+
+def _import_the_cropper() -> None:
+    """Import :mod:`spacr.measure` the way the run's first import is done.
+
+    The first crop pass of a session imports it, with SciPy, scikit-image,
+    OpenCV, pandas and Matplotlib behind it. On the pass's own worker that
+    import held the interpreter through every C extension's load, ran beside
+    an OpenGL context being made, and left a full garbage collection over the
+    new modules to whichever thread allocated next, usually the GUI thread.
+    :func:`spacr.qt.bridge._import_the_entry_module` takes the heavy-import
+    lock, the responsive switch interval and freezes what it built.
+    """
+    from ..bridge import _import_the_entry_module, _module_is_imported
+
+    if not _module_is_imported("spacr.measure"):
+        _import_the_entry_module("spacr.measure")
+
+
+def _crop_pass(paths, current_path, current_data, crop_kwargs,
+               category_params, cancelled, unmix_settings=None,
+               thumbnails=None):
+    """One preview crop pass as the worker runs it.
+
+    :func:`_compute_checked_crops` under the responsive switch interval, so
+    the GUI thread gets its turn between the pass's NumPy calls, followed by
+    the thumbnails when ``thumbnails`` names how to draw them.
+
+    :param thumbnails: ``(primaries, side, ratio, opaque format)``, or
+        ``None`` to leave every thumbnail to the GUI thread.
+    :returns: what :func:`_compute_checked_crops` returns, plus
+        ``thumbnails`` from :func:`_thumbnail_images`.
+    """
+    from ..gil_priority import responsive_gui
+
+    _import_the_cropper()
+    with responsive_gui():
+        result = _compute_checked_crops(paths, current_path, current_data,
+                                        crop_kwargs, category_params,
+                                        cancelled, unmix_settings)
+        if (thumbnails is not None and result.get("crops")
+                and not cancelled.is_set()):
+            try:
+                result["thumbnails"] = _thumbnail_images(result["crops"],
+                                                         thumbnails)
+                result["thumbnail_spec"] = tuple(thumbnails)
+            except Exception:
+                LOG.debug("thumbnails left to the GUI thread", exc_info=True)
+    return result
 
 
 def _write_preview_crop_export(destination, crops, metadata, primaries, cancelled):
@@ -331,6 +450,87 @@ def _presence_in(data: np.ndarray, dim: Optional[int],
     return False
 
 
+class _CompanionPlanes:
+    """The companion mask planes of one field, read once for every crop.
+
+    :func:`_presence_in` answers for one crop by converting the whole plane
+    and comparing every pixel with every label it finds, so annotating sixty
+    crops of a 2000 x 2000 field converted and scanned each plane hundreds of
+    times. This converts each plane once, counts its labels once, and looks
+    inside each cell's bounding box only, with the same answers.
+
+    :param data: the merged ``(H, W, C)`` array.
+    """
+
+    def __init__(self, data: np.ndarray):
+        """Hold ``data``; nothing is read before a plane is asked for."""
+        self._data = data
+        self._planes: Dict[int, np.ndarray] = {}
+        self._counts: Dict[int, Optional[np.ndarray]] = {}
+
+    def plane(self, dim: int) -> np.ndarray:
+        """Plane ``dim`` as integers, converted as :func:`_presence_in` does."""
+        if dim not in self._planes:
+            plane = self._data[..., dim]
+            if not np.issubdtype(plane.dtype, np.integer):
+                plane = plane.astype(np.int64)
+            self._planes[dim] = plane
+        return self._planes[dim]
+
+    def area(self, dim: int, label) -> int:
+        """How many pixels of plane ``dim`` carry ``label``."""
+        if dim not in self._counts:
+            plane = self.plane(dim)
+            counts = None
+            if (plane.size and plane.dtype != np.uint64
+                    and int(plane.min()) >= 0
+                    and int(plane.max()) <= 2 * plane.size):
+                counts = np.bincount(np.ascontiguousarray(plane).ravel())
+            self._counts[dim] = counts
+        counts = self._counts[dim]
+        if counts is None:
+            return int(np.count_nonzero(self.plane(dim) == label))
+        label = int(label)
+        return int(counts[label]) if 0 <= label < counts.size else 0
+
+    def presence(self, dim: Optional[int], window, region: np.ndarray,
+                 minimum: int) -> Optional[bool]:
+        """:func:`_presence_in` for the cell whose pixels ``region`` marks.
+
+        :param dim: the companion plane, or ``None``.
+        :param window: the ``(rows, cols)`` slices ``region`` covers.
+        :param region: the cell's pixels inside ``window``.
+        :param minimum: the smallest companion area that counts.
+        """
+        if dim is None or dim >= self._data.shape[2]:
+            return None
+        labels = np.unique(self.plane(dim)[window][region])
+        labels = labels[labels > 0]
+        if minimum <= 0:
+            return bool(labels.size)
+        return any(self.area(dim, label) >= minimum for label in labels)
+
+
+def _cell_window(cell_mask: np.ndarray, entry: Dict[str, Any],
+                 boxed: bool):
+    """The slices that hold every pixel of ``entry``'s cell, and its region.
+
+    :param cell_mask: the cell plane.
+    :param entry: one crop, with its ``label`` and ``bbox``.
+    :param boxed: the crop's ``bbox`` was cut from this same plane, so it
+        holds the whole cell; otherwise the whole plane is searched.
+    :returns: ``(window, region)``.
+    """
+    label = int(entry["label"])
+    bbox = entry.get("bbox") if boxed else None
+    if bbox is None:
+        window = (slice(None), slice(None))
+    else:
+        y0, y1, x0, x1 = (int(v) for v in bbox)
+        window = (slice(y0, y1), slice(x0, x1))
+    return window, cell_mask[window] == label
+
+
 def _phenotype_label(name: str, value: Optional[bool]) -> str:
     """Render one phenotype as the word a biologist would use.
 
@@ -368,6 +568,18 @@ def annotate_crops(crops: List[Dict[str, Any]], data: Optional[np.ndarray],
         ``minima`` and ``uninfected``; only ``object == "cell"`` is
         categorised by phenotype.
     """
+    _annotate_crops(crops, data, params)
+
+
+def _annotate_crops(crops: List[Dict[str, Any]], data: Optional[np.ndarray],
+                    params: Dict[str, Any],
+                    mask_dim: Optional[int] = None) -> None:
+    """:func:`annotate_crops`, told which mask plane the crops were cut by.
+
+    :param mask_dim: when it is the cell plane, each crop's ``bbox`` holds
+        its whole cell and only that box is searched; otherwise the whole
+        plane is, with the same result.
+    """
     object_name = params.get("object", "cell")
     if data is None or object_name != "cell":
         for entry in crops:
@@ -380,15 +592,17 @@ def annotate_crops(crops: List[Dict[str, Any]], data: Optional[np.ndarray],
     dims = params.get("dims", {})
     minima = params.get("minima", {})
     allow_uninfected = bool(params.get("uninfected", False))
-    cell_mask = data[..., cell_dim].astype(np.int64, copy=False)
+    planes = _CompanionPlanes(data)
+    cell_mask = planes.plane(cell_dim)
+    boxed = mask_dim is not None and int(mask_dim) == int(cell_dim)
     for entry in crops:
-        region = cell_mask == int(entry["label"])
-        nucleus = _presence_in(data, dims.get("nucleus"), region,
-                               int(minima.get("nucleus", 0)))
-        pathogen = _presence_in(data, dims.get("pathogen"), region,
-                                int(minima.get("pathogen", 0)))
-        organelle = _presence_in(data, dims.get("organelle"), region,
-                                 int(minima.get("organelle", 0)))
+        window, region = _cell_window(cell_mask, entry, boxed)
+        nucleus = planes.presence(dims.get("nucleus"), window, region,
+                                  int(minima.get("nucleus", 0)))
+        pathogen = planes.presence(dims.get("pathogen"), window, region,
+                                   int(minima.get("pathogen", 0)))
+        organelle = planes.presence(dims.get("organelle"), window, region,
+                                    int(minima.get("organelle", 0)))
         entry["phenotype"] = {
             "nucleus": nucleus,
             "pathogen": pathogen,
@@ -426,7 +640,8 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
         crops = crop_objects_from_array(data, **crop_kwargs)
     except Exception as exc:
         return {"crops": [], "error": f"Crop failed: {exc}"}
-    annotate_crops(crops, data, category_params)
+    _annotate_crops(crops, data, category_params,
+                    mask_dim=crop_kwargs.get("mask_dim"))
     return {"crops": crops, "error": ""}
 
 
@@ -516,7 +731,8 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
                 display, provenance = _unmixed_crop_source(
                     data, path, unmix_settings, cancelled, plans)
                 entries = crop_objects_from_array(display, **kwargs)
-                annotate_crops(entries, data, category_params)
+                _annotate_crops(entries, data, category_params,
+                                mask_dim=kwargs.get("mask_dim"))
                 for entry in entries:
                     entry['unmixing'] = provenance
                 result = {'crops': entries, 'error': ''}
@@ -813,6 +1029,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._pending_crop_request = None
         self._crop_cancel = threading.Event()
         self._crops: List[Dict[str, Any]] = []
+        self._thumb_images: Dict[int, Tuple[Any, QImage]] = {}
+        self._drawn_spec = None
+        self._render_plan: deque = deque()
+        self._render_generation = 0
+        self._threaded = bool(threaded)
         self._selected: set[int] = set()
         self._propagate_cb = None
         self._thumb_px = 132
@@ -1540,7 +1761,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def _loads_in_flight(self) -> List[int]:
         """Outstanding loads and re-crops, as a list so ``not ...`` reads well."""
         runner = getattr(self, "_jobs", None)
-        return [] if runner is None else [0] * runner.pending_jobs()
+        drawing = int(bool(getattr(self, "_render_plan", None)))
+        if runner is None:
+            return [0] * drawing
+        return [0] * (runner.pending_jobs() + drawing)
 
     def load_array_async(self, path: str, *,
                          enumerate_sets: bool = True) -> bool:
@@ -1804,6 +2028,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def shutdown(self) -> None:
         """Abandon anything in flight and leave no QThread behind."""
+        self._render_generation += 1
+        self._render_plan.clear()
         self._cancel_extra_work()
         runner = getattr(self, "_jobs", None)
         if runner is not None:
@@ -2322,6 +2548,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._crop_cancel.set()
         self._pending_crop_request = None
         self._crops = []
+        self._thumb_images = {}
+        self._render_generation += 1
+        self._render_plan.clear()
         self._selected.clear()
         self.set_preview_busy(False)
         if self._data is not None and not self._checked_sources:
@@ -2374,7 +2603,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 widget.value() for widget in self._mask_dims.values()
                 if widget.value() >= 0]
         request = (self._crop_token, paths, self._data_path, self._data,
-                   crop_kwargs, self._category_params(), unmix_settings)
+                   crop_kwargs, self._category_params(), unmix_settings,
+                   self._thumbnail_spec())
         self.set_preview_busy(True)
         if self._crop_running:
             self._pending_crop_request = request
@@ -2387,13 +2617,26 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _start_crop_request(self, request) -> None:
         """Run one crop pass at a time and retain only the newest request."""
-        token, paths, path, data, kwargs, params, unmix_settings = request
+        token, paths, path, data, kwargs, params, unmix_settings = request[:7]
+        spec = request[7] if len(request) > 7 else None
         cancelled = self._crop_cancel = threading.Event()
         self._crop_running = True
         self._jobs.submit(
-            lambda: _compute_checked_crops(paths, path, data, kwargs, params,
-                                           cancelled, unmix_settings),
+            lambda: _crop_pass(paths, path, data, kwargs, params,
+                               cancelled, unmix_settings, spec),
             lambda result: self._finish_crop_request(token, result))
+
+    def _thumbnail_spec(self):
+        """How the grid draws a thumbnail now: primaries, side, ratio, format.
+
+        Taken on the GUI thread when a pass starts, so the worker draws the
+        thumbnails the grid would; :meth:`_prepared_pixmap` uses them only
+        while all four still hold.
+        """
+        if getattr(self, "_opaque_format", None) is None:
+            self._opaque_format = _opaque_pixmap_format()
+        return (self.display_primaries(), int(self._thumb_px),
+                float(device_ratio(self)), self._opaque_format)
 
     def _finish_crop_request(self, token, result) -> None:
         """Retire a pass even when superseded, then start the latest one."""
@@ -2414,6 +2657,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self.preview_ready.emit(None)
             return
         self._crops = result.get("crops") or []
+        self._thumb_images = {
+            index: pair
+            for index, pair in enumerate(result.get("thumbnails") or [])}
+        self._drawn_spec = result.get("thumbnail_spec")
         self._crop_export_metadata = dict(
             result.get("export_settings") or {},
             warnings=list(result.get("warnings") or []),
@@ -2500,7 +2747,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._on_preview_scale(getattr(self, "_preview_scale_value", 1.0))
 
     def _render_grid(self) -> None:
-        """Draw the crops, grouped and headed by phenotype."""
+        """Draw the crops, grouped and headed by phenotype.
+
+        The grid is laid out here and filled by :meth:`_continue_render`, a
+        slice of :data:`_RENDER_SLICE_S` at a time when the panel is threaded,
+        so a hundred thumbnails no longer hold the event loop in one turn. A
+        newer render, or a re-crop, abandons the rest of an older one.
+        """
         primaries = self.display_primaries()
         if primaries != self._crop_display_primaries:
             self._cancel_crop_export()
@@ -2508,6 +2761,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._export_btn.setEnabled(bool(self._crops) and not self._crop_running
                                     and not self._export_running
                                     and not self._export_source_loading)
+        self._render_generation += 1
+        self._render_plan.clear()
         self._clear_grid()
         if not self._crops:
             return
@@ -2524,32 +2779,89 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 category += " · " + Path(entry.get("source_path", "")).name
             grouped[category].append((index, entry))
 
+        token = self._crop_token
         row = 0
         for category in sorted(grouped):
             entries = grouped[category]
-            self._grid.addWidget(
-                self._category_header(category, entries),
-                row, 0, 1, columns,
-            )
+            self._render_plan.append(
+                (self._place_header, (category, entries, row, columns)))
             row += 1
             for offset, (index, entry) in enumerate(entries):
-                thumb = _CropThumb(
-                    index, included=bool(entry.get("included", True)))
-                thumb.setPixmap(self._crop_pixmap(entry["crop"]))
-                status = "kept" if entry.get("included", True) else "excluded"
-                thumb.setToolTip(
-                    f"{entry.get('source_path', '')}\n"
-                    f"label {entry['label']} · {entry['area']} px² · "
-                    f"{entry.get('category', '')} · {status}")
-                thumb.clicked.connect(
-                    lambda i, token=self._crop_token:
-                    self._on_current_thumb_clicked(token, i))
-                thumb.activated.connect(
-                    lambda i, token=self._crop_token:
-                    self._on_current_thumb_clicked(token, i, activate=True))
-                self._grid.addWidget(
-                    thumb, row + offset // columns, offset % columns)
+                self._render_plan.append(
+                    (self._place_thumb,
+                     (index, entry, row + offset // columns,
+                      offset % columns, token)))
             row += (len(entries) + columns - 1) // columns
+        self._continue_render(self._render_generation)
+
+    def _continue_render(self, generation: int) -> None:
+        """Place the next slice of the grid, then yield to the event loop.
+
+        :param generation: the render this continues; a newer one has
+            replaced it when :attr:`_render_generation` moved on.
+        """
+        if generation != self._render_generation:
+            return
+        start = time.perf_counter()
+        plan = self._render_plan
+        while plan:
+            place, args = plan.popleft()
+            place(*args)
+            if (plan and self._threaded
+                    and time.perf_counter() - start >= _RENDER_SLICE_S):
+                _after(0, self,
+                       lambda: self._continue_render(generation))
+                return
+
+    def _place_header(self, category: str, entries, row: int,
+                      columns: int) -> None:
+        """Add one phenotype heading to the grid."""
+        self._grid.addWidget(self._category_header(category, entries),
+                             row, 0, 1, columns)
+
+    def _place_thumb(self, index: int, entry: Dict[str, Any], row: int,
+                     column: int, token: int) -> None:
+        """Add one crop's thumbnail to the grid.
+
+        :param token: the crop token when the grid was laid out; a click on
+            a thumbnail of a superseded grid is ignored.
+        """
+        thumb = _CropThumb(index, included=bool(entry.get("included", True)))
+        thumb.setPixmap(self._prepared_pixmap(index, entry["crop"]))
+        status = "kept" if entry.get("included", True) else "excluded"
+        thumb.setToolTip(
+            f"{entry.get('source_path', '')}\n"
+            f"label {entry['label']} · {entry['area']} px² · "
+            f"{entry.get('category', '')} · {status}")
+        thumb.clicked.connect(
+            lambda i, token=token: self._on_current_thumb_clicked(token, i))
+        thumb.activated.connect(
+            lambda i, token=token:
+            self._on_current_thumb_clicked(token, i, activate=True))
+        self._grid.addWidget(thumb, row, column)
+
+    def _prepared_pixmap(self, index: int, crop: np.ndarray) -> QPixmap:
+        """The thumbnail the crop pass drew for ``crop``, or a fresh one.
+
+        The worker's image is used only for the very crop it was drawn from
+        and only while primaries, size and pixel ratio are what they were.
+        """
+        pair = self._thumb_images.get(index)
+        if (pair is not None and pair[0] is crop
+                and self._thumb_spec_matches()):
+            return QPixmap.fromImage(pair[1])
+        return self._crop_pixmap(crop)
+
+    def _thumb_spec_matches(self) -> bool:
+        """Whether worker thumbnails still look like :meth:`_crop_pixmap`."""
+        primaries, side, ratio = self._thumb_spec_now()
+        spec = getattr(self, "_drawn_spec", None)
+        return spec is not None and spec[:3] == (primaries, side, ratio)
+
+    def _thumb_spec_now(self):
+        """The primaries, side and pixel ratio a thumbnail is drawn with now."""
+        return (self._crop_display_primaries, int(self._thumb_px),
+                float(device_ratio(self)))
 
     def _crop_pixmap(self, crop: np.ndarray) -> QPixmap:
         """One crop as a pixmap, scaled for the grid.

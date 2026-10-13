@@ -11727,6 +11727,38 @@ def _save_object_crop(crop, channels, png_path, png_size):
     return png_path
 
 
+def _label_areas_and_boxes(mask):
+    """Every positive label's area and bounding box, in two passes over ``mask``.
+
+    The same answer as ``np.sum(mask == label)`` and ``np.where(mask == label)``
+    per label, without scanning the whole mask once per label: on a 2000 x 2000
+    field with a few hundred cells that loop was most of a Measure live preview
+    pass.
+
+    :param mask: 2-D label image.
+    :returns: ``(areas, boxes)``: ``(label, area)`` pairs in ascending label
+        order and :func:`scipy.ndimage.find_objects` slices indexed by
+        ``label - 1``; or ``None`` when ``mask`` is not a non-negative integer
+        image, which the per-label scan still handles.
+    """
+    if mask.size == 0 or not np.issubdtype(mask.dtype, np.integer):
+        return None
+    if np.issubdtype(mask.dtype, np.signedinteger) and int(mask.min()) < 0:
+        return None
+    top = int(mask.max())
+    if top <= 0:
+        return [], []
+    if top > 2 * mask.size:
+        return None
+    labels = np.ascontiguousarray(mask)
+    if labels.dtype == np.uint64:
+        labels = labels.astype(np.int64)
+    counts = np.bincount(labels.ravel(), minlength=top + 1)
+    present = np.flatnonzero(counts[1:]) + 1
+    areas = [(int(lbl), int(counts[lbl])) for lbl in present]
+    return areas, find_objects(labels)
+
+
 def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
                             min_area=0, max_area=0, mask_background=True,
                             normalize=True, percentiles=(1, 99), buffer=10,
@@ -11774,26 +11806,37 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
 
     channels = list(channels)
     mask = data[:, :, int(mask_dim)]
-    labels = np.unique(mask)
-    labels = labels[labels > 0]
+    counted = _label_areas_and_boxes(mask)
+    if counted is None:
+        labels = np.unique(mask)
+        labels = labels[labels > 0]
+        areas = [(int(lbl), int(np.sum(mask == lbl))) for lbl in labels]
+        boxes = None
+    else:
+        areas, boxes = counted
 
     scored = []
-    for lbl in labels:
-        area = int(np.sum(mask == lbl))
+    for lbl, area in areas:
         if min_area and area < min_area:
             continue
         if max_area and area > max_area:
             continue
-        scored.append((area, int(lbl)))
+        scored.append((area, lbl))
     scored.sort(reverse=True)
     if limit:
         scored = scored[:int(limit)]
 
     out = []
     for area, lbl in scored:
-        ys, xs = np.where(mask == lbl)
-        y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
-        x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
+        if boxes is None:
+            ys, xs = np.where(mask == lbl)
+            top, bottom = int(ys.min()), int(ys.max()) + 1
+            left, right = int(xs.min()), int(xs.max()) + 1
+        else:
+            rows, cols = boxes[lbl - 1]
+            top, bottom, left, right = rows.start, rows.stop, cols.start, cols.stop
+        y0 = max(0, top - buffer); y1 = min(mask.shape[0], bottom + buffer)
+        x0 = max(0, left - buffer); x1 = min(mask.shape[1], right + buffer)
 
         region = (mask[y0:y1, x0:x1] == lbl) if mask_background else None
         crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
