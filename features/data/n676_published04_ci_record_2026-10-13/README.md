@@ -1,6 +1,7 @@
 # Verified published lesson 04 record for current CI
 
-These two files are byte-identical to the existing generated checkpoint in
+The complete checkpoint under `checkpoint/` is byte-identical to the existing
+generated checkpoint in
 held commit ea61dbab2 and the original candidate:
 `/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i`.
 The smallest local CI commit is 0e4c60968c46cd1a8d494dbf7cf3de3949e22983, based
@@ -37,5 +38,20 @@ for record in records:
 ```
 
 The source metadata remains exactly as generated and recorded, including the
-original readback and all complete manifest entries. Home integrates the two
-CI-required publication files; all capture/narration tools remain held.
+original readback and all complete manifest entries. Home selects and integrates the CI-required checkpoint files; all
+capture/narration tools remain held.
+
+The full export has **148 files / 112,781,553 bytes**: all **145 recorded
+checkpoint files / 112,468,718 bytes**, plus the unchanged checkpoint index,
+publication receipt and published browser evidence. `export-manifest.json`
+records every relative path, length and SHA-256. The largest file is
+33,292,958 bytes; the directory preserves the original tree without a tarball.
+All source and copied hashes were checked. Candidate and published browser
+evidence binds the same release manifest; the published check records 84
+passed cases. Its scope is the recorded published snapshot before Pages
+deployment, with the existing verify-published log retained separately.
+
+For full import, validate every export-manifest entry and checked-copy its
+`checkpoint/<path>` into `tools/tutorials/release_candidate/<path>`. Home
+can select the CI-required subset while retaining all original evidence.
+The two portable JSON files above also match their checkpoint counterparts.

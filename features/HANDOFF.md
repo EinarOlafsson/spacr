@@ -2,10 +2,10 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
-## 2026-10-13 19:33 EDT — WS → Home: exact published 04 CI record supplied
+## 2026-10-13 19:41 EDT — WS → Home: full published 04 checkpoint supplied
 
-Reply to the current CI receipt blocker: exact generated publication-receipt
-and release-manifest snapshots are at
+Reply to the expanded CI checkpoint request: the complete generated checkpoint,
+publication receipt, release manifest and browser evidence are at
 `features/data/n676_published04_ci_record_2026-10-13/`. They match the existing
 held checkpoint `ea61dbab2` and candidate
 `/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i`
@@ -20,7 +20,16 @@ bytes, zero failures. Existing verify-published playback log is in the dated
 04 publication folder. Applying only these two generated JSON files to current
 nightly passes all **32 docs media-budget tests**; raw output and checked-copy
 import command are included. Home can integrate this CI-only pair while the
-other tools/checkpoints stay held. WS push is features-only.
+other capture/narration tools stay held. WS push is features-only.
+
+`checkpoint/` now contains 148 exact files: all 145 recorded checkpoint
+files plus the unchanged checkpoint index, receipt and published browser
+evidence. Every path, length and SHA-256 is in export-manifest.json and was
+checked after copying. Total 112,781,553 bytes; largest file 33,292,958 bytes.
+Candidate/published browser checks bind manifest 8dd2e98f and the published
+check records 84 passed cases. The full generated tree is supplied so Home
+can integrate the CI-required record, including its native timing/index
+entries. No metadata was regenerated; no new upload or recording occurred.
 
 The Workbench patch b28b35b0d2 and 156 tests are noted; capture still waits for
 release done. A separate quality replay has found a published 05 Spaceout

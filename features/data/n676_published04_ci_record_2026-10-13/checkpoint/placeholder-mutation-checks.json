@@ -1,0 +1,19 @@
+{
+  "player_sha256": "6961ced67ddee092e291064987e0c3eec5b3929fa24c16ada840cd0cbfabf328",
+  "mutations": [
+    {
+      "guard": "availability guard",
+      "observed_red": true
+    },
+    {
+      "guard": "completion guard",
+      "observed_red": true
+    }
+  ],
+  "baseline_before_and_after_passed": true,
+  "source_files_modified": false,
+  "tested_placeholder": "87_alpha_features",
+  "placeholder_source": "in-memory probe; the candidate has no unavailable lesson",
+  "passed": true,
+  "published": false
+}
