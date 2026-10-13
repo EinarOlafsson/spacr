@@ -29,7 +29,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Qt, Signal
 
-from spacr.qt.gil_priority import responsive_gui
+from spacr.qt.gil_priority import _open_torch_libraries, responsive_gui
 from spacr.cancellation import (
     CancellationToken,
     PipelineCancelled,
@@ -1569,6 +1569,7 @@ class PipelineWorker(QObject):
         try:
             with installed_token(self.cancel_token), responsive_gui():
                 self.cancel_token.checkpoint()
+                _open_torch_libraries()
                 payload = self._fn(self._settings)
             if journal_run is not None:
                 from spacr.run_journal import _raise_if_incomplete
@@ -1934,6 +1935,10 @@ def _import_the_entry_module(name: str) -> None:
     other background imports: a full collection over the 2,900 modules torch
     and the rest bring in otherwise lands on whichever thread allocates next,
     and that was the GUI thread starting the run, 100-150 ms.
+
+    PyTorch's libraries are mapped first with the interpreter lock released
+    (:func:`spacr.qt.gil_priority._open_torch_libraries`), whether or not
+    this module imports torch: the run that follows does.
     """
     app_module = sys.modules.get("spacr.qt.app")
     lock = getattr(app_module, "HEAVY_IMPORT_LOCK", None)
@@ -1944,6 +1949,7 @@ def _import_the_entry_module(name: str) -> None:
         try:
             if gc_was_enabled:
                 gc.disable()
+            _open_torch_libraries()
             importlib.import_module(name)
             torch = sys.modules.get("torch")
             if torch is not None:

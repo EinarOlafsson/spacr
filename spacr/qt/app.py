@@ -454,8 +454,9 @@ class _PipelinePreloader:
     single 1408 ms freeze -- 94% of it in the two modules that pull torch,
     and no amount of yielding breaks up one 2.3-second import. On a worker
     thread the same 4.2 seconds gives 224 ticks and a longest freeze of
-    185 ms, which is the GIL during a C-extension import and is not
-    avoidable by any threading.
+    185 ms, which is the GIL during a C-extension import. The largest of
+    those, PyTorch mapping its own libraries, is taken out of the lock
+    first (:func:`spacr.qt.gil_priority._open_torch_libraries`).
 
     The original docstring's reason for staying on the GUI thread was
     concurrent Qt/CUDA/OpenGL initialisation. That is answered by
@@ -521,6 +522,10 @@ class _PipelinePreloader:
         """Import every module, one at a time, holding the heavy lock."""
         import importlib
 
+        from .gil_priority import _open_torch_libraries
+
+        with HEAVY_IMPORT_LOCK:
+            _open_torch_libraries()
         for module in self._MODULES:
             try:
                 with HEAVY_IMPORT_LOCK:

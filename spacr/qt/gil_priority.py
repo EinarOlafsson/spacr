@@ -23,6 +23,7 @@ import sys
 import threading
 import weakref
 from contextlib import contextmanager
+from typing import Optional
 
 LOG = logging.getLogger("spacr.qt.gil_priority")
 
@@ -96,6 +97,146 @@ def responsive_gui():
         yield
     finally:
         release()
+
+
+#: PyTorch's shared libraries :func:`_open_torch_libraries` maps, in the order
+#: ``torch/__init__.py`` loads them, as ``(file in torch/lib, global)``.
+_TORCH_LIBRARIES = (("libtorch_global_deps.so", True),
+                    ("libtorch_cpu.so", False),
+                    ("libtorch_cuda.so", False))
+
+#: The CUDA libraries ``torch/__init__.py`` loads after its global library
+#: when its CUDA runtime came from a wheel, as ``(folder under nvidia,
+#: pattern)``.
+_TORCH_WHEEL_CUDA_LIBRARIES = (("cuda_nvrtc", "libnvrtc.so.*[0-9]"),
+                               ("nvjitlink", "libnvJitLink.so.*[0-9]"))
+
+_TORCH_LIBRARIES_TRIED = False
+
+
+def _dlopen_without_the_lock():
+    """The C library's ``dlopen``, called through ctypes.
+
+    A ctypes call to a foreign function releases the interpreter lock for
+    the length of the call, which neither ``import`` nor ``ctypes.CDLL``
+    does: both hold it while the dynamic linker maps and relocates.
+    """
+    import ctypes
+
+    function = ctypes.CDLL(None).dlopen
+    function.restype = ctypes.c_void_p
+    function.argtypes = (ctypes.c_char_p, ctypes.c_int)
+    return function
+
+
+def _wheel_cuda_library(folder: str, pattern: str) -> Optional[str]:
+    """The first ``nvidia/<folder>/lib/<pattern>`` on ``sys.path``.
+
+    The search ``torch._preload_cuda_deps`` makes, so the file is the one
+    PyTorch would load.
+
+    :param folder: the package folder under ``nvidia``.
+    :param pattern: the library's glob pattern.
+    """
+    import glob
+    import os
+
+    for entry in sys.path:
+        root = os.path.join(entry, "nvidia")
+        if not os.path.exists(root):
+            continue
+        found = (glob.glob(os.path.join(root, folder, "lib", pattern))
+                 or glob.glob(os.path.join(entry, folder, "lib", pattern)))
+        if found:
+            return found[0]
+    return None
+
+
+def _open_wheel_cuda_libraries(dlopen, maps_path: str = "/proc/self/maps") -> bool:
+    """Map NVRTC and nvJitLink as PyTorch does after its global library.
+
+    Only when the CUDA runtime that library brought in came from a wheel,
+    which is PyTorch's own condition; otherwise there is nothing to do.
+
+    :param dlopen: from :func:`_dlopen_without_the_lock`.
+    :param maps_path: the process's memory map, read for that condition.
+    :returns: False when a library PyTorch would load could not be found.
+    """
+    import os
+
+    try:
+        with open(maps_path) as maps:
+            if "nvidia/cuda_runtime/lib/libcudart.so" not in maps.read():
+                return True
+    except OSError:
+        return False
+    for folder, pattern in _TORCH_WHEEL_CUDA_LIBRARIES:
+        path = _wheel_cuda_library(folder, pattern)
+        if path is None or not dlopen(os.fsencode(path), os.RTLD_NOW):
+            return False
+    return True
+
+
+def _open_torch_libraries() -> bool:
+    """Map PyTorch's shared libraries with the interpreter lock released.
+
+    IMPORTING TORCH HOLDS THE LOCK FOR A THIRD OF A SECOND IN ONE C CALL.
+    ``import torch`` maps ``libtorch_cpu`` and ``libtorch_cuda`` (1.3 GB)
+    while it holds the interpreter lock: 300-340 ms in which no other thread
+    runs Python. The GUI thread needs the lock for every event a Python
+    object handles, so lesson 08's Measure run froze the window for 326 ms
+    when its worker imported torch half a second after Run.
+
+    This maps the same files first, in the order and with the flags
+    ``torch/__init__.py`` uses (``libtorch_global_deps`` global; the
+    wheel's NVRTC and nvJitLink when the CUDA runtime came from a wheel, as
+    PyTorch does next; then ``libtorch_cpu`` and ``libtorch_cuda``), through
+    ctypes calls to ``dlopen``, which release the lock. The import that
+    follows finds them mapped. Torch itself is not imported, and the process
+    ends up with the libraries PyTorch would have loaded, from the same
+    files.
+
+    Linux only, once per process, and only while torch is installed and not
+    yet imported. A build without ``libtorch_cuda`` maps the rest. Anything
+    unexpected stops it and leaves the rest to ``import torch``. Call it on
+    a worker thread.
+
+    Returns
+    -------
+    bool
+        True when every library the build has was mapped here.
+    """
+    global _TORCH_LIBRARIES_TRIED
+    with _LOCK:
+        if _TORCH_LIBRARIES_TRIED or "torch" in sys.modules:
+            return False
+        _TORCH_LIBRARIES_TRIED = True
+    if not sys.platform.startswith("linux"):
+        return False
+    try:
+        import importlib.util
+        import os
+
+        spec = importlib.util.find_spec("torch")
+        if spec is None or not spec.origin:
+            return False
+        lib = os.path.join(os.path.dirname(spec.origin), "lib")
+        dlopen = _dlopen_without_the_lock()
+        for index, (name, is_global) in enumerate(_TORCH_LIBRARIES):
+            path = os.path.join(lib, name)
+            if not os.path.isfile(path):
+                if index == 0:
+                    return False
+                continue
+            mode = os.RTLD_NOW | (os.RTLD_GLOBAL if is_global else 0)
+            if not dlopen(os.fsencode(path), mode):
+                return False
+            if index == 0 and not _open_wheel_cuda_libraries(dlopen):
+                return False
+        return True
+    except Exception:                                 # noqa: BLE001
+        LOG.debug("could not map the torch libraries early", exc_info=True)
+        return False
 
 
 _HUB_ATTRIBUTE = "_spacr_application_event_hub"
