@@ -212,6 +212,45 @@ def test_the_two_cellpose_halves_share_one_workbench(screen):
             is screen.folded_screen(MASK_FOLDER_KEY))
 
 
+def test_the_folded_workbench_leaves_closed_categories_until_opened(
+        screen, qtbot, monkeypatch):
+    from spacr.qt import screens
+
+    monkeypatch.setattr(screens, "_categories_wait_to_be_opened", False)
+    workbench = screen.folded_screen("train_cellpose")
+    assert not screens._categories_wait_to_be_opened
+    assert workbench._tabs.count() == 2
+    for page in workbench._screens:
+        model = page._settings_model
+        key = next(key for key in page._waiting_heading_of
+                   if model._built_control(key) is None)
+        expected = model.collect()[key]
+        assert model._built_control(key) is None
+        section = page._waiting_heading_of[key]
+        section.set_expanded(True)
+        qtbot.waitUntil(lambda: not page._heading_is_waiting(section))
+        assert model._built_control(key) is not None
+        assert model.collect()[key] == expected
+
+
+def test_a_failed_workbench_build_restores_other_screens_category_policy(
+        screen, monkeypatch):
+    from spacr.qt import screens
+    from spacr.qt.screens import train_cellpose
+
+    monkeypatch.setattr(screens, "_categories_wait_to_be_opened", False)
+
+    def fail():
+        assert screens._categories_wait_to_be_opened
+        raise RuntimeError("controlled workbench build failure")
+
+    monkeypatch.setattr(train_cellpose, "CellposeWorkbenchScreen", fail)
+    with pytest.raises(RuntimeError, match="controlled workbench"):
+        screen.folded_screen("train_cellpose")
+    assert not screens._categories_wait_to_be_opened
+    assert "train_cellpose" not in screen._fold_screens
+
+
 def test_opening_a_fold_twice_raises_the_page_it_already_made(
         screen, field_folder: Path):
     """The second press finds the paths and results the first one left."""

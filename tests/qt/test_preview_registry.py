@@ -138,6 +138,29 @@ def test_the_card_starts_hidden_behind_a_toggle(window, qtbot):
     assert host.card.isHidden()
 
 
+def test_a_preview_card_is_hidden_when_it_enters_the_splitter(
+        qtbot, qt_theme_applied, monkeypatch):
+    from spacr.qt import preview_registry
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("cellpose_masks")
+    qtbot.addWidget(screen)
+    inserted_hidden = []
+    original = preview_registry._insert_above_console
+
+    def insert(page, card):
+        inserted_hidden.append(card.isHidden())
+        return original(page, card)
+
+    monkeypatch.setattr(preview_registry, "_insert_above_console", insert)
+    host = install(screen)
+
+    assert host is not None
+    assert inserted_hidden == [True]
+    assert not host.panel_is_built()
+    assert host.card.isHidden()
+
+
 def test_the_toggle_lands_in_the_settings_strip(window, qtbot):
     screen = _screen(window, qtbot, "cellpose_masks")
     bar = screen._settings_search
