@@ -219,7 +219,10 @@ class ModelCardViewer(QFrame):
                 result: Any = cards.fetch_pages(repo, self._fetch)
             except Exception as exc:  # noqa: BLE001 - any failure is offline
                 result = exc
-            self._fetched.emit(repo, result)
+            try:
+                self._fetched.emit(repo, result)
+            except RuntimeError:
+                return
 
         if not self._threaded:
             job()
