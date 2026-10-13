@@ -150,6 +150,11 @@ def clear_cache(repo: str) -> None:
 
 
 def _num(value: Any) -> str:
+    """``value`` to three decimals, or as text when it is not a number.
+
+    :param value: a score from the card data.
+    :returns: the printed value.
+    """
     try:
         return f"{float(value):.3f}"
     except (TypeError, ValueError):

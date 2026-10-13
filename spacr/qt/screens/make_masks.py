@@ -8979,7 +8979,7 @@ class _VolumeStage(QWidget):
         self._z_wheel = QPushButton('Z', self._rail)
         self._z_wheel.setObjectName('MakeMasksSliceWheel')
         self._z_wheel.setCheckable(True)
-        self._z_wheel.setFixedWidth(36)
+        self._z_wheel.setMinimumWidth(max(36, self._z_wheel.sizeHint().width()))
         self._slider = QSlider(Qt.Vertical, self._rail)
         self._slider.setObjectName('MakeMasksSliceSlider')
         self._slider.setInvertedAppearance(True)

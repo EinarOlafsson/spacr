@@ -540,8 +540,6 @@ class ModelZooScreen(QWidget):
             "Select a model to see where it came from and what it was trained "
             "on.")
 
-        # The list sits left of the card so the card can use the full height
-        # of its row and the list keeps its rows; the split is remembered.
         listing = QWidget(self)
         lv = QVBoxLayout(listing)
         lv.setContentsMargins(0, 0, 0, 0)

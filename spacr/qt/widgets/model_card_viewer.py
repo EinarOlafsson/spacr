@@ -32,6 +32,10 @@ class _PageLabel(QLabel):
     clicked = Signal()
 
     def __init__(self, parent=None):
+        """An empty label, centred, that any layout may resize.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._source: Optional[QPixmap] = None
         self.setAlignment(Qt.AlignCenter)
@@ -44,6 +48,7 @@ class _PageLabel(QLabel):
         self._rescale()
 
     def _rescale(self) -> None:
+        """Fit the source pixmap to the label's current size."""
         if self._source is None or self._source.isNull():
             self.clear()
             return
@@ -51,10 +56,18 @@ class _PageLabel(QLabel):
                                   max(1, self.width()), max(1, self.height())))
 
     def resizeEvent(self, event):  # noqa: N802
+        """Refit the pixmap to the new size.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         self._rescale()
 
     def mouseReleaseEvent(self, event):  # noqa: N802
+        """Emit :attr:`clicked` on a left click.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() == Qt.LeftButton:
             self.clicked.emit()
         super().mouseReleaseEvent(event)
@@ -78,6 +91,13 @@ class ModelCardViewer(QFrame):
     def __init__(self, parent=None, *, threaded: bool = True,
                  fetch: Optional[Callable[[str], bytes]] = None,
                  enlargeable: bool = True):
+        """Build the page area, the status line and the page row.
+
+        :param parent: parent widget.
+        :param threaded: fetch the images on a worker thread.
+        :param fetch: byte source taking a URL, or ``None`` for the network.
+        :param enlargeable: clicking the image opens a larger dialog.
+        """
         super().__init__(parent)
         self.setObjectName(VIEWER_NAME)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -135,8 +155,6 @@ class ModelCardViewer(QFrame):
         outer.addLayout(row)
         self._apply_style()
         self._show_page()
-
-    # -- state ------------------------------------------------------------
 
     def card(self) -> Optional[Dict[str, Any]]:
         """The card data being shown, or ``None``."""
@@ -210,9 +228,11 @@ class ModelCardViewer(QFrame):
         else:
             super().keyPressEvent(event)
 
-    # -- fetching ---------------------------------------------------------
-
     def _start_fetch(self, repo: str) -> None:
+        """Fetch the page images of ``repo``, on a worker when threaded.
+
+        :param repo: ``owner/repo`` of the model.
+        """
         def job():
             """Fetch the card pages and emit the outcome, or the failure."""
             try:
@@ -231,6 +251,11 @@ class ModelCardViewer(QFrame):
         self._thread.start()
 
     def _on_fetched(self, repo: str, result: Any) -> None:
+        """Take the fetched pages, or note the failure, for the shown card.
+
+        :param repo: the repo the fetch was for; a stale one is ignored.
+        :param result: the page paths, or the exception the fetch raised.
+        """
         if not self._card or self._card.get("repo_id") != repo:
             return
         if isinstance(result, BaseException):
@@ -240,6 +265,10 @@ class ModelCardViewer(QFrame):
         self._show_page()
 
     def _load(self, paths) -> None:
+        """Read the page images; one that does not load fails them all.
+
+        :param paths: the page image files, in page order.
+        """
         self._pixmaps = [QPixmap(str(p)) for p in paths]
         if any(p.isNull() for p in self._pixmaps):
             self._pixmaps = [None] * cards.PAGE_COUNT
@@ -247,9 +276,8 @@ class ModelCardViewer(QFrame):
         else:
             self._failed = False
 
-    # -- drawing ----------------------------------------------------------
-
     def _show_page(self) -> None:
+        """Show the current page: its image, else its text from the card."""
         card = self._card
         self._prev.setEnabled(card is not None and self._page > 0)
         self._next.setEnabled(
@@ -294,6 +322,7 @@ class ModelCardViewer(QFrame):
         self._stack.setCurrentWidget(self._text)
 
     def _apply_style(self) -> None:
+        """Style the frame, labels and text from the active palette."""
         p = active_palette()
         self.setStyleSheet(
             f"QFrame#{VIEWER_NAME} {{ border: 1px solid {p['border_soft']};"
@@ -304,6 +333,7 @@ class ModelCardViewer(QFrame):
             f" border: none; }}")
 
     def _enlarge(self) -> None:
+        """Open the current page larger in a dialog of its own."""
         if not self._enlargeable or self._card is None:
             return
         dialog = QDialog(self)
