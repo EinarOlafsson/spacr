@@ -1,0 +1,175 @@
+--- GUI thread stalled 0.37 s at clip second 4.54 ---
+Thread 0x00007132c31fb640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7845 in _flicker_field_dots
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7070 in _point_material
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7826 in _frame_impulse_lens
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7224 in _shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7235 in shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 9270 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x00007132c39fc640 (most recent call first):
+  File "<frozen importlib._bootstrap_external>", line 1215 in get_data
+  File "<frozen importlib._bootstrap_external>", line 1115 in get_code
+  File "<frozen importlib._bootstrap_external>", line 1019 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/control.py", line 25 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/__init__.py", line 27 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/misc/coverage_support.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/core/lowering.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1423 in _handle_fromlist
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/core/pythonapi.py", line 12 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/core/extending.py", line 20 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/core/ir_utils.py", line 14 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1423 in _handle_fromlist
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/stencils/stencil.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/core/decorators.py", line 13 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/numba/__init__.py", line 92 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 5398 in _warm_packed_scatter
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Current thread 0x00007132c41fd640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 274 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x00007133f49ff640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7699 in _frame_impulse_lens
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7224 in _shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7235 in shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 9270 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x00007134504844c0 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 193 in field_sample
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 238 in <lambda>
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py", line 131 in once
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py", line 136 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py", line 377 in mouseClick
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cellpose_masks.py", line 67 in click
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cellpose_masks.py", line 78 in record_apply
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_ui_drv_e.py", line 51 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_refresh.py", line 800 in main
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 556 in driver
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/human_input.py", line 537 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/app.py", line 8035 in launch
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/__init__.py", line 425 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 592 in run_child
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py", line 262 in gnome_child
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py", line 194 in main
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py", line 270 in <module>
+--- GUI thread stalled 0.35 s at clip second 8.83 ---
+Thread 0x00007132c31fb640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 6992 in _pointer_field
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7000 in _bend_pointer
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7700 in _frame_impulse_lens
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7224 in _shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7235 in shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 9270 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Current thread 0x00007132c41fd640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 274 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x00007133f49ff640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7695 in _frame_impulse_lens
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7224 in _shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 7235 in shade
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/ambient.py", line 9270 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x00007134504844c0 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/flow.py", line 104 in minimumSize
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/collapsible_splitter.py", line 902 in insertWidget
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/preview_registry.py", line 515 in _insert_above_console
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/preview_registry.py", line 407 in _attach
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/preview_registry.py", line 340 in install
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/screens/train_cellpose.py", line 138 in _install_screen_seams
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/screens/train_cellpose.py", line 287 in __init__
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/screens/make_masks.py", line 10423 in _build_folded_screen
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/screens/make_masks.py", line 10410 in folded_screen
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/screens/make_masks.py", line 10468 in open_folded
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/fold_strip.py", line 692 in <lambda>
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py", line 131 in once
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py", line 136 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py", line 377 in mouseClick
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cellpose_masks.py", line 67 in click
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cellpose_masks.py", line 82 in record_apply
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_ui_drv_e.py", line 51 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_refresh.py", line 800 in main
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 556 in driver
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/human_input.py", line 537 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/app.py", line 8035 in launch
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/__init__.py", line 425 in run
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_mode.py", line 592 in run_child
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py", line 262 in gnome_child
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py", line 194 in main
+  File "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py", line 270 in <module>

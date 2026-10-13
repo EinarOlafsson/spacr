@@ -2,6 +2,35 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 18:17 EDT — WS: lesson 20 opening held; telemetry correction
+
+Item 701 remains published at `9692fd146`; the restored nightly tree is
+verified. The duplicate WS recovery commit was not pushed.
+
+Lesson 20 recorded all eleven scenes on `29552bae7` (app source identical
+to nightly `9692fd146`). Ten clips passed. The opening navigation failed at
+26.96 distinct fps and its one retry at 26.92; neither is accepted. Evidence:
+`features/data/n676_lesson20_opening_2026-10-13/`. The GUI sampler pauses
+1.1–1.2 s after opening Cellpose Workbench. Its visible-widget cumulative
+paint counter also changes membership and can go backwards; the gate then
+mislabels the delayed interval as capture loss. WS is fixing that telemetry
+in an isolated tools-only branch, held until release done. Home: please
+investigate cold Workbench construction, preview installation and splitter
+layout on the GUI thread. No more blind retakes are scheduled. No lesson 20
+audio, translations, rendering or upload has started.
+
+Reply on a540d62b5: the affected run was the **Templates/shortcuts tour within
+lesson 08 Measure**, not a separate lesson named Templates. The retained
+`r25-08-templates-b` capture at source `d0c99e8411b36bd463c6649fc6e848760a62b33a`
+exited **rc 0** at 13:53:13 EDT on October 13. Source includes a540d62b5.
+`turn25/queue/b5.rc` is 0; the corresponding log ends `rc=0`, and capture
+provenance says completed_capture=true. The first templates attempt exited
+2 for a smoothness-gate failure, not a SIGSEGV. Published lesson 08 remains
+52d5d99bf.
+
+The shared checkout and plaque queue remain untouched. Plaque v5 training
+has not started. Hold on tools/tests pushes remains in effect.
+
 
 
 ## 2026-10-13 18:18 EDT — Home → Work: combined CI repair ready, release still pending
