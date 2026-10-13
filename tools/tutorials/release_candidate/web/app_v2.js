@@ -136,6 +136,9 @@ const VIDEO_CLOCK_DRIFT_SECONDS = 0.4;
 const VIDEO_END_PARK_SECONDS = 0.10;
 const VIDEO_END_PARK_RATE = 0.0625;
 let videoClockCorrectionPending = false;
+// True from a narration-led video skip until the picture plays again: the
+// narration is the master clock and must never wait for the picture.
+let videoCatchingUpToNarration = false;
 let nativeFrameSyncHandle = null;
 // A localized narration can outlast the silent visual master. The video stays
 // genuinely playing at a browser-safe minimum rate near its final frame so
@@ -1370,6 +1373,7 @@ function seekNarrationToVideo() {
 }
 
 function videoIsLoading() {
+  if (videoCatchingUpToNarration) return false;
   return elements.video.seeking ||
     elements.video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
 }
@@ -1414,6 +1418,7 @@ function setVideoTimeFromNarration(target) {
     Math.max(0, target), Math.max(0, elements.video.duration - 0.02));
   if (Math.abs(elements.video.currentTime - bounded) <= 0.015) return;
   videoClockCorrectionPending = true;
+  videoCatchingUpToNarration = true;
   elements.video.currentTime = bounded;
 }
 
@@ -1993,6 +1998,7 @@ elements.video.addEventListener("pause", () => {
 });
 elements.video.addEventListener("seeking", () => {
   if (!videoClockCorrectionPending) {
+    videoCatchingUpToNarration = false;
     videoParkedForNarration = false;
     narratedPlaybackCompleted = false;
     seekNarrationToVideo();
@@ -2015,7 +2021,11 @@ for (const type of ["waiting", "stalled", "seeking", "seeked", "loadeddata",
                     "canplay", "canplaythrough", "playing", "pause", "emptied"]) {
   elements.video.addEventListener(type, updateNarrationHold);
 }
+elements.video.addEventListener("playing", () => {
+  if (!videoClockCorrectionPending) videoCatchingUpToNarration = false;
+});
 elements.video.addEventListener("emptied", () => {
+  videoCatchingUpToNarration = false;
   // Replacing/removing src cancels an in-flight seek without a seeked event.
   // Its guard belongs to the discarded resource, not the next lesson.
   videoClockCorrectionPending = false;
