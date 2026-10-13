@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-13T23:07:34.282453+00:00",
+  "scope": "Full corrected gate replay of selected published05 spaceout source clip; original artifacts unchanged",
+  "source_commit": "6dfed0613c1b88de62f7e28021197c0e0fe1fb18",
+  "gate_code_sha256": "6c8047040e84e63a2e4b5e5f4a335671870775cb283aa65481d94991d1879ca6",
+  "input_hashes": {
+    "/media/carruthers/mnt3/claude/n676_stages/host/r23-05-spaceout/captures/home/02_spaceout_field_effects.native.mp4": "2f14969592b78ed088963910c7604d5b08f00ab826271becac15cc69e4faf301",
+    "/media/carruthers/mnt3/claude/n676_stages/host/r23-05-spaceout/captures/home/02_spaceout_field_effects.host.json": "65f835f65dc29403ad856321b766ec629ba55192195cce14fa203b8e615f6e69",
+    "/media/carruthers/mnt3/claude/n676_stages/host/r23-05-spaceout/captures/home/02_spaceout_field_effects.gate.json": "15baf349af5bae13643cc0653d71b375e361c51a7924b165ccaa4d8b3d9d2efb"
+  },
+  "video_metrics_and_limits_unchanged": true,
+  "original_gate_passed": true,
+  "result": {
+    "video": "/media/carruthers/mnt3/claude/n676_stages/host/r23-05-spaceout/captures/home/02_spaceout_field_effects.native.mp4",
+    "size": [
+      2560,
+      1440
+    ],
+    "fps": 30.0,
+    "duration_s": 32.2,
+    "frames": 966,
+    "passed": false,
+    "reasons": [
+      "app freeze: delayed GUI sampler overlaps low-picture-rate second(s) [22, 23]"
+    ],
+    "limits": {
+      "min_fps": 27.9,
+      "change_level": 10,
+      "change_pixels": 4,
+      "cursor_box": 72,
+      "peak_per_frame": 0.02,
+      "jump_margin": 1.5,
+      "min_cursor_found": 0.9,
+      "top_bar_height": 32,
+      "top_bar_every": 10
+    },
+    "field_window_s": null,
+    "distinct_fps": 28.48,
+    "distinct_fraction": 0.9492,
+    "longest_unchanged_run_frames": 9,
+    "distinct_per_second": [
+      27,
+      30,
+      28,
+      30,
+      30,
+      29,
+      28,
+      29,
+      28,
+      30,
+      30,
+      29,
+      30,
+      29,
+      29,
+      29,
+      27,
+      30,
+      30,
+      29,
+      29,
+      29,
+      22,
+      25,
+      25,
+      30,
+      30,
+      27,
+      25,
+      28,
+      29,
+      30
+    ],
+    "app_painted_per_second": [
+      102.9,
+      74.4,
+      76.0,
+      62.0,
+      54.2,
+      46.2,
+      43.7,
+      47.4,
+      35.2,
+      48.1,
+      49.4,
+      50.5,
+      49.2,
+      50.4,
+      48.3,
+      50.3,
+      48.7,
+      50.2,
+      45.9,
+      47.7,
+      45.8,
+      46.6,
+      null,
+      26.2,
+      40.5,
+      39.8,
+      41.2,
+      40.4,
+      40.1,
+      43.5,
+      47.7,
+      39.9
+    ],
+    "app_paint_counter_semantics": "legacy_visible_widget_sum",
+    "app_paint_counter_scope": "legacy_visible_widget_sum",
+    "app_diagnostic_painted_per_second": [
+      102.9,
+      74.4,
+      76.0,
+      62.0,
+      54.2,
+      46.2,
+      43.7,
+      47.4,
+      35.2,
+      48.1,
+      49.4,
+      50.5,
+      49.2,
+      50.4,
+      48.3,
+      50.3,
+      48.7,
+      50.2,
+      45.9,
+      47.7,
+      45.8,
+      46.6,
+      null,
+      26.2,
+      40.5,
+      39.8,
+      41.2,
+      40.4,
+      40.1,
+      43.5,
+      47.7,
+      39.9
+    ],
+    "app_diagnostic_paint_scope": "legacy_aggregate_estimate",
+    "app_gui_sampler_gaps_s": [
+      [
+        22.24,
+        22.846
+      ]
+    ],
+    "app_gui_sampler_gap_evidence": "inferred_legacy_gui_sampler",
+    "app_freeze_seconds": [
+      22,
+      23
+    ],
+    "app_slow_seconds": [],
+    "capture_loss_seconds": [
+      0,
+      16,
+      24,
+      27,
+      28
+    ],
+    "app_unknown_seconds": [],
+    "app_stall_windows_s": [
+      [
+        22.24,
+        22.846
+      ],
+      [
+        23.232,
+        23.333
+      ]
+    ],
+    "app_stall_video_offset_s": 0.367,
+    "unchanged_frames": 49,
+    "unchanged_frames_in_app_stalls": 11,
+    "exact_md5_distinct_fraction": 0.9917,
+    "cursor": {
+      "found_fraction": 1.0,
+      "shapes_seen": [
+        "left_ptr@32"
+      ],
+      "max_step_px": 48.3,
+      "p95_step_px": 24.8,
+      "bound_px": 76.8,
+      "jumps": [],
+      "jump_count": 0
+    },
+    "top_bar": {
+      "hidden": true,
+      "sampled_frames": 97,
+      "visible_in": [],
+      "first_sample": {
+        "frame": 0,
+        "visible": false,
+        "black_fraction": 0.0,
+        "top_rows_black": 0.0,
+        "text_pixels": 1,
+        "below_black_fraction": 0.0
+      }
+    },
+    "adapter_bypasses": []
+  }
+}
