@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-13T23:33:02.876575+00:00",
+  "source_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i",
+  "original_generated_checkpoint_commit": "ea61dbab20e690a2e5eb370ad005718b8adabdb7",
+  "minimal_local_ci_commit": "0e4c60968c46cd1a8d494dbf7cf3de3949e22983",
+  "minimal_ci_base": "df1e07d70",
+  "files": [
+    {
+      "artifact": "publication-receipt.json",
+      "target": "tools/tutorials/release_candidate/publication-receipt.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/publication-receipt.json",
+      "sha256": "2357a99c6b2e453c9266a0ea08bb1423e29c52afcb0e22c3841b1793258ae777",
+      "bytes": 151963
+    },
+    {
+      "artifact": "release-manifest.json",
+      "target": "tools/tutorials/release_candidate/release-manifest.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/release-manifest.json",
+      "sha256": "8dd2e98facc69ea62721498db0b3b30f9b38c760b9d7bd65fa36795c850e8660",
+      "bytes": 1136143
+    }
+  ],
+  "immutable_revision": "6b04d1f04ebf22c4a621624f67442f0b24230c68",
+  "tag": "tutorial-04-installers-20261013-r23b-verified",
+  "tag_freshly_resolves_to_recorded_commit": true,
+  "existing_readback": {
+    "commit": "6b04d1f04ebf22c4a621624f67442f0b24230c68",
+    "files_expected": 5133,
+    "metadata_matched": 5133,
+    "metadata_failures": [],
+    "bytes_read_back": 7393785118,
+    "downloaded_sha256_matched": 5133,
+    "download_failures": [],
+    "seconds": 292.4,
+    "passed": true
+  },
+  "existing_published_verification": "features/data/676_publication_2026-10-13_04_platform_installers/verify-published-04_platform_installers-r23-04b.log.gz",
+  "validation": {
+    "command": "CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen tools/run_capped.sh 8G python -m pytest -q tests/test_docs_media_budget.py",
+    "passed": 32,
+    "log": "docs-media-budget-tests.txt"
+  },
+  "scope": "Exact preexisting tool-generated publication metadata for CI; no new upload or whole-remake quality claim",
+  "remaining_tools_hold": true
+}
