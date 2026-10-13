@@ -637,7 +637,8 @@ app = QApplication([])
 from spacr.qt import gil_priority, live_zoom
 from spacr.qt.app import _load_bundled_fonts, _use_open_sans
 from spacr.qt.theme import apply_qpalette, stylesheet
-old = sys.argv[1] == "old"
+kind = sys.argv[1]
+old = kind in ("old", "plain")
 if old:
     import spacr.qt.app as m
     from PySide6.QtGui import QFontDatabase
@@ -667,7 +668,9 @@ roles = ("CardTitle", "CardSubtitle", "TitleHeading", "Subtitle",
 root = QWidget()
 column = QVBoxLayout(root)
 for i in range(96):
-    label = QLabel(f"Step {i} \u25be \u2193 \u2192 \u2713", root)
+    text = (f"Step {i} v d r c" if kind == "plain"
+            else f"Step {i} \u25be \u2193 \u2192 \u2713")
+    label = QLabel(text, root)
     label.setObjectName(roles[i % len(roles)])
     column.addWidget(label)
 root.resize(700, 2400)
@@ -731,6 +734,20 @@ def _zoom_step(kind, tmp_path):
     return float(seconds)
 
 
+#: The old restyle pays the symbol search where it costs at least this many
+#: times the old restyle of the same column with plain letters. Medians
+#: measured 2026-10-13: 287 ms against 16.1 ms with a desktop's 2464 system
+#: fonts, 16.0 ms against 14.1 ms with only the 22 DejaVu fonts a CI runner
+#: has.
+SEARCH_PAID = 2.0
+
+#: Most set_scale's longest step may cost, in old restyles, where the
+#: search is free: 0.91-1.13 per interleaved pair over twelve pairs with
+#: only the 22 DejaVu fonts (medians 1.02 and 0.96, 2026-10-13), 0.89 and
+#: 0.94 on CI.
+NO_WORSE = 1.25
+
+
 def test_set_scale_holds_the_gui_thread_far_less_than_the_old_restyle(
         tmp_path):
     """Self-calibrated, each side in a fresh process so neither finds the
@@ -739,17 +756,37 @@ def test_set_scale_holds_the_gui_thread_far_less_than_the_old_restyle(
     opened inside it or the layout after it, the hub asked about every
     event) against the longest step set_scale makes now. Every turn of the
     event loop until the column has settled counts, the layout and paint
-    after the sheet included."""
-    olds, news = [], []
+    after the sheet included.
+
+    The search is what set_scale takes out, and it costs what the system's
+    font list makes it cost: about 270 ms with a desktop's 2464 fonts and
+    about 2 ms with the 22 DejaVu fonts of a CI runner, where both sides
+    are the layout and paint of the column and the 0.7 ratio measured noise
+    (18.7 against 19.9 ms and 15.1 against 17.0 ms on CI; 16.2 against
+    15.8 ms here with only those fonts). A third side, the old restyle of
+    the same column with plain letters for the symbols, says which machine
+    this is: where the search is paid, set_scale must take most of it out;
+    where it is free, set_scale must be no slower than the old restyle."""
+    olds, news, plains = [], [], []
     for _ in range(3):
         olds.append(_zoom_step("old", tmp_path))
         news.append(_zoom_step("new", tmp_path))
+        plains.append(_zoom_step("plain", tmp_path))
     old, new = statistics.median(olds), statistics.median(news)
+    plain = statistics.median(plains)
     print(f"old restyle {old * 1000:.1f} ms, set_scale's longest step "
-          f"{new * 1000:.1f} ms")
-    assert new < 0.7 * old, (
-        f"set_scale held the GUI thread {new * 1000:.1f} ms at most against "
-        f"{old * 1000:.1f} ms for the restyle it replaced")
+          f"{new * 1000:.1f} ms, old restyle without the symbols "
+          f"{plain * 1000:.1f} ms")
+    if old >= SEARCH_PAID * plain:
+        assert new < 0.7 * old, (
+            f"set_scale held the GUI thread {new * 1000:.1f} ms at most "
+            f"against {old * 1000:.1f} ms for the restyle it replaced")
+    else:
+        assert new < NO_WORSE * old, (
+            f"set_scale held the GUI thread {new * 1000:.1f} ms at most "
+            f"against {old * 1000:.1f} ms for the restyle it replaced, on a "
+            f"machine whose font list makes the symbol search free "
+            f"({plain * 1000:.1f} ms without the symbols)")
 
 
 def test_set_scale_ends_where_the_old_restyle_did(qtbot, symbols, hub,
