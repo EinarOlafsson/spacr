@@ -15,6 +15,7 @@ the same file, and time the GUI thread's share against the old one.
 """
 from __future__ import annotations
 
+import shutil
 import threading
 import time
 
@@ -155,15 +156,24 @@ def test_adopting_a_figure_holds_the_gui_thread_far_less(qtbot, tmp_path):
     """Self-calibrated: the GUI thread's old share against its new one."""
     queue = FigureQueue()
     qtbot.addWidget(queue)
-    path = _write_png(tmp_path / "big.png", panels=6, side=1200)
+    source = _write_png(tmp_path / "big.png", panels=6, side=1200)
+    copies = iter(range(100))
+
+    def fresh():
+        """A new file each time: QPixmap caches a path it has loaded."""
+        path = str(tmp_path / f"copy_{next(copies)}.png")
+        shutil.copyfile(source, path)
+        return path
 
     def old():
+        path = fresh()
         started = time.perf_counter()
         pixmap = QPixmap(path)
         scaled_for(pixmap, queue._list, THUMB_SIZE)
         return time.perf_counter() - started
 
     def new():
+        path = fresh()
         _on_a_worker(fq._decode_display_png, path)
         decoded = fq._take_decoded(path)
         started = time.perf_counter()

@@ -47,6 +47,24 @@ class _Busy:
         return True
 
 
+@pytest.fixture(autouse=True)
+def _no_hub_left_behind(qapp):
+    """Take down an application event hub these backdrops installed.
+
+    A field backdrop watches the application's mouse events through the
+    hub; one left on the application would answer a later test's events.
+    """
+    from spacr.qt import gil_priority
+
+    before = gil_priority._application_event_hub(qapp, create=False)
+    yield
+    after = gil_priority._application_event_hub(qapp, create=False)
+    if after is not None and after is not before:
+        qapp.removeEventFilter(after)
+        setattr(qapp, gil_priority._HUB_ATTRIBUTE, before)
+        after.deleteLater()
+
+
 @pytest.fixture
 def backdrop(qtbot, monkeypatch):
     """A field backdrop on screen, shading on its own thread."""
