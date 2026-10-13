@@ -331,3 +331,586 @@ def test_a_notch_costs_a_fraction_of_the_restyle_it_used_to_make(
     assert notch < 0.25 * restyle, (
         f"a Ctrl + wheel notch took {notch * 1000:.2f} ms against "
         f"{restyle * 1000:.2f} ms for the restyle each notch used to make")
+
+
+# --------------------------------------------------------------------------
+# set_scale: the symbols Open Sans lacks, the fonts opened ahead, the hub
+# --------------------------------------------------------------------------
+#
+# After the wheel rested, the one restyle left still held the GUI thread
+# 105-150 ms on Mask Generation: Qt searched the system's fonts for "▾" and
+# "↓" at every new size (Open Sans has neither), opened every font the new
+# size needed, and asked the application event hub about ~1,000 events no
+# watcher acts on. Now the symbols come from fonts spaCR ships, the fonts
+# are opened a few per turn before the sheet goes on, and the hub steps off
+# while it does. Measured offscreen at 2560x1440 with the field animating,
+# the longest single step of set_scale(1.25) on the Mask column went from
+# 105 ms to 25 ms.
+
+import contextlib                                                   # noqa: E402
+import importlib.util                                               # noqa: E402
+import json                                                         # noqa: E402
+import os                                                           # noqa: E402
+import subprocess                                                   # noqa: E402
+import sys                                                          # noqa: E402
+from pathlib import Path                                            # noqa: E402
+
+from PySide6.QtCore import QEventLoop, QObject                      # noqa: E402
+from PySide6.QtGui import QFont, QFontDatabase, QTextLayout         # noqa: E402
+
+_REPO = Path(__file__).resolve().parents[2]
+_QSS_FAMILIES = ["Open Sans", "Segoe UI", "Helvetica Neue", "sans-serif"]
+
+
+def _glyph_tool():
+    pytest.importorskip("fontTools")
+    spec = importlib.util.spec_from_file_location(
+        "spacr_build_glyph_fonts", _REPO / "tools" / "build_glyph_fonts.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.fixture
+def symbols(qapp):
+    from spacr.qt import app as app_mod
+
+    app_mod._load_bundled_fonts()
+    return app_mod
+
+
+def _families_drawing(text, weight=400, px=13):
+    font = QFont()
+    font.setFamilies(_QSS_FAMILIES)
+    font.setPixelSize(px)
+    font.setWeight(QFont.Weight(weight))
+    layout = QTextLayout(text, font)
+    layout.beginLayout()
+    layout.createLine()
+    layout.endLayout()
+    return {run.rawFont().familyName() for run in layout.glyphRuns()}
+
+
+def test_every_symbol_the_interface_draws_is_in_a_font_spacr_ships():
+    """A string that draws a glyph no shipped font has fails here.
+
+    Fix it by running ``python tools/build_glyph_fonts.py``.
+    """
+    tool = _glyph_tool()
+    missing = tool.ui_glyphs(have=tool.shipped_cmap())
+    assert missing == {}, "drawn but in no shipped font: " + ", ".join(
+        f"{c} U+{ord(c):04X} ({where[0]})" for c, where in missing.items())
+    assert tool.main(["--check"]) == 0
+
+
+def test_the_scan_reads_strings_not_docstrings_catalogs_or_locale_text(
+        tmp_path):
+    tool = _glyph_tool()
+    package = tmp_path / "qt"
+    (package / "i18n_catalogs").mkdir(parents=True)
+    (package / "screen.py").write_text(
+        '"""Module ▾ docstring."""\n'
+        'def f():\n'
+        '    """Function ✓ docstring."""\n'
+        '    "statement ■ string"\n'
+        '    return [tr("Next →"), "x\\u29c9", "x\\u1d62", "한국어 ←",\n'
+        '            "\\u00e9", "tab\\t", 3]\n', encoding="utf-8")
+    (package / "i18n_extra.py").write_text('X = "✗"\n', encoding="utf-8")
+    (package / "i18n_catalogs" / "ko.py").write_text('X = "✕"\n',
+                                                      encoding="utf-8")
+    old = tool.REPO
+    tool.REPO = tmp_path
+    try:
+        found = tool.ui_glyphs(root=package, have=set(range(0x100)))
+    finally:
+        tool.REPO = old
+    assert sorted(found) == sorted("→⧉ᵢ")
+    assert found["→"] == ["qt/screen.py:5"]
+
+
+def test_each_symbol_goes_to_the_font_that_drew_it_and_a_gap_is_refused(
+        monkeypatch):
+    tool = _glyph_tool()
+    have = {"NotoSansMath-Regular.ttf": {0x2192, 0x25BE},
+            "NotoSans-Regular.ttf": {0x1D62, 0x2192},
+            "DejaVuSans.ttf": {0x25BE, 0x2192, 0x2713},
+            "NotoSansSymbols-Regular.ttf": {0x2317},
+            "NotoSansCJK-Regular.ttc": {0xFF0B}}
+    monkeypatch.setattr(tool, "source", lambda name: name)
+    monkeypatch.setattr(tool, "_cmap", lambda path: have[path])
+    plan = tool.assign("→▾ᵢ✓⌗＋")
+    assert plan == {"spaCR Glyphs Math": "→", "spaCR Glyphs Latin": "ᵢ",
+                    "spaCR Glyphs Sans": "▾✓",
+                    "spaCR Glyphs Symbols": "⌗",
+                    "spaCR Glyphs Noto Sans CJK JP": "＋"}
+    with pytest.raises(SystemExit, match="U\\+2603"):
+        tool.assign("☃")
+
+
+def test_the_check_names_a_glyph_no_shipped_font_has(monkeypatch, capsys):
+    tool = _glyph_tool()
+    monkeypatch.setattr(tool, "ui_glyphs",
+                        lambda have=None: {"☃": ["spacr/qt/x.py:1"]})
+    assert tool.main(["--check"]) == 1
+    assert "☃ U+2603 spacr/qt/x.py:1" in capsys.readouterr().out
+
+
+def test_the_symbol_fonts_stand_in_for_every_family_the_sheets_ask_for(
+        symbols):
+    tool = _glyph_tool()
+    assert [family for family, _faces, _takes in tool.FAMILIES] == list(
+        symbols.SYMBOL_FONT_FAMILIES)
+    assert set(symbols.SYMBOL_FONT_FAMILIES) <= set(QFontDatabase.families())
+    symbols._load_bundled_fonts()
+    for family in symbols._SYMBOLS_STAND_IN_FOR:
+        assert QFont.substitutes(family) == [
+            name.lower() for name in symbols.SYMBOL_FONT_FAMILIES], family
+
+
+def test_qt_finds_every_symbol_in_a_font_spacr_ships(symbols):
+    """No glyph the interface draws sends Qt to the system's fonts."""
+    tool = _glyph_tool()
+    shipped = {"Open Sans", *symbols.SYMBOL_FONT_FAMILIES}
+    for weight in (300, 400, 600, 700):
+        for char in sorted(tool.ui_glyphs()) + list("▾↓"):
+            drawn = _families_drawing(f"a{char}b", weight)
+            assert drawn <= shipped, (char, weight, drawn)
+    assert _families_drawing("▾", 600) == {"spaCR Glyphs Sans"}
+    assert _families_drawing("↓") == {"spaCR Glyphs Math"}
+
+
+def test_without_the_symbol_fonts_open_sans_is_registered_alone(
+        monkeypatch):
+    import PySide6.QtGui as qtgui
+
+    from spacr.qt import app as app_mod
+
+    added, substituted = [], []
+
+    class _SpyDatabase:
+        @staticmethod
+        def addApplicationFont(path):                    # noqa: N802
+            added.append(path)
+            return len(added)
+
+    class _SpyFont:
+        @staticmethod
+        def substitutes(family):
+            return []
+
+        @staticmethod
+        def insertSubstitutions(family, names):          # noqa: N802
+            substituted.append(family)
+
+    monkeypatch.setattr(qtgui, "QFontDatabase", _SpyDatabase)
+    monkeypatch.setattr(qtgui, "QFont", _SpyFont)
+    real_isdir = os.path.isdir
+    hidden = os.path.join("font", "glyphs")
+    monkeypatch.setattr(
+        os.path, "isdir",
+        lambda p: False if str(p).endswith(hidden) else real_isdir(p))
+    app_mod._load_bundled_fonts()
+    assert added and all("open_sans" in path for path in added)
+    assert substituted == []
+
+
+_RENDER = r'''
+import hashlib, json, os, sys
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import (QColor, QFont, QFontDatabase, QImage, QPainter,
+                           QTextLayout)
+app = QApplication([])
+if sys.argv[1] == "shipped":
+    from spacr.qt.app import _load_bundled_fonts
+    _load_bundled_fonts()
+else:
+    import spacr.qt.app as m
+    folder = os.path.join(os.path.dirname(os.path.dirname(m.__file__)),
+                          "resources", "font", "open_sans", "static")
+    for name in os.listdir(folder):
+        QFontDatabase.addApplicationFont(os.path.join(folder, name))
+out = {}
+for char in sys.argv[2]:
+    for weight in (300, 400, 600, 700):
+        for px in (11, 13, 16, 22):
+            font = QFont()
+            font.setFamilies(["Open Sans", "Segoe UI", "Helvetica Neue",
+                              "sans-serif"])
+            font.setPixelSize(px)
+            font.setWeight(QFont.Weight(weight))
+            layout = QTextLayout(char, font)
+            layout.beginLayout(); layout.createLine(); layout.endLayout()
+            family = [r.rawFont().familyName() for r in layout.glyphRuns()]
+            image = QImage(60, 50, QImage.Format_ARGB32)
+            image.fill(QColor("white"))
+            painter = QPainter(image)
+            painter.setFont(font)
+            painter.setPen(QColor("black"))
+            painter.drawText(5, 35, "a" + char + "b")
+            painter.end()
+            out[f"{char}|{weight}|{px}"] = [
+                family, hashlib.md5(bytes(image.constBits())).hexdigest()]
+print(json.dumps(out))
+'''
+
+#: The system family each symbol font was cut from.
+_CUT_FROM = {"spaCR Glyphs Math": "Noto Sans Math",
+             "spaCR Glyphs Latin": "Noto Sans",
+             "spaCR Glyphs Sans": "DejaVu Sans",
+             "spaCR Glyphs Symbols": "Noto Sans Symbols",
+             "spaCR Glyphs Noto Sans CJK JP": "Noto Sans CJK JP"}
+
+
+def _render(kind, chars):
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
+               PYTHONPATH=str(_REPO) + os.pathsep
+               + os.environ.get("PYTHONPATH", ""))
+    done = subprocess.run([sys.executable, "-c", _RENDER, kind, chars],
+                          capture_output=True, text=True, env=env,
+                          timeout=300, check=True)
+    return json.loads(done.stdout.strip().splitlines()[-1])
+
+
+def test_the_symbol_fonts_draw_what_the_system_fonts_drew():
+    """Pixel for pixel, wherever the system drew a symbol from the font it
+    was cut from (DejaVu Sans, Noto Sans, Noto Sans Math, ... installed)."""
+    tool = _glyph_tool()
+    chars = "".join(sorted(tool.ui_glyphs()))
+    before, after = _render("system", chars), _render("shipped", chars)
+    compared = 0
+    for key, (families, picture) in after.items():
+        assert len(families) == 1, (key, families)
+        if before[key][0] != [_CUT_FROM[families[0]]]:
+            continue
+        compared += 1
+        assert before[key][1] == picture, f"{key} draws differently"
+    if not compared:
+        pytest.skip("none of the source fonts is installed here")
+
+
+def _longest_turn(seconds):
+    """The longest turn of the event loop in the next ``seconds``, in s."""
+    app = QApplication.instance()
+    longest = 0.0
+    end = time.perf_counter() + seconds
+    while time.perf_counter() < end:
+        started = time.perf_counter()
+        app.processEvents(QEventLoop.AllEvents)
+        longest = max(longest, time.perf_counter() - started)
+        time.sleep(0.001)
+    return longest
+
+
+@pytest.fixture
+def hub(qapp):
+    """A watcher on the application event hub, so the hub exists."""
+    from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                       _watch_application_events)
+
+    heard = []
+
+    class _Watcher(QObject):
+        def eventFilter(self, watched, event):           # noqa: N802
+            heard.append((watched, event.type()))
+            return False
+
+    watcher = _Watcher()
+    _watch_application_events(qapp, watcher, (
+        QEvent.StyleChange, QEvent.PaletteChange, QEvent.Polish,
+        QEvent.Show, QEvent.Hide, QEvent.Move, QEvent.Resize,
+        QEvent.EnabledChange, QEvent.ParentChange))
+    yield heard
+    _stop_watching_application_events(qapp, watcher)
+
+
+_ZOOM = r'''
+import contextlib, os, sys, time
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+from PySide6.QtCore import QEvent, QObject, QSettings
+from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope,
+                  sys.argv[2])
+QSettings.setPath(QSettings.Format.NativeFormat, QSettings.Scope.UserScope,
+                  sys.argv[2])
+app = QApplication([])
+from spacr.qt import gil_priority, live_zoom
+from spacr.qt.app import _load_bundled_fonts, _use_open_sans
+from spacr.qt.theme import apply_qpalette, stylesheet
+old = sys.argv[1] == "old"
+if old:
+    import spacr.qt.app as m
+    from PySide6.QtGui import QFontDatabase
+    folder = os.path.join(os.path.dirname(os.path.dirname(m.__file__)),
+                          "resources", "font", "open_sans", "static")
+    for name in os.listdir(folder):
+        QFontDatabase.addApplicationFont(os.path.join(folder, name))
+    gil_priority._restyle_unheard = lambda a, r: contextlib.nullcontext()
+else:
+    _load_bundled_fonts()
+_use_open_sans(app, "regular")
+apply_qpalette(app)
+app.setStyleSheet(stylesheet())
+
+
+class Watcher(QObject):
+    def eventFilter(self, watched, event):
+        return False
+
+
+watcher = Watcher()
+gil_priority._watch_application_events(
+    app, watcher, (QEvent.StyleChange, QEvent.PaletteChange))
+roles = ("CardTitle", "CardSubtitle", "TitleHeading", "Subtitle",
+         "SubtitleSmall", "Caption", "SectionHeading", "FoldHeading",
+         "TourTitle", "HTileName", "DisplayHeading", "Muted")
+root = QWidget()
+column = QVBoxLayout(root)
+for i in range(96):
+    label = QLabel(f"Step {i} \u25be \u2193 \u2192 \u2713", root)
+    label.setObjectName(roles[i % len(roles)])
+    column.addWidget(label)
+root.resize(700, 2400)
+root.show()
+for _ in range(20):
+    app.processEvents()
+scale = live_zoom.ColumnTextScale()
+scale.register(root)
+steps = []
+real = scale.restyle_all
+
+
+def timed():
+    started = time.perf_counter()
+    try:
+        return real()
+    finally:
+        steps.append(time.perf_counter() - started)
+
+
+scale.restyle_all = timed
+slow = scale._warm_some
+
+
+def warm():
+    started = time.perf_counter()
+    try:
+        return slow()
+    finally:
+        steps.append(time.perf_counter() - started)
+
+
+scale._warm_timer.timeout.disconnect()
+scale._warm_timer.timeout.connect(warm)
+if old:
+    scale._scale = 1.37
+    timed()
+else:
+    scale.set_scale(1.37, remember=False)
+end = time.perf_counter() + 1.5
+while time.perf_counter() < end:
+    started = time.perf_counter()
+    app.processEvents()
+    steps.append(time.perf_counter() - started)
+    time.sleep(0.001)
+print("LONGEST", max(steps), bool(root.styleSheet()))
+'''
+
+
+def _zoom_step(kind, tmp_path):
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
+               PYTHONPATH=str(_REPO) + os.pathsep
+               + os.environ.get("PYTHONPATH", ""))
+    done = subprocess.run(
+        [sys.executable, "-c", _ZOOM, kind, str(tmp_path / kind)],
+        capture_output=True, text=True, env=env, timeout=300, check=True)
+    line = [row for row in done.stdout.splitlines()
+            if row.startswith("LONGEST")][-1]
+    _label, seconds, sheeted = line.split()
+    assert sheeted == "True"
+    return float(seconds)
+
+
+def test_set_scale_holds_the_gui_thread_far_less_than_the_old_restyle(
+        tmp_path):
+    """Self-calibrated, each side in a fresh process so neither finds the
+    other's fonts open: the restyle the column used to make at a new size
+    (the system searched for the symbols at every new size, every font
+    opened inside it or the layout after it, the hub asked about every
+    event) against the longest step set_scale makes now. Every turn of the
+    event loop until the column has settled counts, the layout and paint
+    after the sheet included."""
+    olds, news = [], []
+    for _ in range(3):
+        olds.append(_zoom_step("old", tmp_path))
+        news.append(_zoom_step("new", tmp_path))
+    old, new = statistics.median(olds), statistics.median(news)
+    print(f"old restyle {old * 1000:.1f} ms, set_scale's longest step "
+          f"{new * 1000:.1f} ms")
+    assert new < 0.7 * old, (
+        f"set_scale held the GUI thread {new * 1000:.1f} ms at most against "
+        f"{old * 1000:.1f} ms for the restyle it replaced")
+
+
+def test_set_scale_ends_where_the_old_restyle_did(qtbot, symbols, hub,
+                                                  column, monkeypatch):
+    """Same sheet, fonts and pixels as one synchronous restyle with the hub
+    hearing everything, and the hub's watchers hear the same changes."""
+    from spacr.qt import gil_priority
+
+    scale, root = column
+    scale.set_scale(1.3, remember=False)
+    qtbot.waitUntil(lambda: root.sheets == 1, timeout=3000)
+    _pump()
+    new = root.state(), root.grab().toImage()
+    told = {(watched, kind) for watched, kind in hub}
+
+    scale.reset()
+    _pump()
+    hub.clear()
+    with monkeypatch.context() as patch:
+        patch.setattr(gil_priority, "_restyle_unheard",
+                      lambda app, widget: contextlib.nullcontext())
+        scale._scale = 1.3
+        scale.restyle_all()
+    _pump()
+    old = root.state(), root.grab().toImage()
+    heard = {(watched, kind) for watched, kind in hub}
+    assert new[0] == old[0]
+    assert new[1] == old[1], "set_scale's end state is not pixel-identical"
+    restyles = {(w, k) for w, k in heard
+                if k in (QEvent.StyleChange, QEvent.PaletteChange)
+                and (w is root or root.isAncestorOf(w))}
+    assert restyles and restyles <= told
+
+
+def test_the_fonts_are_opened_a_few_a_turn_before_the_sheet(
+        qtbot, symbols, column, monkeypatch):
+    from spacr.qt import live_zoom
+
+    scale, root = column
+    monkeypatch.setattr(live_zoom, "_WARM_BUDGET_MS", 0.0)
+    turns = []
+    real = scale.restyle_all
+
+    def restyle_all():
+        turns.append(("sheet", len(scale._warming)))
+        return real()
+
+    monkeypatch.setattr(scale, "restyle_all", restyle_all)
+    fonts = scale._fonts_to_open(root)
+    assert fonts == [], "nothing to open at the size the column has"
+    scale._scale = 1.7
+    fonts = scale._fonts_to_open(root)
+    assert len(fonts) >= 2
+    assert all(font.pixelSize() > 13 and "▾" in sample and "↓" in sample
+               for font, sample in fonts)
+    scale._prepare()
+    assert len(scale._warming) == len(fonts) - 1
+    qtbot.waitUntil(lambda: bool(turns), timeout=3000)
+    assert turns == [("sheet", 0)]
+    assert root.sheets == 1
+    scale.set_scale(1.2, remember=False)
+    scale.restyle_all()
+    assert scale._warming == [] and not scale._warm_timer.isActive()
+
+
+def test_a_column_that_is_gone_has_no_fonts_to_open(qapp):
+    from shiboken6 import delete
+
+    from spacr.qt.live_zoom import ColumnTextScale
+
+    gone = QWidget()
+    delete(gone)
+    assert ColumnTextScale()._fonts_to_open(gone) == []
+
+
+# --------------------------------------------------------------------------
+# the hub stepping off while a sheet goes on
+# --------------------------------------------------------------------------
+
+def test_the_hub_hears_after_the_sheet_what_it_did_not_hear_during_it(
+        qtbot, hub):
+    from spacr.qt.gil_priority import _restyle_unheard
+
+    root = QWidget()
+    qtbot.addWidget(root)
+    layout = QVBoxLayout(root)
+    shown, hidden, moved, disabled = (QLabel(t, root) for t in "abcd")
+    for label in (shown, hidden, moved, disabled):
+        layout.addWidget(label)
+    shown.hide()
+    stranger = QLabel("e")
+    qtbot.addWidget(stranger)
+    root.show()
+    qtbot.waitExposed(root)
+    _pump()
+    hub.clear()
+    with _restyle_unheard(QApplication.instance(), root):
+        root.setStyleSheet("QLabel { font-size: 21px; }")
+        shown.show()
+        hidden.hide()
+        moved.setGeometry(moved.geometry().translated(3, 4))
+        moved.resize(moved.width() + 5, moved.height())
+        disabled.setEnabled(False)
+        stranger.setParent(root)
+        born = QLabel("f", root)
+        born.ensurePolished()
+        during = list(hub)
+    assert during == []
+    heard = {}
+    for watched, kind in hub:
+        heard.setdefault(watched, set()).add(kind)
+    restyle = {QEvent.StyleChange, QEvent.PaletteChange}
+    assert all(restyle <= heard[w] for w in (root, shown, hidden, moved,
+                                             disabled, stranger, born))
+    assert QEvent.Show in heard[shown] and QEvent.Hide in heard[hidden]
+    assert {QEvent.Move, QEvent.Resize} <= heard[moved]
+    assert QEvent.EnabledChange in heard[disabled]
+    assert QEvent.ParentChange in heard[stranger]
+    assert QEvent.Polish in heard[born]
+    assert QEvent.Show not in heard[root]
+
+
+def test_without_a_hub_or_a_root_the_sheet_simply_goes_on(qapp,
+                                                          monkeypatch):
+    from spacr.qt import gil_priority
+
+    ran = []
+    monkeypatch.setattr(gil_priority, "_application_event_hub",
+                        lambda app, create=True: None)
+    with gil_priority._restyle_unheard(qapp, QWidget()):
+        ran.append(1)
+    monkeypatch.undo()
+    with gil_priority._restyle_unheard(qapp, None):
+        ran.append(2)
+    assert ran == [1, 2]
+
+
+def test_the_hub_is_told_nothing_about_a_root_that_is_gone_or_unwatched(
+        qapp):
+    from shiboken6 import delete
+
+    from spacr.qt.gil_priority import (_application_event_hub_class,
+                                       _tell_the_watchers)
+
+    asked = []
+
+    class _Hub:
+        _by_kind = {}
+
+        def eventFilter(self, watched, event):           # noqa: N802
+            asked.append(event.type())
+            return False
+
+    root = QWidget()
+    _tell_the_watchers(_Hub(), root, {})
+    assert asked == []
+    _Hub._by_kind = {QEvent.StyleChange: ()}
+    delete(root)
+    _tell_the_watchers(_Hub(), root, {})
+    assert asked == []
+    alive = QWidget()
+    _tell_the_watchers(_Hub(), alive, {})
+    assert asked == [QEvent.StyleChange]
+    assert _application_event_hub_class() is not None

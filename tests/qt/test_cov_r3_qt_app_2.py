@@ -342,8 +342,11 @@ def test_only_font_files_in_the_bundle_are_handed_to_qt(monkeypatch):
 
     app_mod._load_bundled_fonts()
 
-    assert [os.path.basename(p) for p in handed] == [
-        "OpenSans-Regular.ttf", "OpenSans.otf"]
+    fonts = ["OpenSans-Regular.ttf", "OpenSans.otf"]
+    assert [os.path.basename(p) for p in handed] == fonts + fonts, (
+        "Open Sans and the symbol fonts are each listed the same way")
+    assert {os.path.basename(os.path.dirname(p)) for p in handed} == {
+        "static", "glyphs"}
 
 
 # ---------------------------------------------------------------------------

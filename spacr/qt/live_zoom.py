@@ -493,10 +493,16 @@ COLUMN_TEXT_STEP = 0.10
 _COLUMN_SAVE_MS = 400
 
 #: How long the wheel rests before the columns take its size, in ms. Each
-#: new size restyles every widget in a column, 130-180 ms on Mask Generation
-#: at 2560x1440 offscreen, so a turn of the wheel is one restyle, not one a
-#: notch.
+#: new size restyles every widget in a column (130-180 ms on Mask Generation
+#: at 2560x1440 offscreen until 2026-10-13, about 25 ms since), so a turn of
+#: the wheel is one restyle, not one a notch.
 _COLUMN_SETTLE_MS = 120
+
+#: How long one turn of the event loop may spend opening the fonts a new
+#: size needs before the restyle, in ms. Opening one with its symbol fonts
+#: costs 2-6 ms (Qt asks fontconfig how to render each), and doing it all
+#: inside the restyle, or in the layout right after it, was one long step.
+_WARM_BUDGET_MS = 4.0
 
 _COLUMN_FILTER_ATTRIBUTE = "_spacr_column_text_filter"
 
@@ -527,6 +533,13 @@ def font_size_rules(sheet: str) -> list:
             rules.append((selector, float(found.group(1)),
                           found.group(2).lower()))
     return rules
+
+
+def _px_sizes(sheet: str, ratio: float) -> list:
+    """The pixel sizes :func:`scaled_font_sheet` gives, rule by rule."""
+    return [max(_MIN_PX, int(round(size * ratio)))
+            for _selector, size, unit in font_size_rules(sheet)
+            if unit == "px"]
 
 
 def scaled_font_sheet(sheet: str, ratio: float) -> str:
@@ -598,14 +611,19 @@ class ColumnTextScale(QObject):
             self._scale = float(get_runtime_text_scale())
         except Exception:                                    # noqa: BLE001
             self._scale = 1.0
+        self._warming: list = []
         self._restyle_timer = QTimer(self)
         self._restyle_timer.setSingleShot(True)
         self._restyle_timer.setInterval(0)
-        self._restyle_timer.timeout.connect(self.restyle_all)
+        self._restyle_timer.timeout.connect(self._prepare)
         self._settle_timer = QTimer(self)
         self._settle_timer.setSingleShot(True)
         self._settle_timer.setInterval(_COLUMN_SETTLE_MS)
-        self._settle_timer.timeout.connect(self.restyle_all)
+        self._settle_timer.timeout.connect(self._prepare)
+        self._warm_timer = QTimer(self)
+        self._warm_timer.setSingleShot(True)
+        self._warm_timer.setInterval(0)
+        self._warm_timer.timeout.connect(self._warm_some)
         self._save_timer = QTimer(self)
         self._save_timer.setSingleShot(True)
         self._save_timer.setInterval(_COLUMN_SAVE_MS)
@@ -713,7 +731,7 @@ class ColumnTextScale(QObject):
         own = self._own.get(key, "")
         sheet = f"{own}\n{scaled_font_sheet(inherited, self._scale)}"
         if str(root.styleSheet() or "") != sheet:
-            root.setStyleSheet(sheet)
+            self._put_on(root, sheet)
         for widget in root.findChildren(QWidget):
             hook = getattr(widget, "apply_column_text_scale", None)
             if callable(hook):
@@ -724,6 +742,24 @@ class ColumnTextScale(QObject):
                               exc_info=True)
         QTimer.singleShot(0, lambda: self._refit(root))
         return True
+
+    @staticmethod
+    def _put_on(root, sheet: str) -> None:
+        """Set ``sheet`` on ``root`` in as short a step as Qt allows.
+
+        The widgets under the sheet answer its style change by reading
+        preferences, about 120 reads, so they share one preference store
+        instead of opening one each; and the application event hub, asked
+        about each of the ~1,000 events the sheet sends, steps off and is
+        told what its watchers would have heard once the sheet is on (see
+        :func:`spacr.qt.gil_priority._restyle_unheard`). With the symbol
+        fonts and the fonts opened ahead: 105 ms -> 25 ms on the Mask column.
+        """
+        from .gil_priority import _restyle_unheard
+        from .preferences import _one_store
+
+        with _one_store(), _restyle_unheard(QApplication.instance(), root):
+            root.setStyleSheet(sheet)
 
     @staticmethod
     def _refit(root) -> None:
@@ -749,7 +785,86 @@ class ColumnTextScale(QObject):
         """Restyle every column; returns how many sheets were replaced."""
         self._restyle_timer.stop()
         self._settle_timer.stop()
+        self._warm_timer.stop()
+        self._warming = []
         return sum(1 for root in self.roots() if self.restyle(root))
+
+    def _prepare(self) -> None:
+        """Open the fonts the new size needs, a few a turn, then restyle.
+
+        A restyle at a size the column has not had yet also opened every
+        font at that size, 2-3 ms each, inside the one step that sets the
+        sheet. Opened beforehand, a few per turn of the event loop
+        (:data:`_WARM_BUDGET_MS`), they are found ready, and the step is
+        the sheet alone. The sheet and the fonts it ends with are the same.
+        """
+        self._restyle_timer.stop()
+        self._settle_timer.stop()
+        self._warming = [font for root in self.roots()
+                         for font in self._fonts_to_open(root)]
+        self._warm_some()
+
+    def _warm_some(self) -> None:
+        """Open fonts until the turn's budget is spent; restyle when done.
+
+        The restyle gets a turn of its own, after the one that opened the
+        last fonts.
+        """
+        import time
+
+        from PySide6.QtGui import QFontMetrics
+
+        started = time.perf_counter()
+        opened = bool(self._warming)
+        while self._warming:
+            font, sample = self._warming.pop()
+            QFontMetrics(font).horizontalAdvance(sample)
+            if (time.perf_counter() - started) * 1000.0 >= _WARM_BUDGET_MS:
+                break
+        if opened:
+            self._warm_timer.start()
+            return
+        self.restyle_all()
+
+    def _fonts_to_open(self, root) -> list:
+        """``(font, sample)`` for each font ``root``'s widgets will wear.
+
+        Each widget's font at the size its rule will give it: the sheet's
+        sizes now and at the new scale are paired rule by rule, so a widget
+        at 13 px moves to what the 13 px rules become. The sample is every
+        character beyond ASCII the column's labels and buttons draw, so the
+        symbol fonts open at the new size too.
+
+        :param root: a registered column.
+        """
+        from PySide6.QtWidgets import QAbstractButton, QLabel
+
+        if not _alive(root):
+            return []
+        applied = self._digests.get(id(root), (1.0,))[0]
+        if applied == self._scale:
+            return []
+        inherited = self._inherited_sheet(root)
+        moves: dict = {}
+        for old, new in zip(_px_sizes(inherited, applied),
+                            _px_sizes(inherited, self._scale)):
+            moves.setdefault(old, set()).add(new)
+        widgets = [root] + list(root.findChildren(QWidget))
+        drawn = {char for widget in widgets
+                 if isinstance(widget, (QLabel, QAbstractButton))
+                 for char in str(widget.text()) if ord(char) > 0x7F}
+        sample = "x" + "".join(sorted(drawn))
+        fonts, seen = [], set()
+        for widget in widgets:
+            current = widget.font()
+            for px in sorted(moves.get(current.pixelSize(), ())):
+                font = QFont(current)
+                font.setPixelSize(px)
+                key = font.key()
+                if key not in seen:
+                    seen.add(key)
+                    fonts.append((font, sample))
+        return fonts
 
     def root_of(self, widget):
         """The registered column ``widget`` is inside, or None.

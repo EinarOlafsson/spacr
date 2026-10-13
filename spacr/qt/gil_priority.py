@@ -349,3 +349,101 @@ def _application_watchers(app) -> tuple:
         return hub.watchers()
     except RuntimeError:
         return ()
+
+
+def _widget_state(widget) -> tuple:
+    """What a watcher could have heard change about ``widget``."""
+    from PySide6.QtCore import Qt
+
+    return (widget.isVisible(), widget.testAttribute(Qt.WA_WState_Polished),
+            widget.pos(), widget.size(), widget.isEnabled(),
+            widget.parent())
+
+
+def _what_was_unheard(before, after) -> list:
+    """The events a watcher missed about a widget, as fresh events.
+
+    The style, palette and font changes a style sheet sends are told about
+    every widget under it, whether its own changed or not, because a sheet
+    sends a style change to each of them; everything else only when the
+    widget's state shows it happened.
+
+    :param before: the widget's :func:`_widget_state` before, or ``None``
+        when it was built under the sheet.
+    :param after: its :func:`_widget_state` now.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtGui import QHideEvent, QMoveEvent, QResizeEvent, QShowEvent
+
+    events = [QEvent(QEvent.StyleChange), QEvent(QEvent.PaletteChange),
+              QEvent(QEvent.FontChange)]
+    was = before or (False, False, after[2], after[3], after[4], None)
+    if after[1] and not was[1]:
+        events.append(QEvent(QEvent.Polish))
+    if after[0] != was[0]:
+        events.append(QShowEvent() if after[0] else QHideEvent())
+    if after[2] != was[2]:
+        events.append(QMoveEvent(after[2], was[2]))
+    if after[3] != was[3]:
+        events.append(QResizeEvent(after[3], was[3]))
+    if after[4] != was[4]:
+        events.append(QEvent(QEvent.EnabledChange))
+    if after[5] is not was[5]:
+        events.append(QEvent(QEvent.ParentChange))
+    return events
+
+
+@contextmanager
+def _restyle_unheard(app, root):
+    """Put a style sheet on ``root`` without the hub hearing each event.
+
+    A sheet set on a container sends every widget under it a style change,
+    a palette change and a font change, and the hub is asked about each:
+    about 1,000 crossings into Python, 7 ms of the 25 ms a sheet on the
+    Mask column takes, though no watcher acts on most of them. So the hub
+    steps off the application while the block runs, as it does for a
+    repaint, and when it is back the watchers are told what they would have
+    heard about the widgets under ``root``: every style, palette and font
+    change, and each show, hide, move, resize, polish, enable or re-parent
+    the widgets' state shows happened. Each watcher still hears each such
+    event once; it hears them after the sheet is on rather than during it.
+    Without a hub this only runs the block.
+
+    :param app: the application.
+    :param root: the widget the sheet goes on.
+    :yields: nothing.
+    """
+    hub = _application_event_hub(app, create=False)
+    if hub is None or root is None:
+        yield
+        return
+    from PySide6.QtWidgets import QWidget
+
+    widgets = [root] + list(root.findChildren(QWidget))
+    before = {id(widget): _widget_state(widget) for widget in widgets}
+    app.removeEventFilter(hub)
+    try:
+        yield
+    finally:
+        app.installEventFilter(hub)
+        _tell_the_watchers(hub, root, before)
+
+
+def _tell_the_watchers(hub, root, before) -> None:
+    """Hand ``hub`` what it missed under ``root``; see
+    :func:`_restyle_unheard`. Only events some watcher asked for are made.
+    """
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import isValid
+
+    if not isValid(root):
+        return
+    wanted = hub._by_kind
+    if not wanted:
+        return
+    for widget in [root] + list(root.findChildren(QWidget)):
+        events = _what_was_unheard(before.get(id(widget)),
+                                   _widget_state(widget))
+        for event in events:
+            if event.type() in wanted:
+                hub.eventFilter(widget, event)

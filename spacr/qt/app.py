@@ -7402,22 +7402,59 @@ def _use_open_sans(app, weight: str = "") -> str:
     return font.family()
 
 
+#: The families of ``resources/font/glyphs``, in the order Qt asks them.
+SYMBOL_FONT_FAMILIES = ("spaCR Glyphs Math", "spaCR Glyphs Latin",
+                        "spaCR Glyphs Sans", "spaCR Glyphs Symbols",
+                        "spaCR Glyphs Noto Sans CJK JP")
+
+#: The families the application's style sheets ask for by name.
+_SYMBOLS_STAND_IN_FOR = ("Open Sans", "Segoe UI", "Helvetica Neue",
+                         "sans-serif")
+
+
 def _load_bundled_fonts() -> None:
-    """Register the bundled Open Sans TTFs with :class:`QFontDatabase`.
+    """Register the bundled fonts with :class:`QFontDatabase`.
 
     Idempotent — the fonts are only loaded once even if called
     multiple times (Qt tracks the file path).
+
+    OPEN SANS HAS NO ARROWS, TRIANGLES OR CHECK MARKS, and for each one the
+    interface draws Qt asked fontconfig which of the system's families could,
+    again at every new pixel size: about 40 ms a glyph a size on a machine
+    with 2,464 families, most of a column's Ctrl + wheel restyle. The
+    symbol fonts in ``resources/font/glyphs`` (built by
+    ``tools/build_glyph_fonts.py``) hold exactly those glyphs, cut from the
+    fonts that drew them before, and are named here as substitutes of every
+    family the style sheets ask for, so Qt finds each one in a font it has
+    already registered.
+
+    THE ORDER OF THE OPEN SANS FILES IS THE DIRECTORY'S, UNSORTED, as it
+    always was. The sheets ask for weight 500, which Open Sans does not
+    have; Qt settles the tie between Regular and SemiBold by the order the
+    files were registered, and sorting them turned every 500 from SemiBold
+    into Regular.
     """
-    from PySide6.QtGui import QFontDatabase
+    from PySide6.QtGui import QFont, QFontDatabase
     package_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    fonts_dir = os.path.join(
-        package_dir, "resources", "font", "open_sans", "static"
-    )
+    font_root = os.path.join(package_dir, "resources", "font")
+    fonts_dir = os.path.join(font_root, "open_sans", "static")
     if not os.path.isdir(fonts_dir):
         return
-    for name in os.listdir(fonts_dir):
-        if name.lower().endswith((".ttf", ".otf")):
-            QFontDatabase.addApplicationFont(os.path.join(fonts_dir, name))
+    symbols_dir = os.path.join(font_root, "glyphs")
+    folders = [fonts_dir]
+    if os.path.isdir(symbols_dir):
+        folders.append(symbols_dir)
+    for folder in folders:
+        for name in os.listdir(folder):
+            if name.lower().endswith((".ttf", ".otf")):
+                QFontDatabase.addApplicationFont(os.path.join(folder, name))
+    if len(folders) < 2:
+        return
+    for family in _SYMBOLS_STAND_IN_FOR:
+        have = {name.lower() for name in QFont.substitutes(family)}
+        QFont.insertSubstitutions(family, [
+            name for name in SYMBOL_FONT_FAMILIES
+            if name.lower() not in have])
 
 
 
