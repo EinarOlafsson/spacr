@@ -62,3 +62,16 @@ these results; they do not certify recording quality. All tool/test changes
 are committed locally and held until Home reports release done. This handoff
 push changes features only. The capture worktree stays frozen at 29552bae7 to
 retain the existing reference source bindings.
+
+A separate bound read-only app investigation is now included in
+`lesson05_preferences_apply_readonly_20261013.json`. It reviews the recorded
+0cde90 app files, which match the frozen CH copies; the recorded driver blob
+is reviewed separately because the current driver differs. Apply uses the
+shared QSettings block throughout this call, so the stack does not establish
+repeated INI reads as a cause. Every unchanged console zoom still restyles
+retained output documents. This is confirmed repeated work with unmeasured
+cost. Concurrent cold Numba entry-point discovery is an unmeasured hypothesis.
+The existing smooth test warms Apply before measuring it. Home should compare
+cold first Apply and Save separately, then unchanged and actual-scale changes,
+including pending sliced work and both shown and hidden consoles. No app fix
+or performance acceptance is claimed by this source review.

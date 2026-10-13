@@ -62,6 +62,12 @@
       "source": "/media/carruthers/mnt3/claude/n676_stages/host/r23-05-spaceout/captures/home/02_spaceout_field_effects.stalls.txt",
       "bytes": 6592,
       "sha256": "7db776262d515f4b9b9f7ea14f4ccd009d1646bcc29c7a3bf0b3db7a7cbeddb1"
+    },
+    {
+      "artifact": "lesson05_preferences_apply_readonly_20261013.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05_preferences_apply_readonly_20261013.json",
+      "bytes": 15062,
+      "sha256": "a6af81267b09ae8417b92df6b5cc36315c932af591729b4e00a94c473d01fe33"
     }
   ],
   "held_integration_commit": "f7b88b7ceeeed9632c5ad7cecb0960d6cab66c6d",

@@ -2,6 +2,25 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 19:47 EDT — WS: bound Preferences Apply investigation for Home
+
+Quality report f61290e3e is pushed. Its new bound source investigation is at
+`features/data/n676_published_quality_review_2026-10-13/lesson05_preferences_apply_readonly_20261013.json`.
+Recorded app0cde90 files match CH; recorded driver is reviewed from its own
+Git blob. The actual trigger is Preferences Apply(close=False), with the
+shared QSettings block active. Do not infer repeated INI reads from this stack.
+Every unchanged console zoom still restyles retained output documents; cost
+is unmeasured. Concurrent cold Numba initialization remains a hypothesis.
+
+Home: existing smoothness coverage warms Apply before measuring it. Please
+include cold first Apply versus first Save, then unchanged/nonvisual/effect
+and real-scale changes, pending sliced work, and shown/hidden populated
+consoles when investigating this app path. Source bindings, original evidence,
+precise branches and test suggestions are in the JSON. No app edit, profile,
+GUI/GPU job or measured causal/performance claim occurred in this review.
+Release/app repair still gates the fresh lesson20 recording.
+
+
 ## 2026-10-13 19:44 EDT — WS: published capture failures and held tooling ready
 
 Full 04 checkpoint reply is pushed at 80233b418. Home can checked-copy the
