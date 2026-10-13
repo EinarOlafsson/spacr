@@ -130,12 +130,32 @@ def _application_event_hub_class():
     then dropped, as Qt drops a destroyed filter. An
     exception in one watcher goes to ``sys.excepthook``, as PySide sends an
     exception raised in an event filter, and the rest are still asked.
+
+    A FRAME IS PAINTED WITHOUT IT. Over the animated field every widget on
+    screen is sent a paint event on every frame -- 163 on Home and 179 on
+    Make Masks at 2560x1440 -- and an application filter is asked about
+    each, though no watcher reads a paint. So when the update request that
+    paints a widget's window reaches the hub, and no watcher acts on an
+    event a repaint sends (a paint, a move, a resize or an update request),
+    the hub steps off the application, hands the request on to the window
+    itself, and steps back on when the window has painted: every filter on
+    the window and every other application filter still hears the request,
+    once, and nothing the watchers asked for passes while the hub is off.
+    A request for anything that is not a widget goes the usual way.
+    Measured offscreen, cheapest GUI-thread CPU of a synchronous field frame
+    (median of six interleaved rounds): 0.65 ms of 4.8 on Home and 0.67 of
+    6.8 on Make Masks.
     """
     global _HUB_CLASS
     if _HUB_CLASS is not None:
         return _HUB_CLASS
-    from PySide6.QtCore import QObject
+    from PySide6.QtCore import QCoreApplication, QEvent, QObject
     from shiboken6 import isValid
+
+    update_request = QEvent.Type.UpdateRequest
+    paint_pass_kinds = frozenset({
+        update_request, QEvent.Type.Paint, QEvent.Type.Move,
+        QEvent.Type.Resize, QEvent.Type.UpdateLater})
 
     class _ApplicationEventHub(QObject):
         """The one application event filter the watchers share."""
@@ -145,6 +165,7 @@ def _application_event_hub_class():
             super().__init__(parent)
             self._entries = []
             self._by_kind = {}
+            self._paints_unheard = True
 
         def _rebuild(self) -> None:
             """Index the live watchers by event type, newest first."""
@@ -154,6 +175,7 @@ def _application_event_hub_class():
                     by_kind.setdefault(kind, []).append(entry)
             self._by_kind = {kind: tuple(chain)
                              for kind, chain in by_kind.items()}
+            self._paints_unheard = not paint_pass_kinds.intersection(by_kind)
 
         def add(self, watcher, kinds) -> None:
             """Ask ``watcher`` first about every event of ``kinds``."""
@@ -186,9 +208,19 @@ def _application_event_hub_class():
         def eventFilter(self, watched, event):
             """Hand ``event`` to the watchers that asked for its type."""
             try:
-                chain = self._by_kind.get(event.type())
+                kind = event.type()
+                chain = self._by_kind.get(kind)
             except (AttributeError, RuntimeError, TypeError, ValueError):
                 return False
+            if kind == update_request and self._paints_unheard:
+                app = self.parent()
+                if app is not None and watched.isWidgetType():
+                    app.removeEventFilter(self)
+                    try:
+                        QCoreApplication.sendEvent(watched, event)
+                    finally:
+                        app.installEventFilter(self)
+                    return True
             if not chain:
                 return False
             dead = False

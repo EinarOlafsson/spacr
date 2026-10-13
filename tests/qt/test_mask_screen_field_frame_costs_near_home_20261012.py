@@ -333,3 +333,52 @@ def test_with_compositing_off_the_hover_help_still_skips_the_frame(
     assert asked["field_fade.py"] / frames <= len(fields), asked
     assert asked["ambient.py"] / frames <= 5, asked
     assert asked["hints"] == 0, asked
+
+
+def test_with_compositing_off_a_frame_skips_the_hub_and_empty_backgrounds(
+        big_window, qtbot):
+    """Off, a field frame asks the application event hub once, about the
+    update request, not about each of the 179 paints it sends, and the
+    form's empty style-sheet backgrounds are not asked for once the screen
+    has settled (2026-10-12; see
+    ``test_a_field_frame_skips_the_hub_and_empty_backgrounds_20261012.py``).
+    """
+    import sys
+
+    from PySide6.QtCore import Qt
+
+    from spacr.qt.gil_priority import _application_event_hub
+
+    window, backdrop = big_window
+    _show(window, "mask", qtbot)
+    quiet = backdrop._quiet_backgrounds
+    backdrop._timer.start()
+    qtbot.waitUntil(lambda: bool(quiet._settled and quiet._quieted),
+                    timeout=20000)
+    backdrop._timer.stop()
+    hub = _application_event_hub(_qapp())
+    code = type(hub).eventFilter.__code__
+    calls = [0]
+
+    def profile(frame, event, _arg):
+        if event == "call" and frame.f_code is code:
+            calls[0] += 1
+
+    frames = 4
+    backdrop.repaint()
+    sys.setprofile(profile)
+    try:
+        for _frame in range(frames):
+            backdrop.repaint()
+    finally:
+        sys.setprofile(None)
+    assert calls[0] <= frames, f"{calls[0] / frames:.0f} hub calls a frame"
+    assert len(quiet._quieted) >= 50
+    assert not any(widget.testAttribute(Qt.WA_StyledBackground)
+                   for widget in quiet._quieted.values())
+
+
+def _qapp():
+    from PySide6.QtWidgets import QApplication
+
+    return QApplication.instance()

@@ -9824,6 +9824,169 @@ class _CardTints(QObject):
         return _card_background(widget, QPicture(), width, height)
 
 
+#: Field ticks with no widget shown in the window before
+#: :class:`_QuietBackgrounds` looks for backgrounds that paint nothing.
+_QUIET_SETTLE_TICKS = 30
+
+#: Field ticks between two checks that every quieted widget is still quiet.
+_QUIET_RECHECK_TICKS = 60
+
+#: The events :class:`_QuietBackgrounds` hears. Neither is part of the
+#: storm a style sheet sets off (palette, font, property, style changes),
+#: which no watcher of the event hub may hear.
+_QUIET_EVENTS = frozenset((QEvent.Show, QEvent.ParentChange))
+
+#: Style states a quieted background paints nothing in, either way.
+_QUIET_STATES = _CARD_STATES + (QStyle.State_Enabled,)
+
+
+def _restyled_by_its_sheet(widget) -> bool:
+    """Whether the style sheet sets ``WA_StyledBackground`` on ``widget``
+    again whenever it polishes it with a background to draw.
+
+    ``QStyleSheetStyle::polish`` does that for a plain ``QWidget`` and for
+    the frames, tab bars and menu bars among the classes it lists, not for
+    a subclass of ``QWidget`` that set the attribute itself.
+    """
+    return (widget.metaObject().className() == "QWidget"
+            or isinstance(widget, (QFrame, QTabBar, QMenuBar)))
+
+
+def _paints_no_background(widget) -> bool:
+    """Whether ``widget``'s style sheet background paints no pixel, in its
+    state now and with each of :data:`_QUIET_STATES` flipped."""
+    size = (min(widget.width(), _CARD_PROBE), min(widget.height(), _CARD_PROBE))
+    if size[0] <= 0 or size[1] <= 0:
+        return False
+    blank = QImage(size[0], size[1], QImage.Format_ARGB32_Premultiplied)
+    blank.fill(0)
+    return all(_card_probe(widget, *size, flip) == blank
+               for flip in (None,) + _QUIET_STATES)
+
+
+def _hand_backgrounds_back(quieted: dict) -> None:
+    """Let every widget in ``quieted`` paint its background again."""
+    from shiboken6 import isValid
+
+    for widget in quieted.values():
+        if isValid(widget):
+            widget.setAttribute(Qt.WA_StyledBackground, True)
+    quieted.clear()
+
+
+class _QuietBackgrounds(QObject):
+    """Stops the widgets over the field painting backgrounds that paint
+    nothing.
+
+    Qt paints every widget above the field on every field frame, and before
+    a widget with a style-sheet background paints it opens a painter and
+    asks the style for the background, even where the sheet says
+    ``background: transparent``: the page's layout containers, scroll areas
+    and labels. Measured at 2560x1440 on 2026-10-12: 173 of the 184 styled
+    backgrounds on Home and 100 of 117 on Make Masks painted no pixel, and
+    not asking for them saved 0.48 ms of a 4.3 ms Home frame and of a 6.8 ms
+    Mask frame (cheapest GUI-thread CPU of a synchronous field frame, median
+    of six interleaved rounds).
+
+    So once the window has settled (:data:`_QUIET_SETTLE_TICKS` field ticks
+    with nothing shown in it), every visible widget whose background paints
+    nothing, in its state now and with hover, focus, window activation and
+    the enabled state flipped (:func:`_paints_no_background`), has
+    ``WA_StyledBackground`` cleared, and Qt does not ask. Pixel-identical by
+    construction: what is left out is a background that draws nothing.
+
+    Only widgets whose attribute the style sheet sets again on every polish
+    that finds a background to draw (:func:`_restyled_by_its_sheet`), so a
+    restyle that gives one a background hands it back by itself, before the
+    paint that shows it; a restyle reaches a widget only through a polish.
+    A parent change hands it back too. Every :data:`_QUIET_RECHECK_TICKS`
+    ticks the quieted widgets are checked, and when a restyle has handed one
+    back or one is gone the window is looked at again once it settles.
+    """
+
+    def __init__(self, backdrop: QWidget):
+        """Watch the application for the window's shows on behalf of
+        ``backdrop``."""
+        super().__init__(backdrop)
+        self._quiet = 0
+        self._settled = False
+        quieted = self._quieted = {}
+        backdrop.destroyed.connect(lambda *_: _hand_backgrounds_back(quieted))
+        from ..gil_priority import _watch_application_events
+
+        _watch_application_events(QApplication.instance(), self,
+                                  _QUIET_EVENTS)
+
+    def eventFilter(self, watched, event) -> bool:
+        """Look again once a widget is shown in the window; hand a moved
+        widget's background back.
+
+        :param watched: the widget the event is for.
+        :param event: a show or a parent change.
+        :returns: ``False``; nothing is consumed.
+        """
+        if event.type() == QEvent.Show:
+            if (watched.isWidgetType()
+                    and watched.window() is self.parent().window()):
+                self._unsettle()
+            return False
+        widget = self._quieted.pop(id(watched), None)
+        if widget is not None:
+            widget.setAttribute(Qt.WA_StyledBackground, True)
+            self._unsettle()
+        return False
+
+    def _unsettle(self) -> None:
+        """Start counting quiet ticks again."""
+        self._quiet = 0
+        self._settled = False
+
+    def tick(self) -> None:
+        """Count a field tick: quiet the window once it has settled, and
+        check the quieted widgets every :data:`_QUIET_RECHECK_TICKS`."""
+        self._quiet += 1
+        if not self._settled:
+            if self._quiet > _QUIET_SETTLE_TICKS:
+                self._settled = True
+                self._quiet = 0
+                self._quiet_the_window()
+            return
+        if self._quiet >= _QUIET_RECHECK_TICKS:
+            self._quiet = 0
+            if not self._all_still_quiet():
+                self._unsettle()
+
+    def _all_still_quiet(self) -> bool:
+        """Whether every quieted widget still exists and is still quiet."""
+        from shiboken6 import isValid
+
+        return all(isValid(widget)
+                   and not widget.testAttribute(Qt.WA_StyledBackground)
+                   for widget in self._quieted.values())
+
+    def _quiet_the_window(self) -> None:
+        """Clear ``WA_StyledBackground`` on every widget over the field
+        whose background paints nothing."""
+        from shiboken6 import isValid
+
+        backdrop = self.parent()
+        window = backdrop.window()
+        for key, widget in list(self._quieted.items()):
+            if (not isValid(widget)
+                    or widget.testAttribute(Qt.WA_StyledBackground)):
+                del self._quieted[key]
+        if window is backdrop:
+            return
+        for widget in window.findChildren(QWidget):
+            if (widget is not backdrop
+                    and widget.testAttribute(Qt.WA_StyledBackground)
+                    and widget.isVisible() and widget.window() is window
+                    and _restyled_by_its_sheet(widget)
+                    and _paints_no_background(widget)):
+                widget.setAttribute(Qt.WA_StyledBackground, False)
+                self._quieted[id(widget)] = widget
+
+
 class AmbientWidget(QWidget):
     """The live backdrop: paints an :class:`AmbientEngine` at a capped rate.
 
@@ -9917,6 +10080,9 @@ class AmbientWidget(QWidget):
         #: (:func:`_composite_cards_on`).
         self._card_tints = (_CardTints(self) if _composite_cards_on()
                             else None)
+        #: The widgets over the field whose backgrounds paint nothing, which
+        #: are kept from being asked for them (:class:`_QuietBackgrounds`).
+        self._quiet_backgrounds = _QuietBackgrounds(self)
         #: Paints that showed the previous frame again because the shading
         #: thread had not finished a new one. This counter *is* the
         #: "degrade rather than stutter" promise: it is what rises when the
@@ -11325,6 +11491,7 @@ class AmbientWidget(QWidget):
         tints = self._card_tints
         if tints is not None:
             tints.tick(producer)
+        self._quiet_backgrounds.tick()
         if producer is not None and producer.tick_driven and producer.is_alive():
             fresh = producer.latest()
             if fresh is None or fresh is not self._last_frame:
