@@ -8567,9 +8567,19 @@ _PREFERENCES_STORE_GROUPS = frozenset({
     "rim", "runs", "sound", "spaceout", "storage", "updates",
 })
 
-#: Keys in those groups a kept dialog already shows as they are: the help
-#: strip's height is written by dragging the strip itself.
-_PREFERENCES_STORE_IGNORED = frozenset({_KEY_PREFERENCES_HELP_HEIGHT})
+#: Keys in those groups that do not change what a kept dialog shows. The
+#: help strip's height is written by dragging the strip itself. The rest are
+#: bookkeeping no row shows: the generation markers a migration writes the
+#: first time a getter runs, and the version the What's New check saw. The
+#: first figure of a run on a new profile wrote the figure colour marker,
+#: the kept window went out of date in the middle of the run and was built
+#: again: a 0.39 s stall 9 s after Run in lesson 08. A migration that
+#: changes a value a row shows still writes that row's key, which counts.
+_PREFERENCES_STORE_IGNORED = frozenset({
+    _KEY_PREFERENCES_HELP_HEIGHT,
+    _KEY_FIG_COLOR_SCALE, _KEY_AMBIENT_SCALE, _KEY_FIELD_RIPPLES_SLIDER,
+    _KEY_SEEN_VERSION, _KEY_PREVIOUS_VERSION,
+})
 
 
 #: What each place in :func:`_window_signature` is, in its order, so a
@@ -8865,12 +8875,25 @@ def _the_user_is_busy(window) -> bool:
     return bool(getattr(window, "_opening_a_screen", False))
 
 
+def _a_run_is_going() -> bool:
+    """Whether a module run is registered, which the warm-up waits out."""
+    from .resource_cleanup import _a_run_is_active
+
+    return _a_run_is_active()
+
+
 def _warm_one_slice(window) -> None:
     """Do the next piece of keeping ``window``'s Preferences ready.
 
     One piece per slice, in this order: take back the dialog that just
     closed, drop one that went out of date, build, show off screen, and
     otherwise check now and then that the kept one is still current.
+
+    NOTHING BUT THE TAKE-BACK RUNS WHILE A RUN IS GOING. A build, its
+    polish and a re-sheet are each a slice of 50-300 ms, and the run's
+    console, progress and figures are what the user is watching. A kept
+    window that went out of date meanwhile is never shown: the open checks
+    it again (:func:`_take_the_warm_preferences`) and builds a fresh one.
     """
     state = _preferences_warmth(window)
     if state is None:
@@ -8887,6 +8910,9 @@ def _warm_one_slice(window) -> None:
         elif _widget_is_alive(returned):
             state["retired"].append(returned)
         _warm_the_preferences(window, _PREFERENCES_AFTER_CLOSE_MS)
+        return
+    if _a_run_is_going():
+        _warm_the_preferences(window, _PREFERENCES_WARM_RETRY_MS)
         return
     if state["retired"]:
         retired = state["retired"].pop()
