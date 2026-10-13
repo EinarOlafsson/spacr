@@ -187,7 +187,9 @@ def test_export_then_import_gives_back_the_same_form(
         qtbot, monkeypatch, tmp_path, key)
     changed = {type(value).__name__ for name, value in expected.items()
                if defaults.get(name) != value}
-    assert {"bool", "int"} <= changed
+    plain = {type(value).__name__ for value in defaults.values()
+             if type(value) in (bool, int)}
+    assert plain and plain <= changed
     drifted = {name: (expected.get(name), imported.get(name))
                for name in set(expected) | set(imported)
                if expected.get(name) != imported.get(name)}
