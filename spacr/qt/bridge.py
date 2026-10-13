@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import atexit
 import gc
+import importlib
 import io
 import logging
 import os
@@ -1858,6 +1859,158 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         LOG.exception("Could not resolve pipeline entry for %s", app_key)
         return None
     return None
+
+
+#: The module each built-in app's entry point is imported from, as
+#: :func:`resolve_pipeline_entry` imports it. Kept beside it, and checked
+#: against its source by a test, because the two must name the same module.
+_ENTRY_MODULES: Dict[str, str] = {
+    "mask": "spacr.core",
+    "timelapse": "spacr.core",
+    "motility": "spacr.timelapse",
+    "measure": "spacr.measure",
+    "external_masks": "spacr.external_masks",
+    "illumination": "spacr.illumination",
+    "classify_merged": "spacr.classify",
+    "classify": "spacr.deep_spacr",
+    "umap": "spacr.core",
+    "train_cellpose": "spacr.submodules",
+    "cellpose_masks": "spacr.spacr_cellpose",
+    "map_barcodes": "spacr.sequencing",
+    "ml_analyze": "spacr.ml",
+    "regression": "spacr.ml",
+    "recruitment": "spacr.submodules",
+    "activation": "spacr.deep_spacr",
+    "foreign": "spacr.foreign",
+    "align": "spacr.align",
+    "ops": "spacr.ops_engine",
+    "spatial_masks": "spacr.ops_engine",
+    "spatial_map": "spacr.ops_engine",
+    "convert": "spacr.convert",
+    "invasion": "spacr.submodules",
+    "replication": "spacr.submodules",
+    "analyze_plaques": "spacr.submodules",
+    "barcode_qc": "spacr.sequencing_qc",
+    "explain_cv": "spacr.surrogate",
+    "anndata_export": "spacr.anndata_export",
+}
+
+#: One import thread per module, kept after it ends so a module whose import
+#: failed is tried off the GUI thread once and then left to
+#: :func:`resolve_pipeline_entry` to fail exactly as it always has.
+_ENTRY_IMPORTS: Dict[str, threading.Thread] = {}
+
+
+def _module_is_imported(name: str) -> bool:
+    """Whether ``name`` is in :data:`sys.modules` and finished initialising.
+
+    A module another thread is still importing is already in
+    :data:`sys.modules`; importing it from the GUI thread would wait on its
+    import lock for the rest of that import.
+    """
+    module = sys.modules.get(name)
+    if module is None:
+        return False
+    spec = getattr(module, "__spec__", None)
+    return not getattr(spec, "_initializing", False)
+
+
+def _import_the_entry_module(name: str) -> None:
+    """Import ``name`` on the calling thread, never raising.
+
+    Holds the application's heavy-import lock when the application is loaded,
+    as the module preloader does, so the import and an OpenGL context are
+    never brought up together, and shortens the interpreter's switch interval
+    so the GUI thread keeps its turns. A failure is only logged:
+    :func:`resolve_pipeline_entry` repeats the import and reports it.
+
+    When the import brought torch in, its GPU driver is brought up here too.
+    The first ``torch.cuda.is_available()`` of a process initialises the
+    driver, and the run's start asks it on the GUI thread (the animation
+    policy's GPU check); every later call answers at once.
+
+    The cyclic collector is off for the import and what it built is frozen
+    after it, as :func:`spacr.qt.app._freeze_what_survived` does after the
+    other background imports: a full collection over the 2,900 modules torch
+    and the rest bring in otherwise lands on whichever thread allocates next,
+    and that was the GUI thread starting the run, 100-150 ms.
+    """
+    app_module = sys.modules.get("spacr.qt.app")
+    lock = getattr(app_module, "HEAVY_IMPORT_LOCK", None)
+    gc_was_enabled = gc.isenabled()
+    with responsive_gui():
+        if lock is not None:
+            lock.acquire()
+        try:
+            if gc_was_enabled:
+                gc.disable()
+            importlib.import_module(name)
+            torch = sys.modules.get("torch")
+            if torch is not None:
+                torch.cuda.is_available()
+        except Exception:
+            LOG.debug("could not import %s off the GUI thread", name,
+                      exc_info=True)
+        finally:
+            gc.freeze()
+            if gc_was_enabled:
+                gc.enable()
+            if lock is not None:
+                lock.release()
+
+
+def _import_the_entry_off_the_gui_thread(
+        app_key: str) -> Optional[threading.Thread]:
+    """Import the module ``app_key``'s entry point comes from, on a worker.
+
+    THE FIRST RUN OF A SESSION USED TO FREEZE THE WINDOW. Pressing Run asked
+    :func:`resolve_pipeline_entry` for the entry point, and for Mask that is
+    ``from spacr.core import ...``: torch, cellpose, pandas, Matplotlib and
+    about 2,900 modules, 3.6 s on the GUI thread the first time and nothing
+    after. A screen calls this first and resolves the entry once the thread
+    has finished, so the import runs while the window keeps painting.
+
+    :param app_key: the app being run.
+    :returns: the importing thread while it is still running, or ``None``
+        when there is nothing to wait for: an app with no built-in entry, a
+        module already imported, or one whose import was tried before.
+    """
+    name = _ENTRY_MODULES.get(app_key)
+    if name is None:
+        return None
+    thread = _ENTRY_IMPORTS.get(name)
+    if thread is None:
+        if _module_is_imported(name):
+            return None
+        thread = threading.Thread(
+            target=_import_the_entry_module, args=(name,),
+            name=f"spacr-entry-import-{name}", daemon=True)
+        _ENTRY_IMPORTS[name] = thread
+        thread.start()
+    return thread if thread.is_alive() else None
+
+
+def _entry_import_pending(app_key: str) -> bool:
+    """Whether resolving ``app_key``'s entry point would still import.
+
+    True for a built-in app whose module is not imported yet and has not
+    been tried, and while :func:`_import_the_entry_off_the_gui_thread` is
+    still importing it.
+
+    :param app_key: the app being run.
+    """
+    name = _ENTRY_MODULES.get(app_key)
+    if name is None:
+        return False
+    thread = _ENTRY_IMPORTS.get(name)
+    if thread is not None:
+        return thread.is_alive()
+    return not _module_is_imported(name)
+
+
+resolve_pipeline_entry.entry_import_pending = _entry_import_pending
+resolve_pipeline_entry.import_off_the_gui_thread = (
+    _import_the_entry_off_the_gui_thread)
 
 
 #: Stack for a pipeline worker thread, in bytes.

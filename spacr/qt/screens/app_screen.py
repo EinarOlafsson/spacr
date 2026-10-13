@@ -8789,6 +8789,8 @@ class AppScreen(QWidget):
         looking at" that quietly picked those up would compare two runs
         differing in more ways than the one the user chose.
         """
+        if self._wait_for_the_entry_import(override):
+            return
         from ..verbose_logger import log_button_press
         entry = resolve_pipeline_entry(self.app_key)
         if entry is None:
@@ -8912,6 +8914,74 @@ class AppScreen(QWidget):
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
 
+
+    #: How often a Run waiting on its entry module's import checks the
+    #: importing thread, in milliseconds. The first tick starts the import,
+    #: so the busy bar has been painted before it begins.
+    ENTRY_IMPORT_POLL_MS = 20
+
+    def _wait_for_the_entry_import(self, override) -> bool:
+        """Import the pipeline's module off the GUI thread before running.
+
+        The first Run of a session resolved the entry point on the GUI
+        thread, and for Mask that imports ``spacr.core`` -- torch, cellpose
+        and the rest, 3.6 s with the window frozen (lesson 07, clip
+        run_20_batch_settings). The resolver can now say that import is
+        still to come and run it on a worker
+        (:func:`spacr.qt.bridge._import_the_entry_off_the_gui_thread`).
+        While it runs, Run is disabled and the busy bar shows; when it ends
+        both are put back as they were and :meth:`_on_run` carries on exactly
+        as it would have, from the collection of the settings onwards. The
+        wait also lays out the console's notice glyphs
+        (:meth:`~spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs`),
+        the other first-time cost of starting a run.
+
+        A resolver without that ability (a stand-in, or an app with no
+        built-in entry) makes this a no-op, and so does a module that is
+        already imported.
+
+        :param override: the ``override`` :meth:`_on_run` was given, passed
+            back to it unchanged.
+        :returns: ``True`` when the run will resume later and the caller
+            must return now.
+        """
+        if getattr(self, "_entry_import", None) is not None:
+            return True
+        pending = getattr(resolve_pipeline_entry, "entry_import_pending",
+                          None)
+        if not callable(pending) or not pending(self.app_key):
+            return False
+        timer = QTimer(self)
+        timer.setInterval(self.ENTRY_IMPORT_POLL_MS)
+        self._entry_import = {
+            "thread": None, "timer": timer, "override": override,
+            "run_enabled": self._btn_run.isEnabled(),
+            "progress_shown": self._progress.isVisibleTo(self),
+        }
+        self._btn_run.setEnabled(False)
+        self._progress.setVisible(True)
+        timer.timeout.connect(self._check_the_entry_import)
+        timer.start()
+        return True
+
+    def _check_the_entry_import(self) -> None:
+        """Start the waiting Run's import, then resume the Run once it ends."""
+        waiting = getattr(self, "_entry_import", None)
+        if waiting is None:
+            return
+        thread = waiting["thread"]
+        if thread is None:
+            start = resolve_pipeline_entry.import_off_the_gui_thread
+            waiting["thread"] = thread = start(self.app_key)
+        if thread is not None and thread.is_alive():
+            self._console.warm_notice_glyphs()
+            return
+        waiting["timer"].stop()
+        waiting["timer"].deleteLater()
+        self._entry_import = None
+        self._btn_run.setEnabled(waiting["run_enabled"])
+        self._progress.setVisible(waiting["progress_shown"])
+        self._on_run(override=waiting["override"])
 
     #: When the heartbeat speaks, in seconds since the run started.
     #:

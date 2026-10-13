@@ -28,6 +28,7 @@ from PySide6.QtGui import (
     QKeyEvent,
     QTextBlockFormat,
     QTextCursor,
+    QTextLayout,
 )
 from PySide6.QtWidgets import (
     QAbstractButton,
@@ -1263,6 +1264,41 @@ class ConsolePanel(QWidget):
             return max(1, int(round(base * get_font_scale())))
         except Exception:
             return base
+
+    #: Glyphs the run notices use that Open Sans does not have, so Qt finds
+    #: them in a fallback font the first time each size draws them.
+    NOTICE_GLYPHS = "→✓■…"
+
+    def warm_notice_glyphs(self) -> bool:
+        """Lay out :data:`NOTICE_GLYPHS` once in the size new entries get.
+
+        The first "→ Starting ..." notice of a session cost 33 ms on the GUI
+        thread, almost all of it Qt looking up a fallback font for the arrow
+        at the console's size; the same text costs 0.5 ms after that. The
+        lookup is cached per thread and per size, so it can only be done here,
+        on the GUI thread, ahead of the notice: a Run waiting on its
+        pipeline's import calls this while the busy bar is already showing.
+        The font is taken from a stand-in entry, because the one an entry
+        draws with carries the family list its sheet gives it, and a font
+        that differs only in that list is a different cache entry.
+
+        :returns: whether a layout was made (``False`` when this size was
+            warmed before).
+        """
+        warmed = self.__dict__.setdefault("_warmed_glyph_sizes", set())
+        pt = int(getattr(self, "_font_pt", 10))
+        if pt in warmed:
+            return False
+        warmed.add(pt)
+        probe = _StdoutBlock()
+        probe.set_console_font_pt(pt)
+        layout = QTextLayout(self.NOTICE_GLYPHS,
+                             probe.document().defaultFont())
+        layout.beginLayout()
+        layout.createLine()
+        layout.endLayout()
+        probe.deleteLater()
+        return True
 
     def apply_zoom(self) -> None:
         """Re-read Zoom and restyle every entry. Called on a preferences save."""

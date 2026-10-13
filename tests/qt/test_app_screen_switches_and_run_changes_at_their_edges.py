@@ -291,6 +291,10 @@ def test_mask_keeps_its_live_and_ops_switches_when_their_homes_refuse(
 
 
 def test_measure_stops_when_the_crop_warning_is_declined(qtbot, monkeypatch):
+    """Measure's module is imported first, so Run does not wait on it."""
+    import importlib
+
+    importlib.import_module("spacr.measure")
     logged = []
     monkeypatch.setattr("spacr.qt.verbose_logger.log_button_press",
                         lambda name, details: logged.append((name, details)))
