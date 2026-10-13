@@ -10904,8 +10904,7 @@ class AmbientWidget(QWidget):
                                  and isinstance(self._engine, _BufferedEngine))
         keep = (self._last_frame if producer is not None and self._holds_still
                 else None)
-        self._still = (None if keep is None
-                       else (self._still_key(producer.size), keep))
+        size = None if producer is None else tuple(producer.size)
         _retire_producer(self._producer_box)
         if self._art_input is not None:
             if self._engine_lock.acquire(blocking=False):
@@ -10922,6 +10921,7 @@ class AmbientWidget(QWidget):
                     self._engine_lock.release()
             self._legacy_input = _QueuedArtInput()
             self._pending_dt = 0.0
+        self._still = None if keep is None else (self._still_key(size), keep)
         self._last_frame = None
         self._last_composed = None
         self._drop_card_plan()

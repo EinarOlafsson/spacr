@@ -132,6 +132,31 @@ def test_the_still_is_the_frame_on_screen_when_the_run_started(
     assert _grab(widget) == before
 
 
+def test_a_tick_still_queued_when_the_run_starts_does_not_drop_the_still(
+        backdrop, monkeypatch):
+    """Stopping applies the GUI's last queued tick to the engine's clock.
+
+    The still used to be keyed to the clock before that, so the clock it
+    was then painted at no longer matched, the still was dropped and the
+    first paint of the run shaded a new frame on the GUI thread: a picture
+    that jumped, at the cost the still exists to avoid. Seen under load on
+    CI, where the shading thread had not yet taken the tick.
+    """
+    _, widget = backdrop
+    widget._timer.stop()
+    widget.repaint()
+    before = _grab(widget)
+    widget._producer_box[0]._queued_input = None
+    snapshot = widget._art_input._snapshot
+    widget._art_input._offer(0.4, snapshot[2], ())
+    clock = widget._engine.time
+    _pause_for_a_run(monkeypatch, widget)
+    assert widget._engine.time > clock
+    calls = _count_shading(monkeypatch, widget)
+    assert _grab(widget) == before
+    assert calls == []
+
+
 def test_a_still_shaded_after_a_change_is_the_picture_the_old_paint_drew(
         backdrop, monkeypatch):
     _, widget = backdrop
