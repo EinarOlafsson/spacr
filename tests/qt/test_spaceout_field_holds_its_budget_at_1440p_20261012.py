@@ -42,8 +42,14 @@ from spacr.qt.widgets import ambient
 W, H = 2560, 1440
 
 #: Most a colour-wave frame may cost, in plain frames of the same field.
-#: 1.8-3.1 measured with the kernel, 6.2-9.5 without it.
-COLOUR_WAVE_PLAIN_FRAMES = 4.5
+#: Under load (60-80 on 32 threads) 1.8-3.1 with the kernel and 6.2-9.5
+#: without it. On a quiet machine a plain frame shrinks to 1.5-2.3 ms while
+#: a colour-wave frame stays at 6.5-8.7 ms, so the ratio grows: 2.9-5.4 per
+#: round with the kernel (per-run medians 3.7-4.9, the same at 69b7ae0d0,
+#: which set the first bound of 4.5 from the loaded figures) and 14-20
+#: without it, measured 2026-10-13; CI measured 5.00 and 5.05. The bound
+#: sits between the two in either regime.
+COLOUR_WAVE_PLAIN_FRAMES = 6.0
 
 
 def _engine(background="#101418"):
@@ -192,6 +198,9 @@ def _shade_ms(engine, clock):
     reason="wall-clock performance budgets require an uninstrumented process",
 )
 def test_a_colour_wave_frame_stays_within_a_few_plain_frames_at_1440p():
+    """A first round is shaded and dropped: the first plain frames of a new
+    engine cost 6.5 ms against 1.5-2.3 after, which made the first of three
+    rounds read 1.2 and the median the lower of the other two."""
     _compiled_mixer()
     plain, waved = _engine(), _engine()
     for engine in (plain, waved):
@@ -201,6 +210,9 @@ def test_a_colour_wave_frame_stays_within_a_few_plain_frames_at_1440p():
     row = _event(waved, "color_waves")
     assert 0 < round(abs(waved._event_strength(row)) * 255) < 255, (
         "the measured frame must be a crossfade, not an endpoint")
+    _shade_ms(plain, 12.0)
+    _event(waved, "color_waves")
+    _shade_ms(waved, 12.0)
     ratios = []
     for _round in range(3):
         cost = _shade_ms(plain, 12.0)
