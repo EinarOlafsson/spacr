@@ -51,7 +51,7 @@ from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
 from ..i18n import retranslate_widget_tree, tr
-from ..theme import FONT_SIZE, SPACING, active_palette
+from ..theme import FONT_SIZE, SPACING, _painting_palette, active_palette
 from ..verbose_logger import console_write, console_write_in_progress
 from .flash import Flash
 
@@ -255,7 +255,7 @@ class _CopyGlyphButton(QAbstractButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         try:
-            palette = active_palette()
+            palette = _painting_palette()
             colour = QColor(palette["button_accent"] if self._flash.active
                             else palette["fg_dim"])
         except Exception:
