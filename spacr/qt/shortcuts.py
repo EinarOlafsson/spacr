@@ -1008,8 +1008,28 @@ class _KeymapDialog(QDialog):
 
 
 def _open_keymap(window) -> "_KeymapDialog":
-    """Open the shortcut editor over ``window`` and return it."""
+    """Open the shortcut editor over ``window`` and return it.
+
+    ONE EDITOR PER WINDOW, AND IT GOES WHEN IT CLOSES. Each open used to
+    build a new editor parented to the window and only hide it on Save or
+    Cancel, so every visit left a dialog, its table, its key editors and
+    its popup backdrop alive under the window for the rest of the session.
+    An editor already open is raised instead of doubled, and a closed one
+    is deleted by Qt after its button's click has finished dispatching.
+    """
+    from shiboken6 import isValid
+
+    current = getattr(window, "_spacr_keymap_dialog", None)
+    if current is not None and isValid(current) and current.isVisible():
+        current.raise_()
+        current.activateWindow()
+        return current
     dialog = _KeymapDialog(window)
+    dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+    try:
+        window._spacr_keymap_dialog = dialog
+    except Exception:                                    # noqa: BLE001
+        pass
     dialog.show()
     return dialog
 
