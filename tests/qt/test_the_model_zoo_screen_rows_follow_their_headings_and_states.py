@@ -14,6 +14,7 @@ Pinned here, each as what the user sees:
 """
 from __future__ import annotations
 
+import hashlib
 import types
 
 import pytest
@@ -66,6 +67,37 @@ def test_a_dino_model_with_its_backend_says_whether_it_is_here(tmp_path,
                                  path="", uri="")
     assert mz._status_of(here) == "installed"
     assert mz._status_of(away) == "available"
+
+
+def test_a_local_dino_checkpoint_needs_its_backend_before_it_is_usable(
+        screen, tmp_path, monkeypatch):
+    """Weights on disk do not make a DINO model runnable without its backend."""
+    weights = tmp_path / "dino.pth"
+    weights.write_bytes(b"local dino checkpoint")
+    entry = zoo.ModelEntry(
+        key="test_dino_v1", name="dino.pth", kind="cellpose_dino",
+        source="local", path=str(weights), verified=True,
+        sha256=hashlib.sha256(weights.read_bytes()).hexdigest())
+    ready = [False]
+    monkeypatch.setattr(mzp, "_cellpose_dino_ready", lambda: ready[0])
+    screen.set_entries([entry])
+    screen.sources._headings[zoo.source_of(entry)].set_on(True)
+    screen._apply_source_filter()
+    screen.select(0)
+
+    assert entry.exists
+    assert not screen._table.isRowHidden(0)
+    assert screen.rows()[0][3] == "needs the Cellpose-DINO backend"
+    assert screen._btn_download.text() == "Install"
+    assert screen._btn_download.isEnabled()
+
+    ready[0] = True
+    screen.set_entries([entry])
+    screen.select(0)
+
+    assert screen.rows()[0][3] == "installed"
+    assert screen._btn_download.text() == "Download"
+    assert not screen._btn_download.isEnabled()
 
 
 def test_a_bundled_model_without_a_file_says_bundled():
