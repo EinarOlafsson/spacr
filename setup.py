@@ -45,9 +45,47 @@ def pypi_readme(source):
     model cards and the deck are promoted there with every README update,
     and a released description should not move when ``nightly`` does.
     No network access or spaCR imports are needed during isolated builds.
-    GitHub's aligned raw-HTML tile substitutions become ordinary RST image
-    substitutions here because PyPI's renderer disables raw HTML.
+    GitHub's aligned raw-HTML tile substitutions and the README's
+    phone/desktop ``<picture>`` blocks become ordinary RST images here
+    because PyPI's renderer disables raw HTML; a picture keeps its phone
+    drawing.
     """
+    names = set()
+
+    def pictures(rows):
+        """Rows of GitHub ``<picture>`` images as RST images: the phone
+        drawing, which PyPI shows at its own size like GitHub's phone page."""
+        found = re.compile(
+            r'(?:<a href="(?P<target>[^"]*)">)?<picture><source [^>]*>'
+            r'<img src="(?P<src>[^"]+)" alt="(?P<alt>[^"]*)"></picture>'
+            r'(?:</a>)?')
+        blocks, definitions = [], []
+        for row in re.findall(r"   <div>(.*)</div>", rows):
+            items = list(found.finditer(row))
+            if len(items) == 1:
+                item = items[0]
+                lines = [f".. image:: {unescape(item['src'])}",
+                         f"   :alt: {unescape(item['alt'])}"]
+                if item["target"]:
+                    lines.append(f"   :target: {unescape(item['target'])}")
+                blocks.append("\n".join(lines))
+                continue
+            line = []
+            for item in items:
+                name = "pypi-" + re.sub(
+                    r"\W+", "-", item["src"].rsplit("/", 1)[-1])
+                while name in names:
+                    name += "-"
+                names.add(name)
+                line.append(f"|{name}|")
+                lines = [f".. |{name}| image:: {unescape(item['src'])}",
+                         f"   :alt: {unescape(item['alt'])}"]
+                if item["target"]:
+                    lines.append(f"   :target: {unescape(item['target'])}")
+                definitions.append("\n".join(lines))
+            blocks.append("| " + "\\ ".join(line))
+        return "\n\n".join(blocks + definitions) + "\n"
+
     def absolute(value, image=False):
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
             return value
@@ -56,7 +94,7 @@ def pypi_readme(source):
         return base + value.removeprefix("./")
 
     source = re.sub(
-        r'(?m)^\.\. \|(?P<name>Module_[^|\n]+)\| raw:: html\n\n'
+        r'(?m)^\.\. \|(?P<name>[^|\n]+)\| raw:: html\n\n'
         r'   <a href="(?P<target>[^"]+)"><img src="(?P<image>[^"]+)" '
         r'width="(?P<width>[^"]+)" align="middle" alt="(?P<alt>[^"]+)"></a>\n',
         lambda match: (
@@ -67,6 +105,9 @@ def pypi_readme(source):
             "   :align: middle\n"
         ), source,
     )
+    source = re.sub(
+        r"(?m)^\.\. raw:: html\n\n((?:   <div>[^\n]*</div>(?:\n|$))+)",
+        lambda match: pictures(match[1]), source)
     source = re.sub(
         r"(?m)^(\s*\.\. (?:\|[^|]+\| )?(?:image|figure)::\s+)(\S+)",
         lambda match: match[1] + absolute(match[2], image=True), source)

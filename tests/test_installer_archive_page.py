@@ -412,7 +412,7 @@ def test_the_page_is_in_the_toctree_and_the_readme_points_at_it():
     index = (ROOT / "docs" / "source" / "index.rst").read_text(encoding="utf-8")
     assert re.search(r"^\s+installers$", index, re.MULTILINE)
     readme = README.read_text(encoding="utf-8")
-    assert ":target: docs/source/installer_guide.rst" in readme
+    assert 'href="docs/source/installer_guide.rst"' in readme
     guide = (ROOT / "docs" / "source" / "installer_guide.rst").read_text(
         encoding="utf-8")
     assert ":doc:`installer archive <installers>`" in guide

@@ -98,9 +98,11 @@ def _readme_block(generator) -> str:
         title = match.group("title")
         return f"{title}\n{underline * max(3, len(title))}\n"
 
+    # Since 2026-10-13 each image is a raw-HTML <picture> (phone and
+    # desktop drawings); its <img> carries the alt text.
     return re.sub(
-        r"(?m)^\.\. image:: \S*/generated-workflow-\d+\.svg\n"
-        r"   :alt: (?P<title>[^\n]+?)\. [^\n]*\n(?:   :[^\n]*\n)*",
+        r"(?m)^\.\. raw:: html\n\n   <div>[^\n]*?/generated-workflow-\d+"
+        r"\.svg\" alt=\"(?P<title>[^\"\n]+?)\. [^\n]*\n",
         heading, block)
 
 

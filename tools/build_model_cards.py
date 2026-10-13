@@ -530,14 +530,16 @@ def expected_files(entries=None) -> Dict[str, str]:
     and the SVG score cards and grid heading under ``cards/``.
     """
     scores = score_cards()
-    out = {INDEX_NAME: render_index(entries),
-           scores.HEADING_NAME: scores.render_heading()}
+    out = {INDEX_NAME: render_index(entries)}
+    for layout in scores.LAYOUTS:
+        out[scores.heading_name(layout)] = scores.render_heading(layout)
     for family in families(entries):
         for entry in family["versions"]:
             key = key_of(entry)
             out[card_file(key)] = render_card(entry, family)
-            out[scores.card_name(key)] = scores.render_svg(
-                entry, family["status"][key])
+            for layout in scores.LAYOUTS:
+                out[scores.card_name(key, layout)] = scores.render_svg(
+                    entry, family["status"][key], layout)
     return out
 
 

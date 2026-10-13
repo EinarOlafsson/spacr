@@ -158,11 +158,14 @@ def test_each_download_is_an_icon_linking_to_its_installer(stem):
 def test_the_icons_are_committed_here_and_not_hotlinked():
     """Every image in the block is served from this repository."""
     block = _block()
-    urls = re.findall(r"image:: (\S+)", block)
+    urls = re.findall(r'<img src="([^"]+)"', block)
     assert len(urls) == len(PLATFORM_ASSETS)
-    prefix = "spacr/resources/icons/platforms/"
+    # 2026-10-13: each icon is shown as its cell of an equal-cell row
+    # (tools/build_readme_images.py icon_cell), drawn from the artwork.
+    prefix = f"docs/readme_assets/cells/{len(PLATFORM_ASSETS)}/platforms/"
     for url in urls:
         assert url.startswith(prefix), f"{url} is hotlinked from elsewhere"
+        assert (ROOT / url).is_file(), f"{url} is not committed"
         committed = ICON_DIR / url[len(prefix):]
         assert committed.is_file(), f"{url} has no committed artwork"
 
@@ -178,8 +181,8 @@ def test_the_row_is_the_three_platform_downloads_only():
     links = _linked_images(html)
     assert not any(src.endswith("/legacy.png") for src in links)
     assert "installers.rst" not in _block()
-    row = re.search(r"(?m)^\|Installer.+\|$", _block()).group(0)
-    assert row.split() == [
+    row = re.search(r"(?m)^\| \|Installer.+\|$", _block()).group(0)
+    assert re.findall(r"\|Installer\w+\|", row) == [
         "|InstallerLinux|", "|InstallerMacOS|", "|InstallerWindows|",
     ]
 

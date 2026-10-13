@@ -90,7 +90,7 @@ LANGUAGES = ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 
 #: Bump when a change to this file changes what an image looks like, so the
 #: currency check fails until the images are redrawn.
-RENDERER_VERSION = "2"
+RENDERER_VERSION = "3"
 
 #: Every block kind this README may contain. ``generated`` blocks are written
 #: by ``packaging/generate_readme_visuals.py`` (and the installer row by
@@ -125,40 +125,64 @@ PALETTE = {
     "beta": "#8b8cf7",
     "shadow": "#1f2328",
 }
-#: The share of the column a panel takes: all of it, edge to edge, so a
-#: panel's sides line up with the code blocks and the deck cover between
-#: which it sits (measured on GitHub's own render on 2026-10-12, where a
-#: 6 px inset on each side read as a misalignment at every code block).
-FULL_WIDTH = "100%"
-#: Button widths for two and three to a row. Not exact halves and thirds:
-#: GitHub leaves one space inside each image link, and exact shares plus
-#: that space wrap the last button onto a line of its own -- the same
-#: reason the score cards are 49.5% wide.
-GRID_WIDTHS = {2: 49.5, 3: 32.8}
+#: The two layouts every image is drawn in, as the CSS pixel width of the
+#: column it fills. The README is read on a phone (GitHub mobile and mobile
+#: web: a 390 px viewport leaves a 358 px column) and on a desktop (GitHub's
+#: repository page at 1280 px and wider: an 830 px column). Each image is
+#: drawn once per layout at its true display size, one SVG unit to one CSS
+#: pixel, and the README offers both through ``<picture>``: the phone
+#: drawing is the ``<img>`` itself, so anything that ignores ``<source>``
+#: shows it, and :data:`DESKTOP_MEDIA` selects the desktop drawing. No
+#: image is scaled by the page, so every word is drawn at the size below on
+#: both. Measured on 2026-10-13 from GitHub's rendered README (the API's
+#: HTML) and github-markdown-css: body text 16 px, code blocks 85% of it.
+PHONE = 358
+DESKTOP = 830
+LAYOUTS = {"phone": PHONE, "desktop": DESKTOP}
+DESKTOP_MEDIA = "(min-width: 1280px)"
+#: A row of images (buttons, cards) is this much narrower than the column,
+#: so sub-pixel rounding can never push its last image onto a new line.
+ROW_SLACK = 2
 #: The gap between two buttons in a row, split across their two cells.
-GUTTER = 12
+GUTTER = 8
 
-WIDTH = 880
 MARGIN = 0
-PAD_X = 40
-PAD_TOP = 30
-PAD_BOTTOM = 30
-RADIUS = 14
-#: Transparent space under every image. GitHub sets a README's block images
-#: inline with no margin of their own, so this is the gap between two
-#: panels; with the line box's own few pixels it matches the 16 px GitHub
-#: leaves under a code block, so every gap on the page is the same.
+RADIUS = 12
+#: Transparent space under every image. A block of images sits on a text
+#: line, whose few pixels of descent add to this, so the gap between two
+#: images matches the 16 px GitHub leaves under a code block.
 GAP_BELOW = 11
-PAD_COMPACT = 20
-BODY = 17
-LINE = 28
-BLOCK_GAP = 14
-HEADINGS = {1: (40, 52), 2: (26, 36), 3: (21, 30), 4: (19, 28)}
-LITERAL_SIZE = 15.5
-LITERAL_PAD = 5
-BULLET_INDENT = 24
-CHIP_HEIGHT = 60
-CHIP_TEXT = 15
+#: The page's one text size: GitHub's code-block text (85% of its 16 px
+#: body), so the words in the images and the commands between them are the
+#: same size. Section titles (levels 1 and 2) are GitHub's body size,
+#: slightly bigger; everything else is BODY.
+BODY = 13.6
+LINE = 20.4
+TITLE = 16
+TITLE_LINE = 24
+HEADINGS = {1: (TITLE, TITLE_LINE), 2: (TITLE, TITLE_LINE), 3: (BODY, LINE),
+            4: (BODY, LINE)}
+LITERAL_SIZE = BODY
+LITERAL_PAD = 3
+BULLET_INDENT = 14
+BLOCK_GAP = 10
+CHIP_HEIGHT = 34
+CHIP_TEXT = BODY
+
+
+def pad_x(width: float) -> int:
+    """The side padding of a panel ``width`` wide."""
+    return 16 if width < 600 else 24
+
+
+def pad_y(width: float) -> int:
+    return 14 if width < 600 else 18
+
+
+def pad_compact(width: float) -> int:
+    return 10 if width < 600 else 12
+
+
 FAMILY_STACK = "'spacr-os', 'spacr-script', 'spacr-symbols', 'Open Sans', sans-serif"
 
 # ---------------------------------------------------------------------------
@@ -1090,8 +1114,9 @@ def _surface(x: float, y: float, width: float, height: float,
         f'stroke="{PALETTE["edge"]}" filter="url(#s{uid})"/>')
 
 
-def _panel_frame(height: float, glow: bool, uid: str) -> str:
-    width = WIDTH - 2 * MARGIN
+def _panel_frame(panel_width: float, height: float, glow: bool,
+                 uid: str) -> str:
+    width = panel_width - 2 * MARGIN
     parts = [_surface(MARGIN, 1, width, height, RADIUS, uid)]
     if glow:
         parts.insert(0, (
@@ -1099,10 +1124,10 @@ def _panel_frame(height: float, glow: bool, uid: str) -> str:
             f'<stop offset="0" stop-color="{PALETTE["accent"]}"/>'
             f'<stop offset="1" stop-color="{PALETTE["accent_blue"]}"/>'
             f'</linearGradient><clipPath id="c{uid}"><rect x="{MARGIN}" y="1" '
-            f'width="{width}" height="{height}" rx="{RADIUS}"/></clipPath>'
+            f'width="{width:g}" height="{height}" rx="{RADIUS}"/></clipPath>'
             "</defs>"))
         parts.append(
-            f'<rect x="{MARGIN}" y="1" width="{width}" height="2" '
+            f'<rect x="{MARGIN}" y="1" width="{width:g}" height="2" '
             f'fill="url(#g{uid})" fill-opacity=".7" clip-path="url(#c{uid})"/>')
     return "".join(parts)
 
@@ -1147,11 +1172,11 @@ def _cell_mark(cell: str) -> Optional[str]:
 
 def _dot(x: float, y: float, kind: str) -> str:
     if kind == "stable":
-        return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="{PALETTE["accent"]}"/>'
+        return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4.5" fill="{PALETTE["accent"]}"/>'
     if kind == "beta":
-        return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="{PALETTE["beta"]}"/>'
-    return (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5.25" fill="none" '
-            f'stroke="{PALETTE["ink_muted"]}" stroke-width="1.5"/>')
+        return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4.5" fill="{PALETTE["beta"]}"/>'
+    return (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.9" fill="none" '
+            f'stroke="{PALETTE["ink_muted"]}" stroke-width="1.3"/>')
 
 
 # ---------------------------------------------------------------------------
@@ -1160,19 +1185,21 @@ def _dot(x: float, y: float, kind: str) -> str:
 
 def render_panel(blocks: list[dict], language: str, uid: str,
                  digest: str, *, linked: bool = False,
-                 row: bool = False) -> str:
-    """One panel: headings, paragraphs, lists and tables, top to bottom.
+                 row: bool = False, width: float = PHONE) -> str:
+    """One panel ``width`` CSS pixels wide: headings, paragraphs, lists and
+    tables, top to bottom, every word at its true display size.
 
     ``linked`` draws the small outward arrow in the top right corner that
     says the whole panel is a link. ``row`` is one item of a list of links:
     compact, without a bullet, the arrow centred on the row.
     """
     canvas = Canvas(language)
-    content = WIDTH - 2 * MARGIN - 2 * PAD_X - (28 if linked else 0)
-    left = MARGIN + PAD_X
+    side = pad_x(width)
+    content = width - 2 * MARGIN - 2 * side - (20 if linked else 0)
+    left = MARGIN + side
     headings_only = all(block["kind"] == "heading" for block in blocks)
     compact = row or headings_only
-    y = PAD_COMPACT if compact else PAD_TOP
+    y = pad_compact(width) if compact else pad_y(width)
     glow = bool(blocks) and blocks[0]["kind"] == "heading" and \
         blocks[0]["level"] <= 3
     for position, block in enumerate(blocks):
@@ -1186,88 +1213,138 @@ def render_panel(blocks: list[dict], language: str, uid: str,
             styles = _styles(size, 400, color)
             runs = [(text, styles[style if style != "link" else "plain"])
                     for text, style, _link in inline_runs(block["text"])]
-            lines = wrap(runs, content, language)
-            for pieces in lines:
+            for pieces in wrap(runs, content, language):
                 y += line
-                canvas.text(left, y - (line - size) / 2 - 4, pieces)
+                canvas.text(left, _baseline(y, line, size), pieces)
             if block["level"] == 2:
-                y += 10
+                y += 6
                 canvas.elements.append(
-                    f'<rect x="{left}" y="{y:.1f}" width="36" height="3" '
-                    f'rx="1.5" fill="{PALETTE["accent"]}"/>')
-                y += 3
+                    f'<rect x="{left}" y="{y:.1f}" width="24" height="2" '
+                    f'rx="1" fill="{PALETTE["accent"]}"/>')
+                y += 2
         elif kind == "paragraph":
             styles = _styles(BODY, 300, PALETTE["ink_secondary"])
             runs = [(text, styles[style])
                     for text, style, _link in inline_runs(block["text"])]
             for pieces in wrap(runs, content, language):
                 y += LINE
-                canvas.text(left, y - 8, pieces)
+                canvas.text(left, _baseline(y, LINE, BODY), pieces)
         elif kind == "list":
             styles = _styles(BODY, 300, PALETTE["ink_secondary"])
             for item_index, item in enumerate(block["items"]):
                 if item_index:
-                    y += 6
+                    y += 4
                 runs = [(text, styles[style])
                         for text, style, _link in inline_runs(item)]
                 indent = 0 if row else BULLET_INDENT
                 lines = wrap(runs, content - indent, language)
                 if not row:
                     canvas.elements.append(
-                        f'<circle cx="{left + 6}" cy="{y + LINE / 2 + 1:.1f}" '
-                        f'r="3" fill="{PALETTE["accent"]}"/>')
+                        f'<circle cx="{left + 4}" '
+                        f'cy="{_baseline(y + LINE, LINE, BODY) - BODY * .33:.1f}" '
+                        f'r="2.2" fill="{PALETTE["accent"]}"/>')
                 for pieces in lines:
                     y += LINE
-                    canvas.text(left + indent, y - 8, pieces)
+                    canvas.text(left + indent, _baseline(y, LINE, BODY),
+                                pieces)
         elif kind == "table":
             y = _render_table(canvas, block, left, y, content)
-    height = round(y + (PAD_COMPACT - 4 if compact else PAD_BOTTOM))
-    frame = _panel_frame(height, glow, uid)
+    height = round(y + (pad_compact(width) if compact else pad_y(width)))
+    frame = _panel_frame(width, height, glow, uid)
     if linked:
-        arrow_y = height / 2 if row else PAD_TOP + 2
-        canvas.elements.append(_out_arrow(WIDTH - MARGIN - 30, arrow_y,
+        arrow_y = height / 2 if row else pad_y(width) + 8
+        canvas.elements.append(_out_arrow(width - MARGIN - side + 4, arrow_y,
                                           PALETTE["accent"]))
     title = plain(blocks[0]["text"]) if blocks and blocks[0]["kind"] == \
         "heading" else "spaCR"
-    return _svg(canvas, WIDTH, height + GAP_BELOW, title, alt_text(blocks),
+    return _svg(canvas, width, height + GAP_BELOW, title, alt_text(blocks),
                 digest, frame + "".join(canvas.elements))
+
+
+def _baseline(bottom: float, line: float, size: float) -> float:
+    """The baseline of a line box ending at ``bottom``: Open Sans' ascent
+    and descent (1.069 and 0.293 em) centred in the line, as CSS does."""
+    return bottom - (line - 1.362 * size) / 2 - 0.293 * size
+
+
+def _cell_lines(text: str, style: Style, width: float,
+                language: str) -> list[list[Piece]]:
+    return wrap([(text, style)], width, language) or [[]]
 
 
 def _render_table(canvas: Canvas, block: dict, left: float, y: float,
                   content: float) -> float:
+    """The table, its cells word-wrapped to their columns, then its legend
+    flowing onto as many lines as the width needs."""
     rows = block["rows"]
     widths = block.get("widths") or [1] * len(rows[0])
     total = sum(widths)
-    columns = []
-    x = left
-    for value in widths:
-        columns.append(x)
-        x += content * value / total
-    header_style = _styles(15, 400, PALETTE["ink_muted"])["plain"]
+    header_style = _styles(BODY, 400, PALETTE["ink_muted"])["plain"]
     cell_style = _styles(BODY, 300, PALETTE["ink_secondary"])["plain"]
     name_style = _styles(BODY, 400, PALETTE["ink_primary"])["plain"]
-    row_height = 40
-    y += 8
+    gap = 6
+    mark_width = 14
+
+    def words(cell: str) -> str:
+        return re.sub(r" (?=\d+\b)", "\u00a0", _cell_text(cell))
+
+    def style_of(row_index: int, column: int) -> Style:
+        if row_index < block.get("header_rows", 1):
+            return header_style
+        return name_style if column == 0 else cell_style
+
+    # Each column at least as wide as its widest unbreakable word, the
+    # rest shared as the table's :widths: say.
+    shares = [content * value / total for value in widths]
+    least = [0.0] * len(shares)
+    for row_index, row in enumerate(rows):
+        for column, cell in enumerate(row):
+            for unit in _break_units([(words(cell),
+                                       style_of(row_index, column))]):
+                text = "".join(piece.text for piece in unit).rstrip(" ")
+                width = measure(text, BODY, face_stack(
+                    canvas.language, style_of(row_index, column).weight))
+                least[column] = max(least[column], width + gap + (
+                    mark_width if _cell_mark(cell) else 0))
+    short = sum(max(0.0, need - have) for need, have in zip(least, shares))
+    spare = sum(max(0.0, have - need) for need, have in zip(least, shares))
+    if short and spare:
+        shares = [max(need, have - (have - need) * short / spare)
+                  if have > need else need
+                  for need, have in zip(least, shares)]
+    columns = []
+    x = left
+    for share in shares:
+        columns.append((x, share))
+        x += share
+    y += 4
     for row_index, row in enumerate(rows):
         header = row_index < block.get("header_rows", 1)
-        baseline = y + row_height / 2 + 6
-        if not header and row_index % 2 == 0:
-            canvas.elements.append(
-                f'<rect x="{left - 14}" y="{y:.1f}" width="{content + 28:.1f}" '
-                f'height="{row_height}" rx="8" fill="{PALETTE["track"]}" '
-                'fill-opacity=".55"/>')
+        cells = []
         for column, cell in enumerate(row):
-            x = columns[column] + (0 if column == 0 else 0)
+            start, span = columns[column]
             mark = _cell_mark(cell)
-            text = _cell_text(cell)
             style = header_style if header else (
                 name_style if column == 0 else cell_style)
+            room = span - gap - (mark_width if mark else 0)
+            cells.append((start, mark, _cell_lines(
+                words(cell), style, room, canvas.language)))
+        count = max(len(lines) for _start, _mark, lines in cells)
+        row_height = count * LINE + 10
+        if not header and row_index % 2 == 0:
+            canvas.elements.append(
+                f'<rect x="{left - 8}" y="{y:.1f}" width="{content + 16:.1f}" '
+                f'height="{row_height:.1f}" rx="6" fill="{PALETTE["track"]}" '
+                'fill-opacity=".55"/>')
+        for start, mark, lines in cells:
+            x = start
+            first = _baseline(y + 5 + LINE, LINE, BODY)
             if mark:
-                canvas.elements.append(_dot(x + 6, baseline - 6, mark))
-                x += 20
-            piece = Piece(text, style)
-            piece.width = _piece_width(piece, canvas.language)
-            canvas.text(x, baseline, [piece])
+                canvas.elements.append(_dot(x + 4.5, first - BODY * .35, mark))
+                x += mark_width
+            for index, pieces in enumerate(lines):
+                if pieces:
+                    canvas.text(x, first + index * LINE, pieces)
         y += row_height
         if header:
             canvas.elements.append(
@@ -1275,28 +1352,35 @@ def _render_table(canvas: Canvas, block: dict, left: float, y: float,
                 f'height="1" fill="{PALETTE["edge"]}"/>')
     legend = block.get("legend")
     if legend:
-        y += 22
+        y += 8
+        style = _styles(BODY, 300, PALETTE["ink_muted"])["plain"]
         x = left
-        style = _styles(15, 300, PALETTE["ink_muted"])["plain"]
-        for part in re.split(r"\s* \s*", legend):
+        line_top = y
+        for part in re.split("\\s*\u2003\\s*", legend):
             mark = _cell_mark(part)
-            text = _cell_text(part)
-            if mark:
-                canvas.elements.append(_dot(x + 6, y - 5, mark))
-                x += 20
-            piece = Piece(text, style)
+            piece = Piece(_cell_text(part), style)
             piece.width = _piece_width(piece, canvas.language)
-            canvas.text(x, y, [piece])
-            x += piece.width + 34
+            needed = piece.width + (mark_width if mark else 0)
+            if x > left and x + needed > left + content:
+                x = left
+                line_top += LINE
+            baseline = _baseline(line_top + LINE, LINE, BODY)
+            if mark:
+                canvas.elements.append(_dot(x + 4.5, baseline - BODY * .35,
+                                            mark))
+                x += mark_width
+            canvas.text(x, baseline, [piece])
+            x += piece.width + 18
+        y = line_top + LINE
     return y
 
 
 def _globe(x: float, y: float, color: str) -> str:
     return (
         f'<g fill="none" stroke="{color}" stroke-width="1.4">'
-        f'<circle cx="{x}" cy="{y}" r="8"/>'
-        f'<ellipse cx="{x}" cy="{y}" rx="3.6" ry="8"/>'
-        f'<path d="M{x - 8} {y}h16M{x - 6.9} {y - 4}h13.8M{x - 6.9} {y + 4}h13.8"/>'
+        f'<circle cx="{x}" cy="{y}" r="6.5"/>'
+        f'<ellipse cx="{x}" cy="{y}" rx="2.9" ry="6.5"/>'
+        f'<path d="M{x - 6.5} {y}h13M{x - 5.6} {y - 3.25}h11.2M{x - 5.6} {y + 3.25}h11.2"/>'
         "</g>")
 
 
@@ -1312,15 +1396,26 @@ def _out_arrow(x: float, y: float, color: str) -> str:
             'stroke-linecap="round" stroke-linejoin="round"/>')
 
 
+#: The side padding inside a button and the room its arrow takes.
+CHIP_PAD = 14
+CHIP_ICON = 18
+CHIP_PILL = 30
+
+
+def chip_text_room(cell: float, icon: Optional[str] = "arrow") -> float:
+    """The width a label may take inside a button filling ``cell``."""
+    return cell - GUTTER - 2 * CHIP_PAD - (CHIP_ICON if icon else 0)
+
+
 def render_chip(label: str, language: str, width: float, digest: str,
                 description: str, *, align: str = "left",
                 icon: str = "arrow", weight: int = 400,
                 first: bool = True, last: bool = True) -> str:
     """One link button: a rounded chip filling a fixed-width grid cell.
 
-    ``width`` is the cell in panel units, so a button's text is drawn at
-    the same scale as the panels' text. The row's outer buttons run to the
-    cell's outer edge, so a row starts where the panels start; between two
+    ``width`` is the cell in CSS pixels, so the label is drawn at the
+    page's one text size. The row's outer buttons run to the cell's outer
+    edge, so a row starts and ends where the panels do; between two
     buttons each gives up half of :data:`GUTTER`.
     """
     canvas = Canvas(language)
@@ -1328,36 +1423,37 @@ def render_chip(label: str, language: str, width: float, digest: str,
     right = 0 if last else GUTTER / 2
     chip_width = width - inset - right
     style = Style(CHIP_TEXT, weight, PALETTE["ink_primary"])
-    space = chip_width - 2 * 20 - (24 if icon else 0)
+    space = chip_width - 2 * CHIP_PAD - (CHIP_ICON if icon else 0)
     size = CHIP_TEXT
     text_width = measure(label, size, face_stack(language, weight))
     while text_width > space and size > 10:
-        size -= 0.5
+        size -= 0.2
         text_width = measure(label, size, face_stack(language, weight))
-    style.size = size
+    style.size = round(size, 1)
     piece = Piece(label, style, text_width)
-    top, height = 4, CHIP_HEIGHT - 8 - GAP_BELOW
+    top, height = 1, CHIP_PILL
     middle = top + height / 2
     elements = [_surface(inset, top, chip_width, height, height / 2,
                          "chip")]
     if icon == "globe":
-        elements.append(_globe(inset + 26, middle, PALETTE["accent"]))
-        text_x = inset + 44
-        elements.append(_caret(text_x + text_width + 16, middle,
+        elements.append(_globe(inset + CHIP_PAD + 7, middle,
+                               PALETTE["accent"]))
+        text_x = inset + CHIP_PAD + 20
+        elements.append(_caret(text_x + text_width + 12, middle,
                                PALETTE["ink_muted"]))
     elif align == "right":
-        text_x = inset + chip_width - 20 - text_width
+        text_x = inset + chip_width - CHIP_PAD - text_width
     elif align == "center":
         text_x = inset + (chip_width - text_width) / 2
     else:
-        text_x = inset + 20
+        text_x = inset + CHIP_PAD
         if icon == "arrow":
-            elements.append(_out_arrow(inset + chip_width - 24, middle,
-                                       PALETTE["accent"]))
+            elements.append(_out_arrow(inset + chip_width - CHIP_PAD - 4,
+                                       middle, PALETTE["accent"]))
     canvas.text(text_x, middle + size * 0.36, [piece])
     body = "".join(elements) + "".join(canvas.elements)
-    return _svg(canvas, width, CHIP_HEIGHT - 4, label, description, digest,
-                body)
+    return _svg(canvas, width, top + height + GAP_BELOW, label, description,
+                digest, body)
 
 
 # ---------------------------------------------------------------------------
@@ -1404,64 +1500,137 @@ def _alt(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
+def _html(value: str) -> str:
+    return escape(value, quote=True)
+
+
+def picture_html(phone: str, desktop: str, alt: str,
+                 target: Optional[str] = None) -> str:
+    """One image in both layouts: the phone drawing is the ``<img>``, the
+    desktop drawing a ``<source>`` chosen by :data:`DESKTOP_MEDIA`.
+
+    No ``width`` attribute: each drawing is shown at its own size, one SVG
+    unit to one CSS pixel, which is what keeps every word the same size on
+    every page. GitHub keeps ``<picture>``, ``<source media srcset>`` and
+    the ``<img>`` (checked against its Markdown renderer on 2026-10-13).
+    """
+    image = (f'<picture><source media="{DESKTOP_MEDIA}" '
+             f'srcset="{_html(desktop)}"><img src="{_html(phone)}" '
+             f'alt="{_html(_alt(alt))}"></picture>')
+    return f'<a href="{_html(target)}">{image}</a>' if target else image
+
+
+def raw_html(*rows: str) -> str:
+    """A ``raw:: html`` block, one ``<div>`` per row of images, written
+    without whitespace between images so a row never gains a space."""
+    body = "\n".join(f"   <div>{row}</div>" for row in rows)
+    return f".. raw:: html\n\n{body}"
+
+
 def _image_directive(language: str, name: str, alt: str,
-                     target: Optional[str], width: str = FULL_WIDTH) -> str:
-    lines = [f".. image:: {_image_reference(language, name)}",
-             f"   :alt: {_alt(alt)}", f"   :width: {width}"]
-    if target:
-        lines.append(f"   :target: {_relative(target, language)}")
-    return "\n".join(lines)
+                     target: Optional[str]) -> str:
+    """A full-width image as a phone/desktop picture."""
+    return raw_html(picture_html(
+        _image_reference(language, name),
+        _image_reference(language, f"{name}.desktop"), alt,
+        _relative(target, language) if target else None))
+
+
+def estimate_width(text: str, size: float = BODY, weight: int = 400) -> float:
+    """A label's width without the fonts, for choosing columns in
+    ``--check`` (which needs no fonts): Open Sans' mean advance, generous
+    for capitals and wide scripts."""
+    total = 0.0
+    for char in text:
+        if unicodedata.east_asian_width(char) in "WF":
+            total += 1.0
+        elif char.isupper() or char in "mwMW@%":
+            total += 0.72
+        elif char in "ilj.,:;'|!I ":
+            total += 0.3
+        else:
+            total += 0.57 + (0.01 if weight == 400 else 0)
+    return total * size
+
+
+def row_cell(layout_width: int, columns: int) -> int:
+    """The width of one of ``columns`` equal cells across a row."""
+    return (layout_width - ROW_SLACK) // columns
+
+
+def fitting_columns(labels: Sequence[str], wanted: int, layout_width: int,
+                    icon: Optional[str] = "arrow") -> int:
+    """The most columns, up to ``wanted``, in which every label fits at the
+    page's text size."""
+    columns = wanted
+    while columns > 1 and any(
+            estimate_width(label) > chip_text_room(
+                row_cell(layout_width, columns), icon)
+            for label in labels):
+        columns -= 1
+    return columns
 
 
 def _chip_grid(language: str, prefix: str, links: list[tuple[str, str]],
                images: dict, render: bool, *, columns: int = 0,
                nav: bool = False) -> str:
-    """Link buttons in a fixed grid; one image, one link, per button."""
+    """Link buttons in a grid; one image, one link, per button.
+
+    Each layout picks its own column count (the most, up to ``columns``,
+    in which every label fits at the page's text size), so one row of
+    cells fills the column exactly and the browser wraps the next button
+    onto the next row.
+    """
     columns = columns or (2 if len(links) <= 2 else 3)
-    share = GRID_WIDTHS[columns]
-    cell = round(WIDTH * share / float(FULL_WIDTH.rstrip("%")), 1)
-    percent = f"{share:g}%"
-    names = []
-    definitions = []
+    labels = [label for label, _target in links]
+    icon = None if nav else "arrow"
+    cells = []
     for position, (label, target) in enumerate(links):
         name = f"{prefix}-{position + 1}"
         align = "left"
         if nav:
             align = "left" if position == 0 else "right"
-        column = position % columns
-        first, last = column == 0, column == columns - 1
-        digest = digest_of(["chip", language, label, target, columns, align,
-                            first, last])
+        for layout, layout_width in LAYOUTS.items():
+            count = fitting_columns(labels, columns, layout_width, icon)
+            cell = row_cell(layout_width, count)
+            column = position % count
+            first, last = column == 0, column == count - 1
+            key = name if layout == "phone" else f"{name}.desktop"
+            digest = digest_of(["chip", language, label, target, cell, align,
+                                first, last])
+            if render:
+                images[key] = render_chip(label, language, cell, digest,
+                                          label, align=align, icon=icon,
+                                          first=first, last=last)
+            else:
+                images[key] = digest
+        cells.append(picture_html(
+            _image_reference(language, name),
+            _image_reference(language, f"{name}.desktop"), label,
+            _relative(target, language)))
+    return raw_html("".join(cells))
+
+
+def _panel_images(language: str, name: str, blocks: list[dict],
+                  images: dict, render: bool, *, linked: bool,
+                  row: bool = False, kind: str = "panel") -> None:
+    for layout, layout_width in LAYOUTS.items():
+        key = name if layout == "phone" else f"{name}.desktop"
+        digest = digest_of([kind, language, blocks, layout_width])
         if render:
-            images[name] = render_chip(label, language, cell, digest, label,
-                                       align=align,
-                                       icon=None if nav else "arrow",
-                                       first=first, last=last)
+            images[key] = render_panel(blocks, language, name, digest,
+                                       linked=linked, row=row,
+                                       width=layout_width)
         else:
-            images[name] = digest
-        names.append(name)
-        definitions.append("\n".join([
-            f".. |{name}| image:: {_image_reference(language, name)}",
-            f"   :alt: {_alt(label)}",
-            f"   :width: {percent}",
-            f"   :target: {_relative(target, language)}"]))
-    rows = []
-    for start in range(0, len(names), columns):
-        row = names[start:start + columns]
-        rows.append("| " + "\\ ".join(f"|{name}|" for name in row))
-    return "\n".join(rows) + "\n\n" + "\n\n".join(definitions)
+            images[key] = digest
 
 
 def _panel_markup(language: str, name: str, blocks: list[dict],
                   images: dict, render: bool) -> str:
     targets = list(dict.fromkeys(
         target for block in blocks for target in _block_links(block)))
-    digest = digest_of(["panel", language, blocks])
-    if render:
-        images[name] = render_panel(blocks, language, name, digest,
-                                    linked=len(targets) == 1)
-    else:
-        images[name] = digest
+    _panel_images(language, name, blocks, images, render,
+                  linked=len(targets) == 1)
     markup = _image_directive(language, name, alt_text(blocks),
                               targets[0] if len(targets) == 1 else None)
     if len(targets) > 1:
@@ -1485,19 +1654,206 @@ def _rows_markup(language: str, name: str, block: dict, images: dict,
         found = links_of(item)
         target = found[0][1] if len(found) == 1 else None
         row_name = f"{name}-{position + 1}"
-        digest = digest_of(["row", language, row])
-        if render:
-            images[row_name] = render_panel([row], language, row_name, digest,
-                                            linked=target is not None,
-                                            row=True)
-        else:
-            images[row_name] = digest
+        _panel_images(language, row_name, [row], images, render,
+                      linked=target is not None, row=True, kind="row")
         parts.append(_image_directive(language, row_name, alt_text([row]),
                                       target))
         if len(found) > 1:
             parts.append(_chip_grid(language, f"{row_name}-link", found,
                                     images, render))
     return parts
+
+
+# ---------------------------------------------------------------------------
+# Icon rows and the cover, shared by every language
+# ---------------------------------------------------------------------------
+
+#: Language-independent images: the icon cells and the deck cover.
+SHARED_DIR = ROOT / "docs" / "readme_assets"
+#: An icon's width as a share of the column, the same in every row and
+#: both layouts: 41 px on a 358 px phone column, 95 px on an 830 px desktop
+#: one. Seven of them (the widest module band) fit one phone row.
+ICON_SHARE = 0.115
+#: The share of the column a row of icons spans; the rest is slack so the
+#: last cell never wraps.
+ICON_ROW_SHARE = 0.99
+#: The resolution the cells are drawn at: a column this many pixels wide.
+ICON_REFERENCE = 1600
+#: Transparent space above and below an icon, as shares of the column:
+#: below it matches the gap under a panel (11 px on a phone).
+ICON_MARGIN_TOP = 0.008
+ICON_MARGIN_BOTTOM = 0.028
+
+
+def icon_cell(source: str, count: int) -> tuple[str, str]:
+    """The cell of a row of ``count`` equal icons that holds ``source``.
+
+    A cell is a transparent PNG one ``count``-th of the row wide with the
+    icon centred in it, so every icon in every row is the same size
+    (:data:`ICON_SHARE` of the column), the gaps in a row are equal, and
+    the row spans the column at any width. Returns the cell's
+    repository-relative path and its ``width`` attribute.
+    """
+    inside = Path(source).as_posix().split("icons/", 1)[-1]
+    path = SHARED_DIR / "cells" / str(count) / Path(inside).with_suffix(".png")
+    share = ICON_ROW_SHARE / count
+    return path.relative_to(ROOT).as_posix(), f"{100 * share:.2f}%"
+
+
+def draw_icon_cell(source: str, count: int) -> Path:
+    """Write the cell :func:`icon_cell` names, if it is missing."""
+    from PIL import Image
+
+    relative, _width = icon_cell(source, count)
+    path = ROOT / relative
+    icon_px = round(ICON_REFERENCE * ICON_SHARE)
+    top = round(ICON_REFERENCE * ICON_MARGIN_TOP)
+    bottom = round(ICON_REFERENCE * ICON_MARGIN_BOTTOM)
+    cell_w = round(ICON_REFERENCE * ICON_ROW_SHARE / count)
+    with Image.open(ROOT / source) as image:
+        art = image.convert("RGBA")
+    size = (cell_w, round(icon_px * art.height / art.width) + top + bottom)
+    if path.is_file():
+        with Image.open(path) as existing:
+            if existing.size == size:
+                return path
+    art = art.resize((icon_px, round(icon_px * art.height / art.width)),
+                     Image.Resampling.LANCZOS)
+    cell = Image.new("RGBA", (cell_w, art.height + top + bottom),
+                     (0, 0, 0, 0))
+    cell.alpha_composite(art, ((cell_w - art.width) // 2, top))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    cell.save(path, optimize=True)
+    return path
+
+
+def icon_html(target: str, cell: str, width: str, alt: str) -> str:
+    """One linked icon cell as raw HTML; GitHub keeps ``width`` and
+    ``align``."""
+    return (f'<a href="{_html(target)}"><img src="{_html(cell)}" '
+            f'width="{width}" align="middle" alt="{_html(alt)}"></a>')
+
+
+_ICON_DEFINITION = re.compile(
+    r"(?m)^\.\. \|(?P<name>(?:Data|Installer)[A-Za-z]+)\| image:: "
+    r"(?P<src>\S+)\n(?P<options>(?:   :[a-z]+:[^\n]*(?:\n|$))*)")
+_ICON_ROW = re.compile(
+    r"(?m)^(?P<row>\|(?:Data|Installer)[A-Za-z]+\|(?: \|(?:Data|Installer)"
+    r"[A-Za-z]+\|)+)[ \t]*$")
+
+
+def icon_rows(text: str, language: str, render: bool) -> str:
+    """The data and installer icon rows as rows of equal cells.
+
+    The source writes them as a paragraph of image substitutions; here
+    each becomes a line block of raw-HTML cells joined without spaces (an
+    image substitution with a percentage width gains a space inside its
+    link on GitHub, which would wrap a full row).
+    """
+    rows = [match.group("row") for match in _ICON_ROW.finditer(text)]
+    counts = {}
+    for row in rows:
+        names = re.findall(r"\|([^|]+)\|", row)
+        for name in names:
+            counts[name] = len(names)
+
+    def definition(match) -> str:
+        name = match.group("name")
+        if name not in counts:
+            return match.group(0)
+        options = dict(re.findall(r"   :([a-z]+): ?([^\n]*)",
+                                  match.group("options")))
+        source = _to_repository(re.sub(
+            r"^https://raw\.githubusercontent\.com/[^/]+/[^/]+/[^/]+/", "",
+            match.group("src")), language)
+        cell, width = icon_cell(source, counts[name])
+        if render:
+            draw_icon_cell(source, counts[name])
+        html = icon_html(options.get("target", ""), _relative(cell, language),
+                         width, options.get("alt", ""))
+        return f".. |{name}| raw:: html\n\n   {html}\n"
+
+    text = _ICON_DEFINITION.sub(definition, text)
+    return _ICON_ROW.sub(
+        lambda match: "| " + "\\ ".join(
+            f"|{name}|" for name in re.findall(r"\|([^|]+)\|",
+                                               match.group("row"))), text)
+
+
+COVER_SOURCE = "docs/source/_static/deck/slides/slide_01.jpg"
+#: The cover's width as a share of each layout's column, centred: a little
+#: under the full phone column, and a moderate block on a desktop.
+COVER_SHARE = {"phone": 0.85, "desktop": 0.6}
+_COVER = re.compile(
+    r"(?m)^\.\. image:: (?P<src>\S*slide_01\.jpg)\n"
+    r"(?P<options>(?:   :[a-z]+:[^\n]*(?:\n|$))*)")
+
+
+def cover_name(layout: str) -> str:
+    return "cover" if layout == "phone" else "cover.desktop"
+
+
+def render_cover(layout: str) -> str:
+    """The deck cover centred in a transparent strip of one layout's width,
+    as an SVG holding the slide as JPEG at twice its display size."""
+    from PIL import Image
+
+    width = LAYOUTS[layout]
+    shown = round(width * COVER_SHARE[layout])
+    with Image.open(ROOT / COVER_SOURCE) as image:
+        slide = image.convert("RGB")
+        height = round(shown * slide.height / slide.width)
+        slide = slide.resize((2 * shown, 2 * height),
+                             Image.Resampling.LANCZOS)
+    buffer = io.BytesIO()
+    slide.save(buffer, "JPEG", quality=86, optimize=True, progressive=True)
+    data = base64.b64encode(buffer.getvalue()).decode("ascii")
+    left = (width - shown) / 2
+    digest = hashlib.sha256(json.dumps([RENDERER_VERSION, layout, width, shown])
+                            .encode() + (ROOT / COVER_SOURCE).read_bytes()
+                            ).hexdigest()
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'xmlns:xlink="http://www.w3.org/1999/xlink" width="{width}" '
+        f'height="{height + GAP_BELOW}" viewBox="0 0 {width} '
+        f'{height + GAP_BELOW}" role="img" aria-label="spaCR" '
+        f'data-source-sha256="{digest}">\n'
+        f'<image x="{left:g}" y="0" width="{shown}" height="{height}" '
+        f'href="data:image/jpeg;base64,{data}"/>\n</svg>\n')
+
+
+def cover_digest(layout: str) -> str:
+    width = LAYOUTS[layout]
+    shown = round(width * COVER_SHARE[layout])
+    return hashlib.sha256(json.dumps([RENDERER_VERSION, layout, width, shown])
+                          .encode() + (ROOT / COVER_SOURCE).read_bytes()
+                          ).hexdigest()
+
+
+def cover_markup(text: str, language: str, render: bool) -> str:
+    """The deck cover directive as a centred, moderately sized picture."""
+    def replace(match) -> str:
+        options = dict(re.findall(r"   :([a-z]+): ?([^\n]*)",
+                                  match.group("options")))
+        if render:
+            SHARED_DIR.mkdir(parents=True, exist_ok=True)
+            for layout in LAYOUTS:
+                path = SHARED_DIR / f"{cover_name(layout)}.svg"
+                current = svg_digest(path) if path.is_file() else None
+                if current != cover_digest(layout):
+                    path.write_text(render_cover(layout), encoding="utf-8")
+        shared = SHARED_DIR.relative_to(ROOT).as_posix()
+        return raw_html(picture_html(
+            _relative(f"{shared}/{cover_name('phone')}.svg", language),
+            _relative(f"{shared}/{cover_name('desktop')}.svg", language),
+            options.get("alt", "spaCR"), options.get("target"))) + "\n"
+
+    return _COVER.sub(replace, text)
+
+
+def responsive_raw(text: str, language: str, render: bool) -> str:
+    """A raw block with its cover and icon rows in the two-layout form."""
+    return icon_rows(cover_markup(text, language, render), language, render)
 
 
 def _current_markers(language: str) -> dict[str, str]:
@@ -1530,7 +1886,7 @@ def compose(language: str, *, render: bool = True,
         local = [blocks[index] for index in unit["span"]]
         kind = unit["kind"]
         if kind == "raw":
-            parts.append(local[0]["text"])
+            parts.append(responsive_raw(local[0]["text"], language, render))
         elif kind == "code":
             code = "\n".join(("   " + line) if line else ""
                              for line in local[0]["text"].splitlines())
@@ -1542,6 +1898,8 @@ def compose(language: str, *, render: bool = True,
                 raise ValueError(
                     f"{readme_path(language).name} has no {marker} block; "
                     "run packaging/generate_readme_visuals.py")
+            if marker == "installer-links":
+                content = responsive_raw(content, language, render)
             parts.append(f".. spacr-{marker}-begin\n\n{content.strip()}\n\n"
                          f".. spacr-{marker}-end")
         elif kind == "chips":
@@ -1616,20 +1974,20 @@ def convert_generated(markup: str, language: str, block_name: str, *,
             prefix = plain(block["text"]).split(":", 1)[0]
             native = re.sub(r"[\U0001F310▾]", "", label).strip()
             name = base
-            digest = digest_of(["picker", language, native, target])
-            if render:
-                images[name] = render_chip(
-                    native, language,
-                    round(WIDTH * GRID_WIDTHS[3]
-                          / float(FULL_WIDTH.rstrip("%")), 1), digest,
-                    f"{prefix}: {native}", icon="globe")
-            else:
-                images[name] = digest
-            parts.append("\n".join([
-                f".. image:: {_image_reference(language, name)}",
-                f"   :alt: {_alt(prefix + ': ' + native)}",
-                f"   :width: {GRID_WIDTHS[3]:g}%",
-                f"   :target: {target}"]))
+            for layout, layout_width in LAYOUTS.items():
+                cell = row_cell(layout_width, 2 if layout == "phone" else 3)
+                key = name if layout == "phone" else f"{name}.desktop"
+                digest = digest_of(["picker", language, native, target, cell])
+                if render:
+                    images[key] = render_chip(
+                        native, language, cell, digest,
+                        f"{prefix}: {native}", icon="globe")
+                else:
+                    images[key] = digest
+            parts.append(raw_html(picture_html(
+                _image_reference(language, name),
+                _image_reference(language, f"{name}.desktop"),
+                f"{prefix}: {native}", target)))
         elif kind == "paragraph" and links_of(block["text"]) and \
                 plain(block["text"]).find(":") > 0 and len(
                     links_of(block["text"])) > 1:
@@ -1733,6 +2091,15 @@ def check(languages: Sequence[str] = LANGUAGES) -> list[str]:
             problems.append(f"{path.relative_to(ROOT)} is not what "
                             f"{source_path(language).relative_to(ROOT)} "
                             "builds")
+        for shared in sorted(set(re.findall(
+                r"readme_assets/[^\s\"]+\.(?:svg|png)", output.text))):
+            asset = SHARED_DIR / shared.split("readme_assets/", 1)[1]
+            if not asset.is_file():
+                problems.append(f"{asset.relative_to(ROOT)} is missing")
+            elif asset.stem.startswith("cover") and svg_digest(asset) != \
+                    cover_digest("desktop" if "desktop" in asset.stem
+                                 else "phone"):
+                problems.append(f"{asset.relative_to(ROOT)} is stale")
         for name, digest in output.images.items():
             image = IMAGE_DIR / language / f"{name}.svg"
             if not image.is_file():

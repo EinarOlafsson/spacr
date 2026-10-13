@@ -39,12 +39,28 @@ def _readme(language: str) -> Path:
     return _tool().readme_path(language)
 
 
+#: An image in the README's raw-HTML form: the phone drawing as ``<img>``,
+#: the desktop drawing as the ``<source>`` before it.
+_HTML_IMAGE = re.compile(
+    r'(?:<source [^>]*srcset="(?P<desktop>[^"]+)">)?<img src="(?P<src>[^"]+)"'
+    r'(?: width="[^"]*")?(?: align="[^"]*")? alt="(?P<alt>[^"]*)">')
+
+
 def _images(text: str) -> list[dict]:
+    """Every image the README shows, in either layout, with its alt text."""
+    from html import unescape
+
     found = []
     for match in _IMAGE.finditer(text):
         options = dict(re.findall(r"   :([a-z]+): ?([^\n]*)",
                                   match.group("options")))
         found.append({"src": match.group("src"), **options})
+    for match in _HTML_IMAGE.finditer(text):
+        alt = unescape(match.group("alt"))
+        found.append({"src": unescape(match.group("src")), "alt": alt})
+        if match.group("desktop"):
+            found.append({"src": unescape(match.group("desktop")),
+                          "alt": alt})
     return found
 
 
@@ -162,6 +178,48 @@ def test_light_body_and_regular_headings():
     assert weights == {"300", "400"}
 
 
+def test_one_text_size_at_true_display_size_on_phone_and_desktop():
+    """2026-10-13, read on a phone: the image text was smaller than the code
+    blocks. Every image is drawn per layout at its display size (one SVG
+    unit per CSS pixel: 358 px phone column, 830 px desktop column) and
+    every word is 13.6 px, GitHub's code-block text, with section titles at
+    16 px."""
+    tool = _tool()
+    assert (tool.PHONE, tool.DESKTOP) == (358, 830)
+    assert (tool.BODY, tool.TITLE) == (13.6, 16)
+    sizes = set()
+    for path in (tool.IMAGE_DIR / "en").glob("*.svg"):
+        text = path.read_text(encoding="utf-8")
+        width = float(re.search(r'<svg [^>]*width="([\d.]+)"', text).group(1))
+        layout = tool.DESKTOP if ".desktop" in path.name else tool.PHONE
+        assert width <= layout, path.name
+        assert re.search(rf'viewBox="0 0 {width:g} ', text), path.name
+        sizes |= set(re.findall(r'font-size="([\d.]+)"', text))
+    assert sizes == {"13.6", "16"}, sizes
+
+
+def test_icon_rows_are_equal_cells_spanning_the_row():
+    """Module, data and installer icons: one row each, equal cells, the
+    same icon size in every row."""
+    tool = _tool()
+    text = _readme("en").read_text(encoding="utf-8")
+    rows = [re.findall(r"\|([A-Za-z_]+)\|", line)
+            for line in text.splitlines()
+            if re.match(r"\| \|(Module_|Data|Installer)", line)]
+    assert rows
+    for names in rows:
+        widths = set()
+        for name in names:
+            found = re.search(rf"\.\. \|{name}\| raw:: html\n\n   "
+                              r'<a href="[^"]+"><img src="([^"]+)" '
+                              r'width="([\d.]+)%"', text)
+            assert found, name
+            assert (ROOT / found.group(1)).is_file(), found.group(1)
+            widths.add(float(found.group(2)))
+        assert len(widths) == 1, names
+        assert 98 <= widths.pop() * len(names) < 100, names
+
+
 def test_the_palette_is_the_score_cards_and_never_warm():
     tool = _tool()
     cards = (ROOT / "docs" / "models" / "cards" / "heading.svg").read_text(
@@ -191,9 +249,9 @@ def test_a_single_link_makes_the_whole_image_a_link_and_several_become_buttons()
     images: dict = {}
     markup = tool._panel_markup("en", "guides-2", units[1]["blocks"], images,
                                 render=False)
-    assert ":target:" not in markup.split("\n\n")[0]
-    assert markup.count(":target: docs/b.rst") == 1
-    assert markup.count(":target: docs/c.rst") == 1
+    assert "<a href" not in markup.split("\n\n")[0]
+    assert markup.count('href="docs/b.rst"') == 1
+    assert markup.count('href="docs/c.rst"') == 1
 
 
 def test_inline_markup_reaches_the_alt_text_as_plain_words():

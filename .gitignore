@@ -185,6 +185,10 @@ tutorial_colab.ipynb
 # README shows on GitHub and PyPI, so they are committed.
 !/docs/readme_images/
 !/docs/readme_images/**
+# The language-independent README images (the deck cover and the icon
+# rows' cells), drawn by the same tool, for the same reason.
+!/docs/readme_assets/
+!/docs/readme_assets/**
 !/docs/source/
 !/docs/i18n/
 !/docs/i18n/**

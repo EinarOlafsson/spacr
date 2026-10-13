@@ -82,6 +82,11 @@ _IMAGE_SUBSTITUTION_RE = re.compile(
     r"(?m)^\.\. \|(?P<name>[^|\n]+)\| image::[^\n]*"
     r"(?:\n   [^\n]*)*(?:\n)?"
 )
+#: The same definitions once ``build_readme_images`` has made them raw-HTML
+#: icon cells: ``.. |Name| raw:: html``, a blank line, one indented line.
+_RAW_SUBSTITUTION_RE = re.compile(
+    r"(?m)^\.\. \|(?P<name>[^|\n]+)\| raw:: html\n\n   [^\n]*(?:\n)?"
+)
 
 RESOURCE_SLATE = (43, 47, 58, 255)  # #2B2F3A
 WORKFLOW_TILE = (13, 14, 16, 255)  # GUI dark-theme surface, #0D0E10
@@ -911,16 +916,14 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
     """The README's model-zoo block: a grid of score cards, one per family.
 
     A centred heading strip, then the default model of each family as its
-    SVG score card (``docs/models/cards/<key>.svg``, drawn by
-    ``tools/build_score_cards.py`` through ``tools/build_model_cards.py``),
-    two to a line. The block is an RST line block of image substitutions
-    joined by escaped spaces: no table, so GitHub draws no cell borders,
-    padding or row stripes. Each card is just under half the column wide,
-    because GitHub's HTML leaves one space inside each image link and two
-    exact halves plus that space would wrap; the rest of the gutter is the
-    card's own transparent margin. The heading strip is 99.5% wide, the
-    width of two cards and that space, so its edges line up with the grid. Each card links its Markdown card; there
-    is no text under it. The image's alt text carries the record's own
+    SVG score card (``docs/models/cards/<key>.svg`` on a desktop and
+    ``<key>.phone.svg`` on a phone, drawn by ``tools/build_score_cards.py``
+    through ``tools/build_model_cards.py``), two to a row in both layouts.
+    The block is raw HTML: one ``<picture>`` per card, written without
+    whitespace between them, so each card is exactly half the row and the
+    browser wraps every second one; no table, so GitHub draws no cell
+    borders, padding or row stripes. The heading strip spans the row. Each
+    card links its Markdown card; there is no text under it. The image's alt text carries the record's own
     ``versus_stock`` sentence, so the numbers are readable without the
     picture. The other versions follow on one line each, older models and
     alternatives, linking their cards. Every number comes from the zoo
@@ -937,34 +940,23 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
     published = _published_models()
     families = build_model_cards.families(published)
     defaults = [family["default"] for family in families]
-    per_row = SCORE_CARDS_PER_ROW
-    lines = ["| |zoo_heading|"]
-    substitutions = [
-        "",
-        f".. |zoo_heading| image:: {prefix}{scores.HEADING_NAME}",
-        f"   :alt: {scores.HEADING_TEXT}",
-        f"   :target: {prefix}{build_model_cards.INDEX_NAME}",
-        "   :width: 99.5%",
-    ]
-    width = f"{100 / per_row - 0.5:g}%"
-    for start in range(0, len(defaults), per_row):
-        row = [build_model_cards.key_of(entry)
-               for entry in defaults[start:start + per_row]]
-        lines.append("| " + "\\ ".join(f"|zoo_card_{key}|" for key in row))
+    picture = build_readme_images.picture_html
+    heading = picture(
+        f"{prefix}{scores.heading_name('phone')}",
+        f"{prefix}{scores.heading_name('desktop')}", scores.HEADING_TEXT,
+        f"{prefix}{build_model_cards.INDEX_NAME}")
+    cards = []
     for entry in defaults:
         key = build_model_cards.key_of(entry)
         versus = str(entry.get("versus_stock") or "").strip().rstrip(".")
         alt = scores.alt_text(entry, "default")
         if versus:
             alt += " " + build_model_cards._sentence(versus)
-        substitutions += [
-            "",
-            f".. |zoo_card_{key}| image:: {prefix}{scores.card_name(key)}",
-            f"   :alt: {alt}",
-            f"   :target: {prefix}{build_model_cards.card_file(key)}",
-            f"   :width: {width}",
-        ]
-    lines += substitutions
+        cards.append(picture(
+            f"{prefix}{scores.card_name(key, 'phone')}",
+            f"{prefix}{scores.card_name(key)}", alt,
+            f"{prefix}{build_model_cards.card_file(key)}"))
+    lines = [build_readme_images.raw_html(heading, "".join(cards))]
     others = build_model_cards.other_records(published)
     older = [entry for entry, status in others if status == "older"]
     alternatives = [(entry, status) for entry, status in others
@@ -1521,16 +1513,28 @@ def _grid_markup(
             *textwrap.wrap(note, width=76, break_on_hyphens=False),
             "",
         ])
-        lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in tiles]))
+        references = [f"|{names[key]}|" for key, _l, _p in tiles]
+        if github_alignment:
+            # The README puts each band on ONE row of equal cells (see
+            # ``build_readme_images.icon_cell``): every tile the same size
+            # in every band, the row spanning the column on a phone and on
+            # a desktop alike.
+            lines.extend([f"| {_inline_image_row(references)}", ""])
+        else:
+            lines.extend(_grid_lines(references))
         for key, label, image in tiles:
             if github_alignment:
+                source = f"spacr/resources/icons/{image}"
+                cell, width = build_readme_images.icon_cell(source, len(tiles))
+                build_readme_images.draw_icon_cell(source, len(tiles))
+                if image_prefix.startswith(".."):
+                    cell = build_readme_images._relative(cell, "translated")
                 definitions.extend([
                     f".. |{names[key]}| raw:: html",
                     "",
-                    f'   <a href="{escape(urls[key], quote=True)}">'
-                    f'<img src="{escape(f"{image_prefix}/{image}", quote=True)}" '
-                    f'width="{TILE_DISPLAY_WIDTH}" align="middle" '
-                    f'alt="{escape(alt_template.format(module=label), quote=True)}"></a>',
+                    "   " + build_readme_images.icon_html(
+                        urls[key], cell, width,
+                        alt_template.format(module=label)),
                     "",
                 ])
                 continue
@@ -1602,7 +1606,9 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
     wanted = set(INSTALLER_SUBSTITUTIONS + DATA_SUBSTITUTIONS)
     definitions: dict[str, str] = {}
-    for match in _IMAGE_SUBSTITUTION_RE.finditer(text):
+    matches = [*_IMAGE_SUBSTITUTION_RE.finditer(text),
+               *_RAW_SUBSTITUTION_RE.finditer(text)]
+    for match in matches:
         name = match.group("name")
         if name not in wanted:
             continue
@@ -1613,10 +1619,12 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
     if missing:
         raise ValueError(f"{path} is missing linked image definitions: {missing}")
 
-    text = _IMAGE_SUBSTITUTION_RE.sub(
-        lambda match: "" if match.group("name") in wanted else match.group(0),
-        text,
-    )
+    for pattern in (_IMAGE_SUBSTITUTION_RE, _RAW_SUBSTITUTION_RE):
+        text = pattern.sub(
+            lambda match: "" if match.group("name") in wanted
+            else match.group(0),
+            text,
+        )
     start = text.find(INSTALLER_BEGIN)
     end = text.find(INSTALLER_END, start + len(INSTALLER_BEGIN))
     if start < 0 or end <= start:
@@ -1632,7 +1640,7 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
     text = text[:start] + installer + text[end:]
 
     rows = list(re.finditer(
-        r"(?m)^\|DataBioStudies\|[^\n]*$\n*", text,
+        r"(?m)^(?:\| )?\|DataBioStudies\|[^\n]*$\n*", text,
     ))
     if len(rows) != 1:
         raise ValueError(f"{path} must use the linked dataset row exactly once")

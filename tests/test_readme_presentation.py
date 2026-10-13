@@ -368,7 +368,9 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
         committed = Image.open(ROOT / relative).convert("RGBA")
         rendered = generator.render_module_tile(key, label).convert("RGBA")
         _assert_tile_is_what_the_generator_draws(committed, rendered, relative)
-        assert relative in text
+        # Shown as its cell of the band row since 2026-10-13
+        # (docs/readme_assets/cells/<count>/<folder>/<key>.png).
+        assert f"/{folder}/{key}.png" in text
         assert urls[key] in text
         docs_relative = relative.replace(
             "spacr/resources/icons/workflow", "/_static/workflow"
@@ -457,7 +459,6 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         assert bounds[0] >= pad and bounds[1] >= pad
         assert bounds[2] <= committed.width - pad
         assert bounds[3] <= committed.height - pad
-        assert image in text
         assert generator._api_urls()[key] in text
 
     assert str(generator._tile_font(22).path).endswith("OpenSans-Regular.ttf")
@@ -502,7 +503,9 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
             f"the grid does not head its {section!r} band")
         # Drawn as one image per band on the page itself, heading and
         # Home's note together in its alt text.
-        assert f":alt: {section}. {note}" in _read(README), section
+        from html import unescape
+
+        assert f"{section}. {note}" in unescape(_read(README)), section
 
     # A line block fixes the row length and removes paragraph margins.
     # Middle alignment must also survive GitHub sanitization: baseline
@@ -514,38 +517,29 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         "a grid row is a bare paragraph again; its bottom margin is what made "
         "the vertical gutter three times the horizontal one")
     assert sum(line.count("|Module_") for line in rows) == len(grid)
-    # SIX PER ROW, AND A SECTION IS WHERE A SHORT ROW IS ALLOWED. The grid
-    # was one run of tiles until instruction 374 grouped it, and "only the
-    # last row is short" was how that said it. A band of five cannot fill
-    # six columns, so the claim is now made per band: inside one section
-    # every row but its last is full, and no row anywhere exceeds six.
+    # ONE ROW PER BAND, asked for on 2026-10-13 after reading the README on
+    # a phone: every band on one row of equal cells, every tile the same
+    # size in every band, the row spanning the column on a phone and a
+    # desktop alike (``build_readme_images.icon_cell``).
     sections = generator._grid_sections()
-    assert len(rows) == sum(
-        -(-len(tiles) // generator.GRID_COLUMNS)
-        for _s, _n, tiles in sections)
-    consumed = 0
-    for _section, _note, tiles in sections:
-        wide = -(-len(tiles) // generator.GRID_COLUMNS)
-        band = rows[consumed:consumed + wide]
-        consumed += wide
-        assert sum(line.count("|Module_") for line in band) == len(tiles)
-        assert all(line.count("|Module_") == generator.GRID_COLUMNS
-                   for line in band[:-1])
-        assert 1 <= band[-1].count("|Module_") <= generator.GRID_COLUMNS
+    assert len(rows) == len(sections)
+    for line, (_section, _note, tiles) in zip(rows, sections):
+        assert line.count("|Module_") == len(tiles)
     # Zero-width separators: one fewer than the tiles they join, so the
-    # browser puts no whitespace between neighbours and the gutter is
-    # exactly the two canvas margins that meet.
+    # browser puts no whitespace between neighbours and the cells span
+    # exactly their share of the row.
     assert all(line.count(r"\ ") == line.count("|Module_") - 1
                for line in rows)
 
-    # The row must not wrap. Six tiles at the declared width have to leave
-    # headroom, because a browser that rounds each percentage up must
-    # still not push the sixth onto a line of its own.
-    row_width = generator.GRID_COLUMNS * generator.TILE_DISPLAY_PERCENT
-    assert row_width < 100, "a full row wraps its last tile"
+    # The row must not wrap: its cells leave headroom for rounding.
+    from tests.readme_source_words import readme_tool
 
-    # The gutter is made entirely by each tile's own padding, so it has to
-    # be a real gap.
+    tool = readme_tool()
+    assert tool.ICON_ROW_SHARE < 1
+    widest = max(len(tiles) for _s, _n, tiles in sections)
+    assert widest * tool.ICON_SHARE * 358 < 358, "a phone row cannot hold its icons"
+
+    # The gutter inside each tile is still a real gap.
     visible_gap = generator.BUTTON_SIZE - generator.TILE_SIZE
     assert visible_gap == 2 * generator.TILE_PADDING
     assert visible_gap > 0
@@ -575,10 +569,14 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     )["fragment"])
     assert len(parsed.images) == len(grid)
     assert parsed.links == [generator._api_urls()[key] for key, _, _ in grid]
-    for attrs, (_key, label, image) in zip(parsed.images, grid):
+    counts = {key: len(tiles) for _s, _n, tiles in sections
+              for key, _l, _i in tiles}
+    for attrs, (key, label, image) in zip(parsed.images, grid):
+        cell, width = tool.icon_cell(f"spacr/resources/icons/{image}",
+                                     counts[key])
+        assert (ROOT / cell).is_file(), cell
         assert attrs == {
-            "src": f"spacr/resources/icons/{image}",
-            "width": generator.TILE_DISPLAY_WIDTH,
+            "src": cell, "width": width,
             "align": "middle", "alt": f"Open the {label} API",
         }
     sphinx = generator._documentation_workflow()
@@ -685,26 +683,26 @@ def test_the_readme_lists_the_default_model_of_each_family():
     published = generator._published_models()
     defaults = cards.default_records(published)
     assert defaults, "the catalogue published nothing"
-    table = block.partition("\n\n" + "Older models")[0]
-    grid = block.strip().partition("\n\n")[0]
+    from html import unescape
+
+    table = unescape(block.partition("\n\n" + "Older models")[0])
     for entry in defaults:
         key = cards.key_of(entry)
         assert f"<docs/models/{key}.md>`__" not in table, (
             f"{key} has a text link under its card; the card is the link")
-        assert f"|zoo_card_{key}|" in grid, key
-        assert f"|zoo_card_{key}|" in table, key
-        assert f"image:: docs/models/cards/{key}.svg" in table, key
-        assert f":target: docs/models/{key}.md" in table, key
+        assert f'srcset="docs/models/cards/{key}.svg"' in table, key
+        assert f'src="docs/models/cards/{key}.phone.svg"' in table, key
+        assert f'href="docs/models/{key}.md"' in table, key
         versus = str(entry["versus_stock"]).strip().rstrip(".")
         assert versus[1:] in table, key
     for entry, _status in cards.other_records(published):
         key = cards.key_of(entry)
         assert f"`{key} <docs/models/{key}.md>`__" in source, key
-        assert f":target: docs/models/{key}.md" in drawn, key
+        assert f'href="docs/models/{key}.md"' in drawn, key
         assert f"cards/{key}.svg" not in table, (
             f"{key} is not a family default but has a score card in the grid")
     assert "Older models: " in source
-    assert ":alt: Older models." in drawn
+    assert 'alt="Older models."' in drawn
 
     for key in ("toxoplasma_pv", "toxoplasma_plaque", "live_cell"):
         family = next(f for f in cards.families(published) if f["stem"] == key)
@@ -739,10 +737,10 @@ def test_every_readme_carries_the_same_model_zoo_block():
             generator._card_prefix(readme), generator._readme_language(readme),
             render=False)
         assert block.strip() == expected.strip(), readme.name
-        for target in re.findall(r":target: (\S+\.md)", block):
+        for target in re.findall(r'href="([^"]+\.md)"', block):
             assert (readme.parent / target).resolve().is_file(), (
                 readme.name, target)
-        images = re.findall(r"image:: (\S+\.svg)", block)
+        images = re.findall(r'(?:src|srcset)="([^"]+\.svg)"', block)
         assert images, readme.name
         for target in images:
             assert (readme.parent / target).resolve().is_file(), (

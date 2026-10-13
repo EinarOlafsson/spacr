@@ -7,8 +7,11 @@ them from ``BUNDLED_REMOTE_MODELS``; ``tools/build_model_cards.py`` writes
 them to ``docs/models/cards/<key>.svg``. Later that day the maintainer
 rejected the first cards for their brown surface and ragged grid: every card
 now has the same size, the same slots and the same number of bar rows, on
-GitHub dark mode's neutral surface with spaCR teal only for this model's
-bars and the version tag.
+GitHub dark mode's neutral surface. On 2026-10-13, after reading the README
+on a phone: two cards to a row on a phone as on a desktop, every word at the
+page's one text size (13.6 px, GitHub's code text), so each card is drawn
+for both layouts at its true display size; spaCR blue bars; a coloured rim
+(teal by default, magenta the alternative).
 """
 from __future__ import annotations
 
@@ -38,46 +41,57 @@ def test_every_published_model_has_a_current_score_card():
     for family in cards.families():
         for entry in family["versions"]:
             key = cards.key_of(entry)
-            path = cards.CARD_DIR / scores.card_name(key)
-            assert path.is_file(), key
-            text = path.read_text(encoding="utf-8")
-            expected = scores.render_svg(entry, family["status"][key])
-            assert (scores.without_font_data(text)
-                    == scores.without_font_data(expected)), (
-                f"{path.name} is stale; run python tools/build_model_cards.py")
-            root = ET.fromstring(text)
-            assert root.tag == f"{SVG}svg"
-            assert root.find(f"{SVG}title") is not None, key
-            assert root.find(f"{SVG}desc") is not None, key
-            assert scores.PALETTE["card"] in text, key
+            for layout in scores.LAYOUTS:
+                path = cards.CARD_DIR / scores.card_name(key, layout)
+                assert path.is_file(), (key, layout)
+                text = path.read_text(encoding="utf-8")
+                expected = scores.render_svg(entry, family["status"][key],
+                                             layout)
+                assert (scores.without_font_data(text)
+                        == scores.without_font_data(expected)), (
+                    f"{path.name} is stale; run python "
+                    "tools/build_model_cards.py")
+                root = ET.fromstring(text)
+                assert root.tag == f"{SVG}svg"
+                assert root.find(f"{SVG}title") is not None, key
+                assert root.find(f"{SVG}desc") is not None, key
+                assert scores.PALETTE["card"] in text, key
 
 
 def _rows_drawn(text):
     """Bar rows in one card: a model bar, or an em dash for a row the
     record has no number for."""
     bars = len(re.findall(r'<path class="m"', text))
-    empty = len(re.findall(r'class="i3" font-size="12.5"[^>]*>\u2014<', text))
+    empty = len(re.findall(r'class="i3" font-size="13.6"[^>]*>\u2014<', text))
     return bars + empty
 
 
 def test_every_card_has_the_same_size_and_the_same_rows():
+    """Per layout, one size for every card; two cards fill a row; every
+    word at the page's text size."""
     cards = _cards()
     scores = cards.score_cards()
-    sizes = set()
-    for entry in cards.published_models():
-        key = cards.key_of(entry)
-        text = (cards.CARD_DIR / scores.card_name(key)).read_text(
-            encoding="utf-8")
-        root = ET.fromstring(text)
-        sizes.add((root.get("width"), root.get("height"), root.get("viewBox")))
-        assert len(scores.scores(entry)["rows"]) == scores.ROWS, key
-        assert _rows_drawn(text) == scores.ROWS, key
-        card = re.search(r'<rect class="card" x="[^"]+" y="[^"]+"'
-                         r' width="([^"]+)" height="([^"]+)"', text)
-        assert card and card.groups() == (f"{scores.CARD_W - 1}",
-                                          f"{scores.CARD_H - 1}"), key
-    assert sizes == {(str(scores.WIDTH), str(scores.HEIGHT),
-                      f"0 0 {scores.WIDTH} {scores.HEIGHT}")}
+    for layout, width in scores.LAYOUTS.items():
+        sizes = set()
+        for entry in cards.published_models():
+            key = cards.key_of(entry)
+            text = (cards.CARD_DIR / scores.card_name(key, layout)).read_text(
+                encoding="utf-8")
+            root = ET.fromstring(text)
+            sizes.add((root.get("width"), root.get("height"),
+                       root.get("viewBox")))
+            assert len(scores.scores(entry)["rows"]) == scores.ROWS, key
+            assert _rows_drawn(text) == scores.ROWS, key
+            sizes_drawn = set(re.findall(r'font-size="([\d.]+)"', text))
+            big = {"desktop": "40", "phone": "30"}[layout]
+            assert sizes_drawn <= {"13.6", big}, (key, layout, sizes_drawn)
+            assert scores.RIMS[scores.RIM] in text, key
+        outer = scores.card_size(layout)
+        assert sizes == {(str(outer[0]), str(outer[1]),
+                          f"0 0 {outer[0]} {outer[1]}")}, layout
+    phone, desktop = scores.LAYOUTS["phone"], scores.LAYOUTS["desktop"]
+    assert 2 * phone <= 358 - 2 < 3 * phone
+    assert 2 * desktop <= 830 - 2 < 3 * desktop
 
 
 def test_the_card_face_has_no_warm_grey():
@@ -109,8 +123,10 @@ def test_the_cards_embed_open_sans_for_every_character_they_draw():
 
     cards = _cards()
     scores = cards.score_cards()
-    names = [scores.card_name(cards.key_of(e)) for e in cards.published_models()]
-    for name in names + [scores.HEADING_NAME]:
+    names = [scores.card_name(cards.key_of(e), layout)
+             for e in cards.published_models() for layout in scores.LAYOUTS]
+    for name in names + [scores.heading_name(layout)
+                         for layout in scores.LAYOUTS]:
         text = (cards.CARD_DIR / name).read_text(encoding="utf-8")
         faces = dict(re.findall(
             r"font-weight:(\d+);src:url\(data:font/woff;base64,([^)]+)\)", text))
@@ -134,9 +150,10 @@ def test_the_cards_embed_open_sans_for_every_character_they_draw():
 def test_the_grid_heading_is_current():
     cards = _cards()
     scores = cards.score_cards()
-    path = cards.CARD_DIR / scores.HEADING_NAME
-    assert (scores.without_font_data(path.read_text(encoding="utf-8"))
-            == scores.without_font_data(scores.render_heading()))
+    for layout in scores.LAYOUTS:
+        path = cards.CARD_DIR / scores.heading_name(layout)
+        assert (scores.without_font_data(path.read_text(encoding="utf-8"))
+                == scores.without_font_data(scores.render_heading(layout)))
 
 
 def test_the_card_numbers_come_from_the_zoo_record():
@@ -182,14 +199,19 @@ def test_every_readme_embeds_the_default_score_cards():
         block = block.partition(generator.MODEL_ZOO_END)[0]
         prefix = generator._card_prefix(readme)
         for key in defaults:
-            image = f"{prefix}cards/{key}.svg"
-            assert f"image:: {image}" in block, (readme.name, key)
-            assert (readme.parent / image).resolve().is_file(), (
-                readme.name, image)
-            assert re.search(rf"\|zoo_card_{key}\|", block), (readme.name, key)
-        grid = block.strip().partition("\n\n")[0]
-        assert grid.startswith("| |zoo_heading|"), readme.name
+            for layout in ("desktop", "phone"):
+                image = f"{prefix}{cards.score_cards().card_name(key, layout)}"
+                assert f'"{image}"' in block, (readme.name, key, layout)
+                assert (readme.parent / image).resolve().is_file(), (
+                    readme.name, image)
+            assert f'href="{prefix}{key}.md"' in block, (readme.name, key)
+        grid_block = block.strip().partition("\n\n.. raw:: html")[0]
+        rows = re.findall(r"(?m)^   <div>(.*)</div>$", grid_block)
+        assert len(rows) == 2, readme.name
+        heading, grid = rows
         assert "`" not in grid, (readme.name, "a text link in the card grid")
-        heading = cards.score_cards().HEADING_NAME
-        assert f"image:: {prefix}{heading}" in block, readme.name
-        assert block.count(":width: 49.5%") == len(defaults), readme.name
+        scores = cards.score_cards()
+        assert f'srcset="{prefix}{scores.heading_name()}"' in heading
+        assert grid.count("<picture>") == len(defaults), readme.name
+        assert " " not in re.sub(r"<[^>]*>", "", grid), (
+            readme.name, "whitespace between cards would break the rows")

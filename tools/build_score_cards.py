@@ -8,7 +8,7 @@ same internal grid, so a grid of cards lines up edge to edge:
 * a headline slot: the main hold-out score as one large number, the metric
   and hold-out size beside it, and a chip with the difference from the
   baseline (stock Cellpose-SAM, or the earlier detector);
-* exactly ``ROWS`` bar rows: this model in spaCR teal, the baseline in a
+* exactly ``ROWS`` bar rows: this model in spaCR blue, the baseline in a
   cool slate under it; a row the record has no number for stays empty;
 * a legend.
 
@@ -22,10 +22,12 @@ Nothing numeric is typed here, so a re-score published to the zoo reaches the
 cards when ``python tools/build_model_cards.py`` is run again; that tool
 writes the cards next to the Markdown pages.
 
-The card is one dark surface in GitHub dark mode's own neutrals, the same in
-both GitHub themes and on PyPI; spaCR teal marks only this model's bars and
-the version tag. A transparent margin makes the gutters of the README grid,
-and a faint shadow sets the card off a white page.
+The card is one dark surface in GitHub dark mode's own neutrals with a
+coloured rim (teal by default, magenta as the alternative), the same in both
+GitHub themes and on PyPI; spaCR blue marks this model's bars. Each card is
+drawn for the README's phone and desktop rows at its true size, so its text
+is the page's one text size. A transparent margin makes the gutters of the
+README grid, and a faint shadow sets the card off a white page.
 """
 from __future__ import annotations
 
@@ -42,21 +44,30 @@ CARD_SUBDIR = "cards"
 HEADING_NAME = f"{CARD_SUBDIR}/heading.svg"
 HEADING_TEXT = "Default models · held-out scores"
 
-#: Outer size of every card, its transparent margin and the card inside it.
-WIDTH = 400
-MARGIN_X = 6
-MARGIN_Y = 5
+#: Every card is drawn twice, at its true display size in CSS pixels: half
+#: the README's desktop row (an 830 px column) and half its phone row (a
+#: 358 px column), two cards to a row in both. One SVG unit is one CSS
+#: pixel, so every word on a card is the page's one text size, GitHub's
+#: code-block text (13.6 px); the big number is the one exception. The
+#: ``<key>.svg`` card is the desktop one (the model pages show it too);
+#: ``<key>.phone.svg`` is the phone one.
+LAYOUTS = {"desktop": 414, "phone": 178}
+WIDTH = LAYOUTS["desktop"]
+#: Half the gutter between two cards on each side, and the space under a
+#: card, which with the line box's descent makes the gap between rows.
+MARGIN_X = 4
+MARGIN_Y = 1
+MARGIN_BOTTOM = 4
 CARD_W = WIDTH - 2 * MARGIN_X
-CARD_H = 252
-HEIGHT = CARD_H + 2 * MARGIN_Y
-HEADING_H = 52
-#: Extra space under the heading strip: a line holding one image gets a
-#: shorter line box on GitHub than a line holding two, so without it the
-#: gap under the heading measured 10 px against 16 px between card rows.
-HEADING_GAP = 6
-PAD = 22
+#: Card heights per layout; every card of a layout has the same.
+CARD_HEIGHTS = {"desktop": 222, "phone": 272}
+CARD_H = CARD_HEIGHTS["desktop"]
+HEIGHT = CARD_H + MARGIN_Y + MARGIN_BOTTOM
+HEADING_H = 38
+HEADING_GAP = 4
+TEXT = 13.6
+TITLE = 16
 ROWS = 3
-ROW_PITCH = 25
 FONT = ("'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', "
         "'Noto Sans', Helvetica, Arial, sans-serif")
 #: Open Sans Regular for the title and the version tag, Open Sans Light for
@@ -71,11 +82,11 @@ FONT_FILES = {400: "OpenSans-Regular.ttf", 300: "OpenSans-Light.ttf"}
 #: not depend on the fontTools version that subset them.
 FONT_DATA = re.compile(r"url\(data:font/woff;base64,[A-Za-z0-9+/=]+\)")
 
-#: The card surface, edge, track and inks are GitHub dark mode's neutrals;
-#: the model bars are spaCR teal (the photomosaic logo's glow, darkened into
-#: the dataviz lightness band), the baseline a cool slate, the version tag the
-#: logo's own teal and the faint top glow runs to the space theme's blue. One
-#: set for both themes: the card paints its own dark surface.
+#: The card surface, edge-free fill, track and inks are GitHub dark mode's
+#: neutrals; a coloured rim sets the card off both GitHub themes and PyPI.
+#: This model's bars are spaCR blue (``spacr.qt.theme`` accent), the
+#: baseline a cool slate. The rim is teal (the logo's) by default; magenta
+#: is the alternative the maintainer is choosing between.
 PALETTE = {
     "card": "#161b22",
     "edge": "#30363d",
@@ -83,12 +94,14 @@ PALETTE = {
     "ink": "#e6edf3",
     "ink2": "#c9d1d9",
     "ink3": "#8b949e",
-    "model": "#20aa9e",
+    "model": "#4a9eff",
     "base": "#566a7e",
     "glow": "#2ec4b6",
     "blue": "#6cb6ff",
     "shadow": "#1f2328",
 }
+RIMS = {"teal": "#2ec4b6", "magenta": "#d946ef"}
+RIM = "teal"
 
 #: Short family names for the title slot, as the maintainer named them.
 FAMILY_TITLES: Dict[str, str] = {
@@ -549,17 +562,17 @@ def _bar(x: float, y: float, w: float, h: float, cls: str) -> str:
             f'a{r:g} {r:g} 0 0 1 -{r:g} {r:g}h-{w - r:.1f}z"/>')
 
 
-def _style(used: Mapping[int, Iterable[str]]) -> str:
+def _style(used: Mapping[int, Iterable[str]], rim: str) -> str:
     p = PALETTE
     faces = "".join(_font_face(weight, "".join(sorted(set(used[weight]))))
                     for weight in sorted(used) if used[weight])
     return (
         "<style>" + faces +
-        f".card{{fill:{p['card']};stroke:{p['edge']}}}"
+        f".card{{fill:{p['card']};stroke:{RIMS[rim]}}}"
         f".i1{{fill:{p['ink']}}}.i2{{fill:{p['ink2']}}}.i3{{fill:{p['ink3']}}}"
         f".m{{fill:{p['model']}}}.b{{fill:{p['base']}}}.tr{{fill:{p['track']}}}"
-        f".tag{{fill:{p['glow']};fill-opacity:.12;stroke:{p['glow']};"
-        f"stroke-opacity:.6}}.tagt{{fill:{p['glow']}}}"
+        f".tag{{fill:{RIMS[rim]};fill-opacity:.12;stroke:{RIMS[rim]};"
+        f"stroke-opacity:.6}}.tagt{{fill:{RIMS[rim]}}}"
         f".up{{fill:{p['model']};fill-opacity:.28}}"
         f".dn{{fill:{p['base']};fill-opacity:.45}}"
         f".na{{fill:none;stroke:{p['edge']}}}"
@@ -568,64 +581,66 @@ def _style(used: Mapping[int, Iterable[str]]) -> str:
 
 
 def _frame(uid: str, x: float, y: float, w: float, h: float) -> List[str]:
-    """The dark card: a faint shadow under it for a white page, and a thin,
-    half-transparent teal-to-blue line along its top edge."""
+    """The dark card with its coloured rim, and a faint shadow under it for
+    a white page."""
     p = PALETTE
     return [
-        f'<defs><linearGradient id="g{uid}" x1="0" x2="1" y1="0" y2="0">'
-        f'<stop offset="0" stop-color="{p["glow"]}"/>'
-        f'<stop offset="1" stop-color="{p["blue"]}"/></linearGradient>'
-        f'<clipPath id="c{uid}"><rect x="{x}" y="{y}" width="{w}"'
-        f' height="{h}" rx="14"/></clipPath>'
-        f'<filter id="s{uid}" x="-4%" y="-4%" width="108%" height="112%">'
-        f'<feDropShadow dx="0" dy="1" stdDeviation="1.2"'
+        f'<defs><filter id="s{uid}" x="-4%" y="-4%" width="108%"'
+        f' height="112%"><feDropShadow dx="0" dy="1" stdDeviation="1.2"'
         f' flood-color="{p["shadow"]}" flood-opacity=".22"/></filter></defs>',
-        f'<rect class="card" x="{x + 0.5}" y="{y + 0.5}" width="{w - 1}"'
-        f' height="{h - 1}" rx="14" stroke-width="1"'
-        f' filter="url(#s{uid})"/>',
-        f'<rect x="{x}" y="{y}" width="{w}" height="2" fill="url(#g{uid})"'
-        f' fill-opacity=".7" clip-path="url(#c{uid})"/>',
+        f'<rect class="card" x="{x + 0.75:g}" y="{y + 0.75:g}"'
+        f' width="{w - 1.5:g}" height="{h - 1.5:g}" rx="12"'
+        f' stroke-width="1.5" filter="url(#s{uid})"/>',
     ]
 
 
-def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
+def card_size(layout: str = "desktop") -> Tuple[int, int]:
+    """The outer ``(width, height)`` of a card in ``layout``."""
+    return LAYOUTS[layout], CARD_HEIGHTS[layout] + MARGIN_Y + MARGIN_BOTTOM
+
+
+def _short_holdout(card: Mapping[str, Any]) -> str:
+    """``"209 held-out fields"`` -> ``"209 fields"``, for the phone."""
+    return re.sub(r" held-out ", " ", str(card.get("holdout") or ""))
+
+
+def render_svg(entry: Mapping[str, Any], status: str = "default",
+               layout: str = "desktop", rim: str = RIM) -> str:
     """The score card of one zoo record as standalone SVG text."""
     key = _key(entry)
     uid = re.sub(r"\W", "", key)
     card = scores(entry)
     head = headline(entry, card)
+    width, height = card_size(layout)
+    card_w, card_h = width - 2 * MARGIN_X, CARD_HEIGHTS[layout]
+    phone = layout == "phone"
+    pad = 8 if phone else 18
     x0, y0 = MARGIN_X, MARGIN_Y
-    left, right = x0 + PAD, x0 + CARD_W - PAD
-    parts: List[str] = _frame(uid, x0, y0, CARD_W, CARD_H)
+    left, right = x0 + pad, x0 + card_w - pad
+    parts: List[str] = _frame(uid, x0, y0, card_w, card_h)
     used: Dict[int, Set[str]] = {TITLE_WEIGHT: set(), TEXT_WEIGHT: set()}
 
-    def text(x, y, value, cls, size, weight=TEXT_WEIGHT, anchor="start"):
+    def text(x, y, value, cls, size=TEXT, weight=TEXT_WEIGHT,
+             anchor="start"):
         used[weight].update(value)
         parts.append(
             f'<text x="{x:.1f}" y="{y:.1f}" class="{cls}" font-size="{size}"'
             f' font-weight="{weight}" text-anchor="{anchor}">'
             f'{escape(value)}</text>')
 
-    tag = _version(key)
-    if status in TAG_WORDS:
-        tag += f" · {TAG_WORDS[status]}"
-    tag_w = _width(tag, 12, TITLE_WEIGHT) + 18
-    title_y = y0 + 40
-    parts.append(f'<rect class="tag" x="{right - tag_w:.1f}" y="{title_y - 16}"'
-                 f' width="{tag_w:.1f}" height="21" rx="10.5"/>')
-    text(right - tag_w / 2, title_y - 1.5, tag, "tagt", 12, TITLE_WEIGHT,
-         "middle")
-    text(left, title_y, _fit(title_of(entry), 19, right - left - tag_w - 12,
-                             TITLE_WEIGHT), "i1", 19, TITLE_WEIGHT)
+    def tag_at(x_right, top):
+        tag = _version(key)
+        if status in TAG_WORDS:
+            tag += f" · {TAG_WORDS[status]}"
+        tag_w = _width(tag, TEXT, TITLE_WEIGHT) + 14
+        parts.append(f'<rect class="tag" x="{x_right - tag_w:.1f}"'
+                     f' y="{top}" width="{tag_w:.1f}" height="20" rx="10"/>')
+        text(x_right - tag_w / 2, top + 14.6, tag, "tagt", TEXT,
+             TITLE_WEIGHT, "middle")
+        return tag_w
 
-    number_y = y0 + 110
-    side = left + 150
-    if head:
+    def chip_at(x, top):
         label, mine, theirs = head
-        text(left, number_y, f"{mine:.3f}", "i1", 54)
-        caption = f"{label} · {card['holdout']}" if card["holdout"] else (
-            f"{label} at IoU 0.5")
-        text(side, number_y - 33, _fit(caption, 13, right - side), "i3", 13)
         if theirs is not None and card["baseline"]:
             delta = mine - theirs
             sign = "+" if delta >= 0 else "−"
@@ -633,67 +648,103 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
             cls = "up" if delta >= 0 else "dn"
         else:
             chip = ("no stock detector" if is_detector(entry)
-                    else "no baseline recorded")
+                    else "no baseline")
             cls = "na"
-        chip_w = _width(chip, 13) + 22
-        parts.append(f'<rect class="{cls}" x="{side}" y="{number_y - 22}"'
-                     f' width="{chip_w:.1f}" height="24" rx="12"/>')
-        text(side + chip_w / 2, number_y - 5.5, chip,
-             "i1" if cls != "na" else "i3", 13, anchor="middle")
+        chip_w = _width(chip, TEXT) + 18
+        parts.append(f'<rect class="{cls}" x="{x:.1f}" y="{top}"'
+                     f' width="{chip_w:.1f}" height="22" rx="11"/>')
+        text(x + chip_w / 2, top + 15.6, chip,
+             "i1" if cls != "na" else "i3", anchor="middle")
+
+    if phone:
+        text(left, y0 + 25, _fit(title_of(entry), TEXT, right - left,
+                                 TITLE_WEIGHT), "i1", TEXT, TITLE_WEIGHT)
+        tag_at(right, y0 + 40)
+        if head:
+            label, mine, theirs = head
+            text(left, y0 + 63, f"{mine:.3f}", "i1", 30)
+            caption = (f"{label} · {_short_holdout(card)}"
+                       if card["holdout"] else f"{label} at IoU 0.5")
+            text(left, y0 + 86, _fit(caption, TEXT, right - left), "i3")
+            chip_at(left, y0 + 94)
+        else:
+            text(left, y0 + 63, "—", "i3", 30)
+            text(left, y0 + 86, "Score not recorded", "i3")
+        rows_y, pitch = y0 + 126, 38
     else:
-        text(left, number_y, "\u2014", "i3", 54)
-        text(side, number_y - 12, "Held-out score not recorded", "i3", 13)
+        tag_w = tag_at(right, y0 + 15)
+        text(left, y0 + 30, _fit(title_of(entry), TEXT,
+                                 right - left - tag_w - 12, TITLE_WEIGHT),
+             "i1", TEXT, TITLE_WEIGHT)
+        side = left + 132
+        if head:
+            label, mine, theirs = head
+            text(left, y0 + 84, f"{mine:.3f}", "i1", 40)
+            caption = (f"{label} · {card['holdout']}" if card["holdout"]
+                       else f"{label} at IoU 0.5")
+            text(side, y0 + 62, _fit(caption, TEXT, right - side), "i3")
+            chip_at(side, y0 + 70)
+        else:
+            text(left, y0 + 84, "—", "i3", 40)
+            text(side, y0 + 72, "Held-out score not recorded", "i3")
+        rows_y, pitch = y0 + 106, 26
 
-    rows_y = y0 + 140
-    label_w = 90
-    track_x = left + label_w
-    track_w = right - track_x - 46
     for index, (label, mine, theirs) in enumerate(card["rows"]):
-        y = rows_y + index * ROW_PITCH
+        y = rows_y + index * pitch
         if mine is None:
-            text(left, y + 12, "\u2014", "i3", 12.5)
+            text(left, y + 14, "—", "i3")
             continue
-        text(left, y + 12.5, label, "i2", 12.5)
-        parts.append(f'<rect class="tr" x="{track_x}" y="{y}"'
-                     f' width="{track_w}" height="8" rx="3"/>')
-        parts.append(_bar(track_x, y, track_w * mine, 8, "m"))
+        if phone:
+            text(left, y + 14, label, "i2")
+            text(right, y + 14, f"{mine:.3f}", "i1", anchor="end")
+            track_x, track_w, bar_y = left, right - left, y + 20
+        else:
+            track_x = left + 92
+            track_w = right - track_x - 52
+            bar_y = y + 3
+            text(left, y + 14, label, "i2")
+            text(right, y + 14, f"{mine:.3f}", "i1", anchor="end")
+        parts.append(f'<rect class="tr" x="{track_x}" y="{bar_y}"'
+                     f' width="{track_w}" height="7" rx="3"/>')
+        parts.append(_bar(track_x, bar_y, track_w * mine, 7, "m"))
         if theirs is not None:
-            parts.append(f'<rect class="tr" x="{track_x}" y="{y + 10}"'
-                         f' width="{track_w}" height="6" rx="3"/>')
-            parts.append(_bar(track_x, y + 10, track_w * theirs, 6, "b"))
-        text(right, y + 12.5, f"{mine:.3f}", "i1", 12.5, anchor="end")
+            parts.append(f'<rect class="tr" x="{track_x}" y="{bar_y + 9}"'
+                         f' width="{track_w}" height="5" rx="2.5"/>')
+            parts.append(_bar(track_x, bar_y + 9, track_w * theirs, 5, "b"))
 
-    legend_y = y0 + CARD_H - 20
+    legend_y = y0 + card_h - (15 if phone else 17)
     parts.append(f'<rect class="m" x="{left}" y="{legend_y - 9}" width="10"'
                  ' height="10" rx="2"/>')
-    text(left + 16, legend_y, "this model", "i3", 12)
+    text(left + 15, legend_y, "this model", "i3")
     if card["baseline"] and any(theirs is not None
                                 for _l, _m, theirs in card["rows"]):
-        lx = left + 16 + _width("this model", 12) + 22
+        lx = left + 15 + _width("this model", TEXT) + 14
         parts.append(f'<rect class="b" x="{lx:.1f}" y="{legend_y - 9}"'
                      ' width="10" height="10" rx="2"/>')
-        text(lx + 16, legend_y, baseline_name(card), "i3", 12)
+        base = (baseline_name(card).split()[0] if phone
+                else baseline_name(card))
+        text(lx + 15, legend_y, base, "i3")
 
     title = f"{title_of(entry)} {_version(key)} score card"
     desc = alt_text(entry, status)
     body = "\n".join(parts)
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}"'
-        f' height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" role="img"'
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}"'
+        f' height="{height}" viewBox="0 0 {width} {height}" role="img"'
         f' aria-labelledby="t d">\n'
         f'<title id="t">{escape(title)}</title>\n'
         f'<desc id="d">{escape(desc)}</desc>\n'
-        f'{_style(used)}\n{body}\n</svg>\n')
+        f'{_style(used, rim)}\n{body}\n</svg>\n')
 
 
-def render_heading() -> str:
+def render_heading(layout: str = "desktop", rim: str = RIM) -> str:
     """The centred heading over the README grid, two cards wide."""
-    width = 2 * WIDTH
-    height = HEADING_H + 2 * MARGIN_Y + HEADING_GAP
+    width = 2 * LAYOUTS[layout]
+    height = HEADING_H + MARGIN_Y + MARGIN_BOTTOM + HEADING_GAP
     parts = _frame("heading", MARGIN_X, MARGIN_Y, width - 2 * MARGIN_X,
                    HEADING_H)
-    parts.append(f'<text x="{width / 2:.1f}" y="{MARGIN_Y + 33}" class="i1"'
-                 f' font-size="19" font-weight="{TITLE_WEIGHT}"'
+    parts.append(f'<text x="{width / 2:.1f}" y="{MARGIN_Y + 25}" class="i1"'
+                 f' font-size="{TITLE}" font-weight="{TITLE_WEIGHT}"'
                  f' text-anchor="middle">{escape(HEADING_TEXT)}</text>')
     body = "\n".join(parts)
     return (
@@ -701,12 +752,20 @@ def render_heading() -> str:
         f' height="{height}" viewBox="0 0 {width} {height}" role="img"'
         f' aria-labelledby="t">\n'
         f'<title id="t">{escape(HEADING_TEXT)}</title>\n'
-        f'{_style({TITLE_WEIGHT: HEADING_TEXT})}\n{body}\n</svg>\n')
+        f'{_style({TITLE_WEIGHT: HEADING_TEXT}, rim)}\n{body}\n</svg>\n')
 
 
-def card_name(key: str) -> str:
-    """The card's path inside ``docs/models``."""
-    return f"{CARD_SUBDIR}/{key}.svg"
+def heading_name(layout: str = "desktop") -> str:
+    """The heading strip's path inside ``docs/models``."""
+    return HEADING_NAME if layout == "desktop" else \
+        f"{CARD_SUBDIR}/heading.{layout}.svg"
+
+
+def card_name(key: str, layout: str = "desktop") -> str:
+    """The card's path inside ``docs/models``: ``<key>.svg`` for the
+    desktop card, ``<key>.<layout>.svg`` otherwise."""
+    suffix = "" if layout == "desktop" else f".{layout}"
+    return f"{CARD_SUBDIR}/{key}{suffix}.svg"
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

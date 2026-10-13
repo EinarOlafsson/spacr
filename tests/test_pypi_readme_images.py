@@ -61,11 +61,17 @@ def test_packaged_readme_renders_all_original_images(metadata):
     original_normalized = source.replace(
         "https://raw.githubusercontent.com/EinarOlafsson/spacr/main/", "").replace(
         "https://github.com/EinarOlafsson/spacr/blob/main/", "")
-    # Only GitHub's raw image substitutions change shape for PyPI. All
-    # surrounding prose and generated content remain byte-for-byte intact.
-    workflow = r"(?s)(?<=\.\. spacr-workflow-begin).*?(?=\.\. spacr-workflow-end)"
-    assert re.sub(workflow, "", restored) == re.sub(workflow, "", original_normalized)
-    assert re.findall(r"(?m)^\| .*", restored) == re.findall(r"(?m)^\| .*", original_normalized)
+    # Only GitHub's raw HTML changes shape for PyPI: icon cells and the
+    # phone/desktop pictures become RST images (the phone drawing). Every
+    # code block and every line outside the raw HTML stays intact.
+    def kept(text):
+        text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?raw:: html\n\n(?:   [^\n]*\n?)+",
+                      "", text)
+        text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?image::[^\n]*\n(?:   :[^\n]*\n?)*",
+                      "", text)
+        return [line for line in text.splitlines()
+                if line.strip() and not line.startswith("| ")]
+    assert kept(restored) == kept(original_normalized)
     assert "raw:: html" not in packaged["long_description"]
     assert {i["alt"]: i["src"].split("/main/")[-1] for i in converted.images} == {
         i["alt"]: i["src"].split("/main/")[-1] for i in original.images}

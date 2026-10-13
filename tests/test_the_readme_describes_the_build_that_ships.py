@@ -245,19 +245,21 @@ class TestTheLocalizedReadmes:
         installer = text.partition(
             ".. spacr-installer-links-begin"
         )[2].partition(".. spacr-installer-links-end")[0]
+        # Since 2026-10-13 the icons are raw-HTML cells of an equal-cell row
+        # (tools/build_readme_images.py icon_rows).
         for name in (
             "InstallerWindows", "InstallerMacOS", "InstallerLinux",
         ):
-            definition = f".. |{name}| image::"
+            definition = f".. |{name}| raw:: html"
             assert text.count(definition) == 1
             assert definition in installer
         # 2026-10-12: the "Earlier spaCR installers" button left the README.
-        assert ".. |InstallerLegacy| image::" not in text
+        assert ".. |InstallerLegacy|" not in text
         for name in (
             "DataBioStudies", "DataHuggingFace", "DataNCBI",
             "DataSpaCRPower", "DataBioRxiv",
         ):
-            definition = f".. |{name}| image::"
+            definition = f".. |{name}| raw:: html"
             assert text.count(definition) == 1
             assert definition not in installer
 
