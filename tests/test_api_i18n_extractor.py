@@ -46,7 +46,8 @@ _NEW_VISIBLE_DIGEST = (
 _PREVIOUS_VISIBLE_DIGEST = (
     "d756bd8ed64b13f473eee9905cdee6a394866efc00b09cd2725f8ead4e4a4195"
 )
-_LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION"}
+_LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION",
+                         "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS"}
 _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT",
     "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS",
@@ -1541,6 +1542,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
     assert not model_card_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
+    # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
+    debounce_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text())
+    assert len(debounce_arrivals) == 4
+    assert {key: docs[key] for key in debounce_arrivals} == debounce_arrivals
+    assert not debounce_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **debounce_arrivals}
     # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
     dna_rain_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
@@ -2054,8 +2062,8 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
     # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
     # live_preview.BOUND_ROWS (2026-09-26); 36 with _parascape.MINIMUM_VERSION
-    # (2026-10-12).
-    assert len(assignment_keys) == 36
+    # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13).
+    assert len(assignment_keys) == 37
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

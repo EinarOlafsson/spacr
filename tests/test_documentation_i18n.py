@@ -3410,6 +3410,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
     assert not model_card_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
+    # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
+    debounce_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text())
+    assert len(debounce_arrivals) == 4
+    assert {key: docs[key] for key in debounce_arrivals} == debounce_arrivals
+    assert not debounce_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **debounce_arrivals}
     # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
     dna_rain_arrivals = json.loads((ROOT / "tests/data"
         / "release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())

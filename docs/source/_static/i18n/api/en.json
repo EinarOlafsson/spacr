@@ -71257,6 +71257,15 @@
       "source_sha256": "7deb8af10243e9f8204273e7dbc1d76779a7900bbd236020f1f4cfd74d21d066",
       "text": "The class editor, told which frame it is previewing."
     },
+    "spacr.qt.screens.settings_model.SettingsWidgets.add_collect_hook": {
+      "source_blocks_sha256": [
+        "de689e6dcb87a086de6d0246c1d2b591671ab1ada38d797c04ce3a718c35cb00",
+        "b18714b1a919fbe05cf9097a5dba6ffaa08e3623cad35a9fe16738a8caef26ea",
+        "f472d42b7c059af94d63f1fe0110a10a77cfe6c12243a964c040d0a80d6ab318"
+      ],
+      "source_sha256": "b2d31704c9b08c1768aaceb70d0052c85a4b9cf98f3ea873372a3d9199dc88a9",
+      "text": "Call ``hook`` at the start of every :meth:`collect`.\n\nA Live Preview holds a typed value back until the typing pauses;\nits hook writes that value in first, so a run started inside the\npause reads it.\n\n:param hook: a callable taking no arguments."
+    },
     "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
       "source_blocks_sha256": [
         "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
@@ -97982,6 +97991,13 @@
       "source_sha256": "4ba3d29e8c7b1d24c22f302f28b7ee900071eac55b8165847f0365210e5d21f7",
       "text": "Where each bound control of a Cellpose compartment lives in\n``object_filters``. Mask's ``{object}_min_area`` family was retired on\n2026-09-25; for cell, nucleus and pathogen these four controls\nread and write the object's ``area`` and ``intensity_mean`` rows instead.\nThe organelle slots keep their own settings."
     },
+    "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS": {
+      "source_blocks_sha256": [
+        "5dde3fec1987ffc590b55ff053649aea34b516726eff4fe867e1f0f7e3d0921a"
+      ],
+      "source_sha256": "579ed64a79a4e972be17150841647331cf425e532107fc2c80fc0d769da8265a",
+      "text": "How long the live preview waits after the last filter edit before it\nre-filters. Typing ``510`` into a minimum-area box used to re-filter, redraw\nand propagate three times, about half a second each on a 2000 x 2000 field,\non the GUI thread; the tutorial capture of lesson 07 froze for that second."
+    },
     "spacr.qt.widgets.live_preview.LivePreviewPanel": {
       "source_blocks_sha256": [
         "d03f93fa15ebab51e7ce2dbbf9683578d60af8d48b3c7f2513382e22fee44a23",
@@ -98097,6 +98113,13 @@
       "source_sha256": "8d8c507877a9f7abc3952ecdc587d39711424bbce275e3bb19cdbbce80f3cf8c",
       "text": "Load the dropped image into the preview.\n\n:param event: the drop event; the first local file URL with a\n    supported image extension is loaded asynchronously, and the drop\n    is ignored when there is none."
     },
+    "spacr.qt.widgets.live_preview.LivePreviewPanel.flush_propagation": {
+      "source_blocks_sha256": [
+        "9bf48036ce8f6e6807f641c1b8a10356c88395bc87ce5a5fa57cea198e0a2853"
+      ],
+      "source_sha256": "9bf48036ce8f6e6807f641c1b8a10356c88395bc87ce5a5fa57cea198e0a2853",
+      "text": "Send a propagation that is still waiting out its delay."
+    },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.load_image": {
       "source_blocks_sha256": [
         "a33e7d8521cba5f3d503e731f79d1b627ff030d3e150e9cd64f3d8427b97c99d",
@@ -98198,6 +98221,14 @@
       ],
       "source_sha256": "ed6ff6faa31a9969668c4e457b3522983ba586c2e9d291d06e89550d834029a9",
       "text": "The sentence stating this preview is a sample of N of M sets."
+    },
+    "spacr.qt.widgets.live_preview.LivePreviewPanel.schedule_propagation": {
+      "source_blocks_sha256": [
+        "874620b68a7ca03364723f0c3706ba8af0931e1eb7389abf1a774ff78882df01",
+        "86be236e621943c06ceab38f7d3f0535626ce5ef8c6ab835ff602b7d3f61e20a"
+      ],
+      "source_sha256": "325fb9e1d9eb575ac89b3cd7f515bee8613b3d8d20b58ed446d81711ae8888b2",
+      "text": "Propagate once the user stops editing, not on every keystroke.\n\nWriting ``object_filters`` into the main panel redraws its object\ngrid, 10 to 30 ms a time. :meth:`flush_propagation` sends a pending\npush at once; the dialog calls it when an edit finishes or the\ntoggle goes off, so a run never starts from stale settings."
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.set_propagate_callback": {
       "source_blocks_sha256": [
