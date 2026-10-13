@@ -83,6 +83,7 @@ from __future__ import annotations
 
 import statistics
 import time
+import traceback
 
 import pytest
 
@@ -224,13 +225,14 @@ def test_a_mask_field_frame_reads_no_preference_store(big_window, qtbot,
     real = preferences._settings
 
     def counting():
-        reads.append(1)
+        reads.append("".join(traceback.format_stack(limit=14)))
         return real()
 
     monkeypatch.setattr(preferences, "_settings", counting)
     for _frame in range(5):
         backdrop.repaint()
-    assert reads == [], f"{len(reads) / 5:.1f} preference reads per field frame"
+    assert reads == [], (f"{len(reads) / 5:.1f} preference reads per field "
+                         f"frame; the first from:\n{reads[0]}")
 
 
 @pytest.mark.parametrize("switch", ["1"], indirect=True)

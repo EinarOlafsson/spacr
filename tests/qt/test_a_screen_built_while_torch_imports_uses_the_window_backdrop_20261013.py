@@ -19,6 +19,8 @@ read the preference store to choose its colour.
 """
 from __future__ import annotations
 
+import traceback
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -62,6 +64,8 @@ def test_the_screen_defers_to_the_window_field_once_the_lock_is_free(
     qtbot.wait(400)
     assert screen._ambient is None, "the screen built a second field"
     assert screen.page_fill() is None
+    assert "background" not in screen.styleSheet(), screen.styleSheet()
+    assert not screen.autoFillBackground()
 
     backdrop._timer.stop()
     backdrop.repaint()
@@ -69,10 +73,57 @@ def test_the_screen_defers_to_the_window_field_once_the_lock_is_free(
     real = preferences._settings
 
     def counting():
-        reads.append(1)
+        reads.append("".join(traceback.format_stack(limit=14)))
         return real()
 
     monkeypatch.setattr(preferences, "_settings", counting)
     for _frame in range(5):
         backdrop.repaint()
-    assert reads == [], f"{len(reads) / 5:.1f} preference reads per field frame"
+    assert reads == [], (f"{len(reads) / 5:.1f} preference reads per field "
+                         f"frame; the first from:\n{reads[0]}")
+
+
+
+def test_a_screen_that_paints_its_own_page_reads_no_store_per_frame(
+        qtbot, monkeypatch):
+    """The page a screen fills under everything takes the paint-time theme.
+
+    A screen that is not deferring to the window's field (none was there
+    to defer to yet, or it has not heard of it) fills its page on every
+    paint, and every frame of the field repaints it. The colour came from
+    the preference store each time, one read a frame; it now comes from
+    :func:`spacr.qt.theme._painting_theme`, as every other paint hook's.
+    """
+    from spacr.qt import preferences
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1280, 800)
+    window.show()
+    qtbot.waitExposed(window)
+    qtbot.waitUntil(lambda: window.window_backdrop() is not None,
+                    timeout=20000)
+    backdrop = window.window_backdrop()
+    if not hasattr(backdrop, "_timer"):
+        pytest.skip("the window backdrop is not the field in this setup")
+    window._on_nav_selected("mask")
+    qtbot.wait(300)
+    screen = window._screens["mask"]
+    screen._uses_window_backdrop = False
+    assert screen._ambient is None and screen.page_fill() is not None
+
+    backdrop._timer.stop()
+    backdrop.repaint()
+    reads = []
+    real = preferences._settings
+
+    def counting():
+        reads.append("".join(traceback.format_stack(limit=14)))
+        return real()
+
+    monkeypatch.setattr(preferences, "_settings", counting)
+    for _frame in range(5):
+        backdrop.repaint()
+    assert reads == [], (f"{len(reads) / 5:.1f} preference reads per field "
+                         f"frame; the first from:\n{reads[0]}")

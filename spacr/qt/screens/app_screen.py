@@ -2335,6 +2335,7 @@ class AppScreen(QWidget):
             if callable(shared) and shared() is not None:
                 self._uses_window_backdrop = True
                 self._clear_page_surfaces()
+                self._sync_page_palette()
                 self.update()
                 return
             wanted = (get_ambient_theme(), get_ambient_palette())
@@ -2610,13 +2611,35 @@ class AppScreen(QWidget):
         Never raises: a page that cannot resolve its colour falls back to
         the rendering it had before this existed.
         """
+        from ..preferences import resolve_effective_theme
+
+        return self._page_fill_under(resolve_effective_theme)
+
+    def _page_fill_for_a_frame(self):
+        """:meth:`page_fill` for :meth:`paintEvent`, without a store read.
+
+        A paint runs on every frame of the window's field, so the theme
+        comes from :func:`spacr.qt.theme._painting_theme`, resolved once per
+        application palette, as every other paint hook takes it. A screen
+        that paints its own page under the field read the preference store
+        once a frame (CI, 2026-10-13: 1.0 reads per Mask field frame).
+        """
+        from ..theme import _painting_theme
+
+        return self._page_fill_under(_painting_theme)
+
+    def _page_fill_under(self, theme_of):
+        """The page colour with the theme ``theme_of()`` names, or ``None``.
+
+        :param theme_of: returns the effective theme name; anything it
+            raises reads as no colour.
+        """
         if (self._ambient is not None or self._dna_rain is not None
                 or getattr(self, "_uses_window_backdrop", False)):
             return None
         try:
-            from ..preferences import resolve_effective_theme
             from ..theme import IMAGE_THEMES, page_colour
-            theme = resolve_effective_theme()
+            theme = theme_of()
             if theme in IMAGE_THEMES:
                 return None
             return QColor(page_colour(theme))
@@ -2644,6 +2667,14 @@ class AppScreen(QWidget):
         no ordering in which black can appear. The ``paintEvent`` fill
         stays: it is what covers the stylesheet's ``bg`` slab, which the
         palette does not reach.
+
+        Clearing takes the screen's own rule off before the palette and the
+        fill: unpolishing that rule hands back the ``autoFillBackground`` it
+        found when it went on, so cleared last it turned the fill on again
+        over an empty palette: the application's black. A screen that learns
+        of the window's field late (opened while the heavy-import lock was
+        held) clears its page here as well; before 2026-10-13 it kept its
+        page-colour rule over the field.
         """
         if getattr(self, "_syncing_page", False):
             return
@@ -2656,9 +2687,9 @@ class AppScreen(QWidget):
         self._syncing_page = True
         try:
             if colour is None:
-                self.setAutoFillBackground(False)
-                self.setPalette(QPalette())
                 set_a_sheeted_widgets_own_rule(self, "")
+                self.setPalette(QPalette())
+                self.setAutoFillBackground(False)
             else:
                 palette = QPalette(self.palette())
                 palette.setColor(QPalette.Window, colour)
@@ -2682,7 +2713,7 @@ class AppScreen(QWidget):
             there is no page fill. The fill always covers the whole screen,
             not just the event's region.
         """
-        colour = self.page_fill()
+        colour = self._page_fill_for_a_frame()
         if colour is None:
             super().paintEvent(event)
             return

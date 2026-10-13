@@ -2049,13 +2049,33 @@ class HomePage(QWidget):
 
         Never raises.
         """
+        from ..preferences import resolve_effective_theme
+
+        return self._page_fill_under(resolve_effective_theme)
+
+    def _page_fill_for_a_frame(self):
+        """:meth:`page_fill` for :meth:`paintEvent`, without a store read.
+
+        The theme comes from :func:`spacr.qt.theme._painting_theme`,
+        resolved once per application palette, because a paint runs on
+        every frame of the window's field.
+        """
+        from ..theme import _painting_theme
+
+        return self._page_fill_under(_painting_theme)
+
+    def _page_fill_under(self, theme_of):
+        """The page colour with the theme ``theme_of()`` names, or ``None``.
+
+        :param theme_of: returns the effective theme name; anything it
+            raises reads as no colour.
+        """
         if (self._ambient is not None
                 or getattr(self, "_uses_window_backdrop", False)):
             return None
         try:
-            from ..preferences import resolve_effective_theme
             from ..theme import IMAGE_THEMES, page_colour
-            theme = resolve_effective_theme()
+            theme = theme_of()
             if theme in IMAGE_THEMES:
                 return None
             return QColor(page_colour(theme))
@@ -2072,7 +2092,7 @@ class HomePage(QWidget):
         :param event: the paint event; passed to the base class only when no
             page fill colour is set.
         """
-        colour = self.page_fill()
+        colour = self._page_fill_for_a_frame()
         if colour is None:
             super().paintEvent(event)
             return
