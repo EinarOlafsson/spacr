@@ -1546,6 +1546,8 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     spacr.cancellation.PipelineCancelled
         If the run was stopped; it propagates unchanged and is never reported
         as a fitting failure.
+    MixedBackendUnavailable
+        If the selected mixed-model backend is unavailable.
 
     Notes
     -----
@@ -1554,8 +1556,6 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     every optimiser raises on the full model is the guide variance component
     dropped and a gene-only random intercept fitted; the record and the log say
     so, because guides that disagree then no longer widen the gene interval.
-    MixedBackendUnavailable
-        If the selected mixed-model backend is unavailable.
     """
     from .plot import plot_histogram
 
