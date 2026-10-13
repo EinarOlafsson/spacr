@@ -65,7 +65,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     }
     refreshed_scenes = {
         "01_pypi_github": 8, "02_install_spacr": 17,
-        "04_platform_installers": 14, "05_home": 39,
+        "04_platform_installers": 14, "05_home": 32,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
     }
     assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
@@ -90,7 +90,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     assert {"07b_wand_add", "07c_wand_ctrl_remove", "08b_merge_demo"} <= {
         scene["visual"] for scene in make_masks["scenes"]
     }
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1166
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1159
     assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1227
     assert len(languages) == 8
     assert len(voices) == 50
