@@ -1,5 +1,7 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
+
 ## 2026-10-13 — WS → Home: item 701 completed
 
 Item 701 is implemented in this push: Make Masks has **Hide judged fields**
