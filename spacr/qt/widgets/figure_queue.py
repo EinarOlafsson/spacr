@@ -384,6 +384,49 @@ def _render_print_copy(fig, png_path: str, dpi: int, text_size: int,
             _style_figure_colors(fig, bg, fg, text_size, line)
 
 
+#: Longest raster draw, in seconds, of a figure that still goes on the live
+#: canvas. :func:`render_figure_to_png` times the display raster it draws
+#: (usually on the run's worker thread) and :meth:`FigureQueue.show_live_canvas`
+#: reads it: the canvas draws the same figure again ON THE GUI THREAD, at the
+#: canvas size, on its first paint and on every resize. Measured on lesson 08's
+#: Measure run (2560x1440, canvas 2216x975): the three crop figures took
+#: 1.4-3.2 s as worker rasters and held the GUI thread 0.69-0.94 s each in the
+#: canvas. Such a figure is shown as the raster that is already on disk;
+#: everything at or under the limit (an ordinary plot draws in tens of ms)
+#: keeps the live canvas.
+_LIVE_CANVAS_MAX_RASTER_S = 0.2
+
+#: Attribute a figure carries with its last display-raster draw time.
+_RASTER_SECONDS_ATTR = "_spacr_raster_seconds"
+
+
+def _note_raster_seconds(fig, seconds: float) -> None:
+    """Remember how long ``fig``'s display raster took to draw.
+
+    :param fig: the figure just saved.
+    :param seconds: the wall time of that ``savefig``.
+    """
+    try:
+        setattr(fig, _RASTER_SECONDS_ATTR, float(seconds))
+    except (AttributeError, TypeError, ValueError):
+        LOG.debug("could not note a figure's raster time", exc_info=True)
+
+
+def _too_slow_for_the_live_canvas(fig) -> bool:
+    """Whether drawing ``fig`` live would hold the GUI thread too long.
+
+    Judged from its last display raster (:func:`_note_raster_seconds`); a
+    figure never rastered is not judged slow.
+
+    :param fig: the figure about to be shown.
+    """
+    try:
+        seconds = float(getattr(fig, _RASTER_SECONDS_ATTR, 0.0) or 0.0)
+    except (TypeError, ValueError):
+        return False
+    return seconds > _LIVE_CANVAS_MAX_RASTER_S
+
+
 def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
                          write_pdf: Optional[bool] = None) -> bool:
     """Style ``fig`` per the app theme and save it as a display-capped PNG —
@@ -455,9 +498,11 @@ def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
             display_dpi = min(dpi, 200)
         try:
             from ..preferences import figure_bg_is_transparent
+            started = time.perf_counter()
             fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
                         facecolor=bg,
                         transparent=figure_bg_is_transparent(bg))
+            _note_raster_seconds(fig, time.perf_counter() - started)
         except Exception as e:
             if not _retry_on_a_fresh_canvas(fig, png_path, display_dpi, bg):
                 LOG.info("figure render failed: %s", e)
@@ -1659,10 +1704,19 @@ class FigureQueue(QWidget):
         so there is never a raster being stretched to fit. It is also what
         makes it fast -- looking at a figure costs no render at all.
 
+        Except for a figure whose display raster took longer than
+        :data:`_LIVE_CANVAS_MAX_RASTER_S` to draw: the canvas would draw it
+        again on the GUI thread, for most of a second, so it stays the
+        raster already on disk, which the view zooms as any picture.
+
         :param fig: the Matplotlib figure to embed in a Qt canvas with its
             navigation toolbar; the canvas already showing it is just redrawn.
         """
         if not self._live_canvas_enabled:
+            return False
+        if _too_slow_for_the_live_canvas(fig):
+            if self._canvas is not None and self._canvas.figure is fig:
+                self._show_raster()
             return False
         try:
             from matplotlib.backends.backend_qtagg import (
