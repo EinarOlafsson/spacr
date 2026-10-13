@@ -11298,14 +11298,15 @@ class PreferencesDialog:
         theme_combo.currentIndexChanged.connect(_contrast_follows_the_theme)
         contrast_check.toggled.connect(_theme_follows_contrast)
 
-        text_size_slider.setToolTip(tr(
-            "Make all text in spaCR larger or smaller. This is the same "
-            "setting as Font scale on the General tab."))
         text_size_column = QVBoxLayout()
         text_size_column.setContentsMargins(0, 0, 0, 0)
         text_size_column.addWidget(text_size_slider)
         text_size_column.addWidget(text_size_value)
-        accessibility.addRow(tr("Text size"), _hbox_wrap(text_size_column))
+        text_size_field = _hbox_wrap(text_size_column)
+        text_size_field.setToolTip(tr(
+            "Make all text in spaCR larger or smaller. This is the same "
+            "setting as Font scale on the General tab."))
+        accessibility.addRow(tr("Text size"), text_size_field)
 
         reduce_motion_check = Toggle()
         reduce_motion_check.setObjectName("AccessibilityReduceMotion")
@@ -11391,9 +11392,10 @@ class PreferencesDialog:
 
         shortcuts_button.clicked.connect(_open_the_shortcuts_editor)
         accessibility.addRow(tr("Keyboard"), shortcuts_button)
-        for described in (contrast_check, text_size_slider,
-                          reduce_motion_check, focus_check, shortcuts_button):
+        for described in (contrast_check, reduce_motion_check, focus_check,
+                          shortcuts_button):
             described.setAccessibleDescription(described.toolTip())
+        text_size_slider.setAccessibleDescription(text_size_field.toolTip())
         appearance.addRow(accessibility_category)
 
         def _reset_to_defaults() -> None:
