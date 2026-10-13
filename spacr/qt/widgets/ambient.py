@@ -5730,6 +5730,17 @@ _GL_QUAD = '''
     }
 '''
 
+_GL_GRAIN_WEIGHT = '''
+    float grain_weight(vec2 d) {
+        const float root2 = 1.4142135623730951;
+        float r = sqrt(d.x * d.x + d.y * d.y);
+        if (r < 1.0) return 1.0 - 0.32 * r;
+        if (r < root2) return 0.68 + (r - 1.0) * (0.24 - 0.68) / (root2 - 1.0);
+        if (r < 2.0) return 0.24 + (r - root2) * (0.0 - 0.24) / (2.0 - root2);
+        return 0.0;
+    }
+'''
+
 _GL_HAIRLINE_VERTEX = '''
         #version 430
         in vec4 segment;
@@ -5983,6 +5994,44 @@ _GL_SHADERS = {
             result = vec4(texture(atlas, at / vec2(textureSize(atlas, 0))).rgb, 1.0);
         }
     '''),
+    'subpixel_grains': ('''
+        #version 430
+        in vec3 grain;
+        uniform vec2 canvas;
+        flat out vec2 base;
+        flat out vec2 offset;
+        flat out float scale;
+    ''' + _GL_QUAD + _GL_GRAIN_WEIGHT + '''
+        void main() {
+            vec2 centre = grain.xy - 0.5;
+            base = floor(centre);
+            offset = centre - base;
+            float total = 0.0;
+            for (int a = 0; a < 4; ++a) {
+                for (int b = 0; b < 4; ++b) {
+                    total += grain_weight(vec2(float(b - 1), float(a - 1)) - offset);
+                }
+            }
+            scale = grain.z * 255.0 * 4.68 / total;
+            gl_Position = canvas_position(base - 1.0 + quad_corner() * 4.0, canvas);
+        }
+    ''', '''
+        #version 430
+        layout(std430,binding=2) readonly buffer Palette { uint palette[]; };
+        flat in vec2 base;
+        flat in vec2 offset;
+        flat in float scale;
+        out vec4 colour;
+    ''' + _GL_GRAIN_WEIGHT + '''
+        void main() {
+            vec2 d = (floor(gl_FragCoord.xy) - base) - offset;
+            float level = floor(grain_weight(d) * scale + 0.5);
+            if (level <= 0.0) discard;
+            uint word = palette[uint(min(level, 255.0))];
+            colour = vec4(float(word & 255u), float((word >> 8u) & 255u),
+                float((word >> 16u) & 255u), float((word >> 24u) & 255u)) / 255.0;
+        }
+    '''),
 }
 
 
@@ -6088,6 +6137,30 @@ class _FlowPointGraphics:
         image = QImage(width, height, QImage.Format_RGB32)
         self._framebuffer.read_into(image.bits(), components=4, alignment=1)
         return image
+
+    def _draw_subpixel(self, width, height, xs, ys, values, lookup, dark):
+        """Stamp grains at fractional centres like :func:`_scatter_subpixel_grains`.
+
+        Each grain is one 4x4-pixel quad over the CPU kernel's footprint,
+        weighted by the same radial profile and renormalised to the same
+        total, so a rippling grain glides on both paths. Colours come from
+        ``lookup`` by rounded level and overlap by brightest (dark) or
+        darkest (light) channel, the CPU kernel's ordering for these
+        monotonic tables.
+        """
+        np = _numpy()
+        background = 0.0 if dark else 1.0
+        self._target(width, height, (background, background, background, 1.0))
+        rows = np.empty((len(xs), 3), dtype=np.float32)
+        rows[:, 0], rows[:, 1], rows[:, 2] = xs, ys, values
+        program = self._shader('subpixel_grains')
+        self._context.blend_equation = self._gl.MAX if dark else self._gl.MIN
+        self._uniform(program, 'canvas', (float(width), float(height)))
+        self._stream('subpixel_palette', np.ascontiguousarray(lookup, dtype=np.uint32)
+                     ).bind_to_storage_buffer(2)
+        array = self._array(program, self._stream('subpixel_grains', rows), '3f/i', 'grain')
+        array.render(mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+        return self._read(width, height)
 
     def _shader(self, name):
         """Compile one theme program from :data:`_GL_SHADERS` on first use."""
@@ -6945,8 +7018,14 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             ink = 0.78 * primary + 0.22 * accent
             value = ink * levels if self.dark else 255.0 - (255.0 - ink) * levels
             lookup |= np.asarray(value, dtype=np.uint32) << shift
-        image = self._graphics_point_image(
-            width, height, px, py, intensities, lookup, spread)
+        if subpixel:
+            near = (fx > -2.0) & (fx < width + 2.0) & (fy > -2.0) & (fy < height + 2.0)
+            fx, fy, exact = fx[near], fy[near], np.ascontiguousarray(exact[near])
+            image = self._graphics_frame('_draw_subpixel', width, height, fx, fy, exact,
+                                         lookup, self.dark, work=len(fx))
+        else:
+            image = self._graphics_point_image(
+                width, height, px, py, intensities, lookup, spread)
         if image is not None:
             self._flicker_field_dots(image, px, py)
             return image
@@ -6955,8 +7034,6 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
                              count=width * height)
         flat.fill(lookup[0])
         if subpixel:
-            near = (fx > -2.0) & (fx < width + 2.0) & (fy > -2.0) & (fy < height + 2.0)
-            fx, fy, exact = fx[near], fy[near], np.ascontiguousarray(exact[near])
             kernel = _ready_subpixel_scatter()
             if kernel is not None:
                 kernel(flat, fx, fy, exact, lookup, width, height, self.dark,

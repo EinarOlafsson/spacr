@@ -375,3 +375,27 @@ WORKSTATION MUST RE-RUN GPU PARITY (CUDA_VISIBLE_DEVICES unset):
 
 2026-10-12 — MAINTAINER ACCEPTANCE
 N684: maintainer desktop check 2026-10-12: "the window snap animation works great". ACCEPTED — Status: COMPLETE 100%.
+
+2026-10-12 — WS GPU parity on nightly 36f4f5fd2: impulse_lens failed 6 rows,
+all with ripples in flight (dark 0.25: mean 0.68-0.72, p99 33-34; dark 1.0:
+mean 2.72-2.86, p99 70-71; light 1.0: mean 0.89-0.94, p99 19-20). Cause: not
+the N670 ripple constants (displacement, glow, floor and outline weighting
+are computed once on the CPU for both paths), but the stamp. 35a44a19a made
+the CPU stamp each field grain at its fractional centre with the
+constant-energy 4x4 footprint (_scatter_subpixel_grains); the renderer still
+drew the whole-pixel 3x3 grain at the floored centre. Grains at rest sit on
+pixel centres, where the two stamps agree, so only ripples showed it.
+Reproduced on Mesa llvmpipe at 960x540 with the same numbers (dark 1.0 mean
+2.77, p99 71). Fix: _FlowPointGraphics._draw_subpixel and the
+subpixel_grains shader draw one 4x4 quad per grain with the CPU kernel's
+profile (_GL_GRAIN_WEIGHT: same knots, weights, renormalised total 4.68,
+rounded level, MAX/MIN overlap); _point_material sends the field's
+fractional grains there. llvmpipe after the fix: 12/12 pairs at 960x540
+mean 0, p99 0, max <= 1. Gate unchanged (mean 1.0, p99 12, 0.5 % over 48).
+Test: tests/qt/test_impulse_lens_subpixel_gpu_parity_n684.py (recording
+stand-in, plus a llvmpipe child with ripples in flight, dark/light, density
+0.25/1.0; skipped without moderngl/Mesa EGL).
+WORKSTATION RE-RUN (CUDA_VISIBLE_DEVICES unset, after this commit is pushed):
+    QT_QPA_PLATFORM=offscreen tools/gpu_turn.sh n684-gpu-parity-subpixel \
+      tools/run_capped.sh 8G python tools/verify_animation_gpu_parity.py \
+      features/data/684_animation_gpu_parity_2026-10-12_subpixel/receipt.json --images

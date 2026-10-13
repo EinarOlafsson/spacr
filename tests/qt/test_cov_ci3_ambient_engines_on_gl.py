@@ -157,9 +157,9 @@ def test_point_material_frames_still_flash_their_blinking_dots(gpu, qapp):
     engine = _make("data_art_impulse_lens", blink_percent=100.0, density=0.25)
     image, names, _context, renders, _ = _shade_and_record(engine)
     render, = renders
-    assert names == ["points"]
-    assert render.mode == "POINTS" and render.vertices > 0
-    points = np.frombuffer(render.data, np.int32).reshape(-1, 3)
+    assert names == ["subpixel_grains"]
+    assert render.mode == "TRIANGLE_STRIP" and render.instances > 0
+    points = np.floor(np.frombuffer(render.data, np.float32).reshape(-1, 3)).astype(np.int64)
     width, height = engine.buffer_size(320, 200)
     inside = points[(points[:, 0] >= 0) & (points[:, 0] < width)
                     & (points[:, 1] >= 0) & (points[:, 1] < height)]

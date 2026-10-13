@@ -114,6 +114,8 @@ def test_renderer_construction_draw_and_release_share_producer_thread(monkeypatc
             image.fill(QColor('white'))
             return image
 
+        _draw_subpixel = _draw
+
         def _close(self):
             events.append(('close', threading.get_ident()))
 
@@ -132,6 +134,7 @@ def test_renderer_construction_draw_and_release_share_producer_thread(monkeypatc
     finally:
         producer.stop()
     assert events[0][0] == 'create' and events[-1][0] == 'close'
+    assert ('draw', events[0][1]) in events and not candidate._graphics_failed
     assert {owner for _, owner in events} == {events[0][1]}
     assert events[0][1] != threading.get_ident()
     assert candidate._point_graphics is None
