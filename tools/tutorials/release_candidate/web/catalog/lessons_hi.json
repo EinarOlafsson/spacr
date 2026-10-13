@@ -551,7 +551,7 @@
       "section": "spaCR",
       "description": "Home के सभी मौजूदा मॉड्यूल बाएँ से दाएँ देखें। फिर Mask से साझा नियंत्रण सीखें और नेविगेशन, सहायता तथा रूप बदलें।",
       "objectives": [
-        "मौजूदा Core, Data, Tools और Organism पंक्तियों के हर मॉड्यूल की पहचान करना।",
+        "मौजूदा Core, Data और Tools पंक्तियों के हर मॉड्यूल की पहचान करना।",
         "Mask से साझा सेटिंग, पूर्वावलोकन, कार्रवाइयों और परिणामों को पहचानना।",
         "Home पर लौटना, खोज का उपयोग करना और पैनल व्यवस्थित करना।",
         "रूप और प्रदर्शन की सेटिंग चुनना।"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data, Tools और Organism। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।",
+          "narration": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data और Tools। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।",
           "hold_after": 0.7,
-          "speech_text": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data, Tools और Organism। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।"
+          "speech_text": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data और Tools। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।"
         },
         {
           "visual": "home_module_mask",
@@ -601,18 +601,6 @@
           "speech_text": "Annotate में वस्तुओं के कटे चित्र देखकर उदाहरणों के लिए जाँचे हुए लेबल दर्ज कर सकते हैं।"
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify जाँचे हुए लेबल पर एक मॉडल प्रशिक्षित करता है और कटे चित्रों या मापी गई विशेषताओं की मदद से अन्य वस्तुओं को स्कोर देता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ],
-          "speech_text": "Classify जाँचे हुए लेबल पर एक मॉडल प्रशिक्षित करता है और कटे चित्रों या मापी गई विशेषताओं की मदद से अन्य वस्तुओं को स्कोर देता है।"
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes अनुक्रमण डेटा पढ़कर गाइड या बारकोड की गिनती और पहचान करता है।",
           "hold_after": 0.7,
@@ -649,18 +637,6 @@
           "speech_text": "Import आने वाली माइक्रोस्कोपी फ़ाइलों और मेटाडेटा को परियोजना की संरचना के लिए तैयार करता है।"
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings वस्तुओं के कटे चित्रों को खोज और तुलना के लिए संख्यात्मक विशेषताओं में बदलता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings वस्तुओं के कटे चित्रों को खोज और तुलना के लिए संख्यात्मक विशेषताओं में बदलता है।"
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare सहेजे गए रन के परिणाम एक साथ लाता है ताकि उनके अंतर देख सकें।",
           "hold_after": 0.7,
@@ -673,18 +649,6 @@
           "speech_text": "Run Compare सहेजे गए रन के परिणाम एक साथ लाता है ताकि उनके अंतर देख सकें।"
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design प्रयोग से पहले स्थितियों, वेल और नमूनों की पहचान की व्यवस्था करता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design प्रयोग से पहले स्थितियों, वेल और नमूनों की पहचान की व्यवस्था करता है।"
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design तुलना की योजना बनाते समय नमूना आकार और सांख्यिकीय शक्ति की मान्यताओं को जाँचता है।",
           "hold_after": 0.7,
@@ -695,30 +659,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design तुलना की योजना बनाते समय नमूना आकार और सांख्यिकीय शक्ति की मान्यताओं को जाँचता है।"
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response अलग-अलग सांद्रताओं पर प्रतिक्रिया को फिट करता है और चुने हुए मापन तथा नियंत्रणों को स्पष्ट रखता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response अलग-अलग सांद्रताओं पर प्रतिक्रिया को फिट करता है और चुने हुए मापन तथा नियंत्रणों को स्पष्ट रखता है।"
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC किसी प्रोजेक्ट की सहेजी गई गुणवत्ता रिपोर्टों की सूची दिखाता है और जो रिपोर्ट गायब हैं, उन्हें चिह्नित करता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC किसी प्रोजेक्ट की सहेजी गई गुणवत्ता रिपोर्टों की सूची दिखाता है और जो रिपोर्ट गायब हैं, उन्हें चिह्नित करता है।"
         },
         {
           "visual": "home_module_make_masks",
@@ -757,18 +697,6 @@
           "speech_text": "Image यू मैप वस्तुओं की विशेषताओं का प्रक्षेपण करता है ताकि समान वस्तुएँ खोजकर प्रतिनिधि कटे चित्र देख सकें।"
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor वास्तविक डेटा कॉलम पर चयन निर्धारित करता है। गेट को लेबल में बदलने से पहले चुनी गई वस्तुओं की जाँच करें।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "गेट एडिटर वास्तविक डेटा कॉलम पर चयन निर्धारित करता है। गेट को लेबल में बदलने से पहले चुनी गई वस्तुओं की जाँच करें।"
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder माप तालिकाओं से ग्राफ बनाता है, जिनके कॉलम और समूह चुन सकते हैं।",
           "hold_after": 0.7,
@@ -779,18 +707,6 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder माप तालिकाओं से ग्राफ बनाता है, जिनके कॉलम और समूह चुन सकते हैं।"
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
-          ],
-          "speech_text": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।"
         },
         {
           "visual": "06_mask_host",

@@ -551,7 +551,7 @@
       "section": "spaCR",
       "description": "Percorra todos os módulos atuais de Home da esquerda para a direita; depois, aprenda os controles comuns usando Mask e ajuste a navegação, a ajuda e a aparência.",
       "objectives": [
-        "Identificar cada módulo das linhas atuais Core, Data, Tools e Organism.",
+        "Identificar cada módulo das linhas atuais Core, Data e Tools.",
         "Usar Mask para reconhecer configurações, prévias, ações e resultados comuns.",
         "Voltar a Home, usar a pesquisa e organizar os painéis.",
         "Escolher as configurações de aparência e desempenho."
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data, Tools e Organism. Cada bloco abre seu módulo. A barra lateral oferece as mesmas rotas, e Home retorna a esta visão geral.",
+          "narration": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data e Tools. Cada bloco abre seu módulo. A barra lateral oferece as mesmas rotas, e Home retorna a esta visão geral.",
           "hold_after": 0.7,
-          "speech_text": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data, Tools e Organism. Cada bloco abre seu módulo. A barra lateral oferece as mesmas rotas, e Home retorna a esta visão geral."
+          "speech_text": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data e Tools. Cada bloco abre seu módulo. A barra lateral oferece as mesmas rotas, e Home retorna a esta visão geral."
         },
         {
           "visual": "home_module_mask",
@@ -601,18 +601,6 @@
           "speech_text": "Annotate permite inspecionar recortes de objetos e registrar rótulos revisados para exemplos."
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify treina um modelo com rótulos revisados e pontua outros objetos usando imagens recortadas ou características medidas.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ],
-          "speech_text": "Classify treina um modelo com rótulos revisados e pontua outros objetos usando imagens recortadas ou características medidas."
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes lê dados de sequenciamento para contar e identificar guias ou códigos de barras.",
           "hold_after": 0.7,
@@ -649,18 +637,6 @@
           "speech_text": "Import prepara os arquivos de microscopia e metadados recebidos para a estrutura do projeto."
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings codifica recortes de objetos em características numéricas para exploração e comparação.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings codifica recortes de objetos em características numéricas para exploração e comparação."
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare reúne resultados salvos de execuções para examinar suas diferenças.",
           "hold_after": 0.7,
@@ -673,18 +649,6 @@
           "speech_text": "Run Compare reúne resultados salvos de execuções para examinar suas diferenças."
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design organiza condições, poços e identidades de amostras antes de um experimento.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design organiza condições, poços e identidades de amostras antes de um experimento."
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design explora hipóteses de tamanho amostral e poder estatístico ao planejar comparações.",
           "hold_after": 0.7,
@@ -695,30 +659,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design explora hipóteses de tamanho amostral e poder estatístico ao planejar comparações."
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response ajusta respostas entre concentrações, mantendo explícitos o desfecho e os controles escolhidos.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response ajusta respostas entre concentrações, mantendo explícitos o desfecho e os controles escolhidos."
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC lista os relatórios de qualidade salvos de um projeto e marca os que estão faltando.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC lista os relatórios de qualidade salvos de um projeto e marca os que estão faltando."
         },
         {
           "visual": "home_module_make_masks",
@@ -757,18 +697,6 @@
           "speech_text": "Image iu mép projeta características de objetos para explorar objetos semelhantes e inspecionar recortes representativos."
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor define seleções em colunas reais de dados. Revise os objetos selecionados antes de transformar uma seleção em rótulos.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "gueit éditor define seleções em colunas reais de dados. Revise os objetos selecionados antes de transformar uma seleção em rótulos."
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder cria gráficos a partir de tabelas de medidas com colunas e agrupamentos configuráveis.",
           "hold_after": 0.7,
@@ -779,18 +707,6 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder cria gráficos a partir de tabelas de medidas com colunas e agrupamentos configuráveis."
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "A linha Organism contém Toxoplasma. Ela abre um guia do organismo, um diagrama interativo e as rotas de ensaios disponíveis. O tutorial Toxoplasma explora essa página separadamente.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
-          ],
-          "speech_text": "A linha Organism contém Toxoplasma. Ela abre um guia do organismo, um diagrama interativo e as rotas de ensaios disponíveis. O tutorial Toxoplasma explora essa página separadamente."
         },
         {
           "visual": "06_mask_host",

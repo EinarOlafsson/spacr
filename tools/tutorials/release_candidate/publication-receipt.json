@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "tutorial-n676-phase1-20261011-r1",
+  "branch": "tutorial-05-home-20261013-r20",
   "base_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636",
-  "commit": "037c3032722e12269c86be0a8e5aee162f14e6bc",
-  "tag": "tutorial-n676-phase1-20261011-r1-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/037c3032722e12269c86be0a8e5aee162f14e6bc",
-  "manifest_sha256": "0815de2fc5a870abf9fff7c39ae38e89a5964d8f5cc9a57890fe0c09acad89eb",
+  "commit": "93592c9271477ef2f4570d444e67381b09eccdb3",
+  "tag": "tutorial-05-home-20261013-r20-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/93592c9271477ef2f4570d444e67381b09eccdb3",
+  "manifest_sha256": "b38b9941f26b8722d006b3bf654231c067075de129de2227aede60995e3d8c90",
   "media_files": 5087,
-  "media_bytes": 6655476090,
+  "media_bytes": 6789646075,
   "readback": {
-    "commit": "037c3032722e12269c86be0a8e5aee162f14e6bc",
+    "commit": "93592c9271477ef2f4570d444e67381b09eccdb3",
     "files_expected": 5087,
     "metadata_matched": 5087,
     "metadata_failures": [],
-    "bytes_read_back": 6655476090,
+    "bytes_read_back": 6789646075,
     "downloaded_sha256_matched": 5087,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -3258,16 +3258,16 @@
       "73_parameter_sweep/audio/en/bm_lewis.m4a",
       "README.md"
     ],
-    "seconds": 387.5,
+    "seconds": 418.8,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
-    "bundled_tutorial_index_sha256": "30ce3eea02ab3f14d29909d9621f1074c44b5fdd1165fb6439c87d752c816c36",
-    "index_sha256": "9ed99b88ecd4781c660d601524873f8e07bb526355c8b3149512ff6d2a14199d",
-    "candidate_index_sha256": "d84cd80adfd9a3be6b644d6f1da590d47e9707800cfc1520ae10e437c7fa40ab",
-    "cache_key": "tutorial-n676-phase1-20261011-r1",
+    "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
+    "index_sha256": "9fae219eb05cffdb923e791986d35cb08ec2f82bdddeff4597b432abee81e4de",
+    "candidate_index_sha256": "2ec93b591d002b2958760292aec8f59af4a5c9e1e413a37df69e6f252bc74137",
+    "cache_key": "tutorial-05-home-20261013-r20-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -3276,14 +3276,14 @@
     "versioned_assets": {
       "app_v2.js": "live-tv-20261009-r1",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "tutorial-n676-phase1-20261011-r1",
-      "module_navigation.js": "tutorial-n676-phase1-20261011-r1",
+      "lesson_catalog.js": "tutorial-05-home-20261013-r20-verified",
+      "module_navigation.js": "tutorial-05-home-20261013-r20-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt3/claude/n676_stages/stage-r1/release-candidate-append-3vlp_ef1/retired-pages",
+      "directory": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-r20/release-candidate-append-hf8omkgo/retired-pages",
       "files": []
     },
     "ready": 84,
