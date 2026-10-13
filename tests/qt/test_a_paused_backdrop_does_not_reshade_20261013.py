@@ -11,7 +11,9 @@ worker one impulse-lens frame took 250-350 ms.
 
 A backdrop that stops while on screen now keeps the frame it was showing
 and blits it again; any change to the engine drops it, and a hidden one
-keeps nothing.
+keeps nothing. Since 2026-10-13 a CPU-heavy run paces the backdrop instead
+of stopping it; the still serves a backdrop stopped on screen otherwise
+(animation off, reduced motion).
 """
 from __future__ import annotations
 
@@ -31,20 +33,6 @@ from spacr.qt.widgets import ambient                                # noqa: E402
 pytestmark = pytest.mark.qt
 
 THEME = "data_art_impulse_lens"
-
-
-class _Busy:
-    """The workload policy while a CPU-heavy run goes."""
-
-    enabled = True
-    cpu_busy = True
-    gpu_busy = False
-
-    def pauses_animation(self):
-        return True
-
-    def blocks_gpu(self):
-        return True
 
 
 @pytest.fixture(autouse=True)
@@ -99,8 +87,14 @@ def _count_shading(monkeypatch, widget):
 
 
 def _pause_for_a_run(monkeypatch, widget):
-    monkeypatch.setattr(ambient, "_RESOURCE_POLICY", _Busy())
-    widget._sync_run_state()
+    """Stop the backdrop while it stays on screen.
+
+    A CPU-heavy run paced the backdrop to ``_RUN_FPS`` instead of stopping
+    it from 2026-10-13 (lessons 07 and 08 showed a frozen field), so the
+    still is reached the other ways a backdrop on screen stops: the
+    animation switched off here, or reduced motion.
+    """
+    widget.set_animating(False)
 
 
 def _grab(widget):

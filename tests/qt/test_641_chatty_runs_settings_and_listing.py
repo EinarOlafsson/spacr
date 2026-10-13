@@ -144,16 +144,16 @@ def test_the_backdrop_slows_while_a_run_holds_the_interpreter(qtbot):
     from spacr.qt import gil_priority
     from spacr.qt.widgets.ambient import _RUN_FPS, AmbientWidget
 
-    widget = AmbientWidget(fps=24)
+    widget = AmbientWidget(fps=60)
     qtbot.addWidget(widget)
     widget._follow_the_run()
-    assert widget._rate() == 24
+    assert widget._rate() == 60
     with gil_priority.responsive_gui():
         widget._follow_the_run()
-        assert widget._rate() == _RUN_FPS
+        assert widget._rate() == _RUN_FPS < 60
         assert widget._timer.interval() == 1000 // _RUN_FPS
     widget._follow_the_run()
-    assert widget._rate() == 24
+    assert widget._rate() == 60
 
 
 def test_the_desktop_notifier_never_holds_the_interface(monkeypatch):

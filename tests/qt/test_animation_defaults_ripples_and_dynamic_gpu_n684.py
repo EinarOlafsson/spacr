@@ -294,15 +294,19 @@ def test_gpu_jobs_without_a_gpu_count_as_cpu_work():
     assert ambient._job_resource("mask", False) == "cpu"
 
 
-def test_cpu_job_pauses_and_restores_animation(jobs, qtbot):
+def test_cpu_job_paces_and_restores_animation(jobs, qtbot):
+    """A CPU job slows the field to ``_RUN_FPS``; it no longer freezes it."""
     registry, policy = jobs
     _host, field = _field(qtbot)
     assert field._should_run()
+    idle = field._rate()
     job = registry.start("measure")
     assert policy.pauses_animation() and policy.blocks_gpu()
-    assert not field._should_run() and not field.is_running()
+    assert field._should_run() and field.is_running()
+    assert field._rate() == min(idle, ambient._RUN_FPS)
     registry.finish(job)
     assert field._should_run() and field.is_running()
+    assert field._rate() == idle
     assert not ambient._decorative_gpu_blocked()
 
 
@@ -356,8 +360,10 @@ def test_policy_off_disables_workload_rules_and_saves_nothing(jobs, qtbot, store
     policy.set_enabled(False)
     assert field._should_run() and not ambient._decorative_gpu_blocked()
     assert not ambient._dynamic_animation_on()
+    assert not field._run_paced
     policy.set_enabled(True)
-    assert not field._should_run()
+    assert field._should_run() and field._run_paced
+    assert ambient._decorative_gpu_blocked()
     after = {key: store.value(key) for key in store.allKeys()}
     assert after == before
 

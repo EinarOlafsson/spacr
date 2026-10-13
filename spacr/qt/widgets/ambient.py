@@ -203,6 +203,7 @@ selected population into that buffer or directly at full Detail.
 """
 from __future__ import annotations
 
+import atexit
 import logging
 from .. import _after
 import math
@@ -656,7 +657,15 @@ def dressed(theme: str, palette: str) -> Tuple[str, str]:
 #: Frame-rate cap: 30, the rate the tutorial capture records the field at.
 DEFAULT_FPS = 30
 FIELD_FPS = 60
-_RUN_FPS = 4
+
+#: Frame cap while a run goes: a pipeline holding
+#: :func:`spacr.qt.gil_priority.active`, or a CPU-heavy job the Dynamic
+#: animation policy yields to. Half the field's rate and the rate the
+#: tutorial capture records at, so the backdrop keeps moving smoothly instead
+#: of freezing (4 fps, and a stopped field for CPU jobs, read as a frozen
+#: backdrop in lessons 07 and 08). Measured on lesson 08's Measure run, see
+#: ``tests/qt/test_the_field_keeps_moving_during_a_run_20261013.py``.
+_RUN_FPS = 30
 MIN_FPS = 1
 MAX_FPS = 60
 
@@ -1785,7 +1794,11 @@ class _GraphicsBackend:
             self._point_graphics = None
 
     def _refuse(self, reason):
-        """Record why this frame stays on the CPU; log each new reason once."""
+        """Record why this frame stays on the CPU; log each new reason once.
+
+        The warning names the renderer too: ``<theme> animation stays on the
+        CPU: <reason>``.
+        """
         if reason != self._graphics_refusal:
             self._graphics_refusal = reason
             key = (getattr(self, "name", type(self).__name__), reason)
@@ -1803,6 +1816,7 @@ class _GraphicsBackend:
         if mode not in ('auto', 'gpu'):
             self._release_point_graphics()
             self._graphics_refusal = None
+            _log_renderer(self, 'CPU (Animation GPU is off)')
             return None
         if threading.current_thread().name != 'spacr-ambient-shade':
             return None
@@ -1814,6 +1828,7 @@ class _GraphicsBackend:
         if mode == 'auto' and not self._graphics_automatic(width, height, work):
             self._release_point_graphics()
             self._graphics_refusal = 'automatic chose the CPU'
+            _log_renderer(self, 'CPU (Automatic chose the CPU)')
             return None
         if _decorative_gpu_blocked():
             self._release_point_graphics()
@@ -1832,6 +1847,9 @@ class _GraphicsBackend:
         if self._point_graphics is None:
             try:
                 self._point_graphics = _FlowPointGraphics()
+                _log_renderer(self, 'GPU (moderngl over %s, %s)' % (
+                    _graphics_context_options().get('backend', 'the platform context'),
+                    getattr(self._point_graphics, 'renderer', 'unknown renderer')))
             except Exception as error:
                 LOG.debug('flow graphics unavailable; retaining CPU material',
                           exc_info=True)
@@ -1869,6 +1887,21 @@ class _GraphicsBackend:
 #: ``(theme, reason)`` pairs already logged, so each is reported once.
 _GRAPHICS_REFUSALS_LOGGED: set = set()
 
+#: ``(theme, renderer)`` pairs already logged by :func:`_log_renderer`.
+_RENDERERS_LOGGED: set = set()
+
+
+def _log_renderer(engine, renderer: str) -> None:
+    """Write which renderer ``engine``'s animation uses to ``spacr.log``, once.
+
+    :param engine: the engine whose theme is named in the line.
+    :param renderer: ``"GPU (...)"`` or ``"CPU (...)"`` with the reason.
+    """
+    key = (getattr(engine, "name", type(engine).__name__), renderer)
+    if key not in _RENDERERS_LOGGED:
+        _RENDERERS_LOGGED.add(key)
+        LOG.info("%s animation renderer: %s", *key)
+
 
 def _flow_graphics_possible() -> bool:
     """Cheap check whether a graphics renderer could exist in this process.
@@ -1877,7 +1910,7 @@ def _flow_graphics_possible() -> bool:
     Used where the CPU path would otherwise change shape (the stratified
     theme only gets a shading thread for its graphics path).
     """
-    if _FLOW_GRAPHICS_PROBE is False:
+    if _FLOW_GRAPHICS_PROBE is False or os.environ.get("SPACR_NO_GL"):
         return False
     import importlib.util
 
@@ -5650,13 +5683,16 @@ def _flow_graphics_preflight():
     dependency, unsupported driver, software renderer, timeout or failed
     child keeps the CPU renderer. The probe runs in a child so a driver
     crash during context creation cannot take the application down.
+    ``SPACR_NO_GL`` (safe mode, crash recovery) keeps it without probing.
     """
     global _FLOW_GRAPHICS_PROBE
     import importlib.util
     import subprocess
 
     with _FLOW_GRAPHICS_PROBE_LOCK:
-        if _FLOW_GRAPHICS_PROBE is None and importlib.util.find_spec("moderngl") is None:
+        if _FLOW_GRAPHICS_PROBE is None and (
+                os.environ.get("SPACR_NO_GL")
+                or importlib.util.find_spec("moderngl") is None):
             _FLOW_GRAPHICS_PROBE = False
         if _FLOW_GRAPHICS_PROBE is None:
             script = (
@@ -6094,6 +6130,10 @@ class _FlowPointGraphics:
                 self._program, [(self._vertices, '3i', 'position')])
             self._resources.append(self._vao)
             self._context.enable(moderngl.PROGRAM_POINT_SIZE | moderngl.BLEND)
+            try:
+                self.renderer = str(self._context.info.get('GL_RENDERER', 'unknown renderer'))
+            except Exception:
+                self.renderer = 'unknown renderer'
         except Exception:
             self._close()
             raise
@@ -9139,6 +9179,9 @@ class _FrameProducer:
         #: ``(plan, composited image, frame)`` for the newest published
         #: frame, or ``None`` when it was published without cards.
         self.composed = None
+        #: The owning backdrop's one-element producer box, or ``None``;
+        #: :func:`_retire_shading_threads` empties it when it retires this.
+        self.box: Optional[List[Optional["_FrameProducer"]]] = None
 
     def start(self) -> None:
         """Begin shading. A second call is a no-op."""
@@ -9146,6 +9189,7 @@ class _FrameProducer:
             return
         self._thread = threading.Thread(
             target=self._run, name="spacr-ambient-shade", daemon=True)
+        _LIVE_PRODUCERS.add(self)
         self._thread.start()
 
     def stop(self) -> None:
@@ -9257,6 +9301,98 @@ class _FrameProducer:
                 release = getattr(self._engine, '_release_point_graphics', None)
                 if release is not None:
                     release()
+
+
+#: Every shading thread started in this process that may still be running.
+#: A running thread holds its producer through its target, so a producer
+#: leaves this set only once its thread has ended and nothing else keeps it.
+_LIVE_PRODUCERS: "weakref.WeakSet[_FrameProducer]" = weakref.WeakSet()
+
+#: Set once the application is quitting: no backdrop starts a shading thread
+#: (and with it a graphics context) after that.
+_SHADING_RETIRED = [False]
+
+#: How long the quit path waits, in all, for every shading thread to end.
+SHADING_EXIT_BUDGET_S = 3.0
+
+
+def _retire_shading_threads(timeout_s: float = SHADING_EXIT_BUDGET_S,
+                            final: bool = False) -> int:
+    """Stop every backdrop shading thread before the application is torn down.
+
+    Each thread releases its own GPU renderer (:class:`_FlowPointGraphics`:
+    the moderngl context over EGL, its framebuffer, textures and programs)
+    as it ends, on the thread that created and owns that context. Doing this
+    while ``QApplication`` and the interpreter are still whole is the point:
+    left to interpreter finalization, a daemon shading thread can still be
+    inside the driver, or the context is collected on another thread after
+    the GL libraries started unloading, and the process ends with SIGSEGV
+    ("<no Python frame>") after a clean quit.
+
+    Called from ``aboutToQuit``, from :func:`spacr.qt.app.launch` once the
+    event loop has returned, and, ``final``, from an ``atexit`` hook
+    registered after PySide6's own, so it runs before Qt's teardown. Each
+    retired thread is taken out of its backdrop, so a backdrop that is still
+    shown afterwards (a test that emitted ``aboutToQuit``) shades on demand
+    or starts a new thread when it is next started; after the final call no
+    backdrop starts one.
+
+    :param timeout_s: total wait, in seconds, shared by every thread.
+    :param final: the interpreter is exiting: no shading thread starts again.
+    :returns: how many shading threads are still running afterwards.
+    """
+    if final:
+        _SHADING_RETIRED[0] = True
+    producers = list(_LIVE_PRODUCERS)
+    for producer in producers:
+        producer._stop.set()
+        producer._wake.set()
+        box = producer.box
+        if box is not None and box and box[0] is producer:
+            box[0] = None
+    deadline = time.monotonic() + max(0.0, float(timeout_s))
+    current = threading.current_thread()
+    for producer in producers:
+        thread = producer._thread
+        if thread is not None and thread is not current and thread.is_alive():
+            thread.join(max(0.0, deadline - time.monotonic()))
+    alive = sum(1 for producer in producers if producer.is_alive())
+    if alive:
+        LOG.warning("%d backdrop shading thread(s) did not stop before exit",
+                    alive)
+    return alive
+
+
+def _retire_shading_at_exit() -> None:
+    """``atexit`` hook: the final :func:`_retire_shading_threads`, never raising."""
+    try:
+        _retire_shading_threads(final=True)
+    except Exception:
+        pass
+
+
+def _retire_shading_on_about_to_quit() -> None:
+    """``aboutToQuit`` slot: :func:`_retire_shading_threads`, never raising."""
+    try:
+        _retire_shading_threads()
+    except Exception:
+        pass
+
+
+atexit.register(_retire_shading_at_exit)
+
+_QUIT_HOOKED = [None]
+
+
+def _retire_shading_on_quit(app) -> None:
+    """Connect :func:`_retire_shading_threads` to ``app``'s ``aboutToQuit`` once."""
+    if app is None or _QUIT_HOOKED[0] is app:
+        return
+    try:
+        app.aboutToQuit.connect(_retire_shading_on_about_to_quit)
+        _QUIT_HOOKED[0] = app
+    except (RuntimeError, TypeError, AttributeError):
+        pass
 
 
 def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
@@ -10831,10 +10967,16 @@ class AmbientWidget(QWidget):
             self._timer.setInterval(interval)
 
     def _follow_the_run(self) -> None:
-        """Slow down when a run starts and speed up when it ends."""
+        """Slow down when a run starts and speed up when it ends.
+
+        A run is a pipeline holding the responsive-GUI claim or a CPU-heavy
+        job the Dynamic animation policy yields to
+        (:func:`_animation_paused_for_work`); either paces the backdrop to
+        :data:`_RUN_FPS` rather than stopping it.
+        """
         from ..gil_priority import active
 
-        paced = bool(active())
+        paced = bool(active() or _animation_paused_for_work())
         if paced != self._run_paced:
             self._run_paced = paced
             self._apply_rate()
@@ -10948,11 +11090,12 @@ class AmbientWidget(QWidget):
         That is the pass the first ``paintEvent`` used to do anyway, moved a
         few microseconds earlier.
         """
-        if self._producer_box[0] is not None:
+        if self._producer_box[0] is not None or _SHADING_RETIRED[0]:
             return
         engine = self._engine
         if not isinstance(engine, _BufferedEngine) and not self._stars_on_graphics():
             return
+        _retire_shading_on_quit(QApplication.instance())
         size = self._art_render_size(self.width(), self.height())
         producer = _FrameProducer(engine, self._engine_lock, self._rate(),
                                   size, queued_input=self._art_input or self._legacy_input)
@@ -10971,6 +11114,7 @@ class AmbientWidget(QWidget):
         producer.tick_driven = (producer.doorbell is not None
                                 and self.__dict__.get("_art_input") is not None)
         self._producer_box[0] = producer
+        producer.box = self._producer_box
         producer.start()
 
     def _stars_on_graphics(self) -> bool:
@@ -11009,7 +11153,8 @@ class AmbientWidget(QWidget):
 
         FALSE WHEN HIDDEN OR OFF-SCREEN. This is a backdrop: it must not take
         frames from whatever the user is doing in front of it, and a widget
-        nobody can see has nothing to show for the cost.
+        nobody can see has nothing to show for the cost. A run does not stop
+        it: :meth:`_follow_the_run` paces it to :data:`_RUN_FPS` instead.
 
         :returns: True when the timer should keep firing.
         """
@@ -11017,7 +11162,7 @@ class AmbientWidget(QWidget):
             return False
         from ..preferences import get_reduce_motion
 
-        if _animation_paused_for_work() or get_reduce_motion():
+        if get_reduce_motion():
             return False
         window = self.window()
         if window is not None and window.isMinimized():
@@ -11025,7 +11170,12 @@ class AmbientWidget(QWidget):
         return True
 
     def _sync_run_state(self) -> None:
-        """Start or stop the timer to match visibility. The CPU guarantee."""
+        """Start or stop the timer to match visibility. The CPU guarantee.
+
+        The frame cap follows the run first, so a CPU-heavy job starting
+        slows a running backdrop at once rather than at its next tick.
+        """
+        self._follow_the_run()
         if self._should_run():
             self.start()
         else:
@@ -12170,8 +12320,10 @@ class _AnimationResourcePolicy(QObject):
     ending never releases a guard another job still holds. Housekeeping
     jobs (``user_visible`` false) and unknown keys are ignored.
 
-    A CPU-heavy job pauses every animation; a GPU job switches decorative
-    rendering to the CPU and pauses GPU-backed spaceout fractals. CPU work
+    A CPU-heavy job pauses the spaceout fractals and paces every backdrop
+    to :data:`_RUN_FPS` (it keeps moving; a frozen backdrop reads as a hung
+    application); a GPU job switches decorative rendering to the CPU and
+    pauses GPU-backed spaceout fractals. CPU work
     takes precedence when both run. Nothing is written to Preferences:
     the user's saved theme and backend come back when the jobs end.
     External or headless processes are seen only on NVIDIA hardware,

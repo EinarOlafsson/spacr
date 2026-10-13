@@ -7774,6 +7774,25 @@ def _queue_ambient_compilation() -> None:
     QTimer.singleShot(0, _complete_ambient_startup)
 
 
+def _tear_down_before_finalization() -> None:
+    """Stop the backdrop shading threads once the event loop has returned.
+
+    ``aboutToQuit`` does this already; this covers a loop that returned
+    without it, before anything is left to interpreter finalization. Each
+    shading thread is joined and releases its moderngl/EGL context on
+    itself (:func:`spacr.qt.widgets.ambient._retire_shading_threads`). On
+    a real-GPU capture host the process otherwise ended with SIGSEGV
+    ("<no Python frame>") after a clean quit, with ``moderngl.mgl`` and
+    ``glcontext.egl`` loaded.
+    """
+    try:
+        from .widgets.ambient import _retire_shading_threads
+
+        _retire_shading_threads()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not stop the backdrop shading threads", exc_info=True)
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
@@ -8014,6 +8033,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _TimingQTimer.singleShot(0, _timing.event_loop_started)
     try:
         code = app.exec()
+        _tear_down_before_finalization()
         try:
             from .crash_recovery import note_a_clean_shutdown
 
