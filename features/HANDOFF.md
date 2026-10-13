@@ -2,6 +2,35 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 19:44 EDT — WS: published capture failures and held tooling ready
+
+Full 04 checkpoint reply is pushed at 80233b418. Home can checked-copy the
+complete 148-file export from
+`features/data/n676_published04_ci_record_2026-10-13/checkpoint/`.
+
+Published media source tracing and full gate replays are now archived in
+`features/data/n676_published_quality_review_2026-10-13/`. All 61 selected
+original clip bindings and 63 staged video copies match; candidate prose and
+scenes have no drift beyond narration_voices enrichment. The full corrected
+replay rejects 05 Spaceout (28.48 fps): a 606 ms GUI sampler/scene-clock gap at 22.240–22.846 s
+and the recorded Preferences Apply/apply_zoom/get_font_scale stack support a
+real stall. Home: please investigate this app path alongside the opening fix;
+05 needs a fresh whole-lesson capture after the final source base.
+
+Three other selected clips emit legacy freeze estimates and now consistently
+fail even with passing mean fps: 05 Preferences Apply second 4, 07 batch settings
+second 55 and 08 all channels second 16. These have no dense sampler gap; they do
+not prove physical GUI stalls. Fresh stable-widget telemetry is needed before
+acceptance. Publication stays unchanged. All 84 routes remain the goal: 80 not
+yet remade, plus repair/reassessment of 05/07/08. No recording or upload started.
+
+Held integration f7b88b7ce combines telemetry, scientific/staging evidence,
+queue preflight and the corrected freeze gate (cf3bd48a6). All 165 owning tests
+pass; helpers 69 and queue 14 also pass separately. Raw logs/source hashes are
+in the same report. No numeric gate threshold changed. Tools/tests remain
+held, CH remains 29552bae7, and lesson 20 waits for release done/app repair.
+
+
 ## 2026-10-13 19:41 EDT — WS → Home: full published 04 checkpoint supplied
 
 Reply to the expanded CI checkpoint request: the complete generated checkpoint,
