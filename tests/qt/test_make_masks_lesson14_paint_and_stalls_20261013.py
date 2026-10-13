@@ -197,6 +197,7 @@ def test_a_resize_scales_the_kept_picture_instead_of_composing_again(
         return real(*args)
 
     monkeypatch.setattr(mm, "_canvas_picture", counting)
+    canvas._composed = None
     canvas.refresh()
     assert composed == [1]
     shown = canvas.pixmap().toImage()
@@ -205,6 +206,7 @@ def test_a_resize_scales_the_kept_picture_instead_of_composing_again(
     assert composed == [1], "a resize composed the whole field again"
     assert canvas.pixmap().toImage() == shown
     canvas.mask = canvas.mask.copy()
+    canvas.mask[40:50, 60:70] = 0
     canvas.resize(1280, 1130)
     assert composed == [1, 1], "a resize kept a picture of another mask"
     canvas.norm_hi = 99.0
@@ -537,3 +539,136 @@ def test_a_divide_stroke_gives_the_whole_field_answer_from_each_box():
     fast = _best(lambda: engine._divide_or_cut(big_labels, *stroke))
     slow = _best(lambda: _old_divide_or_cut(big_labels, *stroke))
     assert fast <= 0.5 * slow, f"{fast * 1000:.0f} ms against {slow * 1000:.0f} ms"
+
+
+# ---------------------------------------------------------------------------
+# An edit recomposes the labels it changed, not the field
+# ---------------------------------------------------------------------------
+
+def _full_picture(canvas):
+    """The canvas's picture composed from nothing, as raw RGB32 bytes."""
+    canvas._composed = None
+    canvas.refresh()
+    return canvas._composed[2].copy()
+
+
+def test_an_edit_recomposes_only_the_box_of_labels_it_changed(field_canvas, monkeypatch):
+    canvas = field_canvas
+    shapes = []
+    real = mm._canvas_picture
+
+    def recording(view, labels, low, high):
+        shapes.append(view.shape)
+        return real(view, labels, low, high)
+
+    monkeypatch.setattr(mm, "_canvas_picture", recording)
+    whole = _full_picture(canvas).shape
+    assert shapes == [whole]
+    edits = []
+    erased = canvas.mask.copy()
+    erased[erased == erased[1029, 1029]] = 0
+    assert erased[1029, 1029] == 0 and canvas.mask[1029, 1029] > 0
+    edits.append(("an erase that replaces the mask", erased))
+    added = erased.copy()
+    added[300:340, 900:980] = added.max() + 1
+    edits.append(("a new object above every label", added))
+    edits.append(("an undo back to the first array", canvas.mask))
+    for what, mask in edits:
+        shapes.clear()
+        canvas.mask = mask
+        canvas.refresh()
+        assert len(shapes) == 1 and shapes[0][0] * shapes[0][1] < whole[0] * whole[1] / 20, (
+            f"{what} composed {shapes} of a {whole} picture")
+        kept = canvas._composed[2].copy()
+        monkeypatch.setattr(mm, "_canvas_picture", real)
+        np.testing.assert_array_equal(kept, _full_picture(canvas), err_msg=what)
+        monkeypatch.setattr(mm, "_canvas_picture", recording)
+    shapes.clear()
+    canvas.mask[1500:1520, 200:260] = 3
+    canvas.refresh()
+    assert len(shapes) == 1 and shapes[0] != whole, "a stroke painted in place recomposed the field"
+    kept = canvas._composed[2].copy()
+    monkeypatch.setattr(mm, "_canvas_picture", real)
+    np.testing.assert_array_equal(kept, _full_picture(canvas))
+    monkeypatch.setattr(mm, "_canvas_picture", recording)
+    shapes.clear()
+    canvas.refresh()
+    assert shapes == [], "a refresh with nothing changed composed again"
+    canvas.norm_lo = 5.0
+    canvas.refresh()
+    assert shapes == [whole], "other levels kept the picture of the old ones"
+
+
+def test_a_label_colour_does_not_depend_on_how_many_labels_there_are():
+    """What lets a box be composed alone: the palette of n is a prefix of any longer one."""
+    longest = np.random.default_rng(0).integers(30, 255, size=(70001, 3), dtype=np.uint8)
+    for count in list(range(1, 300)) + [1023, 1024, 1025, 4097, 65535, 65536, 70001]:
+        np.testing.assert_array_equal(
+            np.random.default_rng(0).integers(30, 255, size=(count, 3), dtype=np.uint8),
+            longest[:count], err_msg=f"{count} labels")
+
+
+@pytest.mark.parametrize("keep_every", [1, 3, 40])
+def test_the_blend_is_the_float_one_dense_or_sparse(keep_every):
+    image, labels = _field(400, seed=21)
+    labels = np.where(labels % keep_every == 0, labels, 0).astype(labels.dtype)
+    lo, hi = engine._percentile_bounds(image, 1.0, 99.9)
+    for view, part in ((image, labels), (image.T, labels.T), (image[::3, 1::2], labels[::3, 1::2])):
+        np.testing.assert_array_equal(
+            mm._canvas_picture(view, part, lo, hi),
+            mm._rgb32(_old_overlay(_old_stretch(view, lo, hi), part)))
+
+
+# ---------------------------------------------------------------------------
+# A painter outlived by its frame is already ended
+# ---------------------------------------------------------------------------
+
+def _recording_painters(monkeypatch, module):
+    """Every QPainter ``module`` makes from now on, kept alive here."""
+    from PySide6.QtGui import QPainter
+
+    made = []
+
+    class Recording(QPainter):
+        def __init__(self, *args):
+            super().__init__(*args)
+            made.append(self)
+
+    monkeypatch.setattr(module, "QPainter", Recording)
+    return made
+
+
+def test_no_painter_is_still_active_once_a_paint_returns(qtbot, qt_theme_applied, monkeypatch):
+    """A frame kept by a sampler or a traceback keeps its QPainter alive.
+
+    The stack sampler of the lesson 14 harness held the GUI thread's last
+    frame: a switch's or the canvas's painter stayed active past the paint
+    ("QBackingStore::endPaint() called with active painter") and was then
+    destroyed on the sampler's thread, a segmentation fault in the next
+    window repaint. Ended painters make that harmless.
+    """
+    from spacr.qt.widgets import toggle as toggle_module
+
+    made = _recording_painters(monkeypatch, toggle_module)
+    switch = toggle_module.Toggle("A switch")
+    qtbot.addWidget(switch)
+    switch.resize(200, 30)
+    switch.grab()
+    assert made and not any(p.isActive() for p in made), "the switch left its painter active"
+
+    made = _recording_painters(monkeypatch, mm)
+    canvas = mm._MaskCanvas()
+    qtbot.addWidget(canvas)
+    canvas.resize(400, 400)
+    image, labels = _field(200, seed=4)
+    canvas.set_image_and_mask(image, labels)
+    canvas.recrop_boxes = [(10, 10, 60, 60, "crop_1")]
+    canvas.mode = mm.MODE_DIVIDE
+    from PySide6.QtCore import QPoint
+
+    canvas._gesture_points = [QPoint(100, 200), QPoint(300, 210), QPoint(250, 300)]
+    canvas.grab()
+    canvas.mode = mm.MODE_DRAW
+    canvas.grab()
+    assert len(made) >= 3 and not any(p.isActive() for p in made), (
+        "a canvas paint left a painter active")

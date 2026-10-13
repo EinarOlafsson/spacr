@@ -97,12 +97,15 @@ class Toggle(QCheckBox):
         if lent and not self.text():
             return
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        palette = _painting_palette()
-        if not lent:
-            self._paint_switch(painter, palette)
-        if self.text():
-            self._paint_caption(painter, palette)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            palette = _painting_palette()
+            if not lent:
+                self._paint_switch(painter, palette)
+            if self.text():
+                self._paint_caption(painter, palette)
+        finally:
+            painter.end()
 
     def _paint_switch(self, painter: QPainter, palette: dict) -> None:
         """Draw the track and the knob.

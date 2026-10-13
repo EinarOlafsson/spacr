@@ -1788,11 +1788,13 @@ class _MaskCanvas(QLabel):
         The picture is composed by :func:`_canvas_picture` in Qt's own 32-bit
         pixel, and kept with what it was composed from, so a resize that
         leaves the stride unchanged only scales it again
-        (:meth:`resizeEvent`).
+        (:meth:`resizeEvent`). An edit that leaves the field, the view and
+        the levels as they were recomposes only the box of labels it changed
+        (:meth:`_recompose_changed`).
         """
         self._lookup_dirty = True
         self._schedule_readout()
-        self._composed = None
+        kept, self._composed = self._composed, None
         if self.image is None or self.mask is None:
             return
         source = (self.enhanced_picture() if self.enhance_display
@@ -1806,14 +1808,64 @@ class _MaskCanvas(QLabel):
         step = engine._display_step(x1 - x0, y1 - y0, avail_w * ratio,
                                    avail_h * ratio)
         lo, hi = self._display_bounds(source)
-        picture = _canvas_picture(source[y0:y1:step, x0:x1:step],
-                                  self.mask[y0:y1:step, x0:x1:step], lo, hi)
+        view = source[y0:y1:step, x0:x1:step]
+        labels = self.mask[y0:y1:step, x0:x1:step]
+        key = self._composed_key(source, step)
+        reused = self._recompose_changed(kept, key, view, labels, (lo, hi))
+        if reused is None:
+            picture = _canvas_picture(view, labels, lo, hi)
+            shown = np.array(labels, copy=True)
+        else:
+            picture, shown = reused
         h, w = picture.shape[:2]
         if w <= 0 or h <= 0:
             return
         qimg = QImage(picture.data, w, h, 4 * w, QImage.Format_RGB32).copy()
-        self._composed = (self._composed_key(source, step), qimg)
+        self._composed = (key, qimg, picture, shown, (lo, hi))
         self._show_composed(qimg, avail_w, avail_h)
+
+    def _recompose_changed(self, kept, key: tuple, view: np.ndarray,
+                           labels: np.ndarray, levels: tuple):
+        """The kept picture with only the labels that changed composed again.
+
+        Every pixel of the picture depends on its own intensity, its own
+        label and the levels alone, and a label's colour does not depend on
+        how many labels there are (the palette of ``n`` labels is the first
+        ``n`` of any longer one), so composing the box that holds every
+        changed label gives the same bytes as composing the whole field. An
+        erase, an undo or a Wand click on the lesson's 2,000 px field
+        recomposed four megapixels for a few thousand changed ones.
+
+        :param kept: the previous :attr:`_composed`, or None.
+        :param key: :meth:`_composed_key` for this refresh.
+        :param view: the intensities on screen, at the drawing stride.
+        :param labels: the labels over them.
+        :param levels: ``(lo, hi)`` the picture is stretched between.
+        :returns: ``(picture, shown labels)``, both updated in place, or
+            None when the whole picture must be composed.
+        """
+        if kept is None or len(kept) < 5:
+            return None
+        then, _, picture, shown, then_levels = kept
+        if (then[0] is not key[0] or then[1] is not key[1]
+                or then[3] != key[3] or then_levels != levels
+                or shown.shape != labels.shape or shown.dtype != labels.dtype
+                or picture.shape != labels.shape):
+            return None
+        changed = labels != shown
+        rows = np.flatnonzero(changed.any(axis=1))
+        if not rows.size:
+            return picture, shown
+        cols = np.flatnonzero(changed.any(axis=0))
+        r0, r1 = int(rows[0]), int(rows[-1]) + 1
+        c0, c1 = int(cols[0]), int(cols[-1]) + 1
+        if 2 * (r1 - r0) * (c1 - c0) > labels.size:
+            return None
+        patch = labels[r0:r1, c0:c1]
+        picture[r0:r1, c0:c1] = _canvas_picture(view[r0:r1, c0:c1], patch,
+                                                levels[0], levels[1])
+        shown[r0:r1, c0:c1] = patch
+        return picture, shown
 
     def _composed_key(self, source: np.ndarray, step: int) -> tuple:
         """What a composed picture depends on besides the canvas size.
@@ -2658,23 +2710,26 @@ class _MaskCanvas(QLabel):
                 or rendered is None or rendered.isNull():
             return
         painter = QPainter(self)
-        accent = QColor(active_palette()["accent"])
-        fill = QColor(accent)
-        fill.setAlpha(55)
-        for box in self.recrop_boxes:
-            x0, y0, x1, y1 = (int(v) for v in box[:4])
-            rect = QRect(self._image_to_canvas(x0, y0),
-                          self._image_to_canvas(x1, y1)).normalized()
-            painter.fillRect(rect, fill)
-            pen = QPen(accent)
-            pen.setWidth(2)
-            painter.setPen(pen)
-            painter.drawRect(rect)
-            name = str(box[4]) if len(box) > 4 else ""
-            if name:
-                painter.setPen(QPen(QColor(active_palette()["fg"])))
-                painter.drawText(rect.adjusted(6, 4, 0, 0),
-                                 Qt.AlignLeft | Qt.AlignTop, name)
+        try:
+            accent = QColor(active_palette()["accent"])
+            fill = QColor(accent)
+            fill.setAlpha(55)
+            for box in self.recrop_boxes:
+                x0, y0, x1, y1 = (int(v) for v in box[:4])
+                rect = QRect(self._image_to_canvas(x0, y0),
+                             self._image_to_canvas(x1, y1)).normalized()
+                painter.fillRect(rect, fill)
+                pen = QPen(accent)
+                pen.setWidth(2)
+                painter.setPen(pen)
+                painter.drawRect(rect)
+                name = str(box[4]) if len(box) > 4 else ""
+                if name:
+                    painter.setPen(QPen(QColor(active_palette()["fg"])))
+                    painter.drawText(rect.adjusted(6, 4, 0, 0),
+                                     Qt.AlignLeft | Qt.AlignTop, name)
+        finally:
+            painter.end()
 
     def _paint_gesture(self) -> None:
         """Draw the outline being traced, or the cut being aimed.
@@ -2687,24 +2742,28 @@ class _MaskCanvas(QLabel):
         if len(self._gesture_points) < 2:
             return
         painter = QPainter(self)
-        colour = QColor(active_palette()["accent"])
-        if self.mode == MODE_DIVIDE:
+        try:
+            colour = QColor(active_palette()["accent"])
+            if self.mode == MODE_DIVIDE:
+                pen = QPen(colour)
+                pen.setWidth(2)
+                pen.setStyle(Qt.SolidLine if self._gesture_button == Qt.RightButton
+                             else Qt.DashLine)
+                painter.setPen(pen)
+                painter.drawLine(self._gesture_points[0], self._gesture_points[-1])
+                return
             pen = QPen(colour)
             pen.setWidth(2)
-            pen.setStyle(Qt.SolidLine if self._gesture_button == Qt.RightButton else Qt.DashLine)
             painter.setPen(pen)
-            painter.drawLine(self._gesture_points[0], self._gesture_points[-1])
-            return
-        pen = QPen(colour)
-        pen.setWidth(2)
-        painter.setPen(pen)
-        for start, end in zip(self._gesture_points, self._gesture_points[1:]):
-            painter.drawLine(start, end)
-        closing = QPen(colour)
-        closing.setWidth(1)
-        closing.setStyle(Qt.DashLine)
-        painter.setPen(closing)
-        painter.drawLine(self._gesture_points[-1], self._gesture_points[0])
+            for start, end in zip(self._gesture_points, self._gesture_points[1:]):
+                painter.drawLine(start, end)
+            closing = QPen(colour)
+            closing.setWidth(1)
+            closing.setStyle(Qt.DashLine)
+            painter.setPen(closing)
+            painter.drawLine(self._gesture_points[-1], self._gesture_points[0])
+        finally:
+            painter.end()
 
     def _emit_stroke_start(self):
         """Open a stroke, once. A stroke already open is not reopened.
@@ -5033,7 +5092,10 @@ def _blend_labels(out: np.ndarray, labels: np.ndarray) -> np.ndarray:
     The blend :func:`spacr.qt.mask_engine.overlay_mask` makes at ``alpha``
     0.5, the floor of the mean of grey and colour, as the carry-free byte
     average ``(a & b) + ((a ^ b) >> 1)`` over whole pixels, and only where
-    there is an object.
+    there is an object. A field at least a quarter covered is blended over
+    every pixel and its background put back, with no index arrays: 22 ms
+    instead of 50 to 100 ms on the lesson's 2,000 px field, which is 56 %
+    objects. A sparser one gathers and scatters only its object pixels.
 
     :param out: ``(h, w)`` uint32 ``0xFFgggggg`` pixels, written in place
         when C-contiguous (a transposed view's look-up is not).
@@ -5041,19 +5103,31 @@ def _blend_labels(out: np.ndarray, labels: np.ndarray) -> np.ndarray:
     :returns: ``out``, made C-contiguous first if it was not.
     """
     out = np.ascontiguousarray(out)
+    labels = np.asarray(labels)
+    count = int(np.count_nonzero(labels))
+    if not count:
+        return out
+    rng = np.random.default_rng(0)
+    colours = rng.integers(30, 255, size=(int(labels.max()) + 1, 3),
+                           dtype=np.uint8)
+    colours[0] = [0, 0, 0]
+    paint = _rgb32(colours)
+    if count * 4 >= labels.size:
+        colour = paint[labels]
+        mixed = out & colour
+        np.bitwise_xor(colour, out, out=colour)
+        np.right_shift(colour, 1, out=colour)
+        np.bitwise_and(colour, np.uint32(0x7F7F7F), out=colour)
+        mixed += colour
+        np.copyto(out, mixed, where=labels != 0)
+        return out
     flat = np.ascontiguousarray(labels).reshape(-1)
-    inside = np.flatnonzero(flat != 0)
-    if inside.size:
-        top = int(flat.max())
-        rng = np.random.default_rng(0)
-        colours = rng.integers(30, 255, size=(top + 1, 3), dtype=np.uint8)
-        colours[0] = [0, 0, 0]
-        paint = _rgb32(colours)
-        pixels = out.reshape(-1)
-        grey = pixels[inside]
-        colour = paint[flat[inside]]
-        pixels[inside] = (grey & colour) + (
-            ((grey ^ colour) >> 1) & np.uint32(0x7F7F7F))
+    inside = np.flatnonzero(flat)
+    pixels = out.reshape(-1)
+    grey = pixels[inside]
+    colour = paint[flat[inside]]
+    pixels[inside] = (grey & colour) + (
+        ((grey ^ colour) >> 1) & np.uint32(0x7F7F7F))
     return out
 
 
@@ -14128,7 +14202,20 @@ class MakeMasksScreen(QWidget):
         :param on_load: True when this is the automatic run on opening a
             field. It starts a fresh baseline and keeps a run that hid
             nothing quiet.
+
+        The interface language is read once for the run
+        (:func:`spacr.qt.i18n.ui_language_resolved_once`): the ledger's
+        rows ask :func:`spacr.qt.i18n.tr` seven times each, and 286 hidden
+        objects on the lesson's field cost 150 ms of preference reads on
+        the GUI thread.
         """
+        from ..i18n import ui_language_resolved_once
+
+        with ui_language_resolved_once():
+            return self._apply_object_filter(on_load=on_load)
+
+    def _apply_object_filter(self, *, on_load: bool) -> int:
+        """:meth:`apply_object_filter` inside one language scope."""
         from ..i18n import tr
 
         self._set_filter_log([])
