@@ -33,6 +33,25 @@ _INDEX: Optional[Dict[str, dict]] = None
 _LESSONS: Optional[List[dict]] = None
 
 
+def _resource(files, name: str):
+    """``name`` in ``spacr/resources``, as ``importlib.resources`` gives it.
+
+    ``spacr.resources`` is a folder without an ``__init__``, and Python 3.9's
+    ``files`` raises ``TypeError`` on such a namespace package; the folder
+    next to this package is read instead.
+
+    :param files: ``importlib.resources.files``.
+    :param name: the file name inside ``spacr/resources``.
+    :returns: a path-like object with ``read_text``.
+    """
+    try:
+        return files("spacr.resources") / name
+    except TypeError:
+        from pathlib import Path
+
+        return Path(__file__).resolve().parents[1] / "resources" / name
+
+
 def _index() -> Dict[str, dict]:
     """The bundled table, read once. ``{}`` when it cannot be read."""
     global _INDEX
@@ -41,7 +60,7 @@ def _index() -> Dict[str, dict]:
             import json
             from importlib.resources import files
 
-            raw = (files("spacr.resources") / "tutorial_index.json")
+            raw = _resource(files, "tutorial_index.json")
             data = json.loads(raw.read_text(encoding="utf-8"))
             lessons = data.get("lessons") or {}
             _INDEX = {str(k): v for k, v in lessons.items()
@@ -120,7 +139,7 @@ def lessons() -> List[dict]:
             import json
             from importlib.resources import files
 
-            raw = (files("spacr.resources") / "tutorial_index.json")
+            raw = _resource(files, "tutorial_index.json")
             rows = json.loads(raw.read_text(encoding="utf-8")).get("catalog")
             _LESSONS = sorted(
                 ({"number": int(row.get("number") or 0),

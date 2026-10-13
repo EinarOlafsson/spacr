@@ -613,7 +613,13 @@ def plate_templates() -> List[PlateTemplate]:
 
     found: List[PlateTemplate] = []
     try:
-        folder = files("spacr.resources") / "plate_templates"
+        try:
+            folder = files("spacr.resources") / "plate_templates"
+        except TypeError:
+            from pathlib import Path
+
+            folder = (Path(__file__).resolve().parents[2] / "resources"
+                      / "plate_templates")
         entries = sorted(
             (entry for entry in folder.iterdir()
              if entry.name.endswith(".json")),
