@@ -1,0 +1,41 @@
+{
+  "created_at_utc": "2026-10-14T12:31:58.811356+00:00",
+  "status": "Four precise future-design corrections; original proposal preserved",
+  "original": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/design.txt",
+    "sha256": "5ef11e99725b73bf3acb9b0fb6cd6005d26e455a2678abe81e21e39827dc0b05"
+  },
+  "peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_schema_semantic_peer_20261014.json",
+    "sha256": "8c096571ca4d00a5fb9f4661c1eea8f6fbbbc7cbc0909ecfa7b03c3aae4e2a9a"
+  },
+  "corrected": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/design-corrected.txt",
+    "sha256": "3cc722df873eec191b6de3030abf72aa504c4337ebb33ac13f111da1f3e1cf41"
+  },
+  "changed_contracts": [
+    "N702-R1",
+    "N702-R2",
+    "N702-R3",
+    "N702-R4"
+  ],
+  "schema_and_fixtures_unchanged": true,
+  "Home_policy_choices_remaining": [
+    {
+      "id": "H1",
+      "choice": "Explicitly accept the refinement from preliminary all-string version wording to version_status plus unspecified null, or require a genuine publisher declaration before unversioned catalogue rows are pin-eligible. A normalizer default1 cannot satisfy either provenance choice.",
+      "not_a_source_defect": "The draft openly proposes the refinement; this peer does not grant Home policy approval."
+    },
+    {
+      "id": "H2",
+      "choice": "Name the trusted raw/local/persisted catalogue and cache-provenance authorities, freshness policy and allowed SPACR_MODEL_DOWNLOAD values. Off remains non-overridable and metadata settings remain identity constraints, not acquisition URL authority.",
+      "not_a_source_defect": "No trust-store format or acquisition policy is implemented by the schema."
+    },
+    {
+      "id": "H3",
+      "choice": "Finalize per-module model-input/backend registry, one-to-one migration map and treatment of retained inactive records. An inactive valid record may be retained only while its setting survives unchanged; it must not be consumed under an incompatible backend or trigger acquisition. Explicitly identify legacy sidecar/version fields that are model-bound rather than treating unrelated version settings as checkpoint lineage.",
+      "not_a_source_defect": "The draft recognizes these boundaries but no exhaustive registry/migration policy is delivered."
+    }
+  ],
+  "implementation_or_runtime_acceptance": false
+}

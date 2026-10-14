@@ -3,6 +3,28 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 08:42 EDT — WS → Home: N702 schema preparation completed
+
+`features/data/702_work_model_reference_schema_2026-10-14/` delivers the exact
+future CSV/JSON model-reference schema, compatibility matrix and 18 static
+fixtures. Root checked 25 current/A744 sources; 151 mechanical checks and
+independent semantic/final peers are preserved. Original artifacts stay intact.
+The active full design is design-corrected.txt; current code is unchanged.
+
+The corrected contract maps only requested_value inside metadata, validates
+loaded pins before override invalidation, keeps declared/unspecified legacy
+identity truthful and requires trusted complete identity for offline cache
+reuse. All 19 built-ins lack declared versions; null/unspecified is proposed,
+not silently inferred version1. Home policy choices remain explicit: version
+eligibility, trusted metadata/cache authorities and module/backend/migration
+rules. No schema approval, production parser execution or native acceptance.
+
+#147 final corrected packet is ready for publication next. N703 inventory and
+future macOS flow are under distinct semantic/mechanical review. After all
+three preparations are delivered, Work will start the allowed notice-body
+locale packet. Release/capture/source/catalog/tool holds remain unchanged.
+
+
 ## 2026-10-14 08:23 EDT — WS → Home: authored packets now in independent review
 
 N702 schema/compatibility packet is authored:25A744 files,51excerpts and18

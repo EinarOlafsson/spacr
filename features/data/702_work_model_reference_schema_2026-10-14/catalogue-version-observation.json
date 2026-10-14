@@ -1,0 +1,161 @@
+{
+  "source_revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "source_path": "spacr/model_zoo.py",
+  "count": 19,
+  "explicit_version_count": 0,
+  "normalized_ModelEntry_version": "1",
+  "rows": [
+    {
+      "key": "toxoplasma_pv_v1",
+      "name": "cpsam_v2_toxo_r2",
+      "kind": "cellpose",
+      "sha256": "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_plaque_v1",
+      "name": "cpsam_plaque_r3",
+      "kind": "cellpose",
+      "sha256": "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_plaque_v2",
+      "name": "cpsam_plaque_r5",
+      "kind": "cellpose",
+      "sha256": "0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_well_detector_v1",
+      "name": "yolo_welldetect_v3.pt",
+      "kind": "detector",
+      "sha256": "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_well_detector_v2",
+      "name": "yolo_welldetect_v4.pt",
+      "kind": "detector",
+      "sha256": "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_from_cellmask_v1",
+      "name": "toxoplasma_from_cellmask_pv",
+      "kind": "cellpose",
+      "sha256": "481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_pv_v2",
+      "name": "cpsam_v2_toxo_r5",
+      "kind": "cellpose",
+      "sha256": "17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_pv_v3",
+      "name": "cpsam_v2_toxo_r6",
+      "kind": "cellpose",
+      "sha256": "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_pv_v4",
+      "name": "cpsam_v2_toxo_r7",
+      "kind": "cellpose",
+      "sha256": "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_pv_v5",
+      "name": "cpsam_v2_toxo_r8",
+      "kind": "cellpose",
+      "sha256": "a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "live_cell_v1",
+      "name": "live_cell_v1",
+      "kind": "cellpose",
+      "sha256": "7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "nuclei_from_cellmask_v1",
+      "name": "nuclei_from_cellmask_best",
+      "kind": "cellpose",
+      "sha256": "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "cell_from_hoechst_v1",
+      "name": "cell_from_hoechst_best",
+      "kind": "cellpose",
+      "sha256": "d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_from_hoechst_v1",
+      "name": "toxoplasma_from_hoechst_pv",
+      "kind": "cellpose",
+      "sha256": "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "colony_yolo11n_makrai_v1",
+      "name": "colony_yolo11n_makrai_v1.pt",
+      "kind": "detector",
+      "sha256": "1bd99599c1d78fb0841216b798cfc61665be7c2aa8b356b970d0d06ae4b57557",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_plaque_v3",
+      "name": "cpsam_plaque_r5_geldoc",
+      "kind": "cellpose",
+      "sha256": "8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_plaque_v4",
+      "name": "cpsam_plaque_r6",
+      "kind": "cellpose",
+      "sha256": "744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "toxoplasma_well_detector_v3",
+      "name": "yolo_welldetect_v4_geldoc.pt",
+      "kind": "detector",
+      "sha256": "046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18",
+      "declared_version": null,
+      "version_status": "unspecified"
+    },
+    {
+      "key": "mitonet_mini_v1",
+      "name": "MitoNet_v1_mini.pth",
+      "kind": "mitonet",
+      "sha256": "6554a42fbdcb70a46700f20281b1a5f1ae2f4140a63f519193046c7c9a9f2f4c",
+      "declared_version": null,
+      "version_status": "unspecified"
+    }
+  ]
+}

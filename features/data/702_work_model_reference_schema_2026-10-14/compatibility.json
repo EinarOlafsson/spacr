@@ -1,0 +1,86 @@
+[
+  {
+    "route": "N693 cli.write_settings_file",
+    "current_source_behavior": "Literal str() dict cell and recursive JSON conversion; faithful values; no enrichment.",
+    "proposed_required_change": "Keep serializer faithful; pass metadata produced by shared explicit enrichment.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "cli.load_settings_file/_parse_csv_value",
+    "current_source_behavior": "Reads CSV literals or JSON object; nested identity strings preserved by source branches; no schema checks.",
+    "proposed_required_change": "Validate reserved object/types and relational pins; reject unknown schema/ambiguity; avoid flattened opaque fields.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "tabular._parse_setting_value/_settings_from_table + utils.load_settings",
+    "current_source_behavior": "Alternative CSV parser shares GUI path; direct dict values reparsed, deeper dictionaries returned unchanged.",
+    "proposed_required_change": "Match reserved validation and type-preservation contract across both CSV paths.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "utils.save_settings",
+    "current_source_behavior": "CSV copies settings then changes test_mode/plot; JSON writes original settings, so whole-file parity is not general.",
+    "proposed_required_change": "Preserve model identities through run snapshots; do not describe this legacy writer as N693 parity.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "AppScreen import/apply + SettingsModel hidden/collect",
+    "current_source_behavior": "CSV parses metadata, but undeclared hidden key is rejected and collect omits it.",
+    "proposed_required_change": "Declare reserved internal hidden metadata; preserve/invalidate on edits; prune missing slots, deep-copy snapshots.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "AppScreen export_settings_csv/_on_export_settings",
+    "current_source_behavior": "Collects form and calls faithful writer; no model identity capture.",
+    "proposed_required_change": "Enrich without GUI hashing/scanning/download/remote refresh and keep current paths.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "DistributedJobs.configure_submission/_save_snapshot_csv",
+    "current_source_behavior": "Keeps shallow snapshot; saves same snapshot using export_settings_csv.",
+    "proposed_required_change": "Enrich at Submit; freeze/deep-copy nested records; preserve Save/Submit parity and module registry meaning.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "validate._check_unknown_keys/_check_required_paths",
+    "current_source_behavior": "Unknown nonempty model_metadata warns; existing path checks may refuse a missing file before acquisition.",
+    "proposed_required_change": "Reserve key and plan exact N702 resolution before eligible path refusals; hard pin validation cannot be bypassed by preflight flags.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "cli.resolve_settings/apply_overrides + batch.resolve_job_settings",
+    "current_source_behavior": "Defaults/file/migration/overrides layering; no identity invalidation; known dict overrides accepted.",
+    "proposed_required_change": "Shared final identity reconciliation; invalidate explicitly overridden model records; reject generic model_metadata overrides.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "remote_execution.map_settings_paths/submit",
+    "current_source_behavior": "Maps absolute string values recursively, including nested request binding; JSON serializes mapped settings.",
+    "proposed_required_change": "Validate paired request transformation; retain exact identity fields; origin payload provenance separate; no claim of Windows mapping.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "model_zoo.ModelEntry/_entry_from_mapping/catalogue/shared_catalogue",
+    "current_source_behavior": "Default/mixed version meaning; catalogue deduplicates key/name; nonblocking shared refresh can use network.",
+    "proposed_required_change": "Preserve raw version declarations and conflicting rows for pure unique selection; explicit offline index, not remote=True block=False.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "model_zoo._ensure_model_file/resolve/fetch",
+    "current_source_behavior": "Missing separated paths refuse; exact first-match/fuzzy resolution; checksum downloads; no process coalescing.",
+    "proposed_required_change": "Exact conjunct selector, pinned-local hashing, verified cache, strict policy and checked process lock.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "Cellpose/plaque/detector/classifier consumers",
+    "current_source_behavior": "Multiple resolver seams and backend/sentinel/file-vs-directory meanings; no shared reserved metadata contract.",
+    "proposed_required_change": "Use active module-specific model input registry; preserve scientific/backend checks after byte resolution.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  },
+  {
+    "route": "run_journal.open_run",
+    "current_source_behavior": "CLI opens journal before calling consumer; a later consumer-resolved path may not be the original settings identity.",
+    "proposed_required_change": "Record original request and actual resolved checkpoint/hash without disguising origin metadata as effective path.",
+    "acceptance": "not_implemented_or_runtime_tested"
+  }
+]
