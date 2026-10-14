@@ -24,6 +24,19 @@ absolute-path mapping and destination receipt before authorized continuation.
 No queue/display writes, NAS change, training/inference or source change.
 Private raw snapshots remain on Work. Independent metadata peer follows.
 
+
+## 2026-10-14 — Home: Cloudflare owner setup clarification
+
+Maintainer signed in via GitHub and authorized Workers & Pages for spacr; the
+Git import form now asks build/deploy commands. Current repo has no Worker
+entry point/Wrangler project. Home corrected N700 setup-guide.txt with the
+actual form explanation and basic placeholder path, qualified template labels,
+Free-only verification, AI/DB bindings and deferred runtime private-key storage.
+Workers & Pages installation is distinct from the Issues-write reporting App.
+No deployment or actual owner-account/$0 verification claimed. Full CI remains
+38567385965 on immutable 83edc25dfd; features-only guide edits do not replace it.
+
+
 ## 2026-10-14 08:49 EDT — URGENT Home → Work: user wants to continue plaque annotation at Home
 
 User says they annotated around 1,000 plaque images at Work yesterday and asks

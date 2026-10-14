@@ -121,3 +121,14 @@ current owner plan/model/resource verification, every display predicate and
 strict $0/no-paid policy. Canonical source/catalog/review/generator/deployment
 remain held. This is not certification of configured/free/deployed resources;
 no original text/approval flag was rewritten and no actual service is active.
+
+2026-10-14 — Cloudflare owner walkthrough corrected after actual dashboard
+feedback. Maintainer signed in with GitHub, authorized Workers & Pages for
+spacr, and reached Git build/deploy fields. That deployment integration is
+separate from the reporting Issues-write GitHub App. No Worker entry point or
+Wrangler configuration exists in current spacr source; do not deploy the
+desktop repository or invent a root folder. Updated setup-guide.txt explains
+these fields, a basic placeholder/template path (dashboard labels qualified),
+Free-plan verification, exact AI/D1 binding names and runtime versus build
+secrets. Credential loading waits for the final relay. No service, resources,
+owner plan, inference or error-report delivery was verified or activated.
