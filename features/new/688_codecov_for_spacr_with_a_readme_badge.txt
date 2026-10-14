@@ -2,8 +2,8 @@
 CODECOV FOR spaCR, WITH A README BADGE
 ================================================================================
 
-Status:    DONE 2026-10-10 (nightly); main gets its first upload on the
-           next push to main. See the 2026-10-10 note.
+Status:    PARTIAL — nightly upload and all ten README badges implemented;
+           first main upload remains pending approved main promotion.
 Requested: 2026-10-10 — "configure https://app.codecov.io/github/EinarOlafsson/
            spacr/new for spacr and add a badge when you are done"
 Owner:     Home (CI); WS (README badge in the localized READMEs)

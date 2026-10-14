@@ -2,10 +2,9 @@
 ACCESSIBILITY PASS
 ================================================================================
 
-Status:    DONE 2026-10-04 — accessible names through one central helper,
-           a High contrast theme in Preferences > Appearance, an a11y lint
-           over all 48 module screens and a Tab-order check on the Core
-           screens. Not alpha: accessibility is not an experiment.
+Status:    PARTIAL — accessibility controls and keyboard repairs implemented;
+           caption/API debt reconciled. Native screen-reader/platform review
+           and the Appearance tutorial refresh remain open. Not alpha.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.

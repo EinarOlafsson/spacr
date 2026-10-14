@@ -2,8 +2,8 @@
 A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
 ================================================================================
 
-Status:    BUILT 2026-10-10 (live at https://einarolafsson.github.io/);
-           spaCR README/docs/setup.py links still to add (routed to maintainer)
+Status:    PARTIAL — site live and README/docs/project metadata links present;
+           current startup changes await deployment and idle-host performance acceptance.
 Requested: 2026-10-10 — "I'd like to have a free webpage for spacr and my other
            projects. I'd like the page to be able to have cooler effects than
            GitHub allows me to have."
@@ -135,3 +135,16 @@ project_urls; optionally have release.yml send repository_dispatch
 build covers it within 24 h otherwise). Found: CITATION.cff at tag v1.5.1.4
 lists 10.5281/zenodo.23111593 (the v1.5.1.3 record) as the version DOI; main
 and Zenodo say 10.5281/zenodo.23266544. Translations (point 6) not started.
+
+2026-10-14 — Home-B startup/loading repair validated privately.
+site-src commitcc81d2f367e31fc2ee389b39f1a2d562d54e6354, atopd9624b5, defers
+initial offscreen tab layout and removes four stale high-priority overview
+image preloads. The actual hero retains priority. Native fragment navigation
+disables the optimization when a real target exists; disabled/failed JavaScript
+keeps all content readable. All19 real-browser scenarios pass, including light/
+dark mobile/desktop, all nine tab URLs, nested/unknown fragments and keyboard/
+history behavior. Full123-file encrypted build, leak and locale checks pass.
+No Lighthouse score is claimed under active catalog/Timepose load. Deployment
+and idle-host performance acceptance remain OPEN. Source receipt:
+data/687_startup_loading_2026-10-14/receipt.json. Existing README/docs and project
+metadata links were already present; the old link follow-up above is superseded.

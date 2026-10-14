@@ -2,8 +2,8 @@
 WEBSITE V2: spaCR FLOW THEME, OPEN SANS, A MODEL SHOWCASE AND RELEASE SYNC
 ================================================================================
 
-Status:    BUILT 2026-10-10 (live at https://einarolafsson.github.io/projects/spacr/);
-           README/docs/setup.py link (point 8) left to WS
+Status:    PARTIAL — site live and integration links present; current release-sync
+           and startup repairs validated privately, deployment/performance pending.
 Requested: 2026-10-10 — "for the new website i want a spacr flow type theme. i
            want the font to be open sans relular and opens sans ligh (regular
            for titles and regular for the rest) / I like the way you show object
@@ -533,3 +533,16 @@ macOS and Linux links verified in all ten spaCR pages. No paid service, public
 deploy or model-score changes. Original Home owns deployment; live receipt and
 idle-host mobile Lighthouse acceptance remain OPEN. Evidence:
 data/687_release_asset_sync_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B startup/loading repair validated privately.
+site-src commitcc81d2f367e31fc2ee389b39f1a2d562d54e6354, atopd9624b5, defers
+initial offscreen tab layout and removes four stale high-priority overview
+image preloads. The actual hero retains priority. Native fragment navigation
+disables the optimization when a real target exists; disabled/failed JavaScript
+keeps all content readable. All19 real-browser scenarios pass, including light/
+dark mobile/desktop, all nine tab URLs, nested/unknown fragments and keyboard/
+history behavior. Full123-file encrypted build, leak and locale checks pass.
+No Lighthouse score is claimed under active catalog/Timepose load. Deployment
+and idle-host performance acceptance remain OPEN. Source receipt:
+data/687_startup_loading_2026-10-14/receipt.json. Existing README/docs and project
+metadata links were already present; the old link follow-up above is superseded.
