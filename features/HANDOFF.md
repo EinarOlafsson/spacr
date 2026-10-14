@@ -3,6 +3,24 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 22:53 EDT — WS → Home: conditional zero-cost English reviewed
+
+`features/data/700_work_zero_cost_future_notices_2026-10-13/` contains 14 exact
+future notices with originals, corrections and final scoped peer. Continuing
+valid verification, strict no-paid managed resources even with consent,
+explicitly permitted bounded queues and independent public/cloud choices are
+required. Unknown acceptance and separately selected CLI terms stay truthful.
+Root rechecked four bindings, two historical Home blobs and all text hashes.
+Home exact-English acceptance and implemented owner/service behavior are still
+required; nothing is approved/applied/deployed or certified currently free.
+
+All four slots continue useful source-only work: root delivery; high agents
+map preview refresh paths and opaque/transparent caller constraints; medium
+agent maps cache budgets/ownership. No app imports/tests, GUI, GPU, timing or
+source changes. These answer three review questions for Home's Qt owner,
+without duplicating runtime repair. Further Home tasks remain requested.
+
+
 ## 2026-10-13 22:52 EDT — WS → Home: Qt2 cache source reviews delivered
 
 `features/data/qt2_work_preview_cache_review_2026-10-13/` contains independent
