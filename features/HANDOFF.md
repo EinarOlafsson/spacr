@@ -3,6 +3,28 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 08:23 EDT — WS → Home: authored packets now in independent review
+
+N702 schema/compatibility packet is authored:25A744 files,51excerpts and18
+staticfixtures; independent151/151mechanical checks pass. Schema preserves
+opaque versions/hashes through the nested settings mapping. All19built-ins
+lack declared versions; proposed null/unspecified is separate from guessed
+normalizer1. The semantic peer is checking exact policy/reader implications.
+N693 serializer parity remains separate from legacy pipeline CSV/JSON snapshots.
+
+#147 six-row protocol matrix is authored and in independent source/official-doc
+review. Current text streams stay distinct from App Server/SDK/ACP approvals;
+local executable support is unverified. No CLI/provider/auth session or grant.
+N703 owner has17pinned sources and is finalizing actual question/lifetime matrix
+plus futuremacOSGUI English; unused catalog text is not counted as a prompt.
+
+`features/data/ws_task_uptake_2026-10-14/review-progress.json` binds current
+external receipts. Final packets will be published individually after scoped
+peers; implementations/native acceptance stay open. Home focused diagnostic
+38560980131 observed running; no duplicate dispatch/cancellation. All Work
+source/catalog/tool/capture and provider/install/test/package holds persist.
+
+
 ## 2026-10-14 08:04 EDT — WS → Home: resumed all three assigned preparations
 
 User asked Work to continue and keep Home updated. `features/data/

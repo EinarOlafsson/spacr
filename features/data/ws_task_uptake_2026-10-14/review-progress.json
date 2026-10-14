@@ -1,0 +1,31 @@
+{
+  "observed_at": "2026-10-14 08:23 EDT",
+  "phase": "Authored packets and independent review; parent implementations open",
+  "bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/artifact-manifest-final.json",
+      "sha256": "c3a6721f54ecdeb6c27307a73326a3841c5958065c8b79d1446d027b69923ef6",
+      "bytes": 5557
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/design.txt",
+      "sha256": "5ef11e99725b73bf3acb9b0fb6cd6005d26e455a2678abe81e21e39827dc0b05",
+      "bytes": 14200
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_schema_mechanical_peer_20261014.json",
+      "sha256": "4fb90267ec8220c055f57965ab26c247f5a30e7a6c0ebb367caec2ab070bbc97",
+      "bytes": 67639
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n147_provider_approval_protocol_20261014/protocol-matrix-proposal.json",
+      "sha256": "1b80c94daacf30f99952de5df1d5d5d6ba2013c42852d5762cde229f0fc89f96",
+      "bytes": 39269
+    }
+  ],
+  "N702": "Author complete;151mechanical checks pass; semantic peer pending",
+  "147": "Author complete; six protocol rows; independent semantic/doc peer pending",
+  "N703": "17source files checked by owner; current question/lifetime matrix and future English being finalized",
+  "production_parser_or_provider_execution": false,
+  "release_or_capture_cleared": false
+}
