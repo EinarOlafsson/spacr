@@ -96,3 +96,18 @@ Home/Work progress — 2026-10-14 07:19 EDT
 | Work API/runtime translation debt plan | ✅ | Audit done; five batches held | Work | Inventoried 20 missing and 20 stale API records per locale plus 27 reviewed-block issues; prioritized five source-bound batches. Runtime metadata freshness is separate from translation quality. |
 | Work preview-cache source investigation | ✅ | Audit done; runtime ownership Home | Work | Delivered refresh, cache-ownership and opacity/shape maps on pinned eb72: 27/27 consistency checks and 16 source bindings. No claimed cache-hit, speedup or pixel-fix acceptance. |
 | Work next source-only preparations | — | Published response pending | Work | Detailed installer question lifetimes, CSV/JSON model-reference schema and provider/version approval protocol assigned at 23:31. Latest published Work delivery is 23:07; private progress is unverified. |
+
+
+Work source-only update — 2026-10-14 08:04 EDT
+
+| Preparation | Status | Owner | Current scope |
+|---|---|---|---|
+| N703 question lifetimes | Active; final evidence pending | Work HIGH | Current platform defaults/questions and future macOS GUI-only flow |
+| N702 model-reference schema | Active; final evidence pending | Work HIGH | N693 CSV/JSON writers/consumers, ambiguity/offline/override contracts |
+| GitHub #147 approval protocol | Active; final evidence pending | Work HIGH | Version-bound provider events, responses and cancellation; no provider session |
+| Acceptance binding | Done; draft/canonical limits retained | Work root | 14 exact notice bodies/predicates and two private helper texts match accepted proposals |
+
+Evidence: features/data/ws_task_uptake_2026-10-14/. Parent implementations,
+native acceptance, release and tutorial remakes are not completed by this update.
+Notice locale drafts wait completion of these three assignments. No app/catalog/
+tool/capture/provider/install/test/package changes. Existing table preserved.
