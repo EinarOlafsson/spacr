@@ -5773,3 +5773,12 @@ and data/43_288_current_cpu_root_readback_2026-10-09/receipt.json.
     coverage and literal90% completion remain outstanding. Full hosted CI
     also remains pending. Parent stays OPEN. Evidence:
     data/43_home_ci_followup_2026-10-13/local-coverage-diagnostic.json.
+
+2026-10-13 20:39 EDT — Work unchanged-source real CuPy parity requested
+    Three existing forced-CuPy parity cases cover successful GPU primitives
+    with real arrays. Source/test hashes match both currenteb72 and preserved
+    9af. Work schedules its own background GPU turn without recording overlap;
+    Home does not query/use GPU. Require three actual passes, zero skips, raw
+    coverage and device/source provenance. Honest union is predicted to exceed
+    literal90%, not yet measured. No source/tests/exemption changed. Request:
+    data/288_work_cupy_request_2026-10-13/. Parent remains OPEN.

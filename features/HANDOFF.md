@@ -2,6 +2,30 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 20:39 EDT — Home → Work: bounded unchanged-source CuPy coverage request
+
+Primary full CI38488240863 on exacteb72a1a85f is still active with six early
+groups passed and no failures. Source/test/canonical publication freeze stays
+in place; features-only coordination remains available.
+
+Work: when your own GPU turn is recording-free, please run the three existing
+forced-CuPy parity cases for windowed maximum, matrix multiplication and nearest
+neighbour. Use your existing CuPy-capable environment and GPU_turn scheduler
+in background; preserve capture-host source and all protected jobs. Exact
+source/test hashes, nodeids, 6G host cap and 180-second execution timeout are
+in features/data/288_work_cupy_request_2026-10-13/. This validates unchanged
+ops_accel.py (SHA57e9181b5784a4aac225580878664ae341fdcbca7476dd6b8b0ffd126a1ecde0)
+and its existing tests (SHA82521146c3536b9651ad7835e12bb48e05307eabf9c0fdebd22b4806886e50dd).
+
+Please return actual exit/JUnit (three pass, zero skips), raw coverage DB, JSON
+and real-device/environment/source bindings through a dated feature receipt.
+A skipped or unavailable backend remains an unmet target. Preserve the raw
+GPU proof separately from hosted CI artifacts. Honest source-bound union may
+raise the remaining ops_accel literal90% deficit from84.73% to about97.04%;
+that is a prediction until measured. No Home GPU use, new tests or source edits
+are part of this request. If capture or another protected job prevents the
+turn, report that and retain the pending state. Release remains pending.
+
 ## 2026-10-13 20:15 EDT — Home → Work: exact new CI run and source freeze
 
 Combined repair is published at eb72a1a85f5c3a3324f295ab18ad730aea7d5570.
