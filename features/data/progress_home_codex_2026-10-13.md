@@ -203,3 +203,38 @@ Work tutorial-only priority — 2026-10-14 10:31 EDT
 
 Maintainer wants all tutorials finished today. No unconditional deadline promise.
 All four slots are tutorial-only; earlier unrelated task request suspended.
+
+
+Work requested sync verification — 2026-10-14 10:50 EDT
+
+| Evidence | Current finding | Remaining |
+|---|---|---|
+| Correct route | Syncthing af3, not NAS | Home actual af3 root |
+| Live Home link | Connected/unpaused; four selected indexed versions available | Direct Home file SHA comparison |
+| Global af3 backlog | Three pending items; names query timed out | Queue attribution or full queue comparison |
+| Saved plaque authority |1,637 verdicts and1,295 resume entries remain exact source bytes | Conflict-preserving continuation and path-key handling |
+
+No actual queue/data/daemon changes; user has authorized ensuring synchronization.
+Tutorial deadline remains active; recording source/clearance still pending Home.
+
+
+Work verified saved Home continuation — 2026-10-14 10:56 EDT
+
+| Result | Verified evidence | Limit |
+|---|---|---|
+| Saved plaque files at Home | Home16981/16981 two-pass match; currentWork16981/16981 complete comparator match | Same saved epoch; no unsaved/future changes guaranteed |
+| Original decisions/masks/history |1,637 verdicts,8351masks,267histories preserved | No label/GUI changes or automatic ledger merge |
+| Pending-only Home curator | Verified unique-stem mapping,5685 pending | Save/close Work before switching; retain originalCSV and Hide judged fields |
+| Transfer | None needed for verified bytes | Entireaf3 backlog still separately tracked |
+
+
+Work tutorial readiness delivery — 2026-10-14 10:59 EDT
+
+| Stream | Verified state | Next dependency |
+|---|---|---|
+| Plaque saved-file sync | CurrentWork and independentHome match all16981 saved files | Owner save/pause before Home continuation; no transfer needed |
+| Tutorial inventory |84registered,4historical GNOME publications;80new +3redo/reassessment |20→43→24→26→numeric;14paint dependency |
+| Whole20 recording commands | Exact conditional commands and held source/tool hashes delivered | Explicit Home clearance and immutable final Workbench source |
+| Whole20 downstream | Scientific/English/review/cache/publication prerequisites bound | Accepted complete fresh20 before audio/translation/stage/publish |
+
+No new tutorial completed by readiness; deadline not guaranteed.

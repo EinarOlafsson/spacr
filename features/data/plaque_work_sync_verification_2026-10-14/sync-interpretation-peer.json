@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-14T14:49:08.260123+00:00",
+  "status": "Independent read-only semantic peer; delivery and Home annotation readiness not accepted",
+  "input_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/sync-route-discovery.json",
+      "sha256": "fe478fa5a6b101b4c749039bbf1083e600742359ebf075ebc765a06870036425",
+      "bytes": 6126,
+      "stable_during_read": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/syncthing-live-status-initial.json",
+      "sha256": "fb32dc852e6810fbf7f26565e2ac3a81a0eea793fd7e9fddd3e4366d448de97d",
+      "bytes": 6674,
+      "stable_during_read": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/probe_syncthing_readonly.py",
+      "sha256": "ce125095089fcfd4ef1c865256d12bc0374b9d2d739fc031a9b54dc687a0c2b0",
+      "bytes": 4797,
+      "stable_during_read": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/source-ledger-semantics.json",
+      "sha256": "7aeca003c745298170114293eb8ee32b642548af31460df3503319e64b38c27d",
+      "bytes": 12105,
+      "stable_during_read": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/authoritative-work-annotation-handoff.json",
+      "sha256": "be3a085bd880cbb4ccbe9f561ea30ef4a19013b7cf4ace9f44b81b1affdc16d5",
+      "bytes": 10482,
+      "stable_during_read": true
+    }
+  ],
+  "scope": {
+    "read_saved_receipts_and_probe_source_only": true,
+    "API_or_network_requests": false,
+    "queue_config_daemon_or_app_actions": false,
+    "tutorial_readiness_receipt_preserved": true
+  },
+  "observed_epoch": "2026-10-14T14:42:21.319097+00:00",
+  "findings": {
+    "configured_route": "Work queue is inside local EXT4 af3 sendreceive folder; separate nas-sync root is not this queue. Home physical folder root/destination remains absent from these observations.",
+    "live_connection": "Configured unique Home-labelled device reports connected and unpaused at probe epoch. This is peer-session metadata, not independently inspected Home filesystem or user selection.",
+    "folder_wide_completion": {
+      "completion_percent": 99.9947501353027,
+      "remote_need_items": 3,
+      "remote_need_bytes": 137831145,
+      "remote_state": "valid",
+      "interpretation": "af3-wide completion across ~2.63TB; neither queue-specific coverage nor3paths known from this receipt. remoteState valid is not a physical-byte or queue-ready certificate. Local need0 is Work needs, separate from Home needs."
+    },
+    "scanning": "Work folder status already scanning; counters/indexes can evolve while fullfolder scan runs. No extra rescan is justified by these saved observations, and this review requests/performs none. pullErrors0 at epoch does not prove no folder/scan/per-file/peer error outside exported fields.",
+    "selected_file_evidence": [
+      {
+        "relative_path": "projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup/curate_status.csv",
+        "Work_actual_sha256_recorded_in_probe": "d6354518b6fdd30b7ca30dcf8839378820f8d5093c262da97d3baf6d0087e88f",
+        "Home_availability_advertisement": true,
+        "local_and_global_exported_fields_equal": true,
+        "Work_actual_hash_matches_prior_ledger_receipt": true,
+        "direct_Home_actual_SHA256_verified": false
+      },
+      {
+        "relative_path": "projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup/csv/keep_discard.csv",
+        "Work_actual_sha256_recorded_in_probe": "cd14b2bdbf16417bf7223fcbfff1710650147d2315f80f4dd631ed0a847d6501",
+        "Home_availability_advertisement": true,
+        "local_and_global_exported_fields_equal": true,
+        "Work_actual_hash_matches_prior_ledger_receipt": true,
+        "direct_Home_actual_SHA256_verified": false
+      },
+      {
+        "relative_path": "projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup/masks/spectrum.03078-22-f006__p01__w06__1dc295d3ce724e3d8328.tif.curation.json",
+        "Work_actual_sha256_recorded_in_probe": "44f7cdf8c53d93aab009c653282511469f92ebb3126f94be4acf05c9a065fd24",
+        "Home_availability_advertisement": true,
+        "local_and_global_exported_fields_equal": true,
+        "Work_actual_hash_matches_prior_ledger_receipt": null,
+        "direct_Home_actual_SHA256_verified": false
+      },
+      {
+        "relative_path": "projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup/masks/spectrum.03078-22-f006__p01__w06__1dc295d3ce724e3d8328.tif",
+        "Work_actual_sha256_recorded_in_probe": "b8abba66a3e6f2abe7667950010bf97e5533281ed7ba0010032321d1d725c834",
+        "Home_availability_advertisement": true,
+        "local_and_global_exported_fields_equal": true,
+        "Work_actual_hash_matches_prior_ledger_receipt": null,
+        "direct_Home_actual_SHA256_verified": false
+      }
+    ],
+    "selected_scope": "Two ledgers and one mask/whole-history pair only. The probe selects sorted(sidecars)[-1], lexicographically last, not latest-edited or representative. Home availability excludes fromTemporary in exported predicate; it remains an advertisement rather than reading remote files.",
+    "same_version_limit": "Equal exported local/global name/size/mtime/status/version/sequence plus Home availability supports agreement for four sampled indexed versions. Work actual whole-file SHA is separately read; block hashes and remote actual bytes are absent, so equality does not cryptographically bind actual Home disk bytes or all16981queue files."
+  },
+  "probe_review": {
+    "GET_only": true,
+    "loopback_only_no_proxy_redirects": "Source accepts only declared local GUI address forms, builds127.0.0.1 endpoint, disables proxy and redirect, authenticates from local config without exporting credentials. Source inspected only; no invocation or config read by this peer.",
+    "sequential_not_atomic": "GETs and four source reads occur sequentially; observed_utc is emitted after operations, not simultaneous per-field sampling. Probe does not capture per-request timestamps, before/after source stats or second hashes. Prior stable source snapshot strengthens chosen ledger-byte identity; no fresh queue/global quiescence inferred.",
+    "receipt_integrity": "Original saved files preserved; future correction/updated status must be a separate receipt, not rewrite this epoch."
+  },
+  "omissions_to_resolve": [
+    "Root separate remote-need-path observation must determine whether3needed items belong to queue; wholefolder number alone cannot.",
+    "Home actual af3 root, selected folder and resolved image/mask paths; direct independently saved hashes of both ledgers and chosen mask/history pair, then queue-wide relative content-set comparison to chosen stable Work epoch. Four samples alone cannot verify267histories/all8351masks/all8350images/provenance/withdrawn.",
+    "Current Home-only judgments/masks, conflict filenames, remote-only versions, pending scans and retained versions are not inventoried; sendreceive is not one-way publication or a conflict-resolution plan. Config af3 has no declared versioning type; no automatic original preservation guarantee is evidenced.",
+    "Unflushed annotator mask buffers and save-on-navigation setting remain unknown on each host; saved filesystem/index observations cannot prove intended edits durable.",
+    "IgnorePatterns false and selected ignored/invalid/mustRescan false are exported observations, not independent remote ignore/error/scan inspection or complete queue coverage."
+  ],
+  "Home_continuation_requirements": [
+    "First identify Home actual queue/storage and verify content at chosen stable saved source epoch; use existing sync evidence without duplicate overwrite or inferred merge. Keep original ledgers/masks/history and current Home decisions preserved.",
+    "MakeMasks verdict reader keys exact image-path strings. If Home root differs from Work /media/carruthers/mnt1/af3, copying CSV bytes alone can leave path keys unmatched or cause new rows for same image. Verify actual image/mask identities and prepare a separately reviewed exact path mapping; do not edit/rebind in this task. Equal path text also does not prove equal bytes.",
+    "curate_status.csv is separately keyed by stem, with1295reviewed versus1637judged rows in Work epoch; Keep false is not Skip. Preserve both ledgers; do not derive missing judgments or edited pixels from resume states/counts.",
+    "Open intended Home queue only after root/Home establish physical hashes, exact folder/path binding, current-mask/history pairs and any genuine conflicting decisions. Sidecar absolute artifact/source strings may also retain Work paths; preserve whole logs and pixel files rather than reconstruct or infer ancestry."
+  ],
+  "conclusion": "Metadata supports an already connected route and advertised availability for four selected versions. Full physical Home queue identity and safe path-keyed annotation continuation remain unverified; no automatic rescan, transfer, merge, overwrite or readiness claim follows."
+}

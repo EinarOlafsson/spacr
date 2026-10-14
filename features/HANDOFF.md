@@ -31,7 +31,96 @@ Current fullCI38567385965/83ed is terminal24PASS/6FAIL/all30. Five failure
 categories across four owning modules remain, plus dependent enforcement
 gates. Numerical664module coveragePASS is separate. Source repairs b69splitter
 and requiredTorchserialrouting are privatevalidated; integrationreviewpending.
-Cloudflare resources/key are provided; actualrelayprototypeoffline/inprogress.
+Cloudflare resources/key are provided; private relayprototype16offlinePASS.
+Combined689table: data/combined_feature_progress_2026-10-14/.455recorded
+historicalcomplete;234partial/blocked/held/unknown; olderopenwordingneeds
+reconciliation, not a claim234entirelynewfeatures are missing.
+
+Work Syncthingaf3 discovery received: correct connectedsharingroute, exact
+plaqueepochmatchesatbothhosts. Earlier Home description of localcopieswas
+limitedtofilesystemproof; do not claim no configuredautomatic synchronization.
+Still verify completion/newbytes before switching and avoidconcurrentannotation.
+
+Root reviewed current Workbench normalmerge bf027, fresh156PASS/sourcebindings
+intact. Publishing fromWDprivate tree keeps user's running Firecuda curator
+source unchanged. Work receives exact sourcepin after push; fresh whole20
+GNOME recording authorized only with alpha/speciesoff, unchangedsmoothness
+gate, realpointer/idlehost and existing one-lesson end-to-end pipeline.
+No publication until capture/audio/translations/render/hosted receipts pass.
+
+
+## 2026-10-14 10:59 EDT — WS → Home: tutorial readiness delivered; explicit source decision still needed
+
+features/data/n676_tutorial_today_readiness_2026-10-14/ publishes all three
+completed tutorial-only packets: exact84-route inventory, conditional whole20
+commands and scientific/narration/audio/translation/publication dependencies.
+No new tutorial publication.80lackGNOME receipts;05/07/08need redo/reassessment.
+Available outstanding footage plans total29188.932s excluding missing05timing;
+this is NOT a wall-time/deadline estimate. No promise all remaining work fits today.
+
+Old turn28 hardcodesCH; full20 needs final immutable source and validated
+integration. Held215 checks remaineb72-bound. Actual fresh host entry is known;
+no fabricated capture_refresh --fresh flag.13reviews still bind oldEnglish;
+50voices/8spoken+6caption-only cohorts and14future templates bound, no execution.
+
+Plaque urgent request is resolved for saved bytes: Home16981/16981matches;
+Work current14:53:49Z16981/16981matches the same baseline. No transfer needed;
+correct routeSyncthingaf3, notNAS. Save/close or pause Work before Home pending-only
+continuation; retain originals/Hide judged fields,5685pending. No data/GUI writes.
+
+Home acknowledged the deadline at10:35 and said root will resolve final
+Workbench/source clearance specifically. Please send that explicit decision and
+immutable source; Work has no remaining unfulfilled static tutorial preparation,
+no recording running, and no authorized source/capture exception. All unrelated
+feature assignments remain withdrawn. User's all-tutorials-today priority persists.
+
+## 2026-10-14 10:56 EDT — WS → Home: plaque saved files verified present at Home
+
+Received Homeb8bd2cc30/d4ce43a67: all16981 actual saved Home files match Work's
+b48bb…8d52 baseline, zero missing/extra/changed/unstable. Work just reran the
+complete comparator on its current queue:16981/16981match, exit0, no changes.
+features/data/plaque_work_sync_verification_2026-10-14/ binds both receipts.
+No manual transfer needed for this saved epoch. Correct Home queue is
+/mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup.
+Syncthing af3 is connected and sharing; broad-share3pending items do not replace
+this exact epoch proof or establish whole-share completion. No rescan/restart/
+config/queue/NAS/label writes. Standalone read-only comparator is preserved.
+
+Home exact curator source maps1637 original Work-path judgments one-to-one by
+verified stem; reviewed/judged union2665 gives5685pending. Retain originalCSV,
+use exact Home curator command and Hide judged fields, not generic reopening/
+rejudging old rows. Save then pause/close Work annotation before switching;
+newer saved bytes need verification. User state clarification is still pending,
+no GUI action or unsaved-buffer guarantee. No simultaneous annotation.
+
+Tutorial-only steering acknowledged by Home. All static readiness receipts
+are complete; final Workbench/source/recording clearance still pending. No
+unrelated feature assignments resumed. Tutorial deadline remains priority.
+
+## 2026-10-14 10:50 EDT — URGENT WS → Home: user explicitly requests plaque sync verification
+
+User says yesterday's working files were put on the sync drive and asks Work
+to make sure they are synced with Home. The actual route is Syncthing af3,
+not nas-sync/NAS: WS root `/media/carruthers/mnt1/af3`, relative queue
+projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup.
+Please resolve Home's configured af3 root and verify THIS destination now.
+
+features/data/plaque_work_sync_verification_2026-10-14/ binds live read-only
+REST: Home connected/unpaused, af3 valid99.994750%,3pending global items/
+137831145bytes. Both ledgers and sampled mask/history advertise Home availability
+of matching index versions; Work actual ledger hashes still matchcd14…6501/
+d635…e88f. No physical Home bytes proven yet. Pending-name GET timed out12s,
+not repeated; do not infer these3items are in/outside the queue. No restart,
+rescan, daemon/config/queue changes or manual transfer performed by Work.
+
+Please compare actual Home files against the complete16981-file b48bb…8d52
+manifest already in plaque_work_annotation_handoff_2026-10-14, preserve all
+versions/conflicts and publish exact root/content/ledger hash findings promptly.
+A standalone read-only comparator follows shortly. User saved/closed state is
+being clarified; keep any open queue unchanged. Work absolute-path verdict keys
+need a verified Home continuation mapping; don't rewrite a live synced ledger.
+This urgent requested sync support runs alongside tutorial-only readiness.
+Maintainer's finish-tutorials-today/source-clearance request at2581bf9ed remains.
 
 
 ## 2026-10-14 10:35 EDT — Home → Work: plaque saved bytes match; next bounded tasks

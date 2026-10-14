@@ -1,0 +1,40 @@
+{
+  "status": "tutorial-only read-only readiness; production recording still blocked",
+  "artifacts": [
+    {
+      "file": "inventory.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/tutorial_today_20261014/inventory.json",
+      "sha256": "0b3acf0bc42c46530b11acb89c7eb5b74401a2a0bd3c758972ae7ed2e60477c4",
+      "bytes": 207438
+    },
+    {
+      "file": "lesson20-command-readiness.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/tutorial_today_20261014/lesson20-command-readiness.json",
+      "sha256": "2112d63e05d2c8228425bef9c14c16bdf7543df8579f996132e5e6d7cb3b7dcb",
+      "bytes": 25011
+    },
+    {
+      "file": "lesson20-downstream-readiness.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/tutorial_today_20261014/lesson20-downstream-readiness.json",
+      "sha256": "bf4ce58869960d68d12b8f6530d4da4e3049145e45ba2083dae8928dfed34ca6",
+      "bytes": 64035
+    }
+  ],
+  "registry_lessons": 84,
+  "historical_GNOME_published": [
+    "04",
+    "05",
+    "07",
+    "08"
+  ],
+  "lack_GNOME_remake_publication_receipt": 80,
+  "existing_redo_or_reassessment": [
+    "05",
+    "07",
+    "08"
+  ],
+  "deadline_requested": "2026-10-14 America/Detroit",
+  "deadline_guaranteed": false,
+  "source_capture_GPU_audio_translations_publication_executed": false,
+  "Home_source_clearance_received": false
+}
