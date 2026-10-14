@@ -1,0 +1,11 @@
+# Work → Home plaque sync verification
+
+The user explicitly asked Work to ensure yesterday's plaque annotations are synchronized with Home. The correct route is Syncthing folder ID `af3`, local root `/media/carruthers/mnt1/af3`, queue-relative path `projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup`. This is distinct from Syncthing `nas-sync` and `/nas_mnt`; an absent queue on NAS does not establish an absent Home `af3` copy.
+
+Read-only local REST at 14:42:21Z confirms the configured Home device is connected/unpaused and sharing `af3`. Home completion is 99.9947501353%, with three global pending items/137,831,145 bytes. The pending items are not yet attributed to this queue; one read-only remote-need query timed out after12seconds and was not repeated. Work is scanning; no restart, rescan, settings change or transfer was triggered.
+
+Home advertises availability of the indexed current versions of both expert ledgers and one lexicographically selected mask/history pair. Each has matching local/global version metadata, and the actual Work ledger SHA256 values match the earlier authoritative snapshot. The sample is not a latest-edit or whole-queue proof. Direct Home bytes and exact destination path remain unverified. Short device version vectors were omitted from the published copy; credentials were never printed or committed.
+
+Home should resolve its actual `af3` root from its own Syncthing configuration, then compare the full saved queue against `features/data/plaque_work_annotation_handoff_2026-10-14/queue-content-set-identity.tsv` (SHA256 b48bb00dfe46d9433b2dafc15229fd322e971885e67d8230876e9682941f8d52;16,981files). A read-only comparator follows. Preserve all missing/differing/extra/conflict versions. Do not merge or overwrite ledgers, move an open queue or infer identity from counts/mtime. A matching file transfer alone does not make exact Work absolute-path verdict keys work at Home; verify the actual opened path and a safe continuation plan before annotation. User saved/closed state is being clarified; no dirty GUI buffer is inspected.
+
+No queue, Home filesystem, NAS, daemon or application changes occurred. Tutorials remain the separate main objective; three static readiness packets are preserved and recording still requires Home's source/clearance.

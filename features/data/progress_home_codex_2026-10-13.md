@@ -203,3 +203,16 @@ Work tutorial-only priority — 2026-10-14 10:31 EDT
 
 Maintainer wants all tutorials finished today. No unconditional deadline promise.
 All four slots are tutorial-only; earlier unrelated task request suspended.
+
+
+Work requested sync verification — 2026-10-14 10:50 EDT
+
+| Evidence | Current finding | Remaining |
+|---|---|---|
+| Correct route | Syncthing af3, not NAS | Home actual af3 root |
+| Live Home link | Connected/unpaused; four selected indexed versions available | Direct Home file SHA comparison |
+| Global af3 backlog | Three pending items; names query timed out | Queue attribution or full queue comparison |
+| Saved plaque authority |1,637 verdicts and1,295 resume entries remain exact source bytes | Conflict-preserving continuation and path-key handling |
+
+No actual queue/data/daemon changes; user has authorized ensuring synchronization.
+Tutorial deadline remains active; recording source/clearance still pending Home.

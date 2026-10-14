@@ -1,0 +1,12 @@
+{
+  "observed_utc": "2026-10-14T14:50:42.398422+00:00",
+  "read_only_local_GET": "/rest/db/remoteneed",
+  "folder_id": "af3",
+  "device_label": "home",
+  "timeout_seconds": 12,
+  "outcome": "response timeout; no result received",
+  "remote_pending_files_queue_attribution": null,
+  "global_need_count_from_prior_observation": 3,
+  "global_need_bytes_from_prior_observation": 137831145,
+  "no_retry_or_scan_or_daemon_change": true
+}

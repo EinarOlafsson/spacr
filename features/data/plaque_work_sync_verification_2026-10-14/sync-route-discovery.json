@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-14T14:36:35.164125+00:00",
+  "status": "read_only_route_discovery_no_delivery_confirmation",
+  "source_queue_context": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup",
+  "mount_metadata": [
+    {
+      "target": "/media/carruthers/mnt3",
+      "source": "/dev/nvme3n1",
+      "fstype": "ext4"
+    },
+    {
+      "target": "/nas_mnt",
+      "source": "169.254.10.234:/volume1/homes",
+      "fstype": "nfs"
+    },
+    {
+      "target": "/media/carruthers/mnt1",
+      "source": "/dev/nvme2n1",
+      "fstype": "ext4"
+    }
+  ],
+  "user_sync_service": {
+    "MainPID": "79484",
+    "Id": "syncthing.service",
+    "ActiveState": "active",
+    "SubState": "running",
+    "FragmentPath": "/usr/lib/systemd/user/syncthing.service"
+  },
+  "config_binding": {
+    "path": "/home/carruthers/.config/syncthing/config.xml",
+    "sha256": "58781562aca134d8e50234eaaf560cf16e63a21f370ebcd06a4c5b78063f8382",
+    "bytes": 15621,
+    "full_configuration_not_copied_or_printed": true,
+    "only_selected_folder_fields_exported": true
+  },
+  "configured_folders": [
+    {
+      "folder_id": "af3",
+      "label": "af3",
+      "local_path": "/media/carruthers/mnt1/af3",
+      "type": "sendreceive",
+      "paused_declared": "false",
+      "associated_device_names": [
+        "home",
+        "carruthers"
+      ],
+      "versioning_type": null
+    },
+    {
+      "folder_id": "nas-sync",
+      "label": "NAS sync",
+      "local_path": "/nas_mnt/carruthers/sync",
+      "type": "sendreceive",
+      "paused_declared": "false",
+      "associated_device_names": [
+        "home",
+        "carruthers"
+      ],
+      "versioning_type": "trashcan"
+    },
+    {
+      "folder_id": "spacr-claude",
+      "label": "spacr-claude",
+      "local_path": "/media/carruthers/mnt3/claude/repo",
+      "type": "sendreceive",
+      "paused_declared": "false",
+      "associated_device_names": [
+        "home",
+        "carruthers"
+      ],
+      "versioning_type": null
+    },
+    {
+      "folder_id": "toxoplasma-projects",
+      "label": "Toxoplasma projects",
+      "local_path": "/media/carruthers/mnt3/claude/toxoplasma_projects",
+      "type": "sendreceive",
+      "paused_declared": "false",
+      "associated_device_names": [
+        "home",
+        "carruthers"
+      ],
+      "versioning_type": "staggered"
+    }
+  ],
+  "relevant_route": {
+    "folder_id": "af3",
+    "local_root": "/media/carruthers/mnt1/af3",
+    "queue_relative_path": "projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup",
+    "configured_type": "sendreceive",
+    "associated_device_names": [
+      "home",
+      "carruthers"
+    ],
+    "configuration_contains_source_queue": true,
+    "Home_local_destination_path": null,
+    "remote_completion_verified": false,
+    "actual_peer_connection_verified": false,
+    "folder_scan_error_or_need_state_verified": false
+  },
+  "candidate_config_paths": [
+    {
+      "path": "/home/carruthers/.local/state/syncthing/config.xml",
+      "exists": false
+    },
+    {
+      "path": "/home/carruthers/.config/syncthing/config.xml",
+      "exists": true
+    },
+    {
+      "path": "/home/carruthers/.config/rclone/rclone.conf",
+      "exists": false
+    },
+    {
+      "path": "/etc/rsyncd.conf",
+      "exists": false
+    },
+    {
+      "path": "/home/carruthers/.config/systemd/user/syncthing.service",
+      "exists": false
+    }
+  ],
+  "service_unit_inventory": {
+    "user": "syncthing.service enabled",
+    "system": [
+      "rsync.service disabled",
+      "syncthing@.service disabled"
+    ],
+    "scope": "Filtered names from systemctl list-unit-files; enabled/disabled metadata is not observed sync delivery state."
+  },
+  "documented_context": [
+    {
+      "path": "/media/carruthers/mnt3/claude/HANDOFF_WS_to_codex_2026-10-13.md",
+      "sha256": "bfff1ac08b66d756a1650b9436c9cb7af810e4f70800c90b8bcb8cb3c67e93de",
+      "bytes": 28497,
+      "queue_context_line_numbers": [
+        77,
+        315
+      ],
+      "qualification": "Existing handoff reports local ext4 queue; does not establish delivered Home sync state."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/CAPTURE_STATE_2026-10-13.md",
+      "sha256": "37e34d9da6430419b2f31f5cdf537e66f54c8639c6187f696df3ce629e8949b3",
+      "bytes": 56582,
+      "queue_context_line_numbers": [
+        691
+      ],
+      "qualification": "Existing handoff reports local ext4 queue; does not establish delivered Home sync state."
+    }
+  ],
+  "remaining_route_questions": [
+    "Root must confirm Home folder ID af3 maps to the intended Home local path; no Home access done here.",
+    "Obtain separately authorized sanitized folder/device connection/completion/error/need status before claiming synchronized; active service alone is insufficient.",
+    "Ignore patterns, paused-device state, filesystem watcher/scan progress, conflicts and remote-only changes were not inspected; current sendreceive permits both directions and is not a one-way transfer guarantee.",
+    "Bind protected stable saved queue snapshot and conflict-preserving integration with current Home content before authorized daemon/transfer decisions. Source disk is local ext4; separate NAS mount/folder does not prove this queue is on NAS."
+  ],
+  "no_actions": [
+    "No queue/mask/ledger writes or reads by this route task; queue path used for config containment and mount lookup only.",
+    "No daemon restart, rescan, sync activation, transfer, deletion, merge, Home access, REST/API/provider/network calls or credential disclosure.",
+    "No environment/package changes or app/Qt/GPU/test execution."
+  ],
+  "limits": [
+    "Device names are declared configuration labels; no live Home identity/session/connectivity inferred.",
+    "Config SHA binds observed bytes but no API key/password/address/device-ID/certificate or other unrelated config fields are exported.",
+    "This receipt answers configured WS route only; it does not ensure yesterday\u2019s saved files have reached Home. Root owns actual authorized staged synchronization."
+  ]
+}

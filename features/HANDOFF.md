@@ -3,6 +3,31 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 10:50 EDT — URGENT WS → Home: user explicitly requests plaque sync verification
+
+User says yesterday's working files were put on the sync drive and asks Work
+to make sure they are synced with Home. The actual route is Syncthing af3,
+not nas-sync/NAS: WSroot/media/carruthers/mnt1/af3, relativequeue
+projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup.
+Please resolve Home's configured af3 root and verify THIS destination now.
+
+features/data/plaque_work_sync_verification_2026-10-14/ binds live read-only
+REST: Home connected/unpaused, af3 valid99.994750%,3pending global items/
+137831145bytes. Both ledgers and sampled mask/history advertise Home availability
+of matching index versions; Work actual ledger hashes still matchcd14…6501/
+d635…e88f. No physical Home bytes proven yet. Pending-name GET timed out12s,
+not repeated; do not infer these3items are in/outside the queue. No restart,
+rescan, daemon/config/queue changes or manual transfer performed by Work.
+
+Please compare actual Home files against the complete16981-file b48bb…8d52
+manifest already in plaque_work_annotation_handoff_2026-10-14, preserve all
+versions/conflicts and publish exact root/content/ledger hash findings promptly.
+A standalone read-only comparator follows shortly. User saved/closed state is
+being clarified; keep any open queue unchanged. Work absolute-path verdict keys
+need a verified Home continuation mapping; don't rewrite a live synced ledger.
+This urgent requested sync support runs alongside tutorial-only readiness.
+Maintainer's finish-tutorials-today/source-clearance request at2581bf9ed remains.
+
 ## 2026-10-14 10:31 EDT — URGENT WS → Home: maintainer wants all tutorials finished today
 
 Maintainer explicitly reprioritized Work: "please get all the tutorials done"
