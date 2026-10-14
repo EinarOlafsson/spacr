@@ -1,0 +1,108 @@
+{
+  "item": "N655",
+  "scope": "Custom-painted Toggle keyboard focus and reduced motion",
+  "base_commit": "7e074c1cebb9cda313a941a589a394373c962619",
+  "result": "Implemented and validated in a private commit; broader platform accessibility acceptance remains open",
+  "source_sha256": {
+    "spacr/qt/widgets/toggle.py": "7ec3cfb255cc7a6613e294161fc8f6da2226357764bfc1bb5440565500d60d23",
+    "tests/qt/test_655_toggle_accessibility.py": "8e96774e3e62a9a8cdaf6a9e1298cf5859779ec104dfeded5be5d773be0e36c6"
+  },
+  "before_source_sha256": "925345e1ea7ccf0180712b484256299322f8d4c51e272946707d35fb8bfce8eb",
+  "before": {
+    "failed": 10,
+    "passed": 0,
+    "seconds": 6.5,
+    "log": "before-valid.log.gz",
+    "description": "Unmodified base source with final regression fixture; all10 failures expose invisible focus/missing strong border/animation despite Reduce motion"
+  },
+  "after": {
+    "passed": 60,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 22.01,
+    "log": "owning.log.gz",
+    "junit": "owning.xml.gz"
+  },
+  "test_files": [
+    "tests/qt/test_655_toggle_accessibility.py",
+    "tests/qt/test_cov_1_toggle.py",
+    "tests/qt/test_a_toggle_caption_wraps_only_when_asked.py",
+    "tests/qt/test_field_chrome_composited_in_the_field_20261012.py",
+    "tests/qt/test_655_accessibility_preferences.py"
+  ],
+  "environment": {
+    "platform": "Linux offscreen",
+    "python": "3.12.13",
+    "pyside": "6.12.0",
+    "memory_cap": "6G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "SPACR_NO_GL": "1",
+    "timing_tests": false
+  },
+  "coverage": {
+    "whole_module": {
+      "covered_lines": 166,
+      "num_statements": 172,
+      "percent_covered": 94.44444444444444,
+      "percent_covered_display": "94.44",
+      "missing_lines": 6,
+      "excluded_lines": 0,
+      "percent_statements_covered": 96.51162790697674,
+      "percent_statements_covered_display": "96.51",
+      "num_branches": 44,
+      "num_partial_branches": 6,
+      "covered_branches": 38,
+      "missing_branches": 6,
+      "percent_branches_covered": 86.36363636363636,
+      "percent_branches_covered_display": "86.36"
+    },
+    "changed_statement_lines": [
+      7,
+      98,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      295,
+      297
+    ],
+    "uncovered_changed_statements": [],
+    "changed_branch_arcs": [
+      [
+        98,
+        99
+      ],
+      [
+        98,
+        100
+      ],
+      [
+        102,
+        103
+      ],
+      [
+        102,
+        109
+      ],
+      [
+        297,
+        298
+      ],
+      [
+        297,
+        301
+      ]
+    ],
+    "uncovered_changed_branches": []
+  },
+  "limits": [
+    "No native screen-reader speech validation",
+    "No new Windows or macOS native acceptance",
+    "No tutorial recording or runtime caption changes",
+    "Initial fixture ownership failure (Qt6.11) corrected before definitive before/after; retained in scratch/before.log"
+  ],
+  "scratch": "/mnt/wd4tb/scratch/n655-toggle-accessibility-20261014"
+}

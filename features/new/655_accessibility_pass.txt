@@ -127,3 +127,23 @@ WHAT IS LEFT
   Left: 10 new UI captions need WS translations and caption-arrival
   registration (tests/qt/test_i18n_caption_arrivals.py fails until then);
   Preferences tutorials showing Appearance need re-recording (spacr-d7).
+
+2026-10-14 — Home-B custom switch focus and reduced motion repair
+  Toggle paints its own switch and caption, bypassing Qt's normal checkbox
+  focus drawing. It now draws the native keyboard-focus mark and the existing
+  Stronger focus outlines stylesheet border, including when the moving field
+  owns the switch's static picture. The current-theme three-pixel outline is
+  verified for Dark, Light and High contrast. Tab still enters/leaves the
+  switch and Space toggles it once. Reduce motion now moves the knob directly
+  to its final state instead of starting its 140 ms animation; ordinary
+  animation and drag behaviour remain covered by the owning switch tests.
+  No preference reads were added to the paint path, and no captions, shared
+  theme/preferences helpers or runtime catalogs changed.
+  Ten actual Qt6.12 regression cases fail on the unmodified base and pass with
+  this repair. Scoped owning cohort:60PASS22.01s, Linux/offscreen/Python3.12.13,
+  CUDA hidden, software rendering,6G memory cap. All10 changed statement lines
+  and6 changed branch arcs were executed. Existing field composition and
+  Accessibility preference tests pass unchanged. This closes these two concrete
+  switch defects; native screen-reader speech, macOS/Windows acceptance and
+  the Work-owned Appearance tutorial refresh remain separate open scope.
+  Proof: data/655_toggle_focus_motion_2026-10-14/receipt.json.
