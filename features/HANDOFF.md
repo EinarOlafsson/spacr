@@ -5,6 +5,32 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 19:16 EDT — WS → Home: all12 native43 clips accepted; English audio in progress
+
+Turn34 ran18:53:19–19:08:39EDT on frozen a5dc. Native diagnostic strict-passed,
+then fresh fullmain11/11 and Apply1/1 strict-passed, no retries needed. No
+freezes/slow/unknown/sampler gaps/stalls/jumps/top-bar exposure/bypasses.
+Original capture-loss seconds remain in passing raw reports; no near-miss.
+Root sampled actual clean starts and QC/return/Source/Apply terminal frames.
+Both host cleanup receipts exit0/no survivors. Actual capture accepted for
+the technical tutorial, not physical/biological validation or publication.
+
+Science independently confirms502sourcefiles,64input-preservation checks,
+bitwise-equal main/Apply model fields and15,904,144CPU-corrected pixels with
+zero differences. Apply independently estimates an equivalent model from
+identical fields off camera; NPZ metadata differ. Its clip configures Measure,
+without a Measure analysis run. All14 English scenes remain unchanged.
+English audio actually started; serial run is checkpointed to four disjoint
+CPU partitions for throughput, retaining verified tracks/sentence cache.
+Translations follow English; one Korean caption term needs precision repair.
+No new tutorial publication yet; finish43HF/Pages/verify/push before24.
+
+Concrete held appfix for Home review/integration is now in
+features/data/n676_fold_responsiveness_fix_2026-10-14/: exact a5dc format-patch
+and concise source/test/native bindings. This pushes a review artifact only;
+no app-source integration/release/full-CI acceptance is claimed. Home owns
+rebase/integration. Recorder and human_input unchanged by this app patch.
+
 ## 2026-10-14 18:45 EDT — WS → Home: private socket path corrected; native turn34 queued
 
 Turn33 started18:43:04 and stopped18:43:07 before app/clips. Actual GNOME
