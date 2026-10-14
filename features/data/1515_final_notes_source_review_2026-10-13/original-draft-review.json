@@ -1,0 +1,2303 @@
+{
+  "schema": "spacr-release-note-final-source-review-v1",
+  "reviewed_at_utc": "2026-10-14T01:42:44.764154+00:00",
+  "source_sha": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "source_tree": "33415e485abaf4089a61bc8ebc317019f3037f4a",
+  "private_worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-promotion-1515-20261013",
+  "private_head": "87010935bbbd6e925a702c4fa6c19d37751a5b20",
+  "draft_path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/release-notes-prepared.md",
+  "draft_sha256": "cc1cab6a8cf705da3c83e1e95335d96f0a3d75cecf338029367583b4a25b18a7",
+  "bullets": 36,
+  "sections": {
+    "New": 10,
+    "Improved": 14,
+    "Fixed": 8,
+    "Alpha": 4
+  },
+  "alpha_intro": {
+    "line": 46,
+    "text": "Experimental features are marked alpha. Show alpha features and Show alpha species reveal the corresponding experimental controls and organism pages.",
+    "source": {
+      "path": "spacr/settings.py",
+      "line": 7355,
+      "anchor": "ALPHA_FEATURES =",
+      "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+      "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee"
+    },
+    "assessment": "Separate feature and species registries support the two visibility switches."
+  },
+  "counts": {
+    "material_narrowing_needed": 3,
+    "supported": 28,
+    "supported_with_precision_note": 5
+  },
+  "review": [
+    {
+      "item": "3D editing",
+      "draft_line": 5,
+      "draft_text": "Make Masks opens 3D images in the same view as 2D ones. A slice slider and the Z wheel move through the stack, and the view can be Default, Orthogonal or True 3D. Draw and edit masks on any slice and delete objects; edited volumes are saved as whole sections.",
+      "draft_line_sha256": "bad59d2b716990b24fc9cdbe24ffafeb8536af768abde8efc9bb25c791ade5a9",
+      "status": "supported",
+      "assessment": "Production provides the three view modes, slice navigation and whole-volume save; owning tests exercise edits, side views, True 3D and round trips. No pending automatic-diameter or label-binding work is implied.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/make_masks.py",
+          "line": 8899,
+          "anchor": "class _VolumeStage",
+          "sha256": "20fdfd682ee1c1d29cabaaff88f880d6bfabff85158afc58766b251f1029c639",
+          "git_blob": "d890351808751bd9bf05efb907b8be74207193cf"
+        },
+        {
+          "path": "spacr/qt/mask_engine.py",
+          "line": 6071,
+          "anchor": "def save_volume_mask",
+          "sha256": "e2984deb6eefb3399e732c4fb4cf2e95d048ddc33ce67ef3410277cf7230ea7d",
+          "git_blob": "72c3b7a5a3ec3b23e5b4b524d12b13ac4a505822"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_692_three_d_mask_drawing.py",
+          "line": 35,
+          "anchor": "def test_",
+          "sha256": "0ccda34230d93f16e8dfbb11789d9ecb898706a22f4a851606d9e348eb638f6f",
+          "git_blob": "c5ddfc0068d26d2cc36d2ec0f85cbf7e1cc7cb26"
+        }
+      ]
+    },
+    {
+      "item": "TEM images",
+      "draft_line": 6,
+      "draft_text": "Make Masks supports transmission electron microscopy (TEM) images.",
+      "draft_line_sha256": "25bec1617191131183d0c1cea25c0615af52668c0bc66e5448e53c3af78d96a6",
+      "status": "supported",
+      "assessment": "DM3/DM4 and MRC readers and the Make Masks open path are present; optional-reader dependencies remain ordinary installation requirements.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/mask_engine.py",
+          "line": 95,
+          "anchor": "TEM_SUFFIXES",
+          "sha256": "e2984deb6eefb3399e732c4fb4cf2e95d048ddc33ce67ef3410277cf7230ea7d",
+          "git_blob": "72c3b7a5a3ec3b23e5b4b524d12b13ac4a505822"
+        },
+        {
+          "path": "spacr/io.py",
+          "line": 10078,
+          "anchor": "def read_tem_image",
+          "sha256": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+          "git_blob": "b09a1db80c9e8527d1ab88ced4e70f4180408ae0"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_690_tem_readers_and_pixel_size.py",
+          "line": 35,
+          "anchor": "def test_",
+          "sha256": "6f49503c1c83d311cb23096311b4403bfed03625deeb6d3fd75822fdd4bff068",
+          "git_blob": "e094f6db422ed4298c3de9d89d15bd6200ea0130"
+        },
+        {
+          "path": "tests/qt/test_690_make_masks_tem.py",
+          "line": 49,
+          "anchor": "def test_",
+          "sha256": "79ed0370ca2d300a0070ece666291245eff5415d9be07f2839914c7cc9ad358a",
+          "git_blob": "2a3b96d53fbd352b955e81f4bb040c82f51fd9bf"
+        }
+      ]
+    },
+    {
+      "item": "FIB-SEM example",
+      "draft_line": 7,
+      "draft_text": "A FIB-SEM example volume with 3D mitochondria masks from HeLa cells ([EMPIAR-10982](https://www.ebi.ac.uk/empiar/EMPIAR-10982/), CC0). Fetch it with `spacr-download fibsem`.",
+      "draft_line_sha256": "25daaa7b045eb71dae6f830273bca967cf002bd3a077d79bc53156bb8d6d439d",
+      "status": "supported",
+      "assessment": "The named example, 3D labels and CLI alias are source-bound. Primary EMPIAR-10982 and CC0 provenance were independently checked by root; this review does not extend the scientific claim beyond that dataset.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/mask_engine.py",
+          "line": 5990,
+          "anchor": "def load_volume_image_and_mask",
+          "sha256": "e2984deb6eefb3399e732c4fb4cf2e95d048ddc33ce67ef3410277cf7230ea7d",
+          "git_blob": "72c3b7a5a3ec3b23e5b4b524d12b13ac4a505822"
+        },
+        {
+          "path": "spacr/example_archives.py",
+          "line": 440,
+          "anchor": "key=\"fibsem\"",
+          "sha256": "9b1cd703a675c7e1d2290d44627b491d45a401c5b0b36d647fe7abc80493e4fc",
+          "git_blob": "2df9c99cc661dc9d76021431b2c5c6d255dd76fd"
+        },
+        {
+          "path": "spacr/cli_download.py",
+          "line": 207,
+          "anchor": "def resolve_selection",
+          "sha256": "13c5324310471a612f9c247ddcadd291b00ff97c339d4ff1c34944799bb27b93",
+          "git_blob": "5d5454b40e2f8efb0aa534c2e86d386933038001"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_692_fibsem_example_dataset.py",
+          "line": 55,
+          "anchor": "def test_",
+          "sha256": "d3a0cf56f30715e64bacde0b71af53955e6d0dcead4896576f832e9833d44aae",
+          "git_blob": "e95ba3dc8a6d40a6198a1a7ccdf0401a9ad60e74"
+        },
+        {
+          "path": "tests/qt/test_692_three_d_mask_drawing.py",
+          "line": 35,
+          "anchor": "def test_",
+          "sha256": "0ccda34230d93f16e8dfbb11789d9ecb898706a22f4a851606d9e348eb638f6f",
+          "git_blob": "c5ddfc0068d26d2cc36d2ec0f85cbf7e1cc7cb26"
+        }
+      ]
+    },
+    {
+      "item": "Hide judged fields",
+      "draft_line": 8,
+      "draft_text": "Make Masks has a Hide judged fields switch to skip fields already marked Keep or Discard. The choice is remembered for each folder. The terminal queue offers the same filter with `spacr-make-masks --exclude-verdicts`.",
+      "draft_line_sha256": "acfa7a4699e5ac4f8691630e4b40e23be3944f9aaafed80f061853ae4d670010",
+      "status": "supported",
+      "assessment": "The release contains N701 per-folder queue filtering and the owning layout tests. The CLI option is checked separately in the inventory below.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/make_masks.py",
+          "line": 9964,
+          "anchor": "exclude_verdicts",
+          "sha256": "20fdfd682ee1c1d29cabaaff88f880d6bfabff85158afc58766b251f1029c639",
+          "git_blob": "d890351808751bd9bf05efb907b8be74207193cf"
+        },
+        {
+          "path": "spacr/cli_make_masks.py",
+          "line": 152,
+          "anchor": "--exclude-verdicts",
+          "sha256": "7087a15003dd4689d45e320ed24eb4af7eb3f49f5734f2f1381b702c1456fc79",
+          "git_blob": "e0e6603a518dfebdaac7b52652f2e2f283ff0f4a"
+        },
+        {
+          "path": "spacr/curation_queue.py",
+          "line": 1482,
+          "anchor": "if exclude_verdicts:",
+          "sha256": "3464caf55adadad4d0327f58e5156648b10744ce5671b9b44d84c71352222078",
+          "git_blob": "c91ecbfffef9f029f6c3aa591941e8ec7a005863"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_701_make_masks_hide_judged_fields.py",
+          "line": 80,
+          "anchor": "def test_",
+          "sha256": "3fce7d203ad818134ed0d519eb2433a0d0443040025a3b3c81d6cd5d956e5faf",
+          "git_blob": "7c9a21ad0ac177b72771ad2c9f2de373bff3948f"
+        }
+      ]
+    },
+    {
+      "item": "Settings export",
+      "draft_line": 9,
+      "draft_text": "Export settings... on every settings form, and Save settings CSV... in Distributed Jobs (#140, #141, #142).",
+      "draft_line_sha256": "7cebe0d67f323b48c344922e035a167d032e238745e9b617288b186252553175",
+      "status": "supported",
+      "assessment": "The central module settings forms and Distributed Jobs snapshot export are covered. Read every settings form as the spaCR module forms, rather than arbitrary third-party dialogs.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "line": 1975,
+          "anchor": "Export settings",
+          "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+          "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d"
+        },
+        {
+          "path": "spacr/qt/screens/distributed_jobs.py",
+          "line": 534,
+          "anchor": "Save settings",
+          "sha256": "5166e1120b441b88505eaa570c33a0710fe88c1b8728bbf669f4d9def7bd2463",
+          "git_blob": "6c3c8b2e85400aa7c8c7d55aab56390036560a3b"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_n693_export_settings_from_every_form.py",
+          "line": 162,
+          "anchor": "def test_",
+          "sha256": "765055712eae9da364be52a38ee8979857f5147a79a89bed422b6edee975a869",
+          "git_blob": "ca5a4298b8aedbffa132dee36518c7e14fceec80"
+        },
+        {
+          "path": "tests/qt/test_n693_distributed_jobs_saves_the_snapshot.py",
+          "line": 49,
+          "anchor": "def test_",
+          "sha256": "adce680ef68e42ede63f602108d91bb28ce8cc4ba08d0bedd0d9fd9a8ef015a4",
+          "git_blob": "f213fbbfddbc4d9f6cf4185a6a9647fdf383e91e"
+        },
+        {
+          "path": "tests/test_n693_write_settings_file.py",
+          "line": 21,
+          "anchor": "def test_",
+          "sha256": "e60668efbfc287f7e9d269e14edbbcdf49e621471d573858b7d4993329936bd0",
+          "git_blob": "1be515c4814bacefb714b999e5959fa5e86c2588"
+        }
+      ]
+    },
+    {
+      "item": "Accessibility",
+      "draft_line": 10,
+      "draft_text": "Preferences > Appearance > Accessibility: High contrast, Text size, Reduce motion, Stronger focus outlines and Keyboard shortcuts.",
+      "draft_line_sha256": "0e2c5856ff68f10a508356d021cdd5fae0f51bca946622ae08057b7872f2ecb7",
+      "status": "supported",
+      "assessment": "All five named accessibility controls are present.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "line": 5377,
+          "anchor": "Stronger focus outlines",
+          "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+          "git_blob": "232bc2b9cf7480f8035c9c85d06c7439f7ab97f8"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_655_accessibility_preferences.py",
+          "line": 121,
+          "anchor": "def test_",
+          "sha256": "b04fd4ca9189ca76ed3f16e94a9d17a21ce478c7d6c6e034a155060e8c99d40c",
+          "git_blob": "78e729ef90a3b6e5c53dbfbcda5c91fbebb11033"
+        }
+      ]
+    },
+    {
+      "item": "Startup sequence",
+      "draft_line": 11,
+      "draft_text": "Startup uses one borderless window that opens at the available screen size. The spaCR logo, built from microscopy tiles, holds for at least 2 s, longer while the application loads, and then breaks apart over 4 s. Help has a replay entry. The other startup dialogs (drafts, installer consent, tour, What's new) wait until the sequence ends or is skipped.",
+      "draft_line_sha256": "b90b15a6f61af562ab3bc7eedb21a73d4539689bf70a7b6d662a0612b3c447e5",
+      "status": "supported_with_precision_note",
+      "assessment": "The normal enabled startup animation has these timings and defers the named dialogs. Reduced motion uses a plain fade; disabled or skipped startup does not promise the full sequence.",
+      "suggested_wording": "When the startup animation is enabled, its microscopy-tile logo holds for at least 2 s and longer while loading, then breaks apart over 4 s; Reduce motion uses a fade.",
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/widgets/loading_screen.py",
+          "line": 176,
+          "anchor": "_MOSAIC_MIN_HOLD_S = 2.0",
+          "sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+          "git_blob": "8c3a01d236639698e0730a07a22ddc1766644449"
+        },
+        {
+          "path": "spacr/qt/widgets/loading_screen.py",
+          "line": 180,
+          "anchor": "_BLOW_AWAY_S = 4.0",
+          "sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+          "git_blob": "8c3a01d236639698e0730a07a22ddc1766644449"
+        },
+        {
+          "path": "spacr/qt/app.py",
+          "line": 174,
+          "anchor": "availableGeometry",
+          "sha256": "3e475f8af1694f10e187081ecb3f9c4dcbc1fd187a6d17f7021ff536d74f9cbd",
+          "git_blob": "8c321bf7fe21e453c096e615be53575c9db55421"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_694_photomosaic_blow_away_startup_screen.py",
+          "line": 76,
+          "anchor": "def test_",
+          "sha256": "8062e548814b574f3d090244abb80fa6815df7600652de929351d38235b710ed",
+          "git_blob": "6f33dce59b6b01338b9d1294831a7c0605c59e02"
+        },
+        {
+          "path": "tests/qt/test_695_startup_sequence_and_borderless_window.py",
+          "line": 75,
+          "anchor": "def test_",
+          "sha256": "632445e6bcbd02d7813b919e4e50b709c928d0eaecab4b5d5a9cb1d69377e1b7",
+          "git_blob": "fbce104aa3cf3ee2e7d240fd8269d434c949db41"
+        },
+        {
+          "path": "tests/qt/test_695_startup_dialogs_deferred.py",
+          "line": 94,
+          "anchor": "def test_",
+          "sha256": "1ab559c44dae7a3fa981460cd6954e8ee9389d3806149fb321d51d50218702ed",
+          "git_blob": "b9c39f5acbdd77a48b9ff38bcee0a795bfb95a8d"
+        }
+      ]
+    },
+    {
+      "item": "Gate Editor controls",
+      "draft_line": 12,
+      "draft_text": "Gate Editor: the mode, plane and spin keys can be rebound, and a picker lets you choose between overlapping elements.",
+      "draft_line_sha256": "e0fad33516a0f3c5b63bb2c5a4522869b1c7fde99545790f86b3205db6e10a31",
+      "status": "supported",
+      "assessment": "Rebindable mode, plane and spin actions and overlapping-element selection are present.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/widgets/gate_editor.py",
+          "line": 337,
+          "anchor": "overlap",
+          "sha256": "84b94268efed23a09813410602c10c43170dca7accbb4741f0718b471a7d60de",
+          "git_blob": "5e978bd65b56612732b734e76686c5f296f94ef2"
+        },
+        {
+          "path": "spacr/qt/screens/gate_editor.py",
+          "line": 471,
+          "anchor": "spin",
+          "sha256": "7cbdc3c1a67348c21d0157c6a3876e22693364be4cd9eb164c262228b88a61c7",
+          "git_blob": "29b7495f8df4c30cd58db1351b32cca3f2c1b11e"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_gate_editor_mode_keys_and_overlap_picker.py",
+          "line": 94,
+          "anchor": "def test_",
+          "sha256": "b90900832e012c4020c7f5a9dc96a28e7b7dfaf9c6f8f84805ae30e4e0abf197",
+          "git_blob": "9afdb07a44e0a0592f72af7b9932a162904fcaf6"
+        }
+      ]
+    },
+    {
+      "item": "Model card viewer",
+      "draft_line": 13,
+      "draft_text": "Model Zoo has a model card viewer with three pages (scores, training facts, about). Cards download from Hugging Face, are cached, and fall back to the bundled card when offline.",
+      "draft_line_sha256": "5d021eef9e51411922c4f668c0950c90c73ad709a4b0baf0a67ecf61d063eda2",
+      "status": "supported",
+      "assessment": "Three-page cards, remote fetching, cached copies and bundled offline fallback are implemented.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/model_cards.py",
+          "line": 4,
+          "anchor": "page1",
+          "sha256": "1c890508972d60e0ed40b2ddd13b23379c9b1bc5514b44ef35ce9df9cdc6621d",
+          "git_blob": "aa0bc2f17dce2c6b0d2a5db1dd2448a4261f88cb"
+        },
+        {
+          "path": "spacr/qt/widgets/model_card_viewer.py",
+          "line": 186,
+          "anchor": "cached_pages",
+          "sha256": "e990f87b7f7165e062dfecb7a32e37be8386fb123f34f7662a58a49b80aa3ecb",
+          "git_blob": "5d134835f808513db45a381a0747dc3692627d3b"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_model_cards_data.py",
+          "line": 50,
+          "anchor": "def test_",
+          "sha256": "7289ecb0e85880b04c0ecbd843ddbebed0788b28f9c68bcb205d5129d839bbe7",
+          "git_blob": "88f983dcdbb13e855ec6abea641cdaba37b04b54"
+        },
+        {
+          "path": "tests/qt/test_model_card_viewer.py",
+          "line": 80,
+          "anchor": "def test_",
+          "sha256": "fc08be75910071a66d9f76271bd44b367f92f48581516aa8bd5ab0f98633b84d",
+          "git_blob": "94aa05a2ebbeb754f3adbd3b9cd93fe3f6891597"
+        },
+        {
+          "path": "tests/qt/test_model_card_viewer_behaviour.py",
+          "line": 87,
+          "anchor": "def test_",
+          "sha256": "bc4cfcd1889a75b64a69a7b187bdbc80dfeb2a0a92f8bfaaea9086ef4bacb6f0",
+          "git_blob": "b927d2a6b99359b2be85460f05c2ae72b08a438c"
+        }
+      ]
+    },
+    {
+      "item": "Tutorial CLI",
+      "draft_line": 14,
+      "draft_text": "`spacr-tutorial` opens the online tutorials.",
+      "draft_line_sha256": "88bf6ecb2d95e49f1828183ceaeb2f83f3e4aee1a443bbd7938696349731c6c0",
+      "status": "supported",
+      "assessment": "The console entry opens the authoritative online lesson URL.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "setup.py",
+          "line": 225,
+          "anchor": "spacr-tutorial=",
+          "sha256": "4dc21bd2aed6278c52e42ebf05d59d1c803b218532fd1a07d98464213e01a608",
+          "git_blob": "51e96a5ca0f34615a16ac51a7a200677decabf83"
+        },
+        {
+          "path": "spacr/qt/tutorial/__main__.py",
+          "line": 85,
+          "anchor": "webbrowser.open",
+          "sha256": "1c4d562047e755ad654af50ab2d172055b4a98ee9838fcdcb6a1e03087936a6b",
+          "git_blob": "8462b914081ee8a7f1b43c379460b8e2e1d2a8a1"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_tutorial_cli.py",
+          "line": 63,
+          "anchor": "def test_",
+          "sha256": "68d3f2d5fda3562028929c4ee11ce3e3140eff5a99e0ffb261ebc16451a585fe",
+          "git_blob": "ccf6208a19ed17702d4721c60a0f0ebcdfefcd39"
+        }
+      ]
+    },
+    {
+      "item": "Well and plaque defaults",
+      "draft_line": 18,
+      "draft_text": "The README and Model Zoo highlight well detector v3. Figure-panel detection retains v2, which was evaluated on cropped panels in published figures. The plaque segmentation default is toxoplasma_plaque_v4.",
+      "draft_line_sha256": "52ba7a439eb2dc284bfd1a48287aa038001335e4251b7332d87f4e835df3bf02",
+      "status": "supported",
+      "assessment": "Figure-mode v2 and the Model Zoo/README v3 recommendation are distinct and correctly described. Source model facts support the cropped published-figure domain for v2; no universal v3 superiority is asserted.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/settings.py",
+          "line": 6763,
+          "anchor": "settings.setdefault('figure_detector', 'toxoplasma_well_detector_v2')",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+          "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee"
+        },
+        {
+          "path": "spacr/settings.py",
+          "line": 6761,
+          "anchor": "settings.setdefault('plaque_model', 'toxoplasma_plaque_v4')",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+          "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee"
+        },
+        {
+          "path": "spacr/model_zoo.py",
+          "line": 1140,
+          "anchor": "'key': 'toxoplasma_well_detector_v3'",
+          "sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55",
+          "git_blob": "6cae5241914579ab1ab0f08a3d2ae5ecb5d7db5f"
+        },
+        {
+          "path": "README.rst",
+          "line": 484,
+          "anchor": "toxoplasma_well_detector_v3",
+          "sha256": "85918a58c052e9910f76548986eba16d0c7d03560444c26f9cc303255e7457f0",
+          "git_blob": "e117cf0f4082fc4396e7f0d7b003b3c5cc810dc5"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_model_cards_are_current.py",
+          "line": 24,
+          "anchor": "def test_",
+          "sha256": "90abeb3ebbef8fed1e3adb2ab42f3fdd7526f58eff87f52184da1240a4fc527a",
+          "git_blob": "f047d9d3970c06eb42c46de928deb6772010c833"
+        }
+      ]
+    },
+    {
+      "item": "Nine rescored cards",
+      "draft_line": 19,
+      "draft_text": "The nine PV and plaque segmentation cards use the ground-truth re-score of 2026-10-11 (object F1, boundary F1, precision, recall, AJI and Dice), comparing each model with its matching stock Cellpose-SAM base on the same held-out fields. The README shows score cards for the default models, with links to older models and alternatives.",
+      "draft_line_sha256": "6a1d662c0f0375fe4a37bcd244fd8f7778618a523098b5edc9a16488124c4e95",
+      "status": "supported_with_precision_note",
+      "assessment": "All nine PV/plaque card JSONs carry the six named metrics and matching stock cpsam/cpsam_v2 comparisons on each model's recorded held-out subset. This is not a common cross-model benchmark or proof of independence at plate/acquisition/paper level; documented ground-truth lineage and reconstructed historical splits still apply.",
+      "suggested_wording": "...comparing each model with its matching stock Cellpose-SAM base on that model's recorded held-out subset.",
+      "production_or_evidence": [
+        {
+          "path": "features/data/model_rescore_curated_gt_2026-10-11/receipt.json",
+          "line": 1,
+          "anchor": null,
+          "sha256": "59f3326b1df9ec5dbf48c9d73e1f69cb0bb70e058a8ec512fa46d5260637ecd2",
+          "git_blob": "05ff7271ba6679ec1a7b4aa5ff2a488d870d6890"
+        },
+        {
+          "path": "README.rst",
+          "line": 483,
+          "anchor": "Default models",
+          "sha256": "85918a58c052e9910f76548986eba16d0c7d03560444c26f9cc303255e7457f0",
+          "git_blob": "e117cf0f4082fc4396e7f0d7b003b3c5cc810dc5"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_model_cards_data.py",
+          "line": 50,
+          "anchor": "def test_",
+          "sha256": "7289ecb0e85880b04c0ecbd843ddbebed0788b28f9c68bcb205d5129d839bbe7",
+          "git_blob": "88f983dcdbb13e855ec6abea641cdaba37b04b54"
+        },
+        {
+          "path": "tests/test_model_cards_are_current.py",
+          "line": 24,
+          "anchor": "def test_",
+          "sha256": "90abeb3ebbef8fed1e3adb2ab42f3fdd7526f58eff87f52184da1240a4fc527a",
+          "git_blob": "f047d9d3970c06eb42c46de928deb6772010c833"
+        }
+      ]
+    },
+    {
+      "item": "Sixteen dropdown settings",
+      "draft_line": 20,
+      "draft_text": "Sixteen settings that accept a fixed list are now dropdowns, for example `spatial_platform`. Stored values are unchanged.",
+      "draft_line_sha256": "4f576f85990619b5e65d34307cbacdb934cc1b7b10c4e1ca4e2f01f56382b689",
+      "status": "supported",
+      "assessment": "The owning matrix has 17 app/key pairs and 16 unique setting keys because spatial_platform appears in two apps; persisted values and unknown historical values are preserved.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/settings_spec.py",
+          "line": 338,
+          "anchor": "spatial_platform",
+          "sha256": "e6cb475eb78c17837a28dbeab9e34e3f62b64573a792f56ff73efa81611bd45a",
+          "git_blob": "6b26d79a23934448d6a6d19e5018a1ed11393a04"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_closed_vocabularies_are_dropdowns.py",
+          "line": 53,
+          "anchor": "def test_",
+          "sha256": "6c2f6f203de2d67c659bf6130738a051931c10137de0ea2519914ae82226a1d2",
+          "git_blob": "a6f5eb93fea4262e72cea6fff134ad6fc3143a93"
+        }
+      ]
+    },
+    {
+      "item": "Regression response dropdown",
+      "draft_line": 21,
+      "draft_text": "Regression: `dependent_variable` is a dropdown of the numeric columns in the score file, with a note when `pred` is missing (#144).",
+      "draft_line_sha256": "540f5fa6100284dc17f743295bf83b5919c867205b5c311806aae4edd68d45e9",
+      "status": "supported",
+      "assessment": "Numeric CSV response choices and the missing-pred explanation are implemented and tested.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/settings_model.py",
+          "line": 869,
+          "anchor": "dependent_variable",
+          "sha256": "2ab88fa13e51e564672ce6c2e746301d94d62ef93d5b31d66f03d98e0957ea4c",
+          "git_blob": "6a5f82a594e45722e294ab5385d422d2068910fe"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_issue144_response_dropdown.py",
+          "line": 49,
+          "anchor": "def test_",
+          "sha256": "f5faa0c3a98b32df6dca77cbfc13985d1d8560d1ea95826beb37c8d75c6d6e5d",
+          "git_blob": "646edd822c95cc883ea0530597c6ed6f982df872"
+        }
+      ]
+    },
+    {
+      "item": "Measure plate folder lists",
+      "draft_line": 22,
+      "draft_text": "Measure reads a pasted list of plate folders as plates (#138, #139).",
+      "draft_line_sha256": "d2b349e18c216855fead35c1261aa4c7e649c46f8ad686681acc84e02c89c8f2",
+      "status": "supported",
+      "assessment": "Owning tests exercise pasted plate-folder lists and source-path handling.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/measure.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "921587f0bb415d52bed2a8163a2abdac620656d6e7f64585ddfeddc8cb2ed802",
+          "git_blob": "3f08f977d81285609c578d4de48f12eb16268d1f"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_src_path_lists_issues_138_139.py",
+          "line": 41,
+          "anchor": "def test_",
+          "sha256": "316995649b18d2fb0b03f7894f3d658072d1d9e5170ec3ff99c9c69d2716e101",
+          "git_blob": "e3b1f59a2dd46be91bfe118d45ed38810524adc8"
+        }
+      ]
+    },
+    {
+      "item": "Relative Classify databases",
+      "draft_line": 23,
+      "draft_text": "Classify: relative database paths in `src` work, and a missing database is reported with the full path searched (#143).",
+      "draft_line_sha256": "7b090466351a1aad4e94194fbe5659049e59d9dc812a7287ad9b7e718b66e0e9",
+      "status": "supported",
+      "assessment": "Relative database resolution and the complete searched path in missing-database errors are covered.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/io.py",
+          "line": 5868,
+          "anchor": "def _read_db",
+          "sha256": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+          "git_blob": "b09a1db80c9e8527d1ab88ced4e70f4180408ae0"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_issue_143_relative_database_path.py",
+          "line": 31,
+          "anchor": "def test_",
+          "sha256": "8edc70dd6becc9ec601d86dee5afaddb6dcbcbe076fc111e6cd8cca3b87500f2",
+          "git_blob": "5334d564c61a2bb394d16225571c0c1bab0d76f4"
+        }
+      ]
+    },
+    {
+      "item": "Mixed-model stop and fallback",
+      "draft_line": 24,
+      "draft_text": "Mixed model: Stop is reported as a stop, the nested design is checked before the fit with the setting to change named, and optimiser fallbacks are handled (#145).",
+      "draft_line_sha256": "f00aa483f8db5ad6c868c493f2cff1d712b4af98d23b313f7e0a745b9476229d",
+      "status": "supported",
+      "assessment": "Cancellation propagates as cancellation, nested-design preflight gives actionable setting guidance, and optimizers fall back. This does not guarantee every mixed-model fit will succeed.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/ml.py",
+          "line": 1365,
+          "anchor": "def _fit_nested_mixedlm",
+          "sha256": "ce0bd9af83b66f95e93627865f31c0612425d5ce33ddcce75373817c92ec8c84",
+          "git_blob": "d4631243dfbec65b2eb2b1d839d41d125de17309"
+        },
+        {
+          "path": "spacr/ml.py",
+          "line": 1195,
+          "anchor": "def _answering_stop",
+          "sha256": "ce0bd9af83b66f95e93627865f31c0612425d5ce33ddcce75373817c92ec8c84",
+          "git_blob": "d4631243dfbec65b2eb2b1d839d41d125de17309"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_mixed_model_design_checks_and_fallbacks.py",
+          "line": 111,
+          "anchor": "def test_",
+          "sha256": "aa630a7f59c31b174981e5a043b98f7ce8cf008b007582bea2043e53e7539d0a",
+          "git_blob": "f50614927fd34c551c9c2a98e1249846dfc2abce"
+        }
+      ]
+    },
+    {
+      "item": "Backdrop CPU and ripples",
+      "draft_line": 25,
+      "draft_text": "Field backgrounds on Mask screens and in Spaceout draw more smoothly, and colour waves use less CPU. Ripples from a closed window run outward only, and the ripple slider scales waves up to 200 %.",
+      "draft_line_sha256": "9063f510d7067f82e38a42f25f0714e3db91884e254d6a49527a7300cc2d3932",
+      "status": "supported_with_precision_note",
+      "assessment": "Production reduces paint work through sparse blending/reused scratch; root's CPU comparison reports median 11.35 to 6.24 ms, with 80 output combinations checked. Outward-only close ripples and 200% scaling have owning tests. Smoothness is comparative evidence, not a no-stall native-display guarantee.",
+      "suggested_wording": "Backdrop paint work is reduced on Mask screens and in Spaceout, and colour waves use less CPU. ...",
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+          "git_blob": "665b5087f6632bf6d0650a0ae42687432faa110e"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_mask_screen_field_frame_costs_near_home_20261012.py",
+          "line": 198,
+          "anchor": "def test_",
+          "sha256": "2ae975671b5e863dc6697f2a738fb24bb831762eb36b0c2d4b3adea776f4ae51",
+          "git_blob": "f88ba3b27150059145ccf58b2814e6e2c6420705"
+        },
+        {
+          "path": "tests/qt/test_spaceout_field_holds_its_budget_at_1440p_20261012.py",
+          "line": 106,
+          "anchor": "def test_",
+          "sha256": "0d21b6b17b448f978549cc5d4649e788997adb7d96e34b49d23979f83544bc7f",
+          "git_blob": "23b24ef126b6d9869dfc69100935080680f5fa4c"
+        },
+        {
+          "path": "tests/qt/test_n670_close_ripples_and_intensity_20261012.py",
+          "line": 97,
+          "anchor": "def test_",
+          "sha256": "686b015a67e9ae34038ec10b88b3e599db239d2ae36cc2fd73d69c3f41907047",
+          "git_blob": "7fa4e6c0061a147d6eb775f08cf047231dc108e1"
+        }
+      ]
+    },
+    {
+      "item": "Dynamic animation",
+      "draft_line": 26,
+      "draft_text": "With Dynamic animation enabled, active backdrops are capped at no more than 30 fps during CPU-heavy jobs, while Spaceout fractals pause.",
+      "draft_line_sha256": "c54a56701bfa6bc8805f282d41a77f84cc781cd852b1d145e086932ef655a6d4",
+      "status": "supported",
+      "assessment": "The enabled policy detects registered CPU-heavy jobs, caps active backdrop timers at 30 fps and pauses Spaceout fractals. This is policy behavior, not a measured constant frame-rate promise or arbitrary system-load detector.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "line": 12353,
+          "anchor": "class _AnimationResourcePolicy",
+          "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+          "git_blob": "665b5087f6632bf6d0650a0ae42687432faa110e"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_animation_defaults_ripples_and_dynamic_gpu_n684.py",
+          "line": 85,
+          "anchor": "def test_",
+          "sha256": "74a79609ccb25b3ab31c3de63d2c13c742fa1840ea993bcbe08ef7c236ac901b",
+          "git_blob": "513c6cfa3fddd52f4e48ecf3b7f15e81ac56df9b"
+        }
+      ]
+    },
+    {
+      "item": "Preferences reuse and apply",
+      "draft_line": 27,
+      "draft_text": "Preferences reuses its dialog, and appearance updates run in smaller steps. Opacity previews update Home in place; cold first-Apply responsiveness remains under review.",
+      "draft_line_sha256": "ec20a388b92fa6b730a20c431e553d347611b1a0589969e4457c142e6e4d95cc",
+      "status": "supported",
+      "assessment": "Dialog reuse, sliced appearance application and in-place Home opacity refresh are in source. The explicit unresolved cold first-Apply caveat correctly preserves the Work-host finding; the held Workbench patch is not claimed as shipped.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "line": 8948,
+          "anchor": "in_slices=True",
+          "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+          "git_blob": "232bc2b9cf7480f8035c9c85d06c7439f7ab97f8"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_preferences_open_and_close_stay_smooth.py",
+          "line": 139,
+          "anchor": "def test_",
+          "sha256": "3aa0646dd42b91c840ce21c7323218430ae3d1d1299968bb0d6eab63a7f6f84b",
+          "git_blob": "400bc1d4ec601ea32b02b738ee4069a15f748c8c"
+        },
+        {
+          "path": "tests/qt/test_preferences_apply_stays_smooth.py",
+          "line": 147,
+          "anchor": "def test_",
+          "sha256": "6fc8d4900bdfdedd69ea346eb50aecac057b5a85661d47ed10b5ec07ba52e7a5",
+          "git_blob": "6cf2667afacdfa7e9df35e77cc99dec33fef0727"
+        }
+      ]
+    },
+    {
+      "item": "Preferences-free background paint",
+      "draft_line": 28,
+      "draft_text": "Screen backgrounds paint without repeatedly reading Preferences.",
+      "draft_line_sha256": "bead68be81fd9baa0f23cc960d742617d0d3d076d4ab601950c350f15b679fd1",
+      "status": "supported",
+      "assessment": "The frame path uses the theme cache instead of loading Preferences repeatedly.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "line": 2621,
+          "anchor": "def _page_fill_for_a_frame",
+          "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+          "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_cov_s2_app_screen_backdrops.py",
+          "line": 49,
+          "anchor": "def test_",
+          "sha256": "93972b8d53abd13fde4ccf0122981bf10fa422162b5baa266eb14d3ec3b2740b",
+          "git_blob": "cd7e54de1707ad19751e5b5efd68a33d45050628"
+        }
+      ]
+    },
+    {
+      "item": "Saved-mask size",
+      "draft_line": 29,
+      "draft_text": "Every saved mask records its field's size, and a mask of a different size is never reused.",
+      "draft_line_sha256": "c6b2660d1d1d6e629396e42c79f1645bf84745d4b48551730c76503de76c0d27",
+      "status": "supported_with_precision_note",
+      "assessment": "The actual owner is the segmentation pipeline, commit 7825913e64: both Cellpose generators return working-scale 2-D labels to field dimensions by nearest-neighbour sampling before saving; both reuse checks regenerate masks whose dimensions differ. Records size can imply separate physical-calibration metadata, which is a different conditional TEM feature. The dimensions claim is supported.",
+      "suggested_wording": "Saved segmentation masks keep their field\u2019s dimensions, and masks of a different size are regenerated before reuse.",
+      "production_or_evidence": [
+        {
+          "path": "spacr/object.py",
+          "line": 323,
+          "anchor": "def _mask_at_field_size",
+          "sha256": "f81c4c8aa9db97912b2236799eec91ff0e6d02948ffc26e6683e28fd40fbf4ca",
+          "git_blob": "4c48b4df563aaa8c373958c7b91defa8b1bd755e"
+        },
+        {
+          "path": "spacr/io.py",
+          "line": 4294,
+          "anchor": "def _check_masks",
+          "sha256": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+          "git_blob": "b09a1db80c9e8527d1ab88ced4e70f4180408ae0"
+        },
+        {
+          "path": "spacr/utils.py",
+          "line": 1750,
+          "anchor": "def check_mask_folder",
+          "sha256": "d4a8cb44069c7e1ab9cc98d55b948fa1f84b0a015e0c77b3a1139524d715af5d",
+          "git_blob": "4bb2eb9ff3683971b0180aef3d2b2dd88e28a068"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_masks_come_back_at_the_field_size.py",
+          "line": 86,
+          "anchor": "def test_",
+          "sha256": "3f1327fc02d387e624d6f5a3d330c8898c6a125d5a456f54e7d169cb245032f2",
+          "git_blob": "3118e7bf0844150c9cfff0ccb785d1d3cc326100"
+        },
+        {
+          "path": "tests/test_a_mask_is_checked_before_it_is_reused.py",
+          "line": 47,
+          "anchor": "def test_",
+          "sha256": "1d68d4e71e4b9f887af3690f692561356532ddce3b9349a231aa960fc15cf801",
+          "git_blob": "d29b14ea6c5f315339f8a1af2f58e2feed0d59f2"
+        }
+      ]
+    },
+    {
+      "item": "Image README, deck and languages",
+      "draft_line": 30,
+      "draft_text": "The README is rebuilt from images, and the slide deck is rebuilt to match. README and interface text are translated into nine additional languages.",
+      "draft_line_sha256": "c57ae343f6197a75db1193e0b275f918934c468d0203a1fb030ae181094ccba7",
+      "status": "supported",
+      "assessment": "The image README/deck and nine additional README/interface language catalogs exist. This statement does not assert that all API documentation or every localization entry is independently translated; documentation publication records intentional API fallback separately.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "README.rst",
+          "line": 85,
+          "anchor": "docs/readme_images/en/",
+          "sha256": "85918a58c052e9910f76548986eba16d0c7d03560444c26f9cc303255e7457f0",
+          "git_blob": "e117cf0f4082fc4396e7f0d7b003b3c5cc810dc5"
+        },
+        {
+          "path": "docs/source/_static/deck/slides.json",
+          "line": 1,
+          "anchor": null,
+          "sha256": "b8ad5201082ac0bb4ef2f673ff7e0c42e2cbaa5cd6b49144e26ac4e9f391cb31",
+          "git_blob": "caf32803869adf7cbf9cdd4e71ed68a4f4ab8c3f"
+        },
+        {
+          "path": "tools/build_readme_deck.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "bf67277c5e0a25a8c9a9b058cd3d4e1175ef7d18a6ceed9994ea91f14ee638aa",
+          "git_blob": "d6566630c40ee927c9691148fd80462c960ac8ea"
+        },
+        {
+          "path": "spacr/qt/i18n.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "d53292ae30c381a739d74c607922a79eefb18b911cbb087acd80da535c2505c3",
+          "git_blob": "cb2c48708bc675ff5a445d11c1fb42ef3a4c79f9"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_readme_is_built_from_images.py",
+          "line": 67,
+          "anchor": "def test_",
+          "sha256": "a19cde5fd15b3d84a89482070c2a75b3a148f6fb2b7377337ff149c2f66f7dd4",
+          "git_blob": "31eac52293685eceb73f92f7b561dacb85daab77"
+        },
+        {
+          "path": "tests/test_the_readme_deck_builds_a_flip_through_viewer.py",
+          "line": 44,
+          "anchor": "def test_",
+          "sha256": "ef7d20f4afa3dfcbd7aefb31103a7e06d9ccc08347bc67b8d883edbb7fc56195",
+          "git_blob": "03148b79eb197a444f36b98e74760fc137299cce"
+        }
+      ]
+    },
+    {
+      "item": "Apptainer release publication",
+      "draft_line": 31,
+      "draft_text": "Apptainer (SIF) images are published with each release, after the Docker images.",
+      "draft_line_sha256": "bc8b5dd0d2b3c49c3bdac3376a7698f3e4193d4da20bd6559236a409f7b5c8d2",
+      "status": "material_narrowing_needed",
+      "assessment": "SIF publication is conditional on successful Docker publication. The workflow explicitly allows the release to succeed without SIFs if this optional job fails, so each release is an overpromise before actual asset verification.",
+      "suggested_wording": "Release automation builds and publishes Apptainer (SIF) images after successful Docker builds.",
+      "production_or_evidence": [
+        {
+          "path": ".github/workflows/release.yml",
+          "line": 319,
+          "anchor": "apptainer-images:",
+          "sha256": "f8ce2569367db37ab4b9479d63271487607b3afa22b1bb70b7f11262257c03f6",
+          "git_blob": "e0e4d508df97cdb6557f0b79907c6a4dd3454eeb"
+        },
+        {
+          "path": ".github/workflows/apptainer-images.yml",
+          "line": 1,
+          "anchor": null,
+          "sha256": "750f5b54ff4c19b6dfdce007255d5099d93161f5458a343d3eed3d6d336da6ce",
+          "git_blob": "49a5b17efa5d15d9de792946c3cbef748a32d896"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_the_apptainer_image_is_the_docker_image.py",
+          "line": 70,
+          "anchor": "def test_",
+          "sha256": "8b9b6a4666e8e82867b63817bd547a1305af8b87867f70be3ae795613a9051d7",
+          "git_blob": "547e6b27ecfdb85d21aff4dcb6077296dd3a5129"
+        }
+      ]
+    },
+    {
+      "item": "Two-second usage stalls",
+      "draft_line": 35,
+      "draft_text": "Module screens no longer stall every 2 s. The GPU is read through NVML instead of starting `nvidia-smi`, and usage bars paint with the next frame.",
+      "draft_line_sha256": "8d9d4fcb8dfdb8e9d0efaf960384ad261b6d019f96b54fde9c564ddc97a196c2",
+      "status": "material_narrowing_needed",
+      "assessment": "The specific blocking telemetry/paint mechanism was removed: NVML is reused and bars schedule paints. Source and owning behavior cannot prove that all module screens never stall every two seconds for other reasons.",
+      "suggested_wording": "Module usage polling no longer starts nvidia-smi: GPU usage is read through NVML, and usage bars redraw with the next frame.",
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "line": 12826,
+          "anchor": "def _nvml",
+          "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+          "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d"
+        },
+        {
+          "path": "spacr/qt/widgets/usage_bar.py",
+          "line": 136,
+          "anchor": "def set_value",
+          "sha256": "72f6d566775e80b536701549632d8a81852eebfec8312baa56997440c3d5a98a",
+          "git_blob": "0eae6e9a655676d6a1667452e56d6abc84b0c28d"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_module_screen_timers_do_not_stall_20261012.py",
+          "line": 152,
+          "anchor": "def test_",
+          "sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e",
+          "git_blob": "29ac998c17747460161a0cad0fadae3628f3f83d"
+        }
+      ]
+    },
+    {
+      "item": "Palette typing during rebuild",
+      "draft_line": 36,
+      "draft_text": "Command palette: a key typed while the list is rebuilding is kept instead of crashing the app.",
+      "draft_line_sha256": "9c8f80f75ea882d8cbae79a864525e126ea8eb828adf2522d649b7bf8070993a",
+      "status": "supported",
+      "assessment": "Reentrant typing during fill retains the typed key and avoids deleting the active list widget.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/command_palette.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "390ca0d6733440a057b30adb58fedabac77f3b810dbeadfc7ec6308b8660fff6",
+          "git_blob": "233e23fb482779f1f187c3eaffd28f7fb3853818"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_the_palette_survives_typing_into_a_rebuild.py",
+          "line": 205,
+          "anchor": "def test_",
+          "sha256": "7ed5b2f9c8b73bb8a5d8c9da84458850ebf41594ddf0391eed7a5fa2bd5a30a9",
+          "git_blob": "b2c35c5e2ab240c6dc7f366ffdafce429265e4d6"
+        },
+        {
+          "path": "tests/qt/test_the_palette_survives_keys_typed_inside_its_fill.py",
+          "line": 248,
+          "anchor": "def test_",
+          "sha256": "b7a473f147101a3d0e3325532c57f762815f4048e6d887809ef82d500c4c1e4f",
+          "git_blob": "79b57563755989c9e6a24dbb5f094929ab6311d6"
+        }
+      ]
+    },
+    {
+      "item": "Regression thread error",
+      "draft_line": 37,
+      "draft_text": "Regression panel: fixed a thread error.",
+      "draft_line_sha256": "f887dbeeeba260dc9beb9fc7a2fa5d472f60895bf6b99e4e6f0363606a09b073",
+      "status": "supported_with_precision_note",
+      "assessment": "The identified fix prevents workspace collection on a worker from constructing an unopened Regression panel. The current sentence is true but gives little scope.",
+      "suggested_wording": "Saving a Regression workspace no longer builds unopened results widgets on a worker thread.",
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+          "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_a_workspace_save_never_builds_a_panel.py",
+          "line": 33,
+          "anchor": "def test_",
+          "sha256": "18c28d3ff661ab5901eac5f60545a5c2a8bbaf375fd26552cac0f2075669fd44",
+          "git_blob": "60457fa1dc7c9e5b64ddd5271d3bd2d95300ad4e"
+        }
+      ]
+    },
+    {
+      "item": "Linked image without box ledger",
+      "draft_line": 38,
+      "draft_text": "Make Masks: a linked image with no box ledger opens and saves without the \"Cannot load box annotations\" popup.",
+      "draft_line_sha256": "3bf0cd55d6578933baa5802271e71d3e466bd948b7a7c491bb307543bef850c7",
+      "status": "material_narrowing_needed",
+      "assessment": "The suppression specifically requires MODE_BOX not to be active. Linked sources with a box ledger, unsupported box editing and actual annotation failures still warn.",
+      "suggested_wording": "Outside Box mode, Make Masks opens and saves a linked image with no box ledger without the Cannot load box annotations popup.",
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/make_masks.py",
+          "line": 13417,
+          "anchor": "unannotated_link =",
+          "sha256": "20fdfd682ee1c1d29cabaaff88f880d6bfabff85158afc58766b251f1029c639",
+          "git_blob": "d890351808751bd9bf05efb907b8be74207193cf"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_make_masks_yolo_boxes_failures.py",
+          "line": 15,
+          "anchor": "def test_",
+          "sha256": "bcfe95d4500a43932d1ef76a6f8e3f1915a28b1db88814a9d716a97ebabca016",
+          "git_blob": "d5f700deccae1295480b5cc6b17a2ada8388e478"
+        }
+      ]
+    },
+    {
+      "item": "Download and graphics retirement",
+      "draft_line": 39,
+      "draft_text": "Closing Model Zoo or a backend installer during a download safely retires its worker thread. Animated graphics resources are released before the app exits.",
+      "draft_line_sha256": "59810765bdc973c1b5a204363990900d2153ffa4b5dd09e790f3d0eb408011a0",
+      "status": "supported",
+      "assessment": "Closing callers detach or retain a live worker safely instead of destroying a running thread; resource-cleanup hooks release animated graphics before exit. This is lifetime correctness, not proof that every network download completes or all native GPU platforms were exercised.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/screens/model_zoo.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "58eb5aeca04ef136644b242c6115ec1f918a179d31530fd38d19bdff625e3a93",
+          "git_blob": "f53038939f207c48c49c7d0f69e7cf8548cc0c24"
+        },
+        {
+          "path": "spacr/qt/resource_cleanup.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "44def331d580e12a6165dcf36687b332b19bface555cb57396640ac23a194be2",
+          "git_blob": "202e09ab6014603dc6e35c3f8ecccd8823a4bfc4"
+        },
+        {
+          "path": "spacr/qt/model_install.py",
+          "line": 170,
+          "anchor": "def _retire_job",
+          "sha256": "90cee2e37171adfee4f46262378fb7ccb07e5c05ac716a7da7167d6beca2ab3c",
+          "git_blob": "2cbaf33acbd4b64c28f9b617568351d2dd344620"
+        },
+        {
+          "path": "spacr/qt/widgets/model_zoo_picker.py",
+          "line": 570,
+          "anchor": "def _retire_thread",
+          "sha256": "047407ae1743d70e13dc77ce53f9a1c84948f07370e342a8d6dae114e8012353",
+          "git_blob": "5a5b78fb6dec882b5eaf5425861170913f00561c"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_model_zoo_picker_closes_catalogue_jobs.py",
+          "line": 18,
+          "anchor": "def test_",
+          "sha256": "bce937ac70dfb56b9bc45a12e9591fe06a5b3c678b126e1b2931ebfb759a71aa",
+          "git_blob": "c789f9aa5a232edba7ff4e57515fa603a56747c3"
+        },
+        {
+          "path": "tests/qt/test_model_install_completion.py",
+          "line": 15,
+          "anchor": "def test_",
+          "sha256": "888d15d167ad3635e8c97332eaff6ebdf397171b2743b69ce5d3e2fd18c63bae",
+          "git_blob": "4b9898e29f3707efeef5883bef939f553db753ea"
+        },
+        {
+          "path": "tests/qt/test_the_backdrop_releases_its_gpu_context_before_exit_20261013.py",
+          "line": 149,
+          "anchor": "def test_",
+          "sha256": "947c7fdb7f8ddaefb4875c9c52cfdb111658511962af380bb3c8d9bac9505b4b",
+          "git_blob": "070bd5a17120eb1e21c5bcc4bc0c6e8d93a3b320"
+        }
+      ]
+    },
+    {
+      "item": "Run, Templates and figure UI work",
+      "draft_line": 40,
+      "draft_text": "Starting a run, importing Templates and updating the figure gallery avoid heavy imports or image decoding on the interface thread.",
+      "draft_line_sha256": "cc76c3b273ebdb60807f5462a9b3cb07b3483a5fa10c00ac04d4538cfa1e8a79",
+      "status": "supported",
+      "assessment": "First-run pipeline imports are worker work, Templates CSV parsing avoids the torch-heavy utils import, and arriving figure PNG/thumbnail decode occurs on the producing worker. The claim does not guarantee every UI operation is free of heavy work.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/first_run.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "441175eee9b35fd505861b3c23c08862b5f1eef990acd4429032a7b4f243d434",
+          "git_blob": "4198d19d4f8706d6259678ebad4c06625da8b40f"
+        },
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "line": 12100,
+          "anchor": "def _load_settings_csv",
+          "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+          "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d"
+        },
+        {
+          "path": "spacr/qt/bridge.py",
+          "line": 1618,
+          "anchor": "_decode_display_png",
+          "sha256": "c548813cf9c55f8e0bfda966b08750c5cb30256623afeed72570101b2a3170d4",
+          "git_blob": "01442716c43d98f58bb2fa6dd411ae50afa03b42"
+        },
+        {
+          "path": "spacr/qt/widgets/figure_queue.py",
+          "line": 663,
+          "anchor": "def _decode_display_png",
+          "sha256": "296ea2cbecb72efccad201f31a25ed02f96b3978810cdd82554003f1b16a7849",
+          "git_blob": "22a4266425789360e4a5832cb69b55e903f95ce1"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/qt/test_the_first_run_imports_its_pipeline_off_the_gui_thread.py",
+          "line": 160,
+          "anchor": "def test_",
+          "sha256": "d7d2d9335910fe00e2d35dd0b95e88cd75c333d0a6cdff7b8d59d2c1913a6824",
+          "git_blob": "5131269653117b54677e769f03b696876b2fadd9"
+        },
+        {
+          "path": "tests/qt/test_a_settings_csv_is_read_without_importing_torch.py",
+          "line": 123,
+          "anchor": "def test_",
+          "sha256": "6045a2d174fdfbc949cb71a9c5c3316a5bd7faf04fd180e49fb87eb966237c04",
+          "git_blob": "1666e93729642e9b82e4401bdd03b146818aa0e5"
+        },
+        {
+          "path": "tests/qt/test_an_arriving_figure_is_decoded_off_the_gui_thread_20261013.py",
+          "line": 74,
+          "anchor": "def test_",
+          "sha256": "1d98bfd4508cf9dfc1f2dca1733977405e4ebd9226f8600ee242135f7a569911",
+          "git_blob": "b27fe71791c1e700fa01fc450bfd064b19525db1"
+        }
+      ]
+    },
+    {
+      "item": "Source-owned version",
+      "draft_line": 41,
+      "draft_text": "A source checkout or editable install reports its own version.",
+      "draft_line_sha256": "06ee4c165c2687cf1a640a1a91cbdafa7e4c7bb69293d549ebbe6a4bb2c132f4",
+      "status": "supported",
+      "assessment": "Imported source ownership takes precedence over unrelated installed distribution metadata.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/version.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "07c3728b6185d7f3c1199cf09e4a58d6717cda87d94c1ccc6125ad0c0e49c74f",
+          "git_blob": "483818a6aa1d0c314610d8c04c5fc726f53c5876"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_version_prefers_the_imported_source.py",
+          "line": 32,
+          "anchor": "def test_",
+          "sha256": "172731cf4d6f2b4db875da3d84047e3bccfd73088bd4e80c75671b991f64df5b",
+          "git_blob": "216c6984c84cad51728ec793f6f0b13c548c37bf"
+        }
+      ]
+    },
+    {
+      "item": "F01/F02 and class sidecars",
+      "draft_line": 42,
+      "draft_text": "Wells named F01, F02 are read as wells, and class counts ignore the `.spacr_crop_format.json` file.",
+      "draft_line_sha256": "04e04321baa689c7f64ebb271661f6304f162d1a4979ce5fa44fb35ce3968467",
+      "status": "supported",
+      "assessment": "F01/F02 classification and sidecar exclusion are covered by explicit owning cases.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/folder_metadata.py",
+          "line": 75,
+          "anchor": "F01",
+          "sha256": "4ea4ee09b560872cc0943e3cd6d7b1a3cfb4e1d98309431fbee0822d1d3a97ac",
+          "git_blob": "91cf65317ab88851799ae361ca9959bcc565c825"
+        },
+        {
+          "path": "spacr/utils.py",
+          "line": 4939,
+          "anchor": ".spacr_crop_format.json",
+          "sha256": "d4a8cb44069c7e1ab9cc98d55b948fa1f84b0a015e0c77b3a1139524d715af5d",
+          "git_blob": "4bb2eb9ff3683971b0180aef3d2b2dd88e28a068"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_cov_2_folder_metadata.py",
+          "line": 32,
+          "anchor": "def test_",
+          "sha256": "3816e0f3f09e325540c30294f51a77fd2a495cedb3d8b0b6c9dec10fdadfbd8e",
+          "git_blob": "62d2b736ffb56260c2bea42d9473976a84214412"
+        },
+        {
+          "path": "tests/test_cov_utils_loss_building.py",
+          "line": 67,
+          "anchor": "def test_",
+          "sha256": "8389f54572fe16bbb03451af9b7cc668ccc8fe4367a6604d8ffba942fbd1ec02",
+          "git_blob": "850d0b1c91f4c316310aeff87cbf3648f6bb9ac4"
+        }
+      ]
+    },
+    {
+      "item": "MitoNet alpha",
+      "draft_line": 48,
+      "draft_text": "MitoNet as a Make Masks backend for TEM images.",
+      "draft_line_sha256": "c07715bb3418a0a87c43befa577863a6f089c48afbb8a4fefab7a1d13567361b",
+      "status": "supported",
+      "assessment": "The backend and alpha registry are present; no native GPU or scientific acceptance claim is added.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/settings.py",
+          "line": 7358,
+          "anchor": "MakeMasksMitoNetSettings",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+          "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee"
+        },
+        {
+          "path": "spacr/qt/screens/make_masks.py",
+          "line": 4336,
+          "anchor": "MitoNet",
+          "sha256": "20fdfd682ee1c1d29cabaaff88f880d6bfabff85158afc58766b251f1029c639",
+          "git_blob": "d890351808751bd9bf05efb907b8be74207193cf"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_691_mitonet_backend.py",
+          "line": 32,
+          "anchor": "def test_",
+          "sha256": "98c38b9cf81eb3551e33fbba2f66fefb47b0792bf47eb830d7c17bf6dbce3fb0",
+          "git_blob": "3f1376323647fa46c6e08e3274f04f15dda0992d"
+        },
+        {
+          "path": "tests/qt/test_691_mitonet_make_masks.py",
+          "line": 41,
+          "anchor": "def test_",
+          "sha256": "a21cd8e14435a10174c6ddef5c9c0a3ce046bf0e7032c04990d2cde28ca860a5",
+          "git_blob": "80c8696e6eef95ff2ffb1c7d7fb7715132b06b5b"
+        }
+      ]
+    },
+    {
+      "item": "Spatial submodule alpha",
+      "draft_line": 49,
+      "draft_text": "Spatial Mask Generation and Spatial Map Barcodes submodules, opened from the Spatial switches.",
+      "draft_line_sha256": "e9dda48bf472f9c9c32fddf2f543fe6a2dbf0339d2d7376c3890ac21bce44313",
+      "status": "supported",
+      "assessment": "The two submodules and alpha gating are registered and tested.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/settings.py",
+          "line": 7649,
+          "anchor": "'apps': ('spatial_masks', 'spatial_map')",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+          "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_spatial_submodules.py",
+          "line": 205,
+          "anchor": "def test_",
+          "sha256": "60e39222fead23881e6fd05547e34b3361200513ac24b8f57689a48662fa8e2f",
+          "git_blob": "e7b5a13a4d19352941e34a31525a0d31b6b19f82"
+        },
+        {
+          "path": "tests/qt/test_spatial_submodules_alpha.py",
+          "line": 61,
+          "anchor": "def test_",
+          "sha256": "9d77bff875537604a578aad45753771566dd7ac5eff81b9d420a831c019fc08f",
+          "git_blob": "8564041caf948b9a52365bb4640b705994853890"
+        }
+      ]
+    },
+    {
+      "item": "Separate ParaScape app",
+      "draft_line": 50,
+      "draft_text": "The separate alpha application is now named ParaScape. spaCR installs, updates and opens it using its PyPI package.",
+      "draft_line_sha256": "177c4ff533a141fef72804c48c68dc073da77c49efa100415d0a2332b7f3e898",
+      "status": "supported",
+      "assessment": "The renamed separate application has dedicated install/update/launch integration. Root has separately verified the actual PyPI 0.0.1.0 publication; this is not a new platform runtime acceptance test.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/qt/parascape.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "24d611462255c1229a3fd114c75dd49392dcaf2999ec1d96945f34e2e7c9bb6e",
+          "git_blob": "95712d8e237089fbd0e30889ea31788b8a4b27df"
+        },
+        {
+          "path": "spacr/_parascape.py",
+          "line": 1,
+          "anchor": null,
+          "sha256": "afd3fe872f374c1a9795e2c579505a5dc6bd3027d1cdc66a61788eceff9ffb29",
+          "git_blob": "aff04c39e161fe7dc78e3332e18dbb58c6bea99e"
+        }
+      ],
+      "owning_tests": [
+        {
+          "path": "tests/test_parascape_environment.py",
+          "line": 27,
+          "anchor": "def test_",
+          "sha256": "ef966c86ca6bb0721dd49daf22755e9de4a78493283136d28423ecde6adf8f86",
+          "git_blob": "e5e9c4ee22837ffab5273ff7624ac672ae61ea15"
+        },
+        {
+          "path": "tests/qt/test_parascape_launcher.py",
+          "line": 11,
+          "anchor": "def test_",
+          "sha256": "052f0a7a0f5ce2e012d2c7ed79df6c2bb934159c48fe62c6c1c25be040d0b27d",
+          "git_blob": "a28194cd48bbbdd28bced7d6204e3d0f10b38bef"
+        }
+      ]
+    },
+    {
+      "item": "Alpha species",
+      "draft_line": 51,
+      "draft_text": "Other organisms stay behind Show alpha species; Toxoplasma is always shown.",
+      "draft_line_sha256": "0080e6f1fe91bd06baa22ee9f83679f51ab086d664b8696aa0057fabbde3651f",
+      "status": "supported",
+      "assessment": "Non-Toxoplasma organism pages are registered as alpha species; Toxoplasma is not in that registry.",
+      "suggested_wording": null,
+      "production_or_evidence": [
+        {
+          "path": "spacr/settings.py",
+          "line": 7716,
+          "anchor": "ALPHA_SPECIES =",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+          "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee"
+        }
+      ],
+      "owning_tests": []
+    }
+  ],
+  "segmentation_card_inventory": [
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "d9ecd22d0582c4b9668c802964e3e236254c6674afe95616375263c5ce2ef09a",
+        "git_blob": "ee949a8acd4b420e64a2a6d305f6fa60a830df40"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.7321800065695828,
+            "stock": 0.12796323827544262
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.6211189637574451,
+            "stock": 0.2157211415582462
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.6763426721958127,
+            "stock": 0.08271596309756779
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.7980665950590763,
+            "stock": 0.2824919441460795
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.6275208230815109,
+            "stock": 0.1728607043795115
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.8105257618202721,
+            "stock": 0.33368681478266915
+          }
+        ],
+        "this_model": "toxoplasma_plaque_v3",
+        "stock_model": "cpsam",
+        "counts": {
+          "this": {
+            "tp": 6687,
+            "fp": 3200,
+            "fn": 1692,
+            "n_pred": 9887
+          },
+          "stock": {
+            "tp": 2367,
+            "fp": 26249,
+            "fn": 6012,
+            "n_pred": 28616
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 232,
+          "n_empty_fields": 30,
+          "n_objects": 8379,
+          "fields_by_source": {
+            "plaque_compare263_test": 33,
+            "plaque_gel_doc": 18,
+            "plaque_gel_doc_model_review": 55,
+            "plaque_gel_doc_model_review_heldout": 12,
+            "plaque_literature_holdout": 20,
+            "plaque_pmc_staged": 94
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam-r5.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "a541533956c3c570dfb85155839eb568951d76dfe87b63bf3727c487281a2d21",
+        "git_blob": "bf3e3373006cb47038f0352be5d32e74933e80ff"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.4548077568274844,
+            "stock": 0.18908191814691913
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.5678996217189227,
+            "stock": 0.24465002477273834
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.5003691126531817,
+            "stock": 0.20071833126122393
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.41685116851168513,
+            "stock": 0.17872078720787207
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.5144667946109783,
+            "stock": 0.18122514399163323
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.6960703552974518,
+            "stock": 0.3140579570760985
+          }
+        ],
+        "this_model": "toxoplasma_plaque_v2",
+        "stock_model": "cpsam_v2",
+        "counts": {
+          "this": {
+            "tp": 3389,
+            "fp": 3384,
+            "fn": 4741,
+            "n_pred": 6773
+          },
+          "stock": {
+            "tp": 1453,
+            "fp": 5786,
+            "fn": 6677,
+            "n_pred": 7239
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 282,
+          "n_empty_fields": 39,
+          "n_objects": 8130,
+          "fields_by_source": {
+            "plaque_compare263_test": 1,
+            "plaque_gel_doc": 89,
+            "plaque_gel_doc_model_review": 55,
+            "plaque_gel_doc_model_review_heldout": 12,
+            "plaque_literature_holdout": 20,
+            "plaque_pmc_staged": 105
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam-r6.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "2aa5c558b512a5b888a755ac1bf46fa18609c5bd4effb533363c3bdc6695efd9",
+        "git_blob": "450fed674c13b7d0ad8a63b2a23417044a3046dd"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.7647524888904199,
+            "stock": 0.3380247732135861
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.6728967723277129,
+            "stock": 0.35388673647330376
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.7344184200079397,
+            "stock": 0.291082736426866
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.797700323392023,
+            "stock": 0.4030183255479698
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.6619416424025951,
+            "stock": 0.26098010837796465
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.838814491722459,
+            "stock": 0.42911704590170285
+          }
+        ],
+        "this_model": "toxoplasma_plaque_v4",
+        "stock_model": "cpsam_v2",
+        "counts": {
+          "this": {
+            "tp": 11100,
+            "fp": 4014,
+            "fn": 2815,
+            "n_pred": 15114
+          },
+          "stock": {
+            "tp": 5608,
+            "fp": 13658,
+            "fn": 8307,
+            "n_pred": 19266
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 329,
+          "n_empty_fields": 54,
+          "n_objects": 13915,
+          "fields_by_source": {
+            "plaque_compare263_test": 44,
+            "plaque_gel_doc": 12,
+            "plaque_gel_doc_model_review": 21,
+            "plaque_gel_doc_model_review_heldout": 12,
+            "plaque_literature_holdout": 20,
+            "plaque_pmc_staged": 220
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "31d63e888366c0bf70048977efc191bba51bc38e06d0c2f846a9dd36c3335888",
+        "git_blob": "5b23a73bf4be975013f0183cc87b41483bfd161d"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.707398266659014,
+            "stock": 0.2581194997684113
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.6794059418457734,
+            "stock": 0.3268825377719477
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.8297986938665589,
+            "stock": 0.20499087752339473
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.616465763017056,
+            "stock": 0.3484219476816886
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.6571894096613181,
+            "stock": 0.2649139420033806
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.819115740928949,
+            "stock": 0.46670781142307854
+          }
+        ],
+        "this_model": "toxoplasma_plaque_v1",
+        "stock_model": "cpsam",
+        "counts": {
+          "this": {
+            "tp": 12325,
+            "fp": 2528,
+            "fn": 7668,
+            "n_pred": 14853
+          },
+          "stock": {
+            "tp": 6966,
+            "fp": 27016,
+            "fn": 13027,
+            "n_pred": 33982
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 498,
+          "n_empty_fields": 51,
+          "n_objects": 19993,
+          "fields_by_source": {
+            "plaque_compare263_test": 33,
+            "plaque_gel_doc": 89,
+            "plaque_gel_doc_model_review": 55,
+            "plaque_gel_doc_model_review_heldout": 12,
+            "plaque_literature_holdout": 20,
+            "plaque_pmc_staged": 289
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r5.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "4a763040ef118e1e940033723c93ec2750e7880b56eb47f5eb8da703b847235f",
+        "git_blob": "bac8683f3e95dac4bbae1fb16efebcac1e06706e"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.7130144605116796,
+            "stock": 0.36382797209815826
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.7340322097241133,
+            "stock": 0.23005947487150036
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.7658303464755077,
+            "stock": 0.25598474683991246
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.6670135275754423,
+            "stock": 0.6286853971557406
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.4506756207360175,
+            "stock": 0.04878078823857382
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.6781863881840309,
+            "stock": 0.11156247283508308
+          }
+        ],
+        "this_model": "toxoplasma_pv_v2",
+        "stock_model": "cpsam_v2",
+        "counts": {
+          "this": {
+            "tp": 3846,
+            "fp": 1176,
+            "fn": 1920,
+            "n_pred": 5022
+          },
+          "stock": {
+            "tp": 3625,
+            "fp": 10536,
+            "fn": 2141,
+            "n_pred": 14161
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 258,
+          "n_empty_fields": 42,
+          "n_objects": 5766,
+          "fields_by_source": {
+            "pv_compare50_test": 3,
+            "pv_literature_holdout": 39,
+            "pv_r7_dataset_recuration": 60,
+            "pv_r7_plate_test20": 20,
+            "pv_round3_queue": 136
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r6.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "d8621a89fc25ff18801aebf32b8caf75a8af06045feba5b97d9833baa751f84a",
+        "git_blob": "bf404741ff34f5d45f546b550470e5299a94df1a"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.7504325615885309,
+            "stock": 0.3898822093950913
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.7825569559768666,
+            "stock": 0.2536657464554424
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.7997892518440464,
+            "stock": 0.27942957083277276
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.7068135961508614,
+            "stock": 0.6447307155051994
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.5277595375267197,
+            "stock": 0.05527082891216994
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.7498509075512957,
+            "stock": 0.1235796405524386
+          }
+        ],
+        "this_model": "toxoplasma_pv_v3",
+        "stock_model": "cpsam_v2",
+        "counts": {
+          "this": {
+            "tp": 4554,
+            "fp": 1140,
+            "fn": 1889,
+            "n_pred": 5694
+          },
+          "stock": {
+            "tp": 4154,
+            "fp": 10712,
+            "fn": 2289,
+            "n_pred": 14866
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 269,
+          "n_empty_fields": 43,
+          "n_objects": 6443,
+          "fields_by_source": {
+            "pv_anchor11": 7,
+            "pv_compare50_test": 3,
+            "pv_literature_holdout": 39,
+            "pv_r7_dataset_recuration": 64,
+            "pv_r7_plate_test20": 20,
+            "pv_round3_queue": 136
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r7.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "0c92b1167245b2a6ae901d26623761269ed1d65ed0c109b5c0da91a797b50ff5",
+        "git_blob": "140e751de43b692ae79a183d57b0ca810c102158"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.7611462052549666,
+            "stock": 0.3771380892782645
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.8053199803663135,
+            "stock": 0.2228593379355398
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.7686760355029586,
+            "stock": 0.26469511748773883
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.7537624660018133,
+            "stock": 0.6556663644605621
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.5819656489765543,
+            "stock": 0.039576354485982436
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.834775753007006,
+            "stock": 0.09056691644979822
+          }
+        ],
+        "this_model": "toxoplasma_pv_v4",
+        "stock_model": "cpsam_v2",
+        "counts": {
+          "this": {
+            "tp": 4157,
+            "fp": 1251,
+            "fn": 1358,
+            "n_pred": 5408
+          },
+          "stock": {
+            "tp": 3616,
+            "fp": 10045,
+            "fn": 1899,
+            "n_pred": 13661
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 209,
+          "n_empty_fields": 41,
+          "n_objects": 5515,
+          "fields_by_source": {
+            "pv_anchor11": 7,
+            "pv_compare50_test": 3,
+            "pv_literature_holdout": 39,
+            "pv_r7_dataset_recuration": 4,
+            "pv_r7_plate_test20": 20,
+            "pv_round3_queue": 136
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r8.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "34c9df8121b591b5c5c8d0b8566dea5a8294fdb1c26197df7a42180db9d4d40f",
+        "git_blob": "ccb5890b3e43943bcc80425ed0bd06ad70159751"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.7328529490258874,
+            "stock": 0.3831417624521073
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.8197685782091172,
+            "stock": 0.2566785169795216
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.6459048783929999,
+            "stock": 0.27485787836533304
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.8468512921729476,
+            "stock": 0.6322087213964103
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.5846087030070517,
+            "stock": 0.05090396508264559
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.8098308956716249,
+            "stock": 0.11190124652718378
+          }
+        ],
+        "this_model": "toxoplasma_pv_v5",
+        "stock_model": "cpsam_v2",
+        "counts": {
+          "this": {
+            "tp": 13730,
+            "fp": 7527,
+            "fn": 2483,
+            "n_pred": 21257
+          },
+          "stock": {
+            "tp": 10250,
+            "fp": 27042,
+            "fn": 5963,
+            "n_pred": 37292
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 481,
+          "n_empty_fields": 111,
+          "n_objects": 16213,
+          "fields_by_source": {
+            "pv_anchor11": 7,
+            "pv_compare50_test": 6,
+            "pv_literature_holdout": 10,
+            "pv_r7_dataset_recuration": 36,
+            "pv_r7_plate_test20": 20,
+            "pv_round3_queue": 402
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    },
+    {
+      "reference": {
+        "path": "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam.json",
+        "line": 1,
+        "anchor": null,
+        "sha256": "504429f98ee4d86824bb9aedd4291d799be2f5a272d542961c32b09f158f368c",
+        "git_blob": "53b93aa57ce64d1313496de556dc87761996e90e"
+      },
+      "scores": {
+        "rows": [
+          {
+            "key": "object_f1",
+            "label": "Object F1 (IoU \u2265 0.5)",
+            "this": 0.7929943502824859,
+            "stock": 0.40160642570281124
+          },
+          {
+            "key": "boundary_f1",
+            "label": "Boundary F1 (outline edges)",
+            "this": 0.8271222931448322,
+            "stock": 0.2583988531963336
+          },
+          {
+            "key": "precision",
+            "label": "Precision",
+            "this": 0.8604004903964038,
+            "stock": 0.2920542205009365
+          },
+          {
+            "key": "recall",
+            "label": "Recall",
+            "this": 0.7353824659448132,
+            "stock": 0.6426825008732099
+          },
+          {
+            "key": "aji",
+            "label": "AJI",
+            "this": 0.5578912919049481,
+            "stock": 0.05166723430300318
+          },
+          {
+            "key": "dice",
+            "label": "Dice",
+            "this": 0.7940608344634016,
+            "stock": 0.11487659009293376
+          }
+        ],
+        "this_model": "toxoplasma_pv_v1",
+        "stock_model": "cpsam_v2",
+        "counts": {
+          "this": {
+            "tp": 10527,
+            "fp": 1708,
+            "fn": 3788,
+            "n_pred": 12235
+          },
+          "stock": {
+            "tp": 9200,
+            "fp": 22301,
+            "fn": 5115,
+            "n_pred": 31501
+          }
+        },
+        "holdout": {
+          "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+          "n_fields": 486,
+          "n_empty_fields": 108,
+          "n_objects": 14315,
+          "fields_by_source": {
+            "pv_anchor11": 7,
+            "pv_compare50_test": 6,
+            "pv_literature_holdout": 39,
+            "pv_r7_dataset_recuration": 108,
+            "pv_r7_plate_test20": 20,
+            "pv_round3_queue": 306
+          }
+        },
+        "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+      }
+    }
+  ],
+  "nine_additional_language_inventory": [
+    {
+      "locale": "de",
+      "readme": {
+        "path": "docs/i18n/readme/source/de.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "c2c53d19beefaf0386c857d0be12abe04f77e5b44f00ebe77522121fe9a52f79",
+        "git_blob": "36e10bebca51abab6b4872cd24b244d6418a7c97"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/de.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "fcd5cf47dd8c17cb9c27256280ea122e7f3cbbedec9ff31a9fea3cd27086108c",
+        "git_blob": "b89bbc7fb98baf80fd35e07afe02cf95364fc76e"
+      }
+    },
+    {
+      "locale": "es",
+      "readme": {
+        "path": "docs/i18n/readme/source/es.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "948309397eb17aa9cb79bf66c83dd89c8f229ac6929d872a756f9522e5ed13c0",
+        "git_blob": "5af69dd2fd36869b4725616cc3a9633e4998d59f"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/es.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "3f8ccb160382a525dabe0f60d64ccaacc0156b21669342db5fa438a5c1239f36",
+        "git_blob": "28eb1342070ff6c4e598b1ac9a8b9d36524e39e5"
+      }
+    },
+    {
+      "locale": "fr",
+      "readme": {
+        "path": "docs/i18n/readme/source/fr.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "bc5a4e2fbf816516267ea8b88dc9aab013a79a4dccd85f82326756935e18d298",
+        "git_blob": "eacdb34699acdd8ecd2d8003e64bd3b4f5000d38"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/fr.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "3e0598520e37c0a4693bc9dd2f67a194daa6a514cb33e9ff028cba79a634486e",
+        "git_blob": "908e090f9e635e3baf8c2b26b2ec6a185ebd3123"
+      }
+    },
+    {
+      "locale": "hi",
+      "readme": {
+        "path": "docs/i18n/readme/source/hi.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "a742f4c11aed0b73c1c8f3f667bc45705e84c34da8be8ce1c2201d1deb9113cd",
+        "git_blob": "d6487519d995cfce521f35d50a5aa2ab2d66ee2a"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/hi.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "80f22ddb35ee589747f4a5b83ed7f177394fcff049468165d5af2aefcccec7d3",
+        "git_blob": "9654d500309cdcd3e4297f0d1de96603f158b2d9"
+      }
+    },
+    {
+      "locale": "is",
+      "readme": {
+        "path": "docs/i18n/readme/source/is.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "ccde2d446564e31e6e046fe261aa6030f7b961d5884fdbc5680def175431717e",
+        "git_blob": "423926d4b980eaa11e342bdf7a153852da96b672"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/is.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "59097842d970ec845af86cd9f5a87eba2fc2793c1d96d661080ff0aba1fd25ce",
+        "git_blob": "5a50987865a71d7597c88c98671ba04909a68cca"
+      }
+    },
+    {
+      "locale": "ko",
+      "readme": {
+        "path": "docs/i18n/readme/source/ko.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "e246a0dc51cfb41d247b4d22bc5f13d57bfcfd23a3076ddf7dec0187ada28921",
+        "git_blob": "2de91aad337b99af68b88ecef314990eef708407"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/ko.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "b6cba122cacd7117c55ed4283d910ec7e55870429b22ca0a620434427a1c6ba6",
+        "git_blob": "c7f67a6a187607f281d7c942a3509617d506c6a4"
+      }
+    },
+    {
+      "locale": "pt",
+      "readme": {
+        "path": "docs/i18n/readme/source/pt.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "df6d5a943a65187794913856b14f12420d5a5ef430e9be52dc4027454eb12e46",
+        "git_blob": "7bfab8ead822387356ad4f9869feaef46bc048bf"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/pt.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "25fcff4da80393e35d3617878fbda42b7112ba64ce51470697845c48dcb00243",
+        "git_blob": "bbe41ca962afab5a34f0a4af6a744ea38bf3ae48"
+      }
+    },
+    {
+      "locale": "sv",
+      "readme": {
+        "path": "docs/i18n/readme/source/sv.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "26d393109243cbd4cf0613b3594a2d27dc2e56a75b8de5aea1a4cffe306264f9",
+        "git_blob": "6af3e697b594dc4f1a790c2329d590b1701660d8"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/sv.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "6150d0c2f2b10d1d4c021d68b1a870ab45ee8dd9de71187fe222fc1f231bd5eb",
+        "git_blob": "a85497af44f69026e72631e37f8d99760dd8a584"
+      }
+    },
+    {
+      "locale": "zh_CN",
+      "readme": {
+        "path": "docs/i18n/readme/source/zh_CN.yaml",
+        "line": 1,
+        "anchor": null,
+        "sha256": "c93bc7466d6d9fd941962eb13b4885c9f895b4c9ad4064cc20a483507ea8348d",
+        "git_blob": "b4bafecc1840be58c5a2ff95a514c2b4e0f29f8b"
+      },
+      "interface": {
+        "path": "spacr/qt/i18n_catalogs/zh_CN.py",
+        "line": 1,
+        "anchor": null,
+        "sha256": "b39463ec9fdf5b435f336f36a46576c28762685f66bbc69c552849bc3998fd6f",
+        "git_blob": "7e7ab56bd5cbc07df6ca7cb6b0dfed56f1cbf4c3"
+      }
+    }
+  ],
+  "limitations": [
+    "Read-only factual review; no tests, builds, GPUs, release, publication, installation or canonical-file edits were performed.",
+    "A release draft and source implementation establish intended behavior, not absence of all stalls, exhaustive platform acceptance or scientific independence beyond recorded split evidence.",
+    "No held automatic-diameter, label-binding, Workbench construction or other Phase 2 patch is claimed in this draft.",
+    "Primary FIB-SEM citation/license and ParaScape PyPI availability were previously independently checked by root; no fresh external check was needed here.",
+    "The original rescore receipt is a provenance/evaluation record, not by itself proof that a later Hugging Face publication succeeded.",
+    "The 30 fps sentence describes the enabled CPU-job policy, not constant 30/60 fps or detection of every external system workload."
+  ],
+  "prior_bounded_execution_evidence": [
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/colour-wave/final.log",
+      "sha256": "577c427d0733dd460484fdb949102f8fe3d24202eac96592119389012f263db2"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/colour-wave/final.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/colour-wave/validate_bench.py",
+      "sha256": "9b4d374adac5a19c000b7cdc7b29662b3157e039cd14f186e2d47a80b7bb8268"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/colour-wave-pytest.log",
+      "sha256": "0cd0adaa79d5078e79a8c67dd43b1b9391282ee6a9113d30b348b0d395f1c3ed"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/colour-wave-pytest.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/colour-wave-pytest.xml",
+      "sha256": "b0f44e0329633c3d57d45d8e0bdb5a25a615bee9ace357b7629221325a64ec4e"
+    }
+  ],
+  "prior_bounded_execution_assessment": "Final benchmark reports EDGE_PARITY160PASS and CPU COST_MS baseline 11.352, optimized 6.238; owning test log reports 106 passed in 8.91s and recorded exit 0. Earlier exploratory validate.log/bench*.log describe discarded implementations and are not the final performance evidence. This review did not rerun any benchmark or test."
+}

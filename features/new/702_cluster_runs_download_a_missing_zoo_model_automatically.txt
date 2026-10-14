@@ -75,3 +75,23 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 - Nothing yet.
+
+
+2026-10-13 — Home source-bound resolver audit; implementation remains OPEN.
+Evidence: features/data/702_missing_model_source_audit_2026-10-13/. Root
+independently verified all38 source/spec/test bindings against frozen bytes.
+Existing model_zoo._ensure_model_file handles bare exact key/name and checksums,
+but separated missing paths return before catalogue lookup. Generic fuzzy
+substring resolution is not an exact-version cluster fallback. Built-in remote
+entries inherit version='1'; lineage keys/filenames and exact hashes matter,
+while generated cache _vN suffixes do not identify model versions.
+
+Current download reservations avoid overwrites but do not coalesce processes.
+Nonblocking catalogue lookup can start background network refresh, so offline
+mode must prevent metadata traffic as well as weights downloads. N693 exports
+values unchanged and lacks pinned identities; GUI import rejects undeclared
+metadata. Planned resolver/metadata changes must preserve existing settings
+round trips, invalidate identities after model edits/CLI --set, recheck caches
+under a process lock and reject ambiguity/stale hashes. No code, tests, model
+downloads or GPU execution occurred; exact lookup/export/offline/lock/native
+acceptance remains to implement after release.

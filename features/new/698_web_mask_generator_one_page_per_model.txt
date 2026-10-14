@@ -80,3 +80,26 @@ ACCEPTANCE
 - Works on a phone and a desktop browser; a 10 MB TIFF completes on the
   chosen GPU path within a stated time.
 - Links from the main spaCR site and the README Models section.
+
+
+2026-10-13 21:37 EDT — Home independently checked the bounded source audit.
+Evidence: features/data/698_web_mask_source_audit_2026-10-13/. Receipt/schema
+validate;49 file bindings match bytes/SHA256/Git blobs, including19 private
+website files. Private raw website sources remain scratch-only. Current site
+is static; upload/inference/ZIP/WebGPU routes are not implemented. Inspected
+public model repositories contain no browser exports; large desktop weights
+require real export/operator/postprocessing and parity work.
+
+Select each route's exact weights/settings. Model Zoo/README highlight wellv3,
+while the published-figure pipeline intentionally retains wellv2. Plaque
+segmenter defaults tov4. Detectors yield boxes/confidence, not segmentation
+flows/cellprob: export actual model-appropriate outputs with explicit availability
+and README/manifest reasons, never fabricated arrays. Existing cellprob can be
+raw logits and must not be advertised as calibrated probability. Approved
+well/Hoechst-parasite sample sources and held automatic diameter need resolution.
+
+Current official ZeroGPU docs allow eligible verified personal accounts older
+than30days to create two free Spaces; visitor quotas and Gradio/runtime limits
+still apply. Owner eligibility and real hosted/browser/desktop parity remain
+requirements, not observed acceptance. No implementation, tests, GPU job, site
+publication or upload occurred. All required routes/options remain OPEN.

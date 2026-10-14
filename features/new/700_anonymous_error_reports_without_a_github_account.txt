@@ -97,3 +97,17 @@ Current spaCR AI registers three CLI providers only. Hosted provider, relay,
 database schema, consent UI, redaction tests, quota handling and native/client
 acceptance are not implemented or deployed. Owner account/App/binding setup
 can proceed while CI remains frozen; application changes wait for release.
+
+
+2026-10-13 — MAINTAINER HARD PREREQUISITE: ZERO COST TO MAINTAINER
+GitHub reporting and the hosted AI fallback must cost the maintainer zero.
+Use an owner-created GitHub App (no purchased Marketplace app/subscription),
+Workers Free, D1 Free and only free-access AI catalog models. No paid plan,
+credits, rented GPU, paid fallback, domain purchase or automatic upgrade.
+Verify the owner account's actual plan before deployment; do not downgrade
+unrelated services. Refuse deployment if the configuration cannot meet this
+requirement. Free allowances are shared and finite; quota exhaustion queues
+bounded reports or refuses diagnosis with a clear message, never incurs
+overage charges. This is not an unlimited-service or perpetual-provider-pricing
+promise. Deployment/integration remain unimplemented and not cost-verified
+against an owner account yet. Current official pricing links are in the guide.

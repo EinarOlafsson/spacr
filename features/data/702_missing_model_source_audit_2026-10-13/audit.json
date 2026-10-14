@@ -1,0 +1,1093 @@
+{
+  "schema_version": 1,
+  "item": "N702",
+  "audit_date": "2026-10-13",
+  "state": "read_only_audit_complete_implementation_pending",
+  "source_context": {
+    "repository": "EinarOlafsson/spacr",
+    "observed_head": "b2fc91a6e605d149affee2df35b94b37ae052e8d",
+    "ci_base": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+    "binding_rule": "Observed source bytes are pinned per file; application equality to eb72 is explicit. Newly added feature specifications need not exist in the frozen CI base."
+  },
+  "source_bindings": [
+    {
+      "path": "features/new/702_cluster_runs_download_a_missing_zoo_model_automatically.txt",
+      "sha256": "bdc19379332b769d6eb3c5891c043fc700a04ba57699a8c3c6d9d8aed5fbfef7",
+      "git_blob": "dfaf202dae7e4df39dbea280a35c7f8f5788a0db",
+      "bytes": 4371,
+      "lines": 77,
+      "matches_ci_base": true,
+      "ci_base_sha256": "bdc19379332b769d6eb3c5891c043fc700a04ba57699a8c3c6d9d8aed5fbfef7"
+    },
+    {
+      "path": "features/new/693_export_settings_from_every_form.txt",
+      "sha256": "96c5923f15d2dc9c3116b3d4d884682cc0998bc8cffb5f6bcfd83528d6b2096e",
+      "git_blob": "438f9cb684c3701fd50bef2568d43d09360abf78",
+      "bytes": 4001,
+      "lines": 67,
+      "matches_ci_base": true,
+      "ci_base_sha256": "96c5923f15d2dc9c3116b3d4d884682cc0998bc8cffb5f6bcfd83528d6b2096e"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55",
+      "git_blob": "6cae5241914579ab1ab0f08a3d2ae5ecb5d7db5f",
+      "bytes": 229147,
+      "lines": 4997,
+      "matches_ci_base": true,
+      "ci_base_sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55"
+    },
+    {
+      "path": "spacr/cli.py",
+      "sha256": "1c582d8d550ed053c3a798c2b63909dbd0e1fe6bfa872568b90f4ef49fa11969",
+      "git_blob": "2e1152bc617993ea614411c748c5f1b332f7356f",
+      "bytes": 95368,
+      "lines": 2143,
+      "matches_ci_base": true,
+      "ci_base_sha256": "1c582d8d550ed053c3a798c2b63909dbd0e1fe6bfa872568b90f4ef49fa11969"
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "sha256": "37604c621694769fdad5c8f41dd98054b3f2c90f45ebbfd9cbdfe71015425456",
+      "git_blob": "1e5ad076d89b692edb27b75f064846f7b61e5782",
+      "bytes": 57445,
+      "lines": 1519,
+      "matches_ci_base": true,
+      "ci_base_sha256": "37604c621694769fdad5c8f41dd98054b3f2c90f45ebbfd9cbdfe71015425456"
+    },
+    {
+      "path": "spacr/cli_remote.py",
+      "sha256": "7c6f787e28036b6d0e6a361b336876112b12036f339d316db3872d43ea3e8782",
+      "git_blob": "6d9d800b067f6c799e2015c97a9a7ad31398af3d",
+      "bytes": 9906,
+      "lines": 273,
+      "matches_ci_base": true,
+      "ci_base_sha256": "7c6f787e28036b6d0e6a361b336876112b12036f339d316db3872d43ea3e8782"
+    },
+    {
+      "path": "spacr/batch.py",
+      "sha256": "e862d2b9a27003529158036f709aef115017616753709f5f7890c9ed2e246350",
+      "git_blob": "5e186fa3361f47d25bf331c93741ce26c994940c",
+      "bytes": 74963,
+      "lines": 1880,
+      "matches_ci_base": true,
+      "ci_base_sha256": "e862d2b9a27003529158036f709aef115017616753709f5f7890c9ed2e246350"
+    },
+    {
+      "path": "spacr/validate.py",
+      "sha256": "a606ce2ce2bad7f0fb332cf84072075b83fa6c9d9f4dcf217ec68383e4789710",
+      "git_blob": "2e9697bf48e43404c3bd71e10d3d60110ac47691",
+      "bytes": 109170,
+      "lines": 2503,
+      "matches_ci_base": true,
+      "ci_base_sha256": "a606ce2ce2bad7f0fb332cf84072075b83fa6c9d9f4dcf217ec68383e4789710"
+    },
+    {
+      "path": "spacr/utils.py",
+      "sha256": "d4a8cb44069c7e1ab9cc98d55b948fa1f84b0a015e0c77b3a1139524d715af5d",
+      "git_blob": "4bb2eb9ff3683971b0180aef3d2b2dd88e28a068",
+      "bytes": 467263,
+      "lines": 10569,
+      "matches_ci_base": true,
+      "ci_base_sha256": "d4a8cb44069c7e1ab9cc98d55b948fa1f84b0a015e0c77b3a1139524d715af5d"
+    },
+    {
+      "path": "spacr/settings.py",
+      "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+      "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee",
+      "bytes": 648601,
+      "lines": 7833,
+      "matches_ci_base": true,
+      "ci_base_sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa"
+    },
+    {
+      "path": "spacr/submodules.py",
+      "sha256": "d4984f92427dee45029790ba251e439bba5f219d9b96cfd4365e2d7b6d012799",
+      "git_blob": "4e3140e73857b5de7ba41a129e57e6a67f94e657",
+      "bytes": 280408,
+      "lines": 5980,
+      "matches_ci_base": true,
+      "ci_base_sha256": "d4984f92427dee45029790ba251e439bba5f219d9b96cfd4365e2d7b6d012799"
+    },
+    {
+      "path": "spacr/object.py",
+      "sha256": "f81c4c8aa9db97912b2236799eec91ff0e6d02948ffc26e6683e28fd40fbf4ca",
+      "git_blob": "4c48b4df563aaa8c373958c7b91defa8b1bd755e",
+      "bytes": 141957,
+      "lines": 3136,
+      "matches_ci_base": true,
+      "ci_base_sha256": "f81c4c8aa9db97912b2236799eec91ff0e6d02948ffc26e6683e28fd40fbf4ca"
+    },
+    {
+      "path": "spacr/core.py",
+      "sha256": "ccb78e9fda4ebcbf0d1ee2ff7ad8f7feb463c2ef63271ce594cadf22e711584c",
+      "git_blob": "0f375361619ad5cd7d05110bb473817a2362b4a6",
+      "bytes": 265271,
+      "lines": 5401,
+      "matches_ci_base": true,
+      "ci_base_sha256": "ccb78e9fda4ebcbf0d1ee2ff7ad8f7feb463c2ef63271ce594cadf22e711584c"
+    },
+    {
+      "path": "spacr/plaque.py",
+      "sha256": "7ec32f1a3bbafe0efe8a3f095c597b124dff35a14530752b1672ce3c463963c3",
+      "git_blob": "fce994b1036dd00815672e637f10431220b7d2c5",
+      "bytes": 65199,
+      "lines": 1447,
+      "matches_ci_base": true,
+      "ci_base_sha256": "7ec32f1a3bbafe0efe8a3f095c597b124dff35a14530752b1672ce3c463963c3"
+    },
+    {
+      "path": "spacr/plaque_papers.py",
+      "sha256": "7b7832c48ee13564c07a3dbc259c80985b181617879ded4d24489dc5abd05663",
+      "git_blob": "cb440ee14100578111c034d39d79c35de1ff4af9",
+      "bytes": 144811,
+      "lines": 3335,
+      "matches_ci_base": true,
+      "ci_base_sha256": "7b7832c48ee13564c07a3dbc259c80985b181617879ded4d24489dc5abd05663"
+    },
+    {
+      "path": "spacr/deep_spacr.py",
+      "sha256": "1df4fef8644e35356f0586bff6e746e505af50c88104754b16065000237c0f79",
+      "git_blob": "c96f9db05cea28ea544143926442934a69064411",
+      "bytes": 210628,
+      "lines": 4736,
+      "matches_ci_base": true,
+      "ci_base_sha256": "1df4fef8644e35356f0586bff6e746e505af50c88104754b16065000237c0f79"
+    },
+    {
+      "path": "spacr/torch_artifacts.py",
+      "sha256": "fbcc9c0ecd231182a38980f1d7a81eef00b1d0250775495d7eb4738f4dfde38a",
+      "git_blob": "5f7aad2f7ae8db78bd715ab0ef76ca2679ffa357",
+      "bytes": 14589,
+      "lines": 360,
+      "matches_ci_base": true,
+      "ci_base_sha256": "fbcc9c0ecd231182a38980f1d7a81eef00b1d0250775495d7eb4738f4dfde38a"
+    },
+    {
+      "path": "spacr/object_classifier.py",
+      "sha256": "395dd6339b7259359727cecdc5fa31fd5d6f1be0357670f11a2d5d3c376275c8",
+      "git_blob": "278003ea2038e2f18eeeea0b7b6325a33d30df78",
+      "bytes": 35530,
+      "lines": 769,
+      "matches_ci_base": true,
+      "ci_base_sha256": "395dd6339b7259359727cecdc5fa31fd5d6f1be0357670f11a2d5d3c376275c8"
+    },
+    {
+      "path": "spacr/_segmentation_backends.py",
+      "sha256": "a040c8cbf832ab08097c7e7e3325bcc36fd6b06ce00ff363299097c19b678a21",
+      "git_blob": "63fb9f0af318b8582704bd27d768e2acbd5797c1",
+      "bytes": 282134,
+      "lines": 6259,
+      "matches_ci_base": true,
+      "ci_base_sha256": "a040c8cbf832ab08097c7e7e3325bcc36fd6b06ce00ff363299097c19b678a21"
+    },
+    {
+      "path": "spacr/run_journal.py",
+      "sha256": "7a3423a70335c04efa4872159742c67a17ac890027607af86e3330a70451377d",
+      "git_blob": "23157834af77863c6e071708377ce821db3e8e8a",
+      "bytes": 169921,
+      "lines": 4294,
+      "matches_ci_base": true,
+      "ci_base_sha256": "7a3423a70335c04efa4872159742c67a17ac890027607af86e3330a70451377d"
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d",
+      "bytes": 590758,
+      "lines": 13162,
+      "matches_ci_base": true,
+      "ci_base_sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7"
+    },
+    {
+      "path": "spacr/qt/screens/settings_model.py",
+      "sha256": "2ab88fa13e51e564672ce6c2e746301d94d62ef93d5b31d66f03d98e0957ea4c",
+      "git_blob": "6a5f82a594e45722e294ab5385d422d2068910fe",
+      "bytes": 570330,
+      "lines": 12672,
+      "matches_ci_base": true,
+      "ci_base_sha256": "2ab88fa13e51e564672ce6c2e746301d94d62ef93d5b31d66f03d98e0957ea4c"
+    },
+    {
+      "path": "spacr/qt/screens/distributed_jobs.py",
+      "sha256": "5166e1120b441b88505eaa570c33a0710fe88c1b8728bbf669f4d9def7bd2463",
+      "git_blob": "6c3c8b2e85400aa7c8c7d55aab56390036560a3b",
+      "bytes": 45480,
+      "lines": 1145,
+      "matches_ci_base": true,
+      "ci_base_sha256": "5166e1120b441b88505eaa570c33a0710fe88c1b8728bbf669f4d9def7bd2463"
+    },
+    {
+      "path": "spacr/qt/widgets/model_zoo_picker.py",
+      "sha256": "047407ae1743d70e13dc77ce53f9a1c84948f07370e342a8d6dae114e8012353",
+      "git_blob": "5a5b78fb6dec882b5eaf5425861170913f00561c",
+      "bytes": 97813,
+      "lines": 2358,
+      "matches_ci_base": true,
+      "ci_base_sha256": "047407ae1743d70e13dc77ce53f9a1c84948f07370e342a8d6dae114e8012353"
+    },
+    {
+      "path": "docs/source/distributed_execution.rst",
+      "sha256": "1970234da032bbcef03590c3c9c8f43065da7a8531b06c18a16b791f3d0653f0",
+      "git_blob": "0bb6dbd8c14aacb3921605e736a62c2fce618922",
+      "bytes": 6353,
+      "lines": 168,
+      "matches_ci_base": true,
+      "ci_base_sha256": "1970234da032bbcef03590c3c9c8f43065da7a8531b06c18a16b791f3d0653f0"
+    },
+    {
+      "path": "tests/test_model_zoo.py",
+      "sha256": "3f5a2fc03854432e1cd5a783234370e8b60a3e9119c0f127d299264fa54d82d3",
+      "git_blob": "076de1ffcdd60d641a28db1e52fe2e5e79eb19b9",
+      "bytes": 45591,
+      "lines": 1126,
+      "matches_ci_base": true,
+      "ci_base_sha256": "3f5a2fc03854432e1cd5a783234370e8b60a3e9119c0f127d299264fa54d82d3"
+    },
+    {
+      "path": "tests/test_model_zoo_shared_catalogue.py",
+      "sha256": "a395425806aa520010d6beca5b1d167826fb674eaa85cc0ccf34b2f652b30ea6",
+      "git_blob": "0a41a0c3638b1729d7216669d0c481400e15a7a7",
+      "bytes": 10561,
+      "lines": 253,
+      "matches_ci_base": true,
+      "ci_base_sha256": "a395425806aa520010d6beca5b1d167826fb674eaa85cc0ccf34b2f652b30ea6"
+    },
+    {
+      "path": "tests/test_missing_model_downloads.py",
+      "sha256": "04d448e9337ea79aba204f5238481958191143160780357663119da77e4da2d3",
+      "git_blob": "f4b71fcdbae44117b3f2746098550b155f894624",
+      "bytes": 7838,
+      "lines": 196,
+      "matches_ci_base": true,
+      "ci_base_sha256": "04d448e9337ea79aba204f5238481958191143160780357663119da77e4da2d3"
+    },
+    {
+      "path": "tests/test_683_catalogue_path_guards.py",
+      "sha256": "a6ec7385c968d1239c9ac504a029344d9ebb6cd6260dd75161293a60ed718921",
+      "git_blob": "b6aa05b22689d31faa97255a86afb450304fef47",
+      "bytes": 4248,
+      "lines": 101,
+      "matches_ci_base": true,
+      "ci_base_sha256": "a6ec7385c968d1239c9ac504a029344d9ebb6cd6260dd75161293a60ed718921"
+    },
+    {
+      "path": "tests/test_cov_custom_model_is_a_path.py",
+      "sha256": "9e21d3779f50e030a572011066bd26964ae7daa74cdc1f9f87aef56d59c96f33",
+      "git_blob": "bfab0cab7ee1b6e462876bf5f5536283475f0540",
+      "bytes": 1726,
+      "lines": 44,
+      "matches_ci_base": true,
+      "ci_base_sha256": "9e21d3779f50e030a572011066bd26964ae7daa74cdc1f9f87aef56d59c96f33"
+    },
+    {
+      "path": "tests/test_cellpose4_submodules.py",
+      "sha256": "4ad823eef774f2ceb4ddbf00c7bfaa6ce63b5bc57ef700dc0863d980af450878",
+      "git_blob": "5d251984b24def0fdd964516e9b10a897682b066",
+      "bytes": 3719,
+      "lines": 93,
+      "matches_ci_base": true,
+      "ci_base_sha256": "4ad823eef774f2ceb4ddbf00c7bfaa6ce63b5bc57ef700dc0863d980af450878"
+    },
+    {
+      "path": "tests/test_plaque_assay_growth_models_and_figure_notes.py",
+      "sha256": "6ecc1d3ff90b25361726f6149bcc25b49f0585ea3de4022c18844c5a15d5c0b0",
+      "git_blob": "83f050a36d7fe229734351818412dc2502810be0",
+      "bytes": 5702,
+      "lines": 138,
+      "matches_ci_base": true,
+      "ci_base_sha256": "6ecc1d3ff90b25361726f6149bcc25b49f0585ea3de4022c18844c5a15d5c0b0"
+    },
+    {
+      "path": "tests/test_n693_write_settings_file.py",
+      "sha256": "e60668efbfc287f7e9d269e14edbbcdf49e621471d573858b7d4993329936bd0",
+      "git_blob": "1be515c4814bacefb714b999e5959fa5e86c2588",
+      "bytes": 2640,
+      "lines": 68,
+      "matches_ci_base": true,
+      "ci_base_sha256": "e60668efbfc287f7e9d269e14edbbcdf49e621471d573858b7d4993329936bd0"
+    },
+    {
+      "path": "tests/test_remote_execution.py",
+      "sha256": "fffb591ac194fc49dc5c8c2e6b83b53cd96c31f4e6b6c348f97e7fc2593bdfc9",
+      "git_blob": "104a8334fb508ede32f41dc2d38e974497869e32",
+      "bytes": 12194,
+      "lines": 325,
+      "matches_ci_base": true,
+      "ci_base_sha256": "fffb591ac194fc49dc5c8c2e6b83b53cd96c31f4e6b6c348f97e7fc2593bdfc9"
+    },
+    {
+      "path": "tests/test_cli.py",
+      "sha256": "d53bd8499d36bb45f6c2a13b18711a07faf764dbff8a08b59c0d86944d221807",
+      "git_blob": "3e7d93d79d2f0d300fe55e04324aa458397a2472",
+      "bytes": 50848,
+      "lines": 1281,
+      "matches_ci_base": true,
+      "ci_base_sha256": "d53bd8499d36bb45f6c2a13b18711a07faf764dbff8a08b59c0d86944d221807"
+    },
+    {
+      "path": "tests/qt/test_n693_export_settings_from_every_form.py",
+      "sha256": "765055712eae9da364be52a38ee8979857f5147a79a89bed422b6edee975a869",
+      "git_blob": "ca5a4298b8aedbffa132dee36518c7e14fceec80",
+      "bytes": 14201,
+      "lines": 361,
+      "matches_ci_base": true,
+      "ci_base_sha256": "765055712eae9da364be52a38ee8979857f5147a79a89bed422b6edee975a869"
+    },
+    {
+      "path": "tests/qt/test_n693_distributed_jobs_saves_the_snapshot.py",
+      "sha256": "adce680ef68e42ede63f602108d91bb28ce8cc4ba08d0bedd0d9fd9a8ef015a4",
+      "git_blob": "f213fbbfddbc4d9f6cf4185a6a9647fdf383e91e",
+      "bytes": 3775,
+      "lines": 96,
+      "matches_ci_base": true,
+      "ci_base_sha256": "adce680ef68e42ede63f602108d91bb28ce8cc4ba08d0bedd0d9fd9a8ef015a4"
+    },
+    {
+      "path": "spacr/tabular.py",
+      "sha256": "bef3e21199bf49dc54b140103549bbb25bcda6b6ca6909d2f2a9a0af3d82836a",
+      "git_blob": "e0e25a87c0f9a380ff18c989394047ef0c351838",
+      "bytes": 54215,
+      "lines": 1280,
+      "matches_ci_base": true,
+      "ci_base_sha256": "bef3e21199bf49dc54b140103549bbb25bcda6b6ca6909d2f2a9a0af3d82836a"
+    }
+  ],
+  "symbol_bindings": {
+    "spacr/model_zoo.py:resolve": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "resolve",
+        "line": 3566,
+        "end_line": 3602
+      }
+    ],
+    "spacr/model_zoo.py:_ensure_model_file": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "_ensure_model_file",
+        "line": 3606,
+        "end_line": 3651
+      }
+    ],
+    "spacr/model_zoo.py:catalogue": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "catalogue",
+        "line": 3467,
+        "end_line": 3563
+      }
+    ],
+    "spacr/model_zoo.py:shared_catalogue": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "shared_catalogue",
+        "line": 2257,
+        "end_line": 2341
+      }
+    ],
+    "spacr/model_zoo.py:fetch": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "fetch",
+        "line": 3781,
+        "end_line": 3911
+      }
+    ],
+    "spacr/model_zoo.py:_claim": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "_claim",
+        "line": 3914,
+        "end_line": 3936
+      }
+    ],
+    "spacr/model_zoo.py:versioned_path": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "versioned_path",
+        "line": 3654,
+        "end_line": 3682
+      }
+    ],
+    "spacr/model_zoo.py:sha256_file": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "sha256_file",
+        "line": 1568,
+        "end_line": 1590
+      }
+    ],
+    "spacr/model_zoo.py:verify": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "verify",
+        "line": 1593,
+        "end_line": 1618
+      }
+    ],
+    "spacr/model_zoo.py:hf_uri": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "hf_uri",
+        "line": 2137,
+        "end_line": 2166
+      }
+    ],
+    "spacr/model_zoo.py:_entry_from_mapping": [
+      {
+        "path": "spacr/model_zoo.py",
+        "symbol": "_entry_from_mapping",
+        "line": 2169,
+        "end_line": 2200
+      }
+    ],
+    "spacr/cli.py:write_settings_file": [
+      {
+        "path": "spacr/cli.py",
+        "symbol": "write_settings_file",
+        "line": 1094,
+        "end_line": 1136
+      }
+    ],
+    "spacr/cli.py:load_settings_file": [
+      {
+        "path": "spacr/cli.py",
+        "symbol": "load_settings_file",
+        "line": 1018,
+        "end_line": 1045
+      }
+    ],
+    "spacr/cli.py:resolve_settings": [
+      {
+        "path": "spacr/cli.py",
+        "symbol": "resolve_settings",
+        "line": 1434,
+        "end_line": 1459
+      }
+    ],
+    "spacr/cli.py:cmd_run": [
+      {
+        "path": "spacr/cli.py",
+        "symbol": "cmd_run",
+        "line": 1797,
+        "end_line": 1903
+      }
+    ],
+    "spacr/remote_execution.py:map_settings_paths": [
+      {
+        "path": "spacr/remote_execution.py",
+        "symbol": "map_settings_paths",
+        "line": 647,
+        "end_line": 678
+      }
+    ],
+    "spacr/remote_execution.py:_map_path_string": [
+      {
+        "path": "spacr/remote_execution.py",
+        "symbol": "_map_path_string",
+        "line": 618,
+        "end_line": 644
+      }
+    ],
+    "spacr/remote_execution.py:_file_lock": [
+      {
+        "path": "spacr/remote_execution.py",
+        "symbol": "_file_lock",
+        "line": 392,
+        "end_line": 415
+      }
+    ],
+    "spacr/validate.py:_check_required_paths": [
+      {
+        "path": "spacr/validate.py",
+        "symbol": "_check_required_paths",
+        "line": 1467,
+        "end_line": 1599
+      }
+    ],
+    "spacr/validate.py:_check_unknown_keys": [
+      {
+        "path": "spacr/validate.py",
+        "symbol": "_check_unknown_keys",
+        "line": 1258,
+        "end_line": 1313
+      }
+    ],
+    "spacr/qt/screens/app_screen.py:export_settings_csv": [
+      {
+        "path": "spacr/qt/screens/app_screen.py",
+        "symbol": "export_settings_csv",
+        "line": 1994,
+        "end_line": 2023
+      }
+    ],
+    "spacr/qt/screens/app_screen.py:_on_import_settings": [
+      {
+        "path": "spacr/qt/screens/app_screen.py",
+        "symbol": "_on_import_settings",
+        "line": 12033,
+        "end_line": 12057
+      }
+    ],
+    "spacr/qt/screens/app_screen.py:_on_export_settings": [
+      {
+        "path": "spacr/qt/screens/app_screen.py",
+        "symbol": "_on_export_settings",
+        "line": 12059,
+        "end_line": 12083
+      }
+    ],
+    "spacr/qt/screens/app_screen.py:_apply_each_setting": [
+      {
+        "path": "spacr/qt/screens/app_screen.py",
+        "symbol": "_apply_each_setting",
+        "line": 12639,
+        "end_line": 12656
+      }
+    ],
+    "spacr/qt/screens/settings_model.py:collect": [
+      {
+        "path": "spacr/qt/screens/settings_model.py",
+        "symbol": "collect",
+        "line": 10947,
+        "end_line": 10964
+      }
+    ],
+    "spacr/qt/screens/settings_model.py:set_hidden_value": [
+      {
+        "path": "spacr/qt/screens/settings_model.py",
+        "symbol": "set_hidden_value",
+        "line": 11080,
+        "end_line": 11113
+      }
+    ],
+    "spacr/submodules.py:_resolve_detector_weights": [
+      {
+        "path": "spacr/submodules.py",
+        "symbol": "_resolve_detector_weights",
+        "line": 1347,
+        "end_line": 1367
+      }
+    ],
+    "spacr/submodules.py:_resolve_training_base": [
+      {
+        "path": "spacr/submodules.py",
+        "symbol": "_resolve_training_base",
+        "line": 1374,
+        "end_line": 1401
+      }
+    ],
+    "spacr/submodules.py:_resolve_plaque_model": [
+      {
+        "path": "spacr/submodules.py",
+        "symbol": "_resolve_plaque_model",
+        "line": 1510,
+        "end_line": 1584
+      }
+    ],
+    "spacr/utils.py:_resolve_cellpose_pretrained": [
+      {
+        "path": "spacr/utils.py",
+        "symbol": "_resolve_cellpose_pretrained",
+        "line": 6465,
+        "end_line": 6538
+      }
+    ],
+    "spacr/torch_artifacts.py:load_model_artifact": [
+      {
+        "path": "spacr/torch_artifacts.py",
+        "symbol": "load_model_artifact",
+        "line": 232,
+        "end_line": 325
+      }
+    ],
+    "spacr/object_classifier.py:_real_classifier_bundles": [
+      {
+        "path": "spacr/object_classifier.py",
+        "symbol": "_real_classifier_bundles",
+        "line": 672,
+        "end_line": 702
+      }
+    ],
+    "spacr/plaque_papers.py:_zoo_path": [
+      {
+        "path": "spacr/plaque_papers.py",
+        "symbol": "_zoo_path",
+        "line": 2328,
+        "end_line": 2342
+      }
+    ],
+    "spacr/run_journal.py:open_run": [
+      {
+        "path": "spacr/run_journal.py",
+        "symbol": "open_run",
+        "line": 1294,
+        "end_line": 1364
+      }
+    ],
+    "spacr/tabular.py:_parse_setting_value": [
+      {
+        "path": "spacr/tabular.py",
+        "symbol": "_parse_setting_value",
+        "line": 272,
+        "end_line": 305
+      }
+    ],
+    "spacr/tabular.py:_settings_from_table": [
+      {
+        "path": "spacr/tabular.py",
+        "symbol": "_settings_from_table",
+        "line": 333,
+        "end_line": 354
+      }
+    ]
+  },
+  "scope": {
+    "app_source_changed": false,
+    "canonical_files_changed": false,
+    "tests_run": false,
+    "heavy_dependencies_imported": false,
+    "network_downloads": false,
+    "gpu_used": false,
+    "new_worktrees": false,
+    "publication": false
+  },
+  "existing_behavior": [
+    {
+      "finding": "Exact bare zoo keys and catalogue names already download and reuse checksum-verified cached files for non-GUI callers. Existing absolute or expanded-user paths win. A missing path containing the host separator or leading tilde returns None before looking up its basename.",
+      "source": "spacr/model_zoo.py:_ensure_model_file"
+    },
+    {
+      "finding": "Generic resolve first honors a local file, then refuses unavailable paths, then accepts exact key/name and a unique substring near-match. Its fuzzy last step is unsuitable for N702 exact-version automatic fallback.",
+      "source": "spacr/model_zoo.py:resolve"
+    },
+    {
+      "finding": "_ensure_model_file returns catalogue entry.path when it exists without comparing its bytes to entry.sha256; cache/name and generated version candidates are hashed. Explicit local paths are returned without metadata verification.",
+      "source": "spacr/model_zoo.py:_ensure_model_file"
+    },
+    {
+      "finding": "fetch streams into a per-download temporary file, fsyncs and verifies published SHA256, cleans partial data on exceptions/cancel, then claims a versioned filename atomically. _claim prevents overwrites, not duplicate downloading. Its reservation is temporarily an empty file, and a kill may leave that reservation.",
+      "source": "spacr/model_zoo.py:fetch/_claim"
+    },
+    {
+      "finding": "catalogue deduplicates entries by the pair (key,name), so different records can share a key or basename. _ensure_model_file currently selects the first exact match, not an ambiguity-checked identity.",
+      "source": "spacr/model_zoo.py:catalogue/_ensure_model_file"
+    },
+    {
+      "finding": "catalogue(remote=True) can request shared catalogue data from CLI threads. block=False avoids waiting but triggers a daemon refresh; it is not a strict no-network/offline contract. Stale entries can be retained after failure.",
+      "source": "spacr/model_zoo.py:shared_catalogue"
+    },
+    {
+      "finding": "Cellpose utility, classifier artifact loader, classifier training initialization, real-object classifier and several isolated backend workers already call _ensure_model_file. Plaque, detector and training-base helpers duplicate catalogue/fetch handling; ordinary execution can fetch again rather than reusing verified cache.",
+      "source": "spacr/utils.py,spacr/torch_artifacts.py,spacr/deep_spacr.py,spacr/object_classifier.py,spacr/_segmentation_backends.py,spacr/submodules.py"
+    },
+    {
+      "finding": "N693 writes settings exactly as given with Key,Value columns and a sibling JSON; no zoo key/version/checksum enrichment exists. Generic dict literals round-trip through both loaders, while unknown top-level metadata keys currently trigger validation warnings and may be dropped during GUI import because hidden values must be declared.",
+      "source": "spacr/cli.py:write_settings_file;spacr/validate.py:_check_unknown_keys;spacr/qt/screens/app_screen.py:_apply_each_setting;spacr/qt/screens/settings_model.py:set_hidden_value"
+    },
+    {
+      "finding": "Remote execution maps absolute strings recursively only under the configured dataset root. Paths outside that root remain unchanged; keys and nested dict structure are preserved. A Windows path on Linux is not generally recognized by host os.path.isabs. Remote jobs invoke the ordinary spacr-run entry point.",
+      "source": "spacr/remote_execution.py:map_settings_paths/_map_path_string"
+    },
+    {
+      "finding": "CLI dry-run validates without importing/calling the module. Real execution runs preflight before import and opens a run journal before invoking the module. Resolver integration must retain network-free dry-run and ensure journal provenance records the actually used checkpoint bytes. Batch queue validation relies on the same CLI and validation contracts.",
+      "source": "spacr/cli.py:cmd_run;spacr/batch.py;spacr/run_journal.py:open_run"
+    },
+    {
+      "finding": "No SPACR_MODEL_DOWNLOAD switch or process-wide download coalescing is implemented in the audited resolver."
+    },
+    {
+      "finding": "CLI and tabular CSV parsers reparse direct values of a literal dict, including numeric/boolean strings. Nested dict objects are returned unchanged once already parsed. The proposed nested settings identity records can preserve opaque version/hash strings, but exact identity types need explicit CSV/JSON/GUI regression coverage rather than assuming every dict shape round-trips.",
+      "source": "spacr/cli.py:_parse_csv_value;spacr/tabular.py:_parse_setting_value"
+    },
+    {
+      "finding": "The shared catalogue cache is in-memory. A separate unvetted community_models.json path exists for opt-in community rows; this is not durable storage for the shared catalogue rows. Offline availability of a shared-only entry in a fresh cluster process requires an explicit pinned local catalogue or a newly designed persisted identity cache.",
+      "source": "spacr/model_zoo.py:shared_catalogue/community_entries"
+    },
+    {
+      "finding": "hf_uri and many built-in remote URLs resolve main, with published checksum as the byte constraint. A changed/deleted remote artifact therefore fails checksum or download rather than fetching historical bytes automatically; checksums do not create historical availability.",
+      "source": "spacr/model_zoo.py:hf_uri/BUNDLED_REMOTE_MODELS"
+    }
+  ],
+  "built_in_remote_catalogue": {
+    "count": 19,
+    "rows": [
+      {
+        "key": "toxoplasma_pv_v1",
+        "name": "cpsam_v2_toxo_r2",
+        "kind": "cellpose",
+        "sha256": "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_plaque_v1",
+        "name": "cpsam_plaque_r3",
+        "kind": "cellpose",
+        "sha256": "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_plaque_v2",
+        "name": "cpsam_plaque_r5",
+        "kind": "cellpose",
+        "sha256": "0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_well_detector_v1",
+        "name": "yolo_welldetect_v3.pt",
+        "kind": "detector",
+        "sha256": "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_well_detector_v2",
+        "name": "yolo_welldetect_v4.pt",
+        "kind": "detector",
+        "sha256": "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_from_cellmask_v1",
+        "name": "toxoplasma_from_cellmask_pv",
+        "kind": "cellpose",
+        "sha256": "481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_pv_v2",
+        "name": "cpsam_v2_toxo_r5",
+        "kind": "cellpose",
+        "sha256": "17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_pv_v3",
+        "name": "cpsam_v2_toxo_r6",
+        "kind": "cellpose",
+        "sha256": "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_pv_v4",
+        "name": "cpsam_v2_toxo_r7",
+        "kind": "cellpose",
+        "sha256": "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_pv_v5",
+        "name": "cpsam_v2_toxo_r8",
+        "kind": "cellpose",
+        "sha256": "a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c",
+        "version": "1"
+      },
+      {
+        "key": "live_cell_v1",
+        "name": "live_cell_v1",
+        "kind": "cellpose",
+        "sha256": "7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090",
+        "version": "1"
+      },
+      {
+        "key": "nuclei_from_cellmask_v1",
+        "name": "nuclei_from_cellmask_best",
+        "kind": "cellpose",
+        "sha256": "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+        "version": "1"
+      },
+      {
+        "key": "cell_from_hoechst_v1",
+        "name": "cell_from_hoechst_best",
+        "kind": "cellpose",
+        "sha256": "d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_from_hoechst_v1",
+        "name": "toxoplasma_from_hoechst_pv",
+        "kind": "cellpose",
+        "sha256": "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+        "version": "1"
+      },
+      {
+        "key": "colony_yolo11n_makrai_v1",
+        "name": "colony_yolo11n_makrai_v1.pt",
+        "kind": "detector",
+        "sha256": "1bd99599c1d78fb0841216b798cfc61665be7c2aa8b356b970d0d06ae4b57557",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_plaque_v3",
+        "name": "cpsam_plaque_r5_geldoc",
+        "kind": "cellpose",
+        "sha256": "8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_plaque_v4",
+        "name": "cpsam_plaque_r6",
+        "kind": "cellpose",
+        "sha256": "744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f",
+        "version": "1"
+      },
+      {
+        "key": "toxoplasma_well_detector_v3",
+        "name": "yolo_welldetect_v4_geldoc.pt",
+        "kind": "detector",
+        "sha256": "046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18",
+        "version": "1"
+      },
+      {
+        "key": "mitonet_mini_v1",
+        "name": "MitoNet_v1_mini.pth",
+        "kind": "mitonet",
+        "sha256": "6554a42fbdcb70a46700f20281b1a5f1ae2f4140a63f519193046c7c9a9f2f4c",
+        "version": "1"
+      }
+    ],
+    "duplicate_identity_fields": {
+      "key": [],
+      "name": [],
+      "sha256": []
+    },
+    "version_observation": "All 19 built-in records currently inherit ModelEntry.version=1. Semantic model lineage appears in stable keys and published filenames; cache collision suffixes from versioned_path are not model versions. Do not parse cache _vN as an authoritative release identity.",
+    "example_correction": "Current toxoplasma_plaque_v4 name is cpsam_plaque_r6, not the spec illustration cpsam_plaque_r6_v4. A generated collision filename must be associated by verified hash/provenance, never by guessing a semantic version."
+  },
+  "unified_existing_module_seam": {
+    "owner": "spacr/model_zoo.py",
+    "proposal": "Extend _ensure_model_file or add a public run-setting resolver in the same existing module, with shared pure identity selection and one verified/cache/locked acquisition path. Keep ModelEntry, sha256_file, verify, fetch, checksum errors and existing GUI-thread protections. Existing higher-level consumers delegate to this seam rather than maintaining independent fetch logic.",
+    "inputs": [
+      "setting name",
+      "requested path/key",
+      "per-setting recorded identity (key,version,sha256,kind,filename)",
+      "allowed model kinds/backend",
+      "download policy",
+      "cache destination",
+      "planning-only flag"
+    ],
+    "result": "An actual checkpoint path plus exact resolved entry identity and a status distinguishing given-local, cached and newly-downloaded. Keep original request separately for logs and reproducibility.",
+    "no_new_modules": true,
+    "call_sites": [
+      {
+        "route": "Cellpose mask/PV and organelle Cellpose",
+        "settings": [
+          "cell_model_name",
+          "nucleus_model_name",
+          "pathogen_model_name",
+          "pathogen_model",
+          "custom_model",
+          "organelle*_model_name"
+        ],
+        "consumers": [
+          "spacr/utils.py:_resolve_cellpose_pretrained",
+          "spacr/object.py:generate_cellpose_masks_sam",
+          "spacr/_segmentation_backends.py:_cellpose3_model/_cellpose_dino_model/_prefixed_model"
+        ],
+        "notes": "Preserve explicitly supported stock/legacy/backend names and prefixes. Do not interpret model_type architecture names as files. Only active object/backend settings require acquisition."
+      },
+      {
+        "route": "Plaque segmentation, wells and figure panels",
+        "settings": [
+          "plaque_model",
+          "well_detection",
+          "figure_detector",
+          "base_model"
+        ],
+        "consumers": [
+          "spacr/submodules.py:_resolve_plaque_model/_resolve_detector_weights/_resolve_training_base",
+          "spacr/plaque_papers.py:_zoo_path"
+        ],
+        "notes": "Retain bundled compatibility, well_detection False/True and fetch=False preview semantics; detector and segmentation kinds must be distinct. Preserve route defaults."
+      },
+      {
+        "route": "Classifier inference, training and real-object classifiers",
+        "settings": [
+          "model_path",
+          "custom_model_path",
+          "resume_checkpoint",
+          "real_object_classifier"
+        ],
+        "consumers": [
+          "spacr/torch_artifacts.py:load_model_artifact",
+          "spacr/deep_spacr.py:train_model/_load_inference_model",
+          "spacr/object_classifier.py:_real_classifier_bundles"
+        ],
+        "notes": "Classifier architecture/class count and resumable optimizer-state checks still apply after resolution. A folder of per-role joblib files is not one downloadable checkpoint. Built-in remote records currently include no classifier row; configured/shared classifier entries still work."
+      },
+      {
+        "route": "Other explicitly file-valued settings",
+        "settings": [
+          "organelle*_unet_model_path"
+        ],
+        "consumers": [
+          "spacr/object.py"
+        ],
+        "notes": "Do not accidentally download an incompatible catalogue kind. Unknown custom file paths need a clear contextual error; no automatic model creation or training."
+      }
+    ],
+    "run_start_order": "After module defaults/settings/overrides are combined, resolve identities without downloading during preflight; on actual execution acquire only active requested checkpoints before module inference. Central CLI integration plus consumer delegation is needed so Python/GUI worker entry points also share behavior. Resolve after --set overrides, preserve original request metadata, then capture actual model provenance."
+  },
+  "proposed_exact_lookup_rules": [
+    "Expand user/environment variables for actual filesystem lookup, retain original text, and require a regular file for checkpoint-valued settings. Existing supplied paths take priority. If exported metadata pins a hash, compare existing bytes and fail on mismatch instead of silently loading another model.",
+    "Treat explicit key/version/hash as a conjunction. Reject malformed SHA256, conflicting fields, wrong kind, or stale metadata whose requested_value no longer matches the setting after a GUI edit/--set. Never let a hash override a contradictory explicit key/version.",
+    "Find exact stable key plus recorded version in a bounded trusted catalogue; filter by allowed kind and recorded checksum. Collapse aliases only when the full checkpoint identity agrees. More than one distinct identity is an ambiguity error with candidate key/version/hash, never first-match.",
+    "When exact metadata is absent, a bare key or exact published entry.name may resolve only uniquely. For missing laptop paths, extract a lexical basename supporting POSIX and Windows separators and match exact entry.name only, with allowed kind. Do not use substring matching, latest/default substitution, generic URI basename such as best.pt, or inferred cache suffix version.",
+    "If only SHA256 is recorded, find a unique verified catalogue identity of the required kind; same-byte aliases can be reported explicitly. Unknown hash alone provides no source URI and must not trigger arbitrary external downloads.",
+    "If a generated cache basename differs from a published name, require its recorded key/hash or verified cache provenance. Never strip _vN to assume an old model release.",
+    "Strict error context must name the setting, original path, supplied identity constraints and candidate zoo keys/versions; unmatched custom models are a copy-file instruction, never stock-model fallback.",
+    "Legacy CSVs lacking provenance cannot establish historical laptop bytes. Unique exact-basename fallback downloads the current declared/checksummed identity and logs it honestly; newly exported metadata is required for reproducible historical identity."
+  ],
+  "proposed_settings_metadata_contract": {
+    "status": "proposal_not_existing",
+    "reserved_key": "model_metadata",
+    "value_shape": {
+      "schema_version": 1,
+      "settings": {
+        "cell_model_name": {
+          "requested_value": "original setting value",
+          "key": "exact stable zoo key",
+          "version": "exact ModelEntry version string",
+          "sha256": "64 lowercase hex",
+          "kind": "cellpose",
+          "filename": "published entry.name"
+        }
+      }
+    },
+    "csv": "Keep existing Key,Value layout, existing paths unchanged, ordered settings and sibling JSON. Serialize the reserved dict as a literal using existing cell handling; version must remain a string, not a floating-point schema guess. Keep opaque identity strings inside the nested per-setting records; explicitly cover digit-only/leading-zero versions and hashes across all loaders. A flattened metadata variant would need key-aware opaque parsing rather than generic numeric coercion.",
+    "export_integration": "Attach identity from trusted picker/catalogue provenance without network/inference. Do not claim a local same-basename file matches catalogue bytes without hashing. Large local checkpoint hashing must run outside Qt GUI thread or remain explicitly unresolved; unknown custom paths are preserved and cannot be auto-downloaded merely from a recorded self-hash.",
+    "import_integration": "Declare/reserve metadata in validation and hidden form defaults, preserve it through GUI import/collect/export and Distributed Jobs snapshots, and invalidate/recompute the affected per-setting record when its path/key changes. Avoid exposing provenance internals as user controls.",
+    "override_mapping": "Keep identity independent of mapped dataset paths; retain original requested_value plus an explicit current request binding so remote path mapping does not spuriously invalidate a legitimate mapping. Override of a model setting invalidates its old record; unchanged metadata cannot silently force an old model.",
+    "backward_compatibility": "Old CSV/JSON with no reserved record retain parsing and explicit paths. New unknown schema versions fail clearly rather than being silently ignored. A known model metadata record must survive both CLI and GUI round-trips.",
+    "generic_writer_choice": "Prefer explicit enrichment by the shared export/submit path while leaving write_settings_file a faithful generic serializer; record identity before snapshot submission as well as Save settings CSV. Direct non-GUI callers can invoke the same lightweight enrichment helper."
+  },
+  "proposed_cache_offline_concurrency_rules": [
+    "Use the node user-owned _spacr_home()/models cache, honoring SPACR_HOME; preserve unrelated files and valid other versions. Reuse only bytes matching the requested digest, including previous versioned cache copies. Verify catalogue entry.path as well when it is used as published bytes.",
+    "Corrupted existing cache files are preserved as currently tested; a verified replacement has a separate non-overwriting destination. Hash-index/provenance metadata must be written atomically and must never cause unverified cache reuse.",
+    "SPACR_MODEL_DOWNLOAD=off disables both weights and remote catalogue refresh. Planning/dry-run/GUI thread never download or trigger background refresh under strict offline policy. Already available exact verified models still work offline. Error gives published filename/hash and destination to copy.",
+    "Select identities from built-ins, explicit local catalogue and cached community metadata without network first. Only a permitted execution worker can perform a bounded metadata refresh when exact identity is unavailable; no fallback to an unrelated newer version.",
+    "Acquire a cross-process lock keyed by cache namespace plus exact checkpoint hash before checking the cache; recheck after locking, fetch once, verify completed path, atomically record provenance, and release in finally. Different model hashes need not block each other.",
+    "Existing remote_execution._file_lock silently proceeds when platform locking is unavailable; do not copy its fail-open behavior for a download-once guarantee. Implement a checked lock helper within model_zoo, using supported POSIX/Windows primitives and bounded wait/cancellation. Kernel-released advisory locks avoid stale lock ownership after crashes.",
+    "Document supported shared filesystem semantics and native-test network cache mounts before promising multi-node coalescing. Single-node process proof is required by N702; lockfiles alone are not proof on every NAS.",
+    "Lock contenders return the same verified checkpoint after one fetch. Keep fetch direct-call non-overwrite/version semantics and its existing two-distinct-files test intact; coalescing belongs to resolver acquisition, not changing generic fetch behavior.",
+    "Never announce downloaded when a cache hit was used. Emit the requested one-line contextual setting/path/key/version/hash/cache message only for actual successful acquisition; failures and offline copy guidance name the same identity.",
+    "Explicit env off is the hard override even if a settings file requests on. Validate accepted policy values; default auto-download applies only to actual execution workers. Dry-run and GUI thread remain planning-only. Offline shared-only identities require a pinned local catalogue or a durably cached trusted record, not an assumption that an in-memory warm cache exists on a new node."
+  ],
+  "owning_tests": [
+    {
+      "paths": [
+        "tests/test_missing_model_downloads.py",
+        "tests/test_683_catalogue_path_guards.py"
+      ],
+      "existing": "Bare-key download once on sequential reuse, corrupt cache preserved/replacement reuse, planning no weights, wrong kind, GUI refusal, backend/classifier routes. Old missing-local-path test expects None; N702 replaces only the matching-unique-basename case while unknown paths remain refused."
+    },
+    {
+      "paths": [
+        "tests/test_model_zoo.py",
+        "tests/test_model_zoo_shared_catalogue.py"
+      ],
+      "existing": "Real byte checksum mismatch/interruption/cancel, versioning, uri types, exact resolution and two concurrent direct fetches producing different valid paths. Keep these contracts; add resolver process-coalescing separately."
+    },
+    {
+      "paths": [
+        "tests/test_n693_write_settings_file.py",
+        "tests/qt/test_n693_export_settings_from_every_form.py",
+        "tests/qt/test_n693_distributed_jobs_saves_the_snapshot.py"
+      ],
+      "existing": "Key,Value header, exact ordinary settings/paths/types, sibling JSON, no run/listing on export and snapshot fidelity. New metadata must extend these without changing existing values or introducing GUI-thread hash/download."
+    },
+    {
+      "paths": [
+        "tests/test_remote_execution.py",
+        "tests/test_cli.py"
+      ],
+      "existing": "Recursive root path mapping and remote spacr-run settings payload; real/dry-run CLI behavior. Add identity preservation under mapping, --set invalidation and dry-run/offline catalogue no-network checks."
+    },
+    {
+      "paths": [
+        "tests/test_cellpose4_submodules.py",
+        "tests/test_plaque_assay_growth_models_and_figure_notes.py",
+        "tests/test_cov_custom_model_is_a_path.py"
+      ],
+      "existing": "Training base and stock model behavior, custom path acceptance. Add shared resolver delegation and correct backend/kind checks without replacing established defaults."
+    }
+  ],
+  "acceptance_matrix": [
+    {
+      "case": "Laptop CSV missing path, exact key/version/hash",
+      "required": "Mocked byte stream fetches exact identity once, consumer receives verified node path, original path and full contextual log retained; journal records actual file hash."
+    },
+    {
+      "case": "Legacy POSIX/Windows missing path with unique published filename",
+      "required": "Same exact basename identity, no fuzzy or latest/default substitution; unknown and ambiguous basenames yield contextual candidate/copy errors."
+    },
+    {
+      "case": "Conflicting explicit key/version/hash, wrong kind, malformed hash, stale override record",
+      "required": "Fail before network/consumer load; no field silently overrides another."
+    },
+    {
+      "case": "Existing given local path and metadata",
+      "required": "Given path wins; pinned hash mismatch fails; no-metadata custom path behavior retained; missing custom path never stock fallback."
+    },
+    {
+      "case": "Offline env/setting and planning",
+      "required": "Zero weight or catalogue HTTP calls/daemon refresh, correct cache still works, missing exact file gives copy destination/checksum guidance."
+    },
+    {
+      "case": "Two or more processes resolve same exact checkpoint",
+      "required": "One real mocked/local byte stream fetch, same path/hash for all, true process exits, bounded joins; test interruption/lock-owner termination and rerun recovery."
+    },
+    {
+      "case": "Two different versions/hashes share basename",
+      "required": "Preserve both verified files, no overwrite, independent identity locks, no cache suffix misidentification."
+    },
+    {
+      "case": "Corrupt cache and bad/cancelled/full-disk download",
+      "required": "Keep old bytes/unrelated versions, no usable partial checkpoint, failure context includes setting and expected hash."
+    },
+    {
+      "case": "N693 all-form and Distributed Jobs metadata round-trip",
+      "required": "Existing values/paths unchanged; CSV and JSON agree; import/collect/export/snapshot/remote mapping retain identity; edits invalidate only affected identity."
+    },
+    {
+      "case": "Native scientific/runtime boundary",
+      "required": "No scientific change implied by resolution alone. Work validates model load/backend/architecture and exact expected weights under a separately authorized runtime slot; this audit runs none."
+    }
+  ],
+  "implementation_batches": [
+    {
+      "sequence": 1,
+      "owner": "Home",
+      "work": "Pure exact identity selector and declared per-setting metadata schema in model_zoo; preserve regular path and backend sentinel behavior. Extend byte-only owning tests."
+    },
+    {
+      "sequence": 2,
+      "owner": "Home",
+      "work": "Checked process lock, verified cache lookup and strict offline/catalogue policy around existing fetch. Separate process-coalescing/failure-recovery tests."
+    },
+    {
+      "sequence": 3,
+      "owner": "Home",
+      "work": "Route all active Cellpose/PV/plaque/detector/classifier resolvers through shared seam; integrate actual CLI run start and planning preflight, preserve original/actual journal provenance. Test no-default-substitution and per-kind contracts."
+    },
+    {
+      "sequence": 4,
+      "owner": "Home + Work translation owner",
+      "work": "Enrich and preserve N693 CSV/JSON/GUI/Distributed Jobs identity, handle mapping and edits/overrides, add tr() strings and API arrival contract. Existing ordinary serializer fidelity remains unchanged."
+    },
+    {
+      "sequence": 5,
+      "owner": "Home + Work",
+      "work": "Owning capped CPU tests, authorized native backend/cluster proof, short distributed_execution docs and translated user-facing diagnostics. No broad suite, GPU or release-frozen source changes until authorized."
+    }
+  ],
+  "remaining_gaps": [
+    "No N702 production implementation in this audit.",
+    "No tests run; identified existing coverage is source inspection only.",
+    "No native cluster, Windows-path execution, NFS lock or backend-load proof.",
+    "Settings metadata naming and schema are proposed, not a current public API.",
+    "Legacy basename fallback cannot retrospectively identify unpublished laptop bytes without provenance.",
+    "Historic availability of moving-main catalogue URLs is not established; immutable revision-bound sources would improve reproducibility, while recorded SHA256 remains mandatory."
+  ]
+}

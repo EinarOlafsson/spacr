@@ -1,0 +1,15 @@
+{
+  "scope": "private36-bullet draft after independent source review, not published release notes",
+  "exact_replacements": {
+    "- Every saved mask records its field's size, and a mask of a different size is never reused.": "- Saved segmentation masks keep their field's dimensions, and masks of a different size are regenerated before reuse.",
+    "- Apptainer (SIF) images are published with each release, after the Docker images.": "- Release automation can build and publish Apptainer (SIF) images after successful Docker publication.",
+    "- Module screens no longer stall every 2 s. The GPU is read through NVML instead of starting `nvidia-smi`, and usage bars paint with the next frame.": "- GPU usage polling reads through NVML instead of starting `nvidia-smi`, and usage bars paint with the next frame.",
+    "- Make Masks: a linked image with no box ledger opens and saves without the \"Cannot load box annotations\" popup.": "- Make Masks: outside Box mode, a linked image with no box ledger opens and saves without the \"Cannot load box annotations\" popup.",
+    "Field backgrounds on Mask screens and in Spaceout draw more smoothly, and colour waves use less CPU.": "Field backgrounds on Mask screens and in Spaceout do less work per frame, and colour waves use less CPU.",
+    "comparing each model with its matching stock Cellpose-SAM base on the same held-out fields.": "comparing each model with its matching stock Cellpose-SAM base on that model's recorded held-out subset.",
+    "- Startup uses one borderless window that opens at the available screen size.": "- When startup animation is enabled, one borderless window opens at the available screen size."
+  },
+  "revised_draft_sha256": "cae94d48184a8c31ecfdab91687196a9c40548ff439ef7c555048923f7cdf47c",
+  "source_changed": false,
+  "release_published": false
+}

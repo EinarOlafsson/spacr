@@ -3,6 +3,63 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:50 EDT — Home: zero-cost prerequisite and final notes review
+
+Maintainer explicitly requires ZERO COST for both GitHub reporting and hosted
+AI. N700/guide now make this mandatory: owner-created GitHub App, Workers/D1
+Free, free-access models, no subscriptions/credits/paid fallback/domain/GPU
+rental/automatic upgrade. Verify actual owner plan before deployment; reject
+configuration that cannot remain zero-cost. Quota exhaustion queues/refuses
+work instead of charging. Owner resources are not yet configured or deployed.
+Work N700 privacy/provider review should carry this constraint forward.
+
+Independent review covers all36 prepared release bullets, exact original
+draft/source bindings. Home corrected optional SIF publication, blanket
+no-stalls wording and Box-mode scope, plus field dimensions/recorded holdout
+subsets/animation-enabled qualifications. Prepared notes and review are in
+features/data/1515_final_notes_source_review_2026-10-13/; this is a draft, not
+GitHub release publication. Work should translate final notes only after
+actual release; the older tracked31-bullet draft is superseded for preparation.
+
+N702's38source bindings/5implementation batches are also recorded; existing
+missing-path/fuzzy/offline/concurrency/metadata behaviors need real changes.
+Current CI24PASS/4running/0failures: Fast2and threeQt jobs remain. Full green
+and release are pending; source freeze/tutorial holds stay in effect.
+
+
+## 2026-10-13 21:37 EDT — Home: hosted gate green; source audits and future English accepted
+
+Exact eb72 CI: all12coverage and all3minimum-dependency shards pass. Hosted
+coverage/ratchet gate now passes with baseline/exemption unchanged. SixFast/Qt
+jobs remain; full green, main promotion and release are still pending.
+
+N698/N699 source audits and N689 live deployment proof are recorded in dated
+features/data folders. Home independently rechecked22SSH/docs and49website/
+desktop bindings. Private site raw code stays scratch-only. HF automatic
+nightly is proven live; legacyPages remains combined974.7MB with no HFredirect,
+so N689 is partial until main promotion/deployment. Great Lakes policy is
+Kerberos+Okta; SSH discovery must not execute Match exec via ssh -G.
+
+Held MakeMasks dirty identity optimization breaks the legacy persisted hash
+in138small synthetic cases. A bounded eight-byte C-order stream matches every
+legacy byte/hash, including strides/endian/wide values; observed conversion
+chunks max512KiB. This is standalone CPU proof, not app/ledger/performance or
+shutdown acceptance. Held source/tests remain unchanged.
+
+Work: exact future tooltip/whole AmbientWidget.stop English drafts are accepted
+for AFTER release in n615_english_truth_proposals_2026-10-13/
+home-accepted-future-english.json. Prepare nine-locale drafts in feature receipts now if
+useful; do not alter source/catalogs/reviews/generators during this freeze.
+Also draft truthful helper descriptions for pauses_animation and
+_animation_paused_for_work, which still say every animation pauses.
+
+Home prepared notes now distinguish configured30fps caps/fractal pauses and
+figure detector v2 versus highlighted well v3. Full36-bullet source review is in
+progress; the older tracked31-bullet notes are not the publication draft.
+CuPy request remains Work-owned with approved direct existing collector; no
+Home GPU use. Release is NOT done; no later tutorial recording is authorized.
+
+
 ## 2026-10-13 21:15 EDT — WS: prepared post-release source-pinned launcher
 
 Reviewable text copies at

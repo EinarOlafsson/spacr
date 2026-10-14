@@ -5782,3 +5782,15 @@ and data/43_288_current_cpu_root_readback_2026-10-09/receipt.json.
     coverage and device/source provenance. Honest union is predicted to exceed
     literal90%, not yet measured. No source/tests/exemption changed. Request:
     data/288_work_cupy_request_2026-10-13/. Parent remains OPEN.
+
+
+2026-10-13 — Exact eb72 hosted coverage gate PASS, full CI still pending.
+Run38488240863 attempt1, gate job115632673777, bound report artifact11863920785:
+all12 shards pass;664/664 shipped modules checked;0 failed/unconfirmed modules,
+0 integrity issues,104 improved and456 at100%. Baseline/exemption blobs are
+unchanged. Literal ops_accel is84.73%, below90 and covered by its pre-existing
+three-CuPy-kernel floor exemption. Genuine Work device parity/coverage remains
+pending; never treat the gate label as proof of literal90% for that module.
+Receipt/report: features/data/288_hosted_eb72_coverage_acceptance_2026-10-13/.
+F288 remains OPEN until full CI and the genuine device-dependent target are
+actually accepted. No baseline/exemption changes or Home GPU use occurred.

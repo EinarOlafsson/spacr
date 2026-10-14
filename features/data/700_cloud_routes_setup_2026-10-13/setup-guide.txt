@@ -2,6 +2,12 @@ spaCR automatic GitHub reports and account-free cloud AI setup
 Verified official documentation: 2026-10-13 EDT / 2026-10-14 UTC.
 Status: owner-resource setup guide; NOT a deployed relay or shipped provider.
 
+HARD PREREQUISITE confirmed by maintainer: zero cost to maintainer. Use an owner-created GitHub App and Workers Free/D1 Free only. Do not buy a Marketplace app, plan, credits, domain or GPU hosting; no paid fallback or automatic upgrade. Verify the actual Cloudflare Workers plan before deployment. If a free quota is exhausted, queue/refuse work instead of billing. If owner configuration/provider terms cannot meet zero cost, leave the route disabled; do not silently downgrade unrelated services. Free does not mean unlimited or guaranteed forever.
+GitHub Free account: https://docs.github.com/en/get-started/learning-about-github/githubs-plans
+Workers Free: https://developers.cloudflare.com/workers/platform/pricing/
+D1 Free hard quota errors: https://developers.cloudflare.com/d1/platform/pricing/
+Workers AI Free hard quota errors: https://developers.cloudflare.com/workers-ai/platform/pricing/
+
 Recommended architecture
 spaCR sends a strictly sanitized, bounded report over HTTPS to one maintainer-owned Cloudflare Worker. Its GitHub App creates/deduplicates issues; its AI binding returns model advice. End users need no GitHub or AI account. The maintainer needs GitHub and Cloudflare accounts. Public issue filing and cloud diagnosis have separate destinations/settings. No provider/private key is distributed in spaCR.
 

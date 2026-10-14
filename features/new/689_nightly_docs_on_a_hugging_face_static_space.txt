@@ -2,8 +2,8 @@
 NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
 ================================================================================
 
-Status:    BUILT 2026-10-10 — live; CI upload waits on the HF_DOCS_TOKEN secret,
-           Pages stub ships with the next main merge (see notes)
+Status:    PARTIAL — automatic HF nightly publication verified 2026-10-13;
+           main-only Pages and legacy nightly redirect await main promotion
 Requested: 2026-10-10 — "Can you host the docs on huggingface? Removing docs
            from nightly sees like a bad idea as my process is to change nightly
            (including docs) then push and merge with main"; chose "Nightly on
@@ -86,3 +86,21 @@ Pages /nightly/ stub appears with that merge; (3) WS: site-src
 src/projects/spacr/index.html line 158 "Docs: nightly" card still points at
 https://einarolafsson.github.io/spacr/nightly/ (redirects once (2) lands).
 README.rst and the 9 localized READMEs carry no nightly-docs link.
+
+
+2026-10-13 21:37 EDT — Home independently checked automatic nightly deployment.
+Completed docs run38490733637/job115627344141 publishes source03c7ceb81b to
+public static Space revisionfb5978a399da588064666e903cfe8ed07da30ab0. Live
+publication/channels bind that source and immutable bytes; index matches after
+only HF's specific host injection is removed. Namespace inventory and sampled
+API, module, English/sv/fr guide and tutorial-index routes are verified. Token
+setup is no longer outstanding; no secret value was read.
+
+Live Pages remains the older combined main/nightly site, channels schema1,
+974730784bytes. Old /nightly/ serves the earlier site, not the HF redirect.
+Main-only artifact, actual900MBguard and redirect therefore remain OPEN until
+approved main promotion/deployment. HF directory listing200 is not the player;
+explicit index.html links remain necessary. Nine API locales use the existing
+English fallback and remain incompatible, not translation acceptance. Evidence:
+features/data/689_nightly_deployment_verification_2026-10-13/. No new deploy,
+build, deletion experiment or full-site download occurred in this audit.

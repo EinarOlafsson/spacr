@@ -55,3 +55,21 @@ ACCEPTANCE
   submits and its status updates without further prompts.
 - Tests: config parsing (Include, wildcards, ProxyJump), Windows paths, a
   fake keyboard-interactive server with a two-step prompt, denied push.
+
+
+2026-10-13 21:37 EDT — Home source-bound implementation audit (not shipped).
+Evidence: features/data/699_ssh_source_audit_2026-10-13/. Nine source and eight
+owning test-file bindings were independently checked. Existing OpenSSH aliases
+can already supply Includes/ProxyJump/ControlMaster through OpenSSH, but the app
+has no discovery controls, GUI auth broker, session pool or Test connection.
+Current SSH stdin carries JSON uploads, so MFA needs a separate auth channel.
+Never silently invoke ssh -G for passive discovery: Match exec can run local
+commands. No SSH/config/credential reads, connections or tests were performed.
+
+Current official Great Lakes policy specifies Kerberos password plus Okta,
+and its FAQ says SSH key login is unsupported. The older Duo example is not
+a current Great Lakes configuration claim; prompts must remain vendor-neutral.
+Implementation batches include Windows/static Include precedence, brokered
+challenge/cancellation, capability-tested session reuse and staged Test
+connection. Actual Great Lakes acceptance needs maintainer-owned access/MFA.
+Implementation and acceptance remain OPEN after CI/release.

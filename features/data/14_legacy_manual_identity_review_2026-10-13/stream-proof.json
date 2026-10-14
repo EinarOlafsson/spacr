@@ -1,0 +1,1761 @@
+{
+  "scope": "Executed small CPU stream proof; not app/ledger/Qt/performance acceptance",
+  "snapshot_sha256": "82b34ff4defce582e1aa09563345f39f59120a5980e434be2c191d11a393cb57",
+  "numpy_version": "2.5.2",
+  "cases": 138,
+  "max_converted_chunk_bytes": 524288,
+  "proposed_all_exact_legacy_bytes": true,
+  "dirty_mismatch_cases": 138,
+  "source_or_tests_changed": false,
+  "rows": [
+    {
+      "dtype": "bool",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "59bb7de98ee1b891d952204d95e1999af512a44b595a03ebeceb4cd13acd563e",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "59bb7de98ee1b891d952204d95e1999af512a44b595a03ebeceb4cd13acd563e",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "0ff26f01df5d026ef4f73cb74a9709794985428de540e5044275531807beb522",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "acdc22ef78dba400a24d9ee94d866dc6f6923794a919d0c4cc51cbc8c0f5f5b8",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8cb3efa6062429c9c5e2b11926aab93e9ca76a6ea361f148d973a346d1f97af4",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "6b818abd92e019dea197d4b759b5595a3869324b8bd4b3944664ca65297bb2f9",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "bool",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6972a12b9ec155edd8848f92717ef3e23396eced6ef8b081c14ccddc0baae629",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint8",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint16",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u2",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint32",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u4",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">u8",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38f1ba9d2a278882f68c44d8e3924575d8fff1f15040a19610ce370514a10fd9",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38f1ba9d2a278882f68c44d8e3924575d8fff1f15040a19610ce370514a10fd9",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "aae2622c9db2de4a605ba171d658dc130a7617fb2f542f09a8323a6638c1c201",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "94e3fed45f62b6caca814d32d66d20f0645234d120c9d6e16d5bd5d759c867ff",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "56897abd531b6221c04b3faeb7a86ee8dcff7b1d2140bb8827622909985a2504",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "b3a39dd170650e900ed14c6b8370fa7d52a8796aa77815f502f944ba08d99507",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int8",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "8171ee6351b850cf635bb7da4ed099b2b1b5a25ef27742d3b0017f97e436ac46",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int16",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i2",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int32",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i4",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "C",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "F",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "cfbfac02498ca4f9d12e05fecf0c1cd9b1f4df42b11c09e855fd8876b0a9079f",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "transpose",
+      "shape": [
+        653,
+        101
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "38474f4bb2246a5424da0480094f9b9026b40e72460003a64f2ac8895ab31190",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "reverse",
+      "shape": [
+        101,
+        653
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "5ae24da99bfce4adf1fd034b65d05707b99fd1feb83f4a2c7505f4d3f2c8f302",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "step",
+      "shape": [
+        51,
+        218
+      ],
+      "elements": 11118,
+      "chunks": 1,
+      "hash": "8e442ce7e282efc4dddf6defd1a86250303e1f88a6340641ef7d62c3a87e0cf1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "empty",
+      "shape": [
+        0,
+        653
+      ],
+      "elements": 0,
+      "chunks": 0,
+      "hash": "2e1acf8cca196f6ad17e37f9f6bf9bbc482c1be52d7076ad18ac522c7d97c2b1",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "3D",
+      "shape": [
+        101,
+        653,
+        1
+      ],
+      "elements": 65953,
+      "chunks": 2,
+      "hash": "bf31c53fd6b75f75b3ab226851c0f870ecdd4746445d254ef18b01ca79888de2",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "scalar",
+      "shape": [],
+      "elements": 1,
+      "chunks": 1,
+      "hash": "2d3fc5306167f359ed9f514fda0aa7bdefba1ffd49c7fb27cd21d6faae2f5432",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": ">i8",
+      "layout": "boundary",
+      "shape": [
+        65537
+      ],
+      "elements": 65537,
+      "chunks": 2,
+      "hash": "6c3060c591ed73fdb896df8677140182128d9724237137d22f2a847b090e5013",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "negative",
+      "shape": [
+        4
+      ],
+      "elements": 4,
+      "chunks": 1,
+      "hash": "5a0825216f13dd16dab6a8d734915aec0d1099847b15ca8953a620987e529773",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "int64",
+      "layout": "wide",
+      "shape": [
+        5
+      ],
+      "elements": 5,
+      "chunks": 1,
+      "hash": "126c5bee4003720dc2979bb4b44d0292d1e1e2104616eef58dc8054bc42cb402",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    },
+    {
+      "dtype": "uint64",
+      "layout": "uint64_wrap",
+      "shape": [
+        3
+      ],
+      "elements": 3,
+      "chunks": 1,
+      "hash": "5b27f12906b2af14b03f8cc2bc14ef3662a12be0ae816339ca82548f7932a3da",
+      "exact_legacy_stream": true,
+      "dirty_breaks_legacy": true
+    }
+  ],
+  "execution_script_sha256": "ddd95bb746ea515316f53c9082bb8acafecdd2d05043f0a5954825c5157f71b4",
+  "execution_script_retained_in_scratch": true,
+  "full_held_source_published": false
+}
