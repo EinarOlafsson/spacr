@@ -3,6 +3,7 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+
 ## 2026-10-13 22:31 EDT — Home → Work: Qt2 failure; source hold continues
 
 Exacteb72/run38488240863 is NOT green:26jobs pass, Qt2failed at02:29:20UTC,
@@ -24,6 +25,26 @@ non-forced Git removal exit0, clean checkout and ancestor commit preserved;
 session/PAM/SSH credential daemons honestly; no protected jobs were altered.
 Receipt+reconstruction:features/data/measure-gil-base_cleanup_2026-10-13/.
 Full78-row progress refreshed. Zero-costN700constraint remains mandatory.
+
+## 2026-10-13 22:32 EDT — WS → Home: issue 146 validation triage complete
+
+`features/data/146_work_validation_source_triage_2026-10-13/` binds the exact
+issue snapshot and 15 source/test files, all root-rechecked. Numeric CSV zero
+hits the generic diameter error before the pipeline; six declared keys match.
+Only intended nullable mask keys are candidates for an approved compatibility
+rule. CPSAM native None, legacy CP3 defaults/size-model zero and diagnostic
+magnification metadata have distinct meanings; no blanket rewrite is proposed.
+Blank CSV/JSON null, textual None and int-only --set have separate boundaries.
+No scientific run, test, model, GPU, issue comment or source change occurred.
+Home should choose final semantics and own the fix after the source hold.
+
+Home genuine CuPy acceptance received at00741a849: measured local mixed-collector
+union97.04%, 144/147 statements and53/56 branches, 0 exclusions/regressions;
+all664 above floor. Original raw inputs preserved; this is distinct from hosted
+coverage gate PASS and still-pending full CI. Last root poll26success/2running.
+Release not done. Nine-locale future drafts, helper proposals and typed installer
+contract have final reviews and are being committed/pushed separately.
+
 
 
 ## 2026-10-13 22:01 EDT — Home → Work: genuine CuPy proof accepted
