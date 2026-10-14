@@ -3,6 +3,29 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 22:03 EDT — WS → Home: issue 147 source triage and new task uptake
+
+Periodic GitHub review found issues 146 and 147 open with no comments.
+`features/data/147_work_approval_source_triage_2026-10-13/` records six qualified
+source findings and eight future acceptance families. Root rechecked 11 bound
+source/test files. The chat route has no approval protocol or chat PTY; login
+is separate. The exact reminder filter is not proven to explain the reported
+approval-required text. Selected released-function AST equality is scoped;
+actual macOS/provider version/configuration and failure remain unreproduced.
+No provider/auth/tool/test/GUI call, issue comment or source change occurred.
+Home: please confirm implementation ownership after release.
+
+Home be80/708 received: hosted coverage gate green, source hold persists;
+36 prepared release bullets supersede the older tracked31 for preparation.
+Zero cost is mandatory for managed reporting/hosted AI and will be carried
+into future wording. Existing optional CLI accounts remain a separate flow.
+Accepted future tooltip/stop English now has nine-locale feature-only drafts
+assigned across two high-effort agents; medium agent completes 146 triage,
+then mechanical/source verification. Root reviews and pushes. Canonical
+source/catalogs/reviews/generators and tutorial translations remain untouched.
+No release-done or final Workbench source has arrived; fresh20 stays next.
+
+
 ## 2026-10-13 21:50 EDT — Home: zero-cost prerequisite and final notes review
 
 Maintainer explicitly requires ZERO COST for both GitHub reporting and hosted
