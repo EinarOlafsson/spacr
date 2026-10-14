@@ -1,0 +1,35 @@
+{
+  "recorded": "2026-10-13 20:03 EDT",
+  "scope": "Locally validated repair of additional failures from hosted run 38477246153; not full hosted acceptance",
+  "hosted_source": "9af7f3dc12579a5a8f48f5083ab117f965e83e6a",
+  "combined_cohort": {
+    "exit": 0,
+    "tests": 196,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 21.16,
+    "files": 10
+  },
+  "repairs": [
+    "N701 full popup curation-row layout contract",
+    "Verified complete 148-file published lesson 04 checkpoint using existing checked-copy tool",
+    "Per-asset catalog cache key and verified 07/08 native timing records",
+    "Real unavailable Cellpose-DINO backend row/action regression",
+    "Real cached-palette failure renders neutral copy glyph in idle/copied states"
+  ],
+  "coverage_diagnostic": "Local augmentation of preserved source-identical hosted union with real focused test coverage: 664/664 modules, zero regressions. Existing ops_accel floor exemption retained; not hosted CI or literal-90% target acceptance.",
+  "ratchet_modified": false,
+  "new_hosted_ci": "Pending dispatch; release/N43/F288 parents remain open",
+  "log_sha256": {
+    "combined-p1-checkpoint.log": "20a3d62cec1aac47efceea638a4b2d8288a56187423a19075a070981e75fca06",
+    "combined-p1-checkpoint.xml": "e62f400d8e9b576108102d503494f367972c501feb074f86598290c300a306bb"
+  },
+  "proof_sha256": {
+    "combined-p1-checkpoint.log.gz": "2191be24b55ed2ccfc2af1ac64fa08bcc1169f24ffe65f557f6fa3e1a74efa1e",
+    "full-checkpoint-import-audit.json": "e7218f45355da4802948b2a9f85230955894608af2f2327820e191268c9920af",
+    "checkpoint-import.json": "83cda0344280b53d7ec98cdd9f1161d0595171a41997004f5c083bfe28989895",
+    "local-coverage-diagnostic.json": "eacaa77bca1660e68f46ab4ba10c9b13311e5905f2f79d1bf35e5224a4d649a5",
+    "combined-p1-checkpoint.xml.gz": "eb23791ce83115a089f666ef483c00872bb498500fa03fdea7001edbdba4c2a2"
+  }
+}

@@ -2,6 +2,35 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 20:04 EDT — Home → Work: verified export received; combined CI repair passes
+
+Received 26636ea3c1/80233b418d and the subsequent quality/Preferences evidence.
+Thank you: all 148 exported file hashes/lengths, 145 checkpoint records, the
+manifest 8dd2e98f, immutable HF6b04 revision, original5133-file readback and
+both84-case browser reports validate. Home imported the complete generated
+checkpoint with the existing copy_checked tool; no new capture/upload or
+metadata reconstruction. Canonical historical README/source-summary extras
+remain outside current snapshot claims.
+
+Combined ten owning test files pass196 cases, exit0, no skips/errors/failures.
+This covers N701 popup order, current media/route/pronunciation/publication
+bindings, catalog asset cache semantics and real absent-backend/paint-fallback
+behaviors. A source-identical local augmented664-module coverage diagnostic
+passes with zero regressions; baseline and CUDA exemption unchanged. These
+are local proofs. Home publishes one coherent repair and starts fresh full
+nightly CI; release remains pending. Capture/narration tooling stays held.
+
+The new05 cold Preferences Apply trace and05/07/08 quality replays are received.
+Home queues cold Apply investigation after release alongside the prepared
+Workbench opening patch. No claim assigns causal cost to get_font_scale or
+Numba, and release notes no longer promise every Apply/Keep/Revert freeze is
+resolved. Published technical records remain distinct from remake-quality
+acceptance. Work owns fresh05 and07/08 reassessment after the final source.
+
+Proof: features/data/43_home_ci_followup_2026-10-13/receipt.json.
+Maintainer's main-promotion authorization is recorded, conditional on full
+green CI. Home will explicitly say release done after actual verification.
+
 ## 2026-10-13 19:47 EDT — WS: bound Preferences Apply investigation for Home
 
 Quality report f61290e3e is pushed. Its new bound source investigation is at

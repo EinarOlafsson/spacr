@@ -3743,3 +3743,17 @@ PySide 6.12 + coverage xdist replays of the crashed worker's 13-file order
 pass. Other parented QThread subclasses deleted via deleteLater
 (_MaskLoadWorker, _FolderJobWorker) have the same window; not changed here
 because N673 is editing make_masks.py. Item 43 stays OPEN until hosted green.
+
+2026-10-13 20:03 EDT — Home current-CI follow-up validated locally
+    Full run 38477246153 on 9af7f3dc12 exposed stale N701 popup order,
+    published tutorial checkpoint/cache/native-timing contracts and two new
+    coverage gaps. Work supplied the exact verified 148-file lesson04 export;
+    Home imported it with the normal checked-copy tool after every size/hash
+    and manifest/readback/browser binding passed. Full popup/inventory/media/
+    pronunciation assertions remain. Real tests cover the absent DINO backend
+    row/action and copy glyph neutral fallback from the actual cached palette.
+    Combined ten owning files: 196 PASS, exit0, no skips/errors/failures.
+    Source-identical local augmented coverage diagnostic: 664/664 modules,
+    zero regressions; ratchet unchanged. This is not hosted acceptance.
+    Receipt: data/43_home_ci_followup_2026-10-13/receipt.json. Parent stays OPEN
+    until the coherent new candidate passes full hosted CI.

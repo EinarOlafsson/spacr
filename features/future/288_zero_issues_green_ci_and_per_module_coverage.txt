@@ -5760,3 +5760,16 @@ ratchet changed. CurrentGitHub open issues[]; currentrequired/fullserial still
 pending. Root verifies7payloads/2sourcebindings/oldreporthash, integrated owning
 51PASS/3CuPySKIP. See data/288_current_floor_deficit_cpu_2026-10-08/deficit-table.json
 and data/43_288_current_cpu_root_readback_2026-10-09/receipt.json.
+
+2026-10-13 20:03 EDT — Current complete union and genuine missing-path repairs
+    Hosted 38477246153 and an independent strict 12/12-source-bound union
+    reproduce 664-module coverage: the earlier source-default deficit is
+    repaired, with only model_zoo.py180->181 and console_panel.py261-262
+    newly over the unchanged allowances. Real owning regressions pass11 and
+    63 cases and cover these exact paths. Source-identical local augmentation
+    of the preserved hosted union passes the existing gate with zero module
+    regressions. No baseline, threshold, denominator or exemption changed.
+    Existing ops_accel below-floor CUDA exemption remains; actual Work CuPy
+    coverage and literal90% completion remain outstanding. Full hosted CI
+    also remains pending. Parent stays OPEN. Evidence:
+    data/43_home_ci_followup_2026-10-13/local-coverage-diagnostic.json.
