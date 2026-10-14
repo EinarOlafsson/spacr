@@ -1,0 +1,128 @@
+{
+  "saved_queue_content_set_sha256": "b48bb00dfe46d9433b2dafc15229fd322e971885e67d8230876e9682941f8d52",
+  "content_set_format": "UTF-8 sorted relative-path<TAB>file_sha256<LF>; all16981files; excludes filesystemmtime for cross-host byte comparison",
+  "identical_encoded_image_byte_groups": [],
+  "identical_image_byte_group_count": 0,
+  "conflicting_keep_discard_identical_byte_group_count": 0,
+  "object_count_advisories": [
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__c00__9b3872d84be39f6a4ce6",
+      "status_saved_count": "29",
+      "verdict_screen_count": "27",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__w00__274e77d892317ada1b83",
+      "status_saved_count": "23",
+      "verdict_screen_count": "22",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "12985_2026_3201_MOESM7_ESM__c01__48ef5844be083c723d64",
+      "status_saved_count": "46",
+      "verdict_screen_count": "44",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "13071_2021_4878_Fig2_HTML__p00__w01__e34b281c17cfe98e9dfc",
+      "status_saved_count": "35",
+      "verdict_screen_count": "34",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "13071_2024_6187_Fig2_HTML__p01__w04__278c144f978c6b43e317",
+      "status_saved_count": "11",
+      "verdict_screen_count": "10",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__028d28__d02__9b39696e6fc7012d9921",
+      "status_saved_count": "126",
+      "verdict_screen_count": "125",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__028d28__d03__691d09b8c4b517e39494",
+      "status_saved_count": "104",
+      "verdict_screen_count": "103",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__w03__760ed244d9e8869cabea",
+      "status_saved_count": "86",
+      "verdict_screen_count": "84",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "13567_2023_1261_MOESM5_ESM__c01__d00__9eed2592d8ea43071101",
+      "status_saved_count": "108",
+      "verdict_screen_count": "105",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "41467_2017_2341_Fig2_HTML__p00__w00__60e6ed752880a2cd9ca8",
+      "status_saved_count": "65",
+      "verdict_screen_count": "64",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "41467_2017_2341_Fig4_HTML__p02__w01__e2217a51d4ccaa6dfe48",
+      "status_saved_count": "57",
+      "verdict_screen_count": "56",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "41467_2024_48685_Fig2_HTML__p00__w00__997e50fd8396f191ef3c",
+      "status_saved_count": "65",
+      "verdict_screen_count": "64",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "KVIR_A_2427844_F0003_PB__p00__w01__4545b0f1498f036fabff",
+      "status_saved_count": "50",
+      "verdict_screen_count": "49",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "PMC7918358__pathogens-10-00201-g002.jpg__p00__w01__c47ef2fe507ddef82bc1",
+      "status_saved_count": "143",
+      "verdict_screen_count": "122",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    },
+    {
+      "stem": "mbio.02297-22-s0002__p01__516bda__d06__f203beb08e9ff3893ce9",
+      "status_saved_count": "118",
+      "verdict_screen_count": "117",
+      "numeric_equivalent": false,
+      "classification": "Different source lifetimes; advisory metadata mismatch, not Keep/Discard conflict"
+    }
+  ],
+  "object_count_text_difference_count": 15,
+  "object_count_numeric_difference_count": 15,
+  "mask_without_current_image_candidates": [
+    {
+      "mask_relative_path": "masks/PMC10817966__41467_2024_44967_Fig4_HTML.jpg__p02__w02__b289ee5ca3296a210a34.tif",
+      "same_stem_withdrawn_candidates": [
+        "_withdrawn/PMC10817966__41467_2024_44967_Fig4_HTML.jpg__p02__w02__b289ee5ca3296a210a34.tif"
+      ],
+      "same_stem_is_not_semantic_role_proof": true
+    }
+  ],
+  "pixel_sha256_from_manifest_not_recomputed": true,
+  "no_identity_based_label_transfer_or_overwrite": true,
+  "Home_or_NAS_comparison_not_performed": true
+}

@@ -14,6 +14,28 @@ User wants the complete guide in chat, with every field and remaining steps.
 Full CI stays pinned 38567385965/83ed; this is features-only owner progress.
 
 
+## 2026-10-14 09:17 EDT — WS → Home: urgent authoritative plaque saved-state handoff
+
+`features/data/plaque_work_annotation_handoff_2026-10-14/` identifies the actual
+Work queue: `/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup`.
+Direct findmnt: local `/dev/nvme2n1` ext4, not NAS. Current verdict ledger is
+1,637 unique rows (437 Keep/1,200 Discard), SHA cd14b2bd…6501;
+resume ledger is 1,152 done/143 skip, SHA d6354518…e88f; both exact hashes
+and fractional UTC mtimes are in README/receipts. Root independently checked
+both saved ledger bytes and counts. All16,981 files matched bounded double
+hash/stat checks:8,350images/8,351masks/267histories/1withdrawn/12metadata.
+Full relative file-identity TSV is delivered; no Home/NAS comparison or sync.
+
+Equal Home mtime/count/path does not establish equal labels or pixels. Histories
+and status are not verdict totals;267 is intersection, not proved pixel edits.
+Save-on-navigation Off can save a verdict without dirty pixels.15 object-count
+advisories are preserved, no overwrite/merge. Maintainer must establish saved
+quiet state; preserve both hosts, compare content, detect conflicts, validate
+absolute-path mapping and destination receipt before authorized continuation.
+No queue/display writes, NAS change, training/inference or source change.
+Private raw snapshots remain on Work. Independent metadata peer follows.
+
+
 ## 2026-10-14 — Home: Cloudflare owner setup clarification
 
 Maintainer signed in via GitHub and authorized Workers & Pages for spacr; the

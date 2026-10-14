@@ -1,0 +1,36 @@
+{
+  "path": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup/csv/keep_discard.csv",
+  "columns": [
+    "image path",
+    "mask path",
+    "object count",
+    "keep"
+  ],
+  "rows": 1637,
+  "unique_image_paths": 1637,
+  "keep_raw": {
+    "false": 1200,
+    "true": 437
+  },
+  "keep_normalized": {
+    "false": 1200,
+    "true": 437
+  },
+  "sha256": "cd14b2bdbf16417bf7223fcbfff1710650147d2315f80f4dd631ed0a847d6501",
+  "bytes": 577686,
+  "mtime_ns": 1791925000086895088,
+  "mtime_utc": "2026-10-13T20:56:40.086895+00:00",
+  "stable_two_reads": true,
+  "stat_before": {
+    "bytes": 577686,
+    "mtime_ns": 1791925000086895088,
+    "inode": 157709087
+  },
+  "stat_after": {
+    "bytes": 577686,
+    "mtime_ns": 1791925000086895088,
+    "inode": 157709087
+  },
+  "no_queue_writes": true,
+  "snapshot_path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/snapshots/csv/keep_discard.csv"
+}
