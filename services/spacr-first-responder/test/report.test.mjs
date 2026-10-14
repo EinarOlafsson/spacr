@@ -21,7 +21,7 @@ beforeEach(() => {
     REPO: "EinarOlafsson/spacr",
     GITHUB_APP_PRIVATE_KEY: pem,
     DAILY_REPORT_LIMIT: "200",
-    PER_INSTALL_DAILY_LIMIT: "10",
+    REPORTS_PER_INSTALL: "5",
     PER_IP_DAILY_LIMIT: "20",
   };
 });
@@ -41,7 +41,7 @@ test("health lists routes", async () => {
   const body = await res.json();
   assert.equal(res.status, 200);
   assert.equal(body.ok, true);
-  assert.deepEqual(body.routes, ["GET /health", "POST /report", "POST /diagnose"]);
+  assert.deepEqual(body.routes, ["GET /health", "GET /allowance", "POST /report", "POST /diagnose"]);
 });
 
 test("unknown routes and wrong methods return JSON errors", async () => {
@@ -87,6 +87,8 @@ test("first report opens an issue with the user-report label", async () => {
     issue_number: 101,
     issue_url: "https://github.com/EinarOlafsson/spacr/issues/101",
     deduplicated: false,
+    ai_summary_source: "none",
+    allowance: { reports_left: 4, best_left: 5, light_left: 10, resets_at: "2026-10-15T00:00:00.000Z" },
   });
   const create = gh.calls.find((c) => c.url.endsWith("/repos/EinarOlafsson/spacr/issues"));
   assert.deepEqual(create.body.labels, ["user-report"]);
@@ -147,7 +149,7 @@ test("GitHub failure releases the signature claim and returns 502", async () => 
 });
 
 test("per-install quota returns 429 refused quota", async () => {
-  env.PER_INSTALL_DAILY_LIMIT = "2";
+  env.REPORTS_PER_INSTALL = "2";
   assert.equal((await post("/report", sampleReport({ dry_run: true }))).status, 200);
   assert.equal((await post("/report", sampleReport({ dry_run: true }))).status, 200);
   const r = await post("/report", sampleReport({ dry_run: true }));
@@ -189,4 +191,46 @@ test("installation token is cached between reports", async () => {
   await post("/report", sampleReport());
   await post("/report", sampleReport({ exception_type: "KeyError" }));
   assert.equal(gh.count(/access_tokens$/), 1);
+});
+
+test("report allowance counts down to 429 install at five a day and resets", async () => {
+  const lefts = [];
+  for (let i = 0; i < 5; i++) {
+    const r = await post("/report", sampleReport({ exception_type: `Error${i}` }));
+    assert.equal(r.status, 200);
+    lefts.push(r.body.allowance.reports_left);
+  }
+  assert.deepEqual(lefts, [4, 3, 2, 1, 0]);
+  const r = await post("/report", sampleReport({ exception_type: "Error9" }));
+  assert.equal(r.status, 429);
+  assert.deepEqual(r.body, { refused: "quota", scope: "install" });
+  const tomorrow = await post("/report", sampleReport({ exception_type: "Error9" }), DAY2);
+  assert.equal(tomorrow.status, 200);
+  assert.equal(tomorrow.body.allowance.reports_left, 4);
+  assert.equal(tomorrow.body.allowance.resets_at, "2026-10-16T00:00:00.000Z");
+});
+
+test("a dry run does not use the real report allowance", async () => {
+  const r = await post("/report", sampleReport({ dry_run: true }));
+  assert.equal(r.body.allowance.reports_left, 5);
+});
+
+test("allowance endpoint validates the uuid and consumes nothing", async () => {
+  let res = await handle(makeRequest("/allowance?install_id=nope", { method: "GET" }), env, null, DAY1);
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /install_id/);
+  await post("/report", sampleReport());
+  const before = new Map(env.DB.counters);
+  const url = `/allowance?install_id=${sampleReport().install_id}`;
+  for (let i = 0; i < 3; i++) {
+    res = await handle(makeRequest(url, { method: "GET" }), env, null, DAY1);
+    assert.equal(res.status, 200);
+  }
+  assert.deepEqual(await res.json(), {
+    ai: { best_left: 5, light_left: 10 },
+    reports_left: 4,
+    pool: "exhausted",
+    resets_at: "2026-10-15T00:00:00.000Z",
+  });
+  assert.deepEqual(env.DB.counters, before);
 });

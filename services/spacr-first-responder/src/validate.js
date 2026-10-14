@@ -5,10 +5,11 @@ export const MAX_FRAMES = 40;
 export const MAX_MESSAGE = 300;
 export const MAX_NOTE = 1000;
 export const MAX_QUESTION = 2000;
+export const MAX_AI_SUMMARY = 2000;
 
 const OS_VALUES = new Set(["linux", "windows", "macos"]);
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const VERSION_RE = /^[0-9A-Za-z][0-9A-Za-z.+_-]{0,39}$/;
 const GPU_RE = /^[a-z0-9][a-z0-9_-]{0,31}$/;
 const MODULE_RE = /^[A-Za-z0-9_][A-Za-z0-9_.:-]{0,79}$/;
@@ -141,7 +142,7 @@ const COMMON_FIELDS = [
   "user_note",
 ];
 
-const REPORT_FIELDS = new Set([...COMMON_FIELDS, "dry_run"]);
+const REPORT_FIELDS = new Set([...COMMON_FIELDS, "dry_run", "ai_summary", "summarize"]);
 const DIAGNOSE_FIELDS = new Set([...COMMON_FIELDS, "question"]);
 
 export function validatePayload(body, kind) {
@@ -176,6 +177,12 @@ export function validatePayload(body, kind) {
       throw bad("field dry_run must be a boolean");
     }
     out.dry_run = body.dry_run === true;
+    if (body.summarize !== undefined && typeof body.summarize !== "boolean") {
+      throw bad("field summarize must be a boolean");
+    }
+    out.summarize = body.summarize === true;
+    out.ai_summary = checkText(body, "ai_summary", MAX_AI_SUMMARY);
+    if (out.ai_summary !== null && out.ai_summary.trim() === "") out.ai_summary = null;
   }
   return out;
 }

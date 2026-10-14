@@ -38,20 +38,28 @@ export class FakeD1 {
         const key = `${a[0]}|${a[1]}|${a[2]}`;
         const cur = this.counters.get(key);
         if (cur === undefined) {
-          this.counters.set(key, 1);
-          return [{ n: 1 }];
+          this.counters.set(key, a[3]);
+          return [{ n: a[3] }];
         }
-        if (cur < a[3]) {
-          this.counters.set(key, cur + 1);
-          return [{ n: cur + 1 }];
+        if (cur + a[3] <= a[4]) {
+          this.counters.set(key, cur + a[3]);
+          return [{ n: cur + a[3] }];
         }
         return [];
       }
-      case SQL.release: {
+      case SQL.adjust: {
         const key = `${a[0]}|${a[1]}|${a[2]}`;
-        const cur = this.counters.get(key);
-        if (cur > 0) this.counters.set(key, cur - 1);
+        if (this.counters.has(key)) this.counters.set(key, Math.max(0, this.counters.get(key) + a[3]));
         return [];
+      }
+      case SQL.raiseTo: {
+        const key = `${a[0]}|${a[1]}|${a[2]}`;
+        this.counters.set(key, Math.max(this.counters.get(key) ?? a[3], a[3]));
+        return [];
+      }
+      case SQL.read: {
+        const key = `${a[0]}|${a[1]}|${a[2]}`;
+        return this.counters.has(key) ? [{ n: this.counters.get(key) }] : [];
       }
       case SQL.prune: {
         for (const key of [...this.counters.keys()]) {
@@ -64,7 +72,7 @@ export class FakeD1 {
         if (!row) return [];
         row.count += 1;
         row.last_seen = a[1];
-        return [{ issue_number: row.issue_number, count: row.count, last_comment_day: row.last_comment_day }];
+        return [{ issue_number: row.issue_number, count: row.count, last_comment_day: row.last_comment_day, has_summary: row.has_summary }];
       }
       case SQL.claimSignature: {
         if (this.signatures.has(a[0])) return [];
@@ -75,12 +83,27 @@ export class FakeD1 {
           first_seen: a[1],
           last_seen: a[1],
           last_comment_day: null,
+          has_summary: 0,
         });
         return [{ signature: a[0] }];
       }
       case SQL.setIssueNumber: {
         const row = this.signatures.get(a[0]);
-        if (row) row.issue_number = a[1];
+        if (row) {
+          row.issue_number = a[1];
+          row.has_summary = a[2];
+        }
+        return [];
+      }
+      case SQL.claimSummary: {
+        const row = this.signatures.get(a[0]);
+        if (!row || row.has_summary) return [];
+        row.has_summary = 1;
+        return [{ signature: a[0] }];
+      }
+      case SQL.unclaimSummary: {
+        const row = this.signatures.get(a[0]);
+        if (row) row.has_summary = 0;
         return [];
       }
       case SQL.dropSignature: {
@@ -91,7 +114,7 @@ export class FakeD1 {
         const row = this.signatures.get(a[0]);
         if (!row || !(row.issue_number > 0) || row.last_comment_day === a[1]) return [];
         row.last_comment_day = a[1];
-        return [{ issue_number: row.issue_number, count: row.count }];
+        return [{ issue_number: row.issue_number, count: row.count, has_summary: row.has_summary }];
       }
       default:
         throw new Error(`FakeD1: unexpected SQL ${sql}`);

@@ -1,64 +1,66 @@
-import { runDiagnosis } from "./diagnose.js";
-import { hashIp, pruneOldCounters, reserveAll } from "./quota.js";
-import { fileReport, issueBody, issueTitle, signatureOf } from "./report.js";
-import { HttpError, VERSION, intVar, json, readJsonBody, refusedQuota, utcDay } from "./util.js";
-import { validatePayload } from "./validate.js";
+import { limits, nextUtcMidnight } from "./config.js";
+import { aiAllowance, handleDiagnose, poolState, summarizeWithRelay } from "./diagnose.js";
+import { GLOBAL, ROUTE, hashIp, installScope, pruneOldCounters, readCount, reserveAll } from "./quota.js";
+import { fileReport, issueBody, issueTitle, obtainSummary, signatureOf, sourceOf } from "./report.js";
+import { HttpError, VERSION, json, readJsonBody, refusedQuota, utcDay } from "./util.js";
+import { UUID_RE, validatePayload } from "./validate.js";
 
-export const ROUTES = ["GET /health", "POST /report", "POST /diagnose"];
+export const ROUTES = ["GET /health", "GET /allowance", "POST /report", "POST /diagnose"];
 
-export const DEFAULT_LIMITS = Object.freeze({
-  DAILY_REPORT_LIMIT: 200,
-  DAILY_AI_LIMIT: 30,
-  PER_INSTALL_DAILY_LIMIT: 10,
-  PER_IP_DAILY_LIMIT: 20,
-});
-
-function limit(env, name) {
-  return intVar(env, name, DEFAULT_LIMITS[name]);
-}
-
-async function buckets(env, request, route, globalRoute, globalLimitName, install, day) {
-  const ipScope = await hashIp(request.headers.get("cf-connecting-ip"), day, env.IP_HASH_SALT);
-  return [
-    { name: "install", route, scope: `install:${install}`, limit: limit(env, "PER_INSTALL_DAILY_LIMIT") },
-    { name: "ip", route, scope: ipScope, limit: limit(env, "PER_IP_DAILY_LIMIT") },
-    { name: "global", route: globalRoute, scope: "global", limit: limit(env, globalLimitName) },
-  ];
+async function reportsLeft(db, day, cfg, installId) {
+  const used = await readCount(db, day, ROUTE.report, installScope(installId));
+  return Math.max(0, cfg.reportsPerInstall - used);
 }
 
 async function handleReport(request, env, ctx, now) {
   const body = await readJsonBody(request);
   const report = validatePayload(body, "report");
+  const cfg = limits(env);
   const day = utcDay(now);
-  const route = report.dry_run ? "report_dry_run" : "report";
-  const plan = await buckets(env, request, route, route, "DAILY_REPORT_LIMIT", report.install_id, day);
-  const quota = await reserveAll(env.DB, day, plan);
+  const route = report.dry_run ? ROUTE.reportDryRun : ROUTE.report;
+  const ipScope = await hashIp(request.headers.get("cf-connecting-ip"), day, env.IP_HASH_SALT);
+  const quota = await reserveAll(env.DB, day, [
+    { name: "install", route, scope: installScope(report.install_id), limit: cfg.reportsPerInstall },
+    { name: "ip", route, scope: ipScope, limit: cfg.perIp },
+    { name: "global", route, scope: GLOBAL, limit: cfg.dailyReports },
+  ]);
   if (!quota.ok) return refusedQuota(quota.refused);
   if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(pruneOldCounters(env.DB, day));
+  const getSummary = () => summarizeWithRelay(env, report, now);
+  const allowance = async () => ({
+    reports_left: await reportsLeft(env.DB, day, cfg, report.install_id),
+    ...(await aiAllowance(env.DB, day, cfg, report.install_id)),
+    resets_at: nextUtcMidnight(now),
+  });
   if (report.dry_run) {
     const signature = await signatureOf(report);
+    const summary = await obtainSummary(report, getSummary);
     return json(200, {
       dry_run: true,
       title: issueTitle(report),
-      body: issueBody(report, signature),
+      body: issueBody(report, signature, summary),
       signature,
+      ai_summary_source: sourceOf(summary),
+      allowance: await allowance(),
     });
   }
-  const result = await fileReport(env, report, { day, now: now.toISOString() });
-  return json(200, result);
+  const result = await fileReport(env, report, { day, now: now.toISOString(), getSummary });
+  return json(200, { ...result, allowance: await allowance() });
 }
 
-async function handleDiagnose(request, env, ctx, now) {
-  const body = await readJsonBody(request);
-  const report = validatePayload(body, "diagnose");
+async function handleAllowance(url, env, now) {
+  const installId = url.searchParams.get("install_id") || "";
+  if (!UUID_RE.test(installId)) throw new HttpError(400, "query parameter install_id must be a UUID");
+  const id = installId.toLowerCase();
+  const cfg = limits(env);
   const day = utcDay(now);
-  const plan = await buckets(env, request, "diagnose", "ai", "DAILY_AI_LIMIT", report.install_id, day);
-  const quota = await reserveAll(env.DB, day, plan);
-  if (!quota.ok) return refusedQuota(quota.refused);
-  if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(pruneOldCounters(env.DB, day));
-  const result = await runDiagnosis(env, report);
-  if (result.refused) return refusedQuota("ai");
-  return json(200, result);
+  const used = await readCount(env.DB, day, ROUTE.aiNeurons, GLOBAL);
+  return json(200, {
+    ai: await aiAllowance(env.DB, day, cfg, id),
+    reports_left: await reportsLeft(env.DB, day, cfg, id),
+    pool: env.AI ? poolState(cfg, used) : "exhausted",
+    resets_at: nextUtcMidnight(now),
+  });
 }
 
 export async function handle(request, env, ctx, now = new Date()) {
@@ -66,17 +68,23 @@ export async function handle(request, env, ctx, now = new Date()) {
   const path = url.pathname.replace(/\/+$/, "") || "/";
   try {
     if (path === "/health" || path === "/") {
-      if (request.method !== "GET" && request.method !== "HEAD") {
-        throw new HttpError(405, "use GET");
-      }
+      if (request.method !== "GET" && request.method !== "HEAD") throw new HttpError(405, "use GET");
       return json(200, { ok: true, version: VERSION, routes: ROUTES });
+    }
+    if (path === "/allowance") {
+      if (request.method !== "GET") throw new HttpError(405, "use GET");
+      if (!env.DB) throw new HttpError(503, "relay is not configured");
+      return await handleAllowance(url, env, now);
     }
     if (path === "/report" || path === "/diagnose") {
       if (request.method !== "POST") throw new HttpError(405, "use POST");
       if (!env.DB) throw new HttpError(503, "relay is not configured");
       if (path === "/report") return await handleReport(request, env, ctx, now);
       if (!env.AI) throw new HttpError(503, "diagnosis is not available");
-      return await handleDiagnose(request, env, ctx, now);
+      const report = validatePayload(await readJsonBody(request), "diagnose");
+      const res = await handleDiagnose(report, request, env, now);
+      if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(pruneOldCounters(env.DB, utcDay(now)));
+      return res;
     }
     throw new HttpError(404, "not found");
   } catch (err) {

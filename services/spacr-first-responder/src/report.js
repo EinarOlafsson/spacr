@@ -24,6 +24,9 @@ function fence(text) {
 
 function quote(text) {
   return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
     .replace(/@/g, "@​")
     .split(/\r?\n/)
     .map((l) => `> ${l}`)
@@ -57,7 +60,16 @@ export function tracebackText(frames) {
   return frames.map((f) => `  ${f.file}:${f.line} in ${f.function}`).join("\n");
 }
 
-export function issueBody(r, signature) {
+export function summarySection(summary) {
+  if (!summary) return [];
+  const source =
+    summary.source === "client"
+      ? "summary written by the reporter's own AI"
+      : `summary written by spaCR AI (${summary.model})`;
+  return ["### AI summary (generated, may be wrong)", "", quote(summary.text), "", `_${source}_`];
+}
+
+export function issueBody(r, signature, summary = null) {
   const lines = [
     "An anonymised error report was sent from spaCR by the spacr-first-responder relay.",
     "The reporter has no GitHub account link; paths, names and other personal data were removed before sending.",
@@ -86,6 +98,7 @@ export function issueBody(r, signature) {
   if (r.user_note) {
     lines.push("", "### Note from the user", "", quote(r.user_note));
   }
+  if (summary) lines.push("", ...summarySection(summary));
   lines.push(
     "",
     "---",
@@ -95,41 +108,78 @@ export function issueBody(r, signature) {
   return lines.join("\n");
 }
 
-export function plusOneBody(r, count) {
+export function plusOneBody(r, count, summary = null) {
   const lines = [`+1 from ${environmentLine(r)}. Reports so far: ${count}.`];
   if (r.user_note) lines.push("", quote(r.user_note));
+  if (summary) lines.push("", ...summarySection(summary));
   return lines.join("\n");
+}
+
+export function clientSummary(r) {
+  return r.ai_summary ? { text: r.ai_summary, source: "client", model: null } : null;
+}
+
+export async function obtainSummary(r, getSummary) {
+  const own = clientSummary(r);
+  if (own) return own;
+  if (!r.summarize || typeof getSummary !== "function") return null;
+  try {
+    return await getSummary();
+  } catch (_) {
+    return null;
+  }
+}
+
+export function sourceOf(summary) {
+  return summary ? summary.source : "none";
 }
 
 function issueUrl(env, number) {
   return number ? `https://github.com/${env.REPO}/issues/${number}` : null;
 }
 
-async function openNewIssue(env, r, signature, now) {
+async function openNewIssue(env, r, signature, now, getSummary) {
   const claimed = await env.DB.prepare(SQL.claimSignature).bind(signature, now).first();
   if (!claimed) return null;
   let issue;
+  let summary = null;
   try {
-    issue = await createIssue(env, issueTitle(r), issueBody(r, signature), [ISSUE_LABEL]);
+    summary = await obtainSummary(r, getSummary);
+    issue = await createIssue(env, issueTitle(r), issueBody(r, signature, summary), [ISSUE_LABEL]);
   } catch (err) {
     await env.DB.prepare(SQL.dropSignature).bind(signature).run();
     throw err;
   }
-  await env.DB.prepare(SQL.setIssueNumber).bind(signature, issue.number).run();
-  return { issue_number: issue.number, issue_url: issue.url, deduplicated: false };
+  await env.DB.prepare(SQL.setIssueNumber).bind(signature, issue.number, summary ? 1 : 0).run();
+  return {
+    issue_number: issue.number,
+    issue_url: issue.url,
+    deduplicated: false,
+    ai_summary_source: sourceOf(summary),
+  };
 }
 
-export async function fileReport(env, r, { day, now }) {
+async function commentSummary(env, r, signature, claim, getSummary) {
+  if (claim.has_summary) return null;
+  if (!clientSummary(r) && !r.summarize) return null;
+  const won = await env.DB.prepare(SQL.claimSummary).bind(signature).first();
+  if (!won) return null;
+  const summary = await obtainSummary(r, getSummary);
+  if (!summary) await env.DB.prepare(SQL.unclaimSummary).bind(signature).run();
+  return summary;
+}
+
+export async function fileReport(env, r, { day, now, getSummary }) {
   const signature = await signatureOf(r);
   for (let attempt = 0; attempt < 2; attempt++) {
     const bumped = await env.DB.prepare(SQL.bumpSignature).bind(signature, now).first();
     if (!bumped) {
-      const created = await openNewIssue(env, r, signature, now);
+      const created = await openNewIssue(env, r, signature, now, getSummary);
       if (created) return created;
       continue;
     }
     if (!bumped.issue_number) {
-      return { issue_number: null, issue_url: null, deduplicated: true, pending: true };
+      return { issue_number: null, issue_url: null, deduplicated: true, pending: true, ai_summary_source: "none" };
     }
     const claim = await env.DB.prepare(SQL.claimDailyComment).bind(signature, day).first();
     if (!claim) {
@@ -138,18 +188,27 @@ export async function fileReport(env, r, { day, now }) {
         issue_url: issueUrl(env, bumped.issue_number),
         deduplicated: true,
         commented: false,
+        ai_summary_source: "none",
       };
     }
-    const result = await createComment(env, claim.issue_number, plusOneBody(r, claim.count));
+    const summary = await commentSummary(env, r, signature, claim, getSummary);
+    let result;
+    try {
+      result = await createComment(env, claim.issue_number, plusOneBody(r, claim.count, summary));
+    } catch (err) {
+      if (summary) await env.DB.prepare(SQL.unclaimSummary).bind(signature).run();
+      throw err;
+    }
     if (!result.gone) {
       return {
         issue_number: claim.issue_number,
         issue_url: issueUrl(env, claim.issue_number),
         deduplicated: true,
         commented: true,
+        ai_summary_source: sourceOf(summary),
       };
     }
     await env.DB.prepare(SQL.dropSignature).bind(signature).run();
   }
-  return { issue_number: null, issue_url: null, deduplicated: true, pending: true };
+  return { issue_number: null, issue_url: null, deduplicated: true, pending: true, ai_summary_source: "none" };
 }

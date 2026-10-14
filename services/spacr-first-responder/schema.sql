@@ -17,13 +17,15 @@ CREATE TABLE IF NOT EXISTS daily_counters (
 -- Issue de-duplication: error signature -> GitHub issue.
 -- issue_number 0 means another request is creating the issue right now.
 -- last_comment_day caps "+1" comments at one per signature per UTC day.
+-- has_summary is 1 once the issue or one of its comments carries an AI summary.
 CREATE TABLE IF NOT EXISTS issue_signatures (
   signature        TEXT    PRIMARY KEY,
   issue_number     INTEGER NOT NULL DEFAULT 0,
   count            INTEGER NOT NULL DEFAULT 1,
   first_seen       TEXT    NOT NULL,
   last_seen        TEXT    NOT NULL,
-  last_comment_day TEXT
+  last_comment_day TEXT,
+  has_summary      INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS issue_signatures_issue ON issue_signatures (issue_number);
