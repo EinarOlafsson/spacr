@@ -1,0 +1,27 @@
+name = "spacr-first-responder"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+workers_dev = true
+preview_urls = false
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "spacr-support"
+database_id = "ecda837c-da89-419f-a8d3-5cae4ca461ad"
+
+[vars]
+APP_ID = "5315672"
+INSTALLATION_ID = "171361114"
+REPO = "EinarOlafsson/spacr"
+AI_MODEL = "@cf/qwen/qwen2.5-coder-32b-instruct"
+DAILY_AI_LIMIT = "30"
+DAILY_REPORT_LIMIT = "200"
+PER_INSTALL_DAILY_LIMIT = "10"
+PER_IP_DAILY_LIMIT = "20"
+
+# Secrets (never in this file):
+#   GITHUB_APP_PRIVATE_KEY  required, PKCS#8 PEM (see README.md)
+#   IP_HASH_SALT            optional, any long random string

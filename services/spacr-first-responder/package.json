@@ -1,0 +1,11 @@
+{
+  "name": "spacr-first-responder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker relay for anonymised spaCR error reports and hosted diagnosis",
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "license": "MIT"
+}
