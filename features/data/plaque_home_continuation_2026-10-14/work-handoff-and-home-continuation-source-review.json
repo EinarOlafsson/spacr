@@ -1,0 +1,65 @@
+{
+  "created_utc": "2026-10-14T13:27:34.852888+00:00",
+  "work_handoff_commit": "4e5c4da0df4eff94e8832368fee0a1ef79d09611",
+  "home_source_head": "28154578592241cdadf98136bf8457547932e846",
+  "source_bindings": [
+    {
+      "path": "spacr/curation_queue.py",
+      "sha256": "3464caf55adadad4d0327f58e5156648b10744ce5671b9b44d84c71352222078",
+      "source_spans": [
+        "1376\u20131407 _judged_stems basename/stem normalization",
+        "1480\u20131488 reviewed/verdict exclusion"
+      ]
+    },
+    {
+      "path": "spacr/cli_make_masks.py",
+      "sha256": "7087a15003dd4689d45e320ed24eb4af7eb3f49f5734f2f1381b702c1456fc79",
+      "source_spans": [
+        "294\u2013296 build_queue --exclude-verdicts"
+      ]
+    },
+    {
+      "path": "spacr/qt/screens/make_masks.py",
+      "sha256": "20fdfd682ee1c1d29cabaaff88f880d6bfabff85158afc58766b251f1029c639",
+      "source_spans": [
+        "9921\u20139968 open_queue reads chosen actual files/masks",
+        "14331\u201314370 _judged_flags queue-stem mapping",
+        "18690\u201318711 _open_ledger preserves existing history/source"
+      ]
+    },
+    {
+      "path": "spacr/qt/mask_engine.py",
+      "sha256": "e2984deb6eefb3399e732c4fb4cf2e95d048ddc33ce67ef3410277cf7230ea7d",
+      "source_spans": [
+        "2076\u20132120 record_curation preserves other existing CSV rows",
+        "2257 write_beside selected actual save_path"
+      ]
+    },
+    {
+      "path": "spacr/curation.py",
+      "sha256": "3d88a200c3bad7d9b0b3b933ddc3ac7451dae897f2c4d76cf3e621a3d53036aa",
+      "source_spans": [
+        "341\u2013349 write_beside does not rewrite artifact provenance"
+      ]
+    }
+  ],
+  "complete_saved_byte_identity_receipt": "/mnt/wd4tb/scratch/plaque-home-continuation-20261014/home-vs-work-complete-saved-content-receipt.json",
+  "all_16981_files_identical": true,
+  "all1637_verdict_image_and_mask_paths_map_to_verified_relative_files": true,
+  "unique_current_images": 8350,
+  "current_verdict_stems": 1637,
+  "current_reviewed_stems": 1295,
+  "intersection": 267,
+  "pending_with_exclude_verdicts": 5685,
+  "migration_needed_for_verified_saved_epoch": false,
+  "current_csv_preserved": "Retain exact original Work path-keyed CSV. CLI curator explicitly maps existing judgments by basename/stem, verified one-to-one in this exact queue; do not use generic folder opener or unhide/rejudge old rows across hosts. Future cross-host integration must retain both host path identities and detect same-stem/version conflicts.",
+  "history_preserved": "Existing sidecars read beside actual target masks and retain source/artifact provenance; write_beside uses actual save target. No automatic rebind needed for this pending-only continuation.",
+  "user_action": [
+    "Save any intended unsaved mask edits in Work annotator, then pause or close Work annotation before switching. If this changes saved bytes, reverify changed epoch before Home writes.",
+    "Use exact CLI curator command below; keep Hide judged fields enabled. Do not annotate both hosts concurrently."
+  ],
+  "home_command": "cd /mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013\n/home/olafsson/anaconda3/envs/spacr/bin/python -m spacr.cli_make_masks --folder /mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup --order prob --exclude-verdicts",
+  "runtime_acceptance_limit": "Source-bound path mapping plus actual saved-byte identity; no GUI launch or runtime acceptance executed.",
+  "NAS": "Queue is currently identical local ext4 copies, not a shared NAS path. NAS current queue remains absent.",
+  "no_data_source_or_NAS_mutations": true
+}

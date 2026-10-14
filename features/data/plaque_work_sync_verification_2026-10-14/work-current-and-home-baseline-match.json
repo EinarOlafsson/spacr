@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "started_utc": "2026-10-14T14:53:48.007035+00:00",
+  "finished_utc": "2026-10-14T14:53:49.443136+00:00",
+  "elapsed_seconds": 1.436,
+  "worktree_first_sys_path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013",
+  "queue_argument": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup",
+  "expected_file_count": 16981,
+  "expected_files_attempted": 16981,
+  "hashes_matching": 16981,
+  "saved_byte_set_matches_baseline_during_observation": true,
+  "missing_files": [],
+  "extra_files": [],
+  "unstable_or_unreadable_files": [],
+  "file_inventory_changes": {
+    "added": [],
+    "removed": [],
+    "changed_stat": []
+  },
+  "directory_inventory_changes": {
+    "added": [],
+    "removed": [],
+    "changed_stat": []
+  },
+  "root_path_matches_pinned_descriptor": true,
+  "limitations": [
+    "Saved encoded bytes only; no image/mask decoding or GUI inspection.",
+    "Stat checks cannot prove global quiescence or detect every transient rewrite.",
+    "No unsaved GUI-buffer, biological/annotation-quality, verdict merge, path-rebinding or sync-readiness acceptance.",
+    "Content conflicts mean byte differences or read failures; expert judgment conflicts are not parsed.",
+    "All symlinks and nonregular files are refused; no queue writes or transfers.",
+    "Output requires a trusted private scratch directory that is not concurrently moved into the queue.",
+    "Read access may update filesystem atime; atime is excluded from stability comparisons."
+  ],
+  "raw_private_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/work-queue-current-baseline-comparison.json",
+    "sha256": "fa5888510d1950d51d9d6228fb40d1f1a9f10313efebc790a74daab7f583fb72",
+    "bytes": 23106601
+  },
+  "baseline_sha256": "b48bb00dfe46d9433b2dafc15229fd322e971885e67d8230876e9682941f8d52",
+  "Home_proof": {
+    "git_path": "features/data/plaque_home_continuation_2026-10-14/home-vs-work-complete-saved-content-receipt.json",
+    "sha256": "706c80a5076e208060c1cb1770c4e3010c79a13e848186f4cf8fd5e636c76da8",
+    "home_queue": "/mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup",
+    "matched_files": 16981,
+    "started_utc": "2026-10-14T13:25:12.658906+00:00",
+    "finished_utc": "2026-10-14T13:25:26.697877+00:00"
+  },
+  "same_saved_byte_epoch_proven": true,
+  "manual_transfer_needed_for_verified_epoch": false,
+  "no_GUI_save_or_global_future_sync_guarantee": true
+}

@@ -216,3 +216,13 @@ Work requested sync verification — 2026-10-14 10:50 EDT
 
 No actual queue/data/daemon changes; user has authorized ensuring synchronization.
 Tutorial deadline remains active; recording source/clearance still pending Home.
+
+
+Work verified saved Home continuation — 2026-10-14 10:56 EDT
+
+| Result | Verified evidence | Limit |
+|---|---|---|
+| Saved plaque files at Home | Home16981/16981 two-pass match; currentWork16981/16981 complete comparator match | Same saved epoch; no unsaved/future changes guaranteed |
+| Original decisions/masks/history |1,637 verdicts,8351masks,267histories preserved | No label/GUI changes or automatic ledger merge |
+| Pending-only Home curator | Verified unique-stem mapping,5685 pending | Save/close Work before switching; retain originalCSV and Hide judged fields |
+| Transfer | None needed for verified bytes | Entireaf3 backlog still separately tracked |

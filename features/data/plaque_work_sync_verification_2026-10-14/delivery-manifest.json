@@ -1,10 +1,15 @@
 {
-  "status": "live sync route verified; exact Home queue bytes pending",
+  "status": "Work current saved byte set matches independently verified Home saved epoch",
   "artifacts": [
     {
       "file": "README.md",
-      "sha256": "762105514e49ae26ebbca26a58db5400128eee78f51c5e153370fd2b91ce1a0b",
-      "bytes": 2321
+      "sha256": "1a7431757309930a09fc69f30a10e81bdb2a6005d4950e9c9d5f2d39242d3d47",
+      "bytes": 3745
+    },
+    {
+      "file": "delivery-manifest-initial.json",
+      "sha256": "b327706f769c08f32175d3347520d4ec39d9138a3eb2a113363751b112567ad4",
+      "bytes": 1186
     },
     {
       "file": "home-access-route.json",
@@ -30,9 +35,22 @@
       "file": "syncthing-live-status-initial-sanitized.json",
       "sha256": "aae00598510f3aec97eef4923a0b89c01ba17aa244b4baaa4b7c9283e0fbac73",
       "bytes": 6429
+    },
+    {
+      "file": "verify_home_queue.py",
+      "sha256": "9e1bab4775fed7121845d0657ff81e9cebbf1b30129dd421d7edbb26ffc8dd58",
+      "bytes": 15475
+    },
+    {
+      "file": "work-current-and-home-baseline-match.json",
+      "sha256": "a03e77159fdde7be2239e4520bb13e962383e30de2acd084bcbe63257ed0331e",
+      "bytes": 2542
     }
   ],
-  "queue_image_mask_ledger_writes": false,
-  "Home_actual_hash_comparison": false,
-  "user_authorized_ensure_sync": true
+  "same_baseline_files": 16981,
+  "manual_transfer_needed": false,
+  "data_or_daemon_changes": false,
+  "Home_GUI_or_unsaved_state_not_proved": true,
+  "entire_af3_share_completion_not_claimed": true,
+  "original_delivery_manifest_preserved": true
 }
