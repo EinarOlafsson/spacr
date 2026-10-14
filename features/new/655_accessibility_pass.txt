@@ -220,3 +220,16 @@ WHAT IS LEFT
   audible speech, actual macOS/Windows checks and Work's Appearance tutorial
   refresh remain separate acceptance scope; this is not full N655 closure.
   Proof: data/655_orca_speech_generation_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B current-nightly integration acceptance
+  Replayed the finite owning/native checks on exact merged0e52d443b4 after11
+  loaded dependencies changed with nightly integration. All106 switch/viewer
+  owning tests pass in26.30s. Independent AT-SPI and actual Orca each inspect
+  1415 nodes; the visible High contrast control retains external focus/action/
+  state acceptance and Orca generates its name, checkbox role, initial state,
+  full help and changed checked state. Both native process maps bind the same
+  242 current spaCR source files, including newly loaded crashreport.py.
+  Runs were sequential, capped6G/4G, GPU hidden and native desktop/settings
+  isolated. No application edits or extra test expansion. Audio stayed off;
+  audible/human, macOS/Windows and Work tutorial acceptance remain open.
+  Proof: data/655_current_integration_2026-10-14/receipt.json.
