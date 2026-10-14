@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:41:19.329544+00:00",
+  "artifacts": [
+    {
+      "file": "execution.log",
+      "role": "actual scheduler/test output, read after terminal",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1.log",
+      "sha256": "6d9c04524ef03af011e9aeec083d3abe784a933754f998094ab07390f1483efa",
+      "bytes": 2525
+    },
+    {
+      "file": "actual.exit",
+      "role": "actual outer process exit code",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "file": "outer.pid",
+      "role": "outer process identity",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1-outer.pid",
+      "sha256": "3959e6cd6cec91715ca3dfe82c2c23264ef9bdeab9e061d9fff15de8760c1b5a",
+      "bytes": 8
+    },
+    {
+      "file": "outer-command.sh.txt",
+      "role": "actual scheduler/cap/timeout command",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/run-approved-attempt-1.sh",
+      "sha256": "e2d7d3882edf32e92513decb8cb6af787d8de96947f694b9d1a11d68e4c4c2ad",
+      "bytes": 1286
+    },
+    {
+      "file": "inner-receipt.json",
+      "role": "original immutable inner observations; accepted remains false",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1/execution-receipt.json",
+      "sha256": "41f992eb184b742ad457966396e498196a9208a8be6d4cc585db7c50cafe4109",
+      "bytes": 19251
+    },
+    {
+      "file": "junit.xml",
+      "role": "exact requested three test results",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1/f288-real-cupy.xml",
+      "sha256": "7fc9fa049f47ee31d5961673877f9fcd0b007bdd8d505cc8025783e163993b04",
+      "bytes": 678
+    },
+    {
+      "file": "coverage.json",
+      "role": "same-run analysis JSON, not hosted union",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1/f288-real-cupy-coverage.json",
+      "sha256": "220926b430026be5941040751a58efe6e795f88e320ad7ffc929d5fb1d31dd51",
+      "bytes": 45436
+    },
+    {
+      "file": "raw-original/.coverage-f288-real-cupy.carruthers.pid4007853.XLGgKOvx.HKCfGMDndzGh",
+      "role": "original parallel-suffixed raw coverage DB",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1/.coverage-f288-real-cupy.carruthers.pid4007853.XLGgKOvx.HKCfGMDndzGh",
+      "sha256": "f31f0e6de849e58b120cacab41cb90ea09790e01f54fc89d5a9921409cf77d50",
+      "bytes": 53248
+    },
+    {
+      "file": "analysis/.coverage-f288-same-run-analysis",
+      "role": "distinct same-run analysis DB",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1/.coverage-f288-same-run-analysis",
+      "sha256": "faa6d0cb6b7d55b894e350bf8774d148241bfab1eeb5d9eb16fc09ae80b82890",
+      "bytes": 53248
+    },
+    {
+      "file": "collector.py.txt",
+      "role": "actual executed collector text",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct_coverage_runner.py",
+      "sha256": "50414af485f0d45bcb28e8e32b84ecbe970b05b82224b8de0fd3c121c80262df",
+      "bytes": 25069
+    },
+    {
+      "file": "collector-proposal.json",
+      "role": "actual wrapper/source/decision binding",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct-coverage-716-proposal.json",
+      "sha256": "3a5ad68cf02df556c096a42902c3c5c7ad13cf7bacc59f4145b59467e57d485d",
+      "bytes": 14517
+    },
+    {
+      "file": "collector-preparation-review.json",
+      "role": "static pre-execution review",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/collector-peer-review-20261013.json",
+      "sha256": "738656df08ed939ed508eec00782c0fe5e36cc6e3e251390b40a575792ed9510",
+      "bytes": 7172
+    },
+    {
+      "file": "completed-proof-peer-review.json",
+      "role": "independent completed-proof review",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288_completed_real_cupy_peerreview_20261013.json",
+      "sha256": "b070ff078ab40684f4c9d5fc26918093594ce7ab8581799c32250723cbaaa646",
+      "bytes": 14319
+    },
+    {
+      "file": "original-home-request.json",
+      "role": "original exact tests/source/budgets",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/requested-proposal.json",
+      "sha256": "f395f2ce53fcf75102766d6bec8e3cfb32b8a938f999fe962f661304c33de12f",
+      "bytes": 7798
+    },
+    {
+      "file": "original-home-command.sh.txt",
+      "role": "original command, collector deviation explicitly approved later",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/requested-command.sh.txt",
+      "sha256": "57c608ffc00819d7bf9f9476ea8f9cbb0010b36ad0edece66f2111f819dfb9c9",
+      "bytes": 1156
+    },
+    {
+      "file": "home-approval-HANDOFF.md",
+      "role": "immutable actual Home authorization Git blob",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/home-decision-b2fc91a6e-HANDOFF.md",
+      "sha256": "3c63f166a5f8c50a819c14cf39f92696e86f226634deac3f9fec08315c52c1de",
+      "bytes": 688318
+    },
+    {
+      "file": "historical/direct_coverage_runner_before_cli_20261013.py.txt",
+      "role": "actual preserved intermediate pre-CLI bytes",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct_coverage_runner_before_cli_20261013.py.txt",
+      "sha256": "34800c90fce61fba906ca61a6dbb664160a21bdea29c7ec3714d983bb4813aed",
+      "bytes": 20291
+    },
+    {
+      "file": "historical/direct-coverage-716-proposal-before-cli-20261013.json",
+      "role": "actual preserved intermediate pre-CLI bytes",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct-coverage-716-proposal-before-cli-20261013.json",
+      "sha256": "027aa710a1e9c938f1f6a5717fc0a5cc74d4df675c2c5a8efaffe0afe45facd8",
+      "bytes": 12407
+    },
+    {
+      "file": "terminal-receipt.json",
+      "role": "derived acceptance binds actual terminal0 to immutable inner/peer proof",
+      "sha256": "b6bc004fcd93042942e38dc9394c8322afb27d7028302768d2af72402288f765",
+      "bytes": 3342
+    }
+  ],
+  "original_raw_DB_count": 1,
+  "accepted_scope": "Work-only real-device parity proof for exactly three unchanged forced-CuPy tests",
+  "hosted_union_measured": false,
+  "source_or_environment_changes": false
+}

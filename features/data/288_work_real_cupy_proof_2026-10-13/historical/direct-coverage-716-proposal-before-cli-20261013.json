@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T00:49:59.763995+00:00",
+  "status": "PROPOSAL ONLY; Home approval required before deviation from coverage7.15.4 pin or GPU lease",
+  "request_source": "b00b678c8",
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "worktree": "/media/carruthers/mnt3/claude/spacr-f288-cupy-20261013",
+  "requested_change": "Use installed coverage7.16.0 Coverage API directly around exact serial pytest3 nodeids; no pytest-cov needed. No package/path overlays or installs.",
+  "approval_required": [
+    "Home explicitly accepts Work-only raw branch evidence recorded by coverage7.16.0 rather than pinned7.15.4",
+    "Home accepts direct Coverage API instrumentation instead of pytest-cov; exact tests/source/budgets remain unchanged"
+  ],
+  "unchanged_missing_prerequisites": [
+    "No existing coverage7.15.4 or pytest-cov environment was found; alternate proposal does not fulfill the original environment pin.",
+    "CuPy CUDA runtime compatibility and >=1500MiB device headroom remain unmeasured until the approved lease."
+  ],
+  "metadata_checks": {
+    "CPU_only": true,
+    "coverage_version": "7.16.0",
+    "coverage_path": "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/__init__.py",
+    "coverage_DB_schema": 7,
+    "SQLite_version": "3.53.4",
+    "DB_metadata_keys": [
+      "has_arcs",
+      "sys_argv",
+      "version",
+      "when",
+      "hash"
+    ],
+    "API_signatures": {
+      "start": "(self) -> 'None'",
+      "stop": "(self) -> 'None'",
+      "save": "(self) -> 'None'",
+      "json_report": "(self, morfs: 'TMorfs' = None, outfile: 'str | None' = None, ignore_errors: 'bool | None' = None, omit: 'str | list[str] | None' = None, include: 'str | list[str] | None' = None, contexts: 'list[str] | None' = None, pretty_print: 'bool | None' = None, show_contexts: 'bool | None' = None) -> 'float'"
+    },
+    "raw_data_methods": {
+      "read": "(self) -> 'None'",
+      "has_arcs": "(self) -> 'bool'",
+      "lines": "(self, filename: 'str') -> 'list[TLineNo] | None'",
+      "arcs": "(self, filename: 'str') -> 'list[TArc] | None'",
+      "update": "(self, other_data: 'CoverageData', map_path: 'Callable[[str], str] | None' = None) -> 'None'"
+    },
+    "schema_compatibility_scope": "Installed7.16 schema7 is observed. Home must inspect7.15.4 reader/schema and actually read an immutable copied raw DB before any union. Same schema number is not by itself a cross-version semantic-equivalence proof."
+  },
+  "exact_nodeids": [
+    "tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_windowed_maximum_agrees[cupy]",
+    "tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_matmul_agrees[cupy]",
+    "tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_nearest_neighbour_agrees[cupy]"
+  ],
+  "wrapper_plan": [
+    "Standard-library bootstrap first: import sys; insert exact worktree at sys.path[0]; remove editable-spacr meta-path finder using its __module__ prefix; record removed finders; assert spacr import spec resolves inside pinned worktree. Do not add donor package paths.",
+    "Require clean pinned eb72 HEAD, all5 request file SHA/lengths, current sys.executable and installed coverage7.16.0; record platform/Python/environment/distribution versions and wrapper SHA. Refuse if spacr.ops_accel already imported before coverage starts. Before import and after import, require CuPy and coverage module files to resolve to their installed distribution locate_file paths; record those paths.",
+    "Only inside gpu_turn lease: record holder/label, nvidia-smi device UUID/model/driver/memory and compute process list; enforce selected own device and >=1500MiB free; import real CuPy, get runtime/driver versions/device count/properties/memGetInfo, recheck headroom after context creation. Refuse failures; never fake backend or skip proof. Require the actual /proc parent chain to reach the matching live scheduler holder; a global matching holder alone is insufficient. No child fd9 inheritance is assumed across systemd-run.",
+    "Construct Coverage(data_file=private_raw_DB, data_suffix=False, branch=True, source=[spacr.ops_accel], config_file=worktree/.coveragerc, context=work-f288-real-cupy). Preserve report exclude_lines=[] and partial_branches=[]; record effective config. Start before importing pytest/collecting tests; no --cov options.",
+    "Call pytest.main([-n,0,*exact3nodeids,--junitxml=private_XML,-rA]); in finally stop/save coverage and emit JSON including only spacr/ops_accel.py, independent of pytest status. Retain partial data on failure but never accept it.",
+    "Validate actualexit0 and JUnit exactly3 testcases,3passes,0skips,0failures,0errors with expected CuPy case names. Rehash source/tests/tools/config before/after; require source identities unchanged and every measured module path belongs to worktree.",
+    "Record rawDB SQLite schema/meta, CoverageData.has_arcs true, measured file paths/arcs, JSON metadata/version/branch flag/source totals, artifact SHA+lengths, real-device/environment receipts and terminal status. No union/predicted coverage claim."
+  ],
+  "proposed_scheduler_command": [
+    "/media/carruthers/mnt3/claude/spacr-f288-cupy-20261013/tools/gpu_turn.sh",
+    "f288-ops-real-cupy-20261013",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "180s",
+    "/media/carruthers/mnt3/claude/spacr-f288-cupy-20261013/tools/run_capped.sh",
+    "6G",
+    "/home/carruthers/anaconda3/envs/spacr/bin/python",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct_coverage_runner.py",
+    "--approval",
+    "ACTUAL_HOME_APPROVAL_RECEIPT.json",
+    "--output",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1"
+  ],
+  "per_process_environment": {
+    "CUDA_VISIBLE_DEVICES": "Explicit own idle device selected only for approved lease",
+    "QT_QPA_PLATFORM": "offscreen",
+    "PYTEST_QT_API": "pyside6",
+    "SPACR_NO_GL": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "COVERAGE_FILE": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1/.coverage-f288-real-cupy",
+    "GPU_IDLE_S": "default360 unchanged",
+    "GPU_GAP_S": "default600 unchanged"
+  },
+  "Home_union_checks": [
+    "Keep Work raw proof separate from hosted shard artifacts; never assign hosted IDs.",
+    "Require actual3pass proof and exact ops_accel.py SHA57e9181b5784a4aac225580878664ae341fdcbca7476dd6b8b0ffd126a1ecde0 plus owning test SHA82521146c3536b9651ad7835e12bb48e05307eabf9c0fdebd22b4806886e50dd in both histories.",
+    "Hash originals before/after; on a disposable copy use pinned Home coverage7.15.4 CoverageData.read and has_arcs checks. Reader errors/schema mismatch leave target unmet.",
+    "Compare per-module source statement/branch denominator and exclusion configuration. Re-analyze copied observed arcs under Home version; do not trust7.16 percentages as equivalent. Normalize only verified same-source worktree paths using CoverageData.update map_path or existing path aliases, preserving originalDB.",
+    "If compatibility checks pass, union copies with existing hosted diagnostic raw data, report actual measured totals and both provenance sources. 97.04 remains prediction until this measured union; baseline/exemption/ratchet unchanged."
+  ],
+  "bounded_additional_env_scan": "Documented render-py312 plus immediate env patterns under n676_stages/work and host/r28-preflight; only existing renderenv found, pytest9.1.1 but no CuPy/coverage/pytest-cov. No donor overlay proposed.",
+  "evidence_sha256": {
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/requested-proposal.json": "f395f2ce53fcf75102766d6bec8e3cfb32b8a938f999fe962f661304c33de12f",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/requested-command.sh.txt": "57c608ffc00819d7bf9f9476ea8f9cbb0010b36ad0edece66f2111f819dfb9c9",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/environment-metadata-preflight.json": "608c33126808bc7a98bedfba0b47a35ae6e73253043a6548ae529a585138dcf7",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/bounded-scratch-metadata.json": "80ad4966050e36946de89473340d5db1afcfc51ec813ee11d87a9df9e531b3d9",
+    "/media/carruthers/mnt3/claude/spacr-f288-cupy-20261013/.coveragerc": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+    "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/__init__.py": "6786a80e474605e54f6eb5c13563cfa60b4ce3106301e253e07a187ea33d2563",
+    "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/control.py": "7a69bee219345fa87f6fe561e0940122963f777898ca5d646b461134130b3f91",
+    "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/sqldata.py": "38feb53d984cc057697959061eb4e7a75e9c92cf0e90a9b14922022d162445c8",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct_coverage_runner.py": "34800c90fce61fba906ca61a6dbb664160a21bdea29c7ec3714d983bb4813aed"
+  },
+  "tests_run": false,
+  "GPU_lease_submitted": false,
+  "CUDA_initialized": false,
+  "package_env_source_changes": false,
+  "wrapper_implemented_or_executed": {
+    "implemented": true,
+    "executed": false,
+    "syntax_checked_without_import": true,
+    "runtime_verified": false
+  },
+  "published": false,
+  "wrapper_path": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct_coverage_runner.py",
+  "wrapper_sha256": "34800c90fce61fba906ca61a6dbb664160a21bdea29c7ec3714d983bb4813aed",
+  "approval_schema": {
+    "schema": "integer1",
+    "approved": "booleantrue only after actual Home approval",
+    "approved_by": "Home",
+    "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+    "coverage_version": "7.16.0",
+    "collector": "Coverage API",
+    "wrapper_sha256": "34800c90fce61fba906ca61a6dbb664160a21bdea29c7ec3714d983bb4813aed",
+    "proposal_sha256": "SHA of this final proposal, computed after writing; approval binds it",
+    "decision_reference": "Root should preserve actual Home dated decision reference separately; no approval receipt created by this preparation"
+  },
+  "lease_checks": [
+    "Exact holder label/checkout and live holder PID",
+    "Bounded actual /proc PPid chain from collector PID reaches the matching scheduler holder PID before CUDA; fd9 verified on holder, not assumed inherited by systemd-run child",
+    "Holder fd9 inode identifies GPU lock and a separate nonblocking acquisition is refused",
+    "Holder command includes pinned absolute gpu_turn/cap/wrapper paths and180s/15s grace/6G budget",
+    "Default idle360/gap600/poll15 preserved",
+    "Process cgroup memory.max <=6GiB",
+    "Selected physical GPU index/UUID headroom >=1500MiB and no foreign compute PIDs",
+    "CuPy physical PCI bus matches selected nvidia-smi device; >=1500MiB rechecked after context and before each exact test"
+  ],
+  "terminal_proof_scope": "Wrapper records inner_checks_passed/intended_exit_code only. accepted staysfalse and actual_process_exit_code null because a process cannot record its own final interpreter exit. Root must bind outer actual GPU scheduler/timeout terminalexit0, rawstdout log SHA and inner3pass receipt together before accepting or unioning.",
+  "package_identity_checks": [
+    "importlib.metadata.distribution(cupy-cuda12x).locate_file(cupy/__init__.py) equals both pre-import CuPy spec and actual imported cp.__file__",
+    "importlib.metadata.distribution(coverage).locate_file(coverage/__init__.py) equals both pre-import coverage spec and actual imported coverage.__file__",
+    "Package versions remain exact; imported distribution paths are retained in the execution receipt."
+  ],
+  "wrapper_hardening_review": {
+    "original_wrapper_sha256": "b968ec688510c93aaf568d4c3971ae7271a84e3a90506a93828e0904883883e7",
+    "hardened_wrapper_sha256": "34800c90fce61fba906ca61a6dbb664160a21bdea29c7ec3714d983bb4813aed",
+    "scope": "Scheduler ancestry and installed-distribution module identity only; no tests/GPU/library imports or environment changes",
+    "validation": "Complete collector AST parse only; runtime unverified",
+    "Home_approval_must_bind_hardened_wrapper_and_final_proposal": true
+  }
+}

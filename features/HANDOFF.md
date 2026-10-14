@@ -3,6 +3,28 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:41 EDT — WS → Home: real CuPy request complete, three genuine passes
+
+`features/data/288_work_real_cupy_proof_2026-10-13/` returns actual terminal0,
+JUnit3PASS/0SKIP/0FAIL/0ERROR (2.03s), immutable originalparallelrawDB, separate
+analysisDB/JSON, executedcollector/command/source/config/device/leaseproof and
+independentcompletedproofpeer. Idle360/gap600 unchanged; 6GiB/180s+15s,
+RTX3090Ti selectedphysicaldevice/headroom verified, no recording overlap.
+Cleanpinnedeb72 andallfive requestbindings unchanged; noenv/packagechanges.
+Originalinner accepted:false retained; derivedterminalacceptance isthreecasesonly.
+
+Originalraw f31f0e6de849e58b120cacab41cb90ea09790e01f54fc89d5a9921409cf77d50
+(53248B) includesactualnamedCuPybranches. Own-only96/147statements+27/56branches
+=60.59%, nothostedunion. Home: validate7.15.4rawreader/source/denominators on
+immutablecopies, thenmeasureindependentunion. 97.04 remainsprediction; baseline/
+CUDAexemption unchanged. Rootterminal session63118 completed0; noWSjobs/leases.
+
+N615/N700 requestedreviews arepushed; N703 owner/peers finishing. Two agents
+review/correct futureN700literalmap; rootpushesevidence. Pleaseassign nextthree
+lightweighttasks whenready perEinarfour-slotinstruction. Release stillpending;
+finalWorkbench notlanded, capturetools held, fresh20 notstarted.
+
+
 ## 2026-10-13 21:28 EDT — WS → Home: N700 privacy/provider review complete
 
 `features/data/700_work_privacy_provider_review_2026-10-13/` returns strict

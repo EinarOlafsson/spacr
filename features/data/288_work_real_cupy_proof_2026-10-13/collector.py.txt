@@ -1,0 +1,430 @@
+#!/usr/bin/env python3
+"""Home-approved Coverage CLI bootstrap: invoke only inside gpu_turn."""
+import sys
+
+WORKTREE = '/media/carruthers/mnt3/claude/spacr-f288-cupy-20261013'
+sys.path.insert(0, WORKTREE)
+REMOVED_EDITABLE_FINDERS = [getattr(finder, '__module__', '') or type(finder).__module__
+                           for finder in sys.meta_path
+                           if '__editable__' in (getattr(finder, '__module__', '')
+                                                 or type(finder).__module__)]
+sys.meta_path[:] = [finder for finder in sys.meta_path
+                   if '__editable__' not in (getattr(finder, '__module__', '')
+                                             or type(finder).__module__)]
+
+import argparse
+import contextlib
+import csv
+import datetime
+import fcntl
+import hashlib
+import importlib.metadata
+import importlib.util
+import io
+import json
+import os
+from pathlib import Path
+import platform
+import shutil
+import sqlite3
+import subprocess
+import traceback
+import types
+import xml.etree.ElementTree as ET
+
+ROOT = Path(WORKTREE)
+SCRATCH = Path(__file__).resolve().parent
+SOURCE = 'eb72a1a85f5c3a3324f295ab18ad730aea7d5570'
+LABEL = 'f288-ops-real-cupy-20261013'
+PYTHON = '/home/carruthers/anaconda3/envs/spacr/bin/python'
+NODEIDS = [
+    'tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_windowed_maximum_agrees[cupy]',
+    'tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_matmul_agrees[cupy]',
+    'tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_nearest_neighbour_agrees[cupy]',
+]
+PACKAGES = {'coverage': '7.16.0', 'cupy-cuda12x': '14.2.0',
+            'pytest': '9.1.1', 'pytest-xdist': '3.8.0', 'numpy': '2.4.3'}
+HEADROOM = 1500 * 1024 * 1024
+HOME_DECISION = 'b2fc91a6e605d149affee2df35b94b37ae052e8d'
+HOME_DECISION_SHA256 = '3c63f166a5f8c50a819c14cf39f92696e86f226634deac3f9fec08315c52c1de'
+GUARD_PLUGIN_NAME = 'f288_real_cupy_prerequisite_guard'
+GUARD_PLUGIN_SOURCE = '''def pytest_load_initial_conftests(early_config, parser, args):
+    sys.path[:] = [entry for entry in sys.path if entry != str(ROOT)]
+    sys.path.insert(0, str(ROOT))
+    spec = importlib.util.find_spec('spacr')
+    require(spec is not None and Path(spec.origin).resolve().parent == ROOT / 'spacr',
+            'Coverage CLI collection resolves spaCR outside the worktree')
+
+def pytest_runtest_setup(item):
+    require(item.nodeid in NODEIDS, 'Unexpected test collected')
+    lease_evidence()
+    free, _ = cp.cuda.runtime.memGetInfo()
+    require(free >= HEADROOM, 'Test begins with <1500MiB free GPU memory')
+'''
+
+
+def require(condition, message):
+    if not condition:
+        raise RuntimeError(message)
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def now():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def command(*args):
+    return subprocess.check_output(args, cwd=ROOT, text=True,
+                                   stderr=subprocess.STDOUT, timeout=15)
+
+
+def distribution_module_file(distribution, relative):
+    path = Path(importlib.metadata.distribution(distribution).locate_file(relative)).resolve()
+    require(path.is_file(), 'Installed distribution module is absent: ' + str(path))
+    return path
+
+
+def validate_sources(request):
+    require(command('git', 'rev-parse', 'HEAD').strip() == SOURCE, 'Wrong source HEAD')
+    require(command('git', 'status', '--porcelain') == '', 'Worktree is not clean')
+    bindings = {}
+    for row in request['files']:
+        path = ROOT / row['path']
+        require(path.stat().st_size == row['bytes'] and sha(path) == row['sha256'],
+                'Source/test/tool hash changed: ' + row['path'])
+        bindings[row['path']] = {'sha256': row['sha256'], 'bytes': row['bytes']}
+    return bindings
+
+
+def lease_evidence():
+    """Check the actual scheduler holder and its locked descriptor before CUDA."""
+    for name, default in [('GPU_IDLE_S', '360'), ('GPU_GAP_S', '600'), ('GPU_POLL_S', '15')]:
+        require(os.environ.get(name, default) == default, 'Scheduler guard override: ' + name)
+    folder = Path.home() / '.spacr/gpu'
+    holder = folder / 'holder'
+    raw = holder.read_text().strip()
+    parts = dict(piece.split('=', 1) for piece in raw.split())
+    require(parts.get('label') == LABEL and parts.get('checkout') == str(ROOT),
+            'No matching scheduler holder for this worktree')
+    pid = int(parts['pid'])
+    require(pid != os.getpid(), 'Wrapper cannot be its own scheduler holder')
+    os.kill(pid, 0)
+    ancestry, seen = [], set()
+    ancestor = os.getpid()
+    for _ in range(128):
+        require(ancestor > 0 and ancestor not in seen, 'Invalid scheduler ancestry chain')
+        seen.add(ancestor)
+        status = (Path('/proc') / str(ancestor) / 'status').read_text().splitlines()
+        parent = int(next(line.split(':', 1)[1] for line in status if line.startswith('PPid:')))
+        ancestry.append({'pid': ancestor, 'parent_pid': parent})
+        if ancestor == pid:
+            break
+        require(parent > 0, 'Collector is not descended from the matching scheduler holder')
+        ancestor = parent
+    else:
+        raise RuntimeError('Scheduler ancestry exceeds the bounded traversal')
+    cmdline = (Path('/proc') / str(pid) / 'cmdline').read_bytes().split(b'\0')
+    arguments = [item.decode() for item in cmdline if item]
+    for token in [str(ROOT / 'tools/gpu_turn.sh'), LABEL, 'timeout',
+                  '--signal=TERM', '--kill-after=15s', '180s',
+                  str(ROOT / 'tools/run_capped.sh'), '6G', PYTHON, str(Path(__file__).resolve())]:
+        require(token in arguments, 'Scheduler command lacks required token: ' + token)
+    lock = folder / 'lock'
+    locked_fd = Path('/proc') / str(pid) / 'fd/9'
+    require(locked_fd.stat().st_ino == lock.stat().st_ino
+            and locked_fd.stat().st_dev == lock.stat().st_dev,
+            'Scheduler descriptor does not identify the shared GPU lock')
+    with lock.open('r+') as handle:
+        try:
+            fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            pass
+        else:
+            fcntl.flock(handle, fcntl.LOCK_UN)
+            raise RuntimeError('GPU scheduler lock is not held')
+    entries = Path('/proc/self/cgroup').read_text().splitlines()
+    cgroup = next(line.split(':', 2)[2] for line in entries if line.startswith('0::'))
+    memory_max = Path('/sys/fs/cgroup') / cgroup.lstrip('/') / 'memory.max'
+    limit = memory_max.read_text().strip()
+    require(limit != 'max' and int(limit) <= 6 * 1024 ** 3, 'Missing host memory cap <=6G')
+    return {'holder': raw, 'holder_sha256': sha(holder), 'holder_pid': pid,
+            'scheduler_command': arguments, 'collector_to_holder_ancestry': ancestry,
+            'memory_max': limit,
+            'memory_max_path': str(memory_max), 'idle_seconds': 360, 'gap_seconds': 600}
+
+
+def gpu_snapshot():
+    """Only called after the scheduler lock/holder/cap checks succeeded."""
+    raw = command('nvidia-smi', '--query-gpu=index,uuid,name,pci.bus_id,driver_version,memory.total,memory.free',
+                  '--format=csv,noheader,nounits')
+    fields = ['index', 'uuid', 'name', 'pci_bus_id', 'driver_version',
+              'memory_total_MiB', 'memory_free_MiB']
+    devices = [dict(zip(fields, [value.strip() for value in row]))
+               for row in csv.reader(raw.splitlines())]
+    visible = os.environ.get('CUDA_VISIBLE_DEVICES')
+    selected = [row for row in devices if visible in (row['index'], row['uuid'])]
+    require(len(selected) == 1, 'Select exactly one physical device by index or UUID')
+    require(int(selected[0]['memory_free_MiB']) * 1024 ** 2 >= HEADROOM,
+            'Insufficient >=1500MiB free device memory')
+    processes = command('nvidia-smi', '--query-compute-apps=pid,gpu_uuid,process_name',
+                        '--format=csv,noheader')
+    pids = [row[0].strip() for row in csv.reader(processes.splitlines()) if row]
+    require(all(pid == str(os.getpid()) for pid in pids),
+            'Another compute process is present; do not disturb it')
+    return {'selected': selected[0], 'all_devices': devices,
+            'compute_processes_csv': processes, 'CUDA_VISIBLE_DEVICES': visible}
+
+
+def validate_junit(path):
+    root = ET.parse(path).getroot()
+    cases = list(root.iter('testcase'))
+    expected = {node.split('::')[1] for node in NODEIDS}
+    require(len(cases) == 3 and {case.get('name') for case in cases} == expected,
+            'JUnit does not identify exactly the three requested CuPy cases')
+    require(all(case.get('classname', '').endswith('test_the_ops_primitives_agree_on_every_backend')
+                for case in cases), 'JUnit case from unexpected test module')
+    require(not any(list(root.iter(tag)) for tag in ['skipped', 'failure', 'error']),
+            'JUnit contains a skip/failure/error')
+    suites = [root] if root.tag == 'testsuite' else list(root.iter('testsuite'))
+    require(sum(int(s.get('tests', 0)) for s in suites) == 3
+            and all(int(s.get(key, 0)) == 0 for s in suites
+                    for key in ['skipped', 'failures', 'errors']), 'JUnit totals differ')
+    return {'tests': 3, 'passed': 3, 'skipped': 0, 'failed': 0, 'errors': 0,
+            'cases': [{'name': c.get('name'), 'classname': c.get('classname')} for c in cases]}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    proposal = SCRATCH / 'direct-coverage-716-proposal.json'
+    proposal_data = json.loads(proposal.read_text())
+    decision = command('git', 'show', HOME_DECISION + ':features/HANDOFF.md')
+    require(hashlib.sha256(decision.encode()).hexdigest() == HOME_DECISION_SHA256
+            and 'Use coverage run --branch --source=spacr.ops_accel -m pytest -n 0'
+            in ' '.join(decision.split()), 'Actual Home Coverage CLI decision differs')
+    require(proposal_data.get('source_candidate') == SOURCE
+            and proposal_data.get('wrapper_sha256') == sha(__file__)
+            and proposal_data.get('collector') == 'Coverage CLI'
+            and proposal_data.get('home_decision', {}).get('commit') == HOME_DECISION,
+            'Implementation proposal does not bind this CLI wrapper/source/decision')
+    require(args.output.resolve().is_relative_to(SCRATCH), 'Output must stay in authorized scratch')
+    args.output.mkdir(parents=True, exist_ok=False)
+    output = args.output.resolve()
+    receipt = {'schema': 1, 'started_at': now(), 'source_candidate': SOURCE,
+               'wrapper_sha256': sha(__file__), 'proposal_sha256': sha(proposal),
+               'Home_decision': {'commit': HOME_DECISION, 'git_path': 'features/HANDOFF.md',
+                                 'sha256': HOME_DECISION_SHA256}, 'pid': os.getpid(),
+               'hosted_CI_evidence': False, 'coverage_union_measured': False,
+               'accepted': False, 'inner_checks_passed': False,
+               'actual_process_exit_code': None,
+               'removed_editable_finders': REMOVED_EDITABLE_FINDERS}
+    status = 1
+    try:
+        os.chdir(ROOT)
+        require(sys.executable == PYTHON, 'Unexpected Python executable')
+        require(platform.python_version() == '3.13.14', 'Unexpected Python version')
+        require(sys.path[0] == str(ROOT), 'Worktree must be first on sys.path')
+        for name, expected in [('QT_QPA_PLATFORM', 'offscreen'), ('PYTEST_QT_API', 'pyside6'),
+                               ('SPACR_NO_GL', '1'), ('OMP_NUM_THREADS', '1'),
+                               ('MKL_NUM_THREADS', '1'), ('OPENBLAS_NUM_THREADS', '1')]:
+            require(os.environ.get(name) == expected, 'Incorrect process environment: ' + name)
+        require(os.environ.get('COVERAGE_FILE') == str(output / '.coverage-f288-real-cupy'),
+                'Subprocess coverage file must identify this private output')
+        spec = importlib.util.find_spec('spacr')
+        require(spec is not None and Path(spec.origin).resolve().parent == ROOT / 'spacr',
+                'spaCR resolves outside the pinned worktree')
+        require('spacr.ops_accel' not in sys.modules, 'Module imported before coverage')
+        require('cupy' not in sys.modules and 'torch' not in sys.modules,
+                'CUDA-capable libraries were imported before the lease checks')
+        request_path = SCRATCH / 'requested-proposal.json'
+        require(sha(request_path) == proposal_data['evidence_sha256'][str(request_path)],
+                'Home request changed after proposal review')
+        request = json.loads(request_path.read_text())
+        require(request['source_candidate'] == SOURCE and request['minimum_real_GPU_nodeids'] == NODEIDS,
+                'Changed requested source or test inventory')
+        receipt['source_bindings_before'] = validate_sources(request)
+        receipt['environment'] = {'python': sys.version, 'executable': sys.executable,
+                                  'platform': platform.platform(), 'packages': {}}
+        for name, expected in PACKAGES.items():
+            actual = importlib.metadata.version(name)
+            require(actual == expected, 'Unexpected installed version: ' + name)
+            receipt['environment']['packages'][name] = actual
+        receipt['lease'] = lease_evidence()
+        receipt['GPU_before_context'] = gpu_snapshot()
+        # The first CUDA-capable import occurs only after the holder and lock checks.
+        cupy_file = distribution_module_file('cupy-cuda12x', 'cupy/__init__.py')
+        cupy_spec = importlib.util.find_spec('cupy')
+        require(cupy_spec is not None and Path(cupy_spec.origin).resolve() == cupy_file,
+                'CuPy resolves outside its installed distribution')
+        import cupy as cp
+        require(Path(cp.__file__).resolve() == cupy_file,
+                'Actual CuPy module is outside its installed distribution')
+        require(cp.__version__ == PACKAGES['cupy-cuda12x'], 'Actual CuPy version differs from metadata')
+        require(cp.cuda.runtime.getDeviceCount() == 1, 'Expected one visible CUDA device')
+        cp.cuda.Device(0).use()
+        free, total = cp.cuda.runtime.memGetInfo()
+        require(free >= HEADROOM, 'Context initialization leaves <1500MiB headroom')
+        properties = cp.cuda.runtime.getDeviceProperties(0)
+        pci_bus_id = cp.cuda.Device(0).pci_bus_id
+        def bus_identity(value):
+            domain, bus, slot = value.lower().split(':')
+            device, function = slot.split('.')
+            return tuple(int(component, 16) for component in (domain, bus, device, function))
+        require(bus_identity(pci_bus_id) == bus_identity(receipt['GPU_before_context']['selected']['pci_bus_id']),
+                'CuPy initialized a different physical device')
+        configuration_text = io.StringIO()
+        with contextlib.redirect_stdout(configuration_text):
+            cp.show_config(_full=True)
+        receipt['CuPy'] = {'version': cp.__version__, 'path': cp.__file__,
+                           'distribution_module_file': str(cupy_file),
+                           'pci_bus_id': pci_bus_id,
+                           'runtime_version': cp.cuda.runtime.runtimeGetVersion(),
+                           'driver_version': cp.cuda.runtime.driverGetVersion(),
+                           'device_properties': {str(k): ({'hex': v.hex(), 'text': v.decode(errors='replace')}
+                                                         if isinstance(v, bytes) else v)
+                                                 for k, v in properties.items()},
+                           'free_bytes_after_context': free, 'total_bytes': total,
+                           'configuration': configuration_text.getvalue()}
+        coverage_file = distribution_module_file('coverage', 'coverage/__init__.py')
+        coverage_spec = importlib.util.find_spec('coverage')
+        require(coverage_spec is not None and Path(coverage_spec.origin).resolve() == coverage_file,
+                'Coverage resolves outside its installed distribution')
+        import coverage
+        require(Path(coverage.__file__).resolve() == coverage_file,
+                'Actual coverage module is outside its installed distribution')
+        require(coverage.__version__ == PACKAGES['coverage'], 'Actual coverage version differs from metadata')
+        from coverage.cmdline import main as coverage_cli
+        require(Path(sys.modules['coverage.cmdline'].__file__).resolve()
+                == distribution_module_file('coverage', 'coverage/cmdline.py'),
+                'Coverage CLI is outside its installed distribution')
+        raw_prefix = output / '.coverage-f288-real-cupy'
+        configuration_probe = coverage.Coverage(config_file=str(ROOT / '.coveragerc'))
+        configuration = {key: configuration_probe.get_option(key) for key in
+                         ['run:branch', 'run:source', 'run:parallel', 'run:relative_files',
+                          'run:patch', 'run:sigterm', 'report:exclude_lines', 'report:partial_branches']}
+        require(configuration['run:branch'] is True
+                and configuration['run:source'] == ['spacr']
+                and configuration['run:parallel'] is True
+                and configuration['run:relative_files'] is True
+                and configuration['report:exclude_lines'] == []
+                and configuration['report:partial_branches'] == [],
+                'Coverage would weaken the recorded denominator or branch defaults')
+        receipt['coverage'] = {'version': coverage.__version__, 'path': coverage.__file__,
+                               'distribution_module_file': str(coverage_file),
+                               'original_configuration': configuration,
+                               'explicit_CLI_overrides': {'source': ['spacr.ops_accel'],
+                                                         'branch': True,
+                                                         'context': 'work-f288-real-cupy'},
+                               'raw_file_prefix': str(raw_prefix),
+                               'parallel_suffixes_preserved': True}
+        xml = output / 'f288-real-cupy.xml'
+        coverage_json = output / 'f288-real-cupy-coverage.json'
+        require(GUARD_PLUGIN_NAME not in sys.modules, 'Prerequisite plugin name is already loaded')
+        guard = types.ModuleType(GUARD_PLUGIN_NAME)
+        guard.__file__ = __file__
+        guard.__dict__.update({'sys': sys, 'ROOT': ROOT, 'Path': Path,
+                               'importlib': importlib, 'require': require, 'cp': cp,
+                               'NODEIDS': NODEIDS, 'HEADROOM': HEADROOM,
+                               'lease_evidence': lease_evidence})
+        exec(compile(GUARD_PLUGIN_SOURCE, __file__ + '#prerequisite_guard', 'exec'), guard.__dict__)
+        sys.modules[GUARD_PLUGIN_NAME] = guard
+        arguments = ['run', '--branch', '--source=spacr.ops_accel',
+                     '--rcfile=' + str(ROOT / '.coveragerc'), '--context=work-f288-real-cupy',
+                     '-m', 'pytest', '-n', '0', *NODEIDS, '--junitxml=' + str(xml),
+                     '-rA', '-p', GUARD_PLUGIN_NAME]
+        receipt['coverage_CLI_arguments'] = arguments
+        receipt['prerequisite_plugin'] = {'name': GUARD_PLUGIN_NAME,
+                                         'source': GUARD_PLUGIN_SOURCE,
+                                         'sha256': hashlib.sha256(GUARD_PLUGIN_SOURCE.encode()).hexdigest(),
+                                         'scope': 'Worktree collection pin and per-test lease/headroom checks only'}
+        try:
+            result = coverage_cli(arguments)
+            receipt['coverage_CLI_exit_code'] = 0 if result is None else int(result)
+            receipt['pytest_exit_code'] = receipt['coverage_CLI_exit_code']
+        finally:
+            sys.modules.pop(GUARD_PLUGIN_NAME, None)
+            raw_files = sorted(path for path in output.glob(raw_prefix.name + '*') if path.is_file())
+            receipt['original_raw_DBs'] = {str(path): {'sha256': sha(path), 'bytes': path.stat().st_size}
+                                           for path in raw_files}
+        require(raw_files, 'Coverage CLI produced no original raw DB')
+        analysis_db = output / '.coverage-f288-same-run-analysis'
+        require(not analysis_db.exists(), 'Analysis DB must be fresh')
+        data = coverage.CoverageData(basename=str(analysis_db))
+        analysis_inputs = output / 'raw-analysis-inputs'
+        analysis_inputs.mkdir(exist_ok=False)
+        raw_metadata = []
+        for path in raw_files:
+            with path.open('rb') as stream:
+                require(stream.read(16) == b'SQLite format 3\x00', 'Unexpected raw coverage artifact')
+            copied_raw = analysis_inputs / path.name
+            shutil.copy2(path, copied_raw)
+            require(sha(copied_raw) == receipt['original_raw_DBs'][str(path)]['sha256'],
+                    'Raw analysis copy differs from original evidence')
+            original = coverage.CoverageData(basename=str(copied_raw))
+            original.read()
+            require(original.has_arcs(), 'Original raw coverage has no branch arcs')
+            require(all((ROOT / name).resolve() == ROOT / 'spacr/ops_accel.py'
+                        for name in original.measured_files()), 'Raw DB measured an unexpected source')
+            data.update(original)
+            with sqlite3.connect('file:' + str(copied_raw) + '?mode=ro&immutable=1', uri=True) as db:
+                raw_metadata.append({'path': str(path),
+                                     'analysis_input_copy': str(copied_raw),
+                                     'schema': db.execute('select version from coverage_schema').fetchone()[0],
+                                     'metadata': dict(db.execute('select key,value from meta'))})
+        data.write()
+        cov = coverage.Coverage(data_file=str(analysis_db), data_suffix=False,
+                                branch=True, source=['spacr.ops_accel'],
+                                config_file=str(ROOT / '.coveragerc'))
+        cov.load()
+        cov.json_report(morfs=[str(ROOT / 'spacr/ops_accel.py')], outfile=str(coverage_json),
+                        pretty_print=True)
+        require(all(sha(Path(name)) == record['sha256']
+                    and Path(name).stat().st_size == record['bytes']
+                    for name, record in receipt['original_raw_DBs'].items()),
+                'Original raw DB changed during same-run analysis')
+        receipt['coverage']['original_raw_DB_metadata'] = raw_metadata
+        receipt['coverage']['analysis_DB'] = {'path': str(analysis_db),
+                                            'scope': 'Same-run analysis copy; not original raw evidence or hosted union'}
+        require(receipt['pytest_exit_code'] == 0, 'Pytest did not exit successfully')
+        actual_module = Path(sys.modules['spacr.ops_accel'].__file__).resolve()
+        require(actual_module == ROOT / 'spacr/ops_accel.py', 'Tests imported a different module')
+        receipt['actual_ops_module_path'] = str(actual_module)
+        receipt['JUnit'] = validate_junit(xml)
+        data = cov.get_data()
+        require(data.has_arcs(), 'Coverage raw data has no branch arcs')
+        measured = sorted(data.measured_files())
+        require(len(measured) == 1 and (ROOT / measured[0]).resolve() == ROOT / 'spacr/ops_accel.py',
+                'Coverage measured a different or unexpected source module')
+        json_data = json.loads(coverage_json.read_text())
+        require(json_data['meta']['version'] == '7.16.0'
+                and json_data['meta']['branch_coverage'] is True, 'Unexpected coverage JSON version/scope')
+        receipt['coverage']['measured_files'] = measured
+        receipt['coverage']['summary'] = json_data['files'][measured[0]]['summary']
+        receipt['source_bindings_after'] = validate_sources(request)
+        require(receipt['source_bindings_after'] == receipt['source_bindings_before'], 'Sources changed during tests')
+        receipt['GPU_after_tests'] = gpu_snapshot()
+        receipt['artifacts'] = {str(p): {'sha256': sha(p), 'bytes': p.stat().st_size}
+                                for p in [*raw_files, analysis_db, xml, coverage_json]}
+        receipt['inner_checks_passed'] = True
+        status = 0
+    except BaseException as exc:
+        receipt['failure'] = {'type': type(exc).__name__, 'message': str(exc), 'traceback': traceback.format_exc()}
+        traceback.print_exc()
+    finally:
+        receipt['finished_at'] = now()
+        receipt['intended_exit_code'] = status
+        receipt['scope'] = 'Work real-device test proof only; outer scheduler terminal exit must be recorded separately'
+        (output / 'execution-receipt.json').write_text(json.dumps(receipt, indent=2, default=str) + '\n')
+    return status
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
