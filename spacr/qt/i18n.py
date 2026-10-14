@@ -85,6 +85,17 @@ def _row(*values: str) -> tuple[str, ...]:
 
 
 _ROWS: Dict[str, tuple[str, ...]] = {
+    "The running spaCR is newer than the requested release. Nothing was changed.": (
+        "Den spaCR-version som körs är nyare än den begärda versionen. Inget har ändrats.",
+        "Die laufende spaCR-Version ist neuer als die angeforderte Version. Es wurde nichts geändert.",
+        "La versión de spaCR en ejecución es más reciente que la solicitada. No se ha cambiado nada.",
+        "正在运行的 spaCR 版本比请求安装的版本更新。未作任何更改。",
+        "A versão do spaCR em execução é mais recente do que a versão solicitada. Nada foi alterado.",
+        "चल रहा spaCR अनुरोधित संस्करण से नया है। कोई बदलाव नहीं किया गया।",
+        "실행 중인 spaCR 버전이 요청한 버전보다 최신입니다. 아무것도 변경하지 않았습니다.",
+        "spaCR-útgáfan sem er í gangi er nýrri en umbeðin útgáfa. Engu var breytt.",
+        "La version de spaCR en cours d’exécution est plus récente que la version demandée. Rien n’a été modifié.",
+    ),
     "High contrast": _row(
         "Hög kontrast", "Hoher Kontrast", "Alto contraste", "高对比度",
         "Alto contraste", "उच्च कंट्रास्ट", "고대비", "Mikil birtuskil",

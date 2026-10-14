@@ -104,25 +104,27 @@
       "label": "spacr.install_cleanup#2",
       "source": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
       "source_sha256": "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
-      "translation": "1. पुरानी spaCR फ़ाइलें खोजें -- :func:`find_old_installs` 2. पुरानी spaCR फ़ाइलें हटाएँ -- :func:`remove_install` 3. नया spaCR स्थापित करें -- :func:`run_update_sequence` स्थापना तभी चलाता है जब चरण 2 इंस्टॉलर द्वारा बनाई गई हर प्रति हटा चुका हो।"
+      "translation": "1. पुरानी spaCR फ़ाइलें खोजें -- :func:`find_old_installs` 2. पुरानी spaCR फ़ाइलें हटाएँ -- :func:`remove_install` 3. नया spaCR स्थापित करें -- :func:`run_update_sequence` स्थापना तभी चलाता है जब चरण 2 इंस्टॉलर द्वारा बनाई गई हर प्रति हटा चुका हो।",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry structured-data name on Windows).",
-      "label": "spacr.install_cleanup#5",
+      "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
       "translation": "हटाने की प्रक्रिया किसी पुराने संस्करण का अपना अनइंस्टॉलर कभी नहीं चलाती, इसलिए जिस प्रति का ``Uninstall.exe`` या ``uninstall-spacr.sh`` गायब या खराब है, वह भी हटा दी जाती है। प्राथमिकताएँ और उपयोगकर्ता डेटा रखे जाते हैं: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face कैश, और ``spacr``/``qt`` सेटिंग्स (``~/.config/spacr``, macOS पर प्राथमिकताओं की फ़ाइल, और Windows पर ``Software\\spacr`` रजिस्ट्री कुंजी)।"
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
-      "label": "spacr.install_cleanup#6",
+      "label": "spacr.install_cleanup#5",
       "source": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
       "source_sha256": "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
       "translation": "उपयोगकर्ता का बनाया pip या conda परिवेश सूची में दिखाया जाता है, पर कभी हटाया नहीं जाता; उससे spaCR पैकेज तभी अनइंस्टॉल किया जाता है जब कॉल करने वाला बताए कि उस पर टिक किया गया था। संपादन-योग्य सोर्स चेकआउट की सूचना दी जाती है और उसे छुआ नहीं जाता।"
     },
     {
       "context": "The module uses only the standard library and imports nothing from spaCR, so an installer can execute it with its bootstrapped Python before any spaCR exists, and a helper process can execute a copy of it after the executing spaCR has closed",
-      "label": "spacr.install_cleanup#7",
+      "label": "spacr.install_cleanup#6",
       "source": "The module uses only the standard library and imports nothing from spaCR, so an installer can run it with its bootstrapped Python before any spaCR exists, and a helper process can run a copy of it after the running spaCR has closed",
       "source_sha256": "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
       "translation": "यह मॉड्यूल केवल मानक लाइब्रेरी का उपयोग करता है और spaCR से कुछ भी इम्पोर्ट नहीं करता, इसलिए कोई इंस्टॉलर इसे अपने स्वयं स्थापित किए गए Python से तब भी चला सकता है जब कोई spaCR मौजूद ही न हो, और कोई सहायक प्रक्रिया चल रहे spaCR के बंद होने के बाद इसकी एक प्रति चला सकती है"
@@ -300,7 +302,9 @@
       "label": "spacr.install_cleanup.remove_install#1",
       "source": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
       "source_sha256": "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
-      "translation": "इंस्टॉलर द्वारा बनाई गई प्रति पूरी तरह हटा दी जाती है: उसका फ़ोल्डर, लॉन्चर, शॉर्टकट, मेनू प्रविष्टियाँ और अनइंस्टॉल पंजीकरण। Debian पैकेज पैकेज मैनेजर के ज़रिए हटाया जाता है, और जब व्यवस्थापक अधिकारों की कमी ही उसे रोकती है, तो रिपोर्ट में बताया जाता है कि उसके लिए व्यवस्थापक अधिकार चाहिए। उपयोगकर्ता के बनाए परिवेश से केवल spaCR पैकेज अनइंस्टॉल किया जाता है, और वह भी तभी जब ``ticked`` सत्य हो; परिवेश स्वयं बना रहता है। सोर्स चेकआउट को छोड़ दिया जाता है।"
+      "translation": "इंस्टॉलर द्वारा बनाई गई प्रति पूरी तरह हटा दी जाती है: उसका फ़ोल्डर, लॉन्चर, शॉर्टकट, मेनू प्रविष्टियाँ और अनइंस्टॉल पंजीकरण। Debian पैकेज पैकेज मैनेजर के ज़रिए हटाया जाता है, और जब व्यवस्थापक अधिकारों की कमी ही उसे रोकती है, तो रिपोर्ट में बताया जाता है कि उसके लिए व्यवस्थापक अधिकार चाहिए। उपयोगकर्ता के बनाए परिवेश से केवल spaCR पैकेज अनइंस्टॉल किया जाता है, और वह भी तभी जब ``ticked`` सत्य हो; परिवेश स्वयं बना रहता है। सोर्स चेकआउट को छोड़ दिया जाता है।",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",

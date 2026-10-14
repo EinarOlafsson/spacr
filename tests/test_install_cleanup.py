@@ -333,7 +333,7 @@ def windows_online(box, tag, broken=False):
     _dist(venv / "Lib" / "site-packages", tag)
     box.write(root / "python" / "cpython-3.12.11-windows-x86_64-none" / "python.exe")
     box.write(root / "bootstrap" / "uv.exe")
-    box.write(root / "cache" / "wheels" / "w.whl")
+    box.user_files.add(str(box.write(root / "cache" / "wheels" / "w.whl")))
     box.write(root / "launch_spacr.pyw", "from spacr.qt import run\n")
     box.write(root / "spacr.cmd", f'@echo off\r\n"{venv}\\Scripts\\python.exe" -m spacr.qt\r\n')
     box.write(root / "spacr.ico")
@@ -373,7 +373,7 @@ def linux_online(box, tag, broken=False):
     _dist(venv / "lib" / "python3.12" / "site-packages", tag)
     box.write(root / "python" / "cpython-3.12.11-linux-x86_64-gnu" / "bin" / "python3.12")
     box.write(root / "bootstrap" / "uv")
-    box.write(root / "cache" / "archive-v0" / "x")
+    box.user_files.add(str(box.write(root / "cache" / "archive-v0" / "x")))
     box.write(root / "install.log", "old log\n")
     box.write(root / ".venv-staging-563392" / "bin" / "python")   # a crashed run
     if not _capitalised(tag):
@@ -418,7 +418,7 @@ def macos_package(box, tag, broken=False):
     _dist(runtime / "venv" / "lib" / "python3.12" / "site-packages", tag)
     box.write(runtime / "python" / "x")
     box.write(runtime / "bootstrap" / "uv")
-    box.write(runtime / "cache" / "x")
+    box.user_files.add(str(box.write(runtime / "cache" / "x")))
     box.write(runtime / "install.log")
     return support
 
@@ -525,7 +525,7 @@ def test_the_linux_desktop_entry_and_launcher_of_another_spacr_are_not_claimed(
     assert record.launchers == () and record.menu_entries == ()
     assert ic.remove_install(record, system=machine).ok
 
-    assert not root.exists()
+    assert not (root / "venv").exists()
     assert command.exists() and entry.exists()
 
 
@@ -815,7 +815,7 @@ def test_the_helper_plan_waits_fetches_deletes_installs_and_relaunches(tmp_path)
         records, "9.9.9", pid=4242, workdir=str(workdir), system=machine,
         spawn=lambda argv, env, cwd: spawned.append((argv, env, cwd)))
 
-    assert plan["steps"] == ["wait", "fetch", "delete", "install", "relaunch"]
+    assert plan["steps"] == ["wait", "fetch", "install", "verify", "retire", "relaunch"]
     assert plan["pid"] == 4242
     assert json.loads((workdir / "plan.json").read_text()) == json.loads(json.dumps(plan))
     assert (workdir / "install_cleanup.py").read_bytes() == Path(ic.__file__).read_bytes()
@@ -884,57 +884,62 @@ def _helper_plan(tmp_path):
     return box, root, machine, str(tmp_path / "helper" / "plan.json")
 
 
+def _verified_result(argv):
+    if '-c' in argv:
+        return 0, json.dumps({'verified': True, 'version': '9.9.9', 'requested_version': '9.9.9'})
+    return 0, ''
+
+
 def test_the_helper_carries_out_its_plan_in_order(tmp_path):
     box, root, machine, plan = _helper_plan(tmp_path)
     events = []
-
-    def remove(record, ticked, keep, system):
-        events.append(("delete", record.root, record.running))
-        return ic.RemovalReport(record)
-
-    code = ic._run_plan(
-        plan, wait=lambda pid: events.append(("wait", pid)) or True,
-        fetch=lambda url, path: events.append(("fetch", url)),
-        run=lambda argv: events.append(("install", argv[0])) or (0, ""),
-        remove=remove, spawn=lambda argv, env, cwd: events.append(("relaunch", argv[0])),
-        system=machine)
-
+    def run(argv):
+        events.append(('verify' if '-c' in argv else 'install', argv[0]))
+        assert (root / 'venv').exists()
+        return _verified_result(argv)
+    code = ic._run_plan(plan, wait=lambda pid: events.append(('wait', pid)) or True,
+                        fetch=lambda url, path: events.append(('fetch', url)), run=run,
+                        remove=lambda *args, **kwargs: pytest.fail('Do not retire the replaced root'),
+                        spawn=lambda argv, env, cwd: events.append(('relaunch', argv[0])), system=machine)
     assert code == 0
-    assert [event[0] for event in events] == ["wait", "fetch", "delete",
-                                              "install", "relaunch"]
-    assert ("wait", 4242) in events
-    # Once spaCR has closed, the copy that was running is removed too.
-    assert ("delete", str(root), False) in events
-    assert (box.home / ".spacr" / "logs" / "update.log").is_file()
+    assert [event[0] for event in events] == ['wait', 'fetch', 'install', 'verify', 'relaunch']
+    assert ('wait', 4242) in events
+    assert (root / 'venv').exists()
+    assert (box.home / '.spacr' / 'logs' / 'update.log').is_file()
 
 
-def test_the_helper_removes_the_old_copy_for_real_before_it_installs(tmp_path):
+def test_the_helper_keeps_the_working_copy_until_installer_and_probe_finish(tmp_path):
     box, root, machine, plan = _helper_plan(tmp_path)
     seen = []
-
+    def run(argv):
+        seen.append(('-c' in argv, (root / 'venv').exists()))
+        return _verified_result(argv)
     code = ic._run_plan(plan, wait=lambda pid: True, fetch=lambda url, path: None,
-                        run=lambda argv: seen.append(root.exists()) or (0, ""),
-                        spawn=lambda *args: None, system=machine)
-
-    assert code == 0 and seen == [False]
+                        run=run, spawn=lambda *args: None, system=machine)
+    assert code == 0 and seen == [(False, True), (True, True)]
     assert all(Path(f).exists() for f in box.user_files)
-    assert not (box.home / ".local" / "bin" / "spacr").exists()
+    assert (box.home / '.local' / 'bin' / 'spacr').exists()
 
 
-def test_the_helper_installs_nothing_when_an_old_copy_could_not_be_removed(tmp_path):
+def test_the_helper_reports_failed_retirement_after_verified_install_without_relaunch(tmp_path):
     box, root, machine, plan = _helper_plan(tmp_path)
+    data = json.loads(Path(plan).read_text())
+    other = ic.InstallRecord(kind='installer', layout='linux-online', platform='linux',
+                              root=str(box.home / 'spacr obsolete'))
+    data['records'].append(dataclasses.asdict(other))
+    Path(plan).write_text(json.dumps(data))
     events = []
-
-    code = ic._run_plan(
-        plan, wait=lambda pid: True, fetch=lambda url, path: None,
-        run=lambda argv: events.append("install") or (0, ""),
-        remove=lambda record, ticked, keep, system: ic.RemovalReport(
-            record, failed=[(record.root, "in use")]),
-        spawn=lambda *args: events.append("relaunch"), system=machine)
-
-    assert code == 5 and events == []
-    log = (box.home / ".spacr" / "logs" / "update.log").read_text()
-    assert "stopped before installing" in log and "in use" in log
+    def run(argv):
+        events.append('verify' if '-c' in argv else 'install')
+        return _verified_result(argv)
+    code = ic._run_plan(plan, wait=lambda pid: True, fetch=lambda url, path: None, run=run,
+                        remove=lambda record, ticked, keep, system: ic.RemovalReport(
+                            record, failed=[(record.root, 'in use')]),
+                        spawn=lambda *args: events.append('relaunch'), system=machine)
+    assert code == 5 and events == ['install', 'verify']
+    assert (root / 'venv').exists()
+    log = (box.home / '.spacr' / 'logs' / 'update.log').read_text()
+    assert 'could not be retired' in log and 'in use' in log
 
 
 def test_the_helper_deletes_nothing_when_the_new_installer_did_not_download(tmp_path):
@@ -1044,7 +1049,7 @@ def test_the_rendered_unix_installer_carries_the_module_verbatim(tmp_path):
     subprocess.run(["bash", "-n", str(installer)], check=True)
 
 
-def test_the_unix_installer_deletes_old_copies_before_it_installs(tmp_path):
+def test_the_unix_installer_keeps_old_copies_when_staging_fails(tmp_path):
     box = Box(tmp_path / "box")
     box.add_user_data()
     root = linux_online(box, "1.5.0.1", broken=True)
@@ -1095,21 +1100,22 @@ def test_the_unix_installer_deletes_old_copies_before_it_installs(tmp_path):
 
     assert done.returncode == 7, done.stdout + done.stderr
     log = calls.read_text()
-    assert "old copy gone" in log and "old copy still there" not in log
+    assert "old copy still there" in log and "old copy gone" not in log
     assert log.index("uv python find") < log.index("uv pip install")
-    assert not old_launcher.exists() and not old_entry.exists()
+    assert old_launcher.exists() and old_entry.exists()
     assert all(Path(f).exists() for f in box.user_files)
-    assert f"removed: {old_launcher}" in done.stdout
-    assert f"removed: {root / 'venv'}" in done.stdout
+    assert f"removed: {old_launcher}" not in done.stdout
+    assert (root / "venv").exists()
 
 
-def test_the_windows_installer_finds_and_deletes_before_it_installs():
+def test_the_windows_installer_validates_staging_before_retiring_old_copies():
     ps1 = (ROOT / "packaging" / "online" / "install_spacr_windows.ps1").read_text(
         encoding="utf-8")
     remove = ps1.index("$CleanupModule remove")
     assert ps1.index("python find $PythonVersion") < remove
-    assert remove < ps1.index("Move-Item -Force $WorkUv $UvExe")
-    assert remove < ps1.index("pip install --python $StagePython")
+    assert ps1.index("pip check --python $StagePython") < remove
+    assert ps1.index("pip install --python $StagePython") < remove
+    assert "--keep $InstallRoot" in ps1
     assert "--keep $LogPath" in ps1
     nsis = (ROOT / "packaging" / "online" / "spacr_online_installer.nsi").read_text(
         encoding="utf-8")
@@ -1120,13 +1126,14 @@ def test_the_windows_installer_finds_and_deletes_before_it_installs():
     assert 'DeleteRegKey /ifempty HKCU "Software\\spaCR"' in uninstall
 
 
-def test_the_unix_installer_source_orders_find_delete_install():
+def test_the_unix_installer_source_orders_staging_verification_before_retirement():
     sh = (ROOT / "packaging" / "online" / "install_spacr_unix.sh").read_text(
         encoding="utf-8")
     remove = sh.index('"$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"')
     assert sh.index('python find "$PYTHON_VERSION"') < remove
-    assert remove < sh.index('mv "$work_uv" "$UV_BIN"')
-    assert remove < sh.index('"$UV_BIN" pip install')
+    assert sh.index('"$UV_BIN" pip check') < remove
+    assert sh.index('"$UV_BIN" pip install') < remove
+    assert '--keep "$INSTALL_ROOT"' in sh
     assert '--keep "$SPACR_SOURCE_DIR" --keep "/Applications/spaCR.app"' in sh
 
 
@@ -1233,7 +1240,7 @@ def test_a_shortcut_for_a_folder_beside_the_old_copy_is_not_claimed(
     assert not {str(p) for p in others} & set(claimed), claimed
     assert ic.remove_install(record, system=machine).ok
 
-    assert not root.exists()
+    assert not (root / "venv").exists()
     assert all(path.exists() for path in others)
 
 
@@ -1282,7 +1289,7 @@ def test_a_folder_that_cannot_be_opened_is_reported_not_a_crash(
         monkeypatch.setattr(ic.shutil, "rmtree", rmtree_with_onexc)
     box = Box(tmp_path)
     root = linux_online(box, "1.5.0.7")
-    locked = root / "cache" / "made-by-sudo"
+    locked = root / "venv" / "made-by-sudo"
     box.write(locked / "wheel.whl")
     locked.chmod(0)
     machine = box.machine("linux")
@@ -1297,7 +1304,7 @@ def test_a_folder_that_cannot_be_opened_is_reported_not_a_crash(
         locked.chmod(0o700)
 
     [report] = reports
-    assert report.failed == [(str(root), "in use or not permitted; close anything using it and try again")]
+    assert report.failed == [(str(root / "venv"), "in use or not permitted; close anything using it and try again")]
     assert (locked / "wheel.whl").exists()
     assert result is None and installs == []
 
@@ -1327,7 +1334,7 @@ def test_a_folder_you_may_not_change_stops_the_update_and_says_why(
     finally:
         locked.chmod(0o755)
 
-    assert reports[0].failed == [(str(root), reason)]
+    assert reports[0].failed == [(str(root / "python"), reason)]
     assert (locked / "python3.12").exists()
     assert result is None and installs == []
 
@@ -1357,7 +1364,7 @@ def test_a_launcher_that_cannot_be_deleted_stops_the_update(
                                               system=machine)
 
     assert report.failed == [(str(launcher), reason)]
-    assert launcher.exists() and not root.exists()
+    assert launcher.exists() and not (root / "venv").exists()
     assert result is None and installs == []
 
 
@@ -1371,7 +1378,7 @@ def test_a_folder_still_there_after_removal_is_not_reported_removed(
 
     report = ic.remove_install(record, system=machine)
 
-    assert (str(root), "still present") in report.failed
+    assert (str(root / "venv"), "still present") in report.failed
     assert str(root) not in report.removed
 
 
@@ -1545,7 +1552,8 @@ def test_a_registration_naming_another_folder_is_not_this_copys_to_delete(tmp_pa
     assert record.root == str(root) and record.registrations == ()
     assert ic.remove_install(record, system=machine).ok
 
-    assert not root.exists()
+    assert not (root / "venv").exists()
+    assert all(Path(path).exists() for path in box.user_files)
     assert box.registry.values(ic._UNINSTALL_KEY)["InstallLocation"] == elsewhere
     assert box.registry.values(ic._SOFTWARE_KEY)["InstallRoot"] == elsewhere
 
@@ -2132,7 +2140,7 @@ def test_a_mac_helper_upgrades_the_discovered_existing_runtime_without_removal(t
     python = str(runtime / "venv/bin/python")
     assert plan["install"] == [str(runtime / "bootstrap/uv"), "pip", "install",
                                "--upgrade", "--python", python, "spacr"]
-    assert plan["relaunch"] == [python, "-m", "spacr.qt"]
+    assert plan["relaunch"] == [python, "-I", "-m", "spacr.qt"]
     assert plan["command"][0] == python
     assert runtime.is_dir()
 
@@ -2172,7 +2180,7 @@ def test_the_helper_starts_nothing_when_the_installer_fails(tmp_path):
                         run=lambda argv: 9,
                         spawn=lambda *args: events.append("relaunch"), system=machine)
 
-    assert code == 9 and events == []
+    assert code == 9 and events == [] and (root / "venv").exists()
     log = (box.home / ".spacr" / "logs" / "update.log").read_text()
     assert "The installer failed with exit code 9." in log
 
@@ -2185,10 +2193,10 @@ def test_a_plan_without_a_download_relaunch_or_log_only_deletes_and_installs(
 
     code = ic._run_plan(
         plan, wait=lambda pid: True, fetch=lambda *args: events.append("fetch"),
-        run=lambda argv: events.append(("install", root.exists())) or (0, ""),
+        run=lambda argv: events.append(("verify" if "-c" in argv else "install", root.exists())) or _verified_result(argv),
         spawn=lambda *args: events.append("relaunch"), system=machine)
 
-    assert code == 0 and events == [("install", False)]
+    assert code == 0 and events == [("install", True), ("verify", True)]
     assert "Installed." in capsys.readouterr().out
     assert not (box.home / ".spacr" / "logs" / "update.log").exists()
 
@@ -2229,13 +2237,13 @@ def test_the_helper_log_lists_your_environment_without_reporting_on_it(tmp_path)
 
     code = ic._run_plan(str(tmp_path / "helper" / "plan.json"),
                         wait=lambda pid: True, fetch=lambda url, path: None,
-                        run=lambda argv: (0, ""), spawn=lambda *args: None,
+                        run=_verified_result, spawn=lambda *args: None,
                         system=machine)
 
     log = (box.home / ".spacr" / "logs" / "update.log").read_text()
     assert code == 0 and box.commands == []
     assert f"{prefix}  [your environment, left in place" in log
-    assert "not ticked" not in log and f"removed: {root}" in log
+    assert "not ticked" not in log and (root / "venv").exists()
 
 
 def test_the_listing_marks_the_running_copy_and_its_notes():

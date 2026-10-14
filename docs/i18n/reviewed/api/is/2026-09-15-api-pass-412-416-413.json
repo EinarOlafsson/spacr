@@ -104,25 +104,27 @@
       "label": "spacr.install_cleanup#2",
       "source": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
       "source_sha256": "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
-      "translation": "1. finna gamlar spaCR-skrár -- :func:`find_old_installs` 2. eyða gömlum spaCR-skrám -- :func:`remove_install` 3. setja upp nýtt spaCR -- :func:`run_update_sequence` keyrir uppsetninguna ekki fyrr en skref 2 hefur fjarlægt hvert eintak sem uppsetningarforrit bjó til."
+      "translation": "1. finna gamlar spaCR-skrár -- :func:`find_old_installs` 2. eyða gömlum spaCR-skrám -- :func:`remove_install` 3. setja upp nýtt spaCR -- :func:`run_update_sequence` keyrir uppsetninguna ekki fyrr en skref 2 hefur fjarlægt hvert eintak sem uppsetningarforrit bjó til.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry structured-data name on Windows).",
-      "label": "spacr.install_cleanup#5",
+      "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
       "translation": "Fjarlægingin keyrir aldrei eigið fjarlægingarforrit gamallar útgáfu, svo eintak þar sem ``Uninstall.exe`` eða ``uninstall-spacr.sh`` vantar eða er bilað er fjarlægt engu að síður. Stillingar og notendagögn eru varðveitt: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, skyndiminni Hugging Face og stillingar ``spacr``/``qt`` (``~/.config/spacr``, stillingaskráin í macOS og lykillinn ``Software\\spacr`` í kerfisskránni í Windows)."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
-      "label": "spacr.install_cleanup#6",
+      "label": "spacr.install_cleanup#5",
       "source": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
       "source_sha256": "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
       "translation": "Umhverfi fyrir pip eða conda sem notandinn bjó til er skráð en aldrei eytt; spaCR-pakkinn er aðeins fjarlægður úr því þegar kallandinn segir að hakað hafi verið við það. Breytanleg útskráning frumkóða er tilkynnt og látin óhreyfð."
     },
     {
       "context": "The module uses only the standard library and imports nothing from spaCR, so an installer can execute it with its bootstrapped Python before any spaCR exists, and a helper process can execute a copy of it after the executing spaCR has closed",
-      "label": "spacr.install_cleanup#7",
+      "label": "spacr.install_cleanup#6",
       "source": "The module uses only the standard library and imports nothing from spaCR, so an installer can run it with its bootstrapped Python before any spaCR exists, and a helper process can run a copy of it after the running spaCR has closed",
       "source_sha256": "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
       "translation": "Einingin notar aðeins staðalsafnið og flytur ekkert inn úr spaCR, svo uppsetningarforrit getur keyrt hana með því Python sem það setti sjálft upp áður en nokkurt spaCR er til, og hjálparferli getur keyrt afrit af henni eftir að spaCR sem var í gangi hefur lokast"
@@ -300,7 +302,9 @@
       "label": "spacr.install_cleanup.remove_install#1",
       "source": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
       "source_sha256": "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
-      "translation": "Eintak sem uppsetningarforrit bjó til er fjarlægt að fullu: mappan, ræsiskipanir, flýtivísar, valmyndafærslur og skráningar fjarlægingar. Debian-pakki er fjarlægður með pakkastjóranum og tilkynnt að hann krefjist stjórnandaréttinda þegar það er það sem stöðvar fjarlæginguna. Úr umhverfi sem notandinn bjó til er aðeins spaCR-pakkinn fjarlægður, og aðeins þegar ``ticked`` er satt; umhverfið sjálft stendur eftir. Útskráningu frumkóða er sleppt."
+      "translation": "Eintak sem uppsetningarforrit bjó til er fjarlægt að fullu: mappan, ræsiskipanir, flýtivísar, valmyndafærslur og skráningar fjarlægingar. Debian-pakki er fjarlægður með pakkastjóranum og tilkynnt að hann krefjist stjórnandaréttinda þegar það er það sem stöðvar fjarlæginguna. Úr umhverfi sem notandinn bjó til er aðeins spaCR-pakkinn fjarlægður, og aðeins þegar ``ticked`` er satt; umhverfið sjálft stendur eftir. Útskráningu frumkóða er sleppt.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",

@@ -104,25 +104,27 @@
       "label": "spacr.install_cleanup#2",
       "source": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
       "source_sha256": "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
-      "translation": "1. 이전 spaCR 파일 찾기 -- :func:`find_old_installs` 2. 이전 spaCR 파일 삭제 -- :func:`remove_install` 3. 새 spaCR 설치 -- :func:`run_update_sequence` 함수는 2단계에서 설치 프로그램이 만든 사본을 모두 제거한 뒤에만 설치를 실행합니다."
+      "translation": "1. 이전 spaCR 파일 찾기 -- :func:`find_old_installs` 2. 이전 spaCR 파일 삭제 -- :func:`remove_install` 3. 새 spaCR 설치 -- :func:`run_update_sequence` 함수는 2단계에서 설치 프로그램이 만든 사본을 모두 제거한 뒤에만 설치를 실행합니다.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry structured-data name on Windows).",
-      "label": "spacr.install_cleanup#5",
+      "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
       "translation": "제거할 때 이전 버전 자체의 제거 프로그램은 절대 실행하지 않으므로, ``Uninstall.exe`` 또는 ``uninstall-spacr.sh`` 파일이 없거나 손상된 사본도 똑같이 제거됩니다. 환경설정과 사용자 데이터는 유지됩니다: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face 캐시, 그리고 ``spacr``/``qt`` 설정(``~/.config/spacr``, macOS의 환경설정 파일, Windows의 ``Software\\spacr`` 레지스트리 키)."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
-      "label": "spacr.install_cleanup#6",
+      "label": "spacr.install_cleanup#5",
       "source": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
       "source_sha256": "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
       "translation": "사용자가 만든 pip 또는 conda 환경은 목록에 표시되지만 절대 삭제되지 않으며, 호출자가 그 환경이 선택되었다고 알려 줄 때에만 그 환경에서 spaCR 패키지를 제거합니다. 편집 가능한 소스 체크아웃은 보고만 하고 그대로 둡니다."
     },
     {
       "context": "The module uses only the standard library and imports nothing from spaCR, so an installer can execute it with its bootstrapped Python before any spaCR exists, and a helper process can execute a copy of it after the executing spaCR has closed",
-      "label": "spacr.install_cleanup#7",
+      "label": "spacr.install_cleanup#6",
       "source": "The module uses only the standard library and imports nothing from spaCR, so an installer can run it with its bootstrapped Python before any spaCR exists, and a helper process can run a copy of it after the running spaCR has closed",
       "source_sha256": "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
       "translation": "이 모듈은 표준 라이브러리만 사용하고 spaCR에서 아무것도 가져오지 않으므로, 설치 프로그램은 spaCR이 아직 없을 때에도 자신이 직접 설치한 Python으로 이 모듈을 실행할 수 있고, 도우미 프로세스는 실행 중이던 spaCR이 종료된 뒤에 이 모듈의 사본을 실행할 수 있습니다"
@@ -300,7 +302,9 @@
       "label": "spacr.install_cleanup.remove_install#1",
       "source": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
       "source_sha256": "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
-      "translation": "설치 프로그램이 만든 사본은 완전히 제거됩니다: 폴더, 실행기, 바로 가기, 메뉴 항목, 제거 등록 정보. Debian 패키지는 패키지 관리자로 제거하며, 권한 때문에 막히면 관리자 권한이 필요하다고 보고합니다. 사용자가 만든 환경에서는 spaCR 패키지만, 그것도 ``ticked`` 값이 참일 때에만 제거하며 환경 자체는 남습니다. 소스 체크아웃은 건너뜁니다."
+      "translation": "설치 프로그램이 만든 사본은 완전히 제거됩니다: 폴더, 실행기, 바로 가기, 메뉴 항목, 제거 등록 정보. Debian 패키지는 패키지 관리자로 제거하며, 권한 때문에 막히면 관리자 권한이 필요하다고 보고합니다. 사용자가 만든 환경에서는 spaCR 패키지만, 그것도 ``ticked`` 값이 참일 때에만 제거하며 환경 자체는 남습니다. 소스 체크아웃은 건너뜁니다.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",

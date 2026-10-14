@@ -31,16 +31,17 @@ int main(int argc, char **argv) {
         perror("spaCR could not start the first-run installer");
         return 1;
     }
-    char **args = calloc((size_t)argc + 3, sizeof(char *));
+    char **args = calloc((size_t)argc + 4, sizeof(char *));
     if (!args) {
         perror("spaCR launcher allocation");
         return 1;
     }
     args[0] = python;
-    args[1] = "-m";
-    args[2] = "spacr.qt";
+    args[1] = "-I";
+    args[2] = "-m";
+    args[3] = "spacr.qt";
     for (int index = 1; index < argc; ++index)
-        args[index + 2] = argv[index];
+        args[index + 3] = argv[index];
     execv(python, args);
     perror("spaCR could not launch its private Python runtime");
     free(args);

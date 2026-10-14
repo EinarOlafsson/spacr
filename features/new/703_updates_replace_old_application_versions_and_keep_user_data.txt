@@ -2,7 +2,7 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    specified and source-audited; implementation not started
+Status:    partial implementation; private staged-runtime repair validated
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -43,7 +43,7 @@ REQUIREMENTS
    launchers. Discover stale custom/all-users launchers safely. Do not claim
    RPM app support merely because dnf dependencies exist.
 7. User strings use tr(); Work receives final strings/behavior for tutorial 04.
-   Implementation remains held during the current CI/release source freeze.
+   Publish required repairs with their owning checks; release acceptance stays open.
 
 --------------------------------------------------------------------------------
 ACCEPTANCE
@@ -82,3 +82,46 @@ those old deletion behaviors.
 
 No installation, update, uninstall, deletion, native test or source edit was
 performed. Platform repairs and acceptance remain open after CI/release.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE STAGED-RUNTIME REPLACEMENT COMPONENT
+--------------------------------------------------------------------------------
+
+Implemented on the Home updater/installer lane; not native installer acceptance.
+Windows and Unix online helpers stage dependencies and verify the actual imported
+spaCR code, distribution version, private interpreter and prefix before replacing
+the existing runtime. A published-runtime verification failure restores its prior
+runtime. The helper waits for a verified replacement before retiring other copies
+or restarting. Desktop and restart commands use the same isolated interpreter
+mode as the identity probe, preventing current-directory/PYTHONPATH shadow copies.
+Pinned pip upgrades reject an older target before invoking the package tool; the
+existing macOS unpinned adapter retains its no-downgrade floor and verifies actual
+code identity after installation.
+
+Default retirement preserves declared data/cache/model locations, known data
+folders nested inside installation roots, and unknown user folders. Current-root
+launchers are retained during staging. Offline test data is not overwritten. A
+configured user-data location inside the retiring Python environment causes a
+refusal before replacement, rather than destructive relocation. No real user
+installation or data was modified by the validation.
+
+Finite owning cohort: 292 PASS, actual exit 0, including real private temporary
+runtime/installer-CLI identity probes, wrong imported code/version/owner/prefix,
+no-downgrade, nested data retention and isolated-launch commands. The native-C
+launcher argument fixture ran on Linux; this is not native macOS acceptance.
+Fatal Ruff and Unix shell syntax passed. Normal English API regeneration/audit
+passed for 13,418 symbols. The normal scoped generator regenerated exactly
+three changed API entries in all nine locales and validated each current block
+(actual exit 0). Semantic review caught and corrected an initial German/Spanish
+MT inversion of cache preservation. All 27 rewritten locale paragraphs now have
+exact-source AI technical reviews (Codex; no human/native-speaker signoff).
+Unchanged review blocks were rebound to their actual index and rewritten blocks
+retired in place, retaining original reviews. Unrelated catalog/model-input
+records and existing review debt were unchanged.
+
+Remaining N703 acceptance: transactional in-place pip/macOS dependency failure
+rollback; Terminal-free macOS first-user progress/questions and GUI optional
+cleanup; native old-to-new and same-version reinstall on each shipped platform,
+actual desktop launch identity, frozen adapters, custom/all-users launchers and
+permission/disk/cancellation recovery. Existing native Windows/PowerShell and
+macOS execution cannot be established by Linux fixtures. N703 is still partial.

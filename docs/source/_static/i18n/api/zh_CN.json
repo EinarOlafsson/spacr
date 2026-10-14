@@ -37882,8 +37882,7 @@
     "spacr.install_cleanup": {
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
-        "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-        "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+        "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
         "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
         "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
@@ -37891,12 +37890,11 @@
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "4664935c5708e2759c797cd0a448c5d63ec46f5b1bdd7b323e26cdc2bf0c2610",
-      "text": "查找 spaCR 安装并运行相应的更新或移除流程。\n\n标准替换流程按顺序运行三个步骤：\n\n1. 查找旧的 spaCR 文件 -- :func:`find_old_installs` 2. 删除旧的 spaCR 文件 -- :func:`remove_install` 3. 安装新的 spaCR -- :func:`run_update_sequence` 只有在第 2 步删除了每个由安装程序创建的副本之后，才会执行安装。\n\n对于受支持的 macOS 安装，应用内更新使用另一种流程。在线安装会使用其捆绑的 ``uv`` 可执行文件，在现有的 Python 环境中升级 spaCR。它会保留环境、引导文件、应用启动器以及无需更新的已安装包。在重启应用之前，它会验证已安装的 spaCR 版本。\n\n受支持的冻结 macOS 应用使用经过验证的 DMG 替换，并保留其完整的旧应用包。这些 macOS 更新路径不会运行标准删除流程。其他冻结应用系列需要受支持的替换适配器才能开始更新。\n\n删除时从不运行旧版本自带的卸载程序，因此即使某个副本的 ``Uninstall.exe`` 或 ``uninstall-spacr.sh`` 缺失或损坏，它也照样会被删除。首选项和用户数据会保留：``~/.spacr``、``~/.cache/spacr``、``~/.local/state/spacr``、``~/spacr-demos``、``~/spacr-tutorials``、Hugging Face 缓存，以及 ``spacr``/``qt`` 设置（``~/.config/spacr``、macOS 上的首选项文件，以及 Windows 上的 ``Software\\spacr`` 注册表键）。\n\n用户自行创建的 pip 或 conda 环境会被列出，但绝不会被删除；只有当调用方表明该环境已被勾选时，才会从中卸载 spaCR 软件包。可编辑的源代码检出会被报告，但不会被改动。\n\n该模块只使用标准库，不从 spaCR 导入任何内容，因此安装程序可以在任何 spaCR 尚不存在时，用它自己安装的 Python 运行该模块；辅助进程也可以在正在运行的 spaCR 关闭之后，运行该模块的一个副本::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 是明确选择的完整卸载：列出并询问后，还会删除 spaCR 的缓存、后端环境和用户数据。它不会自行运行；``remove --purge`` 在成功移除后运行它。",
+      "source_sha256": "9c073fe0e4c8861a2609fcc5b092122cbb386bb97418f6f9be6768d9e67c443d",
+      "text": "查找 spaCR 安装并运行相应的更新或移除流程。\n\n在线安装程序先准备并验证新的运行环境，然后再移除旧的应用副本。准备过程中会保留当前安装；如果替换后的环境未通过验证，则恢复此前的运行环境。更新助手会先验证桌面启动所用的解释器和实际导入的应用，再移除其他副本或请求重新启动。:func:`run_update_sequence` 仍是显式清理命令使用的底层移除过程。\n\n对于受支持的 macOS 安装，应用内更新使用另一种流程。在线安装会使用其捆绑的 ``uv`` 可执行文件，在现有的 Python 环境中升级 spaCR。它会保留环境、引导文件、应用启动器以及无需更新的已安装包。在重启应用之前，它会验证已安装的 spaCR 版本。\n\n受支持的冻结 macOS 应用使用经过验证的 DMG 替换，并保留其完整的旧应用包。这些 macOS 更新路径不会运行标准删除流程。其他冻结应用系列需要受支持的替换适配器才能开始更新。\n\n删除时从不运行旧版本自带的卸载程序，因此即使某个副本的 ``Uninstall.exe`` 或 ``uninstall-spacr.sh`` 缺失或损坏，它也照样会被删除。首选项和用户数据会保留：``~/.spacr``、``~/.cache/spacr``、``~/.local/state/spacr``、``~/spacr-demos``、``~/spacr-tutorials``、Hugging Face 缓存，以及 ``spacr``/``qt`` 设置（``~/.config/spacr``、macOS 上的首选项文件，以及 Windows 上的 ``Software\\spacr`` 注册表键）。\n\n用户自行创建的 pip 或 conda 环境会被列出，但绝不会被删除；只有当调用方表明该环境已被勾选时，才会从中卸载 spaCR 软件包。可编辑的源代码检出会被报告，但不会被改动。\n\n该模块只使用标准库，不从 spaCR 导入任何内容，因此安装程序可以在任何 spaCR 尚不存在时，用它自己安装的 Python 运行该模块；辅助进程也可以在正在运行的 spaCR 关闭之后，运行该模块的一个副本::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 是明确选择的完整卸载：列出并询问后，还会删除 spaCR 的缓存、后端环境和用户数据。它不会自行运行；``remove --purge`` 在成功移除后运行它。",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
-        "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-        "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+        "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
         "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
         "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
         "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
@@ -38072,7 +38070,7 @@
     "spacr.install_cleanup.remove_install": {
       "source_blocks_sha256": [
         "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
-        "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
+        "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
         "f52072a1b49616e15acdb24b4dad1ea554ae869e24ff5497e82292c8cc1d8212",
         "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
         "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
@@ -38080,11 +38078,11 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b"
       ],
-      "source_sha256": "61fb9a18ee523c1f9655e8b356a0ccbbfa40521558f838aff75c2185fb2631c8",
-      "text": "删除一个安装，但不运行它自带的卸载程序。\n\n由安装程序创建的副本会被完整删除：其文件夹、启动器、快捷方式、菜单项和卸载登记信息。Debian 软件包通过包管理器删除；如果阻止删除的正是权限问题，则报告为需要管理员权限。对于用户自行创建的环境，只卸载其中的 spaCR 软件包，并且仅在 ``ticked`` 为真时才卸载；环境本身保留。源代码检出会被跳过。\n\n这里不会移除正在运行的副本，因为在 Windows 上，安装无法在运行时删除自身。:func:`start_update_helper` 会在 spaCR 关闭后运行相应的更新流程。\n\n:param record: 来自 :func:`find_old_installs` 的一个安装。\n:param ticked: 用户是否勾选了此环境以将其删除。\n:param keep: 需要保留的路径，例如即将开始的那次安装的日志。\n:param system: 计算机；``None`` 表示本机。\n:returns: 删除了什么、哪些无法删除，以及原因。",
+      "source_sha256": "588028ad0cbc664aa01c494aa0875a93b82271a9d42d74ca3af27449ab7765fb",
+      "text": "删除一个安装，但不运行它自带的卸载程序。\n\n由安装程序创建的副本，其应用代码、启动器、快捷方式、菜单项和卸载注册信息会被移除。已知的缓存、模型、测试数据、已配置的用户位置以及在线运行环境根目录内不属于应用的条目会被保留。根目录可以继续存在以存放这些文件。Debian 软件包通过软件包管理器移除；如果缺少管理员权限导致移除受阻，则会报告需要管理员权限。对于用户自行创建的环境，仅卸载 spaCR 软件包，并且仅在 ``ticked`` 时执行；环境本身会保留。源代码检出目录会被跳过。\n\n这里不会移除正在运行的副本，因为在 Windows 上，安装无法在运行时删除自身。:func:`start_update_helper` 会在 spaCR 关闭后运行相应的更新流程。\n\n:param record: 来自 :func:`find_old_installs` 的一个安装。\n:param ticked: 用户是否勾选了此环境以将其删除。\n:param keep: 需要保留的路径，例如即将开始的那次安装的日志。\n:param system: 计算机；``None`` 表示本机。\n:returns: 删除了什么、哪些无法删除，以及原因。",
       "translation_source_blocks_sha256": [
         "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
-        "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
+        "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
         "f52072a1b49616e15acdb24b4dad1ea554ae869e24ff5497e82292c8cc1d8212",
         "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
         "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
@@ -38126,7 +38124,7 @@
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
         "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
+        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -38137,13 +38135,13 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "7036c695cf013f2260b456984cc02a023d51243732380a7e0c9b40cafb15c1bd",
-      "text": "在一个比 spaCR 存活更久的进程中运行安装更新。\n\n正在运行的 spaCR 必须是由安装程序创建的副本。辅助程序会等待此进程退出后再修改安装。\n\n对于受支持的 macOS 在线安装，使用现有捆绑的 ``uv`` 和私有 Python 在同一环境中升级 spaCR。保留环境目录、引导文件、应用启动器以及无需更新的已安装包。只有在验证已安装版本至少为 ``version``、并且在已知旧版本时比旧版本更新之后，才重启。升级或版本检查失败不会触发移除，也不会触发替换安装程序。\n\n标准替换路径会下载新的安装程序，移除旧的由安装程序创建的副本，安装新版本并启动它。如果任何必需的移除失败，则跳过安装，并把原因写入日志。\n\n:param records: 来自 :func:`find_old_installs` 的安装。\n:param version: 要安装的版本。\n:param ticked: 用户勾选的环境的根目录。\n:param pid: 要等待的进程；为 ``None`` 时为当前进程。\n:param workdir: 辅助进程的文件夹；为 ``None`` 时为新的临时文件夹。\n:param system: 计算机；``None`` 表示本机。\n:param spawn: 替代分离进程的启动器。\n:returns: 写入 ``plan.json`` 的计划。``plan[\"command\"]`` 是辅助进程的命令；若为 ``None``，则由 ``plan[\"error\"]`` 说明为何没有启动任何进程。\n\n位于用户可写位置的冻结式 macOS 应用包使用其经过验证的 DMG 替换适配器，并保留完整的旧应用包。其他冻结式应用类型会在删除任何内容之前返回错误；辅助程序不会为这些应用启用在线安装程序回退方式。",
+      "source_sha256": "acf28538d5426fdbb8177d87a8669f0039215e6009dba523e47bdcca83085040",
+      "text": "在一个比 spaCR 存活更久的进程中运行安装更新。\n\n正在运行的 spaCR 必须是由安装程序创建的副本。辅助程序会等待此进程退出后再修改安装。\n\n对于受支持的 macOS 在线安装，使用现有捆绑的 ``uv`` 和私有 Python 在同一环境中升级 spaCR。保留环境目录、引导文件、应用启动器以及无需更新的已安装包。只有在验证已安装版本至少为 ``version``、并且在已知旧版本时比旧版本更新之后，才重启。升级或版本检查失败不会触发移除，也不会触发替换安装程序。\n\n标准替换过程会下载并运行新的安装程序以准备安装，验证其实际解释器和导入的应用，然后移除其他副本并启动应用。安装或验证失败时，不会移除此前可正常工作的副本。移除其他副本失败时会记录错误，但不会重新启动应用。\n\n:param records: 来自 :func:`find_old_installs` 的安装。\n:param version: 要安装的版本。\n:param ticked: 用户勾选的环境的根目录。\n:param pid: 要等待的进程；为 ``None`` 时为当前进程。\n:param workdir: 辅助进程的文件夹；为 ``None`` 时为新的临时文件夹。\n:param system: 计算机；``None`` 表示本机。\n:param spawn: 替代分离进程的启动器。\n:returns: 写入 ``plan.json`` 的计划。``plan[\"command\"]`` 是辅助进程的命令；若为 ``None``，则由 ``plan[\"error\"]`` 说明为何没有启动任何进程。\n\n位于用户可写位置的冻结式 macOS 应用包使用其经过验证的 DMG 替换适配器，并保留完整的旧应用包。其他冻结式应用类型会在删除任何内容之前返回错误；辅助程序不会为这些应用启用在线安装程序回退方式。",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
         "4c1bc9ce66511a2d59f01410c51bb95dfe3a12f6d4b18589cc806b297b430b54",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
+        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",

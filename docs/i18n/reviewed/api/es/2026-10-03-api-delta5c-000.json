@@ -1042,11 +1042,13 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement procedure runs three steps in order:",
       "source_sha256": "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-      "translation": "El procedimiento de reemplazo estándar ejecuta tres pasos en orden:"
+      "translation": "El procedimiento de reemplazo estándar ejecuta tres pasos en orden:",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
-      "label": "spacr.install_cleanup#3",
+      "label": "spacr.install_cleanup#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
       "source_sha256": "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
@@ -1054,7 +1056,7 @@
     },
     {
       "context": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not execute the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
-      "label": "spacr.install_cleanup#4",
+      "label": "spacr.install_cleanup#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
@@ -1098,7 +1100,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
       "source_sha256": "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
-      "translation": "La ruta de reemplazo estándar descarga el nuevo instalador, elimina las copias anteriores creadas por el instalador, instala la nueva versión y la inicia. Si falla alguna eliminación necesaria, se omite la instalación y se escribe el motivo en el registro."
+      "translation": "La ruta de reemplazo estándar descarga el nuevo instalador, elimina las copias anteriores creadas por el instalador, instala la nueva versión y la inicia. Si falla alguna eliminación necesaria, se omite la instalación y se escribe el motivo en el registro.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.",

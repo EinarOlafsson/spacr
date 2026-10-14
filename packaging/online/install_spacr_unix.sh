@@ -396,7 +396,13 @@ work_dir="$(mktemp -d "${TMPDIR:-/tmp}/spacr-install.XXXXXX")"
 installer_tmp="$work_dir/uv-installer.sh"
 stage_venv="$INSTALL_ROOT/.venv-staging-$$"
 stage_profile="$INSTALL_ROOT/.install-profile-staging-$$.json"
+old_venv=""
+swap_started=0
 cleanup() {
+    if [[ "$swap_started" == "1" && -d "$old_venv" ]]; then
+        rm -rf "$VENV_DIR"
+        mv "$old_venv" "$VENV_DIR"
+    fi
     rm -rf "$work_dir"
     rm -f "$stage_profile"
     if [[ -d "$stage_venv" ]]; then
@@ -455,7 +461,7 @@ spacr_write_cleanup_module "$cleanup_module"
 
 # The log of this install, and the lock of the macOS first-launch helper, are
 # not old files.
-cleanup_args=(remove --keep "$INSTALL_LOG" --keep "$INSTALL_ROOT/.installing")
+cleanup_args=(remove --keep "$INSTALL_ROOT" --keep "$INSTALL_LOG" --keep "$INSTALL_ROOT/.installing")
 if [[ "$PLATFORM" == "macos" && -f "$SPACR_SOURCE_DIR/install-for-user.sh" ]]; then
     # Run by the package's first-launch helper: the package has just put the
     # new application bundle, its command link and this folder in place.
@@ -469,10 +475,7 @@ fi
 if [[ -n "${SPACR_CLEANUP_ROOT:-}" ]]; then
     cleanup_args+=(--root "$SPACR_CLEANUP_ROOT")
 fi
-if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
-    spacr_say old_copy_not_removed >&2
-    exit 6
-fi
+
 
 mkdir -p "$BOOTSTRAP_DIR" "$PYTHON_DIR" "$CACHE_DIR"
 mv "$work_uv" "$UV_BIN"
@@ -525,13 +528,30 @@ fi
     --report-issues "$REPORT_ISSUES" \
     --sign-in-now "$SIGN_IN_NOW"
 
-old_venv="$INSTALL_ROOT/.venv-previous"
-rm -rf "$old_venv"
+identity_args=()
+if [[ "$DEFAULT_SPACR_VERSION" != @*@ ]]; then
+    identity_args+=(--version "$DEFAULT_SPACR_VERSION")
+fi
+"$cleanup_python" -I "$cleanup_module" verify-runtime \
+    --python "$stage_python" --retiring-prefix "$VENV_DIR" "${identity_args[@]}"
+if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
+    spacr_say old_copy_not_removed >&2
+    exit 6
+fi
+old_venv="$INSTALL_ROOT/.venv-previous-$$"
 if [[ -d "$VENV_DIR" ]]; then
     mv "$VENV_DIR" "$old_venv"
+    swap_started=1
 fi
 mv "$stage_venv" "$VENV_DIR"
-rm -rf "$old_venv"
+if ! "$cleanup_python" -I "$cleanup_module" verify-runtime \
+    --python "$VENV_DIR/bin/python" "${identity_args[@]}" > "$INSTALL_ROOT/runtime-identity.json"; then
+    rm -rf "$VENV_DIR"
+    if [[ -d "$old_venv" ]]; then
+        mv "$old_venv" "$VENV_DIR"
+    fi
+    exit 7
+fi
 mv "$stage_profile" "$INSTALL_ROOT/install-profile.json"
 
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
@@ -545,8 +565,7 @@ if [[ -n "$OFFLINE_BUNDLE" ]]; then
         done
         printf 'Cellpose models: %s\n' "$cellpose_dir"
     fi
-    if [[ -d "$OFFLINE_BUNDLE/test_data" ]]; then
-        rm -rf "$INSTALL_ROOT/test_data"
+    if [[ -d "$OFFLINE_BUNDLE/test_data" && ! -e "$INSTALL_ROOT/test_data" ]]; then
         cp -R "$OFFLINE_BUNDLE/test_data" "$INSTALL_ROOT/test_data"
         printf 'Mask test data: %s\n' "$INSTALL_ROOT/test_data/plate1"
     fi
@@ -564,7 +583,7 @@ if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
     launcher_tmp="$INSTALL_ROOT/.spacr-launcher-$$"
     cat > "$launcher_tmp" <<EOF
 #!/usr/bin/env sh
-exec "$VENV_DIR/bin/python" -m spacr.qt "\$@"
+exec "$VENV_DIR/bin/python" -I -m spacr.qt "\$@"
 EOF
     chmod 755 "$launcher_tmp"
     mv "$launcher_tmp" "$LAUNCHER"
@@ -616,6 +635,8 @@ EOF
     chmod 755 "$uninstall_path"
 fi
 
+swap_started=0
+rm -rf "$old_venv"
 echo
 spacr_say installed
 if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then

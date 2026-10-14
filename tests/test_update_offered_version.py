@@ -1,4 +1,5 @@
 """An accepted update must install and verify the offered version."""
+import json
 import sys
 
 import pytest
@@ -14,12 +15,13 @@ def test_offered_version_is_pinned_in_the_active_interpreter(monkeypatch, uv):
     assert sys.executable in command
 
 
-@pytest.mark.parametrize("probe,success", [((0, "1.5.0.9\n"), True),
-                                        ((0, "1.5.0.8\n"), False),
+@pytest.mark.parametrize("probe,success", [((0, json.dumps({'verified': True, 'version': '1.5.0.9'})), True),
+                                        ((0, json.dumps({'verified': True, 'version': '1.5.0.8'})), False),
                                         ((1, "No package metadata was found"), False)])
 def test_success_requires_a_fresh_verified_version(monkeypatch, probe, success):
     monkeypatch.setattr(updater, "editable_install_location", lambda: None)
     monkeypatch.setattr(updater, "find_uv", lambda: None)
+    monkeypatch.setattr(updater, "_installed_version", lambda: "1.5.0.8")
     calls = []
     def run(command, **kwargs):
         calls.append(command)
@@ -48,4 +50,4 @@ def test_relaunch_uses_this_interpreter_and_a_surviving_directory(monkeypatch, t
     monkeypatch.setattr(install_cleanup, "_spawn_detached",
                         lambda command, **kwargs: calls.append((command, kwargs)) or 123)
     assert updater.launch_updated_app() == 123
-    assert calls == [([sys.executable, "-m", "spacr.qt"], {"cwd": str(tmp_path)})]
+    assert calls == [([sys.executable, "-I", "-m", "spacr.qt"], {"cwd": str(tmp_path)})]

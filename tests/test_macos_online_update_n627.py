@@ -60,6 +60,10 @@ def no_cleanup(*args, **kwargs):
     pytest.fail('The existing environment or another copy must never be removed')
 
 
+def _identity(version):
+    return json.dumps({'verified': True, 'version': version, 'requested_version': '1.5.1.1'})
+
+
 def test_plan_targets_exact_private_paths_without_installer_or_bootstrap(tmp_path, installation):
     record, _, kept = installation
     plan, _ = make_plan(tmp_path, installation)
@@ -69,7 +73,7 @@ def test_plan_targets_exact_private_paths_without_installer_or_bootstrap(tmp_pat
     assert plan['install'] == [str(Path(record.root) / 'bootstrap/uv'), 'pip', 'install',
                                '--upgrade', '--python', record.python, 'spacr']
     assert plan['command'][:2] == [record.python, '-I']
-    assert plan['relaunch'] == [record.python, '-m', 'spacr.qt']
+    assert plan['relaunch'] == [record.python, '-I', '-m', 'spacr.qt']
     assert kept.read_text() == '{"retained": true}'
 
 
@@ -81,7 +85,7 @@ def test_upgrade_waits_verifies_then_relaunches_once(tmp_path, installation, mon
 
     def run(argv):
         events.append(('verify' if '-c' in argv else 'upgrade', argv))
-        return (0, '1.5.1.1\n') if '-c' in argv else (0, 'Updated')
+        return (0, _identity('1.5.1.1')) if '-c' in argv else (0, 'Updated')
 
     def wait(pid):
         assert not events
@@ -106,7 +110,7 @@ def test_failure_is_logged_without_false_success_or_extra_launch(tmp_path, insta
     def run(argv):
         if '-c' not in argv:
             return (2, 'network unavailable') if failure == 'upgrade' else (0, 'Installed')
-        return (1, 'probe failed') if failure == 'probe' else (0, '1.5.0.1' if failure == 'wrong_version' else '1.5.1.1')
+        return (1, 'probe failed') if failure == 'probe' else (0, _identity('1.5.0.1' if failure == 'wrong_version' else '1.5.1.1'))
 
     def spawn(*args):
         calls.append(args)
@@ -198,7 +202,7 @@ def test_native_launcher_runs_newer_existing_runtime_without_pinned_reinstall(tm
     python.chmod(0o755)
     result = subprocess.run([str(binary), '--diagnostic'], env={**os.environ, 'HOME': str(home)},
                             check=True, capture_output=True, text=True)
-    assert result.stdout.splitlines() == ['1.5.9', '-m', 'spacr.qt', '--diagnostic']
+    assert result.stdout.splitlines() == ['1.5.9', '-I', '-m', 'spacr.qt', '--diagnostic']
 
 
 @pytest.mark.parametrize('observed', ['1.5.1.1', '1.5.2', '2.0.0.0'])
@@ -208,7 +212,7 @@ def test_newer_stable_release_is_accepted_without_an_old_pin(tmp_path, installat
     approve_when_ready(monkeypatch, plan)
     launches = []
     assert ic._run_plan(str(path), wait=lambda pid: True,
-                        run=lambda argv: (0, observed if '-c' in argv else 'updated'),
+                        run=lambda argv: (0, _identity(observed) if '-c' in argv else 'updated'),
                         spawn=lambda *args: launches.append(args), system=machine) == 0
     assert len(launches) == 1
     assert f'Verified spaCR {observed}' in Path(plan['log']).read_text()
@@ -236,8 +240,8 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
     uv.write_text('#!/bin/sh\n'
                   + f'printf "upgrade\\n" >> {quote(journal)}\n'
                   + f'printf "%s\\n" "$@" > {quote(argv_log)}\n'
-                  + f'printf "1.5.2\\n" > {quote(state)}\n')
-    Path(record.python).write_text('#!/bin/sh\nif [ "$1" = "-I" ]; then\n'
+                  + f'printf "%s\\n" {shlex.quote(_identity("1.5.2"))} > {quote(state)}\n')
+    Path(record.python).write_text('#!/bin/sh\nif [ "$1" = "-I" ] && [ "$2" = "-c" ]; then\n'
                                   + f'printf "verify\\n" >> {quote(journal)}\n'
                                   + f'cat {quote(state)}\nelse\n'
                                   + f'printf "relaunch\\n" >> {quote(journal)}\nfi\n')
@@ -254,5 +258,5 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
         time.sleep(0.01)
     assert journal.read_text().splitlines() == ['wait', 'upgrade', 'verify', 'relaunch']
     assert argv_log.read_text().splitlines() == ['pip', 'install', '--upgrade', '--python', record.python, 'spacr']
-    assert state.read_text().strip() == '1.5.2'
+    assert json.loads(state.read_text())['version'] == '1.5.2'
     assert kept.read_text() == '{"retained": true}'

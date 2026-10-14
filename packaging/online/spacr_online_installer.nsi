@@ -155,9 +155,9 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
 
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateDirectory "$SMPROGRAMS\spaCR"
-  CreateShortcut "$SMPROGRAMS\spaCR\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
+  CreateShortcut "$SMPROGRAMS\spaCR\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '-I "$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
   CreateShortcut "$SMPROGRAMS\spaCR\Uninstall spaCR.lnk" "$INSTDIR\Uninstall.exe"
-  CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
+  CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '-I "$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
 
   Delete "$TEMP\spaCR-online-installer\install_spacr_windows.ps1"
   Delete "$TEMP\spaCR-online-installer\install_cleanup.py"
@@ -167,7 +167,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
 SectionEnd
 
 Function LaunchSpaCR
-  ExecShell "open" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"'
+  ExecShell "open" "$INSTDIR\venv\Scripts\pythonw.exe" '-I "$INSTDIR\launch_spacr.pyw"'
 FunctionEnd
 
 ; NSIS identifies the uninstaller by this exact sentinel name. Localising it

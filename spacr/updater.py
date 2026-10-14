@@ -646,16 +646,26 @@ def run_pip_upgrade(pre_release: bool = False, *, target_version=None):
             f"is nothing to upgrade: that folder IS the package, and pip "
             f"would replace it with a release build. Update it with `git "
             f"pull` there instead.\n"))
+    if target_version is not None:
+        from packaging.version import InvalidVersion, Version
+        try:
+            if Version(_installed_version()) > Version(str(target_version)):
+                from .qt.i18n import tr
+                return 2, tr("The running spaCR is newer than the requested release. Nothing was changed.")
+        except InvalidVersion:
+            pass
     result = run_install_command(upgrade_command(pre_release, target_version=target_version))
     if result[0] != 0 or target_version is None:
         return result
-    probe = [sys.executable, "-I", "-c",
-             "from importlib.metadata import version; print(version('spacr'))"]
+    from .install_cleanup import _runtime_identity_command
+    probe = _runtime_identity_command(sys.executable, str(target_version), prefix=sys.prefix)
     code, output = run_install_command(probe, timeout=30)
     from packaging.version import InvalidVersion, Version
     try:
-        verified = code == 0 and Version(output.strip()) == Version(str(target_version))
-    except InvalidVersion:
+        receipt = json.loads(output)
+        verified = (code == 0 and receipt.get("verified") is True
+                    and Version(receipt["version"]) == Version(str(target_version)))
+    except (InvalidVersion, ValueError, TypeError, KeyError, AttributeError):
         verified = False
     if not verified:
         return 1, (result[1] + "\nThe installer finished but the active interpreter "
@@ -671,7 +681,10 @@ def launch_updated_app() -> int:
     """
     from .install_cleanup import _spawn_detached
     from .restart_state import command
-    return _spawn_detached(command(), cwd=os.path.expanduser("~"))
+    argv = command()
+    if not getattr(sys, "frozen", False):
+        argv.insert(1, "-I")
+    return _spawn_detached(argv, cwd=os.path.expanduser("~"))
 
 
 def run_install_command(args, timeout: float = 1800.0):

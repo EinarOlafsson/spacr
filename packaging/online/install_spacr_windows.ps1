@@ -198,13 +198,7 @@ try {
     }
     # The log of this install and the files the NSIS wrapper has already
     # written for it are not old files.
-    & $CleanupPython -I $CleanupModule remove `
-        --keep $LogPath `
-        --keep (Join-Path $InstallRoot "spacr.ico") `
-        --keep (Join-Path $InstallRoot "nsis-bootstrap-status.txt")
-    if ($LASTEXITCODE -ne 0) {
-        throw (Get-SpacrInstallerMessage "old_copy_not_removed")
-    }
+
 
     New-Item -ItemType Directory -Force -Path $BootstrapDir, $PythonDir, $CacheDir | Out-Null
     Move-Item -Force $WorkUv $UvExe
@@ -263,18 +257,30 @@ try {
         [string]$SignInNow
     )
 
-    $OldVenv = Join-Path $InstallRoot ".venv-previous"
-    if (Test-Path $OldVenv) {
-        Remove-Item -Recurse -Force $OldVenv
+    $IdentityArgs = @("-I", $CleanupModule, "verify-runtime", "--python", $StagePython, "--retiring-prefix", $VenvDir)
+    if (-not [string]::IsNullOrWhiteSpace($Version)) { $IdentityArgs += @("--version", $Version) }
+    Invoke-Checked -Command $CleanupPython -Arguments $IdentityArgs
+    & $CleanupPython -I $CleanupModule remove `
+        --keep $InstallRoot `
+        --keep $LogPath `
+        --keep (Join-Path $InstallRoot "spacr.ico") `
+        --keep (Join-Path $InstallRoot "nsis-bootstrap-status.txt")
+    if ($LASTEXITCODE -ne 0) {
+        throw (Get-SpacrInstallerMessage "old_copy_not_removed")
     }
+    $OldVenv = Join-Path $InstallRoot (".venv-previous-" + $PID)
     if (Test-Path $VenvDir) {
         Move-Item $VenvDir $OldVenv
     }
     Move-Item $StageVenv $VenvDir
-    if (Test-Path $OldVenv) {
-        Remove-Item -Recurse -Force $OldVenv
+    $IdentityArgs[[Array]::IndexOf($IdentityArgs, "--python") + 1] = Join-Path $VenvDir "Scripts\python.exe"
+    try {
+        Invoke-Checked -Command $CleanupPython -Arguments $IdentityArgs
+    } catch {
+        Remove-Item -Recurse -Force $VenvDir
+        if (Test-Path $OldVenv) { Move-Item $OldVenv $VenvDir }
+        throw
     }
-
     $InstalledPython = Join-Path $VenvDir "Scripts\python.exe"
     Move-Item -Force $StageProfile (Join-Path $InstallRoot "install-profile.json")
 
@@ -296,8 +302,7 @@ try {
             }
         }
         $TestData = Join-Path $InstallRoot "test_data"
-        if (Test-Path (Join-Path $OfflineBundle "test_data")) {
-            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $TestData
+        if ((Test-Path (Join-Path $OfflineBundle "test_data")) -and -not (Test-Path $TestData)) {
             Copy-Item -Recurse (Join-Path $OfflineBundle "test_data") $TestData
         }
         $MaskCheck = Join-Path $InstallRoot "offline_mask_check.py"
@@ -315,13 +320,18 @@ from spacr.qt import run
 raise SystemExit(run())
 "@ | Set-Content -Encoding UTF8 $Launcher
 
-    "@echo off`r`n`"$InstalledPython`" -m spacr.qt %*`r`n" |
+    "@echo off`r`n`"$InstalledPython`" -I -m spacr.qt %*`r`n" |
         Set-Content -Encoding ASCII $CliLauncher
 
+    if (Test-Path $OldVenv) { Remove-Item -Recurse -Force $OldVenv }
     Write-Host ""
     Write-Host (Get-SpacrInstallerMessage "installed") -ForegroundColor Green
     Write-Host (Get-SpacrInstallerMessage "launcher" @($Launcher))
 } catch {
+    if ($OldVenv -and (Test-Path $OldVenv)) {
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $VenvDir
+        Move-Item $OldVenv $VenvDir
+    }
     if (Test-Path $StageVenv) {
         Remove-Item -Recurse -Force $StageVenv
     }

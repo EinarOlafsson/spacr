@@ -56,7 +56,7 @@
       "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
     },
     {
-      "label": "spacr.install_cleanup#8",
+      "label": "spacr.install_cleanup#7",
       "source": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
       "source_sha256": "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3",
       "context": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",

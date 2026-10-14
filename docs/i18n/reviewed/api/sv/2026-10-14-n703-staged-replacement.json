@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "N703: exactly three rewritten paragraphs. Directly authored from current English after normal MT inverted cache/model preservation in German and Spanish. All untouched paragraphs retain existing reviewed/history evidence. This record does not certify native installer behavior.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#1",
+      "source": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "source_sha256": "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
+      "context": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "translation": "Online-installationsprogrammen förbereder och validerar den nya körmiljön innan gamla programkopior tas bort. De behåller den befintliga installationen under förberedelsen och återställer dess tidigare körmiljö om ersättningen inte klarar verifieringen. Uppdateringshjälpen verifierar skrivbordsstartens tolk och det importerade programmet innan andra kopior tas bort eller en omstart begärs. :func:`run_update_sequence` är fortfarande den lågnivåprocedur för borttagning som används av uttryckliga rensningskommandon.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
+      "context": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "translation": "Programkod, startprogram, genvägar, menyposter och avinstallationsregistreringar för en kopia som skapats av installationsprogrammet tas bort. Kända cachefiler, modeller, testdata, konfigurerade användarplatser och poster som inte tillhör programmet i onlineinstallationens körmiljörötter behålls. Rotkatalogen kan finnas kvar för att lagra dessa filer. Ett Debianpaket tas bort via pakethanteraren; om administratörsrättigheter hindrar borttagningen rapporteras att de behövs. I en miljö som användaren själv skapat avinstalleras endast spaCR-paketet, och endast när ``ticked``; själva miljön finns kvar. En utcheckning av källkoden hoppas över.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+      "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "translation": "Den vanliga ersättningsproceduren laddar ned och kör det nya installationsprogrammet, som förbereder installationen, verifierar dess faktiska tolk och importerade program och tar sedan bort andra kopior och startar programmet. Om installationen eller verifieringen misslyckas tas den tidigare fungerande kopian inte bort. Misslyckad borttagning av andra kopior loggas utan att programmet startas igen.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    }
+  ]
+}

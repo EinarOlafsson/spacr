@@ -1,11 +1,11 @@
 """Find spaCR installations and run the appropriate update or removal procedure.
 
-The standard replacement procedure runs three steps in order:
-
-1. find old spaCR files -- :func:`find_old_installs`
-2. delete old spaCR files -- :func:`remove_install`
-3. install new spaCR -- :func:`run_update_sequence` runs the install only
-   after step 2 removed every installer-made copy.
+The online installers stage and validate the new runtime before retiring old
+application copies. They preserve the current installation during staging and
+restore its previous runtime if the replacement fails verification. The update
+helper verifies the desktop interpreter and imported application before retiring
+other copies or requesting a restart. :func:`run_update_sequence` remains the
+low-level removal procedure used by explicit cleanup commands.
 
 In-app updates use a different procedure for supported macOS installations.
 An online installation upgrades spaCR in its existing Python environment
@@ -1061,6 +1061,7 @@ def _user_data(machine: _Machine) -> List[str]:
     home = machine.home
     cache = machine.xdg("XDG_CACHE_HOME", ".cache")
     paths = [
+        machine.env("SPACR_HOME"),
         os.path.join(home, ".spacr"),
         os.path.join(cache, "spacr"),
         os.path.join(machine.xdg("XDG_STATE_HOME", os.path.join(".local", "state")), "spacr"),
@@ -1069,7 +1070,9 @@ def _user_data(machine: _Machine) -> List[str]:
         machine.env("HF_HOME") or os.path.join(cache, "huggingface"),
         os.path.join(machine.xdg("XDG_CONFIG_HOME", ".config"), "spacr"),
         os.path.join(home, "Library", "Preferences", "com.spacr.qt.plist"),
-    ]
+        machine.env("TORCH_HOME"),
+        machine.env("CELLPOSE_LOCAL_MODELS_PATH"),
+    ] + _relocated_caches(machine)
     return [p for p in paths if p]
 
 
@@ -1107,7 +1110,7 @@ def _refusal(path: str, machine: _Machine, record: InstallRecord) -> Optional[st
         return ("refused: a shared folder, not a spaCR installation; "
                 "remove spaCR from it by hand")
     for data in _user_data(machine):
-        if _inside(path, data) or _inside(data, path):
+        if _inside(path, data):
             return "kept: preferences and user data"
     if not machine.real:
         allowed = [machine.fs_root, machine.home, machine.env("LOCALAPPDATA"),
@@ -1380,8 +1383,10 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
                    keep: Sequence[str] = (), system=None) -> RemovalReport:
     """Remove one installation, without running its own uninstaller.
 
-    An installer-made copy is removed completely: its folder, launchers,
-    shortcuts, menu entries and uninstall registrations. A Debian package is
+    An installer-made copy's application code, launchers, shortcuts, menu entries
+    and uninstall registrations are removed. Known caches, models, test data,
+    configured user locations and non-application entries in online runtime
+    roots are kept. Its root can remain to hold those files. A Debian package is
     removed through the package manager, and reported as needing
     administrator rights when that is what stops it. From an environment the
     user made, only the spaCR package is uninstalled, and only when
@@ -1414,6 +1419,30 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
             return report
         _uninstall_from_environment(record, machine, report)
         return report
+    if any(_norm(path) == _norm(record.root) for path in keep):
+        report.skipped.append((record.root, "kept: part of the new installation"))
+        return report
+    preserved = list(keep) + _user_data(machine)
+    preserved.extend(path for name in (
+        "cache", "test_data", "models", "outputs", "projects", "runs")
+        if _exists(path := os.path.join(record.root, name)))
+    if os.path.isdir(record.root) and not record.root.endswith(".app"):
+        application_entries = {
+            "venv", "python", "bootstrap", "_internal", "spacr", "spacr_drivers",
+            "bin", "lib", "lib64", "scripts", "uninstall.exe", "spacr.exe",
+            "launch_spacr.pyw", "spacr.cmd", "spacr.ico", "install.log",
+            "install-profile.json", "uninstall-spacr.sh", "runtime-identity.json",
+            "install-online.sh", "install-for-user.sh", "installer_messages.sh", "generated",
+            "offline_mask_check.py", "offline-bundle.json", "nsis-bootstrap-status.txt"}
+        try:
+            entries = os.listdir(record.root)
+        except OSError as exc:
+            report.failed.append((record.root, _reason(exc, _needs_admin() if record.needs_admin
+                                                     else "in use or not permitted; close anything using it and try again")))
+            return report
+        preserved.extend(os.path.join(record.root, name) for name in entries
+                         if name.lower() not in application_entries
+                         and not name.startswith((".venv-staging-", ".venv-previous")))
     denied = _needs_admin() if record.needs_admin else (
         "in use or not permitted; close anything using it and try again")
     packaged = any(r.startswith("deb:") for r in record.registrations)
@@ -1429,7 +1458,7 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
             (report.skipped if refusal.startswith("kept") else report.failed).append(
                 (path, refusal))
             continue
-        _delete(path, list(keep), report, denied)
+        _delete(path, preserved, report, denied)
     for registration in record.registrations:
         if registration.startswith("registry"):
             _remove_registration(registration, machine, report)
@@ -2637,7 +2666,7 @@ def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
     if record.platform == "windows":
         install = [target, "/S", f"/D={root}"]
         relaunch = [os.path.join(root, "venv", "Scripts", "pythonw.exe"),
-                    os.path.join(root, "launch_spacr.pyw")]
+                    "-I", os.path.join(root, "launch_spacr.pyw")]
     elif record.platform == "macos":
         install = ["open", "-W", target]
         relaunch = ["open", "-a", machine.unmapped(
@@ -2645,7 +2674,7 @@ def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
     else:
         install = ["bash", target, "--install-root", root, "--no-launch",
                    "--skip-system-deps"]
-        relaunch = [os.path.join(root, "venv", "bin", "python"), "-m", "spacr.qt"]
+        relaunch = [os.path.join(root, "venv", "bin", "python"), "-I", "-m", "spacr.qt"]
     return fetch, install, relaunch
 
 
@@ -2829,6 +2858,51 @@ def _macos_online_version(value):
     return parts + (0,) * (4 - len(parts))
 
 
+def _runtime_identity_command(python, version=None, *, prefix=None, minimum=False):
+    """Probe the imported application and its owning wheel in a fresh process.
+
+    :param python: exact interpreter used by the desktop launcher.
+    :param version: requested release; None checks identity without a version pin.
+    :param prefix: expected Python environment; derived from python when omitted.
+    :param minimum: permit a newer version for an existing non-downgrade adapter.
+    :returns: isolated interpreter argv that emits a verified JSON receipt.
+    """
+    expected = json.dumps({"python": os.path.abspath(python), "version": version,
+                           "prefix": prefix or os.path.dirname(os.path.dirname(python)),
+                           "minimum": bool(minimum)})
+    probe = '''import json, os, sys
+from pathlib import Path
+from importlib.metadata import distribution
+from packaging.version import Version
+import spacr
+from spacr._version import __version__ as shipped
+expected = json.loads(sys.argv[1])
+actual = Path(spacr.__file__).resolve()
+owners = []
+for name in ('spacr', 'spacr-nightly'):
+    try:
+        dist = distribution(name)
+        if Path(dist.locate_file('spacr/__init__.py')).resolve() == actual:
+            owners.append(dist)
+    except Exception:
+        pass
+assert len(owners) == 1, 'Imported spaCR is not owned by exactly one installed distribution'
+dist = owners[0]
+observed = Version(str(spacr.__version__))
+assert observed == Version(str(shipped)) == Version(dist.version), 'Imported code and distribution versions differ'
+normalize = lambda path: os.path.normcase(os.path.realpath(path))
+assert normalize(sys.executable) == normalize(expected['python']), 'Launcher interpreter differs'
+assert normalize(sys.prefix) == normalize(expected['prefix']), 'Launcher environment differs'
+if expected['version'] is not None:
+    requested = Version(str(expected['version']))
+    assert observed >= requested if expected['minimum'] else observed == requested, 'Requested spaCR version differs'
+print(json.dumps({'verified': True, 'version': str(observed), 'module': str(actual),
+                  'python': sys.executable, 'prefix': sys.prefix,
+                  'distribution': dist.metadata['Name'], 'requested_version': expected['version']}))
+'''
+    return [python, "-I", "-c", probe, expected]
+
+
 def _macos_online_commands(record, version, workdir):
     """The install, probe and relaunch commands for a macOS online update."""
     _macos_online_version(version)
@@ -2842,9 +2916,8 @@ def _macos_online_commands(record, version, workdir):
     if _inside(os.path.realpath(workdir), os.path.realpath(record.root)):
         raise ValueError("the updater folder must be outside the installed environment")
     install = [uv, "pip", "install", "--upgrade", "--python", python, "spacr"]
-    probe = [python, "-I", "-c",
-             "from importlib.metadata import version; print(version('spacr'))"]
-    relaunch = [python, "-m", "spacr.qt"]
+    probe = _runtime_identity_command(python, version, minimum=True)
+    relaunch = [python, "-I", "-m", "spacr.qt"]
     return install, probe, relaunch
 
 
@@ -2871,19 +2944,22 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
         raise RuntimeError(f"The package upgrade failed with exit code {code}: {output}")
     code, observed = runner(probe)
     try:
-        observed_version = _macos_online_version(observed.strip())
+        identity = json.loads(observed)
+        observed_version = _macos_online_version(identity["version"])
         offered_version = _macos_online_version(plan["version"])
         previous_version = _macos_online_version(record.version) if record.version else None
-        verified = (code == 0 and observed_version >= offered_version
-                    and (previous_version is None or observed_version > previous_version))
-    except ValueError:
+        verified = (code == 0 and identity.get("verified") is True
+                    and identity.get("requested_version") == plan["version"]
+                    and observed_version >= offered_version
+                    and (previous_version is None or observed_version >= previous_version))
+    except (ValueError, TypeError, KeyError, AttributeError):
         verified = False
     if not verified:
         raise RuntimeError(
             f"The package command completed, but spaCR {plan['version']} could not be verified "
             f"in the existing environment: {observed.strip()}. No relaunch was requested.")
     (spawn or _spawn_detached)(relaunch, None, plan["workdir"])
-    return observed.strip(), output
+    return identity["version"], output
 
 
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
@@ -2903,9 +2979,10 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     previous version, when that previous version is known. A failed upgrade
     or version check does not trigger removal or a replacement installer.
 
-    The standard replacement path downloads the new installer, removes older
-    installer-made copies, installs the new version, and starts it. If any
-    required removal fails, skip installation and write the reason to the log.
+    The standard replacement path downloads and runs the new staged installer,
+    verifies its actual interpreter and imported application, then retires other
+    copies and starts it. Failed installation or verification does not remove
+    the previous working copy. A failed retirement is logged without relaunch.
 
     :param records: installations from :func:`find_old_installs`.
     :param version: the version to install.
@@ -2933,7 +3010,7 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     plan_path = os.path.join(workdir, "plan.json")
     plan: Dict = {
         "schema": 1,
-        "steps": ["wait", "fetch", "delete", "install", "relaunch"],
+        "steps": ["wait", "fetch", "install", "verify", "retire", "relaunch"],
         "pid": int(pid if pid is not None else os.getpid()),
         "version": str(version),
         "records": [asdict(r) for r in records],
@@ -3208,18 +3285,35 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
     lines.append("Found:")
     lines.extend(_format_records(records))
     runner = run or _run
-    reports, result = run_update_sequence(
-        lambda: runner(plan["install"]), records=records,
-        ticked=plan.get("ticked") or (), remove=remove, system=machine)
-    lines.extend(_format_reports(reports))
-    if result is None:
-        lines.append("The update stopped before installing, because an older "
-                     "copy could not be removed.")
-        return _finish(5)
+    result = runner(plan["install"])
     code = int(result[0] if isinstance(result, tuple) else result)
     if code != 0:
         lines.append(f"The installer failed with exit code {code}.")
         return _finish(code)
+    previous = [record for record in planned_records
+                if record.kind == "installer" and record.running]
+    if len(previous) != 1 or not previous[0].python:
+        lines.append("The desktop interpreter could not be identified; no relaunch was requested.")
+        return _finish(7)
+    active = previous[0]
+    identity_code, identity_output = runner(_runtime_identity_command(active.python, plan["version"]))
+    try:
+        identity = json.loads(identity_output)
+        verified = (identity_code == 0 and identity.get("verified") is True
+                    and identity.get("requested_version") == plan["version"])
+    except (ValueError, TypeError, AttributeError):
+        verified = False
+    if not verified:
+        lines.append("The installed desktop application could not be verified; no relaunch was requested.")
+        return _finish(7)
+    reports, retirement = run_update_sequence(
+        lambda: result, records=[record for record in records
+                                if _norm(record.root) != _norm(active.root)],
+        ticked=plan.get("ticked") or (), remove=remove, system=machine)
+    lines.extend(_format_reports(reports))
+    if retirement is None:
+        lines.append("The installed application was verified, but an older copy could not be retired.")
+        return _finish(5)
     lines.append("Installed.")
     if plan.get("relaunch"):
         (spawn or _spawn_detached)(plan["relaunch"], None, plan.get("workdir"))
@@ -3237,6 +3331,11 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         prog="install_cleanup",
         description="Find, and remove, older spaCR installations.")
     commands = parser.add_subparsers(dest="command")
+    verify = commands.add_parser("verify-runtime", help="verify a desktop interpreter and imported application")
+    verify.add_argument("--python", required=True)
+    verify.add_argument("--version")
+    verify.add_argument("--prefix")
+    verify.add_argument("--retiring-prefix")
     find = commands.add_parser("find", help="list every spaCR installation")
     find.add_argument("--json", action="store_true")
     find.add_argument("--root", default="/", help=argparse.SUPPRESS)
@@ -3261,6 +3360,18 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     recover.add_argument("--version")
     recover.add_argument("--sha256")
     args = parser.parse_args(argv)
+    if args.command == "verify-runtime":
+        if args.retiring_prefix:
+            retained = [path for path in _user_data(_Machine()) if _exists(path)
+                        and _inside(os.path.realpath(path), os.path.realpath(args.retiring_prefix))]
+            if retained:
+                print(json.dumps({"verified": False, "reason": "user_data_inside_runtime",
+                                  "preserved_paths": retained}))
+                return 2
+        code, output = _run(_runtime_identity_command(
+            args.python, args.version, prefix=args.prefix), timeout=30)
+        print(output.strip())
+        return code
     if args.command == "recover-macos-frozen":
         try:
             receipt = _run_macos_frozen_recovery(
