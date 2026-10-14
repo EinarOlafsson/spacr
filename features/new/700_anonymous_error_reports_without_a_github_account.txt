@@ -163,3 +163,16 @@ setting on by default, hosted AI diagnosis). Codex: do not write code,
 proposals, notices or evidence for 700; leave this item to Claude. Owner
 identifiers in data/700_cloud_routes_setup_2026-10-13/owner-resource-
 identifiers.json are the inputs.
+
+2026-10-14 — MAINTAINER DECISIONS (Claude Home owns the build):
+- spaCR AI (hosted, free) is ON by default; no AI choice in the startup
+  window. Preferences > AI switches between spaCR AI (free), Claude, GPT
+  (Codex) and Gemini.
+- Cloudflare's free allocation (10,000 neurons/day) is per ACCOUNT, shared by
+  all models. Per install per UTC day: 5 questions on the best model, then 10
+  on a cheaper light model; when the shared pool runs low (below 40%) everyone
+  is served the light model; hard cap 9,000 neurons/day; refuse, never pay.
+- Error reports: 5 per install per day (global 200), filed to GitHub with an
+  AI summary written by the user's own AI if connected (their tokens), else by
+  spaCR AI's light model charged to their allowance, else without a summary.
+- Allowances are shown in the AI panel and in the first-run notice.
