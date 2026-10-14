@@ -118,6 +118,7 @@ from .. import _after
 import math
 import os
 import re
+import sys
 import threading
 import time
 import weakref
@@ -407,7 +408,9 @@ PERCENTILE_DECIMALS = 6
 #: Fields of at least this many pixels keep their display percentiles
 #: between refreshes (:meth:`_MaskCanvas._display_bounds`). Smaller fields
 #: recompute them, which costs little and follows an array edited in place.
-_DISPLAY_BOUNDS_CACHE_PIXELS = 2048 * 2048
+#: One megapixel: the two percentiles cost 23 ms a refresh on the lesson's
+#: 2,000 px field, which a 2,048 px bound left out.
+_DISPLAY_BOUNDS_CACHE_PIXELS = 1024 * 1024
 
 #: Starting width of the settings pane, in pixels, and the width it is
 #: put back at when the settings button turns it on again after a session
@@ -510,7 +513,8 @@ OTSU_HISTOGRAM_BINS = 256
 #: ``tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py`` rather
 #: than believed.
 SHORTCUT_HINTS = (
-    ("Shift or Alt + drag", "Pan, from any tool"),
+    ("Alt + drag", "Pan; other tools also accept Shift + drag"),
+    ("Brush: Shift + drag", "Keep painting the last object across a gap"),
     ("Wheel", "Zoom about the cursor"),
     ("Right button", "Sweep away the objects it passes"),
     ("Ctrl + left click", "Split the object at its waist"),
@@ -1098,6 +1102,92 @@ class _EnhanceRequest(NamedTuple):
     cancelled: Any = None
 
 
+_SAVE_PATH_WARM: list = []
+
+
+def _warm_the_save_path() -> None:
+    """Import :mod:`spacr.io` on a worker before the first save needs it.
+
+    A mask's save asks :func:`spacr.qt.mask_engine.pixel_size_nm` for the
+    source's calibration, which imports :mod:`spacr.io`, and that imports
+    torch: seconds on the GUI thread the first time a field is saved,
+    recropped or left with Next, when the pipeline preloader has not run.
+    The capture host froze lesson 14 there (``finish_recrop`` and the
+    puncta save). The import is started once a folder opens, under the
+    heavy-import lock, as every other background import is.
+    """
+    if _SAVE_PATH_WARM or "spacr.io" in sys.modules:
+        return
+    from ..bridge import _import_the_entry_module
+
+    thread = threading.Thread(target=_import_the_entry_module,
+                              args=("spacr.io",), name="spacr-save-path-warm",
+                              daemon=True)
+    _SAVE_PATH_WARM.append(thread)
+    thread.start()
+
+
+#: A Wand click on a field of at least this many pixels floods off the GUI
+#: thread. A capped flood on the lesson's 2,000 px field is a watershed over
+#: most of a megapixel, three times: 0.4 s to 2 s of a frozen window. Below
+#: this a flood costs a frame or two and still lands before the release.
+_WAND_THREAD_PIXELS = 1_000_000
+
+
+class _WandRequest(NamedTuple):
+    """One Wand click, flooded off the GUI thread.
+
+    It keeps the arrays it was asked about, and the result is applied only
+    while the canvas still shows those very arrays with the same labels: an
+    edit, an undo or another field in the meantime retires it. ``snapshot``
+    is the copy the worker floods, so a stroke painted into the mask in
+    place meanwhile is neither read half-done nor overwritten.
+    """
+
+    key: object
+    image: np.ndarray
+    base: np.ndarray
+    mask: np.ndarray
+    snapshot: np.ndarray
+    x: int
+    y: int
+    tolerance: float
+    max_pixels: int
+    action: str
+    settings: dict
+    head: dict
+    tail: dict
+
+
+#: A mask of at least this many pixels has its readout's objects numbered
+#: off the GUI thread. :class:`spacr.qt.mask_engine.ObjectLookup` costs
+#: 55 ms on the lesson's 2,000 px field, and the readout asks for a new one
+#: after every edit while the mouse rests on the canvas.
+_LOOKUP_THREAD_PIXELS = 1_000_000
+
+
+class _LookupRequest(NamedTuple):
+    """The objects of one mask state, numbered off the GUI thread."""
+
+    key: object
+    mask: np.ndarray
+    image: np.ndarray
+    preserve_ids: bool
+
+
+def _lookup_for(request: _LookupRequest):
+    """Build the readout's :class:`spacr.qt.mask_engine.ObjectLookup`."""
+    return engine.ObjectLookup(request.mask, request.image,
+                               preserve_ids=request.preserve_ids)
+
+
+def _wand_for(request: _WandRequest):
+    """Flood one Wand click; ``(mask, report)`` as :func:`wand_rescue.magic_wand`."""
+    return wand_rescue.magic_wand(
+        request.image, request.snapshot, request.x, request.y, request.tolerance,
+        request.max_pixels, action=request.action, **request.settings)
+
+
 class _CompareRequest(NamedTuple):
     """An immutable comparison snapshot with cooperative result cancellation."""
 
@@ -1198,6 +1288,8 @@ class _MaskCanvas(QLabel):
     #: Connected to :meth:`_take_enhanced` in ``__init__``, which is what
     #: carries it from the worker thread to this one.
     enhanced_ready = Signal(object)
+    wand_ready = Signal(object)
+    lookup_ready = Signal(object)
     boxes_changed = Signal()
     box_selected = Signal(int)
 
@@ -1208,10 +1300,12 @@ class _MaskCanvas(QLabel):
 
         self.ruler = ImageRuler(self)
         self.ruler.changed.connect(self.update)
+        self._composed = None
         #: What the corner readout says about the pixel under the mouse, or
         #: None while the mouse is off the image.
         self.readout: Optional[engine.PixelReadout] = None
         self._lookup: Optional[engine.ObjectLookup] = None
+        self._lookup_preserve_ids = False
         self._lookup_mask: Optional[np.ndarray] = None
         self._lookup_image: Optional[np.ndarray] = None
         self._lookup_dirty = True
@@ -1267,6 +1361,16 @@ class _MaskCanvas(QLabel):
         self._enhance_timer.timeout.connect(self._submit_pending_enhance)
         self._enhance_asked: Optional[tuple] = None
         self.enhanced_ready.connect(self._take_enhanced)
+        self._wand_worker = None
+        self._wand_request: Optional[_WandRequest] = None
+        self._wand_cursor = None
+        #: None floods on a worker for a field of :data:`_WAND_THREAD_PIXELS`
+        #: or more; True or False forces either way.
+        self.wand_threaded: Optional[bool] = None
+        self.wand_ready.connect(self._take_wand)
+        self._lookup_worker = None
+        self._lookup_asked: Optional[_LookupRequest] = None
+        self.lookup_ready.connect(self._take_lookup)
         self.wand_tolerance: float = 1000.0
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
@@ -1335,6 +1439,21 @@ class _MaskCanvas(QLabel):
         self._gesture_button = None
         self.manual_ids = False
         self._brush_value = 255
+        #: The label the last brush stroke on this field painted, or None.
+        #: A Shift stroke paints it again (item 697).
+        self._stroke_label: Optional[int] = None
+        #: The open brush stroke still paints a label of its own that it
+        #: gives up for the first object it touches.
+        self._stroke_pending = False
+        #: The open brush stroke was started with Shift and continues
+        #: :attr:`_stroke_label`.
+        self._stroke_shift = False
+        #: Where the continued label lay before a Shift stroke, as a boolean
+        #: mask, or None; and whether the stroke has reached it yet.
+        self._stroke_origin: Optional[np.ndarray] = None
+        self._stroke_joined = False
+        #: What :attr:`volume_neighbours` returned when the open stroke began.
+        self._stroke_context = None
 
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"background: {active_palette()['bg']};")
@@ -1361,6 +1480,11 @@ class _MaskCanvas(QLabel):
         #: While a volume is open: what the brush paints, as a callable
         #: returning the chosen 3-D object ID; None paints as in 2-D.
         self.volume_label = None
+        #: While a volume is open: a callable returning ``(free, sections)``,
+        #: the first object ID the volume does not use and the label
+        #: sections on either side of the one shown, shaped as it is. A brush
+        #: stroke touching an object in one of them extends that object.
+        self.volume_neighbours = None
         #: While the Z wheel is on: called with +1 or -1 per wheel notch to
         #: change the slice instead of zooming.
         self.slice_wheel = None
@@ -1373,6 +1497,11 @@ class _MaskCanvas(QLabel):
         :param image: uint16 grayscale section, the shape of the last one.
         :param mask: its labels.
         """
+        self._end_wand_wait()
+        self._lookup_asked = None
+        for worker in (self._wand_worker, self._lookup_worker):
+            if worker is not None:
+                worker.drop_waiting()
         self.image = image
         self.mask = mask
         self._inverted = self._inverted_of = None
@@ -1393,6 +1522,11 @@ class _MaskCanvas(QLabel):
         :param image: uint16 grayscale array to display underneath.
         :param mask: uint8/uint16 label array painted on top.
         """
+        self._end_wand_wait()
+        self._lookup_asked = None
+        for worker in (self._wand_worker, self._lookup_worker):
+            if worker is not None:
+                worker.drop_waiting()
         self.image = image
         self.mask = mask
         self.boxes = []
@@ -1403,6 +1537,7 @@ class _MaskCanvas(QLabel):
         self._gesture_points = []
         self._gesture_button = None
         self.manual_ids = False
+        self._stroke_label = None
         self.recrop_boxes = []
         self._inverted = self._inverted_of = None
         self._bounds_cache = None
@@ -1418,7 +1553,6 @@ class _MaskCanvas(QLabel):
         if self.prompter is not None:
             self.prompter.forget()
         self.reset_zoom(silent=True)
-        self.refresh()
 
     def _viewport_bounds(self):
         """Return (x0, y0, x1, y1) — inclusive-of-x0, exclusive-of-x1."""
@@ -1683,9 +1817,17 @@ class _MaskCanvas(QLabel):
 
         Every edit ends in a refresh, so the corner readout is re-read after
         one: an object just erased must stop being reported under the mouse.
+
+        The picture is composed by :func:`_canvas_picture` in Qt's own 32-bit
+        pixel, and kept with what it was composed from, so a resize that
+        leaves the stride unchanged only scales it again
+        (:meth:`resizeEvent`). An edit that leaves the field, the view and
+        the levels as they were recomposes only the box of labels it changed
+        (:meth:`_recompose_changed`).
         """
         self._lookup_dirty = True
         self._schedule_readout()
+        kept, self._composed = self._composed, None
         if self.image is None or self.mask is None:
             return
         source = (self.enhanced_picture() if self.enhance_display
@@ -1699,17 +1841,113 @@ class _MaskCanvas(QLabel):
         step = engine._display_step(x1 - x0, y1 - y0, avail_w * ratio,
                                    avail_h * ratio)
         lo, hi = self._display_bounds(source)
-        sub_img = engine._stretch_between(
-            source[y0:y1:step, x0:x1:step], lo, hi)
-        sub_mask = self.mask[y0:y1:step, x0:x1:step]
-        composed = engine.overlay_mask(sub_img, sub_mask, alpha=0.5)
-        h, w = composed.shape[:2]
+        view = source[y0:y1:step, x0:x1:step]
+        labels = self.mask[y0:y1:step, x0:x1:step]
+        key = self._composed_key(source, step)
+        reused = self._recompose_changed(kept, key, view, labels, (lo, hi))
+        if reused is None:
+            picture = _canvas_picture(view, labels, lo, hi)
+            shown = np.array(labels, copy=True)
+        else:
+            picture, shown = reused
+        h, w = picture.shape[:2]
         if w <= 0 or h <= 0:
             return
-        qimg = QImage(composed.tobytes(), w, h, 3 * w, QImage.Format_RGB888).copy()
+        qimg = QImage(picture.data, w, h, 4 * w, QImage.Format_RGB32).copy()
+        self._composed = (key, qimg, picture, shown, (lo, hi))
+        self._show_composed(qimg, avail_w, avail_h)
+
+    def _recompose_changed(self, kept, key: tuple, view: np.ndarray,
+                           labels: np.ndarray, levels: tuple):
+        """The kept picture with only the labels that changed composed again.
+
+        Every pixel of the picture depends on its own intensity, its own
+        label and the levels alone, and a label's colour does not depend on
+        how many labels there are (the palette of ``n`` labels is the first
+        ``n`` of any longer one), so composing the box that holds every
+        changed label gives the same bytes as composing the whole field. An
+        erase, an undo or a Wand click on the lesson's 2,000 px field
+        recomposed four megapixels for a few thousand changed ones.
+
+        :param kept: the previous :attr:`_composed`, or None.
+        :param key: :meth:`_composed_key` for this refresh.
+        :param view: the intensities on screen, at the drawing stride.
+        :param labels: the labels over them.
+        :param levels: ``(lo, hi)`` the picture is stretched between.
+        :returns: ``(picture, shown labels)``, both updated in place, or
+            None when the whole picture must be composed.
+        """
+        if kept is None or len(kept) < 5:
+            return None
+        then, _, picture, shown, then_levels = kept
+        if (then[0] is not key[0] or then[1] is not key[1]
+                or then[3] != key[3] or then_levels != levels
+                or shown.shape != labels.shape or shown.dtype != labels.dtype
+                or picture.shape != labels.shape):
+            return None
+        changed = labels != shown
+        rows = np.flatnonzero(changed.any(axis=1))
+        if not rows.size:
+            return picture, shown
+        cols = np.flatnonzero(changed.any(axis=0))
+        r0, r1 = int(rows[0]), int(rows[-1]) + 1
+        c0, c1 = int(cols[0]), int(cols[-1]) + 1
+        if 2 * (r1 - r0) * (c1 - c0) > labels.size:
+            return None
+        patch = labels[r0:r1, c0:c1]
+        picture[r0:r1, c0:c1] = _canvas_picture(view[r0:r1, c0:c1], patch,
+                                                levels[0], levels[1])
+        shown[r0:r1, c0:c1] = patch
+        return picture, shown
+
+    def _composed_key(self, source: np.ndarray, step: int) -> tuple:
+        """What a composed picture depends on besides the canvas size.
+
+        The arrays are held, not their ids, and compared by identity: an
+        edit replaces the mask or ends in :meth:`refresh`, which drops the
+        kept picture first.
+
+        :param source: the array :meth:`refresh` drew.
+        :param step: the stride it was drawn at.
+        """
+        return (source, self.image, self.mask,
+                (tuple(self._viewport_bounds()), int(step), self.norm_lo,
+                 self.norm_hi, bool(self.enhance_display)))
+
+    @staticmethod
+    def _same_composition(kept: tuple, now: tuple) -> bool:
+        """Whether two :meth:`_composed_key` answers describe one picture."""
+        return (all(a is b for a, b in zip(kept[:3], now[:3]))
+                and kept[3] == now[3])
+
+    def _show_composed(self, qimg: QImage, avail_w: int, avail_h: int) -> None:
+        """Scale a composed picture to the canvas and show it."""
         pixmap = QPixmap.fromImage(qimg)
         pixmap = scaled_for(pixmap, self, avail_w, avail_h)
         self.setPixmap(pixmap)
+
+    def _rescale_composed(self) -> bool:
+        """Show the kept picture at the new size, if nothing it shows changed.
+
+        :returns: False when it has to be composed again.
+        """
+        composed = self._composed
+        if composed is None or self.image is None or self.mask is None:
+            return False
+        source = (self.enhanced_picture() if self.enhance_display
+                  else self.displayed_source())
+        if not source.size:
+            return False
+        x0, y0, x1, y1 = self._viewport_bounds()
+        avail_w = max(200, self.width())
+        avail_h = max(200, self.height())
+        ratio = device_ratio(self)
+        step = engine._display_step(x1 - x0, y1 - y0, avail_w * ratio,
+                                   avail_h * ratio)
+        if not self._same_composition(composed[0], self._composed_key(source, step)):
+            return False
+        self._show_composed(composed[1], avail_w, avail_h)
+        return True
 
     def _display_bounds(self, source: np.ndarray) -> tuple:
         """The black and white intensities of ``source`` at Lower % / Upper %.
@@ -2202,12 +2440,16 @@ class _MaskCanvas(QLabel):
         if self.mask is None or self.image is None:
             return None
         lookup = self._lookup
-        if lookup is not None and self._lookup_image is self.image and (
+        if (lookup is not None and self._lookup_image is self.image
+                and self._lookup_preserve_ids == bool(self.retain_label_ids()) and (
                 not self._lookup_dirty
                 or (self._lookup_mask.shape == self.mask.shape
-                    and np.array_equal(self._lookup_mask, self.mask))):
+                    and np.array_equal(self._lookup_mask, self.mask)))):
             self._lookup_dirty = False
             return lookup
+        if int(self.mask.size) >= _LOOKUP_THREAD_PIXELS:
+            self._ask_for_lookup()
+            return None
         try:
             lookup = engine.ObjectLookup(self.mask, self.image,
                                          preserve_ids=self.retain_label_ids())
@@ -2215,10 +2457,70 @@ class _MaskCanvas(QLabel):
             LOG.debug("the readout could not measure the mask", exc_info=True)
             return None
         self._lookup = lookup
+        self._lookup_preserve_ids = bool(self.retain_label_ids())
         self._lookup_mask = np.array(self.mask, copy=True)
         self._lookup_image = self.image
         self._lookup_dirty = False
         return lookup
+
+    def _ask_for_lookup(self) -> None:
+        """Number the objects of the mask on screen on a worker, once per state.
+
+        Until it lands the readout reports the pixel alone, as it does
+        while a button is held; :meth:`_take_lookup` then reads it again.
+        """
+        asked = self._lookup_asked
+        if (asked is not None and asked.image is self.image
+                and asked.preserve_ids == bool(self.retain_label_ids())
+                and asked.mask.shape == self.mask.shape
+                and np.array_equal(asked.mask, self.mask)):
+            return
+        if self._lookup_worker is None:
+            self._lookup_worker = _NewestRequestWorker(
+                _lookup_for, self._lookup_done, name="spacr-readout-objects")
+            worker = self._lookup_worker
+            self.destroyed.connect(lambda *_args: worker.close(timeout=0))
+        request = _LookupRequest(key=object(), mask=np.array(self.mask, copy=True),
+                                 image=self.image,
+                                 preserve_ids=bool(self.retain_label_ids()))
+        self._lookup_asked = request
+        if not self._lookup_worker.submit(request):
+            self._lookup_asked = None
+
+    def _lookup_done(self, request, result, error) -> None:
+        """Hand a numbered mask to the GUI thread; runs on the worker."""
+        try:
+            self.lookup_ready.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _take_lookup(self, payload) -> None:
+        """Keep a lookup from the worker while its mask is the one on screen."""
+        request, lookup, error = payload
+        if request is not self._lookup_asked:
+            return
+        self._lookup_asked = None
+        if error is not None:
+            LOG.debug("the readout could not measure the mask", exc_info=error)
+            return
+        if (lookup is None or self.mask is None or self.image is not request.image
+                or request.preserve_ids != bool(self.retain_label_ids())
+                or request.mask.shape != self.mask.shape
+                or not np.array_equal(request.mask, self.mask)):
+            return
+        self._lookup = lookup
+        self._lookup_preserve_ids = request.preserve_ids
+        self._lookup_mask = request.mask
+        self._lookup_image = request.image
+        self._lookup_dirty = False
+        if self._readout_pos is not None and QApplication.mouseButtons() == Qt.NoButton:
+            self.update_readout(self._readout_pos)
+
+    def close_lookup(self) -> bool:
+        """Stop the readout's worker; True when nothing is left running."""
+        worker, self._lookup_worker = self._lookup_worker, None
+        self._lookup_asked = None
+        return True if worker is None else worker.close(timeout=0)
 
     def update_readout(self, pos=None, *, measure: bool = True):
         """Point the corner readout at the widget position ``pos``.
@@ -2448,23 +2750,26 @@ class _MaskCanvas(QLabel):
                 or rendered is None or rendered.isNull():
             return
         painter = QPainter(self)
-        accent = QColor(active_palette()["accent"])
-        fill = QColor(accent)
-        fill.setAlpha(55)
-        for box in self.recrop_boxes:
-            x0, y0, x1, y1 = (int(v) for v in box[:4])
-            rect = QRect(self._image_to_canvas(x0, y0),
-                          self._image_to_canvas(x1, y1)).normalized()
-            painter.fillRect(rect, fill)
-            pen = QPen(accent)
-            pen.setWidth(2)
-            painter.setPen(pen)
-            painter.drawRect(rect)
-            name = str(box[4]) if len(box) > 4 else ""
-            if name:
-                painter.setPen(QPen(QColor(active_palette()["fg"])))
-                painter.drawText(rect.adjusted(6, 4, 0, 0),
-                                 Qt.AlignLeft | Qt.AlignTop, name)
+        try:
+            accent = QColor(active_palette()["accent"])
+            fill = QColor(accent)
+            fill.setAlpha(55)
+            for box in self.recrop_boxes:
+                x0, y0, x1, y1 = (int(v) for v in box[:4])
+                rect = QRect(self._image_to_canvas(x0, y0),
+                             self._image_to_canvas(x1, y1)).normalized()
+                painter.fillRect(rect, fill)
+                pen = QPen(accent)
+                pen.setWidth(2)
+                painter.setPen(pen)
+                painter.drawRect(rect)
+                name = str(box[4]) if len(box) > 4 else ""
+                if name:
+                    painter.setPen(QPen(QColor(active_palette()["fg"])))
+                    painter.drawText(rect.adjusted(6, 4, 0, 0),
+                                     Qt.AlignLeft | Qt.AlignTop, name)
+        finally:
+            painter.end()
 
     def _paint_gesture(self) -> None:
         """Draw the outline being traced, or the cut being aimed.
@@ -2477,24 +2782,28 @@ class _MaskCanvas(QLabel):
         if len(self._gesture_points) < 2:
             return
         painter = QPainter(self)
-        colour = QColor(active_palette()["accent"])
-        if self.mode == MODE_DIVIDE:
+        try:
+            colour = QColor(active_palette()["accent"])
+            if self.mode == MODE_DIVIDE:
+                pen = QPen(colour)
+                pen.setWidth(2)
+                pen.setStyle(Qt.SolidLine if self._gesture_button == Qt.RightButton
+                             else Qt.DashLine)
+                painter.setPen(pen)
+                painter.drawLine(self._gesture_points[0], self._gesture_points[-1])
+                return
             pen = QPen(colour)
             pen.setWidth(2)
-            pen.setStyle(Qt.SolidLine if self._gesture_button == Qt.RightButton else Qt.DashLine)
             painter.setPen(pen)
-            painter.drawLine(self._gesture_points[0], self._gesture_points[-1])
-            return
-        pen = QPen(colour)
-        pen.setWidth(2)
-        painter.setPen(pen)
-        for start, end in zip(self._gesture_points, self._gesture_points[1:]):
-            painter.drawLine(start, end)
-        closing = QPen(colour)
-        closing.setWidth(1)
-        closing.setStyle(Qt.DashLine)
-        painter.setPen(closing)
-        painter.drawLine(self._gesture_points[-1], self._gesture_points[0])
+            for start, end in zip(self._gesture_points, self._gesture_points[1:]):
+                painter.drawLine(start, end)
+            closing = QPen(colour)
+            closing.setWidth(1)
+            closing.setStyle(Qt.DashLine)
+            painter.setPen(closing)
+            painter.drawLine(self._gesture_points[-1], self._gesture_points[0])
+        finally:
+            painter.end()
 
     def _emit_stroke_start(self):
         """Open a stroke, once. A stroke already open is not reopened.
@@ -2612,7 +2921,7 @@ class _MaskCanvas(QLabel):
         and Ctrl + right removes the object
         under the cursor, the right button sweep-deletes except in Divide /
         Merge where it traces a line that joins objects,
-        and Shift/Alt + left pans. All of them are things you want mid-edit
+        and Alt + left pans (other tools also accept Shift). These are things you want mid-edit
         without putting the brush down and picking it up again. With the
         magnifier on in whole-image scope the right button removes the one
         object under it instead of sweeping.
@@ -2745,7 +3054,7 @@ class _MaskCanvas(QLabel):
             return
 
         if event.button() == Qt.LeftButton and (
-                event.modifiers() & PAN_MODIFIERS):
+                event.modifiers() & self._pan_modifiers()):
             self._pan_from = event.position().toPoint()
             self.setCursor(Qt.ClosedHandCursor)
             return
@@ -2784,12 +3093,7 @@ class _MaskCanvas(QLabel):
             return
 
         if self.mode == MODE_BRUSH:
-            self._brush_value = int(engine.next_label(self.mask)) if self.manual_ids else 255
-            if self.volume_label is not None:
-                self._brush_value = int(self.volume_label())
-            if self.manual_ids or self.volume_label is not None:
-                self.mask = self.mask.astype(np.result_type(
-                    self.mask.dtype, np.min_scalar_type(self._brush_value)), copy=False)
+            self._begin_brush_stroke(pt, bool(event.modifiers() & Qt.ShiftModifier))
         self._emit_stroke_start()
 
         if self.mode == MODE_ERASE_OBJECT:
@@ -2800,50 +3104,269 @@ class _MaskCanvas(QLabel):
             return
 
         radius = self._mask_radius_for_brush()
-        value = self._brush_value if self.mode == MODE_BRUSH else 0
-        engine.paint_disk(self.mask, pt[0], pt[1], radius, value)
+        self._stamp(pt[0], pt[1], pt[0], pt[1], radius)
         self._last_pt = QPoint(*pt)
         self.refresh()
+
+    def _pan_modifiers(self):
+        """The modifiers that turn a left drag into a pan with this tool.
+
+        Shift or Alt, except with the Brush, where Shift keeps painting the
+        last object across a gap (item 697) and only Alt pans.
+        """
+        return Qt.AltModifier if self.mode == MODE_BRUSH else PAN_MODIFIERS
+
+    def _begin_brush_stroke(self, pt, shift: bool) -> None:
+        """Choose the label a brush stroke starting at ``pt`` paints.
+
+        THE RULE (item 697). A Shift stroke paints the current label: the
+        chosen object of an open volume, or the label the last stroke on
+        this field painted. Otherwise a stroke that starts on an object
+        extends it, and one that starts on background paints the next free
+        label until it first touches an object -- one of its pixels
+        8-connected (26-connected in a volume, through the sections on
+        either side) to an object pixel -- and from then on extends that
+        object. Only the first object touched is taken: a stroke reaching
+        a second one paints over its edge and never merges the two, which
+        stays the Divide / Merge tool's job.
+
+        A binary mask (every object 255) carries no identities to extend,
+        so it is first numbered by connected component, as saving it would.
+
+        :param pt: image coordinates of the press.
+        :param shift: whether Shift was held.
+        """
+        volume = self.volume_label is not None
+        if not volume and not self.retain_label_ids():
+            top = int(self.mask.max()) if self.mask.size else 0
+            if top == 255 and not np.any((self.mask != 0) & (self.mask != 255)):
+                self.mask = engine._fit_label_width(
+                    engine.canonical_labels(self.mask).astype(np.int64), self.mask)
+        self._stroke_context = (self.volume_neighbours()
+                                if self.volume_neighbours is not None else None)
+        current = int(self.volume_label()) if volume else self._stroke_label
+        under = int(self.mask[pt[1], pt[0]])
+        self._stroke_shift = bool(shift and current)
+        self._stroke_pending = False
+        self._stroke_origin = None
+        self._stroke_joined = False
+        if self._stroke_shift:
+            value = int(current)
+            self._stroke_origin = self.mask == value
+            self._stroke_joined = bool(self._stroke_origin[pt[1], pt[0]])
+        elif under:
+            value = under
+        else:
+            value = self._free_label()
+            self._stroke_pending = True
+        self._brush_value = value
+        self.mask = self.mask.astype(np.result_type(
+            self.mask.dtype, np.min_scalar_type(value)), copy=False)
+
+    def _free_label(self) -> int:
+        """The label a stroke on background paints: unused here and in the volume."""
+        if self._stroke_context is not None:
+            return max(int(self._stroke_context[0]), 1)
+        return int(engine.next_label(self.mask))
+
+    def _stroke_sections(self):
+        """The label sections beside the shown one in an open volume, or ()."""
+        if self._stroke_context is None:
+            return ()
+        return tuple(self._stroke_context[1])
+
+    def _stamp(self, x0, y0, x1, y1, radius) -> None:
+        """Paint or erase one segment of the open stroke, from (x0, y0) to (x1, y1).
+
+        With the Brush, the pixels the segment newly painted are compared
+        with what lay under and beside them (8-connected, plus the volume's
+        neighbouring sections) to settle a pending label or to note that a
+        Shift stroke has reached its object; see :meth:`_begin_brush_stroke`.
+        """
+        value = self._brush_value if self.mode == MODE_BRUSH else 0
+        track = self.mode == MODE_BRUSH and (
+            self._stroke_pending or (self._stroke_shift and not self._stroke_joined))
+        if not track:
+            if (x0, y0) == (x1, y1):
+                engine.paint_disk(self.mask, x1, y1, radius, value)
+            else:
+                engine.paint_line(self.mask, x0, y0, x1, y1, radius, value)
+            return
+        r = max(1, int(radius))
+        h, w = self.mask.shape[:2]
+        rows = slice(max(0, min(y0, y1) - r - 1), min(h, max(y0, y1) + r + 1))
+        cols = slice(max(0, min(x0, x1) - r - 1), min(w, max(x0, x1) + r + 1))
+        before = np.array(self.mask[rows, cols], copy=True)
+        if (x0, y0) == (x1, y1):
+            engine.paint_disk(self.mask, x1, y1, radius, value)
+        else:
+            engine.paint_line(self.mask, x0, y0, x1, y1, radius, value)
+        painted = (self.mask[rows, cols] == value) & (before != value)
+        if not painted.any():
+            return
+        reach = painted.copy()
+        reach[1:, :] |= painted[:-1, :]
+        reach[:-1, :] |= painted[1:, :]
+        grown = reach.copy()
+        grown[:, 1:] |= reach[:, :-1]
+        grown[:, :-1] |= reach[:, 1:]
+        sections = [np.asarray(section)[rows, cols] for section in self._stroke_sections()]
+        if self._stroke_shift:
+            self._stroke_joined = bool(
+                self._stroke_origin[rows, cols][grown].any()
+                or any(np.any(section[grown] == value) for section in sections))
+            return
+        best = None
+        for labels in (before, *sections):
+            hit = grown & (labels != 0) & (labels != value)
+            if not hit.any():
+                continue
+            ys, xs = np.nonzero(hit)
+            far = (ys + rows.start - y0) ** 2 + (xs + cols.start - x0) ** 2
+            index = int(np.lexsort((labels[ys, xs], far))[0])
+            candidate = (int(far[index]), int(labels[ys[index], xs[index]]))
+            if best is None or candidate < best:
+                best = candidate
+        if best is None:
+            return
+        label = best[1]
+        self.mask[self.mask == value] = label
+        self._brush_value = label
+        self._stroke_pending = False
+
+    def _end_brush_stroke(self) -> None:
+        """Settle the brush stroke that is ending: remember its label.
+
+        A Shift stroke that never reached the object it continued has drawn
+        a separate piece of it on purpose. On a 2-D field that grouping is
+        kept like a merge, through :attr:`manual_ids`, so saving does not
+        split the pieces into objects of their own again.
+        """
+        if self.mode != MODE_BRUSH:
+            return
+        if (self._stroke_shift and not self._stroke_joined
+                and self.volume_label is None
+                and self._stroke_origin is not None and self._stroke_origin.any()):
+            self.manual_ids = True
+        self._stroke_label = int(self._brush_value)
+        self._stroke_pending = self._stroke_shift = False
+        self._stroke_origin = self._stroke_context = None
 
     def _wand_edit_at(self, pt, *, action):
         """Apply one bounded intensity-region edit with the Wand settings.
 
+        On a field of :data:`_WAND_THREAD_PIXELS` or more the flood runs on
+        a worker thread and is applied when it lands (:meth:`_take_wand`),
+        with a busy cursor meanwhile; a click while one is out is refused
+        with a status line. Smaller fields flood here, as before.
+
         :param pt: clicked image coordinates, or None outside the image.
         :param action: add the region or erase it.
         """
+        from ..i18n import tr
+
         if pt is None:
+            return
+        if self._wand_request is not None:
+            self.status.emit(tr("The Wand is still filling the last click."))
             return
         wand_input = self.wand_source()
         if wand_input is None:
             return
-        self._emit_stroke_start()
         tolerance = self.effective_wand_tolerance(wand_input)
+        request = _WandRequest(
+            key=object(), image=wand_input, base=self.image, mask=self.mask,
+            snapshot=self.mask, x=int(pt[0]), y=int(pt[1]), tolerance=tolerance,
+            max_pixels=self.wand_max_pixels, action=action,
+            settings=self.wand_rescue_settings(),
+            head=dict(action=action, tolerance=round(float(tolerance), 3),
+                      relative=bool(self.wand_relative)),
+            tail=dict(
+                input_kind='enhanced_picture' if self.enhance_display else 'as_loaded',
+                invert=bool(self.enhance_display and self.invert_display),
+                normalization_percentiles=([float(self.norm_lo), float(self.norm_hi)]
+                    if self.enhance_display and self.detect_on_normalized else None),
+                **detect_chain.provenance(
+                    self.enhance_chain._replace(morphology='none', split=False)
+                    if self.enhance_display else detect_chain.NO_CHAIN,
+                    percentile_stretch=self.enhance_display and self.detect_on_normalized)))
+        threaded = self.wand_threaded
+        if threaded is None:
+            threaded = int(np.asarray(wand_input).size) >= _WAND_THREAD_PIXELS
+        if not threaded:
+            self._apply_wand(request, *_wand_for(request))
+            return
+        if self._wand_worker is None:
+            self._wand_worker = _NewestRequestWorker(
+                _wand_for, self._wand_done, name="spacr-wand")
+            worker = self._wand_worker
+            self.destroyed.connect(lambda *_args: worker.close(timeout=0))
+        request = request._replace(snapshot=np.array(self.mask, copy=True))
+        self._wand_request = request
+        self._wand_cursor = self.cursor()
+        self.setCursor(Qt.BusyCursor)
+        if not self._wand_worker.submit(request, pin=True):
+            self._end_wand_wait()
+
+    def _wand_done(self, request, result, error) -> None:
+        """Hand a finished flood to the GUI thread; runs on the worker."""
+        try:
+            self.wand_ready.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _end_wand_wait(self) -> None:
+        """Forget the click out on the worker and give the cursor back."""
+        self._wand_request = None
+        cursor, self._wand_cursor = self._wand_cursor, None
+        if cursor is not None:
+            self.setCursor(cursor)
+
+    def _take_wand(self, payload) -> None:
+        """Apply a flood from the worker if the canvas still shows its arrays."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request is not self._wand_request:
+            return
+        self._end_wand_wait()
+        if error is not None:
+            LOG.warning("the Wand flood failed", exc_info=error)
+            self.status.emit(tr("The Wand could not fill that region: {error}",
+                                error=str(error)))
+            return
+        if (self.mask is not request.mask or self.image is not request.base
+                or not np.array_equal(self.mask, request.snapshot)):
+            self.status.emit(tr(
+                "The Wand region was not applied: the mask changed while it "
+                "was being filled."))
+            return
+        self._apply_wand(request, *result)
+
+    def _wand_busy(self) -> bool:
+        """Whether a Wand click is still being flooded off the GUI thread."""
+        return self._wand_request is not None
+
+    def close_wand(self) -> bool:
+        """Stop the Wand worker; True when no flood is left running."""
+        worker, self._wand_worker = self._wand_worker, None
+        self._end_wand_wait()
+        return True if worker is None else worker.close(timeout=0)
+
+    def _apply_wand(self, request: _WandRequest, mask, report) -> None:
+        """Put one flooded region into the mask as one recorded stroke."""
+        self._emit_stroke_start()
         before = self.mask
-        self.mask, report = wand_rescue.magic_wand(
-            wand_input, self.mask, pt[0], pt[1],
-            tolerance, self.wand_max_pixels, action=action,
-            **self.wand_rescue_settings(),
-        )
-        target = 255 if action == "add" else 0
-        if self.manual_ids and action == "add":
+        self.mask = mask
+        target = 255 if request.action == "add" else 0
+        if self.manual_ids and request.action == "add":
             target = int(engine.next_label(before))
             out = self.mask.astype(np.int64, copy=True)
             out[(self.mask == 255) & (before != 255)] = target
             self.mask = engine._fit_label_width(out, before)
         self.refresh()
-        self._emit_stroke_end(
-            kind="wand", target=target,
-            action=action, tolerance=round(float(tolerance), 3),
-            relative=bool(self.wand_relative), **report,
-            input_kind='enhanced_picture' if self.enhance_display else 'as_loaded',
-            invert=bool(self.enhance_display and self.invert_display),
-            normalization_percentiles=([float(self.norm_lo), float(self.norm_hi)]
-                if self.enhance_display and self.detect_on_normalized else None),
-            **detect_chain.provenance(
-                self.enhance_chain._replace(morphology='none', split=False)
-                if self.enhance_display else detect_chain.NO_CHAIN,
-                percentile_stretch=self.enhance_display and self.detect_on_normalized),
-        )
+        self._emit_stroke_end(kind="wand", target=target, **request.head,
+                              **report, **request.tail)
 
     def mouseMoveEvent(self, event):
         """Move the readout; extend a sweep, a pan, a stroke or a zoom drag.
@@ -2909,15 +3432,16 @@ class _MaskCanvas(QLabel):
             pt = self._canvas_to_image(event.position().x(), event.position().y())
             if pt is None:
                 return
+            if self.mode == MODE_BRUSH and not self._stroke_in_progress:
+                self._begin_brush_stroke(
+                    pt, bool(event.modifiers() & Qt.ShiftModifier))
             self._emit_stroke_start()
             radius = self._mask_radius_for_brush()
-            value = self._brush_value if self.mode == MODE_BRUSH else 0
             if self._last_pt is not None:
-                engine.paint_line(self.mask,
-                                    self._last_pt.x(), self._last_pt.y(),
-                                    pt[0], pt[1], radius, value)
+                self._stamp(self._last_pt.x(), self._last_pt.y(),
+                            pt[0], pt[1], radius)
             else:
-                engine.paint_disk(self.mask, pt[0], pt[1], radius, value)
+                self._stamp(pt[0], pt[1], pt[0], pt[1], radius)
             self._last_pt = QPoint(*pt)
             self.refresh()
 
@@ -3017,6 +3541,8 @@ class _MaskCanvas(QLabel):
             return
         if self._last_pt is not None:
             self._last_pt = None
+        if self._stroke_in_progress:
+            self._end_brush_stroke()
         self._emit_stroke_end(
             kind="erase" if self.mode == MODE_ERASE else "paint",
             target=(0 if self.mode == MODE_ERASE else self._brush_value),
@@ -3114,9 +3640,16 @@ class _MaskCanvas(QLabel):
                                n_points=len(image_points))
 
     def resizeEvent(self, event):
-        """Refit the composited pixmap to the new canvas size."""
+        """Refit the composited pixmap to the new canvas size.
+
+        The kept picture is scaled again when the stride it was composed at
+        still fits; a resize recomposed the whole field before, 0.4 s on the
+        GUI thread on the capture host every time a splitter, the settings
+        pane or the window moved.
+        """
         super().resizeEvent(event)
-        self.refresh()
+        if not self._rescale_composed():
+            self.refresh()
 
     def leaveEvent(self, event):
         """Put the magnifier's box and the readout away as the mouse leaves."""
@@ -4624,9 +5157,10 @@ def _box_levels(image: np.ndarray, box, lower_pct: float,
 
 
 #: ``(dtype, black, white) -> the pixel each value is drawn as``, for the
-#: last levels the box was drawn at. One entry: the levels change when the
-#: box moves over a different region, and a table for levels nobody is
-#: looking at any more is 256 KB held for nothing.
+#: last few levels the box and the canvas were drawn at. At most four: the
+#: box's levels change when it moves over a different region, the canvas
+#: keeps its own, and a table for levels nobody is looking at any more is
+#: 256 KB held for nothing.
 _BOX_GREY_TABLE: dict = {}
 
 
@@ -4671,7 +5205,8 @@ def _box_grey_table(dtype, low, high) -> Optional[np.ndarray]:
             .astype(np.uint32)
         table = (np.uint32(0xFF000000) | (grey << 16) | (grey << 8)
                  | grey).astype(np.uint32)
-        _BOX_GREY_TABLE.clear()
+        if len(_BOX_GREY_TABLE) >= 4:
+            _BOX_GREY_TABLE.clear()
         _BOX_GREY_TABLE[key] = table
     return table
 
@@ -4731,21 +5266,82 @@ def _box_picture(image: np.ndarray, box, part, mask_part: np.ndarray,
         stretched = _stretch_for_box(image, box, part, lower_pct, upper_pct)
         return np.ascontiguousarray(_rgb32(engine.overlay_mask(
             stretched[::step, ::step], labels, alpha=0.5)))
-    out = table[crop]
+    return _blend_labels(table[crop], labels)
+
+
+def _blend_labels(out: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    """``out``, a grey RGB32 picture, with ``labels`` blended over it in place.
+
+    The blend :func:`spacr.qt.mask_engine.overlay_mask` makes at ``alpha``
+    0.5, the floor of the mean of grey and colour, as the carry-free byte
+    average ``(a & b) + ((a ^ b) >> 1)`` over whole pixels, and only where
+    there is an object. A field at least a quarter covered is blended over
+    every pixel and its background put back, with no index arrays: 22 ms
+    instead of 50 to 100 ms on the lesson's 2,000 px field, which is 56 %
+    objects. A sparser one gathers and scatters only its object pixels.
+
+    :param out: ``(h, w)`` uint32 ``0xFFgggggg`` pixels, written in place
+        when C-contiguous (a transposed view's look-up is not).
+    :param labels: the labels over it, nonnegative.
+    :returns: ``out``, made C-contiguous first if it was not.
+    """
+    out = np.ascontiguousarray(out)
+    labels = np.asarray(labels)
+    count = int(np.count_nonzero(labels))
+    if not count:
+        return out
+    rng = np.random.default_rng(0)
+    colours = rng.integers(30, 255, size=(int(labels.max()) + 1, 3),
+                           dtype=np.uint8)
+    colours[0] = [0, 0, 0]
+    paint = _rgb32(colours)
+    if count * 4 >= labels.size:
+        colour = paint[labels]
+        mixed = out & colour
+        np.bitwise_xor(colour, out, out=colour)
+        np.right_shift(colour, 1, out=colour)
+        np.bitwise_and(colour, np.uint32(0x7F7F7F), out=colour)
+        mixed += colour
+        np.copyto(out, mixed, where=labels != 0)
+        return out
     flat = np.ascontiguousarray(labels).reshape(-1)
-    inside = np.flatnonzero(flat != 0)
-    if inside.size:
-        top = int(flat.max())
-        rng = np.random.default_rng(0)
-        colours = rng.integers(30, 255, size=(top + 1, 3), dtype=np.uint8)
-        colours[0] = [0, 0, 0]
-        paint = _rgb32(colours)
-        pixels = out.reshape(-1)
-        grey = pixels[inside]
-        colour = paint[flat[inside]]
-        pixels[inside] = (grey & colour) + (
-            ((grey ^ colour) >> 1) & np.uint32(0x7F7F7F))
+    inside = np.flatnonzero(flat)
+    pixels = out.reshape(-1)
+    grey = pixels[inside]
+    colour = paint[flat[inside]]
+    pixels[inside] = (grey & colour) + (
+        ((grey ^ colour) >> 1) & np.uint32(0x7F7F7F))
     return out
+
+
+def _canvas_picture(view: np.ndarray, labels: np.ndarray, low, high) -> np.ndarray:
+    """What the canvas draws of ``view``: stretched between two levels, labels over it.
+
+    EXACTLY ``_rgb32(overlay_mask(_stretch_between(view, low, high), labels,
+    alpha=0.5))``. For a grey 8- or 16-bit field under nonnegative integer
+    labels the stretch and the 8-bit step are one look-up in
+    :func:`_box_grey_table` and the blend is :func:`_blend_labels`, straight
+    into Qt's native 32-bit pixel. The two float passes cost 200 ms on a
+    2,000 px field, on the GUI thread after every stroke, click, undo,
+    filter change and resize: the lesson 14 editor clips' freezes.
+
+    :param view: the part of the field on screen, possibly strided.
+    :param labels: the mask over the same pixels.
+    :param low: the intensity drawn black.
+    :param high: the intensity drawn white.
+    :returns: a C-contiguous ``(h, w)`` uint32 picture, ``0xFFRRGGBB``.
+    """
+    table = None
+    labels = np.asarray(labels)
+    if (view.ndim == 2 and labels.shape == view.shape
+            and labels.dtype.kind in "ui"
+            and (labels.dtype.kind == "u" or not labels.size
+                 or int(labels.min()) >= 0)):
+        table = _box_grey_table(view.dtype, low, high)
+    if table is None:
+        return np.ascontiguousarray(_rgb32(engine.overlay_mask(
+            engine._stretch_between(view, low, high), labels, alpha=0.5)))
+    return _blend_labels(table[view], labels)
 
 
 def _canonical_overlap_rule(rule) -> str:
@@ -9069,6 +9665,7 @@ class _VolumeStage(QWidget):
         for widget in (self._strip, self._rail, self.view_picker):
             widget.show()
         self.canvas.volume_label = self.draw_label
+        self.canvas.volume_neighbours = partial(self._stroke_context, self.canvas)
         self._wheel_toggled(self._z_wheel.isChecked())
         self.refresh(reset=True)
         self.set_view('default')
@@ -9089,6 +9686,8 @@ class _VolumeStage(QWidget):
         self.view = 'default'
         self._pages.setCurrentWidget(self._slices)
         self.canvas.volume_label = self.canvas.slice_wheel = self.canvas.crosshair = None
+        for view in (self.canvas, self._xz, self._yz):
+            view.volume_neighbours = None
 
     def shutdown(self):
         """Cancel any running 3-D edit as the screen closes."""
@@ -9249,7 +9848,28 @@ class _VolumeStage(QWidget):
                                 else MODE_NONE)
                 watched.brush_radius = self.canvas.brush_radius
                 watched.volume_label = self.draw_label
+                watched.volume_neighbours = partial(self._stroke_context, watched)
         return super().eventFilter(watched, event)
+
+    def _stroke_context(self, view):
+        """What a brush stroke in ``view`` needs to know about the volume.
+
+        :param view: the canvas the stroke is drawn on.
+        :returns: ``(free, sections)``: the first object ID the volume does
+            not use, and the label sections on either side of the one
+            ``view`` shows, shaped as it shows them.
+        """
+        session = self.session
+        if session is None:
+            return 1, ()
+        axis = {id(self._xz): 'Y', id(self._yz): 'X'}.get(id(view), 'Z')
+        index = self._cursor['XYZ'.index(axis)]
+        sections = []
+        for near in (index - 1, index + 1):
+            if 0 <= near < session.section_count(axis):
+                labels = np.asarray(session._section(session.mask, axis, near))
+                sections.append(labels.T if axis == 'X' else labels)
+        return self._next, tuple(sections)
 
     def _aim(self, view, position):
         """Move the crosshair to the voxel under ``position`` in ``view``."""
@@ -9280,9 +9900,11 @@ class _VolumeStage(QWidget):
         if axis == 'X':
             edited = edited.T
         label = self.draw_label()
+        view = {'Y': self._xz, 'X': self._yz}.get(axis, self.canvas)
+        stroke = view._stroke_label if view.mode == MODE_BRUSH else None
         try:
             count = self.session.replace_plane(axis, self._cursor['XYZ'.index(axis)], edited,
-                                               keep=(label,))
+                                               keep=(label,) if stroke is None else (label, stroke))
         except ValueError as exc:
             self._say(str(exc))
             count = 0
@@ -9290,7 +9912,9 @@ class _VolumeStage(QWidget):
             self._say(tr('Updated {n} voxels in the volume.', n=count))
         if count:
             self.dirty = True
-            if not self._selected and np.any(edited == label):
+            if stroke is not None and np.any(edited == stroke):
+                self._selected = stroke
+            elif not self._selected and np.any(edited == label):
                 self._selected = label
         self.refresh()
         return count
@@ -12034,6 +12658,11 @@ class MakeMasksScreen(QWidget):
             from ..i18n import tr
 
             btn = QPushButton(tr(label))
+            if mode == MODE_BRUSH:
+                btn.setToolTip(tr(
+                    "Each separate stroke paints a new object; a stroke that "
+                    "starts on or touches an object extends it. Hold Shift "
+                    "to keep painting the last object across a gap."))
             if mode == MODE_WAND_ADD:
                 btn.setToolTip(tr("Click to add an intensity region. Hold Ctrl and click to remove it."))
             if mode == MODE_DIVIDE:
@@ -12653,11 +13282,12 @@ class MakeMasksScreen(QWidget):
         self._zoom_speed.setRange(1.01, 3.0)
         self._zoom_speed.setSingleStep(0.05)
         self._zoom_speed.setValue(1.15)
-        self._zoom_speed.setToolTip(
+        self._zoom_speed.setToolTip(tr(
             "How far one wheel notch zooms. Higher jumps across a large "
             "field faster; lower gives the fine steps that trimming an "
-            "object boundary needs. Shift or Alt + drag pans, from any tool."
-        )
+            "object boundary needs. Alt + drag pans with every tool; Shift + "
+            "drag also pans with tools other than the Brush."
+        ))
         self._zoom_speed.valueChanged.connect(self._on_zoom_speed_changed)
         norm_form.addRow("Zoom per notch", self._zoom_speed)
         norm_card.body_layout.addLayout(norm_form)
@@ -13559,11 +14189,20 @@ class MakeMasksScreen(QWidget):
         :param mask: the current label array; integer width is normalized
             for exact save/reopen comparisons without renumbering labels.
         :returns: SHA-256 over the shape and signed 64-bit label values.
+
+        The values are widened and hashed 65,536 at a time rather than as
+        one 64-bit copy of the field and a second copy of its bytes: the
+        same digest in 15 ms instead of 55 ms on a 2,000 px field, and an
+        edit asks for it two or three times on the GUI thread.
         """
         import hashlib
 
-        values = np.asarray(mask, dtype='<i8')
-        return hashlib.sha256(str(values.shape).encode() + values.tobytes()).hexdigest()
+        values = np.asarray(mask)
+        digest = hashlib.sha256(str(values.shape).encode())
+        flat = values.reshape(-1) if values.flags.c_contiguous else values.flat
+        for start in range(0, values.size, 65536):
+            digest.update(np.ascontiguousarray(flat[start:start + 65536], dtype='<i8'))
+        return digest.hexdigest()
 
     def _require_primary_source(self):
         """Require a validated primary snapshot belonging to this queue field."""
@@ -13819,7 +14458,20 @@ class MakeMasksScreen(QWidget):
         :param on_load: True when this is the automatic run on opening a
             field. It starts a fresh baseline and keeps a run that hid
             nothing quiet.
+
+        The interface language is read once for the run
+        (:func:`spacr.qt.i18n.ui_language_resolved_once`): the ledger's
+        rows ask :func:`spacr.qt.i18n.tr` seven times each, and 286 hidden
+        objects on the lesson's field cost 150 ms of preference reads on
+        the GUI thread.
         """
+        from ..i18n import ui_language_resolved_once
+
+        with ui_language_resolved_once():
+            return self._apply_object_filter(on_load=on_load)
+
+    def _apply_object_filter(self, *, on_load: bool) -> int:
+        """:meth:`apply_object_filter` inside one language scope."""
         from ..i18n import tr
 
         self._set_filter_log([])
@@ -18398,6 +19050,7 @@ class MakeMasksScreen(QWidget):
         self._sync_button_states()
         prefs.push_recent_source("make_masks", folder)
         self._body_stack.setCurrentWidget(self._body_splitter)
+        _warm_the_save_path()
         return True
 
     def _load_current(self):
@@ -18546,6 +19199,8 @@ class MakeMasksScreen(QWidget):
         self._psf_controls._shutdown()
         self._restoration_controls._shutdown()
         self._canvas.close_enhancer()
+        self._canvas.close_wand()
+        self._canvas.close_lookup()
         self._cancel_comparison()
         if self._comparison_worker is not None:
             self._comparison_worker.close(timeout=0)

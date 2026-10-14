@@ -47,6 +47,7 @@ from spacr.qt.screens import make_masks as mm
 from spacr.qt.screens.make_masks import (
     MIN_VIEWPORT,
     MODE_BRUSH,
+    MODE_ERASE,
     MODE_WAND_ADD,
     MakeMasksScreen,
     _MaskCanvas,
@@ -484,9 +485,12 @@ def test_the_sweep_works_from_whatever_tool_is_selected(screen):
 # 5. Pan from any tool, and wheel zoom
 # ===========================================================================
 
-@pytest.mark.parametrize("modifier", [Qt.ShiftModifier, Qt.AltModifier])
-def test_a_modified_drag_pans_instead_of_painting(canvas, modifier):
-    canvas.mode = MODE_BRUSH
+@pytest.mark.parametrize("modifier, mode", [(Qt.ShiftModifier, MODE_ERASE),
+                                            (Qt.AltModifier, MODE_BRUSH)])
+def test_a_modified_drag_pans_instead_of_painting(canvas, modifier, mode):
+    """Shift pans with every tool but the Brush, where it keeps the last
+    object across a gap (item 697); Alt pans with every tool."""
+    canvas.mode = mode
     canvas.zoom_at(32, 32, 4.0)
     before_mask = canvas.mask.copy()
     before_view = canvas._viewport_bounds()

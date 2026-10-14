@@ -475,8 +475,10 @@ def test_the_other_tools_are_left_as_they_were(canvas, strokes):
     """A brush stroke still paints — the new branches did not swallow it."""
     canvas.mode = MODE_BRUSH
     canvas.brush_radius = 4
+    before = canvas.mask.copy()
     drag(canvas, [(32, 8), (34, 8)])
-    assert int(canvas.mask[8, 32]) == 255
+    painted = int(canvas.mask[8, 32])
+    assert painted == int(before[8, 32]) or painted == int(before.max()) + 1
     assert strokes == {"started": 1, "finished": 1}
     assert canvas.last_edit["kind"] == "paint"
 

@@ -81,7 +81,13 @@ def _install(app) -> None:
             frame = sys._current_frames().get(main_thread.ident)
             if frame is None:
                 continue
-            stack = "".join(traceback.format_stack(frame))
+            try:
+                stack = "".join(traceback.format_stack(frame))
+            finally:
+                # A frame kept across the sleep keeps the GUI thread's
+                # locals (a paintEvent's QPainter) alive past their call
+                # and frees them on this thread: a segfault in a repaint.
+                del frame
             report = (
                 f"\n--- GUI THREAD STALLED {stalled:.1f}s "
                 f"(heartbeat {beat['n']}) ---\n{stack}"
