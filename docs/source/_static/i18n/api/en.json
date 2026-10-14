@@ -23804,6 +23804,13 @@
       "source_sha256": "b3086d1e68c608198d1ebf1bd0a3b72446e8a7a36f9dad002882f5fd29f5a533",
       "text": "Compare canonical paths using the host filesystem's case semantics.\n\n:param path: candidate nested path.\n:param root: containing directory to check.\n:returns: whether the candidate resolves inside the directory."
     },
+    "spacr.install_cleanup._transactional_runtime_update.note": {
+      "source_blocks_sha256": [
+        "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
+      ],
+      "source_sha256": "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6",
+      "text": "Persist the current update phase in the transaction journal using an atomic file replacement."
+    },
     "spacr.install_cleanup.find_old_installs": {
       "source_blocks_sha256": [
         "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",

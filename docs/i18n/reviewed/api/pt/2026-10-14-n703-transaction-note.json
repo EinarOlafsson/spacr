@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.install_cleanup._transactional_runtime_update.note#0",
+      "source": "Persist the current update phase in the transaction journal using an atomic file replacement.",
+      "source_sha256": "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6",
+      "context": "Persist the current update phase in the transaction journal using an atomic file replacement.",
+      "translation": "Guarda a fase atual da atualização no registo da transação através de uma substituição atómica do ficheiro.",
+      "review_basis": "AI technical review (Codex), exact current English; preserves phase, transaction journal and atomic file replacement. No human/native-speaker signoff."
+    }
+  ]
+}

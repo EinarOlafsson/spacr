@@ -2995,6 +2995,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                  "requested_version": str(version), "state": "staging"}
 
         def note(phase):
+            """Persist the current update phase in the transaction journal using an atomic file replacement."""
             state["state"] = phase
             temporary = journal + ".next"
             with open(temporary, "w", encoding="utf-8") as handle:

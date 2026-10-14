@@ -38050,6 +38050,16 @@
         "bc61bb570437f6a4b6c97b4aa7b4a689ade249b13e5f5e35bffa7eea4b057553"
       ]
     },
+    "spacr.install_cleanup._transactional_runtime_update.note": {
+      "source_blocks_sha256": [
+        "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
+      ],
+      "source_sha256": "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6",
+      "text": "Enregistre la phase actuelle de la mise à jour dans le journal de transaction par un remplacement atomique du fichier.",
+      "translation_source_blocks_sha256": [
+        "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
+      ]
+    },
     "spacr.install_cleanup.find_old_installs": {
       "source_blocks_sha256": [
         "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
