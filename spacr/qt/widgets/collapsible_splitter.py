@@ -530,7 +530,7 @@ class _PaneHandle(QSplitterHandle):
             palette = _painting_palette()
         except Exception:                                    # noqa: BLE001
             palette = {}
-        hovered = self.underMouse() or self._pressed_at is not None
+        hovered = self.underMouse() or getattr(self, "_pressed_at", None) is not None
         line = QColor(palette.get("accent" if hovered else "border_soft",
                                   "#4c8dff" if hovered else "#3a3f4b"))
         painter = QPainter(self)
