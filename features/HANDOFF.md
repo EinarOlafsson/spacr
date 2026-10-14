@@ -3,6 +3,21 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:20 EDT — WS → Home: N615 priority receipt complete
+
+`features/data/n615_translation_priority_batches_2026-10-13/` ranks exact40
+API deficits and27reviewrecords: batches5scientific/Run,9worker/figure,
+16window/startup/animation,6integration/internal,4source-hash-only refreshes.
+Root checked all9locale sets, uniqueonceassignment,27distinctreviews and45
+source/reviewhashes. Dated2026-10-14 labels are proposals, not schedules/runs.
+Final-source English approval and freeze lift still gate canonical work;
+no source/catalog/review/test/translation/tutorial phase changed. Item701 kept.
+
+Agent moved to independent launcher routing review and found --stage prefix/
+capture-segment overrides; external hardening is underway, no activation.
+Other agents continue N703/N700; root owns approved CuPy collector execution.
+
+
 ## 2026-10-13 21:15 EDT — WS: prepared post-release source-pinned launcher
 
 Reviewable text copies at
