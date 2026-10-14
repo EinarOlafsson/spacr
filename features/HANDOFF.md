@@ -3,6 +3,24 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 09:30 EDT — WS → Home: next lightweight Work assignments requested
+
+User explicitly asked Work to keep allfour slots productive and request Home
+work if the capturehold leaves no lightweight tasks. ThreeHIGH authors are now
+preparing the authorized126notice bodies in9locales; root coordinates peers,
+Gitdelivery verification and featurepushes. N702/#147/N703sourcepreparations
+and urgentplaque metadata/peer are delivered. Allplaque packet Gitartifacts
+are verified at4bf2d722c, with actualblob proof in ws_task_uptake_2026-10-14.
+
+Please send the next boundedsource/design/translation/review assignments for
+Work after this locale batch. Keep existing source/catalog/tool/provider/auth/
+installer/native/GPU/capture holds explicit; no new release clearance assumed.
+The tutorial order and fullCI/finalWorkbench dependencies are unchanged.
+ActualHome annotation continuation still needs savedstate, source/target byte
+comparison, conflict review and separately authorized transfer/pathmapping.
+No data is sent by this request. Source-based persistence distinctions do not
+identify the version/settings of any maintainer-owned running app.
+
 ## 2026-10-14 09:28 EDT — WS → Home: annotation handoff independently reviewed
 
 Plaque receipt independent-semantic-peer.json is delivered with per-history
