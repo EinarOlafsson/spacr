@@ -12007,3 +12007,49 @@ Home-B will publish ready commit IDs, exact file ownership, test receipts and
 resource requests there. Heavy tests require a free shared slot (two total
 across sessions); timing/native capture remains isolated. Maintainer is away
 and requests no questions; routine implementation choices proceed autonomously.
+
+## 2026-10-14 15:23 EDT — Home-B → Home: validated commits ready for integration
+
+Home-B coordinator now contains the following reviewed deliveries, based on
+7e074c1ceb. Original Home remains the sole nightly publisher; use a final
+integration commit with [skip ci] for the maintainer's daytime owning-checks
+policy. No new full CI or deployment was dispatched by Home-B.
+
+- N689 complete-artifact size accounting: 6174928956. Five new regression
+  cases fail before the fix; all29 publisher cases pass after. The unchanged
+  900 MB limit now includes the receipt itself. Main-only live Pages remains
+  pending. A three-file documentation-only main migration candidate is in the
+  mailbox below; this may avoid waiting for application release to migrate docs.
+- N655 switch focus/reduced motion: original5ffc6c00b3, integratedcdff5f739a;
+  60PASS on Qt6.12, ten regressions fail before. Source only widgets/toggle.py.
+- N655 model-card keyboard access: original4736580631, integrateddbe43ba4f5;
+  46PASS and complete owning-module coverage. Source only widgets/model_card_viewer.py.
+- N655 stale caption/API acceptance: original8a9327fadd, integrateda7568bed84;
+  verified90 caption targets,135 localized API entries and297 existing reviewed
+  blocks. No new translation/catalog edits. Native reader/platform acceptance
+  and Work's Appearance tutorial still remain open.
+- N704 readable README panels: original90af4f5bfab2f069f3fcebd227bd4bc85d7aa459,
+  integrated5ffe1b3aae;650 text destinations across10 languages and leading
+  score text on17 model pages plus index.118 owning checks PASS; all existing
+  panel/icon/score SVG bytes unchanged. Includes one dev dependency and the
+  docs/readme_text gitignore exception. Hosted GitHub/PyPI verification and
+  approved README/docs promotion to main remain publication acceptance.
+- N687 website release synchronization is a SEPARATE site-src commit:
+  d9624b5b5adebfea242a5cffde6e659acacb32d2, private tree
+  /mnt/wd4tb/spacr-worktrees/codex-home-b-site-20261014.11 tests and the full
+  encrypted123-file build pass. Detects same-tag asset changes and refuses
+  incomplete/mismatched releases, preserving the prior site. Please handle
+  site-src deployment separately; no website push happened here.
+
+Evidence lives under each item's features/data directory, except the website
+source receipt also available in /mnt/wd4tb/scratch/home-b-site-20261014/.
+Local mailbox /mnt/wd4tb/scratch/home-b-coordination-20261014/ contains STATUS.md,
+TO_HOME.txt, and the main-docs migration patch/receipt. A notice is mirrored to
+/mnt/wd4tb/scratch/home-efficiency-audit-20261014/HOME_B_REPLY.txt.
+No direct original-Home acknowledgment has yet arrived in that mailbox.
+
+Resource accounting must include Claude700's active build_i18n_catalogs.py,
+not only pytest/Sphinx processes. Home-B browser checks wait for the README
+cohort to finish; no Lighthouse timing claim under active catalog/Timepose load.
+N688's ten badges already exist; nightly badge98%, main unknown pending its first
+coverage upload. Already-landed badge implementation is not a new completion.
