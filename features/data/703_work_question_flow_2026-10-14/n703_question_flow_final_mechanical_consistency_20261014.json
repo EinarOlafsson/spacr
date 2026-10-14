@@ -1,0 +1,1027 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-14T13:18:00.129106+00:00",
+  "status": "mechanical_consistency_pass",
+  "scope": "Final additive N703 future packet mechanical delivery only; stdlib reads and comparisons, no source searches or application/runtime execution",
+  "bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_question_flow_20261014/proposed-macos-flow-and-English.json",
+      "bytes": 50649,
+      "sha256": "e781080fdf3e83d7ab744370c23b932d8479ecd5ac3d288d1b5ec870891993fe"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_question_flow_20261014/proposed-macos-flow-and-English-corrected.json",
+      "bytes": 53030,
+      "sha256": "6b2d4ade6b6d1157a51e2ef9f4d36b4027c66ca31fa86f7a6bc21c50d446b520"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_question_flow_20261014/macos-flow-correction-delta.json",
+      "bytes": 6610,
+      "sha256": "783aa4fea2940e08c3672739d2c80edd535ca0d0e5c92aaac20f46810e052c2c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_question_flow_20261014/manifest.json",
+      "bytes": 1540,
+      "sha256": "fe61eabc7ac59bcf8b2073f3384dbac1dce117b3521f83f11d2c9d651b89da29"
+    }
+  ],
+  "checks": [
+    {
+      "check": "exact supplied hash: proposed-macos-flow-and-English.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "exact supplied hash: proposed-macos-flow-and-English-corrected.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "exact supplied hash: macos-flow-correction-delta.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "exact supplied hash: manifest.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved manifest artifact: source-bindings.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved manifest artifact: current-questions-and-lifetimes.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved manifest artifact: current-inventory-addendum.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved manifest artifact: proposed-macos-flow-and-English.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved delta original: source-bindings.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved delta original: current-questions-and-lifetimes.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved delta original: current-inventory-addendum.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved delta original: proposed-macos-flow-and-English.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "preserved delta original: manifest.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "corrected current binding: source_binding",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "corrected current binding: current_inventory",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "corrected current binding: current_inventory_addendum",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "counts and unique records",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "exact sole added record",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "80 original English texts/hash fields unchanged",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: SETUP_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: LANG_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: LANG_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: LANG_APP",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: REVIEW_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: REQUESTED_VERSION",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CURRENT_VERSION",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: VERSION_UNKNOWN",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: RELEASE_SOURCE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: APP_LOCATION",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: RUNTIME_LOCATION",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: OLDER_COPY_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: NEWER_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: NEWER_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: KEEP_NEWER",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: REPAIR_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: REPAIR_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: REPAIR_BUTTON",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PREREQ_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PREREQ_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PREREQ_LIST",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PREREQ_PERMISSION",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PREREQ_CONTINUE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: BACKEND_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: BACKEND_AUTO",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: BACKEND_CPU",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: BACKEND_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: BACKEND_MAC_CPU",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: BACKEND_DETECTED",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PRIVACY_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PRIVACY_DIAGNOSTICS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PRIVACY_REPORTS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PRIVACY_PUBLIC",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PRIVACY_MANUAL",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PRIVACY_KEEP",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: ACCOUNTS_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: ACCOUNTS_CHOICE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: ACCOUNTS_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: ACCOUNTS_UNAVAILABLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: ACCOUNTS_SKIP",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: STORAGE_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: STORAGE_KEEP",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CLEANUP_CHOICE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_PATH",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_CONTENTS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_SIZE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_COUNT",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_SHOW",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_SELECT",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_BLOCKED",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: FOLDER_UNREADABLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CLEANUP_REVIEW",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CLEANUP_CONFIRM",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CLEANUP_CONFIRM_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CLEANUP_CHANGED",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: APP_CLOSE_TITLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: APP_CLOSE_BODY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: APP_CLOSE_BUTTON",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: PREPARING",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: WAITING_AUTH",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: WAITING_APP",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: VERIFYING",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: OPENING",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: READY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: NEWER_READY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: IDENTITY_DETAILS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: IMPORTED_FROM",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: EXECUTABLE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: KEPT_SUMMARY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: ROLLBACK_PROGRESS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: ROLLBACK_VERIFIED",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: RECOVERY_UNVERIFIED",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CANCEL_PRECOMMIT",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: RETRY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: REVIEW_RECOVERY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: KEEP_RECOVERY",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: BACK",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CONTINUE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: CANCEL",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: DONE",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "UTF8 text hash: RECOVERY_STATUS_UNKNOWN",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "13 unique pages preserved",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: language",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: review",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: newer",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: repair",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: prerequisites",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: backend",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: privacy",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: accounts",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: storage",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: cleanup_review",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: activation",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: completion",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "valid unique references: recovery",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "shared navigation valid",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "English page/context labels preserved or valid declared contexts",
+      "passed": true,
+      "detail": "progress and navigation are unchanged contextual labels in original, not missing page IDs; 13 actual page reference arrays were independently checked. lifecycle is also a contextual label."
+    },
+    {
+      "check": "delta before field: PRIVACY_DIAGNOSTICS.proposed_default",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "delta before field: PRIVACY_REPORTS.proposed_default",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "delta before field: RECOVERY_UNVERIFIED.display_condition",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "delta before field: ROLLBACK_PROGRESS.display_condition",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "delta recovery before references",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "delta before count",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "entire corrected object equals declared-only mutation",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "context dependent privacy default: PRIVACY_DIAGNOSTICS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "context dependent privacy default: PRIVACY_REPORTS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "conditional retained-artifact status references fallback",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "rollback progress concrete prerequisite",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "fallback explicitly does not assert retained/ready state",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "unapproved future metadata unchanged",
+      "passed": true,
+      "detail": null
+    }
+  ],
+  "summary": {
+    "checks": 129,
+    "passed": 129,
+    "records": 81,
+    "pages": 13,
+    "original_texts_unchanged": 80,
+    "added_id": "RECOVERY_STATUS_UNKNOWN",
+    "source_candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f"
+  },
+  "text_hash_inventory": [
+    {
+      "id": "SETUP_TITLE",
+      "sha256_utf8": "a7aef6ce18642af61adf1b5899bd82a44839f27b8babd642b1dba5da4f206fbb"
+    },
+    {
+      "id": "LANG_TITLE",
+      "sha256_utf8": "7bcfb1d4545ac5c0b782731d57f0664199ed03072135a8a17fff2101ae57e3da"
+    },
+    {
+      "id": "LANG_BODY",
+      "sha256_utf8": "d31b3c4b6d214861a0cfd09735404438201c5bd153c36e48a66ce1d06be0379f"
+    },
+    {
+      "id": "LANG_APP",
+      "sha256_utf8": "2532f8b4c7c19c20be6b952af7a9af518b99d061998177c480ad097090a76cef"
+    },
+    {
+      "id": "REVIEW_TITLE",
+      "sha256_utf8": "ec6eaef29b9e9e968f7fc7617adbb483a015ebc3fe68d36324475242431ed631"
+    },
+    {
+      "id": "REQUESTED_VERSION",
+      "sha256_utf8": "36323c2fbb3fafa912d9d0455ce32c05f46eb525292eccf653c898099d49e7e4"
+    },
+    {
+      "id": "CURRENT_VERSION",
+      "sha256_utf8": "8f95fbc3fc5fca0528e739c1a8b5402674bfe7e170e30b509fb833fab3814a10"
+    },
+    {
+      "id": "VERSION_UNKNOWN",
+      "sha256_utf8": "da512833d809c85f56926570d1e81033f2f6ab4ce64d078732712e6cee054d94"
+    },
+    {
+      "id": "RELEASE_SOURCE",
+      "sha256_utf8": "aa5f3159fd5fa164d953baa882d175589226682912d9fb0c5177c208de2fdaa9"
+    },
+    {
+      "id": "APP_LOCATION",
+      "sha256_utf8": "5112812e5c364abdad0601c2713690b18accd081bcb5c68768b4a2a43ffec4d2"
+    },
+    {
+      "id": "RUNTIME_LOCATION",
+      "sha256_utf8": "c06edbe1268f050e5ad956f2870a92dbc499d1009587e0558fcb6e355b54b868"
+    },
+    {
+      "id": "OLDER_COPY_BODY",
+      "sha256_utf8": "8ddbcabce36521109ce5d4bae699bf5cf92bf9bc47e0e92018d5009ce0f7a9e3"
+    },
+    {
+      "id": "NEWER_TITLE",
+      "sha256_utf8": "85f7a9d529eb6e5e2f8032838666215256ea5eaa370dbd716708fcb52ec81025"
+    },
+    {
+      "id": "NEWER_BODY",
+      "sha256_utf8": "b53909d210c0d03c2ee6bdc87e8230e9c428f300728d26c451f1191372470f51"
+    },
+    {
+      "id": "KEEP_NEWER",
+      "sha256_utf8": "6bb1de3943307234d67015c26f031336aaea6b2ee57253f20eefb77b8f928e0f"
+    },
+    {
+      "id": "REPAIR_TITLE",
+      "sha256_utf8": "1e98c126ab954007b0c199af0f29d1e8a1dd18841db4898991aee6ed175cda07"
+    },
+    {
+      "id": "REPAIR_BODY",
+      "sha256_utf8": "a6635eabbfb99ca74c7a239ca2f6c91dc70640e4fb09cd7638a5482361b73b1c"
+    },
+    {
+      "id": "REPAIR_BUTTON",
+      "sha256_utf8": "99e013907a21a5c377aa1eb9f87915e90b33938ae484944d5ce2102b1b0d9538"
+    },
+    {
+      "id": "PREREQ_TITLE",
+      "sha256_utf8": "09c1cfd9d115578a355baf62067bf95d1663bf66c60bc04821ae1974bcb1cb11"
+    },
+    {
+      "id": "PREREQ_BODY",
+      "sha256_utf8": "02fe1446315f49f8d006a0cfacbb3d1a2d3f587199dbab5b7f09045c42981df6"
+    },
+    {
+      "id": "PREREQ_LIST",
+      "sha256_utf8": "99a1166921e9f7b9254970b1b7140fde856a39946a9cdacf0438675d9581be28"
+    },
+    {
+      "id": "PREREQ_PERMISSION",
+      "sha256_utf8": "8bf92a6301b527021be7b9ee4311afe39f25031997981d975123980717b3e340"
+    },
+    {
+      "id": "PREREQ_CONTINUE",
+      "sha256_utf8": "abab39a2f0be48eb6a92f615462b1fbc90644b849324498e802ca45771ece366"
+    },
+    {
+      "id": "BACKEND_TITLE",
+      "sha256_utf8": "5a59f6c58bc1283b0c44edc4c1c61f6bdbfe50242bf52b6b105f8ac4894b98c3"
+    },
+    {
+      "id": "BACKEND_AUTO",
+      "sha256_utf8": "3b996963774b3b8a825cb30115c3485d48561bdbf01a972fbce638524d2e965e"
+    },
+    {
+      "id": "BACKEND_CPU",
+      "sha256_utf8": "256bc6fb9f717b511b68025b30dc9006b7a5e3e3263adb924bb2a29654e37d7c"
+    },
+    {
+      "id": "BACKEND_BODY",
+      "sha256_utf8": "27f4f671bfb1432d334ef7fce95a197136c63ccc2857e8bcdec9ddb84dde1c80"
+    },
+    {
+      "id": "BACKEND_MAC_CPU",
+      "sha256_utf8": "d9ed1d87315a1c8daeb768ba8e376c7a1db0c0f6ecabe0f7856a9ef75e2bd8bb"
+    },
+    {
+      "id": "BACKEND_DETECTED",
+      "sha256_utf8": "b562a505945ff8a9a1184aae061c4ff0d963a885749643f91deecb919885ce20"
+    },
+    {
+      "id": "PRIVACY_TITLE",
+      "sha256_utf8": "67986d9bd1229ff2a08790183aa809e3f7bafe5ac45385b2b1f3c094ba0f47c9"
+    },
+    {
+      "id": "PRIVACY_DIAGNOSTICS",
+      "sha256_utf8": "f602ffdec700b420d9924409682b13ff1d5544b63e2d9495a4c31dc37fa14036"
+    },
+    {
+      "id": "PRIVACY_REPORTS",
+      "sha256_utf8": "40c9bce733dc69799694f8205360e80146a87b5cfbc581bb0ee2989ff104ed77"
+    },
+    {
+      "id": "PRIVACY_PUBLIC",
+      "sha256_utf8": "dea7813b12e13eb2be8ab839c11acafa5b388c109553f7bd6d42bec7f5952791"
+    },
+    {
+      "id": "PRIVACY_MANUAL",
+      "sha256_utf8": "dd6734edc8b2d987b5bc77853bfb899c2da7682fc274f97f42fda667905e82d7"
+    },
+    {
+      "id": "PRIVACY_KEEP",
+      "sha256_utf8": "6e15872e1e08e3a92b08666968ac45cdbcbdc69dbb3ef6289cb7df7c3ecd6a80"
+    },
+    {
+      "id": "ACCOUNTS_TITLE",
+      "sha256_utf8": "20e68ccd2374bae83b69c68480ffd2ba2c717fbe47ffa7b493b70bd093ea4e51"
+    },
+    {
+      "id": "ACCOUNTS_CHOICE",
+      "sha256_utf8": "7a2bb75f0a05cc4f2042ec003501625940e62f2f3c23c3832bff3f2ade9b27e0"
+    },
+    {
+      "id": "ACCOUNTS_BODY",
+      "sha256_utf8": "7178fd118a858350f86481677cdd82d6eb23c6f0aa9977fcd0145013e6ce6bfb"
+    },
+    {
+      "id": "ACCOUNTS_UNAVAILABLE",
+      "sha256_utf8": "33406725326a1f3f7665602000b7229c0fda2782490b442ceb82261267752e99"
+    },
+    {
+      "id": "ACCOUNTS_SKIP",
+      "sha256_utf8": "3c990826ac33544bb8a5ffcdd7509cb4c3a10df0aaa7807f6e13eae6cd13df7c"
+    },
+    {
+      "id": "STORAGE_TITLE",
+      "sha256_utf8": "b8e269fd2e30ea0dc8d3952addcae4432988fb15fc9f063c8dede13c26c5bc86"
+    },
+    {
+      "id": "STORAGE_KEEP",
+      "sha256_utf8": "ad0d068b0eecec9846023747b09a3050c81e5f438778136dada3d1fefff2cc42"
+    },
+    {
+      "id": "CLEANUP_CHOICE",
+      "sha256_utf8": "4227527a4cf6b2fa3fec321ecb17c59b63427fa3b91edf1772f6b8197e367ce9"
+    },
+    {
+      "id": "FOLDER_PATH",
+      "sha256_utf8": "579f5b30e736fdbe26509a03c552dbd4d0304425e581d725ee68957779fa20aa"
+    },
+    {
+      "id": "FOLDER_CONTENTS",
+      "sha256_utf8": "437aea62a5bd6ad4762e494c81b88532809a231477c82bdecf6fd6636908b7ab"
+    },
+    {
+      "id": "FOLDER_SIZE",
+      "sha256_utf8": "1af851907331c0ed99e7c63b4e55df808bc5fc4c990a1cf80ca8c0f76daf1f3b"
+    },
+    {
+      "id": "FOLDER_COUNT",
+      "sha256_utf8": "9944b0f306b9fecaab895c1299877e715563a9d1d4e9c8f58b1d1d7ac70c3c73"
+    },
+    {
+      "id": "FOLDER_SHOW",
+      "sha256_utf8": "87d78c977627ea8612b6d6e8265f8c27e8f7d881a12fbf463311e7beba1d6068"
+    },
+    {
+      "id": "FOLDER_SELECT",
+      "sha256_utf8": "af26331d86d660fa599cbd2fdbf0d8749b03aa9dd837e288e6eb0a58b4849301"
+    },
+    {
+      "id": "FOLDER_BLOCKED",
+      "sha256_utf8": "7a0dc6c9a108a91c0f3a13612ba030156435bc177791d924e5726b135701eaf4"
+    },
+    {
+      "id": "FOLDER_UNREADABLE",
+      "sha256_utf8": "86690bbac03e8df7732f7f1bb13a96bd22834eaa5905e4981ba8a6b5f2c7dddd"
+    },
+    {
+      "id": "CLEANUP_REVIEW",
+      "sha256_utf8": "e430efdfbd29cf06c37e7b8522b3d83bb90d14f58b0860f8ef4790acecfa6f82"
+    },
+    {
+      "id": "CLEANUP_CONFIRM",
+      "sha256_utf8": "6cb45a0df7bdc050cb4b7dfc53f370ecca706483844551049b8955eb15382e06"
+    },
+    {
+      "id": "CLEANUP_CONFIRM_BODY",
+      "sha256_utf8": "b918d8bc88ee0a486de92c1d7d8926c4e7abcbf0e1f8d1fe42d644cb534c9efd"
+    },
+    {
+      "id": "CLEANUP_CHANGED",
+      "sha256_utf8": "4012eda2708ff3fc725bd0c80e4f03133b176a26fe14e8048ab726bccf5d0c0f"
+    },
+    {
+      "id": "APP_CLOSE_TITLE",
+      "sha256_utf8": "ee3b20d2b7d0b5e08719d04a0bbb1949d6ba5bf450781aa52452eeb147bf2a76"
+    },
+    {
+      "id": "APP_CLOSE_BODY",
+      "sha256_utf8": "5f0b2caf951e4d0ed3c54702e870befb033e407d7a6900a660c68fd028025ca8"
+    },
+    {
+      "id": "APP_CLOSE_BUTTON",
+      "sha256_utf8": "b1becdad6cef2f27bbbb289a43ec7a1dc649a5706b18cf97a48342c2369c8211"
+    },
+    {
+      "id": "PREPARING",
+      "sha256_utf8": "6ba5aef3e5cd256121b177c6348a84ea3b36fc04e58cb66c5ac1eb06d67dcf93"
+    },
+    {
+      "id": "WAITING_AUTH",
+      "sha256_utf8": "81fb2efd6dcef64ce843e708427a18d5b9bd63bb2ba43af497593ce12e9892ed"
+    },
+    {
+      "id": "WAITING_APP",
+      "sha256_utf8": "ffbd2a0ed12f0de2bdaa107f32d7113622be6b6ec270b90b939d01dfca238c69"
+    },
+    {
+      "id": "VERIFYING",
+      "sha256_utf8": "d333a827b9663e75cb463f0e3f9dc84b439a2716713500e28eedcb3a4fa91d63"
+    },
+    {
+      "id": "OPENING",
+      "sha256_utf8": "c865996c04b770b9360429fa6f26e3c293e70b31de9657302ae38f3b8aecfa5c"
+    },
+    {
+      "id": "READY",
+      "sha256_utf8": "61e80fa9d8da5090b3c5b379726fedd1417fdcb34493a46c2801c9b9f3c33e8f"
+    },
+    {
+      "id": "NEWER_READY",
+      "sha256_utf8": "e51683af82c1d0fc9c6b936c7358808050099f4a76c5474f547a76cd4ddeceff"
+    },
+    {
+      "id": "IDENTITY_DETAILS",
+      "sha256_utf8": "cfd6cff0064683b20a2f3f855143eeb3a8f6cf9a43ad1c76a8e2fad4d54022d0"
+    },
+    {
+      "id": "IMPORTED_FROM",
+      "sha256_utf8": "c2d059b76a2ff022a4a030e2c43b389903bd592536ae6bbfd824d777938c2ac0"
+    },
+    {
+      "id": "EXECUTABLE",
+      "sha256_utf8": "601a50217cd9544500035f7848b3d3a96e2993b04c294bd45c0c867dd5a42353"
+    },
+    {
+      "id": "KEPT_SUMMARY",
+      "sha256_utf8": "eb9de269c815ca624fb1ae6b97bb117cce1e97ecdc478e4df1a618f208e6f96b"
+    },
+    {
+      "id": "ROLLBACK_PROGRESS",
+      "sha256_utf8": "be576ca492926b908391701ffc7b6f4a897c8b1463d0ddafb128f09e8df1c500"
+    },
+    {
+      "id": "ROLLBACK_VERIFIED",
+      "sha256_utf8": "583521fcd1549c9ca2efc992b4beb4b97fb95e3a3a17c348e0f7194ac8efa085"
+    },
+    {
+      "id": "RECOVERY_UNVERIFIED",
+      "sha256_utf8": "261a7fe48109a1e87ace2466a8892ad26c08c6f38eeff297283b810d6d769f66"
+    },
+    {
+      "id": "CANCEL_PRECOMMIT",
+      "sha256_utf8": "601abc753edc16f4020fb221e63bc88a797f46e19af5953c7daa545e22158f2d"
+    },
+    {
+      "id": "RETRY",
+      "sha256_utf8": "132cd5224f89c02f16708c40ee30e663c3f04b706d4bd1405dbb34f33aaa21fc"
+    },
+    {
+      "id": "REVIEW_RECOVERY",
+      "sha256_utf8": "225ca4f8b720abf2a94a258847efbf71d77b372c8db0b197b15339bbcaf1d838"
+    },
+    {
+      "id": "KEEP_RECOVERY",
+      "sha256_utf8": "b054b08b73b8de9f405ba3c7aaf819456e4c513c59c7e733d1a6b23598eda73a"
+    },
+    {
+      "id": "BACK",
+      "sha256_utf8": "76900f1bfd16c8d4dd3d25e6f46638d7165aee23883ccea6bfe071c514421769"
+    },
+    {
+      "id": "CONTINUE",
+      "sha256_utf8": "31fbef162594de01bab0cd525c51f74de7bcb15063029fa1a54b2cf5944c80d8"
+    },
+    {
+      "id": "CANCEL",
+      "sha256_utf8": "c17bac18b5a6250d0f1b9919516de8d9f155d87af5e80d2ffd30d799bad0102e"
+    },
+    {
+      "id": "DONE",
+      "sha256_utf8": "11a6767d5674c7e45f7e00dc525762275b3a48491ad6045427d2609cc496c516"
+    },
+    {
+      "id": "RECOVERY_STATUS_UNKNOWN",
+      "sha256_utf8": "7a30c69e8b99d19510737e783863e21cda6f12f46b713f8a8f73c33ab6289ee3"
+    }
+  ],
+  "required_fixes": [],
+  "current_review_reuse": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_question_flow_mechanical_peer_20261014.json",
+    "sha256": "d08ea73aa3105a0450ae2c82b98fb9ca8fa15f0d967bde2b34b30fa6f212499a",
+    "note": "Current source evidence not repeated; original addendum and bindings verified preserved."
+  },
+  "limitations": [
+    "No semantic design approval, Home English approval, locale drafting/readiness or native installer acceptance.",
+    "Predicates/defaults remain future proposed metadata, not observed implementation; comparison checks their exact declared correction only.",
+    "No source/catalog/app/test/provider/system/environment changes or execution. No translations.",
+    "Original manifest deliberately continues to bind original future packet; correction delta separately binds corrected packet."
+  ],
+  "reviewer_check_correction": {
+    "archived_initial": "/media/carruthers/mnt3/claude/n676_stages/work/n703_question_flow_final_mechanical_consistency_initial_fce574a2_20261014.json",
+    "sha256": "fce574a2ed2e91770d8b7190cb738ac0d90180f2e247dba32769836740166d16",
+    "note": "Initial reviewer incorrectly treated unchanged progress/navigation context labels as page references. Corrected distinction; no author artifact changed."
+  }
+}

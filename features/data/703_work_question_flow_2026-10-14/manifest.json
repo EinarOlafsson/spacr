@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T13:03:04.550855+00:00",
+  "source_candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "source_binding": {
+    "artifact": "source-bindings.json",
+    "sha256": "5e405dfd700099da3bb947f5f55210a9e8c96274da53375f77446fca0040119b",
+    "bytes": 6153
+  },
+  "review_provenance": {
+    "author": "Codex AI technical review",
+    "human_native_review": false,
+    "source_catalog_applied": false,
+    "Home_approved": false
+  },
+  "status": "source_bound_preparatory_question_flow_packet",
+  "artifacts": [
+    {
+      "artifact": "source-bindings.json",
+      "sha256": "5e405dfd700099da3bb947f5f55210a9e8c96274da53375f77446fca0040119b",
+      "bytes": 6153
+    },
+    {
+      "artifact": "current-questions-and-lifetimes.json",
+      "sha256": "91d90ca1db3cacb24bb6f434b4c506b20f66bff52cb6d995ea1844f0eeff0424",
+      "bytes": 49328
+    },
+    {
+      "artifact": "current-inventory-addendum.json",
+      "sha256": "9e87522c5944e4b8f93a72e1fb8746adb073514bed9c6a7606cbfedf43bec6c3",
+      "bytes": 3403
+    },
+    {
+      "artifact": "proposed-macos-flow-and-English.json",
+      "sha256": "e781080fdf3e83d7ab744370c23b932d8479ecd5ac3d288d1b5ec870891993fe",
+      "bytes": 50649
+    }
+  ],
+  "originals_preserved": true,
+  "peer_status": "Current mechanical/high source peers supplied precise additive corrections; finalfuture semantic/mechanical review pending.",
+  "scope_limit": "No app/catalog/tool/capture clearance or N703 native acceptance. Root owns features review/commit/push."
+}

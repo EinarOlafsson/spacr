@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T13:16:01.507858+00:00",
+  "status": "exact_additive_proposal_correction_delta_no_implementation",
+  "original": {
+    "artifact": "proposed-macos-flow-and-English.json",
+    "sha256": "e781080fdf3e83d7ab744370c23b932d8479ecd5ac3d288d1b5ec870891993fe",
+    "bytes": 50649
+  },
+  "corrected": {
+    "artifact": "proposed-macos-flow-and-English-corrected.json",
+    "sha256": "6b2d4ade6b6d1157a51e2ef9f4d36b4027c66ca31fa86f7a6bc21c50d446b520",
+    "bytes": 53030
+  },
+  "semantic_peer": {
+    "artifact": "n703_question_flow_semantic_peer_20261014.json",
+    "sha256": "4d29667d35ed73e8e27ec605a32cb3d85c0da5c63225f88c39231c9be9d9b0a5",
+    "bytes": 15287
+  },
+  "changes": [
+    {
+      "peer_correction": "N703-QF-R1",
+      "record_id": "PRIVACY_DIAGNOSTICS",
+      "field": "proposed_default",
+      "before": false,
+      "after": {
+        "new_or_unknown": false,
+        "update": "Display and preserve the actual saved value until the user explicitly changes it. Do not reset a saved true value to false or silently reapply a new installer profile."
+      },
+      "English_text_changed": false
+    },
+    {
+      "peer_correction": "N703-QF-R1",
+      "record_id": "PRIVACY_REPORTS",
+      "field": "proposed_default",
+      "before": false,
+      "after": {
+        "new_or_unknown": false,
+        "update": "Display and preserve the actual saved value until the user explicitly changes it. Do not reset a saved true value to false or silently reapply a new installer profile."
+      },
+      "English_text_changed": false
+    },
+    {
+      "peer_correction": "N703-QF-R2",
+      "record_id": "RECOVERY_UNVERIFIED",
+      "field": "display_condition",
+      "before": "Unresolved failedactivation/rollback/relaunch; never say restored or installationready",
+      "after": "Unresolved failed activation, rollback or relaunch, and actual retained recovery artifacts have been independently verified and recorded. Do not show the kept-files claim when no artifacts exist or their retention cannot be verified. In that case use RECOVERY_STATUS_UNKNOWN, without claiming restored, retained files or installation ready.",
+      "English_text_changed": false
+    },
+    {
+      "peer_correction": "N703-QF-R2",
+      "record_id": "ROLLBACK_PROGRESS",
+      "field": "display_condition",
+      "before": "Recovery attempt in progress, not success claimed",
+      "after": "A verified previous-application baseline exists and its concrete restore operation has actually begun and is in progress. Not a fresh install with no previous application, not a merely planned restore, and not a recovery-success claim.",
+      "English_text_changed": false
+    },
+    {
+      "peer_correction": "N703-QF-R2",
+      "operation": "add_English_record",
+      "record": {
+        "id": "RECOVERY_STATUS_UNKNOWN",
+        "text": "Setup could not verify a working application. Review the setup details before trying again.",
+        "page": "recovery",
+        "kind": "status",
+        "proposed_default": null,
+        "display_condition": "Unresolved failed activation, rollback or relaunch where retained recovery artifacts are absent or cannot be verified. Does not claim a previous app, preserved artifacts or ready installation.",
+        "status": "unapproved_future_English_not_current_source_or_registered_caption_ID",
+        "sha256_utf8": "7a30c69e8b99d19510737e783863e21cda6f12f46b713f8a8f73c33ab6289ee3"
+      }
+    },
+    {
+      "operation": "recovery_page_record_reference",
+      "page_id": "recovery",
+      "before": [
+        "ROLLBACK_PROGRESS",
+        "ROLLBACK_VERIFIED",
+        "RECOVERY_UNVERIFIED",
+        "CANCEL_PRECOMMIT",
+        "RETRY",
+        "REVIEW_RECOVERY",
+        "KEEP_RECOVERY",
+        "CANCEL"
+      ],
+      "after": [
+        "ROLLBACK_PROGRESS",
+        "ROLLBACK_VERIFIED",
+        "RECOVERY_UNVERIFIED",
+        "RECOVERY_STATUS_UNKNOWN",
+        "CANCEL_PRECOMMIT",
+        "RETRY",
+        "REVIEW_RECOVERY",
+        "KEEP_RECOVERY",
+        "CANCEL"
+      ]
+    },
+    {
+      "field": "English_record_count",
+      "before": 80,
+      "after": 81
+    },
+    {
+      "operation": "add_correction_provenance",
+      "field": "correction_provenance",
+      "after": {
+        "status": "unapproved_proposal_refinements_only",
+        "corrected_at_utc": "2026-10-14T13:16:01.507029+00:00",
+        "original_artifact": {
+          "artifact": "proposed-macos-flow-and-English.json",
+          "sha256": "e781080fdf3e83d7ab744370c23b932d8479ecd5ac3d288d1b5ec870891993fe",
+          "bytes": 50649
+        },
+        "bounded_semantic_peer": {
+          "artifact": "n703_question_flow_semantic_peer_20261014.json",
+          "sha256": "4d29667d35ed73e8e27ec605a32cb3d85c0da5c63225f88c39231c9be9d9b0a5",
+          "bytes": 15287
+        },
+        "applied_correction_ids": [
+          "N703-QF-R1",
+          "N703-QF-R2"
+        ],
+        "original_80_English_texts_unchanged": true,
+        "current_inventory_source_bindings_original_manifest_unchanged": true,
+        "source_catalog_or_native_behavior_changed": false
+      }
+    }
+  ],
+  "integrity": {
+    "original_artifacts_unchanged": {
+      "source-bindings.json": {
+        "sha256": "5e405dfd700099da3bb947f5f55210a9e8c96274da53375f77446fca0040119b",
+        "bytes": 6153
+      },
+      "current-questions-and-lifetimes.json": {
+        "sha256": "91d90ca1db3cacb24bb6f434b4c506b20f66bff52cb6d995ea1844f0eeff0424",
+        "bytes": 49328
+      },
+      "current-inventory-addendum.json": {
+        "sha256": "9e87522c5944e4b8f93a72e1fb8746adb073514bed9c6a7606cbfedf43bec6c3",
+        "bytes": 3403
+      },
+      "proposed-macos-flow-and-English.json": {
+        "sha256": "e781080fdf3e83d7ab744370c23b932d8479ecd5ac3d288d1b5ec870891993fe",
+        "bytes": 50649
+      },
+      "manifest.json": {
+        "sha256": "fe61eabc7ac59bcf8b2073f3384dbac1dce117b3521f83f11d2c9d651b89da29",
+        "bytes": 1540
+      }
+    },
+    "original_80_texts_and_hashes_unchanged": true,
+    "new_text_count": 1,
+    "new_text_id": "RECOVERY_STATUS_UNKNOWN",
+    "result_English_count": 81,
+    "result_page_count": 13,
+    "no_other_source_current_inventory_or_English_edit": true
+  },
+  "limits": [
+    "Future proposal only; Home approval and implementation/native acceptance remain pending.",
+    "No source/catalog/translation/review records, installer/runtime/providers/system/env/tests/GUI/GPU changes or execution.",
+    "Root owns final bounded peer and publication; original manifest deliberately preserved, not rewritten to hide historical bindings."
+  ]
+}
