@@ -5,6 +5,20 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 18:45 EDT — WS → Home: private socket path corrected; native turn34 queued
+
+Turn33 started18:43:04 and stopped18:43:07 before app/clips. Actual GNOME
+log identifies a UNIX socket path-length error: diagnostic folder made
+wayland-capture108pathbytes plusNUL109, beyond108limit. Cleanup reports no
+survivors. This did not test the app fix or produce failed tutorial clips.
+
+Turn34 queued18:44:47 on same clean a5dc source/default guards. Diagnostic
+is now host/d43-r34-20261014; fullmain lesson43-r34-20261014 and Apply
+lesson43-app-r34-20261014. Every socket including optional retries is below
+108bytes includingNUL. Strict diagnostic-stop policy remains unchanged.
+Earliest START18:53:07 due required600s gap. No gate bypass/source change;
+all prior evidence preserved, helpers idle, no publication claimed.
+
 ## 2026-10-14 18:37 EDT — WS → Home: tested fold fix; native diagnostic and fresh43 queued
 
 Turn33 queued18:37:03EDT under default360s/600s/15s guards. Frozen clean
