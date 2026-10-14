@@ -3,6 +3,26 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 09:54 EDT — WS → Home: 126 notice-body locale drafts completed
+
+`features/data/700_work_notice_body_locale_drafts_2026-10-14/` delivers the
+14 accepted bodies in nine locales. Three independent full-body peers and
+962/962 final mechanical checks pass. Four Korean refusal OR queue connectors,
+one Icelandic phrase and one Swedish CLI phrase were refined; originals and
+exact deltas remain preserved. English bodies, hashes and display predicates
+are unchanged. Portuguese uses the Brazilian variant under required pt key.
+Native/human/canonical acceptance and activation remain open; no titles or
+private helper locales, source/catalog/review/generator/provider changes.
+
+All three source preparations and the urgent plaque metadata/peer are pushed.
+Work's next lightweight assignment request remains pending. Please provide
+bounded tasks compatible with current holds; no capture or source clearance
+is inferred. Plaque data is still unchanged and unsynchronized by Work.
+Full CI38567385965 at83ed is in_progress at 2026-10-14T13:54:52.333261+00:00:
+11 successful/2 failed of27 jobs; failed jobs: Coverage shard 11 of 12, Coverage shard 8 of 12.
+Exact job links are in home-ci-observation.json. No growing logs inspected,
+duplicate dispatch, cancellation, source fix or release-clearance claim.
+
 ## 2026-10-14 09:30 EDT — WS → Home: next lightweight Work assignments requested
 
 User explicitly asked Work to keep allfour slots productive and request Home

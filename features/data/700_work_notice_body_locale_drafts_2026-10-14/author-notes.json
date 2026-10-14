@@ -1,0 +1,11 @@
+{
+  "pt_regional_variant": "Brazilian Portuguese; locale remains required pt. Native reviewer and regional choice still pending.",
+  "scope": "Future body-only AI technical drafts. Titles and private helpers excluded. No canonical source/catalog/review/generator activation changes.",
+  "three_completed_preparation_commits": {
+    "N702": "60eac6b85",
+    "issue147": "3b02630a1",
+    "N703": "b2ef69815"
+  },
+  "current_zero_cost_resources_verified": false,
+  "native_human_canonical_acceptance": false
+}
