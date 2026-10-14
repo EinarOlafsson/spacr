@@ -2,6 +2,7 @@
 
 import ast
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -38,11 +39,12 @@ def _stable_sha256(value):
     return hashlib.sha256(payload).hexdigest()
 
 
-def _evaluate_condition(expression, *, event, replay, pixel=False):
+def _evaluate_condition(expression, *, event, replay, pixel=False, safe=False):
     """Evaluate the narrow Boolean routing vocabulary used by these jobs."""
     body = expression.replace('github.event_name', repr(event))
     body = body.replace('inputs.native_batch_replay', repr(replay))
     body = body.replace('inputs.pixel_context_a744', repr(pixel))
+    body = body.replace('inputs.safe_start_83ed', repr(safe))
     body = body.replace('&&', ' and ').replace('||', ' or ')
     body = re.sub(r'(?<![!=])!(?!=)', ' not ', body)
     assert re.fullmatch(r"[\w\s'\"!=()\-]+", body)
@@ -88,7 +90,7 @@ def test_registered_serial_route_preserves_original_job_and_isolates_replay():
 def test_native_replay_is_opt_in_source_bound_and_two_independent_original_batches():
     workflow = _workflow()
     assert set(workflow['on']) == {'workflow_call', 'workflow_dispatch'}
-    assert set(workflow['jobs']) == {'replay', 'pixel-context'}
+    assert set(workflow['jobs']) == {'replay', 'pixel-context', 'safe-start'}
     job = workflow['jobs']['replay']
     assert job['runs-on'] == 'ubuntu-24.04'
     assert job.get('permissions', workflow['permissions']) == {'contents': 'read'}
@@ -246,3 +248,158 @@ python() {
         failures = [event for event in events if 'status=failed' in event]
         assert failures == ([] if failing == 'none' else [
             f'attempt={failing[-1]} status=failed exit=7 source={REPLAY_SOURCE}'])
+
+
+def test_safe_start_diagnostic_preserves_default_and_pixel_modes():
+    """A manual child diagnostic selects one CPU job without ordinary replay."""
+    workflow = _workflow()
+    option = workflow['on']['workflow_dispatch']['inputs']['safe_start_83ed']
+    assert option['type'] == 'boolean'
+    assert option['required'] == option['default'] == 'false'
+    jobs = workflow['jobs']
+    for event, pixel, safe, expected in (
+            ('workflow_call', False, False, (True, False, False)),
+            ('workflow_dispatch', False, False, (True, False, False)),
+            ('workflow_dispatch', True, False, (False, True, False)),
+            ('workflow_dispatch', False, True, (False, False, True)),
+            ('workflow_dispatch', True, True, (False, False, True))):
+        actual = tuple(_evaluate_condition(jobs[name]['if'], event=event,
+                                          replay=False, pixel=pixel, safe=safe)
+                       for name in ('replay', 'pixel-context', 'safe-start'))
+        assert actual == expected
+    job = jobs['safe-start']
+    assert job['runs-on'] == 'ubuntu-24.04'
+    assert job['permissions'] == {'contents': 'read'}
+    assert 'services' not in job
+    assert job['env']['CUDA_VISIBLE_DEVICES'] == ''
+    assert job['timeout-minutes'] == '65'
+    steps = {step['name']: step for step in job['steps'] if 'name' in step}
+    reject = steps['Reject mixed diagnostic modes']
+    assert reject['env']['PIXEL_SELECTED'] == '${{ inputs.pixel_context_a744 }}'
+    assert 'test "$PIXEL_SELECTED" != "true"' in reject['run']
+    source = steps['Checkout immutable original application and tests']['with']
+    assert source['ref'] == '83edc25dfda63e45191aa6b4b2833ddbb4b850ab'
+    assert source['persist-credentials'] == 'false'
+    assert source['path'] == 'source'
+    context = json.loads((REPO / 'tools/safe_start_83ed_context.json').read_text())
+    assert context['source_sha'] == source['ref']
+    assert context['original_expected_case_count'] == 580
+    assert len(context['batch5_files']) == len(set(context['batch5_files'])) == 32
+    assert len(context['original_fixture_nodes']) == 7
+    assert hashlib.sha256(('\n'.join(context['batch5_files']) + '\n').encode()).hexdigest() == context['batch5_sha256']
+    command = steps['One original covered32-file context with child evidence']['run']
+    assert 'safe_start_context_diagnostic.py" run' in command
+    assert 'for attempt' not in command
+    assert 'continue-on-error' not in steps['One original covered32-file context with child evidence']
+    driver = (REPO / 'tools/safe_start_context_diagnostic.py').read_text()
+    ast.parse(driver)
+    assert "'original_pytest_exit':original_exit" in driver
+    assert "'full_ci_acceptance':False" in driver
+    assert "'retries':0" in driver
+    assert 'process.wait(timeout=2700)' in driver
+    assert 'collector_integrity' in driver
+    upload = steps['Preserve raw child stacks, stdout, stderr, original JSON and coverage']
+    assert upload['if'] == 'always()'
+    assert upload['with']['retention-days'] == '3'
+
+
+def _sidecar(name):
+    path = REPO / 'tools/pytest_plugins/safe_start_83ed' / (name + '.py')
+    spec = importlib.util.spec_from_file_location('safe_diagnostic_' + name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize('outcome', ['completed', 'timeout'])
+@pytest.mark.parametrize('failure', ['prepare', 'stdout', 'result', 'integrity-channel'])
+def test_child_capture_failure_preserves_original_call_and_outcome(
+        tmp_path, monkeypatch, outcome, failure):
+    """Broken evidence storage cannot replace the original result/exception."""
+    sidecar = _sidecar('safe_child_evidence')
+    launcher = tmp_path / 'launch_once.py'
+    launcher.write_text('original launcher')
+    monkeypatch.setenv('SPACR_SAFE_ORIGINAL_LAUNCHER_SHA',
+                       hashlib.sha256(launcher.read_bytes()).hexdigest())
+    monkeypatch.setenv('SPACR_SAFE_DIAGNOSTIC_DIR', str(tmp_path / 'evidence'))
+    command = ['python', str(launcher), 'source', 'normal', 'repaired.json',
+               'blobs', 'data_art_impulse_lens']
+    original = (subprocess.CompletedProcess(command, 0, b'original-out', b'original-err')
+                if outcome == 'completed' else
+                subprocess.TimeoutExpired(command, 300, b'original-out', b'original-err'))
+    calls = []
+
+    def invoke(*args, **kwargs):
+        calls.append((args, kwargs))
+        if outcome == 'timeout':
+            raise original
+        return original
+
+    def broken(*args, **kwargs):
+        raise OSError('Evidence disk unavailable')
+
+    monkeypatch.setattr(sidecar, '_original', invoke)
+    if failure in ('prepare', 'integrity-channel'):
+        monkeypatch.setattr(sidecar, '_prepare', broken)
+    elif failure == 'stdout':
+        monkeypatch.setattr(sidecar, '_save_bytes', broken)
+    else:
+        write_text = Path.write_text
+
+        def result_write(path, *args, **kwargs):
+            if path.name == 'result.json':
+                return broken()
+            return write_text(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, 'write_text', result_write)
+    if failure == 'integrity-channel':
+        class BrokenStderr:
+            write = flush = broken
+        monkeypatch.setattr(sidecar.sys, '__stderr__', BrokenStderr())
+    kwargs = {'timeout': 300, 'capture_output': True}
+    if outcome == 'timeout':
+        with pytest.raises(subprocess.TimeoutExpired) as caught:
+            sidecar._run(command, **kwargs)
+        assert caught.value is original
+    else:
+        assert sidecar._run(command, **kwargs) is original
+    assert calls == [((command,), kwargs)]
+    assert sidecar._errors
+
+
+def test_child_phase_write_failure_cannot_escape_the_profile_callback(
+        tmp_path, monkeypatch):
+    """A failing phase journal marks integrity without interrupting app code."""
+    import atexit
+    import faulthandler
+    import sys
+    from types import SimpleNamespace
+
+    sidecar = _sidecar('sitecustomize')
+    monkeypatch.setenv('SPACR_SAFE_DIAGNOSTIC_DIR', str(tmp_path))
+    monkeypatch.setattr(sys, 'argv', ['launch_once.py', 'source', 'normal',
+                                     'repaired.json', 'blobs', 'data_art_impulse_lens'])
+    profile = []
+    monkeypatch.setattr(sys, 'setprofile', profile.append)
+    monkeypatch.setattr(atexit, 'register', lambda function: None)
+    monkeypatch.setattr(faulthandler, 'dump_traceback_later', lambda *args, **kwargs: None)
+    coverage = SimpleNamespace(Coverage=SimpleNamespace(current=lambda: object()))
+    monkeypatch.setitem(sys.modules, 'coverage', coverage)
+    original_open = Path.open
+
+    class BrokenJournal:
+        def write(self, value):
+            raise OSError('Journal unavailable')
+        def flush(self):
+            raise OSError('Journal unavailable')
+
+    def open_journal(path, *args, **kwargs):
+        return BrokenJournal() if path.name == 'phases.jsonl' else original_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'open', open_journal)
+    sidecar._initialize()
+    frame = SimpleNamespace(f_code=SimpleNamespace(
+        co_filename=os.path.abspath('launch_once.py'), co_name='_watchdog'), f_lineno=1)
+    profile[-1](frame, 'call', None)
+    assert len(sidecar._errors) == 2
+    assert all(error['operation'] == 'phase-journal' for error in sidecar._errors)
