@@ -1,0 +1,62 @@
+[
+  {
+    "achievement": "Hide judged plaque fields",
+    "state": "Published implementation; older than12h",
+    "evidence": "9692fd146f and owning38-case layout/queue checks"
+  },
+  {
+    "achievement": "CI paint/import/navigation/colour source fixes",
+    "state": "Published implementation; wholeCI remainsfailed",
+    "evidence": "faf7fc523e and owning74/106/185/48 scopedcohorts"
+  },
+  {
+    "achievement": "Reuse unchanged raster for partial field repaint",
+    "state": "Published implementation; wholeCI remainsfailed",
+    "evidence": "2232160b85; originalhosted0.75nodePASS on83ed"
+  },
+  {
+    "achievement": "Historical metadata archive repair",
+    "state": "Published CI inputrepair",
+    "evidence": "FF1 archive preserves exactdecodedJSONhash; scannerunchanged"
+  },
+  {
+    "achievement": "Splitter wrapper-state paint repair",
+    "state": "Private tested source, notyetintegrated",
+    "evidence": "b69cba05ee; baseline2FAIL sameexception ->74PASS owningcohort"
+  },
+  {
+    "achievement": "Required serial Torch timing routing",
+    "state": "Private tested workflow, notyetintegrated",
+    "evidence": "32distinctPASS; originalassertionsunchanged; zero lostcoveredapplicationarcs"
+  },
+  {
+    "achievement": "Cloudflare reporting/AI relay prototype",
+    "state": "Private offlineprototype, notdeployed",
+    "evidence": "Worker/D1 schema;16offlinePASS; mockproviders, realephemeralRSA/SQLite tests"
+  },
+  {
+    "achievement": "Plaque saved-state continuation",
+    "state": "Verified savedbytes; newedits needsyncback",
+    "evidence": "16981HomefilesidenticaltoWork;1637savedjudgments;5685pending"
+  },
+  {
+    "achievement": "Firecuda2 verified duplicate cleanup",
+    "state": "Verified localdeletions; diskstill99%",
+    "evidence": "3353NAS-backedlocalfiles plusownobsoletecleanworktree;24208687104allocatedbytesremoved"
+  },
+  {
+    "achievement": "Work model/provider/installer design packets",
+    "state": "Prepared design; implementationspending",
+    "evidence": "N702/#147/N703 source-boundreviewpackets delivered"
+  },
+  {
+    "achievement": "Work notice translations",
+    "state": "Prepared drafts; notcanonicaloractive",
+    "evidence": "126noticebodydrafts in9languages; final962mechanicalchecks"
+  },
+  {
+    "achievement": "Definitive1.5.1.5 scope/index",
+    "state": "Requirement recorded; notfeatureimplementation",
+    "evidence": "All689required; owningindex12PASS,actualexit0"
+  }
+]

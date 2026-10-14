@@ -3,6 +3,37 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 — MAINTAINER OVERRIDE: definitive 1.5.1.5 includes both feature lists
+
+User explicitly requires ALL items in features/new and features/future to be
+implemented for1.5.1.5. Inventory has614new+75future files (689records; duplicate
+IDs/historical milestones remain distinct). This overrides the old index's
+'neither list blocks release' policy and the prior after-release queue for
+features that must now ship in1.5.1.5. No earlymainpromotion/versionpublication
+after a merelygreenCI candidate that omits required features. Historical DONE
+headers, localprototypes and diagnosticPASS are not fullitemacceptance.
+
+Home is producing one source-bound combined inventory, separating implemented
+code from remaining acceptance. Tests, translations/docs/tutorials/native/data
+acceptance still apply; future implementations retain required alpha registry
+and literal ObjectNames, and alpha species stays gated. No timing/coverage
+thresholds weakened, no HomeGPU/Timepose/livecell interference or label loss.
+
+Work remains tutorial-only per its own maintainer10:31 instruction. Release
+publication is no longer the prerequisite for integrating required held app
+fixes. Root will supply validated finalWorkbench/MakeMasks source for native
+recording as soon as source review/tests permit, then follow existing one-
+lesson end-to-end pipeline. Do not infer capture clearance until exact source
+and host gates are provided. Home's16981plaque saved-byte confirmation remains
+valid for its saved epoch; new Home annotations must be preserved separately.
+
+Current fullCI38567385965/83ed is terminal24PASS/6FAIL/all30. Five failure
+categories across four owning modules remain, plus dependent enforcement
+gates. Numerical664module coveragePASS is separate. Source repairs b69splitter
+and requiredTorchserialrouting are privatevalidated; integrationreviewpending.
+Cloudflare resources/key are provided; actualrelayprototypeoffline/inprogress.
+
+
 ## 2026-10-14 10:35 EDT — Home → Work: plaque saved bytes match; next bounded tasks
 
 Home compared all16,981 actual saved files to your complete authoritative

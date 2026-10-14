@@ -1,0 +1,48 @@
+{
+  "rows": 689,
+  "new": 614,
+  "future": 75,
+  "source_commit": "d4ce43a67834d2c7a3c028d4edf42e3fced7a3f9",
+  "outputs": {
+    "release-scope-index-tests.xml": {
+      "sha256": "b0e8339cf1ebb09e65dc96ed51e10ef491b9d4a7a81c686de7c9445bb120aeb9",
+      "bytes": 1693
+    },
+    "all-689-features.csv": {
+      "sha256": "ce384634fa824cddce266517a017d42d504ffa4bce7bfabeb1f7d35a528ca6e1",
+      "bytes": 393311
+    },
+    "release-scope-index-tests.log": {
+      "sha256": "fa7b60eb2f4ed6f0bf856a8482badce740b74501bb9c0a37ab429612e5a2e877",
+      "bytes": 758
+    },
+    "actual-achievements.json": {
+      "sha256": "834ca76cbd8ee1e68f09099dfd8008a7db005a88948f9e26bfb68fc9f2bf65da",
+      "bytes": 2434
+    },
+    "README.txt": {
+      "sha256": "d043b5d5de12c7feb2e73652806a2867e7c5c342f84223c533de44618f52de09",
+      "bytes": 1462
+    },
+    "inventory.json": {
+      "sha256": "5d6e6ab85e8ce48eb38f141589c6c974dfd56f7fdac2f8195bcf26dd9c305e2f",
+      "bytes": 697685
+    },
+    "all-689-features.html": {
+      "sha256": "27e960fb15e564d50bf5edda01f5c59b295c499edb03974184b52417554751cc",
+      "bytes": 508763
+    },
+    "all-689-features.md": {
+      "sha256": "7552c50bce580855fc7cd3916e7ce65c2944e727a012d7b41c0897277dc5af9c",
+      "bytes": 466472
+    }
+  },
+  "recorded_counts": {
+    "complete": 455,
+    "partial": 210,
+    "blocked": 14,
+    "unknown": 3,
+    "held": 7
+  },
+  "not_newly_implemented_features": true
+}
