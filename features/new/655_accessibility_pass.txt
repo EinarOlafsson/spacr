@@ -180,3 +180,23 @@ WHAT IS LEFT
   actual macOS/Windows checks and the Work-owned Appearance tutorial refresh.
   Proof: data/655_caption_api_reconciliation_2026-10-14/receipt.json; reproduce
   with python features/data/655_caption_api_reconciliation_2026-10-14/verify.py.
+
+2026-10-14 — Home-B Linux external AT-SPI acceptance
+  The old October8 zero-child observation selected the first accessibility
+  application with the Qt process PID. GTK platform-theme integration registers
+  an empty root named python before Qt registers its populated root under a
+  separate D-Bus name with the SAME PID. That probe therefore did not establish
+  a broken Qt bridge. An independent bounded system-Python AT-SPI D-Bus client
+  now enumerates all matching roots and inspected1397 actual spaCR nodes.
+  Real MainWindow and Preferences ran on Qt6.12/Linux/xcb in private Xvfb and
+  DBus sessions with private QSettings/config/cache/runtime/network/log paths,
+  hidden CUDA/software rendering and a4G memory cap. The client found the
+  visible High contrast check box, its name and full help, and its enabled,
+  focusable, showing, visible and checkable states. Its external Toggle action
+  succeeded, added CHECKED to the external state, and emitted the real Qt
+  toggled signal. Process-time hashes bind241 loaded spaCR source files.
+  This closes the recorded Linux external-tree/bridge observation. It is not
+  audible speech or human screen-reader usability acceptance. Windows/macOS,
+  actual reader speech and Work's Appearance tutorial refresh remain open.
+  Proof: data/655_external_reader_acceptance_2026-10-14/receipt.json; bounded
+  client and exact replay scripts included, with failed setup iterations kept.
