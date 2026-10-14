@@ -5,8 +5,10 @@
   "worker_url": "https://spacr-first-responder.einar-olafsson.workers.dev/",
   "worker_public_response_verified": "HTTP 200; Hello World!; 2026-10-14 09:21 EDT",
   "workers_plan": {
-    "value": null,
-    "status": "unconfirmed; maintainer template retained Free / not yet checked"
+    "value": "Free",
+    "status": "Confirmed by maintainer on Workers plans page",
+    "confirmed_at": "2026-10-14T10:20:56.456212-04:00",
+    "verification": "Owner dashboard readback; Home has no authenticated account access"
   },
   "ai_binding": {
     "name": "AI",
@@ -17,7 +19,7 @@
   "d1_binding": {
     "name": "DB",
     "database": "spacr-support",
-    "status": "unconfirmed; maintainer template retained yes / no"
+    "status": "Confirmed by maintainer: DB points to spacr-support"
   },
   "github_app_name": "spacr-first-responder",
   "github_app_id": "5315672",

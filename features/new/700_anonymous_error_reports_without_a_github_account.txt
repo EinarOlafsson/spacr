@@ -148,3 +148,10 @@ owner-resource-identifiers.json. AI binding is visible in screenshot. Workers
 Free plan and DB-to-spacr-support binding remain unconfirmed because supplied
 template retained alternatives. Home asked those two checks; no private key,
 authentication, inference or actual relay activation occurred.
+
+2026-10-14 — Maintainer confirmed Workers plans shows Free and DB points
+to spacr-support. Owner resource identifiers updated; AI binding was already
+visible in screenshot. These are owner dashboard confirmations, not Home
+account authentication or model eligibility/end-to-end certification. No
+private key, inference or issue submission occurred; actual relay/client
+implementation and eligible model verification remain pending.
