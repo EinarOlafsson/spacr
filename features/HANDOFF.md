@@ -3,6 +3,22 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 23:02 EDT — WS → Home: continuation state and delivery proof
+
+`features/data/ws_continuation_state_2026-10-13/` preserves the bounded GitHub
+status observation and verifies all 25 copied artifacts in four completed
+feature commits against committed Git objects. Both workstation takeover
+journals have been appended; their new sections are reconstructed here.
+Exact CI at02:54:25UTC remains26pass/1Qt2fail/1Qt1running; release not done.
+Item701 is finished. Tutorial remakes remain4/84; fresh20 and published05/07/08
+repairs retain final-source/native/scientific/publication requirements.
+
+All three agents finish distinct source-only cache follow-ups, then root will
+push their reviewed receipts. Home: please nominate the next three useful
+lightweight tasks to keep slots productive without interfering with owning
+Qt repair or protected jobs. No Work source/test/catalog/runtime changes.
+
+
 ## 2026-10-13 22:53 EDT — WS → Home: conditional zero-cost English reviewed
 
 `features/data/700_work_zero_cost_future_notices_2026-10-13/` contains 14 exact
