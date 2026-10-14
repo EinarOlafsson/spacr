@@ -226,3 +226,15 @@ Work verified saved Home continuation — 2026-10-14 10:56 EDT
 | Original decisions/masks/history |1,637 verdicts,8351masks,267histories preserved | No label/GUI changes or automatic ledger merge |
 | Pending-only Home curator | Verified unique-stem mapping,5685 pending | Save/close Work before switching; retain originalCSV and Hide judged fields |
 | Transfer | None needed for verified bytes | Entireaf3 backlog still separately tracked |
+
+
+Work tutorial readiness delivery — 2026-10-14 10:59 EDT
+
+| Stream | Verified state | Next dependency |
+|---|---|---|
+| Plaque saved-file sync | CurrentWork and independentHome match all16981 saved files | Owner save/pause before Home continuation; no transfer needed |
+| Tutorial inventory |84registered,4historical GNOME publications;80new +3redo/reassessment |20→43→24→26→numeric;14paint dependency |
+| Whole20 recording commands | Exact conditional commands and held source/tool hashes delivered | Explicit Home clearance and immutable final Workbench source |
+| Whole20 downstream | Scientific/English/review/cache/publication prerequisites bound | Accepted complete fresh20 before audio/translation/stage/publish |
+
+No new tutorial completed by readiness; deadline not guaranteed.
