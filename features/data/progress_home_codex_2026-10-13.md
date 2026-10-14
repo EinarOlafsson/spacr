@@ -1,4 +1,4 @@
-Home/Work progress — 2026-10-13 22:01 EDT
+Home/Work progress — 2026-10-13 22:10 EDT
 
 — means no defensible completion percentage or elapsed-time estimate. ✅ marks verified achievements in the last 12 hours; remaining gates stay explicit.
 
@@ -15,10 +15,10 @@ Home/Work progress — 2026-10-13 22:01 EDT
 | Lesson 20 staging contract | — | Validated; held for release | Work | Private 67dbbd20b checks exact scientific, clip and gate evidence with video/native/receipt hash bindings; 63 owning cases pass. |
 | Tutorial queue preflight | — | Validated; held for release | Work | Private 6487de73a/facc4b16a detect capture placeholders and missing paths before jobs are emitted; 12 cases pass. Dispatcher remains inactive. |
 | N43 | — | CI-dependent | Home | All observed repair partitions green; full run38488240863 still tests Fast 2 and threeQt shards. No main promotion/release yet. |
-| F288 | — | CI + Work GPU acceptance | Home + Work | Hosted gate passes; genuine Work CuPy 3 pass/0 skip accepted. Independent local source-bound union reaches97.04% ops_accel and all664 above90%, without baseline changes. FullCI remains pending. |
+| F288 | — | CI + Work GPU acceptance | Home + Work | Hosted gate passes; real CuPy 3 pass/0 skip and local97.04% accepted, all664 above90% without baseline changes. FullCI and open issue146/147 requirements remain. |
 | Make Masks lesson 14 performance | — | After release | Home | 138-case byte proof confirms dirty persisted hash defect and exact bounded legacy replacement. Held branch unchanged; finish ledger/shutdown/performance fixes and owning tests after release. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |
-| N696 | — | After N697 | Home + Work | Rebase held automatic-diameter implementation; finish source-bound translations and validate GUI/CLI/run/preview parity. |
+| N696 | — | After N697 | Home + Work | Rebase automatic diameter; fix issue146 (0 must mean auto), GUI/CLI/run/preview parity, defaults/reseeding/clipping and translations. Held until after697. |
 | README panel text links | 0% | After held branches | Home | Each panel links to its text; existing destination pages begin with the panel text. Preserve current visuals and copy generated outputs to main. |
 | N699 | 0% | Queued | Home + Work + maintainer | Source audit maps GUI SSH discovery/MFA/session/Testconnection gaps; current Great Lakes Kerberos + Okta and passive-parser requirement recorded. Implementation/nativeMFA remain open. |
 | N700 | 0% | Account setup now; implementation after release | Home + maintainer | ZERO maintainer cost mandatory. Owner GitHub App+Workers/D1 Free+free-access AI; no subscriptions/credits/paid fallback. Resources/relay/redaction/consent/retry/provider integration remain unimplemented. |
@@ -81,3 +81,4 @@ Home/Work progress — 2026-10-13 22:01 EDT
 | Make Masks legacy hash proof | ✅ | Done; app acceptance open | Home | Standalone CPU 138 cases: proposed stream matches every legacy byte/hash; dirty algorithm mismatches all 138. Converted chunks max 512 KiB. No held source/test edits or performance claim. |
 | Release-note factual review | ✅ | Done; publication pending | Home Qt agent + Home | All 36 draft bullets source-bound and independently reviewed. Corrected SIF optionality, no-stalls overclaim,Box mode scope and other precision points; no release published. |
 | Real CuPy parity and coverage | ✅ | Done; full CI pending | Work + Home Qt/colour agents | Three genuine forced-CuPy passes; all proof/source hashes verified. Mixed7.15/7.16 local union:97.04%,144/147 statements,53/56 branches,all664 above90%. No Home GPU or source edits. |
+| GitHub #147 approval UI | 0% | After release; native reproduction needed | Home + Work | Work source triage identifies missing chat approval protocol/PTY; macOS/provider failure remains unreproduced. Preserve approval semantics, cancellation and privacy; implement real prompt handling. |

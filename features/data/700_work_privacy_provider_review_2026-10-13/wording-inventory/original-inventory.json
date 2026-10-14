@@ -1,0 +1,1239 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T01:32:55.456249+00:00",
+  "status": "BOUNDED AST LITERAL INVENTORY / FUTURE WORDING MAP ONLY; no approved replacements/translations or source changes",
+  "final_audit_binding": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_anonymous_payload_provider_audit_20261013/audit.json",
+    "sha256": "39d1b7937b237062145a73c9c8955b392008da4663dd89dc836019a4acdea41f",
+    "size_bytes": 30922
+  },
+  "independent_flow_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_issue_report_flows_peerreview_20261013.json",
+    "sha256": "cc9c2ea91ec352b79c797ca28bc388ccd54d8ebe170f90f1021d0c08f4e09845",
+    "size_bytes": 9268
+  },
+  "consistency_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_issue_report_flows_consistency_20261013.json",
+    "sha256": "68de8c9f4a799df47002d3bf1d23b61d55f07059ce67c7d9eb6affcb9d07fb4d",
+    "size_bytes": 6030
+  },
+  "source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "sha256": "bb07744b8595346bd92c07aec463aaec75f2ff3f40fc08097706b89c18d21bed",
+      "size_bytes": 11698
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "sha256": "5489cc833ef9e26ddb9a6221cecab2fddf60e8d1f8fc99e76870b351a1155b06",
+      "size_bytes": 31642
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "sha256": "2048c010239e21244b77704d4e48a4ebb608f5277334078f9cb5a9f0749f6a29",
+      "size_bytes": 33621
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/console_panel.py",
+      "sha256": "46e4b66be978b3e202bebe71422c9ed7a533ceba0b33cd74be77c40ad5fb1bcd",
+      "size_bytes": 96307
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "size_bytes": 552446
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "size_bytes": 590758
+    }
+  ],
+  "extraction": {
+    "method": "ast.parse only; literal string arguments of named UI/report calls within explicit line spans; no import/execution/gettext extraction",
+    "line_scopes": {
+      "spacr/qt/ai/issue_preview.py": [
+        [
+          67,
+          115
+        ],
+        [
+          155,
+          198
+        ],
+        [
+          210,
+          262
+        ]
+      ],
+      "spacr/qt/ai/issue_report.py": [
+        [
+          560,
+          628
+        ]
+      ],
+      "spacr/qt/widgets/ai_chat_panel.py": [
+        [
+          110,
+          118
+        ],
+        [
+          140,
+          166
+        ],
+        [
+          210,
+          269
+        ]
+      ],
+      "spacr/qt/widgets/console_panel.py": [
+        [
+          2319,
+          2350
+        ]
+      ],
+      "spacr/qt/preferences.py": [
+        [
+          10268,
+          10278
+        ],
+        [
+          10355,
+          10379
+        ]
+      ],
+      "spacr/qt/screens/app_screen.py": [
+        [
+          10008,
+          10072
+        ]
+      ]
+    },
+    "record_count": 56,
+    "limitations": [
+      "Bounded six-file surface inventory, not complete N700 or global source/catalog inventory.",
+      "Dynamic provider label/status/f-string payloads, command strings, report markdown separators and docstrings are not literal-English inventory here.",
+      "Some raw strings are not explicitly wrapped in tr; absence/presence of explicit tr alone does not prove existing runtime extractor coverage.",
+      "Nine-locale coverage not recalculated; no repeat4306-file scan."
+    ]
+  },
+  "current_literal_records": [
+    {
+      "id": "N700-current-001",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 73,
+      "end_line": 73,
+      "column": 31,
+      "current_literal_English": "Review public GitHub report",
+      "literal_utf8_sha256": "a8b8459b12f13a64721e427f1eeb1ce2de00e6f2ec35861411e3df61706b1bfd",
+      "AST_expression": "\"Review public GitHub report\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-002",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 78,
+      "end_line": 81,
+      "column": 12,
+      "current_literal_English": "Nothing has been sent. The text below will be posted to the PUBLIC spaCR GitHub repository only if you press Send report. Public issues are world-readable, indexed and mirrored; they cannot be reliably unpublished. Edit or remove anything first.",
+      "literal_utf8_sha256": "b1a625544c512339aeb15e4d5aceeb5c5a2a7df0440fdc5b4a240cc8dcd16f2f",
+      "AST_expression": "\"Nothing has been sent. The text below will be posted to the \"\n            \"PUBLIC spaCR GitHub repository only if you press Send report. \"\n            \"Public issues are world-readable, indexed and mirrored; they \"\n            \"cannot be reliably unpublished. Edit or remove anything first.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [
+        "Scope cancellation/no-send statement to public submission; cloud diagnosis may already have been requested."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-003",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 87,
+      "end_line": 87,
+      "column": 46,
+      "current_literal_English": "Issue title",
+      "literal_utf8_sha256": "baebb0f722db7150e454ecfb2d432205f6331d57837328637d25ac8413f84644",
+      "AST_expression": "\"Issue title\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-004",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 91,
+      "end_line": 91,
+      "column": 12,
+      "current_literal_English": "Remove file and folder names (recommended)",
+      "literal_utf8_sha256": "60e84091c4498d3c1e044072947bb75481a473f541176786150e013411c8f144",
+      "AST_expression": "\"Remove file and folder names (recommended)\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [
+        "Do not promise universal anonymization/redaction; final typed schema and safe fields must actually be implemented."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-005",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 103,
+      "end_line": 103,
+      "column": 36,
+      "current_literal_English": "Send report",
+      "literal_utf8_sha256": "a44d35311325e654d827529a7713c7dc07309ef4de66a4741807b5eb252d0eaa",
+      "AST_expression": "\"Send report\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-006",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 104,
+      "end_line": 104,
+      "column": 38,
+      "current_literal_English": "Cancel",
+      "literal_utf8_sha256": "19766ed6ccb2f4a32778eed80d1928d2c87a18d7c275ccb163ec6709d3eb2e27",
+      "AST_expression": "\"Cancel\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-007",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 106,
+      "end_line": 106,
+      "column": 15,
+      "current_literal_English": "Diagnose",
+      "literal_utf8_sha256": "64dd65edfeaabd10a5a0f29816332bf82ca9c7b7056182a29f9e1d987cbaf016",
+      "AST_expression": "\"Diagnose\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-008",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 108,
+      "end_line": 109,
+      "column": 12,
+      "current_literal_English": "Ask spaCR AI to explain this error and add its analysis to the report.",
+      "literal_utf8_sha256": "6b843170d02805279c080d1a3f1552bac2cc4032483afad7709e99f30474bf66",
+      "AST_expression": "\"Ask spaCR AI to explain this error and add its analysis to the \"\n            \"report.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-009",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 155,
+      "end_line": 155,
+      "column": 26,
+      "current_literal_English": "Diagnose",
+      "literal_utf8_sha256": "64dd65edfeaabd10a5a0f29816332bf82ca9c7b7056182a29f9e1d987cbaf016",
+      "AST_expression": "\"Diagnose\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-010",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 156,
+      "end_line": 156,
+      "column": 26,
+      "current_literal_English": "The AI console is not available from here.",
+      "literal_utf8_sha256": "c83867bedeba702151786572e606517dc9e212b71a1721e6df30991f9bb86bd7",
+      "AST_expression": "\"The AI console is not available from here.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-011",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 167,
+      "end_line": 167,
+      "column": 19,
+      "current_literal_English": "No AI account linked",
+      "literal_utf8_sha256": "3e1ea06849a960086ea56cce34a4f9ee836cfd0bacf8773958432394f6b4a3f8",
+      "AST_expression": "\"No AI account linked\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-012",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 168,
+      "end_line": 172,
+      "column": 19,
+      "current_literal_English": "spaCR AI needs a provider before it can explain an error. Link one through the AI Providers dialog — the command palette has 'Open AI Providers…' — then press Diagnose again.\n\nThe report can be sent without a diagnosis.",
+      "literal_utf8_sha256": "a35ace18f5b23af39a67bc236905a14210ee93738084e6d3535022e254fd4f32",
+      "AST_expression": "\"spaCR AI needs a provider before it can explain an \"\n                   \"error. Link one through the AI Providers dialog — the \"\n                   \"command palette has 'Open AI Providers…' — then press \"\n                   \"Diagnose again.\\n\\nThe report can be sent without a \"\n                   \"diagnosis.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted.",
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-013",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 177,
+      "end_line": 177,
+      "column": 19,
+      "current_literal_English": "spaCR AI is still working",
+      "literal_utf8_sha256": "c9fe069ba1c256d48b4e8747d115d1c8a126e78ec4a4ec07fe10c4f49ba7ad31",
+      "AST_expression": "\"spaCR AI is still working\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-014",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 178,
+      "end_line": 180,
+      "column": 19,
+      "current_literal_English": "spaCR AI has not finished its previous answer. Wait for it to finish, then press Diagnose again — the analysis will be added to this report.",
+      "literal_utf8_sha256": "679ff43cec83cb4b6609768e6e0b67e5ee38dd0f1f2ebf8bcea69ba8e02b6dc4",
+      "AST_expression": "\"spaCR AI has not finished its previous answer. Wait for \"\n                   \"it to finish, then press Diagnose again — the analysis \"\n                   \"will be added to this report.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-015",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 184,
+      "end_line": 184,
+      "column": 26,
+      "current_literal_English": "Diagnose",
+      "literal_utf8_sha256": "64dd65edfeaabd10a5a0f29816332bf82ca9c7b7056182a29f9e1d987cbaf016",
+      "AST_expression": "\"Diagnose\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-016",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 185,
+      "end_line": 185,
+      "column": 26,
+      "current_literal_English": "There is no error text to diagnose.",
+      "literal_utf8_sha256": "e4355f73e98cb95cda41fc190c473db08c1b54d0cc2412f722df5ef13fdc5f88",
+      "AST_expression": "\"There is no error text to diagnose.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-017",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 189,
+      "end_line": 189,
+      "column": 37,
+      "current_literal_English": "Diagnosing…",
+      "literal_utf8_sha256": "952917a8e8f5c7e2270c9f2ac81172ab2ba081aaa57d18dadd3a9b3f1c0868f6",
+      "AST_expression": "\"Diagnosing…\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-018",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 195,
+      "end_line": 195,
+      "column": 26,
+      "current_literal_English": "Diagnose",
+      "literal_utf8_sha256": "64dd65edfeaabd10a5a0f29816332bf82ca9c7b7056182a29f9e1d987cbaf016",
+      "AST_expression": "\"Diagnose\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-019",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 196,
+      "end_line": 196,
+      "column": 26,
+      "current_literal_English": "spaCR AI could not be started.",
+      "literal_utf8_sha256": "4aead01fa579c4953eb05be0c13d37da6774e416cd161b4f201ebb9d622b59fb",
+      "AST_expression": "\"spaCR AI could not be started.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-020",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 222,
+      "end_line": 222,
+      "column": 26,
+      "current_literal_English": "Diagnose",
+      "literal_utf8_sha256": "64dd65edfeaabd10a5a0f29816332bf82ca9c7b7056182a29f9e1d987cbaf016",
+      "AST_expression": "\"Diagnose\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-021",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 223,
+      "end_line": 224,
+      "column": 26,
+      "current_literal_English": "spaCR AI did not return an analysis. The console shows what it said.",
+      "literal_utf8_sha256": "8021b25cec7092e0110817f2b971cb8d17f024572f3aaa5051cddb430ccfbb92",
+      "AST_expression": "\"spaCR AI did not return an analysis. The console \"\n                          \"shows what it said.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-022",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 228,
+      "end_line": 228,
+      "column": 26,
+      "current_literal_English": "Diagnose",
+      "literal_utf8_sha256": "64dd65edfeaabd10a5a0f29816332bf82ca9c7b7056182a29f9e1d987cbaf016",
+      "AST_expression": "\"Diagnose\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-023",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 229,
+      "end_line": 229,
+      "column": 26,
+      "current_literal_English": "spaCR AI did not answer in time.",
+      "literal_utf8_sha256": "5950da4bfd6e51fc725fe5bdd26bbf82d0aa843314141220ee9a1733ff97aae8",
+      "AST_expression": "\"spaCR AI did not answer in time.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-024",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "line": 235,
+      "end_line": 235,
+      "column": 37,
+      "current_literal_English": "Diagnose",
+      "literal_utf8_sha256": "64dd65edfeaabd10a5a0f29816332bf82ca9c7b7056182a29f9e1d987cbaf016",
+      "AST_expression": "\"Diagnose\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-025",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "line": 573,
+      "end_line": 573,
+      "column": 22,
+      "current_literal_English": "### Traceback",
+      "literal_utf8_sha256": "ee8a262faeafe1b0a1269b0336736648ada6c6aa86677bf4ca488cb68af5918a",
+      "AST_expression": "\"### Traceback\"",
+      "call_site": "append",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-026",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "line": 585,
+      "end_line": 586,
+      "column": 12,
+      "current_literal_English": "<details><summary>spaCR AI's analysis of this error</summary>",
+      "literal_utf8_sha256": "54c5b4e15fba32db75f03be430b0ecca5eb996c031335f8ff7f46add7680c5f5",
+      "AST_expression": "\"<details><summary>spaCR AI's analysis of this error\"\n            \"</summary>\"",
+      "call_site": "append",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-027",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "line": 589,
+      "end_line": 590,
+      "column": 12,
+      "current_literal_English": "Generated by spaCR AI from the traceback above, unreviewed. Treat it as a lead rather than a diagnosis.",
+      "literal_utf8_sha256": "c24bcb9336396424f99b8a68f71c1eb41de4fb85c9fb679f403568ba75ce725f",
+      "AST_expression": "\"Generated by spaCR AI from the traceback above, unreviewed. \"\n            \"Treat it as a lead rather than a diagnosis.\"",
+      "call_site": "append",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic"
+      ],
+      "required_semantic_checks": [
+        "Describe generated advice, not verified diagnosis or automatic commands; final timeout/cancellation transport behavior must be checked."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-028",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "line": 596,
+      "end_line": 596,
+      "column": 22,
+      "current_literal_English": "### Environment",
+      "literal_utf8_sha256": "a147110b26a6a761145b9f723a04d2ce81c18f20cc143b6c597fe24c56e4b72e",
+      "AST_expression": "\"### Environment\"",
+      "call_site": "append",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-029",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "line": 614,
+      "end_line": 614,
+      "column": 30,
+      "current_literal_English": "<details><summary>Log</summary>",
+      "literal_utf8_sha256": "ba14a4a9bcc06e40cb7d7b6e0eae4b8f742ec64d3a8ced4acddfb8cc1b2306b5",
+      "AST_expression": "\"<details><summary>Log</summary>\"",
+      "call_site": "append",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic",
+        "local_bundle"
+      ],
+      "required_semantic_checks": [
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-030",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "line": 617,
+      "end_line": 618,
+      "column": 16,
+      "current_literal_English": "The log is NOT attached: it can carry sample names, plate barcodes and folder names, and this issue is public.",
+      "literal_utf8_sha256": "374fda09a8a100aa8b64f1d0567e5724db9ee408a605312fb5cc3a355fafb44a",
+      "AST_expression": "\"The log is NOT attached: it can carry sample names, plate \"\n                \"barcodes and folder names, and this issue is public.\"",
+      "call_site": "append",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic",
+        "local_bundle"
+      ],
+      "required_semantic_checks": [
+        "Do not promise universal anonymization/redaction; final typed schema and safe fields must actually be implemented.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-031",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "line": 624,
+      "end_line": 624,
+      "column": 16,
+      "current_literal_English": "If you need it, ask -- and read it before sending it.",
+      "literal_utf8_sha256": "7a6dd4bac94c30889329a780482a9045f1c45b290d7651c3e66f4c0e0d40e60a",
+      "AST_expression": "\"If you need it, ask -- and read it before sending it.\"",
+      "call_site": "append",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic",
+        "local_bundle"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-032",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10269,
+      "end_line": 10269,
+      "column": 15,
+      "current_literal_English": "Include redacted log excerpts in issue previews",
+      "literal_utf8_sha256": "051a392ffc745d1ae09520fc5ae731d38a4f9408230a97b19880445ac733baa3",
+      "AST_expression": "\"Include redacted log excerpts in issue previews\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "local_bundle",
+        "public_manual"
+      ],
+      "required_semantic_checks": [
+        "Do not promise universal anonymization/redaction; final typed schema and safe fields must actually be implemented.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-033",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10272,
+      "end_line": 10275,
+      "column": 12,
+      "current_literal_English": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "literal_utf8_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
+      "AST_expression": "\"On by default. When on, an error report saves recent log lines, \"\n            \"with paths and credentials redacted, to a file on this computer \"\n            \"and names that file in the report. The log itself is never \"\n            \"posted to GitHub.\"",
+      "call_site": "setToolTip",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "local_bundle",
+        "public_manual"
+      ],
+      "required_semantic_checks": [
+        "Do not promise universal anonymization/redaction; final typed schema and safe fields must actually be implemented.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-034",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10278,
+      "end_line": 10278,
+      "column": 26,
+      "current_literal_English": "Report logs",
+      "literal_utf8_sha256": "8711fcb7d64fb149b669ccdafd94df603e1159c7051c67b97833417064c73287",
+      "AST_expression": "\"Report logs\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "local_bundle",
+        "public_manual"
+      ],
+      "required_semantic_checks": [
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-035",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10356,
+      "end_line": 10356,
+      "column": 37,
+      "current_literal_English": "Automatic (first available)",
+      "literal_utf8_sha256": "d93a34ed101fdd36ba36fa98a9c34a541a6ee1734b60b09d8e2d70e6e70a4a39",
+      "AST_expression": "\"Automatic (first available)\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-036",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10368,
+      "end_line": 10369,
+      "column": 12,
+      "current_literal_English": "Which assistant the AI switch routes through. Automatic picks the first vendor CLI that is installed and logged in.",
+      "literal_utf8_sha256": "055870f78f2710a9989fdb32e927433ef909e4d638c4325f5e570e5de9901503",
+      "AST_expression": "\"Which assistant the AI switch routes through. Automatic picks \"\n            \"the first vendor CLI that is installed and logged in.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-037",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10371,
+      "end_line": 10371,
+      "column": 26,
+      "current_literal_English": "Provider",
+      "literal_utf8_sha256": "472590ae974d4c1f44b3780df0b152d9119f076c61bfb3e8cb6affd7889ac0a8",
+      "AST_expression": "\"Provider\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-038",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10373,
+      "end_line": 10373,
+      "column": 42,
+      "current_literal_English": "Providers…",
+      "literal_utf8_sha256": "5f69834a6535ec253fa6ecbf5e057b0987e5f321f23fdda07f06fe695c551c9b",
+      "AST_expression": "\"Providers…\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-039",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "line": 10376,
+      "end_line": 10376,
+      "column": 12,
+      "current_literal_English": "Install a vendor CLI, or sign in to one you have.",
+      "literal_utf8_sha256": "492c4b54a47a15056272beb338b51991534dcc6e3679b4908a2195cf96188267",
+      "AST_expression": "\"Install a vendor CLI, or sign in to one you have.\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-040",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "line": 10012,
+      "end_line": 10013,
+      "column": 16,
+      "current_literal_English": "\nNot filing a report: issue reporting is set to 'never' in Preferences.\n",
+      "literal_utf8_sha256": "d86d846259c5d673e5d857b285cc4fc233c68668b0ffc3997774f3995948b1d4",
+      "AST_expression": "\"\\nNot filing a report: issue reporting is set to 'never' in \"\n                \"Preferences.\\n\"",
+      "call_site": "append_notice",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-041",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "line": 10037,
+      "end_line": 10037,
+      "column": 16,
+      "current_literal_English": "[issue] cancelled — nothing was sent.\n",
+      "literal_utf8_sha256": "339c3be9351510bb15717e307f1767e6bb5ca7cbff838a10bf5c0ed1735eb07e",
+      "AST_expression": "\"[issue] cancelled — nothing was sent.\\n\"",
+      "call_site": "append_notice",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [
+        "Scope cancellation/no-send statement to public submission; cloud diagnosis may already have been requested."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-042",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "line": 10054,
+      "end_line": 10054,
+      "column": 12,
+      "current_literal_English": "[issue] sending the approved report to GitHub…\n",
+      "literal_utf8_sha256": "c0a2618e57d5244a0a298bdb367ad123fb34fc06b31b174472435ab0eafdfca8",
+      "AST_expression": "\"[issue] sending the approved report to GitHub…\\n\"",
+      "call_site": "append_notice",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-043",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "line": 10062,
+      "end_line": 10062,
+      "column": 16,
+      "current_literal_English": "[issue] auto-file failed: {detail}\n",
+      "literal_utf8_sha256": "dc3f467fbc877e9651320dc835f08743b33b082f1fc51ae9c2e39cfea7ad06a4",
+      "AST_expression": "\"[issue] auto-file failed: {detail}\\n\"",
+      "call_site": "append_notice",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-044",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "line": 10065,
+      "end_line": 10065,
+      "column": 12,
+      "current_literal_English": "[issue] report handoff completed.\n{url}...\n",
+      "literal_utf8_sha256": "33aa688b221bb037dc9b619f476f83b018829a50072c30327783aa773ec8fd7b",
+      "AST_expression": "\"[issue] report handoff completed.\\n{url}...\\n\"",
+      "call_site": "append_notice",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-045",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 110,
+      "end_line": 110,
+      "column": 28,
+      "current_literal_English": "AI Console — providers & settings",
+      "literal_utf8_sha256": "27926c93ce8b6797479c8140ab16791ac28e86f17da125e0319ace8c3bd0d838",
+      "AST_expression": "\"AI Console — providers & settings\"",
+      "call_site": "setWindowTitle",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-046",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 118,
+      "end_line": 118,
+      "column": 49,
+      "current_literal_English": "Providers",
+      "literal_utf8_sha256": "996c32b35f2182a9c83815395113f92344269ebb4ab3525017c4cafaa3d1a8fd",
+      "AST_expression": "\"Providers\"",
+      "call_site": "addTab",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-047",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 144,
+      "end_line": 149,
+      "column": 12,
+      "current_literal_English": "The AI Console talks to the <b>vendor coding-agent CLI</b> for each provider, using your chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account).<br><br>For each provider you want to use, install the CLI then log in <em>once</em>. Copy the commands below into a terminal.",
+      "literal_utf8_sha256": "9b354f64434c7a4f5fa380c2bfe8f7ebdb094cbb3d4a6bf517f22731f4b2ce7e",
+      "AST_expression": "\"The AI Console talks to the <b>vendor coding-agent CLI</b> \"\n            \"for each provider, using your chat subscription \"\n            \"(Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account).<br><br>\"\n            \"For each provider you want to use, install the CLI then \"\n            \"log in <em>once</em>. Copy the commands below into a \"\n            \"terminal.\"",
+      "call_site": "QLabel",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-048",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 159,
+      "end_line": 161,
+      "column": 12,
+      "current_literal_English": "Once a CLI is installed <em>and</em> you're logged in, press <b>Refresh</b> below and it will appear in the provider dropdown.",
+      "literal_utf8_sha256": "c3bb2aa5d305dc3c0b92239ca285b4e9f46dff3bec0b97bbeb2fe4713a2251d4",
+      "AST_expression": "\"Once a CLI is installed <em>and</em> you're logged in, press \"\n            \"<b>Refresh</b> below and it will appear in the provider \"\n            \"dropdown.\"",
+      "call_site": "QLabel",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "cloud_chat",
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-049",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 210,
+      "end_line": 218,
+      "column": 12,
+      "current_literal_English": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "literal_utf8_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d",
+      "AST_expression": "\"<b>Report errors as GitHub issues</b><br>\"\n            \"<span style='color:gray;'>Reports go to the public spaCR \"\n            \"repository on GitHub, with paths, names and credentials \"\n            \"redacted. With issue reporting set to always, the default, a \"\n            \"failed run files its report automatically, once per error, \"\n            \"when GitHub is signed in below. With ask, a \\\"File as issue\\\" \"\n            \"button appears under the console and the report is sent only \"\n            \"when you press Send report in its preview. Change it under \"\n            \"Help → Set spaCR up again….</span>\"",
+      "call_site": "QLabel",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic"
+      ],
+      "required_semantic_checks": [
+        "Do not promise universal anonymization/redaction; final typed schema and safe fields must actually be implemented.",
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-050",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 226,
+      "end_line": 226,
+      "column": 12,
+      "current_literal_English": "Enable — report a failed run as a GitHub issue",
+      "literal_utf8_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f",
+      "AST_expression": "\"Enable — report a failed run as a GitHub issue\"",
+      "call_site": "Toggle",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-051",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 233,
+      "end_line": 234,
+      "column": 12,
+      "current_literal_English": "Route errors through AI — show the AI's explanation instead of the raw traceback",
+      "literal_utf8_sha256": "f2b1a17100b37ebe38f9170b899473282a3145f3496f5628fd7fa0b0d3cc5e43",
+      "AST_expression": "\"Route errors through AI — show the AI's explanation instead of \"\n            \"the raw traceback\"",
+      "call_site": "Toggle",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Display suppression is not input redaction; hosted diagnosis/chat must not inherit raw CLI history or console automatically."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-052",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 244,
+      "end_line": 245,
+      "column": 12,
+      "current_literal_English": "Console aware — send the console with your question so the AI can explain what went wrong",
+      "literal_utf8_sha256": "2b858f883a27e083129f112df5255cc2a2c5a3c6298070c2469f358894be91dd",
+      "AST_expression": "\"Console aware — send the console with your question so the AI \"\n            \"can explain what went wrong\"",
+      "call_site": "Toggle",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "cloud_chat"
+      ],
+      "required_semantic_checks": [
+        "Display suppression is not input redaction; hosted diagnosis/chat must not inherit raw CLI history or console automatically."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-053",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "line": 256,
+      "end_line": 262,
+      "column": 12,
+      "current_literal_English": "<b>GitHub sign-in</b><br><span style='color:gray;'>Install the official GitHub CLI and run <code>gh auth login</code>. GitHub stores the credential in the platform credential manager; spaCR never captures or stores the token. Without CLI login, reports open in your authenticated browser instead.</span>",
+      "literal_utf8_sha256": "0b9f98d8f95982abb38e65dedf3f3ab5b244369b939fc945a79722ed073aca96",
+      "AST_expression": "\"<b>GitHub sign-in</b><br>\"\n            \"<span style='color:gray;'>Install the official GitHub CLI and \"\n            \"run <code>gh auth login</code>. GitHub stores the credential in \"\n            \"the platform credential manager; spaCR never captures or stores \"\n            \"the token. Without CLI login, reports open in your authenticated \"\n            \"browser instead.\"\n            \"</span>\"",
+      "call_site": "QLabel",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "public_manual",
+        "public_automatic"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted.",
+        "Local saved bundle/file may be sensitive; do not conflate local saving with public attachment or strict anonymous payload."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-054",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/console_panel.py",
+      "line": 2321,
+      "end_line": 2321,
+      "column": 16,
+      "current_literal_English": "[AI] Enable AI in the actions row + pick a provider first.\n",
+      "literal_utf8_sha256": "d9d63b8983b212fa31404666a67bb58127c48704c868f594d9f4aad9d1cab1db",
+      "AST_expression": "\"[AI] Enable AI in the actions row + pick a provider first.\\n\"",
+      "call_site": "append_notice",
+      "explicit_tr_call": false,
+      "proposed_destination_wording_keys": [
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Distinguish existing user-owned CLI/accounts from proposed account-free hosted route; billing/retention remain provider-specific and unaccepted."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-055",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/console_panel.py",
+      "line": 2333,
+      "end_line": 2334,
+      "column": 16,
+      "current_literal_English": "An error occurred — asking spaCR AI to explain it. (Ask the AI to \"show the raw error\" to see the traceback.)",
+      "literal_utf8_sha256": "b1d737462ab0efcc66e1cde5a7db89bf5ed62c12d3bd38e6df17db7c010c4126",
+      "AST_expression": "\"An error occurred — asking spaCR AI to explain it. \"\n                \"(Ask the AI to \\\"show the raw error\\\" to see the traceback.)\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "cloud_error"
+      ],
+      "required_semantic_checks": [
+        "Display suppression is not input redaction; hosted diagnosis/chat must not inherit raw CLI history or console automatically."
+      ],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    },
+    {
+      "id": "N700-current-056",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/console_panel.py",
+      "line": 2339,
+      "end_line": 2339,
+      "column": 15,
+      "current_literal_English": "spaCR AI",
+      "literal_utf8_sha256": "1c7dfd9ba34d9969227170ad740b24a0a3e1a671c89c1b5061902e1e64cafd7b",
+      "AST_expression": "\"spaCR AI\"",
+      "call_site": "tr",
+      "explicit_tr_call": true,
+      "proposed_destination_wording_keys": [
+        "cloud_error"
+      ],
+      "required_semantic_checks": [],
+      "change_disposition": "Preserve short label if still meaningful; revise disclosure/account/destination claims only after approved final behavior and English. Exact replacements not applied."
+    }
+  ],
+  "proposed_wording_by_destination": {
+    "status": "Draft destinationscope wording only; finalrelay/clientbehaviorandretention mustbe approved beforetranslation",
+    "public_automatic": "Automatic public reports send a limited technical error summary to the spaCR reporting service. It can create or update an issue on the public spaCR GitHub repository. The summary excludes raw logs, settings, file paths and personal text. Public issues can be indexed and copied and cannot be reliably unpublished. You can turn automatic reports off in Preferences.",
+    "public_manual": "Review the exact issue title and body before sending. Anything you add may be public, including personal information or secrets. Review again after edits or diagnosis changes. Cancelling prevents this public submission; it does not undo an earlier cloud diagnosis request.",
+    "cloud_error": "Cloud diagnosis sends a limited technical error summary through the spaCR service to its cloud AI provider. It does not require a public GitHub issue or your own AI account. Network services receive connection metadata. The answer is generated advice; it is not a verified diagnosis and no command is run automatically. You can disable cloud diagnosis separately.",
+    "cloud_chat": "Using hosted chat sends the question and any conversation context explicitly included for this request to the cloud service. That text may contain personal or confidential information. Review what is sent. Prior CLI conversations, raw logs and settings are not transferred automatically.",
+    "local_bundle": "A local crash-report ZIP can contain absolute paths, raw logs, settings, run identifiers and exception details. It is not an anonymous report. Inspect it before attaching or sharing it; it is not uploaded automatically.",
+    "retention_scope": "Guide citesCloudflare statedno-trainingwithoutconsent policy; this reviewdoesnotindependentlyverifycurrentvendorpolicy orclaimzerooperationalretention. Finalnotice mustidentifyactualprovider/relay, applicablepolicy, localqueue/servercounter/IP retention anddeletewindow actuallyimplemented. Do nottranslatefuturecaps/modelquality/freequota asmeasureddeployedfacts.",
+    "fairness_ids": "If needed, keep optionalpseudonymousinstall/challenge/IPquota data separatefrompublictechnicalpayload, discloseitsuse, boundretention, neverclaimanonymousauthentication orpublishit."
+  },
+  "future_translation_contract": {
+    "locales": [
+      "de",
+      "es",
+      "fr",
+      "hi",
+      "is",
+      "ko",
+      "pt",
+      "sv",
+      "zh_CN"
+    ],
+    "portuguese": "Brazilian Portuguese",
+    "required_before_any_translation": [
+      "Final client/relay/provider/reporting behavior publicly lands and release source freeze is lifted by owner.",
+      "Approve truthful exact English distinguishing public reporting, cloud diagnosis, hosted chat, existing CLI and sensitive local bundles.",
+      "Recheck typed payload allowlist/limits, transport/consent/cancellation/retention/quota and exact preview-versus-submitted bytes on final source; current proposed exclusions cannot be represented as implemented.",
+      "Bind new English strings/path/line/source and literal hashes to dated review records; preserve placeholders/identifiers and unchanged translations.",
+      "Run owning extraction/regeneration only when authorized; review all nine locale meanings with honest provenance, not metadata-only completeness."
+    ],
+    "new_surfaces_without_current_literal": [
+      "Hosted report relay consent/opt-out/server refusal/retry statuses",
+      "Separate account-free cloud diagnosis request disclosure and actual cancellation/deadline notice",
+      "Hosted chat exact included-context preview",
+      "Actual provider/relay retention/delete policy notice and separate optional fairness-ID disclosure"
+    ]
+  },
+  "no_changes": {
+    "source_catalog_review": false,
+    "gettext_or_translations": false,
+    "tests_GUI_network_GPU": false
+  }
+}

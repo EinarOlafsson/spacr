@@ -1,0 +1,20 @@
+{
+  "requirement": "zero cost to maintainer is mandatory",
+  "recorded_at_utc": "2026-10-14T01:47:47.497956+00:00",
+  "configuration": [
+    "owner-created GitHub App; no purchased Marketplace subscription",
+    "Workers Free; D1 Free",
+    "free-access catalog AI model allowlist; no paid inference fallback",
+    "workers.dev hostname; no purchased domain",
+    "bounded quotas, retries and refusal; no automatic plan upgrade or credits"
+  ],
+  "actual_owner_billing_configuration_verified": false,
+  "external_deployment_performed": false,
+  "sources": [
+    "https://docs.github.com/en/get-started/learning-about-github/githubs-plans",
+    "https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app",
+    "https://developers.cloudflare.com/workers/platform/pricing/",
+    "https://developers.cloudflare.com/workers-ai/platform/pricing/",
+    "https://developers.cloudflare.com/d1/platform/pricing/"
+  ]
+}

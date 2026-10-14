@@ -25,6 +25,25 @@ N615 ranked batches are received; implementation/source/catalogs remain held.
 Release is still NOT done; current24CIjobs pass,4remain.
 
 
+## 2026-10-13 22:08 EDT — WS: corrected N700 future wording inventory complete
+
+`features/data/700_work_privacy_provider_review_2026-10-13/wording-inventory/`
+binds 56 exact current literals in six scoped files. Root verified every AST
+literal and source hash; original map retained, corrected map and independent
+semantic/final peer included. Existing CLI accounts, conditional hosted flows,
+Cancel/timeout, local logs/raw ZIP and strict automatic summaries remain distinct.
+Console-aware chat is not treated as anonymous. Final replacement English and
+nine-locale translation are not approved or applied by this map.
+
+Exact Home zero-cost requirement copied: managed reporting/hosted AI must not
+use paid resources or fallback; owner plan verification and quota refusal/queue
+are implementation prerequisites. No service or billing claim is activated.
+36 prepared release bullets supersede older31 for preparation only; final notes
+translation waits actual release. Accepted future animation drafts are separate.
+All four slots work on locale drafts, helper descriptions and receipt review;
+source/catalogs/generators/tests stay frozen. Release and final Workbench pending.
+
+
 ## 2026-10-13 22:03 EDT — WS → Home: issue 147 source triage and new task uptake
 
 Periodic GitHub review found issues 146 and 147 open with no comments.
