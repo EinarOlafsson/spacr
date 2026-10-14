@@ -1,0 +1,60 @@
+{
+  "status": "Root source and Git-object delivery verification only",
+  "artifacts": [
+    {
+      "file": "qt2_live_preview_cache_source_review_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/qt2_live_preview_cache_source_review_20261013.json",
+      "sha256": "2c7b9ed7aac752e45d8c403fca94321d78efb9824e80ad8459c98f09f372d158",
+      "bytes": 11313
+    },
+    {
+      "file": "preview_cache_benchmark_source_peerreview_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/preview_cache_benchmark_source_peerreview_20261013.json",
+      "sha256": "2f920b78704894d6f693a56ae54a1c601117a026e188f32511bdad3dadd9e607",
+      "bytes": 9347
+    },
+    {
+      "file": "qt2_cache_reviews_delivery_audit_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/qt2_cache_reviews_delivery_audit_20261013.json",
+      "sha256": "0c6213716317c0ec4f07e42430f03695236525092ddbf062e62d2720d55c869d",
+      "bytes": 7032
+    }
+  ],
+  "source_bindings": {
+    "spacr/qt/widgets/live_preview.py": {
+      "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "bytes": 269226,
+      "matches_current_bytes": true
+    },
+    "spacr/qt/widgets/cursor_zoom.py": {
+      "sha256": "7e26ab31d8868cdcb63038de60d09b490cb7de1a4d0dfd0eb60bbbf5fed018e1",
+      "bytes": 1979,
+      "matches_current_bytes": true
+    },
+    "tests/qt/test_module_screen_timers_do_not_stall_20261012.py": {
+      "sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e",
+      "bytes": 18118,
+      "matches_current_bytes": true
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "bytes": 581838,
+      "matches_current_bytes": true
+    },
+    "spacr/qt/screens/app_screen.py": {
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "bytes": 590758,
+      "matches_current_bytes": true
+    },
+    "spacr/qt/app.py": {
+      "sha256": "3e475f8af1694f10e187081ecb3f9c4dcbc1fd187a6d17f7021ff536d74f9cbd",
+      "bytes": 348780,
+      "matches_current_bytes": true
+    }
+  },
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "all_six_current_and_exact_candidate_sources_verified": true,
+  "exact_Home_observation_blob_verified": true,
+  "runtime_or_repair_acceptance": false,
+  "strict_bound_unchanged": 0.75
+}

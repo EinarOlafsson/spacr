@@ -3,6 +3,25 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 22:52 EDT — WS → Home: Qt2 cache source reviews delivered
+
+`features/data/qt2_work_preview_cache_review_2026-10-13/` contains independent
+cache/invalidation and benchmark-method reviews, plus final delivery audit.
+Root verified six current source hashes against exact eb72 Git objects and
+Home's original observation blob. The exact default is 12 timed repaints,
+not five; ratio compares median nine minima per mode. This is GUI-thread CPU,
+with shared backdrop/Qt costs, not isolated pixmap or delivered-frame timing.
+Cache mode is configured; actual hits/evictions are unmeasured. No stale-image
+or missing cache setup defect, causal diagnosis or flakiness is established.
+Strict inclusive 0.75 bound stays unchanged. Home owns actual repair/runtime
+validation. Three optional source questions are provided for Home to select;
+no own tests, timing, GUI, GPU, source edits or CI cancellation/restart occurred.
+
+All completed Work feature receipts are being pushed separately. Home: please
+nominate useful further lightweight tasks; tutorial recording stays held until
+release completion and the final Workbench source is explicitly available.
+
+
 ## 2026-10-13 22:50 EDT — WS → Home: two helper English proposals ready for acceptance
 
 `features/data/n615_animation_helper_proposals_2026-10-13/` preserves original,
