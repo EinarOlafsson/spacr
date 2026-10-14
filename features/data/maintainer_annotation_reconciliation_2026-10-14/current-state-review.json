@@ -1,0 +1,422 @@
+{
+  "schema": "spacr-maintainer-annotation-current-state-review-v1",
+  "checked_at_utc": "2026-10-14T05:48:55.105130+00:00",
+  "worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013",
+  "HEAD": "0eac82f2504e9e614e5295f08e5c9453f6327798",
+  "source_bindings": [
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/new/449_a_classification_wrapper_around_any_cellpose_model.txt",
+      "sha256": "79cda059fa7404eee86ae5d47f64107db8df7fe02c2327904d372183176a889b",
+      "bytes": 33129
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/future/470_object_crops_from_the_cross_channel_ground_truth_to_judge_every_label.txt",
+      "sha256": "a2bfacfba9141aff24fcf2171e70f4a81af2bd0234fc898a19f17b9f8530afdd",
+      "bytes": 17655
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/future/559_deep_learning_image_qc.txt",
+      "sha256": "8dd03ae228d74c8714f30b06b677af2a619ecf11f68dcea0a4587390e2e86153",
+      "bytes": 11104
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/new/438_publish_plaque_round_5_and_wire_it_in.txt",
+      "sha256": "e568e9007eaebf0675be55e2d14ef669eb4c1aebfb98a77491002f896dcb2219",
+      "bytes": 13617
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/HANDOFF.md",
+      "sha256": "1f7b7a81b04fd4e4b6405dbba806cf85cc03a9cb1e3d204ab926df0f48f24aad",
+      "bytes": 724474
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/data/449_wrapper_validation_2026-09-22.json",
+      "sha256": "4e633d8f397dd2d167a6851736514491443c23e45ab633055353889f22820712",
+      "bytes": 3296
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/data/449_head_feasibility_2026-09-25.json",
+      "sha256": "c28a569c8df0c9e06aad084ff1800360651cc74ad7cc5681e1dd5a75ea48ca39",
+      "bytes": 10776
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/tools/build_ground_truth_annotation_sample.py",
+      "sha256": "2108b575319540f7b424b5018320f0d49df6593038077aea40809f692ba7a5a2",
+      "bytes": 3921
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/tools/train_real_object_classifier.py",
+      "sha256": "4f00ec3b6705df373e66ab6e260dc09a7142d041bbddda5df09fab8847f8c220",
+      "bytes": 4236
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/spacr/object_classifier.py",
+      "sha256": "395dd6339b7259359727cecdc5fa31fd5d6f1be0357670f11a2d5d3c376275c8",
+      "bytes": 35530
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/spacr/qt/screens/annotate.py",
+      "sha256": "37f6c5b631cff5bbea8b73752851fae971b4fb779db147fd8f27159a1586da5e",
+      "bytes": 337299
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/spacr/qt/annotate_engine.py",
+      "sha256": "de55a9e6cfbe2fc6f4b52bc3703351cd10a3212d569195f2a16f462104f44583",
+      "bytes": 65724
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/spacr/curation_queue.py",
+      "sha256": "3464caf55adadad4d0327f58e5156648b10744ce5671b9b44d84c71352222078",
+      "bytes": 63056
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/spacr/cli_make_masks.py",
+      "sha256": "7087a15003dd4689d45e320ed24eb4af7eb3f49f5734f2f1381b702c1456fc79",
+      "bytes": 14701
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/spacr/curation.py",
+      "sha256": "3d88a200c3bad7d9b0b3b933ddc3ac7451dae897f2c4d76cf3e621a3d53036aa",
+      "bytes": 48433
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/spacr/model_zoo.py",
+      "sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55",
+      "bytes": 229147
+    }
+  ],
+  "read_only_data_receipts": [
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/maintainer-annotation-local-readonly-state.json",
+      "sha256": "e3b15382d1e72ece9044af53951e33b8321369f42e9c930e0087d6cac34b97fa",
+      "bytes": 4442
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/maintainer-f470-parent-database-metadata.json",
+      "sha256": "1c09393e55c7e3e4d360acaf495b5c7006b9f23a25736c86df7223dee735fd3f",
+      "bytes": 11579
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/maintainer-f470-existing-call-overlap.json",
+      "sha256": "91d3aa69afa11d998cdb6c700a2387e87f92886f1d114369777b84fa89ef3e6d",
+      "bytes": 751
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/maintainer-plaque-local-ledger-metadata.json",
+      "sha256": "29884db53ec805f87166e3ff8d99618578f0e243e5b7fca7285e52be060ddf00",
+      "bytes": 5097
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/maintainer-plaque-local-count-reconciliation.json",
+      "sha256": "41667709720df0cb6e1806a1fbb183dacb0dec371691becda6a7c90edd8c3c96",
+      "bytes": 1171
+    }
+  ],
+  "F470_reconciliation": {
+    "status": "PREPARE ONLY; no transfer/database/label writes performed.",
+    "existing_parent_calls": {
+      "existing_expert_database": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/CSAscreen-plate1/measurements/measurements.db",
+      "expert_total": 272,
+      "real": 268,
+      "not_real": 4,
+      "sample_database": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/annotation_sample/pathogen/measurements/measurements.db",
+      "same_exact_png_path_overlap": 5,
+      "overlap_labels": {
+        "real": 5,
+        "not_real": 0
+      },
+      "sample_labels_on_overlap": {
+        "None": 5
+      },
+      "overlap_path_inventory_sha256": "c10f8e2f6ae68bfd4fc0e828b8b71103cdefda4038fcdd075ef156faaa81ead9",
+      "no_data_changes": true,
+      "limits": "Metadata exact stored PNG path equality; no pixels/identity revalidation or training/transfer performed."
+    },
+    "same_path_overlap_is_not_verified_pixel_or_source_version_identity": true,
+    "sample_builder_source": {
+      "path": "tools/build_ground_truth_annotation_sample.py",
+      "lines": [
+        56,
+        62,
+        73,
+        89
+      ],
+      "exact_target_column_list": "png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, object_id, dataset_plate",
+      "SQL": "INSERT OR IGNORE INTO png_list (... columns omit real ...)",
+      "finding": "SELECT* reads parent real values, but insertion omits real and does not update existing sample rows. Rerun does not propagate272parent judgments. Initial empty real is documented; reconciliation is missing."
+    },
+    "agent_steps_before_PV_sample_repetition": [
+      "Confirm authoritative Work/Home DBs and source versions with owner; preserve all272parent calls and all existing target judgments. CurrentHome snapshots are not liveWork proof.",
+      "Verify dataset/plate/well/field/object identity plus recorded crop/source pixel/byte version fingerprints. Five identical stored PNG paths are only candidate overlaps; do not transfer when provenance is uncertain.",
+      "Prepare dry-run/conflict report. Incoming values must be human real1/notreal2. Fill ONLY NULL target cells; never overwrite existing judgments/cleared0/suggestions/other values. Preserve disagreements for explicit expert adjudication.",
+      "Use a reviewed metadata-preserving tool/transaction on the separately authorized authoritative target. Never expect current sample-builder rerun to perform reconciliation. No real-DB writes authorized in this task.",
+      "Verify approved exact fills, old272unchanged, no lost/conflicting decisions, stable row/source identities and deduplicated crop contributions before training. Multiple classifier DBs concatenate, so overlapping inputs must not be counted twice."
+    ],
+    "conditional_after_verified_five_fills": "Sample would retain5existing real calls and require995additional PV judgments. No fills/source-version validation are claimed here."
+  },
+  "items": [
+    {
+      "item": "N449",
+      "already_complete": [
+        "Object wrapper/crop identity and optional removal/merge seam",
+        "Count regression versus display-bin decision; independent Hoechst/CellMask/parasite-stain modes",
+        "Segmentation-derived count feasibility rejected; no head shipped from that trial"
+      ],
+      "current_local_state": {
+        "path": "/mnt/wd4tb/spacr_pv_crops/MTOCScreen/measurements/measurements.db",
+        "exists": true,
+        "read_mode": "SQLite immutable=1, no locks/journal/SHM/data writes; skip active WAL snapshots",
+        "before_stat": {
+          "bytes": 113954816,
+          "mtime_ns": 1789948094562946236,
+          "inode": 58459280
+        },
+        "wal_bytes": 0,
+        "journal_bytes": 0,
+        "tables": [
+          "settings_history",
+          "settings",
+          "cell",
+          "nucleus",
+          "pathogen",
+          "cytoplasm",
+          "intensity_rescale",
+          "png_list",
+          "run_status"
+        ],
+        "png_list_columns": [
+          "png_path",
+          "file_name",
+          "plateID",
+          "rowID",
+          "columnID",
+          "fieldID",
+          "prcfo",
+          "pathogen_id"
+        ],
+        "png_list_rows": 8882,
+        "stat_unchanged_during_read": true
+      },
+      "remaining_user_actions": [
+        "Provide human actual per-PV counts on a chosen representative existing image set, including rare4/8/16/>16; a3remains3, not a display-bin label. If already labelled elsewhere, identify the authoritative file before any repeat.",
+        "Identify existing acquired parasite-stain source planes/channel mapping for third mode. No NAS or Work availability check was made; unavailable to this audit does not mean absent.",
+        "Supply independently judged same-field split/merge pairs and object/artifact classes; distinguish image-border cuts from segmentation splits."
+      ],
+      "safe_existing_entrypoint": "spaCR Annotate -> Open source /mnt/wd4tb/spacr_pv_crops/MTOCScreen. Bind a dedicated hand-count column to dataset manifest; selection Class number dialog supports16+ (0\u2013999). Hotkeys1\u20139 assign labels,0clears.",
+      "completion_gate": "Actual human labels/source provenance, independent grouped-by-well count/object/artifact/merge acceptance, per-bin metrics and area baseline; trained heads/publication remain agent-owned after prerequisites. No new accuracy or model acceptance."
+    },
+    {
+      "item": "F470",
+      "already_complete": [
+        "Crops and alpha classifier/run integration",
+        "272existing calls preserved in pathogen/CSAscreen-plate1 parent DB (268real/4notreal)",
+        "1000-crop samples per type exist; do not require all585311objects"
+      ],
+      "current_local_state": [
+        {
+          "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/annotation_sample/pathogen/measurements/measurements.db",
+          "exists": true,
+          "read_mode": "SQLite immutable=1, no locks/journal/SHM/data writes; skip active WAL snapshots",
+          "before_stat": {
+            "bytes": 778240,
+            "mtime_ns": 1790080448096634422,
+            "inode": 34866858
+          },
+          "wal_bytes": 0,
+          "journal_bytes": 0,
+          "tables": [
+            "png_list"
+          ],
+          "png_list_columns": [
+            "png_path",
+            "file_name",
+            "plateID",
+            "rowID",
+            "columnID",
+            "fieldID",
+            "prcfo",
+            "object_id",
+            "dataset_plate",
+            "real"
+          ],
+          "png_list_rows": 1000,
+          "real_distribution": [
+            {
+              "value": null,
+              "rows": 1000
+            }
+          ],
+          "stat_unchanged_during_read": true
+        },
+        {
+          "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/annotation_sample/cell/measurements/measurements.db",
+          "exists": true,
+          "read_mode": "SQLite immutable=1, no locks/journal/SHM/data writes; skip active WAL snapshots",
+          "before_stat": {
+            "bytes": 540672,
+            "mtime_ns": 1790080431149418344,
+            "inode": 34866861
+          },
+          "wal_bytes": 0,
+          "journal_bytes": 0,
+          "tables": [
+            "png_list"
+          ],
+          "png_list_columns": [
+            "png_path",
+            "file_name",
+            "plateID",
+            "rowID",
+            "columnID",
+            "fieldID",
+            "prcfo",
+            "object_id",
+            "dataset_plate",
+            "real"
+          ],
+          "png_list_rows": 1000,
+          "real_distribution": [
+            {
+              "value": null,
+              "rows": 1000
+            }
+          ],
+          "stat_unchanged_during_read": true
+        },
+        {
+          "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/annotation_sample/nucleus/measurements/measurements.db",
+          "exists": true,
+          "read_mode": "SQLite immutable=1, no locks/journal/SHM/data writes; skip active WAL snapshots",
+          "before_stat": {
+            "bytes": 573440,
+            "mtime_ns": 1790080432519435637,
+            "inode": 34866864
+          },
+          "wal_bytes": 0,
+          "journal_bytes": 0,
+          "tables": [
+            "png_list"
+          ],
+          "png_list_columns": [
+            "png_path",
+            "file_name",
+            "plateID",
+            "rowID",
+            "columnID",
+            "fieldID",
+            "prcfo",
+            "object_id",
+            "dataset_plate",
+            "real"
+          ],
+          "png_list_rows": 1000,
+          "real_distribution": [
+            {
+              "value": null,
+              "rows": 1000
+            }
+          ],
+          "stat_unchanged_during_read": true
+        }
+      ],
+      "agent_prerequisite": "Perform identity-safe NULL-only reconciliation after separate authorization; do not ask user to redo272calls or five candidate overlaps.",
+      "remaining_user_actions_after_agent_reconciliation": [
+        "Annotate agreed chosen real/notreal sample: Open source /mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/annotation_sample/<pathogen|cell|nucleus>; column real;1=real,2=notreal.",
+        "Untouched cell/nucleus can proceed without repeating oldPVcalls. Add independent negatives/types/wells sufficient for honest held-out scoring; no arbitrary number of labels or accuracy threshold invented."
+      ],
+      "completion_gate": "Both classes from independent wells and agreed expert sample/provenance; held-out-well scorecards per type and publication. Dataset label removal/new-version/retraining is a later separately approved action.",
+      "source_constraint": "object_classifier._annotated_real_crops selects real1/2 and groups plate|well. Training rejects one class or fewer than2wells; a one-class training fold emits no score. Multiple databases concatenate without identity deduplication."
+    },
+    {
+      "item": "F559",
+      "already_complete": [
+        "Alpha FieldQC label UI and QC classifier card",
+        "Historical BBBC006 blur/fine-tuning/calibration; do not redo it by default"
+      ],
+      "current_real_defect_label_counts": "UNVERIFIED: no authoritative current table location supplied/inspected. Old scratch runC_fields.csv absent here does not imply labels are lost/absent elsewhere.",
+      "remaining_user_actions": [
+        "Supply human Good/debris/bubble/saturated/empty field judgments, or point to the existing authoritative labels table so it is reused.",
+        "Confirm recorded package-data/download-location policy for shipped QC weights/reference data."
+      ],
+      "safe_existing_entrypoint": "Preferences -> Show alpha features -> Annotate -> Field QC\u2026 -> actual raw .npy folder -> verify prefilled guesses -> Save. Table <folder>/qc/image_qc_labels.csv has field,label;good or semicolon-separated defects.",
+      "completion_gate": "Real independently held-out per-class precision/recall versus rule policy and genuine quarantine, plus approved weight/data provenance/distribution. Synthetic/blur results do not close real-other-defect acceptance."
+    },
+    {
+      "item": "New Plaque v5 curation",
+      "already_complete": [
+        "Existing Septemberr5 is published/registered as plaque_v2, distinct from newv5",
+        "Current production plaque_v4/default and prior9-model rescore",
+        "Dedup and existing status/KeepDiscard judgments must be preserved"
+      ],
+      "current_local_snapshot": {
+        "checked_at_utc": "2026-10-14T05:33:54.416675+00:00",
+        "snapshot_scope": "Local Home mirror; Work live queue not queried. Filename/status/verdict metadata only, not mask quality or live training acceptance.",
+        "image_unique_stems": 8350,
+        "status_latest_unique_stems": 1295,
+        "status_matched_reviewed_stems": 1295,
+        "status_values_matched_images": {
+          "done": 1152,
+          "skip": 143
+        },
+        "valid_verdicts_matched_image_stems": 1637,
+        "status_verdict_overlap": 267,
+        "unreviewed_status_only": 7055,
+        "unreviewed_after_hide_judged": 5685,
+        "verdicts_outside_current_images": 0,
+        "masks_metadata_suffix_counts": {
+          ".tif": 8351,
+          ".json": 267
+        },
+        "file_timestamps": {
+          "curate_status.csv": "2026-10-13T20:56:40.048894+00:00",
+          "csv/keep_discard.csv": "2026-10-13T20:56:40.086895+00:00",
+          "manifest.csv": "2026-10-13T17:41:44.216641+00:00",
+          "build_summary.json": "2026-10-13T17:41:44.271642+00:00"
+        },
+        "limit": "Counts reconstruct item filtering from metadata; actual build_queue/GUI was not executed and image/mask pairing/quality not independently accepted. Combined cross-file snapshot is not an atomic live writer transaction."
+      },
+      "source_of_nonatomic_snapshot": "Home mirror status/verdict files last2026-10-13T20:56:40UTC. README/build summary1026decided/7324pending is older, not current liveWork state.",
+      "safe_Work_attested_entrypoint": "cd /media/carruthers/mnt3/claude/spacr-701; /home/carruthers/anaconda3/envs/spacr/bin/python -m spacr.cli_make_masks --folder /media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup --order prob --exclude-verdicts",
+      "entrypoint_limits": "Not launched or currently environment/path-verified on Work by Home. Home mirrored dataset exists under /mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup.",
+      "remaining_user_actions": [
+        "Continue agreed existing batch using Hide judged fields. Review/correct/save appropriate masks before Keep; mark unusable fields Discard. Do not repeat old valid verdicts because README lags.",
+        "Tell Work when agreed batch is ready for a source-bound training snapshot; all8350need not be completed unless that scope is explicitly chosen."
+      ],
+      "agent_followup": "Refresh actual liveWork metadata and verify snapshot/provenance after source/release hold, without changing queue or starting training now.",
+      "completion_gate": "Verify human mask/source/hash provenance, exclude Discard even if statusdone, preserve independent grouped holdouts/source splits, train/score versus baseline, publish only after acceptance. Filename/status/verdict counts alone do not establish mask quality or training eligibility.",
+      "training_state": "Current liveWork training not queried; last dated18:17EDT Work statement says newv5notstarted. No current process/model/training inference."
+    }
+  ],
+  "metadata_findings": {
+    "F470_sample_rows_each": 1000,
+    "F470_sample_real_nonnull_each": 0,
+    "existing_parent_real_calls": 268,
+    "existing_parent_notreal_calls": 4,
+    "exact_stored_path_overlap_only": 5,
+    "N449_current_db_rows": 8882,
+    "N449_count_or_annotation_column_present": false,
+    "local_plaque_images": 8350,
+    "local_plaque_done": 1152,
+    "local_plaque_skip": 143,
+    "local_plaque_Keep": 437,
+    "local_plaque_Discard": 1200,
+    "local_plaque_judged_stems": 1637,
+    "local_plaque_status_verdict_overlap": 267,
+    "local_plaque_hide_judged_remaining_snapshot": 5685
+  },
+  "actions_not_performed": [
+    "GUI/app imports/tests/profiling",
+    "database/data/mask/label writes or transfer",
+    "image/mask pixel reads",
+    "inference/training/GPU",
+    "NAS/Work-host or /nas_mnt/data/sync writes",
+    "livecell/Timepose/protected-job interactions",
+    "queue rebuild/dedup/cleanup/publication"
+  ],
+  "limits": [
+    "Local mirror metadata is not authoritative liveWork state.",
+    "Stored path identity alone is not pixel/version identity or curation quality.",
+    "No new training accuracy or model-acceptance claims.",
+    "User supplies expert judgments/decisions; agent-owned reconciliation/training/publication should not be pushed back onto user."
+  ]
+}

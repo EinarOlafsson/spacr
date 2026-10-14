@@ -3,9 +3,9 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    BLOCKED 2026-09-19 — maintainer curation of both hold-out queues
-           (he chose to curate them himself); queues, commands and the gate
-           are prepared, no ground truth drawn.
+Status:    PARTIAL 2026-10-14 — nine approved curated cards are published;
+           catalogue/tooltips, matched-stock exports, API consistency and
+           remaining published-model acceptance still need completion.
 
 Previous status (superseded 2026-10-04):    2026-09-19: BOTH HOLD-OUT QUEUES ARE PREPARED AND WAITING FOR THE
            CURATOR, who is the maintainer -- "I'll curate; prep it" (today,
@@ -1478,3 +1478,22 @@ re-score line per row; the metrics dicts are untouched.
 
 This supersedes the earlier hold-out numbers wherever they differ; the older
 scorecards stay on the cards, labelled with date and scorer.
+
+2026-10-14 02:30 EDT — Home reconciled current publication and source surfaces.
+The Oct 11 draft-only and older no-curation/no-publication claims are historical
+for the nine PV/plaque cards: pinned public model revisions contain all three
+pages, and their READMEs match the delivered originals. Oct 12 Work notes attest
+maintainer approval; this is not a new human/native PNG review. All 55 tracked
+source bindings and 25 remote small artifact identities independently checked:
+data/370_current_scorecard_reconciliation_2026-10-14/.
+F370 remains PARTIAL. Local builtin catalogue/tooltip construction copies older
+literal metrics; GUI worker/remote refresh behavior is conditional and has not
+been run here. PV v4 older 0.8536/10-field and approved 0.761146/209-field records
+are different datasets, not a measured regression. API tables still include
+older subsets; rescored generation misses BoundaryF1 and assumes some absent
+root CSV/chart files. Central einarolafsson/models is a DATASET, pinned at an
+older Oct 9 revision, with older exports. Nine cards do not cover every declared
+model. Complete source-bound consistency/export/generation/native batches
+after release, preserving accepted curation, immutable old measurements and
+unchanged default model choices. No uploads, scoring, training, GPU, source
+implementation or annotation changes were made by this reconciliation.

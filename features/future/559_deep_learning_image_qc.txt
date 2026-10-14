@@ -177,3 +177,10 @@ precision/recall acceptance remain open; this note does not close item 559.
     (c) debris/bubble/saturation/empty: no public labels; unblocks when the
     maintainer labels fields in Annotate > Field QC.
     (c) public pretraining / shipped weights: maintainer decision on package data.
+
+2026-10-14 02:30 EDT — Maintainer-input review confirms remaining non-blur
+real QC labels (or location of an existing real table) and weights distribution
+decision. Synthetic cases and existing blur/editor/card checks do not supply
+those expert labels. Source-bound plan and entrypoints are in
+data/maintainer_annotation_reconciliation_2026-10-14/. No new labels, images,
+model inference/training or GPU actions; whole-item acceptance remains open.

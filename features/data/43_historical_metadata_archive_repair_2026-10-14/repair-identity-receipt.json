@@ -1,0 +1,18 @@
+{
+  "prepared_at_utc": "2026-10-14T05:52:46.804474+00:00",
+  "source_candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "original_path": "features/data/288_work_cupy_preflight_2026-10-13/environment-metadata-preflight.json",
+  "archive_path": "features/data/288_work_cupy_preflight_2026-10-13/environment-metadata-preflight.json.gz",
+  "decoded_original_sha256": "608c33126808bc7a98bedfba0b47a35ae6e73253043a6548ae529a585138dcf7",
+  "decoded_original_bytes": 11306,
+  "archive_sha256": "02a553b096d8ab8a9abf960e2b16891e3bc7a940236b79fab357b35d3eeaedc4",
+  "archive_bytes": 1565,
+  "decompressed_byte_exact": true,
+  "historical_proof_bindings_unchanged": {
+    "features/data/288_work_cupy_preflight_2026-10-13/prerequisite-blocked-receipt.json": "36f57dc35fcc869d6d7cd48db9baf7f33e04d3620e381282d786a040338b54fb",
+    "features/data/288_work_real_cupy_proof_2026-10-13/collector-proposal.json": "3a5ad68cf02df556c096a42902c3c5c7ad13cf7bacc59f4145b59467e57d485d",
+    "features/data/288_work_real_cupy_proof_2026-10-13/historical/direct-coverage-716-proposal-before-cli-20261013.json": "027aa710a1e9c938f1f6a5717fc0a5cc74d4df675c2c5a8efaffe0afe45facd8"
+  },
+  "no_application_test_scan_or_ratchet_changes": true,
+  "scope": "Recoverable immutable historical evidence storage repair; no actual environment rename/delete or new CUDA execution."
+}

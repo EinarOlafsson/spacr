@@ -3784,3 +3784,39 @@ reject unfinished CI. A normal merge simulation produces the exact candidate
 tree 5e2df183be6ecfeb20fb8d759c8eb059d0b80eaf, without changing the old private
 promotion. Readiness proof: data/1515_current_candidate_readiness_2026-10-14/.
 Main/release remain held; this does not replace terminal 30-job acceptance.
+
+2026-10-14 02:30 EDT — Exacta744/run38512120776 has one independent failure
+cause: four former-application environment-path strings in historical CPU
+preflight evidence. Coverage8, minimum2 and Fast2 report that same scanner
+failure; coverage job fails only its all-shards-tests dependency, while its
+actual664-module numerical/integrity checks pass. Ambient6416statements and
+1716branches are100%, with no misses/exclusions;69new owning cases pass in
+hostedCoverage9. Qt1/2 verdicts remain pending; original0.75untraced benchmark
+has not yet received its final hosted verdict. Source/tests stay unchanged.
+Recoverable raw archive repair preserves every11306original byte/hash in GZIP
+and updates the manifest's compressed/decoded identities, without changing
+scan rules or historical proof bindings. All3existing owning branding checks
+PASS(exit0/no skips); final newly staged proof-text scan still required.
+Proof: data/43_historical_metadata_archive_repair_2026-10-14/. No fullCIrestart
+until remaining independent jobs finish; promotion/release remain held.
+
+2026-10-14 02:59 EDT — Final hosted A744 run is terminal: 24 PASS / 6 FAIL across
+30 jobs. Qt1 passes. Original preview-cache 0.75 gate explicitly passes; a
+separate unchanged dark opaque-field comparison fails at nine SAMPLED pixels
+on x=20, y=204..772. Total differing pixels and cause remain unknown; earlier
+x=460 scrollbar observations do not establish a relation. Exact unchanged
+local dark node passes once (17.64 s), which does not erase hosted failure.
+Qt owns original-assertion-preserving instrumentation/diagnosis privately;
+colour peer review keeps paint/event/capture state faithful. Source holds and
+release block persist; no blanket retry, tolerance, skip or threshold change.
+Small source-bound raw-evidence identities, numerical/69-case/added-code and
+terminal receipts: data/43_a744_terminal_ci_evidence_2026-10-14/.
+
+2026-10-14 03:02 EDT — Archive repair final staged-text acceptance: all three
+existing branding assertion functions pass unchanged against every newly
+staged tracked path/text. Earlier normal owning pytest is 3 PASS, exit 0.
+All archive/export compressed and decoded bytes/hashes independently verified.
+Features-only publication; app/tests/tools/workflows/packaging remain exact
+A744. Final text receipt: data/43_historical_metadata_archive_repair_2026-10-14/.
+This repairs metadata naming, not the independent opaque-pixel failure or
+whole CI; main promotion and release stay held for a fresh full-green run.

@@ -308,3 +308,15 @@ cross-channel models.
     (c) maintainer annotation of the sample (272 PV calls; cell and nucleus
     none). Unblocks: annotations done -> run the CLI per type, publish the three
     classifiers (alpha), remove labels called not real, republish, retrain.
+
+2026-10-14 02:30 EDT — Existing 272 expert PV judgments are intact in the local
+parent measurements DB: 268 real / 4 not real. Current 1,000-row sample DBs have NULL
+real fields; five pathogen sample stored paths overlap known parent judgments.
+Stored-path overlap is candidate identity only, not pixel/version proof. The
+sample builder reads parent real but its INSERT OR IGNORE columns omit it;
+rerunning does not transfer decisions. Agent reconciliation must verify source
+identity/conflicts, fill ONLY verified NULL targets, preserve source/existing
+judgments and deduplicate split identities BEFORE asking the expert to redo
+any calls. Untouched cell/nucleus and additional PV labels remain needed after
+reconciliation. Data proof: data/maintainer_annotation_reconciliation_2026-10-14/.
+No images, masks, labels, DBs or protected jobs were changed; no training ran.

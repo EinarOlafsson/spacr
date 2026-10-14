@@ -1,0 +1,11 @@
+{
+  "head_sha": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "files": [
+    {
+      "name": "terminal-ci.json",
+      "bytes": 3919,
+      "sha256": "51e7f9048ac6ee64c6b8a4a10d855dc8f76139802f81eb9096439b265c1f1495"
+    }
+  ],
+  "raw_log_text_or_private_environment_values": false
+}

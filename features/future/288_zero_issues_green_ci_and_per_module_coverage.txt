@@ -5827,3 +5827,20 @@ are checked; the literal90% device target is now satisfied for this source.
     unchanged primitive sources are not an invented new hosted artifact.
     F288 remainsOPEN, including open146/147 and fullCI requirements.
     Evidence:data/43_partial_field_repaint_repair_2026-10-14/.
+
+2026-10-14 02:59 EDT — Current A744 source-bound coverage diagnostic completed.
+Normal all-12 hosted CPU combination plus ONLY the genuine source-identical
+Work Ops GPU data yields actual Ops 144/147 statements and 53/56 branches
+(97.04%). All 667 non-Ops measured files retain identical normalized per-file
+context/arcs and tracers; current ambient remains 6416/6416 statements plus
+1716/1716 branches. The current normal report's 663 other shipped modules and
+the normal Ops report imply all 664 literal floors. This is a logical local
+diagnostic, not a newly generated full normal ratchet, hosted CI or device run.
+Original 400 input files/source bindings retained; V2 actual exit 0 under
+512 MiB/zero-swap cap, initial basename setup failure also preserved.
+Proof: data/288_current_source_coverage_union_2026-10-14/.
+Actual full run 38512120776 is FAILED: 24 pass / 6 fail, metadata scanner and
+dark opaque-field pixel equality are independent causes. Numerical coverage
+passes but its job fails the all-shards-tests dependency. Original timing gate
+passes; pixel diagnosis and fresh full CI remain required. Issues 146/147 and
+whole F288 acceptance remain OPEN; no baseline, exemption or exclusion edits.

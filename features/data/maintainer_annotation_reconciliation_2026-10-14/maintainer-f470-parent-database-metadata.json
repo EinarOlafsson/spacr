@@ -1,0 +1,313 @@
+{
+  "scope": "Known local full-plate parent directories only, immutable SQLite metadata; no image reads/app imports/data writes",
+  "records": [
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/CSAscreen-plate1/measurements/measurements.db",
+      "bytes": 4050944,
+      "mtime_ns": 1790124485674713621,
+      "real_column_present": true,
+      "real_distribution": [
+        {
+          "value": null,
+          "rows": 1242
+        },
+        {
+          "value": 1,
+          "rows": 268
+        },
+        {
+          "value": 2,
+          "rows": 4
+        }
+      ],
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/CSAscreen-plate2/measurements/measurements.db",
+      "bytes": 5132288,
+      "mtime_ns": 1790022896718952955,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/CSAscreen-plate3/measurements/measurements.db",
+      "bytes": 2981888,
+      "mtime_ns": 1790023184295295487,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/CSAscreen-plate4/measurements/measurements.db",
+      "bytes": 4997120,
+      "mtime_ns": 1790023534620250535,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/MTOCScreen-plate1/measurements/measurements.db",
+      "bytes": 12120064,
+      "mtime_ns": 1790024089831519547,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/MTOCScreen-plate2/measurements/measurements.db",
+      "bytes": 13275136,
+      "mtime_ns": 1790024676549198336,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/MTOCScreen-plate3/measurements/measurements.db",
+      "bytes": 9162752,
+      "mtime_ns": 1790025041103144072,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/MTOCScreen-plate4/measurements/measurements.db",
+      "bytes": 9568256,
+      "mtime_ns": 1790025498713098495,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/THP1screen-PLATE1/measurements/measurements.db",
+      "bytes": 4952064,
+      "mtime_ns": 1790025784899031142,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/THP1screen-PLATE2/measurements/measurements.db",
+      "bytes": 7585792,
+      "mtime_ns": 1790026181430436092,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/THP1screen-PLATE4/measurements/measurements.db",
+      "bytes": 8052736,
+      "mtime_ns": 1790026548562677363,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "pathogen",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/pathogen/THP1screen-plate2/measurements/measurements.db",
+      "bytes": 7802880,
+      "mtime_ns": 1790027117677856342,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/CSAscreen-plate1/measurements/measurements.db",
+      "bytes": 53530624,
+      "mtime_ns": 1790029694723081136,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/CSAscreen-plate2/measurements/measurements.db",
+      "bytes": 75120640,
+      "mtime_ns": 1790033269607177070,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/CSAscreen-plate3/measurements/measurements.db",
+      "bytes": 46391296,
+      "mtime_ns": 1790035171859803840,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/CSAscreen-plate4/measurements/measurements.db",
+      "bytes": 60637184,
+      "mtime_ns": 1790037554212955741,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/MTOCScreen-plate1/measurements/measurements.db",
+      "bytes": 39936000,
+      "mtime_ns": 1790039326195152218,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/MTOCScreen-plate2/measurements/measurements.db",
+      "bytes": 39342080,
+      "mtime_ns": 1790041521502206398,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/MTOCScreen-plate3/measurements/measurements.db",
+      "bytes": 37400576,
+      "mtime_ns": 1790044172501463371,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/MTOCScreen-plate4/measurements/measurements.db",
+      "bytes": 28553216,
+      "mtime_ns": 1790046041454122144,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/THP1screen-PLATE1/measurements/measurements.db",
+      "bytes": 68124672,
+      "mtime_ns": 1790049523981337576,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/THP1screen-PLATE2/measurements/measurements.db",
+      "bytes": 83914752,
+      "mtime_ns": 1790053730486399820,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/THP1screen-PLATE4/measurements/measurements.db",
+      "bytes": 86687744,
+      "mtime_ns": 1790056661235391902,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "cell",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/cell/THP1screen-plate2/measurements/measurements.db",
+      "bytes": 83267584,
+      "mtime_ns": 1790060628556631668,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/CSAscreen-plate1/measurements/measurements.db",
+      "bytes": 43704320,
+      "mtime_ns": 1790124485820717578,
+      "real_column_present": true,
+      "real_distribution": [
+        {
+          "value": null,
+          "rows": 21550
+        }
+      ],
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/CSAscreen-plate2/measurements/measurements.db",
+      "bytes": 58224640,
+      "mtime_ns": 1790066041175670261,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/CSAscreen-plate3/measurements/measurements.db",
+      "bytes": 34205696,
+      "mtime_ns": 1790067284300666073,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/CSAscreen-plate4/measurements/measurements.db",
+      "bytes": 47570944,
+      "mtime_ns": 1790069007145272306,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/MTOCScreen-plate1/measurements/measurements.db",
+      "bytes": 25452544,
+      "mtime_ns": 1790070177671603811,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/MTOCScreen-plate2/measurements/measurements.db",
+      "bytes": 24535040,
+      "mtime_ns": 1790071067800320667,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/MTOCScreen-plate3/measurements/measurements.db",
+      "bytes": 21508096,
+      "mtime_ns": 1790071729389098969,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/MTOCScreen-plate4/measurements/measurements.db",
+      "bytes": 18268160,
+      "mtime_ns": 1790072252259028774,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/THP1screen-PLATE1/measurements/measurements.db",
+      "bytes": 58777600,
+      "mtime_ns": 1790073553708554107,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/THP1screen-PLATE2/measurements/measurements.db",
+      "bytes": 66064384,
+      "mtime_ns": 1790075894720279153,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/THP1screen-PLATE4/measurements/measurements.db",
+      "bytes": 70520832,
+      "mtime_ns": 1790077410470254911,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    },
+    {
+      "kind": "nucleus",
+      "path": "/mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops/nucleus/THP1screen-plate2/measurements/measurements.db",
+      "bytes": 65986560,
+      "mtime_ns": 1790079015255251039,
+      "real_column_present": false,
+      "unchanged_during_read": true
+    }
+  ]
+}

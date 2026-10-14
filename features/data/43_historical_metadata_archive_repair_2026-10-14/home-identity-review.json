@@ -1,0 +1,15 @@
+{
+  "checked_at_utc": "2026-10-14T06:19:25.385346+00:00",
+  "model_source_bindings_verified": 55,
+  "model_remote_artifact_bindings_verified": 25,
+  "annotation_source_bindings_verified": 16,
+  "annotation_metadata_receipt_bindings_verified": 5,
+  "owning_branding_tests": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "owning_actual_exit": 0,
+  "scope": "Independent byte/hash validation; no source performance, live curation or human/native model approval."
+}

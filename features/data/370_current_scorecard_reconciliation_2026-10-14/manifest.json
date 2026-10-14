@@ -1,0 +1,221 @@
+{
+  "scope": "Source-bound/recoverable evidence; no inferred whole-item, live Work, new native/GPU/model or annotation acceptance.",
+  "files": [
+    {
+      "file": "current-state-review.json",
+      "encoding": "original",
+      "original_bytes": 70225,
+      "original_sha256": "4cb959135551edc1a2407fac14b93d7ab5949ac636967f7f4f1cf9b9c74673e7",
+      "published_bytes": 70225,
+      "published_sha256": "4cb959135551edc1a2407fac14b93d7ab5949ac636967f7f4f1cf9b9c74673e7"
+    },
+    {
+      "file": "current-state-review.txt",
+      "encoding": "original",
+      "original_bytes": 2922,
+      "original_sha256": "7bef18aa434c0fa274eb00459070b10dc5a7b70bed019e7f7d4139d2d0002a52",
+      "published_bytes": 2922,
+      "published_sha256": "7bef18aa434c0fa274eb00459070b10dc5a7b70bed019e7f7d4139d2d0002a52"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1346,
+      "original_sha256": "425a269ddf93e49f7f393ed3b5542cb3d9ef92de4576cae478867d93709730fd",
+      "published_bytes": 723,
+      "published_sha256": "398071e5af94166ef8c33a8283d79c5347047df80721391457cfe946241b78ca"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r7.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 3430,
+      "original_sha256": "b273224bd8b5af5ca5178f441bf3c588da725fab3f49bb1ba543e8e5cfef8683",
+      "published_bytes": 819,
+      "published_sha256": "0803115534d8ab3c1cd99f8c666532ba2a6ded5c5dd03e0a0b6581189761066f"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r6.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1401,
+      "original_sha256": "5813e58ed43122ae4f57542bb0259e27e1a2eac579f83dcd3aca19e1b363fda9",
+      "published_bytes": 747,
+      "published_sha256": "64efd4344555a4e19ac58a3f9e7ceadf492c24ffa1701e6e257d7b1aa5b1be51"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 1220,
+      "original_sha256": "32450dec90ebc24d9bb467ce3475ab65496387c549b86b0819f3fd0718c724f4",
+      "published_bytes": 546,
+      "published_sha256": "2763cf4837f383e8a640ab57aa8c9712f171211d415c81f987bcf8909869de3a"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.scorecard.csv.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 597,
+      "original_sha256": "90cfc3783dc7559f8df08c81760b6ed25b2e59fe778f74841979dea690f7870e",
+      "published_bytes": 226,
+      "published_sha256": "ee6995d280fbff69eca48673c314d7cec104b10976e4143ba07d019d26019cae"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r8.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 1228,
+      "original_sha256": "d7922d5fcb9b26c276f60695e79dd4aa0c63820a1666c389c7a8dd4870f6fc1e",
+      "published_bytes": 556,
+      "published_sha256": "f330745491b35c5ec0567da19e0cd9472f294c06e942ad63094dadfa919e295a"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.scorecard.json.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 763,
+      "original_sha256": "38bfa0e18d55d5e81b7b318e80fad05af03aa09fb8a48b6b3f3c462398e2b8eb",
+      "published_bytes": 258,
+      "published_sha256": "6d3f82c229ceaac05738b6bb1a33a154b51d3815ba4bf47145701f777658dd52"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r7.scorecard.csv.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 605,
+      "original_sha256": "12972925c0c2489275b5c9f1fb87437dbb8535e42329554274f3127670a805f1",
+      "published_bytes": 247,
+      "published_sha256": "e4ca765cae8bba9a761e5a7341bfcb1994dcab10b34c315400b8662088456183"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r5.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1364,
+      "original_sha256": "4afb847d71d13e2b24b730d69987065a2d3bb8267303b77aa2b075d9d8ef7cb4",
+      "published_bytes": 729,
+      "published_sha256": "1209313674218fa666a2e450a03763649baef52a8c3a22029ae38ec7c7abcca2"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r8.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1725,
+      "original_sha256": "1cf0a652b99913a96d693cc8117596730f2eedf9f85b644391a7debbe7685d5b",
+      "published_bytes": 892,
+      "published_sha256": "135ab108de19d4f26ed234f575ba84022431f37b5fa64bf654e3f5923b6c8894"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1313,
+      "original_sha256": "f8183d28c70cefe50e25c6cff597f169529e6a0ad060e2bf0fbbdb951b977a8d",
+      "published_bytes": 675,
+      "published_sha256": "c269762a513bc0e53c889ae07751c103885316a829932ba0d8bce671158f78c7"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r6.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 1206,
+      "original_sha256": "fcfdb145d79e757be34bfcdd11b94fb5e59c3c84275b24d9cc07c81b7a73844e",
+      "published_bytes": 539,
+      "published_sha256": "30cec6ab84f758c40ef7806d9874467083918dd4cff979f4dd766cd0420f5cce"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 1104,
+      "original_sha256": "8040b8f67c6fba12999c87cd61862e3876af5ce697c3e53d848b8b29d5896fed",
+      "published_bytes": 504,
+      "published_sha256": "2fde50d89e689b68ce63a6836ef93bec7ca1c4dd54abdfe7cec1b2859d5a434c"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r7.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1314,
+      "original_sha256": "6721f38b113f45389b7ad348b8c21626a7e591ac79d0dc14c643a91a36b720b7",
+      "published_bytes": 702,
+      "published_sha256": "8f126a6ac9c4351ad5b740abe1b76c69cc2747d682a9b5002aadc37671275f30"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r5.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 1345,
+      "original_sha256": "45026ffdfaa40539dbe3fbcab2f46e9f1b6c3de4724f3c9dac387cf2700d980b",
+      "published_bytes": 560,
+      "published_sha256": "3a1e52c0ab8ddcc6c2aea4826b1235eb0b869a87d0f27271756b77fda0bfe657"
+    },
+    {
+      "file": "raw/models.dataset.metadata.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 866,
+      "original_sha256": "01bf387ae2ffff53cf566a08257fe91bcfc3a2d08e66c13f44521496c0232a3e",
+      "published_bytes": 445,
+      "published_sha256": "2e85a267fc6796110b32f5e7703ba992b081145aa2265fddbbad235608e1a280"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r7.scorecard.json.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 787,
+      "original_sha256": "132a2a34e0411ca976a00098a1e7e9e0f835c08cb792e64e68446f3a535fbfae",
+      "published_bytes": 277,
+      "published_sha256": "c74d0cfb6798d0552987f48bd75462173d0376ed02ebc0df3935157a4c1715cb"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r5.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1326,
+      "original_sha256": "4fcfb8289714a390be530bddb6d7cb6a0ac46e8505d476efff5f35fc97ab8735",
+      "published_bytes": 678,
+      "published_sha256": "5195ef750c8767cd66b01151bdb540559b9b62e22ebbdc4f60387edb259deeab"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1381,
+      "original_sha256": "498846be87138dfbf91ea35bd251c7822a63feecb11cf8079b6dea11b3973812",
+      "published_bytes": 704,
+      "published_sha256": "64d28bca35dc72dc2330c39aaf402af9b734a26477d516cbcaac2c4c87d1f4de"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r5.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 1453,
+      "original_sha256": "aa19aa1a6584b0575a972b18545f54fbe5ab51c0affcc5f419c061b591b84036",
+      "published_bytes": 582,
+      "published_sha256": "89591f117ccc7938bfa32a803b826dab2809ec796f007e8375762006a00fd682"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 1769,
+      "original_sha256": "6a42becea958076da6734bd388c09adc2fd697ab18981a4a6376d677910719a9",
+      "published_bytes": 677,
+      "published_sha256": "710d6f2339ba8426f716f1438c92900183d5b6e8d6a65ac81755548d7ba5a091"
+    },
+    {
+      "file": "raw/toxoplasma-pv-segmentation-cpsam-r6.metadata.raw.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 2723,
+      "original_sha256": "c7031dc12e7e3655cc34bc7f911f11140546f27a94833c48e23ad39e18bfed7a",
+      "published_bytes": 735,
+      "published_sha256": "5f9d836d6b671352dbfa97604cfdc782f73f636607436a8faa2c9c907f520e01"
+    },
+    {
+      "file": "raw/toxoplasma-plaque-segmentation-cpsam-r6.README.md.raw.gz",
+      "encoding": "gzip",
+      "original_bytes": 1252,
+      "original_sha256": "2fc754dcff2308d850969552a33063e789e33c3e464533199ebce0013316a773",
+      "published_bytes": 647,
+      "published_sha256": "5e05284a76433d67909bd90dc5a511d71f6702f4add4ff459877d7cc06bb619c"
+    },
+    {
+      "file": "raw/public-metadata-review.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 15908,
+      "original_sha256": "15ee10719904b70bcf9052a2c3c6ffbff713517f18e268bdd0aa2e031d033b59",
+      "published_bytes": 2238,
+      "published_sha256": "a011659a005911047166c85823463023b62eb0bf3bc68841dd08c7e9e3537b07"
+    },
+    {
+      "file": "raw/public-text-review.json.gz",
+      "encoding": "gzip",
+      "original_bytes": 10533,
+      "original_sha256": "2fc6ec9468f16b9f5c48f49ee6d6f03c80658d6a513c237d9bfe2f97072830a0",
+      "published_bytes": 1911,
+      "published_sha256": "1574ab7b2fcc8f438caae02a75c79952a9944a81daeb6104347efc7fe84f7033"
+    }
+  ]
+}

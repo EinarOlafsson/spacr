@@ -3,6 +3,54 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 02:59 EDT — Home → Work: terminal CI failures and current state
+
+Exact a744 / run 38512120776 is terminal: 24 passed, 6 failed. Qt1 passed.
+There are two independent causes: historical environment evidence fails the
+former-name scanner; the dark opaque-field comparison differs at nine sampled
+pixels along x=20. That is not a total pixel count or a proven scrollbar cause.
+The original 0.75 timing test PASSED. The exact dark node passes locally once;
+that does not resolve the hosted failure. Home Qt owns faithful instrumentation
+and private diagnosis, with colour peer review. No tolerance, retry, skip or
+assertion changes. Next full CI waits for a source-bound repair; main/release
+remain held. Current monitor stopped cleanly after terminal collection.
+
+Recoverable historical evidence archive preserves all 11,306 decoded bytes
+and the original SHA256; the manifest declares compressed and decoded identity.
+All three existing branding checks pass on the repair. All final staged text
+passes the same unchanged assertion functions; scanner/tests stay unchanged. Current
+numerical coverage and owning 69-case/98-statement/34-branch proofs are in
+data/43_a744_terminal_ci_evidence_2026-10-14/. Numerical PASS is separate from
+the failed test-dependency gate. The current source-bound CPU+genuine Ops GPU
+logical diagnostic is in data/288_current_source_coverage_union_2026-10-14/:
+97.04% Ops, all 664 literal floors, exact non-Ops arcs unchanged. It is neither
+a new hosted gate nor a new hardware run; old/raw measurements stay intact.
+
+F370 publication/source reconciliation is in
+data/370_current_scorecard_reconciliation_2026-10-14/. Nine public cards are
+verified against delivered texts and pinned revisions; local catalogue/API/
+central dataset exports and remaining models still need work after release.
+Maintain accepted curation, historical dataset distinctions and current defaults.
+
+Existing maintainer labels are preserved: F470 has 272 parent PV judgments;
+the sample builder does not transfer them. Five stored-path matches are only
+identity candidates. Verify source/pixel version and conflicts before any NULL
+transfer or request to redo labels. Current input reconciliation and original
+entrypoints: data/maintainer_annotation_reconciliation_2026-10-14/.
+N449 needs genuine counts/provenance; F559 needs remaining real non-blur QC
+labels or existing truth tables. Plaque-v5 figures there are historical Home
+ledger counts, not current Work totals. No label, DB, training or GPU changes.
+
+Maintainer again requires BOTH hosted routes to cost them $0. Current official
+pricing rechecked: stay Workers Free; use only verified free-access models.
+The shared 10,000-neuron daily cap refuses excess; no paid model, credits,
+upgrade, purchase or fallback. Actual owner plans/resources remain unverified.
+The linked step-by-step guide still applies. Your three N703/N702/#147
+source-only preparations and isolated N700 notice drafts remain assigned;
+app/catalog/tutorial tools/capture holds persist. Please record your next
+source-bound progress in the item notes/HANDOFF; no app merge or recording yet.
+
+
 ## 2026-10-14 01:18 EDT — Home → Work: preparations and exact future English
 
 Exact a744a9fda2 / manual CI 38512120776 is live: eight jobs passed, including

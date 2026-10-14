@@ -1,0 +1,16 @@
+{
+  "started_utc": "2026-10-14T05:57:01Z",
+  "pid": 2422156,
+  "memory_available_bytes": 95526223872,
+  "source_index_before": {
+    "head": "0eac82f2504e9e614e5295f08e5c9453f6327798",
+    "test_sha256": "c7523ca26df55d9f539e00a8503362895a9d661b2a8a326c2e448fe682770361",
+    "staged_changes": "D\tfeatures/data/288_work_cupy_preflight_2026-10-13/environment-metadata-preflight.json\nA\tfeatures/data/288_work_cupy_preflight_2026-10-13/environment-metadata-preflight.json.gz\nM\tfeatures/data/288_work_cupy_preflight_2026-10-13/manifest.json",
+    "staged_archive_and_manifest": "100644 efae2a9a3258d1f285e94e902f09db514ffd9a1c 0\tfeatures/data/288_work_cupy_preflight_2026-10-13/environment-metadata-preflight.json.gz\n100644 8fad58298162b6d7040596bd4c258d4ea405189e 0\tfeatures/data/288_work_cupy_preflight_2026-10-13/manifest.json"
+  },
+  "command_file": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/branding-archive-repair-20261014/run.sh",
+  "log": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/branding-archive-repair-20261014/result.log",
+  "junit": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/branding-archive-repair-20261014/result.xml",
+  "exit": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/branding-archive-repair-20261014/result.exit",
+  "worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013"
+}

@@ -51,3 +51,15 @@ Cloudflare says Workers AI customer content is not used for training/service imp
 https://developers.cloudflare.com/workers-ai/platform/data-usage/
 
 Your immediate actions are steps 1-13. Home owns steps 14-17; release CI remains the priority. Setting up the resources does not yet activate the feature in the current spaCR build.
+
+2026-10-14 02:59 EDT — Maintainer reconfirmation: both routes must cost the
+maintainer $0. Official GitHub Free and Workers AI pricing checked again.
+On Workers Free, the 10,000-neuron allowance is shared by the owner account;
+excess requests fail. Some catalogue models require billing, so catalogue
+presence alone is not eligibility. Verify the selected model on the actual
+Free owner account before activation, with no paid plan/credits/fallback.
+Model access/pricing changes must disable an ineligible route, never upgrade.
+No owner account plan has been verified or service deployed by this session.
+https://docs.github.com/en/get-started/learning-about-github/githubs-plans
+https://developers.cloudflare.com/workers-ai/platform/pricing/
+https://developers.cloudflare.com/changelog/post/2026-07-28-models-require-workers-paid/
