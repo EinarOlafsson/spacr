@@ -3,6 +3,21 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:15 EDT — WS: prepared post-release source-pinned launcher
+
+Reviewable text copies at
+`features/data/n676_postfreeze_launcher_proposal_2026-10-13/`.
+External launcher requires explicit final isolated repo/clean40hex commit and
+pins actual imports, private GNOME routing and freshstage. Only AST/bash syntax
+checks, no runtime/queue/GPU launch. Root rehashed all bound references/artifacts.
+Final source, source propagation and 12G RAM lease still required before use;
+matching holder is a preflight safeguard, not independent lock ownership proof.
+All repo capture tools remain held/unchanged; current freeze still applies.
+
+Agent now owns approved N700 privacy/provider audit; other agents own N703/N615.
+Root awaits reviewed CLI collector to execute Home-approved bounded CuPy tests.
+
+
 ## 2026-10-13 21:13 EDT — WS: completed conditional English truth proposal review
 
 `features/data/n615_english_truth_proposals_2026-10-13/` preserves original and
