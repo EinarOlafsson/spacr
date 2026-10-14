@@ -12053,3 +12053,22 @@ not only pytest/Sphinx processes. Home-B browser checks wait for the README
 cohort to finish; no Lighthouse timing claim under active catalog/Timepose load.
 N688's ten badges already exist; nightly badge98%, main unknown pending its first
 coverage upload. Already-landed badge implementation is not a new completion.
+
+## 2026-10-14 — Home-B final website delivery
+
+site-src final ready tip cc81d2f367e31fc2ee389b39f1a2d562d54e6354 includes the
+earlier release-sync repair d9624b5. The second commit changes only site.css
+and the spaCR HTML: deferred initial offscreen layout and removed obsolete
+image preloads.19 real-browser scenarios and the full123-file build pass.
+No-JS/failed-JS, fragments, keyboard and history remain functional. A failed
+native-anchor candidate was corrected before acceptance. No Lighthouse score
+or deployment claim; those remain explicit acceptance requirements.
+
+All three Home-B workers have delivered and stopped their validation jobs.
+Across the spaCR source repairs,253 owning tests pass (29 publisher,60 switch,
+46 model viewer,118 README/model); website has11 release tests and19 browser
+scenarios. Counts describe these completed cohorts, not full CI or release.
+Feature headers now distinguish implemented parts from open native/publication
+acceptance, and the normal feature-index generator/check agrees. Original Home
+can integrate the ready coordinator branch and separate site-src tip; local
+STATUS.md and the mirrored HOME_B_REPLY.txt contain the current delivery heads.
