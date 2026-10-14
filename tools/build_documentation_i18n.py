@@ -5834,7 +5834,14 @@ def _reviewed_api_overlay(
 
 def write_language(
     docs: Mapping[str, str], language: str, translations: Mapping[str, str],
+    *, preserve_other_symbols: bool = False,
 ) -> None:
+    """Write generated records, optionally retaining all unrelated evidence.
+
+    A scoped source change supplies only its regenerated documents. Historical
+    records outside that scope keep their original text and model-input hashes;
+    they are not rebound to a context that was never executed.
+    """
     if language == "zh_CN":
         non_normalized = [
             key for key, value in translations.items()
@@ -5858,6 +5865,14 @@ def write_language(
         if key not in API_DOC_ALIASES
     }
     _materialize_alias_records(docs, symbols)
+    if preserve_other_symbols:
+        path = API_DIR / f"{language}.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("schema") != 2 or payload.get("language") != language:
+            raise ValueError(f"invalid existing API catalog for {language}")
+        payload["symbols"].update(symbols)
+        _write_json(path, payload)
+        return
     payload = {
         "schema": 2,
         "language": language,

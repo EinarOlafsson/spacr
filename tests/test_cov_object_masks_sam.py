@@ -273,7 +273,7 @@ def test_basic_run_writes_masks_counts_and_uses_cpu_model(tmp_path, fake_model,
     assert kw["batch_size"] == 3
     assert kw["normalize"] is False
     assert kw["channel_axis"] == -1
-    assert kw["diameter"] is None
+    assert kw["diameter"] == 120.0, "item 696: _get_diam(20, 'cell')"
     assert kw["progress"] is True
     assert kw["min_size"] == 0          # cell_min_area default
     assert kw["resample"] is True       # _get_object_settings('cell')

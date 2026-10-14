@@ -1065,6 +1065,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('cell_diameter', None)
     settings.setdefault('nucleus_diameter', None)
     settings.setdefault('pathogen_diameter', None)
+    from .object_settings_table import _canonical_diameters
+    _canonical_diameters(settings)
     settings.setdefault('diameter_estimate_n_fields', 5)
 
     settings.setdefault('cell_model_name', 'cpsam')
@@ -1533,6 +1535,34 @@ def normalize_cellpose_model_name(value, object_type=None, key=None):
     return name
 
 
+def _own_diameter(object_settings, settings, object_type):
+    """Put the user's own diameter into ``object_settings``, if they set one.
+
+    A blank diameter or "auto" keeps the magnification default, which is
+    what the size bounds are derived from; "auto" still reaches Cellpose as
+    "estimate it" (item 696). Text that is not a diameter is reported and
+    treated as blank.
+
+    :param object_settings: the object's settings, edited in place.
+    :param settings: the run settings.
+    :param object_type: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.
+    """
+    from .object_settings_table import _AUTO_DIAMETER, _diameter_setting
+
+    raw = settings.get(f'{object_type}_diameter')
+    try:
+        value = _diameter_setting(raw)
+    except ValueError:
+        print(f'{object_type.capitalize()} diameter must be an integer or '
+              f'float, 0 or "auto", got {raw!r}')
+        return
+    if value is None or value == _AUTO_DIAMETER:
+        return
+    object_settings['diameter'] = float(value)
+    object_settings['minimum_size'] = (object_settings['diameter']**2)/4
+    object_settings['maximum_size'] = (object_settings['diameter']**2)*10
+
+
 def _get_object_settings(object_type, settings):
     """Build per-object Cellpose/segmentation settings for cell/nucleus/pathogen.
 
@@ -1563,13 +1593,7 @@ def _get_object_settings(object_type, settings):
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
-        if settings['cell_diameter'] is not None:
-            try:
-                object_settings['diameter'] = float(settings['cell_diameter'])
-                object_settings['minimum_size'] = (object_settings['diameter']**2)/4
-                object_settings['maximum_size'] = (object_settings['diameter']**2)*10
-            except (TypeError, ValueError):
-                print(f'Cell diameter must be an integer or float, got {settings["cell_diameter"]!r}')
+        _own_diameter(object_settings, settings, 'cell')
 
     elif object_type == 'nucleus':
         object_settings['min_size'] = object_filter_area_floor(settings, 'nucleus')
@@ -1577,13 +1601,7 @@ def _get_object_settings(object_type, settings):
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
         
-        if settings['nucleus_diameter'] is not None:
-            try:
-                object_settings['diameter'] = float(settings['nucleus_diameter'])
-                object_settings['minimum_size'] = (object_settings['diameter']**2)/4
-                object_settings['maximum_size'] = (object_settings['diameter']**2)*10
-            except (TypeError, ValueError):
-                print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]!r}')
+        _own_diameter(object_settings, settings, 'nucleus')
 
     elif object_type == 'pathogen':
         object_settings['min_size'] = object_filter_area_floor(settings, 'pathogen')
@@ -1593,13 +1611,7 @@ def _get_object_settings(object_type, settings):
         object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
         object_settings['merge'] = settings['merge_pathogens']
         
-        if settings['pathogen_diameter'] is not None:
-            try:
-                object_settings['diameter'] = float(settings['pathogen_diameter'])
-                object_settings['minimum_size'] = (object_settings['diameter']**2)/4
-                object_settings['maximum_size'] = (object_settings['diameter']**2)*10
-            except (TypeError, ValueError):
-                print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diameter"]!r}')
+        _own_diameter(object_settings, settings, 'pathogen')
 
 
 
@@ -4597,9 +4609,9 @@ tooltips = {
     "cellpose3_augment": "(bool) - When True, Cellpose 3 averages its prediction over flipped copies of overlapping tiles, which is slower and can steady borderline objects. It stands in for net averaging, which Cellpose 3.1 no longer offers. Read only for objects whose model is a Cellpose 3 model. Default False.",
     "cellpose3_percentile_low": "(float) - Lower percentile of Cellpose 3's per-channel normalization: this intensity becomes 0 before the model sees the image. Raising it darkens more of the background. Cellpose 3's models were trained with 1. Read only for Cellpose 3 models. Default 1.0.",
     "cellpose3_percentile_high": "(float) - Upper percentile of Cellpose 3's per-channel normalization: this intensity becomes 1 before the model sees the image. Lowering it brightens dim objects and saturates bright ones. Cellpose 3's models were trained with 99. Read only for Cellpose 3 models. Default 99.0.",
-    "cell_diameter": "(int or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
-    "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
-    "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
+    "cell_diameter": "(int, 'auto' or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM. Leave it None (blank) to use the magnification default, 2*magnification+80 px (120 px at 20x, 160 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (a Cellpose 3 size model estimates it; Cellpose-SAM, which has no size model, segments at native scale). spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
+    "nucleus_diameter": "(int, 'auto' or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None (blank) uses the magnification default, 0.75*magnification+45 px (60 px at 20x, 75 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). spacr.diameter.estimate_diameters estimates a value. Default None.",
+    "pathogen_diameter": "(int, 'auto' or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None (blank) uses the magnification default, magnification px (20 px at 20x, 40 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of requiring manual estimation. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Increase it to 10–20 when wells are heterogeneous or confidence is low; decrease it to 2–3 for a faster preliminary estimate. Default 5.",
     'image_qc_mode': '(str) - Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.',
     'image_qc_channels': '(list) - Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].',
@@ -4616,7 +4628,7 @@ tooltips = {
     "robustness_report": "(bool) - After the masks are made, re-segment a few sampled fields with the diameter, the flow and cell-probability thresholds and contrast enhancement each moved a little, and report how much the object count, median area, mean object intensity and the objects themselves change. Settings whose results move more than robustness_tolerance are flagged fragile. Writes qc/segmentation_robustness_<object>.csv and a heatmap. Two-dimensional Cellpose-SAM runs only. Default False.",
     "robustness_fields": "(int) - How many fields the robustness report samples at random (seeded by random_seed) and re-segments at every grid point. More fields give a steadier verdict; each field costs one segmentation per grid point. Default 4.",
     "robustness_crop": "(int or None) - Side in pixels of the centre crop the robustness report cuts from each sampled field, to keep the grid fast, on a CPU especially. Blank or 0 re-segments whole fields. Default 512.",
-    "robustness_diameter_factors": "(list) - Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+    "robustness_diameter_factors": "(list) - Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as its magnification default and 0 or 'auto' as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
     "robustness_flow_thresholds": "(list) - Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
     "robustness_cellprob_thresholds": "(list) - Cell-probability thresholds the robustness report tries in place of the run's own, one at a time. Lower grows objects and finds faint ones; higher shrinks or drops them. Default [-2.0, 2.0].",
     "robustness_enhancement": "(bool) - Also re-segment each sampled field after contrast-limited adaptive histogram equalisation (CLAHE), to see whether contrast enhancement changes what the model finds. Default True.",
@@ -4676,7 +4688,7 @@ tooltips = {
     "cytoplasm": "(bool) - Derive a cytoplasm object per cell (cell mask with nucleus, pathogen and organelle pixels removed) and write it to its own cytoplasm table, which recruitment ratios such as pathogen/cytoplasm intensity are computed from. Requires a cell mask; measure_crop switches it on automatically whenever cell_mask_dim is set, so the value you enter is usually overridden. Default True.",
     "diameter": "(float) - Deprecated expected object diameter in pixels, passed to model.eval(diameter=...) by the mask-finetune tool and check_cellpose_models. Cellpose rescales each image by 30/diameter to match its approximately 30-pixel working size; a value below the true diameter upscales the image, whereas a larger value downscales it. Prefer the per-object diameter settings. Default 30.",
     "filter": "(bool) - Legacy switch for the old post-Cellpose cleanup pass, which re-ran size/intensity/border filtering and logged '_after_filtration' object counts to the database. The current Cellpose-SAM segmentation path never reads it, so toggling it changes nothing; use the per-object <object>_min_area, <object>_max_area and <object>_perimeter_fraction settings instead. Default False.",
-    "magnification": "(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
+    "magnification": "(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
     "plaque_model": "(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3', the default until 2026-10-11, scores higher on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v4'.",
     "plaque_mode": "(str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
     "figure_detector": "(str) - Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",

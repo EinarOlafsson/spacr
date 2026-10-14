@@ -246,8 +246,8 @@ adjust_cells
 |                 ``_watch_map_manifest(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 
 Read by ``_watch_folder_and_analyse``, ``preprocess_generate_masks``, ``_preprocess_mapped_volume_series``, ``apply_settings``.
 
@@ -1587,9 +1587,10 @@ cell_channel
 |             :py:func:`~spacr.settings.organelle_measurement_caveats` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
@@ -1788,18 +1789,24 @@ Read by ``_phases_by_torch``, ``get_measure_crop_settings``.
 cell_diameter
 -------------
 
-(int or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.
+(int, 'auto' or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM. Leave it None (blank) to use the magnification default, 2\*magnification+80 px (120 px at 20x, 160 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (a Cellpose 3 size model estimates it; Cellpose-SAM, which has no size model, segments at native scale). spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
+|         ``_note_the_diameter``
+|             ``_diameter_used_by`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_segmenter``
-|                 ``_get_object_settings`` **-- reads it**
+|                 ``_get_object_settings``
+|                     ``_own_diameter`` **-- reads it**
 |             ``_robustness_grid`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_cellpose3_masks``
 |                 ``_cellpose3_eval_settings`` **-- reads it**
-|             ``_get_object_settings`` **-- reads it**
+|             ``_note_the_diameter``
+|                 ``_diameter_used_by`` **-- reads it**
+|             ``_get_object_settings``
+|                 ``_own_diameter`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.describe_plan`
@@ -1816,19 +1823,21 @@ cell_diameter
 | ``_prefixed_masks``
 |     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_get_object_settings`` **-- reads it**
+|     ``_get_object_settings``
+|         ``_own_diameter`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_backend_mask_settings`` **-- reads it**
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
-| :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``preprocess_generate_masks``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_robustness_grid``, ``_get_object_settings``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_diameter_used_by``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_own_diameter``, ``_describe_objects``.
 
 .. _setting-flow-cell_dim:
 
@@ -4826,9 +4835,10 @@ cytoplasm_channel
 |             :py:func:`~spacr.settings.organelle_measurement_caveats` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
@@ -4859,11 +4869,20 @@ cytoplasm_diameter
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_note_the_diameter``
+|             ``_diameter_used_by`` **-- reads it**
 |         ``_run_robustness_report``
+|             ``_robustness_segmenter``
+|                 ``_get_object_settings``
+|                     ``_own_diameter`` **-- reads it**
 |             ``_robustness_grid`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_cellpose3_masks``
 |                 ``_cellpose3_eval_settings`` **-- reads it**
+|             ``_note_the_diameter``
+|                 ``_diameter_used_by`` **-- reads it**
+|             ``_get_object_settings``
+|                 ``_own_diameter`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.describe_plan`
@@ -4879,17 +4898,22 @@ cytoplasm_diameter
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_prefixed_masks``
 |     ``_cellpose_dino_masks`` **-- reads it**
+| :py:func:`~spacr.object.generate_cellpose_masks`
+|     ``_get_object_settings``
+|         ``_own_diameter`` **-- reads it**
+|     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_backend_mask_settings`` **-- reads it**
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
-| :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_robustness_grid``, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_diameter_used_by``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_own_diameter``, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_flow_threshold:
 
@@ -5691,6 +5715,7 @@ diameter
 | :py:func:`~spacr.model_zoo.entry_from_file`
 |     ``_describe_cellpose_training`` **-- reads it**
 | ``_on_detect_cellpose`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
 | ``_read_and_segment_sequence``
 |     :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame` **-- reads it**
 | :py:func:`~spacr.qt.widgets.timelapse_preview.segment_sequence`
@@ -5700,7 +5725,7 @@ diameter
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``_stardist_volume_batch``, ``_describe_cellpose_training``, ``_on_detect_cellpose``, ``segment_frame``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
+Read by ``_stardist_volume_batch``, ``_describe_cellpose_training``, ``_on_detect_cellpose``, ``_seed_the_diameter``, ``segment_frame``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-diameter_estimate_n_fields:
 
@@ -11314,16 +11339,22 @@ Read by ``annotate_filter_vision``.
 magnification
 -------------
 
-(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2\*mag+80 for cells, 0.75\*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2\*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.
+(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2\*mag+80 for cells, 0.75\*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2\*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_note_the_diameter``
+|             ``_diameter_used_by`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_segmenter``
 |                 ``_get_object_settings`` **-- reads it**
+|             ``_robustness_grid`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
+|             ``_note_the_diameter``
+|                 ``_diameter_used_by`` **-- reads it**
 |             ``_get_object_settings`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
+|         ``_default_diameter_of`` **-- reads it**
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.describe_plan`
 |                 ``_describe_objects`` **-- reads it**
@@ -11340,13 +11371,15 @@ magnification
 |     ``_get_object_settings`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_backend_mask_settings`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 | ``_get_object_settings`` **-- reads it**
 
-Read by ``_backend_mask_settings``, ``_get_object_settings``, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_default_diameter_of``, ``_diameter_used_by``, ``_backend_mask_settings``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_get_object_settings``, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-make_adjusted_panel:
 
@@ -13343,8 +13376,8 @@ normalize
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.check_cellpose_models` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune` **-- reads it**
@@ -13655,9 +13688,10 @@ nucleus_channel
 |             :py:func:`~spacr.settings.organelle_measurement_caveats` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
@@ -13687,18 +13721,24 @@ Read by ``barcode_set_from_settings``.
 nucleus_diameter
 ----------------
 
-(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.
+(int, 'auto' or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None (blank) uses the magnification default, 0.75\*magnification+45 px (60 px at 20x, 75 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). spacr.diameter.estimate_diameters estimates a value. Default None.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_note_the_diameter``
+|             ``_diameter_used_by`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_segmenter``
-|                 ``_get_object_settings`` **-- reads it**
+|                 ``_get_object_settings``
+|                     ``_own_diameter`` **-- reads it**
 |             ``_robustness_grid`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_cellpose3_masks``
 |                 ``_cellpose3_eval_settings`` **-- reads it**
-|             ``_get_object_settings`` **-- reads it**
+|             ``_note_the_diameter``
+|                 ``_diameter_used_by`` **-- reads it**
+|             ``_get_object_settings``
+|                 ``_own_diameter`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.describe_plan`
@@ -13715,19 +13755,21 @@ nucleus_diameter
 | ``_prefixed_masks``
 |     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_get_object_settings`` **-- reads it**
+|     ``_get_object_settings``
+|         ``_own_diameter`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_backend_mask_settings`` **-- reads it**
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
-| :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_robustness_grid``, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_diameter_used_by``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_own_diameter``, ``_describe_objects``.
 
 .. _setting-flow-nucleus_flow_threshold:
 
@@ -14453,8 +14495,8 @@ number_of_organelles
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings`
 |     :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
 |     :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
 |     ``_slots_the_settings_speak_for``
@@ -15040,9 +15082,10 @@ organelle_channel
 |             :py:func:`~spacr.settings.organelle_measurement_caveats` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
@@ -15117,11 +15160,20 @@ organelle_diameter
 |                         :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
 |                 ``dict(...)  [UNRESOLVED]``
 |                 ``_watch_map_manifest(...)  [UNRESOLVED]``
+|         ``_note_the_diameter``
+|             ``_diameter_used_by`` **-- reads it**
 |         ``_run_robustness_report``
+|             ``_robustness_segmenter``
+|                 ``_get_object_settings``
+|                     ``_own_diameter`` **-- reads it**
 |             ``_robustness_grid`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_cellpose3_masks``
 |                 ``_cellpose3_eval_settings`` **-- reads it**
+|             ``_note_the_diameter``
+|                 ``_diameter_used_by`` **-- reads it**
+|             ``_get_object_settings``
+|                 ``_own_diameter`` **-- reads it**
 |             :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
 |                 ``_set_organelle_defaults``
 |                     :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
@@ -15161,6 +15213,8 @@ organelle_diameter
 |     ``_cellpose_dino_masks`` **-- reads it**
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
+|     ``_get_object_settings``
+|         ``_own_diameter`` **-- reads it**
 |     :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
 |         ``_set_organelle_defaults``
 |             :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
@@ -15175,13 +15229,14 @@ organelle_diameter
 |         :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
-| :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_morphology_of_organelle_type``, ``_build_object_settings``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``generate_cellpose_masks_sam``, ``apply_preset``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_robustness_grid``, ``_describe_objects``.
+Read by ``_morphology_of_organelle_type``, ``_build_object_settings``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``generate_cellpose_masks_sam``, ``_diameter_used_by``, ``apply_preset``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_own_diameter``, ``_describe_objects``.
 
 .. _setting-flow-organelle_dog_sigma_high:
 
@@ -16687,9 +16742,10 @@ pathogen_channel
 |             :py:func:`~spacr.settings.organelle_measurement_caveats` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
-|     ``_seed_the_model(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
@@ -16720,18 +16776,24 @@ Read by ``barcode_set_from_settings``.
 pathogen_diameter
 -----------------
 
-(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.
+(int, 'auto' or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None (blank) uses the magnification default, magnification px (20 px at 20x, 40 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_note_the_diameter``
+|             ``_diameter_used_by`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_segmenter``
-|                 ``_get_object_settings`` **-- reads it**
+|                 ``_get_object_settings``
+|                     ``_own_diameter`` **-- reads it**
 |             ``_robustness_grid`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_cellpose3_masks``
 |                 ``_cellpose3_eval_settings`` **-- reads it**
-|             ``_get_object_settings`` **-- reads it**
+|             ``_note_the_diameter``
+|                 ``_diameter_used_by`` **-- reads it**
+|             ``_get_object_settings``
+|                 ``_own_diameter`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.describe_plan`
@@ -16748,19 +16810,21 @@ pathogen_diameter
 | ``_prefixed_masks``
 |     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_get_object_settings`` **-- reads it**
+|     ``_get_object_settings``
+|         ``_own_diameter`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_backend_mask_settings`` **-- reads it**
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
-| :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
+| ``_seed_the_diameter`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_robustness_grid``, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_diameter_used_by``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_own_diameter``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_flow_threshold:
 
@@ -20203,7 +20267,7 @@ Read by ``_robustness_sample``.
 robustness_diameter_factors
 ---------------------------
 
-(list) - Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].
+(list) - Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as its magnification default and 0 or 'auto' as Cellpose's nominal 30 pixels. Default [0.75, 1.25].
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -24081,6 +24145,7 @@ timelapse_displacement
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 
 Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``.
 
@@ -24432,6 +24497,7 @@ timelapse_memory
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 
 Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``.
 
@@ -24451,6 +24517,7 @@ timelapse_mode
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 
 Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``, ``_run_event_detection_step``.
 
@@ -24481,6 +24548,7 @@ timelapse_objects
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 
 Read by ``_run_measured_lineage_step``, ``_measure_crop_core``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``, ``get_measure_crop_settings``, ``_run_event_detection_step``.
 
@@ -24499,6 +24567,7 @@ timelapse_remove_transient
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
+|     ``_seed_the_diameter(...)  [UNRESOLVED]``
 
 Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``.
 

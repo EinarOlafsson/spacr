@@ -10726,6 +10726,9 @@ class SettingsWidgets:
     #: settings file differ from it and breaks "has this been changed?".
     CANONICAL_READERS = {
         "channel_of_interest": "spacr.settings:canonical_feature_selection",
+        "cell_diameter": "spacr.object_settings_table:_canonical_diameter",
+        "nucleus_diameter": "spacr.object_settings_table:_canonical_diameter",
+        "pathogen_diameter": "spacr.object_settings_table:_canonical_diameter",
     }
 
     def _canonical(self, key: str, value: Any) -> Any:

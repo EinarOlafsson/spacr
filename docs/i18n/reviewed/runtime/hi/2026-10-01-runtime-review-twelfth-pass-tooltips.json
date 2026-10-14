@@ -1238,31 +1238,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_diameter",
-      "source": "Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
-      "source_sha256": "c0522ea640336af4540951ec1bf709c48d2ea6799cb5cf9279f4ff37e21da08e",
-      "translation": "पिक्सेल में अपेक्षित कोशिका व्यास। Cellpose 4 सेगमेंटेशन से पहले छवि को 30/diameter से पुनः स्केल करता है, अपेक्षित ऑब्जेक्ट आकार को CPSAM के प्रशिक्षण स्केल से संरेखित करते हुए; मूल स्केल पर सेगमेंट करने के लिए इसे None छोड़ें। इसे तब सेट करें जब कोशिकाएँ ~30 px से बहुत बड़ी या छोटी हों और सेगमेंटेशन खंडित या मिले हुए मास्क बनाए। spacr.diameter.estimate_diameters चयनित दृश्य-क्षेत्रों से एक मान का अनुमान लगाता है। डिफ़ॉल्ट None।"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "pathogen_signal_to_noise",
       "source": "Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 20.",
       "source_sha256": "2a5e221d03bf215fd394749f084f8398e48198c7aa8af4ade86050bcd6cc1652",
       "translation": "रोगजनक चैनल का अपेक्षित अग्रभूमि-से-पृष्ठभूमि अनुपात। pathogen_background से गुणा करने पर, यह सामान्यीकरण ऊपरी सीमा के लिए न्यूनतम तीव्रता परिभाषित करता है। spaCR 98 से 99.5 तक पर्सेंटाइल का मूल्यांकन करता है और सीमा तक पहुँचने वाले पहले का उपयोग करता है, फ़ॉलबैक के रूप में 99.5वाँ पर्सेंटाइल। कम क्लिपिंग के साथ ऊँची ऊपरी सीमा के लिए अधिक मान का उपयोग करें; अधिक कंट्रास्ट के लिए कम मान का उपयोग करें। डिफ़ॉल्ट 20।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_diameter",
-      "source": "Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
-      "source_sha256": "d2cb2db47fddc1e1c03763a45b4d3cbf3cabf6752a346f4bde49813f105ed4da",
-      "translation": "पिक्सेल में अपेक्षित नाभिक व्यास, जिसका उपयोग Cellpose 4 सेगमेंटेशन से पहले छवि को 30/diameter से पुनः स्केल करने के लिए करता है। None मूल स्केल पर सेगमेंट करता है। चूँकि नाभिक सामान्यतः सबसे छोटे सेगमेंट किए गए ऑब्जेक्ट होते हैं, कम-आवर्धन अधिग्रहण के लिए इस पैरामीटर को अक्सर स्पष्ट कॉन्फ़िगरेशन की आवश्यकता होती है। spacr.diameter.estimate_diameters एक मान का अनुमान लगाता है। डिफ़ॉल्ट None।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_diameter",
-      "source": "Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
-      "source_sha256": "acdded81afff918e3a71e83fb47eef1b3ba87a058508f30ffa4a4b1b2587fdd1",
-      "translation": "पिक्सेल में अपेक्षित रोगजनक व्यास, जिसका उपयोग Cellpose 4 सेगमेंटेशन से पहले छवि को 30/diameter से पुनः स्केल करने के लिए करता है। None मूल स्केल पर सेगमेंट करता है। कम आवर्धन पर अंतःकोशिकीय परजीवी अक्सर केवल कुछ पिक्सेल चौड़े होते हैं, जहाँ पुनः स्केलिंग सबसे अधिक मायने रखती है। spacr.diameter.estimate_diameters एक मान प्रस्तावित करता है। डिफ़ॉल्ट None।"
     },
     {
       "table": "setting_tooltips",
@@ -3174,13 +3153,6 @@
       "source": "Object tables joined into the cell-anchored export. Dropping a table drops its features from X: without 'pathogen' there are no pathogen columns and no count_pathogen, and without 'png_list' the crop paths, annotations and model scores are all absent from obs. Default ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list'].",
       "source_sha256": "a14ab71833e1cd7807bc5853579e9e4b74e1d3c2ea274d5276985c055fcca7c1",
       "translation": "कोशिका-आधारित निर्यात में जोड़ी गई ऑब्जेक्ट तालिकाएँ। किसी तालिका को हटाने से उसके फ़ीचर X से हट जाते हैं: 'pathogen' के बिना कोई रोगजनक कॉलम और कोई count_pathogen नहीं होता, और 'png_list' के बिना क्रॉप पथ, एनोटेशन और मॉडल स्कोर सभी obs से अनुपस्थित होते हैं। डिफ़ॉल्ट ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "magnification",
-      "source": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
-      "source_sha256": "d6a066048ede229da859af72ddbdd37cb9528677a77d5bcc7a805df31ac015f3",
-      "translation": "ऑब्जेक्टिव आवर्धन, केवल अपेक्षित ऑब्जेक्ट आकार निकालने के लिए उपयोग होता है: पिक्सेल व्यास कोशिकाओं के लिए 2*mag+80, नाभिकों के लिए 0.75*mag+45 और रोगजनकों के लिए mag है, diameter^2/4 और diameter^2*10 की min/max क्षेत्रफल सीमाओं के साथ। स्पष्ट cell_diameter, nucleus_diameter या pathogen_diameter इसे ओवरराइड करते हैं। इसे अधिग्रहण ऑब्जेक्टिव के आवर्धन (10, 20, 40 या 60) पर सेट करें। डिफ़ॉल्ट 40।"
     },
     {
       "table": "setting_tooltips",

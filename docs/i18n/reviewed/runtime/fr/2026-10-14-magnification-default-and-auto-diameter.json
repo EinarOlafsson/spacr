@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_diameter",
+      "source": "Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM. Leave it None (blank) to use the magnification default, 2*magnification+80 px (120 px at 20x, 160 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (a Cellpose 3 size model estimates it; Cellpose-SAM, which has no size model, segments at native scale). spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
+      "source_sha256": "97441f4c715c0baf8287506e18ae6c1839a25a577c9c578eacbe08590ce2b526",
+      "translation": "Diamètre attendu des cellules en pixels. Cellpose 4 redimensionne l’image par 30/diameter avant la segmentation pour adapter la taille des objets à l’échelle d’entraînement de CPSAM. None (vide) utilise la valeur par défaut selon le grossissement, 2*magnification+80 px (120 px à 20x, 160 px à 40x). 0 et 'auto' sont équivalents et sont enregistrés comme 'auto' : Cellpose estime la taille (le modèle de taille de Cellpose 3 l’estime ; Cellpose-SAM n’a pas de modèle de taille et segmente à l’échelle d’origine). spacr.diameter.estimate_diameters estime une valeur à partir des champs sélectionnés. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "magnification",
+      "source": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
+      "source_sha256": "75f4913fece9e783402cb243c3025b5ec5aa2167ac591325fba0e0d0333ce8ba",
+      "translation": "Grossissement de l’objectif, utilisé uniquement pour calculer les tailles attendues : le diamètre en pixels est 2*mag+80 pour les cellules, 0.75*mag+45 pour les noyaux et mag pour les agents pathogènes, avec des limites de surface minimale/maximale de diameter^2/4 et diameter^2*10. Si cell_diameter, nucleus_diameter ou pathogen_diameter est vide, tous les modèles, dont Cellpose-SAM, segmentent à ce diamètre par défaut ; un nombre explicite ou 'auto' le remplace. Utilisez le grossissement de l’objectif lors de l’acquisition (10, 20, 40 ou 60). Valeur par défaut : 40."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_diameter",
+      "source": "Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None (blank) uses the magnification default, 0.75*magnification+45 px (60 px at 20x, 75 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). spacr.diameter.estimate_diameters estimates a value. Default None.",
+      "source_sha256": "ebbaaf664c1d8005012e1e54af64b0b1e65ca1796ff95bcca7cde5839cb89055",
+      "translation": "Diamètre attendu des noyaux en pixels. Cellpose 4 l’utilise pour redimensionner l’image par 30/diameter avant la segmentation. None (vide) utilise la valeur par défaut selon le grossissement, 0.75*magnification+45 px (60 px à 20x, 75 px à 40x). 0 et 'auto' sont équivalents et sont enregistrés comme 'auto' : Cellpose estime la taille (Cellpose-SAM n’a pas de modèle de taille et segmente à l’échelle d’origine). spacr.diameter.estimate_diameters estime une valeur. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_diameter",
+      "source": "Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None (blank) uses the magnification default, magnification px (20 px at 20x, 40 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
+      "source_sha256": "44fefee3323abbcf3a15d7ec6d55f16028fe25c181bcd06b8c8ff4254b540fc7",
+      "translation": "Diamètre attendu des agents pathogènes en pixels. Cellpose 4 l’utilise pour redimensionner l’image par 30/diameter avant la segmentation. None (vide) utilise la valeur par défaut selon le grossissement, magnification px (20 px à 20x, 40 px à 40x). 0 et 'auto' sont équivalents et sont enregistrés comme 'auto' : Cellpose estime la taille (Cellpose-SAM n’a pas de modèle de taille et segmente à l’échelle d’origine). Les parasites intracellulaires n’occupent souvent que quelques pixels à faible grossissement, où le redimensionnement a le plus d’effet. spacr.diameter.estimate_diameters estime une valeur. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_diameter_factors",
+      "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as its magnification default and 0 or 'auto' as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+      "source_sha256": "872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1",
+      "translation": "Multiples du diamètre de l’objet que le rapport de robustesse teste un par un ; un diamètre vide correspond au défaut selon le grossissement, et 0 ou 'auto' aux 30 pixels nominaux de Cellpose. Valeur par défaut : [0.75, 1.25]."
+    },
+    {
+      "table": "ui",
+      "key": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1). 0 and auto are the same value: Cellpose estimates the size (Cellpose-SAM, which has no size model, keeps the native scale). An object diameter left blank opens at its magnification default, as the run uses it.",
+      "source": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1). 0 and auto are the same value: Cellpose estimates the size (Cellpose-SAM, which has no size model, keeps the native scale). An object diameter left blank opens at its magnification default, as the run uses it.",
+      "source_sha256": "bff4fa1743a64c675883b1b8194ebc7946ac6a6a1397b8a0a971bb6d27fa48d4",
+      "translation": "(float, px) Diamètre attendu de l’objet. Cellpose-SAM l’utilise : l’image est redimensionnée par 30/diameter avant la segmentation ; augmenter la valeur détecte de plus grands objets et la diminuer de plus petits. 30 ne change pas l’échelle (30/30 = 1). 0 et auto sont équivalents : Cellpose estime la taille (Cellpose-SAM n’a pas de modèle de taille et conserve l’échelle d’origine). Un diamètre d’objet vide s’ouvre au défaut selon le grossissement utilisé par l’exécution."
+    },
+    {
+      "table": "ui",
+      "key": "Pixels. Blank uses the magnification default (shown greyed); 0 or auto lets Cellpose estimate the diameter.",
+      "source": "Pixels. Blank uses the magnification default (shown greyed); 0 or auto lets Cellpose estimate the diameter.",
+      "source_sha256": "b629e1757f940d7d56f13cb80e6e6e0b02ff7cc96a468e98f3fb133ea8c3797d",
+      "translation": "Pixels. Vide utilise le défaut selon le grossissement (en gris) ; 0 ou auto laisse Cellpose estimer le diamètre."
+    },
+    {
+      "table": "ui",
+      "key": "{value} is not a diameter: type a number of pixels, 0 or auto to let Cellpose estimate it, or clear the cell for the magnification default.",
+      "source": "{value} is not a diameter: type a number of pixels, 0 or auto to let Cellpose estimate it, or clear the cell for the magnification default.",
+      "source_sha256": "91a16c1447ca39216b290fd0d17b841c18b744a02dee707596da075677747732",
+      "translation": "{value} n’est pas un diamètre : saisissez un nombre de pixels, 0 ou auto pour que Cellpose l’estime, ou videz la cellule pour utiliser le défaut selon le grossissement."
+    }
+  ]
+}

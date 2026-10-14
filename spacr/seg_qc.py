@@ -2439,8 +2439,9 @@ def _robustness_grid(settings: Mapping[str, Any], object_type: str) -> List[Dict
     One-at-a-time rather than every combination, so a change in the results
     is attributable to the one parameter that moved and the grid stays small
     enough to run on a CPU: the diameter is multiplied by each of
-    ``robustness_diameter_factors`` (a blank diameter is Cellpose's nominal
-    30 pixels), the flow and cell-probability thresholds are set to each of
+    ``robustness_diameter_factors`` (a blank diameter is the magnification
+    default the run segments at, and 0 or "auto" Cellpose's nominal 30
+    pixels, item 696), the flow and cell-probability thresholds are set to each of
     ``robustness_flow_thresholds`` and ``robustness_cellprob_thresholds``,
     and, with ``robustness_enhancement`` on, the field is contrast-enhanced
     (CLAHE) before it is segmented.
@@ -2449,7 +2450,12 @@ def _robustness_grid(settings: Mapping[str, Any], object_type: str) -> List[Dict
         ``diameter``, ``flow_threshold``, ``cellprob_threshold`` and
         ``enhance``; the first is the baseline.
     """
-    diameter = _as_number(settings.get(f"{object_type}_diameter"))
+    from .object_settings_table import _AUTO_DIAMETER, _resolved_diameter
+
+    diameter = _resolved_diameter(settings.get(f"{object_type}_diameter"),
+                                  settings.get("magnification"), object_type)
+    if diameter == _AUTO_DIAMETER:
+        diameter = None
     flow = _as_number(settings.get(f"{object_type}_flow_threshold"))
     cellprob = _as_number(settings.get(f"{object_type}_cellprob_threshold"))
     base = dict(diameter=diameter if diameter and diameter > 0 else None,
