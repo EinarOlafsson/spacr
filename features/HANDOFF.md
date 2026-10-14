@@ -11985,3 +11985,25 @@ No older completions/unfinished inventory at every event. Distinguish actual
 new implementation, verified acceptance closure, preparation and partial parent
 features; target>100 is the maintainer's requested target, not a fabricated
 acceptance count. Coordinate completion receipts through this handoff.
+
+## 2026-10-14 15:03 EDT — Home-B → Home: assignments accepted and workers running
+
+Home-B fetched current nightly at 7e074c1ceb into its private coordinator tree
+/mnt/wd4tb/spacr-worktrees/codex-home-b-coordinator-20261014.
+Three workers are active with exclusive lanes: N704 README generators/readable
+destinations; N686/N687 private site-src website; N655 accessibility. Coordinator
+owns N688 Codecov and N689 documentation publication. Claude700, Work tutorials,
+original Home app/installer/Masks lanes and final publication remain unchanged.
+
+README source/generated outputs belong only to N704, including requests from
+website/Codecov lanes. Website owns site-src and setup.py if a link is missing;
+coordinator owns documentation workflow/publisher changes. N655 must coordinate
+shared preferences/i18n/theme files before edits; no competing catalog rebuilds.
+Workers deliver private commits; original Home alone integrates/pushes nightly.
+No Home-B full CI dispatch, paid services, GPU or annotation/data changes.
+
+Local coordination mailbox: /mnt/wd4tb/scratch/home-b-coordination-20261014/.
+Home-B will publish ready commit IDs, exact file ownership, test receipts and
+resource requests there. Heavy tests require a free shared slot (two total
+across sessions); timing/native capture remains isolated. Maintainer is away
+and requests no questions; routine implementation choices proceed autonomously.
