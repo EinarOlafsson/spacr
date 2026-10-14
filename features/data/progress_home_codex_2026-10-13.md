@@ -1,10 +1,10 @@
-Home/Work progress — 2026-10-14 00:36 EDT
+Home/Work progress — 2026-10-14 01:18 EDT
 
 — means no defensible completion percentage or elapsed-time estimate. ✅ marks verified achievements in the last 12 hours; remaining gates stay explicit.
 
 | item | percent done | time left | owner | detailed description |
 |---|---|---|---|---|
-| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Fresh full CI run 38512120776 tests candidate a744a9fda2. Local repair validation: 99 owning and 70 traced tests pass with the original 0.75 threshold. Main promotion and release await all 30 jobs. |
+| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Exact a744 CI has eight successful jobs and no observed failures; remaining jobs/gates pending. Guards require explicit candidate; merge simulation matches its whole tree. Main promotion and release await all 30 jobs. |
 | CI repair implementation | ✅ | Done; fresh full CI pending | Home Codex team | Published palette caching, import fallback, tour-aware navigation, exact sparse colour crossfade and real source-default coverage. Local cohorts passed 74, 106, 185 and 48 tests; existing locale findings remain advisory. |
 | CI N701 layout compatibility | ✅ | Published; full CI pending | Home Qt agent | Private 1a9a138c76 adds the shipped Hide judged fields button to the full order contract. 38 tests pass; exit 0 and JUnit verified. |
 | CI Model Zoo backend coverage | ✅ | Published; full CI pending | Home Qt agent | 11 tests pass; real model-row regression checks missing-backend Install action and ready-backend state. Both branch outcomes verified; no source or ratchet edits. |
@@ -19,9 +19,9 @@ Home/Work progress — 2026-10-14 00:36 EDT
 | Make Masks lesson 14 performance | — | After release | Home | All54 preflight bindings verified; preserve N701 folder state and proven legacy i8hash before brush integration. Original held2dirtyfiles unchanged; finish lifecycle/performance/ledger acceptance after release. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |
 | N696 | — | After N697 | Home + Work | Rebase automatic diameter; fix issue146 (0 must mean auto), GUI/CLI/run/preview parity, defaults/reseeding/clipping and translations. Held until after697. |
-| README panel text links | 0% | After held branches | Home | Each panel links to its text; existing destination pages begin with the panel text. Preserve current visuals and copy generated outputs to main. |
+| README panel text links (N704) | 0% | After held branches | Home | Registered specification and complete source plan: 65 English text panels, 46 unlinked per language. All 83 bindings verified. Generate readable text-first destinations, preserve current visuals and publish after held branches. |
 | N699 | 0% | Queued | Home + Work + maintainer | Source audit maps GUI SSH discovery/MFA/session/Testconnection gaps; current Great Lakes Kerberos + Okta and passive-parser requirement recorded. Implementation/nativeMFA remain open. |
-| N700 | 0% | Free account setup; implementation after release | Home + maintainer | Hard prerequisite: $0 to maintainer. Owner GitHub App, Workers/D1 Free and free-access AI only; no paid fallback or upgrade. Relay, sanitization, disclosure, retry and provider integration are unimplemented. |
+| N700 | 0% | Free account setup; implementation after release | Home + maintainer | Hard $0 prerequisite. Fourteen future notices accepted for isolated locale drafts only; actual implementation/plan/model/privacy verification still required before activation. No configured relay, deployment or paid fallback. |
 | N698 | 0% | Queued | Home + Work | Website/desktop audit and 49 bindings verified; static site lacks upload/inference/ZIP/browser exports. Exact weights, model-specific outputs, sample eligibility and native/WebGPU parity remain open. |
 | N702 | 0% | Queued; ordering pending | Home + Work | 38 source bindings identify exact resolver seam, ambiguous version metadata, backgroundcatalogue traffic, duplicate downloads and CSV metadata gaps. Five implementation batches remain. |
 | N701 | ✅ | Done | Work | Published Hide judged fields and --exclude-verdicts with folder persistence, navigation safeguards, tests and nine-locale records (9692fd146). |
@@ -38,14 +38,14 @@ Home/Work progress — 2026-10-14 00:36 EDT
 | Remaining tutorial remakes | — | Not estimated | Work | Four of 84 routes published; 80 not yet remade, plus 05 recapture and 07/08 quality reassessment. Work source inventory is verified. |
 | Held tutorial tooling | — | After release | Work | Work held integration fcf4055999 with pinned eb72 source has 215 selected checks passing. Goal source-blocked; no recording or upload until release and final app repair. |
 | Shutdown exit verification | ✅ | Done | Work | Measure Templates/shortcuts capture r25-08-templates-b on d0c99e841 includes a540d62b5 and exited rc 0; Work recorded provenance in b394f90407. |
-| N615 | — | After source hold; ongoing | Work | Keep catalogs/docs current. Precisely identified existing advisory debt: 18 label relocations and nine historical retirements, preserving translations. Source-bound plan prepared; no review metadata changed. |
-| Dynamic animation wording | — | Docs queue | Work | Exact truthful tooltip and whole stop-docstring drafts accepted for after release;9 locale drafts may prepare. Source/catalogs unchanged; helper wording also needs correction. |
+| N615 | — | After source hold; ongoing | Work | Private helper English accepted for after release; actual manifests exclude both, so no helper locale records. Public stop/tooltip remain translation surfaces. Existing 18 label relocations and nine historical retirements remain planned. |
+| Dynamic animation wording | — | Docs queue | Work | Accepted exact tooltip/stop drafts and both private helper corrections for after release. Existing nine-locale drafts cover real public surfaces; private helper translations are unnecessary. Canonical source/catalogs remain unchanged. |
 | N678 | — | Remaining review | Home + Work | Reconcile remaining factual language across app, API, docs and narration. |
 | N670 | — | Desktop check | Home + maintainer | Verify revised close-wave shape and 100–200% intensity after published software fixes. |
 | N672 | — | Desktop check | Home + maintainer | Validate Gate Editor shortcuts and overlapping-element picker changes following earlier editing acceptance. |
 | N673 | — | Desktop check | Home + maintainer | Validate in-container volumes, orthogonal/3D editing, saving and navigation. |
 | N674 | — | Visual acceptance | Maintainer | Published Spaceout phenomena still have recorded aesthetic acceptance open. |
-| N675 | — | External review | Maintainer + Work | pyfixest PR #35101 review, spaCR feedstock update and clean conda-forge installation. |
+| N675 | — | External review | Maintainer + Work | Current pyfixest PR has eight passed check-runs and a pending legacy linter status. Reviewer version-variable correction prepared and statically verified; publish when priority CI frees runners. Channel still lacks pyfixest; spaCR is 1.5.0.8 there. |
 | F586 | — | After release and cluster check | Home + maintainer | Publish SIFs through release, make GHCR public, verify anonymous pulls and CPU/GPU Slurm execution. |
 | F370 | — | State reconciliation | Work | Latest handoff says all nine cards uploaded/approved; reconcile older blocked notes and remaining acceptance. |
 | F404 | — | Platform validation | Home + Work | Alpha backend exists; reconcile scorecard dependency and remaining Windows/macOS acceptance. |
@@ -64,7 +64,7 @@ Home/Work progress — 2026-10-14 00:36 EDT
 | ParaScape publisher follow-up | — | Account verification | Maintainer | PyPI 0.0.1.0 is already live; verify trusted-publisher setup. |
 | Leftover measure-gil-base worktree | ✅ | Done | Home | Removed the listed clean obsolete checkout with non-forced Git removal, exit 0. Ancestor commit retained; 361 ignored Python bytecode files only. Scoped process check and reconstruction receipt preserved. |
 | N676 | — | Remake queue | Work + Home fixes | Tutorial remake remains open. Current 04/05/07/08 publications are complete; 14 awaits held Make Masks fixes and 20 awaits Workbench opening repair. |
-| Cold Preferences Apply stall | — | After release | Home | Investigate first cold Apply/Save, no-op/nonvisual/effect/scale changes, sliced work and populated consoles. Bound 606 ms GUI delay; cause unmeasured. |
+| Cold Preferences Apply stall | — | After release | Home | Verified eight source and seven owning files. Apply still synchronously restyles console documents and does renderer work. Historical 606 ms cause remains unproved; minimal candidate and cold-first/rollback/native plan prepared, no source fix. |
 | Tutorial 05 quality repair | — | After cold Apply fix | Work | Fresh whole-lesson recording with stable-widget telemetry; old publication remains archived and accessible. |
 | Tutorial 07 quality reassessment | — | After final source/tooling | Work | Fresh telemetry and acceptance check for batch settings; legacy freeze estimate alone does not establish a physical GUI stall. |
 | Tutorial 08 quality reassessment | — | After final source/tooling | Work | Fresh telemetry and acceptance check for all channels; legacy freeze estimate alone does not establish a physical GUI stall. |

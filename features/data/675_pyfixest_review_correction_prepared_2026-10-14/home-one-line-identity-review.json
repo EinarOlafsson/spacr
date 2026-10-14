@@ -1,0 +1,10 @@
+{
+  "checked_at_utc": "2026-10-14T05:00:54.963206+00:00",
+  "head_sha": "3b4fd83a52fecc001f87240ce9ad010405d08fa7",
+  "one_line_only": true,
+  "other_yaml_nodes_unchanged": true,
+  "both_version_python_asts_valid": true,
+  "recipe_before_sha256": "0118c1911e9e51715ff95a0177f14305d0d6fb2d813f7cb3f24af492e69e4f6e",
+  "recipe_after_sha256": "f4ef3104e6cada662c8f0746a0aeceb7ec339fd67290925bff256092939be355",
+  "scope": "Independent byte/YAML/AST review only; no Rattler render, package execution, external CI or publication."
+}

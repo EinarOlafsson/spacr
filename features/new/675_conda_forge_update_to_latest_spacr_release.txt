@@ -130,3 +130,16 @@ MAINTAINER ACTIONS (in order)
      conda run -n spacr-cf spacr-doctor
    Then record the channel version here and hand install docs to the
    workstation owner.
+
+2026-10-14 01:18 EDT — Current read-only forge audit and concrete correction
+prepared in data/675_pyfixest_review_correction_prepared_2026-10-14/.
+pyfixest is still absent from the conda-forge API (404); the spaCR conda-forge channel remains 1.5.0.8.
+PR 35101 current head 3b4fd83a has eight successful check-runs plus a pending legacy
+conda-forge-linter status. Review has already been requested (labels); do not
+repeat the outdated request. Reviewer asks line 49 to use the recipe version
+variable; current source still hardcodes 0.60.0. Exact one-line proposal retains
+real import/version/feols assertions and changes only that constant to the
+existing template variable. Independent byte/YAML/AST checks pass; no installed
+Rattler renderer, actual package build or new external CI is claimed.
+Code publication is held while priority spaCR full CI occupies account runners.
+No PR comment/review, fork mutation, package publication or whole-item acceptance.

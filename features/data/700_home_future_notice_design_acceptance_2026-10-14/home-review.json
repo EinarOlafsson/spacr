@@ -1,0 +1,495 @@
+{
+  "schema": "spacr.n700.home-future-notices-review.v1",
+  "source_worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013",
+  "source_commit": "cfb10b89e0ceafa8fd766973919e55e237cc52f8",
+  "bindings": {
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/README.md": {
+      "sha256": "08118a3d9779a367e8d7f89f9c53a7c69b002474f4d20c219f5024db352fb959",
+      "bytes": 1236,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/delivery-manifest.json": {
+      "sha256": "43c1dea9c7d1e80840ff25aa4a1066d92dfc8742dcad56225c0088c882c8615e",
+      "bytes": 3382,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_20261013.json": {
+      "sha256": "aac60576389ff4c917b1e66f2c22192fec0cf22340e606913378d21579ee28f8",
+      "bytes": 20022,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_corrected_20261013.json": {
+      "sha256": "48333176c9526f589bed69e3e24429695e4918cf438336f5a859fe48da77e40b",
+      "bytes": 25194,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_corrected_final_20261013.json": {
+      "sha256": "cd8851c2ee3f4fb1853829bb8c34a8aa1451204717be47e9e5ea7a041d431cbb",
+      "bytes": 25616,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_correction_delta_20261013.json": {
+      "sha256": "1348881f3314f550c8a704129e156a732e3f9c499fbe5a0bc3f4f2b3e3b4d6ff",
+      "bytes": 4897,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_final_consistency_20261013.json": {
+      "sha256": "584e9fa7d4f74167c40dfe8e141aa123af5c00c62e6fadc5884717bc9f155699",
+      "bytes": 4009,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_semantic_peerreview_20261013.json": {
+      "sha256": "c39e77eef2c73cce27aa7356ccdd2fb653eb43f635a2d03a5a632804fa825c8f",
+      "bytes": 9919,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_cloud_routes_setup_2026-10-13/zero-cost-requirement.json": {
+      "sha256": "0e81eaf9223d04742fc31143956c6a5e530b6c75b6de015687fa714ef1104499",
+      "bytes": 954,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_cloud_routes_setup_2026-10-13/setup-guide.txt": {
+      "sha256": "bc6f33803c6979dd5ee74f418f7e07c36534ba54cb56563162cdd0c49db4a889",
+      "bytes": 8349,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_privacy_provider_review_2026-10-13/audit.json": {
+      "sha256": "39d1b7937b237062145a73c9c8955b392008da4663dd89dc836019a4acdea41f",
+      "bytes": 30922,
+      "byte_identical_source_commit": true
+    },
+    "features/data/700_work_privacy_provider_review_2026-10-13/wording-inventory/corrected-inventory.json": {
+      "sha256": "60e75a796bc12ed876a58d6afc3cd9ed9fc61e58de82931544b4de4d51d997f0",
+      "bytes": 88672,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/issue_report.py": {
+      "sha256": "5489cc833ef9e26ddb9a6221cecab2fddf60e8d1f8fc99e76870b351a1155b06",
+      "bytes": 31642,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/issue_preview.py": {
+      "sha256": "bb07744b8595346bd92c07aec463aaec75f2ff3f40fc08097706b89c18d21bed",
+      "bytes": 11698,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/providers.py": {
+      "sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "bytes": 32016,
+      "byte_identical_source_commit": true
+    },
+    "spacr/crashreport.py": {
+      "sha256": "7e5361743a67f5478cd163e8773441bb640085e239c8a5fcdb3dfa9dc6f15fd7",
+      "bytes": 35758,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/github_auth.py": {
+      "sha256": "68dd4d1595ab61d405ba87505dcdacdb800b3dfdb6d7eb6a0675478ffd07c1f0",
+      "bytes": 10967,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/prompts.py": {
+      "sha256": "8950ac9969aca575e8f7a91604231e07365c70835e5983599889b83a5163f5b6",
+      "bytes": 3612,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/settings.py": {
+      "sha256": "858107ff2d7bbc64bdd5391563f875b064dfb163b690115fc81a2098cb88c189",
+      "bytes": 8804,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/worker.py": {
+      "sha256": "a7bd58589d1c7458504f898ec20d866b138ca81190335d959b56a143c4754cd2",
+      "bytes": 7522,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/ai/__init__.py": {
+      "sha256": "ecd8d0b264b43f78c68a19de2b875cd28d84d7b6e05cfd6b76470c3dec4257a8",
+      "bytes": 1613,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/widgets/console_panel.py": {
+      "sha256": "46e4b66be978b3e202bebe71422c9ed7a533ceba0b33cd74be77c40ad5fb1bcd",
+      "bytes": 96307,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/screens/app_screen.py": {
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "bytes": 590758,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/preferences.py": {
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "bytes": 552446,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_ai_issue_report_offline.py": {
+      "sha256": "e71561b1ce0a377a86e07b7f825a12a9a1c920c773051e277193fe4e15cba6c3",
+      "bytes": 23560,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_issue_preview.py": {
+      "sha256": "ebcfe8e2f60456a2542c01edaaa45d6e482fd1d3152f3493d151f62e2b06cd0c",
+      "bytes": 1478,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_the_issue_preview_can_diagnose.py": {
+      "sha256": "407f7dc2da3387023482497cb3fb58e9b7bf13833dfd82cbaf2cb8f187ba29a8",
+      "bytes": 11478,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_issue_dedupe_and_write_guard.py": {
+      "sha256": "d0aec1d310ebd1d4d5b98d81c7ccde0b089e30500e8b7cd759d31255b56eefde",
+      "bytes": 8453,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_a_report_survives_an_unreadable_machine_identity.py": {
+      "sha256": "8f83f99edf0704405265358b37081b92ff9110a65d9063e8fd7df6896819e05b",
+      "bytes": 3622,
+      "byte_identical_source_commit": true
+    },
+    "tests/test_crash_report.py": {
+      "sha256": "5885f15a37691e509ce921b35775d95c3a78e10c4bb33ebf0778291652c913c7",
+      "bytes": 23026,
+      "byte_identical_source_commit": true
+    }
+  },
+  "delivery_manifest_checks": [
+    {
+      "file": "n700_zero_cost_future_notices_20261013.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "n700_zero_cost_future_notices_corrected_20261013.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "n700_zero_cost_future_notices_corrected_final_20261013.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "n700_zero_cost_future_notices_correction_delta_20261013.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "n700_zero_cost_future_notices_final_consistency_20261013.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "n700_zero_cost_future_notices_semantic_peerreview_20261013.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    }
+  ],
+  "proposal_input_checks": [
+    {
+      "key": "requirement",
+      "current_path": "features/data/700_cloud_routes_setup_2026-10-13/zero-cost-requirement.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "key": "guide",
+      "current_path": "features/data/700_cloud_routes_setup_2026-10-13/setup-guide.txt",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "key": "reviewed_N700_destination_audit",
+      "current_path": "features/data/700_work_privacy_provider_review_2026-10-13/audit.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    },
+    {
+      "key": "reviewed_current_wording_map",
+      "current_path": "features/data/700_work_privacy_provider_review_2026-10-13/wording-inventory/corrected-inventory.json",
+      "sha256_matches": true,
+      "bytes_match": true
+    }
+  ],
+  "reviewed_core_source_identity_checks": [
+    {
+      "path": "spacr/qt/ai/issue_report.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/ai/issue_preview.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/ai/providers.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/crashreport.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/ai/github_auth.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/ai/prompts.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/ai/settings.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/ai/worker.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/ai/__init__.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/widgets/console_panel.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "tests/qt/test_ai_issue_report_offline.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "tests/qt/test_issue_preview.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "tests/qt/test_the_issue_preview_can_diagnose.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "tests/qt/test_issue_dedupe_and_write_guard.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "tests/qt/test_a_report_survives_an_unreadable_machine_identity.py",
+      "matches_reviewed_source": true
+    },
+    {
+      "path": "tests/test_crash_report.py",
+      "matches_reviewed_source": true
+    }
+  ],
+  "notices": [
+    {
+      "id": "ZC01",
+      "title": "Managed service",
+      "exact_text_sha256": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+      "matches_supplied_text_hash": true,
+      "review": "Continuing verified configuration; paid credits/plans/fallback prohibited; availability and free capacity not perpetual guarantees.",
+      "display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC02",
+      "title": "Public report service",
+      "exact_text_sha256": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+      "matches_supplied_text_hash": true,
+      "review": "Account-free public route only after typed-summary/privacy/configuration proof. Public permanence disclosed. Actual bounded queue/purpose consent required; otherwise refuse.",
+      "display_predicate": "Strict typed summary actually excludes raw logs/settings/paths/personal text; owner zero-cost gate and independent report quotas implemented. Queue only if explicitly permitted by bounded storage/retry policy. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC03",
+      "title": "Hosted diagnosis",
+      "exact_text_sha256": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+      "matches_supplied_text_hash": true,
+      "review": "Account-free hosted technical summary only after route and allowlist proof. Advice not verified diagnosis or automatic execution. Public filing independent.",
+      "display_predicate": "Hosted selection/actual new request; typed input/privacy disclosure and opt-out; verified free model allowlist, atomic quota enforcement and no paid fallback. Reused advice does not imply a new transfer. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC04",
+      "title": "Hosted chat",
+      "exact_text_sha256": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+      "matches_supplied_text_hash": true,
+      "review": "Freeform/context sensitivity disclosed and explicitly reviewed; prior CLI history/log/settings not automatically transferred. Bounded queue predicate retained.",
+      "display_predicate": "Hosted mode selected, explicit context preview/consent and transfer boundary implemented, zero-cost verified, no arbitrary-text anonymity claim or automatic raw CLI history import. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC05",
+      "title": "Free AI limit reached",
+      "exact_text_sha256": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+      "matches_supplied_text_hash": true,
+      "review": "Confirmed quota refusal/no successful inference required; does not assert all transport cancelled. Independent reporting availability is conditional.",
+      "display_predicate": "Confirmed quota refusal without successful inference; no successful queued request promised; independent report route status actually checked. Do not assert all transport was cancelled.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC06",
+      "title": "AI request queued",
+      "exact_text_sha256": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+      "matches_supplied_text_hash": true,
+      "review": "Actual bounded consented/reconciled queue required. Removal only before another attempt; cannot undo earlier transfer; no paid resource selection.",
+      "display_predicate": "Actual permitted bounded queue exists with disclosed content/location/retention/deletion and retry limits; consent valid; server/client request identity reconciled. Never imply raw inputs or CLI history automatically saved.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC07",
+      "title": "Report not accepted",
+      "exact_text_sha256": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+      "matches_supplied_text_hash": true,
+      "review": "Authoritative reporting refusal only, not a timeout. Separate AI limits cannot establish filing.",
+      "display_predicate": "Explicit authoritative quota rejection proves no accepted filing for this attempt. Network timeout/unknown result must use ZC09 instead.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC08",
+      "title": "Report queued",
+      "exact_text_sha256": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+      "matches_supplied_text_hash": true,
+      "review": "Actual summary queue and prior-attempt reconciliation required; no filing by this queued attempt and no retraction of already public issue claimed.",
+      "display_predicate": "Actual permitted bounded summary queue; no submission yet for queued attempt; prior attempts reconciled/deduplicated. Queue retention and cancellation disclosed and implemented.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC09",
+      "title": "Report result unknown",
+      "exact_text_sha256": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+      "matches_supplied_text_hash": true,
+      "review": "Indeterminate acceptance proves neither filed nor nothing sent; identity reconciliation before retry, no paid fallback or upgrade.",
+      "display_predicate": "Actual indeterminate transport/outcome; reconciliation mechanism implemented. Do not claim complete anonymity, cancellation or guaranteed future filing.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC10",
+      "title": "Zero-cost configuration unverified",
+      "exact_text_sha256": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+      "matches_supplied_text_hash": true,
+      "review": "Unverified/stale/failed configuration leaves managed route disabled. Existing selected CLI account requirements remain separate.",
+      "display_predicate": "Owner configuration verification absent/stale/failed; application actually keeps managed route disabled. No deployment/free-plan certification implied.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC11",
+      "title": "Zero-cost route unavailable",
+      "exact_text_sha256": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+      "matches_supplied_text_hash": true,
+      "review": "Incompatible verified plan/model/limit leaves route disabled; no paid resources or silent CLI reconfiguration.",
+      "display_predicate": "Actual plan/model/limit check establishes incompatibility; preserve unrelated user configuration and do not silently alter other services.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC12",
+      "title": "Zero-cost managed route",
+      "exact_text_sha256": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+      "matches_supplied_text_hash": true,
+      "review": "Full hard-zero-cost boundary includes hosting/domains/plans/credits/fallback even with consent; continuing verification and bounded queue policy explicit.",
+      "display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification. Managed route refuses incompatible paid configuration regardless of user-facing confirmation; no paid resources/credits/domain/GPU rental/fallback/plan upgrades. Do not forbid explicit user choice of separately configured CLI, and do not claim guarantee for arbitrary user accounts. Queue only under implemented disclosed bounded purpose-specific content/location/retention/deletion/retry policy, valid consent and atomic request identity; otherwise refuse.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC13",
+      "title": "Existing CLI provider",
+      "exact_text_sha256": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+      "matches_supplied_text_hash": true,
+      "review": "Only explicitly selected user-owned CLI has its own account/subscription/transport terms; no automatic hosted exhaustion fallback.",
+      "display_predicate": "Existing CLI selected explicitly, correct provider account/terms disclosure; no claim every CLI remote/account-free/no-charge and no automatic quota fallback.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    },
+    {
+      "id": "ZC14",
+      "title": "Separate public and cloud choices",
+      "exact_text_sha256": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2",
+      "matches_supplied_text_hash": true,
+      "review": "Purpose-specific public/cloud settings, disclosure, consent and opt-outs independent; disabled purpose sends no network request.",
+      "display_predicate": "Actual separate settings/disclosures/consent and no network when each purpose disabled; valid new hosted request or explicit reuse distinction; account-free technical diagnosis and sensitive freeform chat remain separate payloads. State UI cancellation/timeout limits truthfully.",
+      "future_english_text_change_required": false,
+      "Home_approved_original": false,
+      "applied_original": false
+    }
+  ],
+  "text_review_outcome": "Root can accept the exact fourteen English texts for future draft wording and separately authorize preparatory locales; no text correction required.",
+  "scope_clarification_required": {
+    "original_rules": {
+      "requirements_before_use[1]": "Home approves exact future English only after client/relay behavior lands; placeholders must be resolved by implemented policy, not prose.",
+      "requirements_before_use[6]": "No translations/source/catalog changes during freeze. These notices are unapproved drafts and do not certify current service free or deployed."
+    },
+    "reason": "Historical draft metadata postpones English approval until client/relay implementation and forbids translations during freeze. Explicit root authorization for future-only English/locale preparation must distinguish drafts from canonical/production use.",
+    "proposal": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/zero-cost-future-notices-home-review/metadata-scope-proposal.json",
+    "changes_public_notice_text": false,
+    "proposal_sha256": "49578cfa7dd3b92d58fd0f1ff96547b0a8c42e11e5d0aa9f1abb8c712364a479",
+    "preserves_original_metadata_restrictions": true,
+    "acceptance_type": "Preparatory design-English review only; root owns acceptance note and isolated nine-locale draft instruction; no activation gate fulfilled."
+  },
+  "current_state_bound": {
+    "provider_registry": "spacr/qt/ai/providers.py:_PROVIDERS registers Claude/Codex/Gemini CLI only",
+    "public_reporting": "Current authenticated GitHub path is separate from proposed account-free relay",
+    "owner_configuration_verified": false,
+    "managed_route_deployed_or_certified": false,
+    "current_service_acceptance_claimed": false
+  },
+  "pricing_review": {
+    "fresh_pricing_calls": false,
+    "reason": "No numeric quotas, named model eligibility, billing plan availability or vendor retention guarantees are asserted by the fourteen notices. Guide is dated provenance/design, not proof of actual owner configuration; current plan/model/provider policy must be independently verified before enabling.",
+    "guide_specifics_not_recertified": [
+      "10,000 neurons/day and reset time",
+      "named catalog model availability/free eligibility",
+      "GitHub/Workers/D1 actual account plans",
+      "provider retention/data-use terms"
+    ]
+  },
+  "required_future_implementation_acceptance": [
+    "Current-validity policy checks actual owner account/plan/model/resources; stale/changed/failed/incompatible verification fails closed.",
+    "No managed paid resources, credits, fallback, hosting/domain/GPU rental or upgrade even with user consent.",
+    "Atomic independent public/cloud quotas and bounded retries; queue only under implemented disclosed content/location/retention/deletion/retry policy and valid purpose consent.",
+    "Authoritative refusal distinct from unknown transport/inference outcome; reconciliation/idempotency before retry, no false cancellation or delivery promise.",
+    "Separate public/cloud controls and no request when purpose disabled; no automatic CLI fallback or arbitrary-history/raw-bundle transfer.",
+    "Identify actual relay/provider/retention and connection metadata policy; no absolute anonymity, zero retention or perpetual free capacity promise."
+  ],
+  "approval_limits": [
+    "Review itself does not set original Home_approved/applied flags or authorize Work actions.",
+    "Only root may authorize draft locales; canonical translation/source/catalog and capture holds persist.",
+    "No current billing/model/deployment/UI/native/privacy implementation acceptance."
+  ],
+  "actions": {
+    "source_catalog_translation_changes": false,
+    "tests_UI_provider_account_deployment": false,
+    "network_pricing_calls": false,
+    "scratch_only_outputs": true
+  },
+  "source_worktree_status_at_end": "?? features/data/1515_current_candidate_readiness_2026-10-14/\n?? features/data/675_pyfixest_review_correction_prepared_2026-10-14/\n?? features/data/704_panel_text_link_preflight_2026-10-14/\n?? features/data/n676_cold_preferences_apply_preflight_2026-10-14/\n?? features/new/704_readme_panels_link_to_readable_text.txt\n"
+}

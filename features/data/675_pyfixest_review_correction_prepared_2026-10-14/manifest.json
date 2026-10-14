@@ -1,0 +1,82 @@
+{
+  "scope": "Prepared evidence only; no app/README generated outputs, performance acceptance, external build or publication.",
+  "files": [
+    {
+      "file": "receipt.json",
+      "original_bytes": 4785,
+      "original_sha256": "5341bc61e059ba024104226dc2f4ab78dd7296479bce8ead4dce03d1cb1d4ce1",
+      "published_bytes": 4785,
+      "published_sha256": "5341bc61e059ba024104226dc2f4ab78dd7296479bce8ead4dce03d1cb1d4ce1"
+    },
+    {
+      "file": "pyfixest-pr.raw.json.gz",
+      "original_bytes": 18686,
+      "original_sha256": "a7094fc503b21f9f3d93c2e940b8966de2459ecb2e5cd19869f4e02844d17893",
+      "published_bytes": 3203,
+      "published_sha256": "540da09d8ede2be5dfbbb1a23e67dfbec814661786d9a6bdf675fde6ebfc07d1"
+    },
+    {
+      "file": "review-comments.raw.json.gz",
+      "original_bytes": 3553,
+      "original_sha256": "7ce760b6f3bff5ae0ed6c43d177cde2671583a89b93c4721b4319b9f702f1b99",
+      "published_bytes": 1402,
+      "published_sha256": "095a472de28b353a8b242f0134b6140f5874d72901141fe46eb39f9fba9af898"
+    },
+    {
+      "file": "checks.raw.json.gz",
+      "original_bytes": 30657,
+      "original_sha256": "3f4812c3f2e3562656740dc8e60a38ef3eb4c6c37fabadfff0a91213e125356d",
+      "published_bytes": 2983,
+      "published_sha256": "24dc98a331fa12c235e7d7fd51a600db10f8fcf822e31ec2a6bb07a01beb3e5e"
+    },
+    {
+      "file": "status.raw.json.gz",
+      "original_bytes": 5411,
+      "original_sha256": "64c45bae9ddd5b4621047cd11dc449a4d2084925b9fcbb5e60ded3cc7e0bd79a",
+      "published_bytes": 1169,
+      "published_sha256": "0fb80b267bd0e21cd6cee54818e722672c9a893aef930cf9ed3ed9ba5cdcfa59"
+    },
+    {
+      "file": "reviews.raw.json.gz",
+      "original_bytes": 1576,
+      "original_sha256": "e2ef5f4b3eff217b37ddd1c01d062ec47d6f0716859ad988e3d9518dba1b5b8a",
+      "published_bytes": 601,
+      "published_sha256": "fd74a9b05998874596f78461d1ede6a99a59e06e5041325bfe99aaee39d0bcc6"
+    },
+    {
+      "file": "recipe-current.yaml",
+      "original_bytes": 1434,
+      "original_sha256": "0118c1911e9e51715ff95a0177f14305d0d6fb2d813f7cb3f24af492e69e4f6e",
+      "published_bytes": 1434,
+      "published_sha256": "0118c1911e9e51715ff95a0177f14305d0d6fb2d813f7cb3f24af492e69e4f6e"
+    },
+    {
+      "file": "recipe-version-variable.proposed.yaml",
+      "original_bytes": 1442,
+      "original_sha256": "f4ef3104e6cada662c8f0746a0aeceb7ec339fd67290925bff256092939be355",
+      "published_bytes": 1442,
+      "published_sha256": "f4ef3104e6cada662c8f0746a0aeceb7ec339fd67290925bff256092939be355"
+    },
+    {
+      "file": "pyfixest-version-variable.patch",
+      "original_bytes": 434,
+      "original_sha256": "6dee22b770b41bae317a9bfce9eae5f99c4b1db94673d7058f3c1c4f9faf816a",
+      "published_bytes": 434,
+      "published_sha256": "6dee22b770b41bae317a9bfce9eae5f99c4b1db94673d7058f3c1c4f9faf816a"
+    },
+    {
+      "file": "pyfixest-version-variable-proof.json",
+      "original_bytes": 4628,
+      "original_sha256": "c7df509b36c6f823a143d6dbcfc7341f2b5b8652f5daccde777415beae079182",
+      "published_bytes": 4628,
+      "published_sha256": "c7df509b36c6f823a143d6dbcfc7341f2b5b8652f5daccde777415beae079182"
+    },
+    {
+      "file": "home-one-line-identity-review.json",
+      "original_bytes": 528,
+      "original_sha256": "80f020cdb62a729dae1257d83ab2a47a0899c053f5621cf9379b1d6116fdfe09",
+      "published_bytes": 528,
+      "published_sha256": "80f020cdb62a729dae1257d83ab2a47a0899c053f5621cf9379b1d6116fdfe09"
+    }
+  ]
+}

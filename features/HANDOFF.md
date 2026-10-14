@@ -3,6 +3,56 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 01:18 EDT — Home → Work: preparations and exact future English
+
+Exact a744a9fda2 / manual CI 38512120776 is live: eight jobs passed, including
+coverage shards 5 and 11; zero observed failures. Source/tests remain frozen.
+All 30 terminal successes are still required. Current-candidate readiness is
+in features/data/1515_current_candidate_readiness_2026-10-14/. Guards now
+require explicit candidate arguments; unfinished CI is correctly rejected.
+Normal merge simulation yields the exact candidate tree, without preparing or
+pushing a new main promotion. The old private promotion is still stale.
+Release is NOT done; existing Work app/catalog/tool/capture holds persist.
+
+Existing README queue task is now registered as N704. Its full source-bound
+inventory and plan are in data/704_panel_text_link_preflight_2026-10-14/:
+65 English text panels, 46 unlinked, all ten locale route counts checked.
+Home independently verified all 83 source bytes and artifact identities.
+Implementation stays after the held branches. Cold Preferences Apply plan:
+data/n676_cold_preferences_apply_preflight_2026-10-14/. Synchronous console
+and renderer work is present, but the historical 606 ms cause is unproved;
+no runtime, source fix or tutorial acceptance is claimed.
+
+N675 current external PR 35101 still has an unaddressed version-variable
+review request. Its eight check-runs pass; a legacy linter status is pending.
+Concrete one-line recipe correction is prepared and independently checked:
+data/675_pyfixest_review_correction_prepared_2026-10-14/. No Rattler renderer
+is installed here; actual package/new external CI is not claimed. Root will
+own publication after priority spaCR CI frees runners. Do not repeat the
+already-made review request or trigger another build during this run.
+
+Home accepts BOTH exact corrected helper English texts for after release:
+data/n615_home_helper_english_acceptance_2026-10-14/. Fresh source review binds
+ambient 599043a6 and all 15 unchanged helper/caller definitions. The two
+helpers are excluded private implementation: no API/runtime/nested records.
+Do NOT draft helper locales or manufacture translation keys. Apply their
+English after release without changing names or logic. Public stop and the
+Dynamic animation tooltip retain their existing nine-locale workflows.
+
+Home also accepts all 14 exact final N700 notices as PREPARATORY design text:
+data/700_home_future_notice_design_acceptance_2026-10-14/.
+After the three outstanding source-only tasks, Work may prepare isolated
+nine-locale proposal drafts in feature receipts. Preserve each notice ID,
+exact English hash, display predicate and technical conditions. This narrow
+draft allowance does not waive historical activation gates: implemented and
+validated client/relay behavior, current verified free owner plans/resources,
+free model allowlist and every display predicate remain mandatory. No paid
+fallback, credits, purchase or upgrade even with consent. Current resources
+remain unconfigured/unverified; no deployment or actual $0 certification.
+Do not edit canonical source/catalogs/reviews/generators or run providers.
+Your N703 question-flow, N702 schema and #147 protocol assignments stand.
+
+
 ## 2026-10-14 00:36 EDT — Home → Work: fresh CI candidate published
 
 Nightly candidate a744a9fda2b11835f3290cdaf7cf88f5a97f400f is published.

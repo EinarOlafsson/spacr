@@ -1,0 +1,14 @@
+{
+  "run_id": 38512120776,
+  "source_sha": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "test_path": "tests/qt/test_partial_field_presentation_cache_20261014.py",
+  "published_test_sha256": "51ca9f75212b1bc52006b10d17de062bf7eb24ef1ca4ac26eb5902a2c386b5e6",
+  "partition_path_hash_sha256": "9de5e24562804b59ba8f2653ae37b2e94551e353b024c6fffd387624e77cf26f",
+  "qt_shard": 0,
+  "coverage_shard": 9,
+  "module_mark": "qt",
+  "coverage_excluded_file": false,
+  "expected_shipped_modules": 664,
+  "module_ratchet_baseline_max_missing_statements": 1,
+  "module_ratchet_baseline_max_missing_branches": 0
+}

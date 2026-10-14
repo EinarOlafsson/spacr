@@ -1,0 +1,30 @@
+{
+  "checked_at_utc": "2026-10-14T04:43:27.648207+00:00",
+  "expected_head": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "snapshot_sha256": "665fbbff7db8730058025a2718c7f4eef067d4d492c364a7e2cb806864b7165b",
+  "snapshot_file": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/current-candidate-guards/ci-live-snapshot.json",
+  "verified_full_success": false,
+  "job_counts": {
+    "in_progress": 18,
+    "success": 1,
+    "queued": 8
+  },
+  "problems": [
+    "status: expected 'completed', received 'queued'",
+    "conclusion: expected 'success', received ''",
+    "required successful job missing: Coverage / every module at 90% and none loses coverage",
+    "required successful job missing: Release gate / zero unexpected failures",
+    "required successful job missing: Publish passed/total badge",
+    "coverage: matrix has unfinished or unsuccessful jobs",
+    "fast: matrix has unfinished or unsuccessful jobs",
+    "minimum: matrix has unfinished or unsuccessful jobs",
+    "Qt: matrix has unfinished or unsuccessful jobs",
+    "Integration: required successful suite missing",
+    "Slow: required successful suite missing",
+    "GPU: required successful suite missing",
+    "Network: required successful suite missing",
+    "NAS: required successful suite missing",
+    "expected 30 final jobs from pinned workflow, received 27",
+    "run still has unfinished or unsuccessful jobs"
+  ]
+}

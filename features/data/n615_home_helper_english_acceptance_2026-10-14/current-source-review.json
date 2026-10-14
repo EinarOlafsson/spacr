@@ -1,0 +1,539 @@
+{
+  "schema": "spacr-animation-helper-current-English-source-review-v1",
+  "created_at_utc": "2026-10-14T05:06:34.260811+00:00",
+  "candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "old_comparison_ref": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "status": "Independent technical review ACCEPTS both exact corrected texts for future English. Root remains approval owner; this review grants no translation or canonical edits.",
+  "proposal_file": {
+    "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/data/n615_animation_helper_proposals_2026-10-13/n615_animation_helper_english_proposals_corrected_20261013.json",
+    "sha256": "25d67511ce35ddaf570ab2e7b3aaaeb4c16b7cc5af3023d8b4a7cc361751edbf",
+    "bytes": 11070
+  },
+  "source_files": [
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "candidate_sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+      "candidate_bytes": 587528,
+      "candidate_blob": "04b51211a6f6ab699eb8c9515bbbcaf30094cf86",
+      "current_worktree_bytes_equal_candidate": true,
+      "old_sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "old_blob": "665b5087f6632bf6d0650a0ae42687432faa110e"
+    },
+    {
+      "path": "spacr/qt/gil_priority.py",
+      "candidate_sha256": "be7b27d6b90d16dc2a53376f80e201f14606f60d811b672a8893b5f144814e7f",
+      "candidate_bytes": 22417,
+      "candidate_blob": "7fdcf21dc0e1019451d58f760d2612a7dc6da057",
+      "current_worktree_bytes_equal_candidate": true,
+      "old_sha256": "be7b27d6b90d16dc2a53376f80e201f14606f60d811b672a8893b5f144814e7f",
+      "old_blob": "7fdcf21dc0e1019451d58f760d2612a7dc6da057"
+    }
+  ],
+  "ambient_rebind": "Work proposal whole ambient6bcfc724\u2026 is stale after partial-field repair. Current exact candidate ambient599043a6\u2026 is bound here; all selected helper/consumer bodies and docstrings are unchanged, only spans moved.",
+  "definitions": [
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "AmbientWidget._rate",
+      "current": {
+        "start_line": 10969,
+        "end_line": 10978,
+        "source_sha256": "6a723517304cce35d852e0793bc7fa944b88312f892ad2dc625c468d87e771e3",
+        "body_ast_sha256": "9e75a42e04273358feb2870d6533b7d3c3148f2653530cbda3baec7c676a7980",
+        "docstring": "The frame cap in force: :attr:`fps`, or less while a run goes.\n\n        Every backdrop frame repaints the whole window above it, and each\n        widget there that draws itself in Python takes the interpreter lock\n        from the run to do it. While a pipeline holds\n        :func:`spacr.qt.gil_priority.active`, the backdrop moves at no more\n        than :data:`_RUN_FPS`.\n        ",
+        "docstring_utf8_sha256": "6565b90d448d73564fc9ae619bfe905b7f1dd572f953dfacbd92d2290f1f3a77",
+        "return_expressions": [
+          "min(self._fps, _RUN_FPS) if self._run_paced else self._fps"
+        ]
+      },
+      "old": {
+        "start_line": 10964,
+        "end_line": 10973,
+        "source_sha256": "6a723517304cce35d852e0793bc7fa944b88312f892ad2dc625c468d87e771e3",
+        "body_ast_sha256": "9e75a42e04273358feb2870d6533b7d3c3148f2653530cbda3baec7c676a7980",
+        "docstring": "The frame cap in force: :attr:`fps`, or less while a run goes.\n\n        Every backdrop frame repaints the whole window above it, and each\n        widget there that draws itself in Python takes the interpreter lock\n        from the run to do it. While a pipeline holds\n        :func:`spacr.qt.gil_priority.active`, the backdrop moves at no more\n        than :data:`_RUN_FPS`.\n        ",
+        "docstring_utf8_sha256": "6565b90d448d73564fc9ae619bfe905b7f1dd572f953dfacbd92d2290f1f3a77",
+        "return_expressions": [
+          "min(self._fps, _RUN_FPS) if self._run_paced else self._fps"
+        ]
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "AmbientWidget._follow_the_run",
+      "current": {
+        "start_line": 11015,
+        "end_line": 11028,
+        "source_sha256": "1efcc3c8031e19191ce14f86aded6207c6fd1c59f6aac3768b34903b86f84930",
+        "body_ast_sha256": "437e7e29359f2ee092cd6da0e856a63d1512a25cec715d440608944cc655efd8",
+        "docstring": "Slow down when a run starts and speed up when it ends.\n\n        A run is a pipeline holding the responsive-GUI claim or a CPU-heavy\n        job the Dynamic animation policy yields to\n        (:func:`_animation_paused_for_work`); either paces the backdrop to\n        :data:`_RUN_FPS` rather than stopping it.\n        ",
+        "docstring_utf8_sha256": "ae126bb05e4fe6e3a94bbb6b132ea129ae5df9f90b975a976c54eaa7922ea9e9",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 11010,
+        "end_line": 11023,
+        "source_sha256": "1efcc3c8031e19191ce14f86aded6207c6fd1c59f6aac3768b34903b86f84930",
+        "body_ast_sha256": "437e7e29359f2ee092cd6da0e856a63d1512a25cec715d440608944cc655efd8",
+        "docstring": "Slow down when a run starts and speed up when it ends.\n\n        A run is a pipeline holding the responsive-GUI claim or a CPU-heavy\n        job the Dynamic animation policy yields to\n        (:func:`_animation_paused_for_work`); either paces the backdrop to\n        :data:`_RUN_FPS` rather than stopping it.\n        ",
+        "docstring_utf8_sha256": "ae126bb05e4fe6e3a94bbb6b132ea129ae5df9f90b975a976c54eaa7922ea9e9",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "AmbientWidget._should_run",
+      "current": {
+        "start_line": 11200,
+        "end_line": 11219,
+        "source_sha256": "83afe98235e26698f27f5e7fbe46ffc51541b091c4d3850192643811073b2cbc",
+        "body_ast_sha256": "037d23bc145df125b2186ac151f5617db925c430b021434c75fb87bd0a9d9243",
+        "docstring": "Whether the animation is worth advancing right now.\n\n        FALSE WHEN HIDDEN OR OFF-SCREEN. This is a backdrop: it must not take\n        frames from whatever the user is doing in front of it, and a widget\n        nobody can see has nothing to show for the cost. A run does not stop\n        it: :meth:`_follow_the_run` paces it to :data:`_RUN_FPS` instead.\n\n        :returns: True when the timer should keep firing.\n        ",
+        "docstring_utf8_sha256": "9368fa39815562f4f5c9035cfb6bf94df1aaefcdf724b25c0591e8628d506283",
+        "return_expressions": [
+          "True"
+        ]
+      },
+      "old": {
+        "start_line": 11192,
+        "end_line": 11211,
+        "source_sha256": "83afe98235e26698f27f5e7fbe46ffc51541b091c4d3850192643811073b2cbc",
+        "body_ast_sha256": "037d23bc145df125b2186ac151f5617db925c430b021434c75fb87bd0a9d9243",
+        "docstring": "Whether the animation is worth advancing right now.\n\n        FALSE WHEN HIDDEN OR OFF-SCREEN. This is a backdrop: it must not take\n        frames from whatever the user is doing in front of it, and a widget\n        nobody can see has nothing to show for the cost. A run does not stop\n        it: :meth:`_follow_the_run` paces it to :data:`_RUN_FPS` instead.\n\n        :returns: True when the timer should keep firing.\n        ",
+        "docstring_utf8_sha256": "9368fa39815562f4f5c9035cfb6bf94df1aaefcdf724b25c0591e8628d506283",
+        "return_expressions": [
+          "True"
+        ]
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "AmbientWidget._sync_run_state",
+      "current": {
+        "start_line": 11221,
+        "end_line": 11232,
+        "source_sha256": "f47a6b11ef2f36227d3947424796341af6437608ff1e48cc2e36ba4217af1eb6",
+        "body_ast_sha256": "8a31e5accba3dfecca814a839faf04b8fa7fd0eb647369c5817f6ed9a7c3f254",
+        "docstring": "Start or stop the timer to match visibility. The CPU guarantee.\n\n        The frame cap follows the run first, so a CPU-heavy job starting\n        slows a running backdrop at once rather than at its next tick.\n        ",
+        "docstring_utf8_sha256": "84970f8766b5ed5f29a37ddcf8131942c1d21291dbea0bd5ea3359eac9e506d7",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 11213,
+        "end_line": 11224,
+        "source_sha256": "f47a6b11ef2f36227d3947424796341af6437608ff1e48cc2e36ba4217af1eb6",
+        "body_ast_sha256": "8a31e5accba3dfecca814a839faf04b8fa7fd0eb647369c5817f6ed9a7c3f254",
+        "docstring": "Start or stop the timer to match visibility. The CPU guarantee.\n\n        The frame cap follows the run first, so a CPU-heavy job starting\n        slows a running backdrop at once rather than at its next tick.\n        ",
+        "docstring_utf8_sha256": "84970f8766b5ed5f29a37ddcf8131942c1d21291dbea0bd5ea3359eac9e506d7",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_AnimationResourcePolicy.__init__",
+      "current": {
+        "start_line": 12504,
+        "end_line": 12516,
+        "source_sha256": "db288f9835725fcdbcb5a7344d74feb0242c3ac091e2288503129022627e7ab6",
+        "body_ast_sha256": "bdbdfc4de37d586cb22ed78a1616e91982c2d3adc4ac94c2cb6b87b3e64f8219",
+        "docstring": "Read the saved switch and start with nothing running.",
+        "docstring_utf8_sha256": "8bbc34845b50f0c680804eac02894631b15146d0e55088a201a50542207861ff",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 12377,
+        "end_line": 12389,
+        "source_sha256": "db288f9835725fcdbcb5a7344d74feb0242c3ac091e2288503129022627e7ab6",
+        "body_ast_sha256": "bdbdfc4de37d586cb22ed78a1616e91982c2d3adc4ac94c2cb6b87b3e64f8219",
+        "docstring": "Read the saved switch and start with nothing running.",
+        "docstring_utf8_sha256": "8bbc34845b50f0c680804eac02894631b15146d0e55088a201a50542207861ff",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_AnimationResourcePolicy.pauses_animation",
+      "current": {
+        "start_line": 12538,
+        "end_line": 12540,
+        "source_sha256": "37517ad01dec5e5decaa2d5f44ce835b5d4cb5782dc0bbdb4c126bfcb85c22eb",
+        "body_ast_sha256": "12f40f67d3c92bce5caada5e08c9fb76b642770292ac57a7c796c7dbe20133ac",
+        "docstring": "Whether CPU-heavy work currently pauses every animation.",
+        "docstring_utf8_sha256": "8080ca3938c8d8e261554770cf39a85c00c4ba027ac19eb40befd906d9408357",
+        "return_expressions": [
+          "self.enabled and self.cpu_busy"
+        ]
+      },
+      "old": {
+        "start_line": 12411,
+        "end_line": 12413,
+        "source_sha256": "37517ad01dec5e5decaa2d5f44ce835b5d4cb5782dc0bbdb4c126bfcb85c22eb",
+        "body_ast_sha256": "12f40f67d3c92bce5caada5e08c9fb76b642770292ac57a7c796c7dbe20133ac",
+        "docstring": "Whether CPU-heavy work currently pauses every animation.",
+        "docstring_utf8_sha256": "8080ca3938c8d8e261554770cf39a85c00c4ba027ac19eb40befd906d9408357",
+        "return_expressions": [
+          "self.enabled and self.cpu_busy"
+        ]
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_AnimationResourcePolicy.blocks_gpu",
+      "current": {
+        "start_line": 12542,
+        "end_line": 12544,
+        "source_sha256": "c73f42e9d275a4ba7f8bd9bcad94259540e567e48d5563d20aa6091b13c91622",
+        "body_ast_sha256": "809480728280045a0486f5a44c2da77a4b5cb332ed8e68a3e53f3e0cefb9a9bf",
+        "docstring": "Whether decorative GPU rendering must step aside right now.",
+        "docstring_utf8_sha256": "91b7fa15f35c9d35f08fadf027aeab0f7aabf1f903daf18a4562176d420dac1d",
+        "return_expressions": [
+          "self.enabled and (self.cpu_busy or self.gpu_busy)"
+        ]
+      },
+      "old": {
+        "start_line": 12415,
+        "end_line": 12417,
+        "source_sha256": "c73f42e9d275a4ba7f8bd9bcad94259540e567e48d5563d20aa6091b13c91622",
+        "body_ast_sha256": "809480728280045a0486f5a44c2da77a4b5cb332ed8e68a3e53f3e0cefb9a9bf",
+        "docstring": "Whether decorative GPU rendering must step aside right now.",
+        "docstring_utf8_sha256": "91b7fa15f35c9d35f08fadf027aeab0f7aabf1f903daf18a4562176d420dac1d",
+        "return_expressions": [
+          "self.enabled and (self.cpu_busy or self.gpu_busy)"
+        ]
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_AnimationResourcePolicy._recompute",
+      "current": {
+        "start_line": 12572,
+        "end_line": 12592,
+        "source_sha256": "bc5f068ab9e512754478c8faf5020f7c24e4ae9d24576a3c832fb11861b51093",
+        "body_ast_sha256": "8f3229c57dab6002a498dbb95f714db6f1446e072c5a0166b5dcda605f674f01",
+        "docstring": "Recount running work and apply any change.\n\n        A change that leaves the user-visible jobs as they were -- a\n        housekeeping job starting or ending, such as the figure gallery\n        refining the figure on show -- changes nothing here and is not\n        acted on. Walking every widget for fractals to hold on each one\n        took 115 ms of the GUI thread when a figure arrived during lesson\n        08's Measure run.\n        ",
+        "docstring_utf8_sha256": "fe1915630201133c6d46489020c79f65349ea86ad1a90c6b38919af23cb50652",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 12445,
+        "end_line": 12465,
+        "source_sha256": "bc5f068ab9e512754478c8faf5020f7c24e4ae9d24576a3c832fb11861b51093",
+        "body_ast_sha256": "8f3229c57dab6002a498dbb95f714db6f1446e072c5a0166b5dcda605f674f01",
+        "docstring": "Recount running work and apply any change.\n\n        A change that leaves the user-visible jobs as they were -- a\n        housekeeping job starting or ending, such as the figure gallery\n        refining the figure on show -- changes nothing here and is not\n        acted on. Walking every widget for fractals to hold on each one\n        took 115 ms of the GUI thread when a figure arrived during lesson\n        08's Measure run.\n        ",
+        "docstring_utf8_sha256": "fe1915630201133c6d46489020c79f65349ea86ad1a90c6b38919af23cb50652",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_AnimationResourcePolicy._apply",
+      "current": {
+        "start_line": 12594,
+        "end_line": 12608,
+        "source_sha256": "13879fa162fbbae234478956789cd62835b43b1cda7f3042be1c5f22b6247bdf",
+        "body_ast_sha256": "4e228cfaaef3aa587168d5bc3320634f2152021d65ce00e7cbfce903e115aa33",
+        "docstring": "Push the current decision to every live animation.",
+        "docstring_utf8_sha256": "09c43186d55d85dfa3343066913cc4d38c8006dd2c5cd9a9aafa9726fe10d47d",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 12467,
+        "end_line": 12481,
+        "source_sha256": "13879fa162fbbae234478956789cd62835b43b1cda7f3042be1c5f22b6247bdf",
+        "body_ast_sha256": "4e228cfaaef3aa587168d5bc3320634f2152021d65ce00e7cbfce903e115aa33",
+        "docstring": "Push the current decision to every live animation.",
+        "docstring_utf8_sha256": "09c43186d55d85dfa3343066913cc4d38c8006dd2c5cd9a9aafa9726fe10d47d",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_AnimationResourcePolicy._hold_fractals",
+      "current": {
+        "start_line": 12610,
+        "end_line": 12622,
+        "source_sha256": "f16bdbdade8fed8897be840c3a91300a70754315c58e439820fc826e85241a51",
+        "body_ast_sha256": "d1cac7e83a1122d3cb1d20333759a60010577c030dc16d2eda6bde025f06a4f8",
+        "docstring": "Pause fractals the current work forbids; remember only those.",
+        "docstring_utf8_sha256": "7ed87186678b06d6ca08b8b32cb68e9871fb15f23593f7ce0f116d3b3f4346f3",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 12483,
+        "end_line": 12495,
+        "source_sha256": "f16bdbdade8fed8897be840c3a91300a70754315c58e439820fc826e85241a51",
+        "body_ast_sha256": "d1cac7e83a1122d3cb1d20333759a60010577c030dc16d2eda6bde025f06a4f8",
+        "docstring": "Pause fractals the current work forbids; remember only those.",
+        "docstring_utf8_sha256": "7ed87186678b06d6ca08b8b32cb68e9871fb15f23593f7ce0f116d3b3f4346f3",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_AnimationResourcePolicy._release_fractals",
+      "current": {
+        "start_line": 12624,
+        "end_line": 12633,
+        "source_sha256": "f6cbd20b163e722ebc12a0c934c569fbb74b0bf5bf90a59f9c5050bbb8d488c5",
+        "body_ast_sha256": "5c903bd4a76393feb3a3cb4271d573fbfb1bc6a1140d1e8aaceb029ef997d8e4",
+        "docstring": "Resume exactly the fractals this policy paused.",
+        "docstring_utf8_sha256": "913fe5337d963ceb5200a7bfb5de599e383bbdafdfb0fed363330ba28f8d9a06",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 12497,
+        "end_line": 12506,
+        "source_sha256": "f6cbd20b163e722ebc12a0c934c569fbb74b0bf5bf90a59f9c5050bbb8d488c5",
+        "body_ast_sha256": "5c903bd4a76393feb3a3cb4271d573fbfb1bc6a1140d1e8aaceb029ef997d8e4",
+        "docstring": "Resume exactly the fractals this policy paused.",
+        "docstring_utf8_sha256": "913fe5337d963ceb5200a7bfb5de599e383bbdafdfb0fed363330ba28f8d9a06",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_animation_resource_policy",
+      "current": {
+        "start_line": 12636,
+        "end_line": 12645,
+        "source_sha256": "a5530d7429bcbf7438c069bc0fd1f0b746f3cdbfa8a7c446187be163fcf404bd",
+        "body_ast_sha256": "ad3e982e5431a2841437f6c3629cbbc4bf4b64ec11bafca0ad385159fff85671",
+        "docstring": "The process-wide Dynamic animation policy, once Qt is running.",
+        "docstring_utf8_sha256": "f7156cfc9cf961754075d34bf192e8bbb87ae665171aa6ee1b7ab90ce10d031a",
+        "return_expressions": [
+          "_RESOURCE_POLICY"
+        ]
+      },
+      "old": {
+        "start_line": 12509,
+        "end_line": 12518,
+        "source_sha256": "a5530d7429bcbf7438c069bc0fd1f0b746f3cdbfa8a7c446187be163fcf404bd",
+        "body_ast_sha256": "ad3e982e5431a2841437f6c3629cbbc4bf4b64ec11bafca0ad385159fff85671",
+        "docstring": "The process-wide Dynamic animation policy, once Qt is running.",
+        "docstring_utf8_sha256": "f7156cfc9cf961754075d34bf192e8bbb87ae665171aa6ee1b7ab90ce10d031a",
+        "return_expressions": [
+          "_RESOURCE_POLICY"
+        ]
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_decorative_gpu_blocked",
+      "current": {
+        "start_line": 12654,
+        "end_line": 12657,
+        "source_sha256": "9ed20bb4d97967cd69ebc258c7a248037475e31e7277a1dad0250ec8235a4640",
+        "body_ast_sha256": "fcef89498b76cb55951d0727e411bdc9b005e39ea96e24c0d9d9be50e6ce81ef",
+        "docstring": "Whether running analysis currently forbids decorative GPU work.",
+        "docstring_utf8_sha256": "fd74ecd2aa15df6af8becad92ef489e20a7317fe9974b2d8c7f80e35a900406b",
+        "return_expressions": [
+          "bool(policy is not None and policy.blocks_gpu())"
+        ]
+      },
+      "old": {
+        "start_line": 12527,
+        "end_line": 12530,
+        "source_sha256": "9ed20bb4d97967cd69ebc258c7a248037475e31e7277a1dad0250ec8235a4640",
+        "body_ast_sha256": "fcef89498b76cb55951d0727e411bdc9b005e39ea96e24c0d9d9be50e6ce81ef",
+        "docstring": "Whether running analysis currently forbids decorative GPU work.",
+        "docstring_utf8_sha256": "fd74ecd2aa15df6af8becad92ef489e20a7317fe9974b2d8c7f80e35a900406b",
+        "return_expressions": [
+          "bool(policy is not None and policy.blocks_gpu())"
+        ]
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "symbol": "_animation_paused_for_work",
+      "current": {
+        "start_line": 12660,
+        "end_line": 12663,
+        "source_sha256": "fa8062ed1e66de8b8b0765b01dabbebd90b70229c50a088937603dc980e2e2ed",
+        "body_ast_sha256": "7e1e45b167b0f342c14a399a2f1a202384100e3ca58dc47c3008a55b3560df05",
+        "docstring": "Whether CPU-heavy analysis currently pauses every animation.",
+        "docstring_utf8_sha256": "40ada0a27327a8ea84a3c8576eb3475330e9330fe73af8e8b946719fb205d2af",
+        "return_expressions": [
+          "bool(policy is not None and policy.pauses_animation())"
+        ]
+      },
+      "old": {
+        "start_line": 12533,
+        "end_line": 12536,
+        "source_sha256": "fa8062ed1e66de8b8b0765b01dabbebd90b70229c50a088937603dc980e2e2ed",
+        "body_ast_sha256": "7e1e45b167b0f342c14a399a2f1a202384100e3ca58dc47c3008a55b3560df05",
+        "docstring": "Whether CPU-heavy analysis currently pauses every animation.",
+        "docstring_utf8_sha256": "40ada0a27327a8ea84a3c8576eb3475330e9330fe73af8e8b946719fb205d2af",
+        "return_expressions": [
+          "bool(policy is not None and policy.pauses_animation())"
+        ]
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    },
+    {
+      "path": "spacr/qt/gil_priority.py",
+      "symbol": "active",
+      "current": {
+        "start_line": 77,
+        "end_line": 80,
+        "source_sha256": "ab53a907bb65c1beed94ea0a1ea9271e4a61dda6edbc1bd7b15974c41d58d8b4",
+        "body_ast_sha256": "7e262e4b76d553eb194f00c694d0097890de7bb96a97eca5d0bb79eb632c3352",
+        "docstring": "Return whether at least one worker holds a responsiveness claim.",
+        "docstring_utf8_sha256": "d3cc3efbfd52cda4e981ad04ca1c5d93415f78e2c520b7310df545a6aea2d7b6",
+        "return_expressions": []
+      },
+      "old": {
+        "start_line": 77,
+        "end_line": 80,
+        "source_sha256": "ab53a907bb65c1beed94ea0a1ea9271e4a61dda6edbc1bd7b15974c41d58d8b4",
+        "body_ast_sha256": "7e262e4b76d553eb194f00c694d0097890de7bb96a97eca5d0bb79eb632c3352",
+        "docstring": "Return whether at least one worker holds a responsiveness claim.",
+        "docstring_utf8_sha256": "d3cc3efbfd52cda4e981ad04ca1c5d93415f78e2c520b7310df545a6aea2d7b6",
+        "return_expressions": []
+      },
+      "whole_definition_byte_identical": true,
+      "body_ast_identical": true,
+      "docstring_identical": true
+    }
+  ],
+  "all_selected_definitions_byte_identical_to_old_source": true,
+  "run_fps": {
+    "current_value": 30,
+    "source_path": "spacr/qt/widgets/ambient.py",
+    "line": 668,
+    "interpretation": "Configured upper cap for qualifying run-paced AmbientWidget, not delivered framerate or always30Hz."
+  },
+  "claim_review": [
+    {
+      "claim": "Pure CPU-work predicate",
+      "result": "SUPPORTED",
+      "refs": [
+        "_AnimationResourcePolicy.pauses_animation",
+        "_animation_paused_for_work"
+      ],
+      "evidence": "enabled AND cpu_busy; wrapper directly reads existing _RESOURCE_POLICY and does not invoke factory, stop timer or hold anything."
+    },
+    {
+      "claim": "Configured cap, not blanket stop or achieved FPS",
+      "result": "SUPPORTED",
+      "refs": [
+        "AmbientWidget._follow_the_run",
+        "AmbientWidget._rate",
+        "AmbientWidget._should_run"
+      ],
+      "evidence": "run pacing from gil_priority.active OR helper; min(configured fps, _RUN_FPS=30); animating/visibility/Reduce motion/minimized guards decide whether timer runs."
+    },
+    {
+      "claim": "Independent responsiveness claim still paces when policy disabled/absent",
+      "result": "SUPPORTED",
+      "refs": [
+        "active",
+        "AmbientWidget._follow_the_run"
+      ],
+      "evidence": "active returns _DEPTH>0 under lock, and caller ORs it before policy helper; Dynamic animation switch does not turn off this claim."
+    },
+    {
+      "claim": "GPU-only flag distinct from CPU flag",
+      "result": "SUPPORTED",
+      "refs": [
+        "_AnimationResourcePolicy.pauses_animation",
+        "_AnimationResourcePolicy.blocks_gpu",
+        "_decorative_gpu_blocked"
+      ],
+      "evidence": "GPU busy alone leaves CPU flag false while enabled AND(cpu_busy OR gpu_busy) blocks decorative GPU."
+    },
+    {
+      "claim": "Actual eligible fractal holds performed by policy consumers",
+      "result": "SUPPORTED",
+      "refs": [
+        "_AnimationResourcePolicy._apply",
+        "_AnimationResourcePolicy._hold_fractals",
+        "_AnimationResourcePolicy._release_fractals"
+      ],
+      "evidence": "_apply calls holds only while blocks_gpu; wanted CPU predicate OR GPU backend, and only previously unpaused widgets whose pause succeeds are tracked. Release resumes only tracked widgets. blocks_gpu itself is pure."
+    }
+  ],
+  "verdicts": [
+    {
+      "symbol": "spacr.qt.widgets.ambient._animation_paused_for_work",
+      "decision": "ACCEPT EXACT CORRECTED ENGLISH AS FUTURE PROPOSAL",
+      "accepted_exact_text": "Whether an existing workload policy requests CPU-work animation pacing.\n\nReturn False if the policy has not been created, is disabled, or does\nnot report CPU-heavy work. This query does not create the policy.\n:meth:`AmbientWidget._follow_the_run` uses True to cap a qualifying\nbackdrop at no more than :data:`_RUN_FPS`, rather than to stop it.\nThat caller can also request the same cap independently through\n:func:`spacr.qt.gil_priority.active`. The animation switch, visibility,\nReduce motion and minimization still decide whether the backdrop runs;\nthis flag does not inspect those conditions.\n\nGPU-only work is handled separately by :func:`_decorative_gpu_blocked`\nand the policy's Spaceout fractal holds, not by this CPU-work flag.\n\n:returns: True only for an existing enabled policy with CPU work marked busy.",
+      "accepted_text_utf8_sha256": "7f8af4fb97a913d233f12329b41f78b57a7b93d5e0f2049b512dc9a30cc25e8a",
+      "current_source_span": [
+        12660,
+        12663
+      ],
+      "proposal_old_span": [
+        12533,
+        12536
+      ],
+      "old_helper_body_and_docstring_unchanged": true,
+      "correction_required": null,
+      "applied_to_source_or_catalog": false
+    },
+    {
+      "symbol": "spacr.qt.widgets.ambient._AnimationResourcePolicy.pauses_animation",
+      "decision": "ACCEPT EXACT CORRECTED ENGLISH AS FUTURE PROPOSAL",
+      "accepted_exact_text": "Whether the enabled workload policy reports CPU-heavy work.\n\nTrue means both :attr:`enabled` and :attr:`cpu_busy` are set. It is a\nCPU-work policy flag, not a statement that every animation has stopped.\nBackdrop callers use it to cap their configured rate at no more than\n:data:`_RUN_FPS`; the policy also holds eligible Spaceout fractals.\nGPU-only work does not set this flag. :meth:`blocks_gpu` reports the\nseparate decorative GPU restriction; the policy uses that decision\nto hold eligible GPU-backed Spaceout fractals.\n\n:returns: True only while this policy is enabled and CPU work is marked busy.",
+      "accepted_text_utf8_sha256": "b3d37ed531ff6740cd94687ab34e77ba8aefcd463b5efd05f39f1be12c8f126f",
+      "current_source_span": [
+        12538,
+        12540
+      ],
+      "proposal_old_span": [
+        12411,
+        12413
+      ],
+      "old_helper_body_and_docstring_unchanged": true,
+      "correction_required": null,
+      "applied_to_source_or_catalog": false
+    }
+  ],
+  "limits": [
+    "Source text/AST/Git blobs only; no app imports, Qt construction, tests, runtime, profiles or GPU used.",
+    "No docs/source/catalog/review/translation/generator changes.",
+    "No blanket stopping/no-freeze/achieved30fps/zero-resource claim accepted.",
+    "CPU flags represent policy-classified registered work, not external CPU-load measurement.",
+    "False CPU policy helper does not rule out independent pacing, ordinary stop guards or external GPU restrictions.",
+    "Nine-locale future drafts require separate root authorization and must remain outside canonical catalogs during freeze."
+  ]
+}

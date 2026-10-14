@@ -165,3 +165,12 @@ VP9 was not smaller). Receipt:
 data/676_phase1_rerecord_publication_2026-10-11/receipt.json
 Phase 2 (~40 still-frame AppScreen lessons to live video, 08 and 17
 first) is next. Not done: native-speaker review, listening review.
+
+2026-10-14 01:18 EDT — Cold Preferences Apply source preflight preserved in
+data/n676_cold_preferences_apply_preflight_2026-10-14/. Home independently
+verified eight source and seven owning-test bytes against exact a744. Apply performs
+synchronous console document restyling and renderer work before Keep/Revert;
+stylesheet slicing covers only part. Saved 606 ms interval remains portable
+historical evidence, not current causal attribution. A minimal idempotence
+candidate and cold-first/rollback/native acceptance plan are ready. No source,
+GUI, profiling, tests or recording ran; tutorial 05 repair remains open.

@@ -1,0 +1,44 @@
+{
+  "checked_at_utc": "2026-10-14T04:43:27.751158+00:00",
+  "candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "run_id": 38512120776,
+  "script_changes": [
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/verify-required-ci.py",
+      "before_sha256": "cb3966e69b4f0e334ba3dbef45bada2829eeafef7dd36ca2771243f9020c72e1",
+      "after_sha256": "f7a75f47e6a1c5548032beb78588b9b7b0b8dd5803ed615171e64151d2e6feb1",
+      "change": "Require explicit exact candidate; no stale default"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/verify-published-core.py",
+      "before_sha256": "a70c1fe425b0448900ad29127305397a29bc48f64b698ca7566b4ad5df2464f3",
+      "after_sha256": "43c1ff8392483f94fc2843625a9712c5b86ed1d195b84cc641558df9dbef4f51",
+      "change": "Require explicit exact candidate; no stale default"
+    }
+  ],
+  "fail_closed_missing_candidate": [
+    {
+      "script": "verify-required-ci.py",
+      "missing_argument": "--head",
+      "actual_exit": 2,
+      "stderr": "usage: verify-required-ci.py [-h] --head HEAD snapshot\nverify-required-ci.py: error: the following arguments are required: --head\n"
+    },
+    {
+      "script": "verify-published-core.py",
+      "missing_argument": "--candidate",
+      "actual_exit": 2,
+      "stderr": "usage: verify-published-core.py [-h] --repo REPO --candidate CANDIDATE\n                                [--release RELEASE] [--version VERSION]\nverify-published-core.py: error: the following arguments are required: --candidate\n"
+    }
+  ],
+  "live_ci_rejected_for_promotion": true,
+  "snapshot_status": "queued",
+  "snapshot_conclusion": "",
+  "job_counts": {
+    "in_progress": 18,
+    "success": 1,
+    "queued": 8
+  },
+  "main_promoted": false,
+  "release_dispatched": false,
+  "scope": "Scratch promotion guards and current live run; not full CI acceptance or app changes."
+}

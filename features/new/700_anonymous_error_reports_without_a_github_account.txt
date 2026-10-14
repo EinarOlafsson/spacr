@@ -111,3 +111,13 @@ bounded reports or refuses diagnosis with a clear message, never incurs
 overage charges. This is not an unlimited-service or perpetual-provider-pricing
 promise. Deployment/integration remain unimplemented and not cost-verified
 against an owner account yet. Current official pricing links are in the guide.
+
+2026-10-14 01:18 EDT — Home accepts 14 exact future notices for preparatory
+design English and isolated nine-locale proposal drafts only:
+data/700_home_future_notice_design_acceptance_2026-10-14/. Thirty current
+source/proposal bindings and all 14 text hashes independently verified.
+Historical UI activation gates remain: real validated client/relay behavior,
+current owner plan/model/resource verification, every display predicate and
+strict $0/no-paid policy. Canonical source/catalog/review/generator/deployment
+remain held. This is not certification of configured/free/deployed resources;
+no original text/approval flag was rewritten and no actual service is active.

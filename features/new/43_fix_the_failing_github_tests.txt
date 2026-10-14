@@ -3775,3 +3775,12 @@ because N673 is editing make_masks.py. Item 43 stays OPEN until hosted green.
     comparisons stable/pass with genuine cache reuse. No unrelated fix made.
     Evidence:data/43_partial_field_repaint_repair_2026-10-14/. ParentOPEN;
     candidate must pass a fresh full hosted run before promotion/release.
+
+2026-10-14 01:18 EDT — Fresh candidate a744a9fda2 / run 38512120776 remains
+live, not full green. Eight jobs pass, including coverage shards 5 and 11; remaining
+Fast/minimum/Qt/coverage and final gates are pending. Source/tests unchanged.
+Fresh scratch/review guards require explicit candidate arguments and correctly
+reject unfinished CI. A normal merge simulation produces the exact candidate
+tree 5e2df183be6ecfeb20fb8d759c8eb059d0b80eaf, without changing the old private
+promotion. Readiness proof: data/1515_current_candidate_readiness_2026-10-14/.
+Main/release remain held; this does not replace terminal 30-job acceptance.

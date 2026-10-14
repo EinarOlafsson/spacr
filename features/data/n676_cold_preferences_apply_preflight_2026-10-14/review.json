@@ -1,0 +1,455 @@
+{
+  "schema": "spacr-cold-preferences-apply-source-preflight-v1",
+  "created_at_utc": "2026-10-14T04:53:27.122163+00:00",
+  "source_ref": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "status": "READ-ONLY PREPARATION.606ms GUI gap is established historical evidence; dominant cause/current performance unproven.",
+  "prior_bound_investigation": {
+    "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/data/n676_published_quality_review_2026-10-13/lesson05_preferences_apply_readonly_20261013.json",
+    "sha256": "a6af81267b09ae8417b92df6b5cc36315c932af591729b4e00a94c473d01fe33",
+    "bytes": 15062
+  },
+  "evidence_summary": {
+    "saved_gui_timer_interval_seconds": 0.606,
+    "saved_interval": [
+      22.24,
+      22.846
+    ],
+    "single_stack_sample": "Apply -> _in_one_store -> _save(close=False) -> apply_preferences_to_app -> ConsolePanel.apply_zoom -> get_font_scale",
+    "interpretation": "Sample proves active path, not exclusive duration. Shared QSettings is active; no repeated INI blame. Concurrent Numba initialization remains an unmeasured contention hypothesis.",
+    "published_preferences_sha_matches_recorded_report": true,
+    "recorded_commit_not_available_in_Home": "Direct old capture Git blob lookup failed; recorded facts here are bound to existing reviewed portable report, no independent raw capture recreation asserted.",
+    "retained_console_content_unknown": "Saved stack identifies console zoom dispatch but this audit has not established number/size of output blocks at the606ms interval. Unchanged document work may be significant for populated consoles; it cannot be assumed to dominate an empty-console cold Apply."
+  },
+  "source_files": [
+    {
+      "path": "spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "bytes": 552446,
+      "git_blob": "232bc2b9cf7480f8035c9c85d06c7439f7ab97f8",
+      "local_bytes_equal_published": true
+    },
+    {
+      "path": "spacr/qt/widgets/console_panel.py",
+      "sha256": "46e4b66be978b3e202bebe71422c9ed7a533ceba0b33cd74be77c40ad5fb1bcd",
+      "bytes": 96307,
+      "git_blob": "9f2fbbce5ed99495df4c3440d48683e415169166",
+      "local_bytes_equal_published": true
+    },
+    {
+      "path": "spacr/qt/gui_scale.py",
+      "sha256": "6eee4bfbeeacda0aeab135ac89d100250256bd0e6ddc9aa4c357d2395574b341",
+      "bytes": 48955,
+      "git_blob": "b49e091352c11f4a92bf00bf93395f9aaf01ce16",
+      "local_bytes_equal_published": true
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a",
+      "bytes": 268573,
+      "git_blob": "d04337f5e728473fab4c759624fceb9e5b87a0ff",
+      "local_bytes_equal_published": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+      "bytes": 587528,
+      "git_blob": "04b51211a6f6ab699eb8c9515bbbcaf30094cf86",
+      "local_bytes_equal_published": true
+    },
+    {
+      "path": "spacr/qt/widgets/fractal_travel.py",
+      "sha256": "a713d7f5481d38c121a01eee61a9d1f950cbae8630f3026cf0a6c347958e978f",
+      "bytes": 122133,
+      "git_blob": "112b77a6cc95c2d39c62f4bc967d8c82de19360b",
+      "local_bytes_equal_published": true
+    },
+    {
+      "path": "spacr/qt/button_roles.py",
+      "sha256": "4786c1fb4b5bf6269009495be0e2e8acaf596ffe3545f99fbc2dc31c5bc3085f",
+      "bytes": 11992,
+      "git_blob": "de638f186db152af305bf0f97c56ce2451750636",
+      "local_bytes_equal_published": true
+    },
+    {
+      "path": "spacr/qt/app.py",
+      "sha256": "3e475f8af1694f10e187081ecb3f9c4dcbc1fd187a6d17f7021ff536d74f9cbd",
+      "bytes": 348780,
+      "git_blob": "8c321bf7fe21e453c096e615be53575c9db55421",
+      "local_bytes_equal_published": true
+    }
+  ],
+  "definition_inventory": {
+    "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preferences-apply-source-preflight/published-source-bindings.json",
+    "sha256": "e89d872d9c7e99ccbf0ce1462c334c290ef3a376d6fd966d56536dc9b41de1da",
+    "bytes": 79733
+  },
+  "critical_path": [
+    {
+      "stage": "Apply click, before confirmation creation",
+      "synchronous": true,
+      "refs": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "PreferencesDialog._build_the_dialog._apply",
+          "start_line": 11791,
+          "end_line": 11911,
+          "definition_sha256": "db254254c01165d79724a85d655b97e4456eee84c1e415fc299ea9eb5eb993d0"
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "PreferencesDialog._build_the_dialog._save",
+          "start_line": 11585,
+          "end_line": 11789,
+          "definition_sha256": "85e34f87dd5e1c51865c55cef9401d0b2e9f1241823ee4709684364653ccdd17"
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "_one_store",
+          "start_line": 767,
+          "end_line": 808,
+          "definition_sha256": "e11ea9e01cc46c0ccc17ed1b067097d255e7e9c1df15f57ce70a17b473d100f2"
+        }
+      ],
+      "work": "Snapshot persisted keys and network bytes, detach unseen preference pages, write all owned controls using one shared QSettings transaction. The confirmation is only constructed/opened after _save and transaction completion.",
+      "causal_status": "Source-confirmed dispatch; durations unmeasured. Shared transaction means repeated INI opens/writes are not justified by the sampled getter stack."
+    },
+    {
+      "stage": "Requested scales, rim, resource policy and Spaceout runtime controls",
+      "synchronous": true,
+      "refs": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "PreferencesDialog._build_the_dialog._save",
+          "start_line": 11585,
+          "end_line": 11789,
+          "definition_sha256": "85e34f87dd5e1c51865c55cef9401d0b2e9f1241823ee4709684364653ccdd17"
+        },
+        {
+          "path": "spacr/qt/gui_scale.py",
+          "qualname": "set_gui_scale_live",
+          "start_line": 866,
+          "end_line": 934,
+          "definition_sha256": "4f683be51664c0627d5cf54adf6567cb9728f0d6631b839439c6bc989591d581"
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "_tell_the_cards_the_rim_changed",
+          "start_line": 12058,
+          "end_line": 12083,
+          "definition_sha256": "7e096f9303a8ab3db7e1140b9458253cad86650e64a98fd94207389452e1e847"
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "set_performance_level",
+          "start_line": 3950,
+          "end_line": 3964,
+          "definition_sha256": "5c269f737bd85108035ea353320bc8b18158419cae51baece1b20942bb176a64"
+        },
+        {
+          "path": "spacr/qt/widgets/fractal_travel.py",
+          "qualname": "apply_saved_controls",
+          "start_line": 2687,
+          "end_line": 2729,
+          "definition_sha256": "c69ff2cbb43148965d39c11cb76b3a21cc1ba0de25d6e637cd5e78b2b7cb852e"
+        },
+        {
+          "path": "spacr/qt/widgets/fractal_travel.py",
+          "qualname": "restart_the_dive",
+          "start_line": 2732,
+          "end_line": 2745,
+          "definition_sha256": "0cf47a3e4b1be78afcf263bbc72a10d044a710a0850243df417bfbd9b8bc93b4"
+        },
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "qualname": "rebuild_the_spaceout_backdrops",
+          "start_line": 12307,
+          "end_line": 12371,
+          "definition_sha256": "c95c70f1b3afacd7ff3ac64ff8dacfff79fd3cb390f53d3956ccead9f9268543"
+        }
+      ],
+      "work": "Unconditional card broadcasts and setter dispatch; a real GUI scale change walks all widgets/layouts/canvases/listeners. Spaceout branch executes fractal writes/control propagation/restart/rebuild checks even when editing field effects. Existing normalized scale equality and fractal build-signature guards avoid some unchanged work. Save does not hide until these earlier steps finish.",
+      "causal_status": "Synchronous paths confirmed. No claim all backdrops rebuild or that this dominates606ms."
+    },
+    {
+      "stage": "Application-wide preferences propagation",
+      "synchronous": true,
+      "refs": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "apply_preferences_to_app",
+          "start_line": 7648,
+          "end_line": 7790,
+          "definition_sha256": "d7fbf068d1fff847db0df7fab87e0ccc8704d540cdc10d399ada9e25ed00c702"
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "apply_ambient_preferences",
+          "start_line": 2874,
+          "end_line": 3008,
+          "definition_sha256": "0020bac8d6eda3db8799e5be34c9f9366301dbceaaf70e58a1a2abc6a1e64fae"
+        },
+        {
+          "path": "spacr/qt/button_roles.py",
+          "qualname": "install_button_roles",
+          "start_line": 285,
+          "end_line": 298,
+          "definition_sha256": "b1f88bf139c309291ce20fe2e135a49e216d31e2eb1a42ec2603a993a866077f"
+        }
+      ],
+      "work": "Network exports/workspace policy, field-fade/tooltip invalidation, style signature, button roles, ambient/popup propagation, optional sound, conditional icon scaling, every live console zoom and logging. Multiple allWidgets walks remain outside stylesheet slices.",
+      "causal_status": "Source-confirmed repeated global traversal; costs unmeasured."
+    },
+    {
+      "stage": "Console document work",
+      "synchronous": true,
+      "refs": [
+        {
+          "path": "spacr/qt/widgets/console_panel.py",
+          "qualname": "ConsolePanel.apply_zoom",
+          "start_line": 1303,
+          "end_line": 1307,
+          "definition_sha256": "9a1cdc565c008884ddc5848a7137301b780c3330d47864b3b4206913f268b8e0"
+        },
+        {
+          "path": "spacr/qt/widgets/console_panel.py",
+          "qualname": "ConsolePanel._zoomed_font_pt",
+          "start_line": 1251,
+          "end_line": 1266,
+          "definition_sha256": "f32d49a20e168cdb691726c4822c03b2ce68ba8b7fcaa0e565ee6a889b25e142"
+        },
+        {
+          "path": "spacr/qt/widgets/console_panel.py",
+          "qualname": "ConsolePanel.set_console_font_pt",
+          "start_line": 1324,
+          "end_line": 1335,
+          "definition_sha256": "8f8c7396481efd14fdeba48c8050ee904211311f3fecab38b35ab0261df57005"
+        },
+        {
+          "path": "spacr/qt/widgets/console_panel.py",
+          "qualname": "_StdoutBlock.set_console_font_pt",
+          "start_line": 606,
+          "end_line": 617,
+          "definition_sha256": "b775f8a50e74df61f1eb52235f16ad6daf6de218416fe12ab786e846cfd94357"
+        },
+        {
+          "path": "spacr/qt/widgets/console_panel.py",
+          "qualname": "_StdoutBlock._apply_line_spacing",
+          "start_line": 595,
+          "end_line": 604,
+          "definition_sha256": "8f685f91aa76d19305dcde049fb02cfd7d02a592919bbc8e651beeb4bad1fd0f"
+        }
+      ],
+      "work": "Every application re-queries effective point size, visits all panels including hidden ones, updates every retained output block and QLabel. Block setter sets fonts, default document font, inline QSS, full-document paragraph format, height invalidation and geometry even when target point size is unchanged.",
+      "causal_status": "Concrete avoidable repeated document work; source alone does not attribute saved stall duration."
+    },
+    {
+      "stage": "Field effect update and renderer lock/shade",
+      "synchronous": true,
+      "refs": [
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "qualname": "AmbientWidget.set_field_effects",
+          "start_line": 10719,
+          "end_line": 10734,
+          "definition_sha256": "46c4f4a19c5dbb859f7ad9bea893a8742ed12048794489fcf470d3d6d52ff09f"
+        },
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "qualname": "AmbientWidget._republish",
+          "start_line": 10533,
+          "end_line": 10553,
+          "definition_sha256": "dce12d7efc1ea08c525ded26b4732cbe9d9268a49e88ac9a6a3a79edd516f8d1"
+        },
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "qualname": "AmbientWidget._mutate_engine",
+          "start_line": 10499,
+          "end_line": 10531,
+          "definition_sha256": "36e8c96ec9fc742523b53333fa2ea54a105d256112770c93a2ed669be3e8b337"
+        },
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "qualname": "AmbientWidget._set_graphics_backend",
+          "start_line": 10484,
+          "end_line": 10497,
+          "definition_sha256": "b2ffa879ad5c758584d843010be2551e981a57c646d534d0a4d3468394aef5db"
+        }
+      ],
+      "work": "Changed effects take renderer lock and synchronously shade/publish a new frame; unchanged effects return early. Every ambient propagation offers graphics backend; running Drift restarts its producer even if normalized requested backend is unchanged.",
+      "causal_status": "Real effect shade/lock is a candidate critical path. Drift-only restart is unrelated to recorded DataArt/Spaceout field unless that theme is actually selected; not a606ms attribution."
+    },
+    {
+      "stage": "Deferred stylesheet and owner redraw",
+      "synchronous": false,
+      "refs": [
+        {
+          "path": "spacr/qt/theme.py",
+          "qualname": "apply_stylesheet_per_window",
+          "start_line": 4353,
+          "end_line": 4433,
+          "definition_sha256": "fb3705c623c6b825ac746989980e9ddfc58d6e7727914bc81a19c342cbdb59a6"
+        },
+        {
+          "path": "spacr/qt/theme.py",
+          "qualname": "_sheet_the_windows_in_slices",
+          "start_line": 4446,
+          "end_line": 4479,
+          "definition_sha256": "97d2838998afadd12aec96d11e4bcdf677130768e1d21aeb36644dca6d506445"
+        },
+        {
+          "path": "spacr/qt/theme.py",
+          "qualname": "_sheet_the_next_window",
+          "start_line": 4482,
+          "end_line": 4501,
+          "definition_sha256": "524d394269219fe19f85eb750e28729d833d43710a1ddf21b748b4ebc23cbcf9"
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "qualname": "_refresh_owner_window",
+          "start_line": 11984,
+          "end_line": 12055,
+          "definition_sha256": "c45be80d6b13ebc2713e2ad8bce40f12e973c10513ecfe7aa62cbba4cf96114e"
+        },
+        {
+          "path": "spacr/qt/app.py",
+          "qualname": "MainWindow.refresh_after_preferences",
+          "start_line": 4654,
+          "end_line": 4689,
+          "definition_sha256": "86c77ff570f946bf93282237b1a190d9b2a71ff8b65074f59ad1b55fa555e1ee"
+        }
+      ],
+      "work": "Apply schedules stylesheet roots after20ms, one root per event-loop pass, and owner redraw after30ms. A single root may still contain thousands of widgets. Real theme/language/scale changes can defer a full Home rebuild; effect-only changes are not owner-signature rebuild keys. Unchanged style and scale signatures already avoid work.",
+      "causal_status": "Deferral confirmed, bounded slice runtime not proved. Measure until all pending work settles, not click return alone."
+    }
+  ],
+  "candidate_optimizations": [
+    {
+      "priority": 1,
+      "scope": "Existing console methods only, after release/source hold",
+      "proposal": "Make unchanged owned console font propagation idempotent per panel/entry; first successful application must still initialize fonts/QSS/paragraph spacing. Preserve _insert_entry/_apply_font handling so new entries and newly created panels initialize independently. Keep explicit force/dirty invalidation when owned style/font state changes; do not use one global preference cache or only constructor _font_pt as evidence of full initialization.",
+      "preserves": [
+        "Effective rounded font size \u00d7 per-column scale on shown/hidden existing entries",
+        "New-entry initialization at unchanged global size",
+        "Open Sans Light, paragraph leading, inline ink/style, wrapping/height cache and interaction state",
+        "Real scale/theme/explicit font-state changes retain reapplication"
+      ],
+      "required_proof": "Count document format/style/default-font/geometry operations for unchanged Apply; verify exact effective font/layout state on first apply, changed global/column scale, new entries and hidden populated panels.",
+      "risk": "Skipping only by current _font_pt can miss constructor initialization or externally dirtied style; condition must bind completed owned application state."
+    },
+    {
+      "priority": 2,
+      "scope": "Delta-aware existing preference propagation",
+      "proposal": "Compute normalized effective before/after values inside the existing transaction and avoid unrelated runtime broadcasts only when equivalent. Keep persistence/rollback ownership intact. Fractal restart/rebuild may be limited to relevant changed values only after confirming intended explicit restart behavior and derived-settings equivalence. Backend no-op must account for renderer context/retry state; do not suppress legitimate recovery attempts.",
+      "preserves": [
+        "Requested final store values including defaults/derived clamps",
+        "Independent popup/backdrop/field effects, resource policy and hidden instances",
+        "Exact changed-key Revert semantics and unrelated concurrent preferences",
+        "Network-byte/environment restoration and notification secrets only after Keep"
+      ],
+      "required_proof": "Effect-only, nonvisual and unchanged branches must retain all requested live state and exact Keep/Revert/close/failure behavior.",
+      "risk": "Broad global signature skipping can miss newly created widgets or real context/state changes."
+    },
+    {
+      "priority": 3,
+      "scope": "Generation-safe slicing of remaining GUI propagation if measured necessary",
+      "proposal": "Keep parsing/persistence transaction coherent, snapshot target values, then slice bounded GUI work by panel/entry/eligible target with a generation token. Revert/new Apply/close invalidates stale callbacks; final confirmation must not claim completed application before necessary target state is committed. Prefer coalescing several changed ambient setters into one synchronous final-state shade before contemplating asynchronous shading.",
+      "preserves": [
+        "No stale Apply callback overwrites Revert/newer Apply",
+        "No Qt widgets touched from worker threads",
+        "Exact background/mode/frame consistency and standalone setter immediate-grab contract",
+        "Latest stylesheet queue and all hidden/showing widgets eventually receive requested state"
+      ],
+      "required_proof": "Pending slices plus rapid Revert/Keep/close/new Apply, real theme/scale changes, destroyed widgets, failure rollback; GUI heartbeat through completion.",
+      "risk": "Moving work30ms later does not remove a long GUI stall. Deferring effect shading can violate current immediate changed-frame behavior; do not ship that silently."
+    }
+  ],
+  "owning_test_source_inventory": {
+    "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preferences-apply-source-preflight/owning-test-source-bindings.json",
+    "sha256": "798fbb08e81d6ac97d790d0512871597b436d9a43d49930e6136fe8e010d190d",
+    "bytes": 15178
+  },
+  "owning_plan": [
+    {
+      "existing_file": "tests/qt/test_preferences_apply.py",
+      "cases": [
+        "test_revert_restores_exact_store_and_live_theme",
+        "test_repeated_apply_reverts_to_the_last_kept_values",
+        "test_revert_restores_network_file_and_exports",
+        "test_notification_secrets_are_only_written_after_keep",
+        "test_partial_apply_failure_restores_the_previous_settings",
+        "test_closing_preferences_during_preview_reverts"
+      ],
+      "future_additions": "If slicing introduced: stale-generation callbacks after Revert/new Apply/close cannot change final store or live state; exact Keep/secrets timing remains."
+    },
+    {
+      "existing_file": "tests/qt/test_console_panel_uncovered_paths.py",
+      "cases": [
+        "test_a_zoom_change_is_applied_to_every_entry"
+      ],
+      "future_additions": "Populate shown/hidden panels with retained multiline documents and labels. Unchanged apply must avoid full-document restyle while first application/new entries/real Zoom/column scale/dirty style apply exactly."
+    },
+    {
+      "existing_file": "tests/qt/test_preferences_repolish_budget.py",
+      "cases": [
+        "test_an_identical_visual_save_does_not_recompose_the_global_sheet",
+        "test_a_visual_change_still_rebuilds_the_global_sheet",
+        "test_a_foreign_nonempty_sheet_invalidates_the_visual_signature"
+      ],
+      "future_additions": "Preserve registry/style invalidation and fresh-window initialization; no blanket app-level cache."
+    },
+    {
+      "existing_file": "tests/qt/test_spaceout_field_effect_preferences.py",
+      "cases": [
+        "test_field_effects_cancel_save_and_reset_restore_exact_values",
+        "test_field_effect_apply_revert_preserves_unrelated_concurrent_key"
+      ],
+      "future_additions": "Real field renderer receives all eight effects on first Apply, Keep/Revert; repeated unchanged effect does not shade again; changed effects retain immediate frame/pause/visibility semantics."
+    },
+    {
+      "existing_file": "tests/qt/test_gui_scale_recovery.py",
+      "cases": [
+        "test_saved_gui_scale_is_applied_to_existing_widgets",
+        "test_requesting_the_current_scales_does_not_open_a_question",
+        "test_closed_and_failing_scale_listeners_do_not_block_live_listeners"
+      ],
+      "future_additions": "Real font/gui scale and per-column scale roundtrip without drift or skipped hidden entries."
+    },
+    {
+      "existing_file": "tests/qt/test_preferences_apply_stays_smooth.py",
+      "cases": [
+        "test_apply_keep_and_revert_hold_the_loop_a_fraction_of_the_old_apply",
+        "test_a_sliced_sheet_goes_on_shown_windows_first_and_reaches_all"
+      ],
+      "coverage_gap": "Fixture explicitly calls apply_preferences_to_app before MainWindow, sets animation none, then runs old Apply/Revert before measuring new. It establishes warm relative improvement, not first Spaceout Apply latency.",
+      "future_additions": "Separate fresh-process first PreferencesApply and first Save controls; never pre-click Apply/Revert or force console warmup before measured interaction."
+    }
+  ],
+  "native_acceptance_plan": {
+    "authorization": "Held until root schedules postrelease source work and Work acceptance; nothing started.",
+    "controls": [
+      "Fresh process/private settings using normal startup, first Preferences Apply before any deliberate warm Apply/Revert; real default Spaceout field and Vortices toggle",
+      "Separate fresh-process first Save with same state; then unchanged/nonvisual/effect/true font and GUI scale changes",
+      "Shown and hidden populated consoles; pending style slices; empty-console control",
+      "Record naturally cold compiler readiness/overlap versus ready state as a controlled hypothesis, no attribution from one snapshot"
+    ],
+    "instrumentation": [
+      "GUI heartbeat and per-widget stable paint telemetry from before click through confirmation and all pending redraws",
+      "Spans/call counts for persistence/snapshot, optional imports, style generation/root slices, console document updates, renderer lock wait/shade, GUI scale/icon work and owner redraw",
+      "Thread-aware stacks/source/import-path/environment hashes; native field/backend identity and final store/effect/font/geometry assertions"
+    ],
+    "acceptance": [
+      "Retain actual cold and warm before/after raw measurements, not only mean FPS or click duration",
+      "Exact requested state for Apply/Keep/Revert/Save/close/failure and concurrent unrelated keys",
+      "Existing benefit/coverage ceilings unchanged; genuine native clip through current gate before claiming lesson repaired",
+      "Work owns actual GNOME/GPU/capture lane and gpu_turn if GPU acceptance needed; recordings run alone and no encode/upload concurrently"
+    ],
+    "no_numeric_new_threshold_invented": true
+  },
+  "scope_limits": [
+    "Distinct from held Workbenchb28; no Workbench source/tests inspected or altered in this task.",
+    "No source/catalog/test/generated changes, no GUI/app/tests/profiling/provider/GPU/recording execution.",
+    "Source rank reflects avoidable work/dependencies, not measured contribution to606ms.",
+    "No candidate fix/performance/native acceptance claim.",
+    "No new module/user strings planned; changed public docstrings would require normal reviewed documentation/i18n tools if future implementation changes their contracts."
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "schema": "spacr-animation-helper-manifest-scope-review-v1",
+  "checked_at_utc": "2026-10-14T05:15:10.052072+00:00",
+  "candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "scope_decision": "Do not request nine-locale drafts or add catalog entries for these two excluded private implementation docstrings. Future English source corrections remain useful independently.",
+  "source_bindings": [
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "sha256": "9adc90b6f52ceba1f9b4bd1d79f300d279664cc03dfb91e7776592850a5b014b",
+      "bytes": 415920
+    },
+    {
+      "path": "tools/nested_helper_docs.py",
+      "sha256": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237",
+      "bytes": 22450
+    },
+    {
+      "path": "tools/build_i18n_catalogs.py",
+      "sha256": "8aceaa2be1c06d54468f3bef595915c3bb426d44fbee94c0e2ad8b3c46afcdee",
+      "bytes": 348951
+    },
+    {
+      "path": "docs/source/conf.py",
+      "sha256": "a27ce52389bcad8946c5f9750ba3d6eaf305a9971f502be50008faa0cb75297d",
+      "bytes": 17520
+    },
+    {
+      "path": "docs/source/_static/i18n/api/en.json",
+      "sha256": "a660d0463d04eeb71462c52e497e123fdad949c948b37a53d343955259f9ebb9",
+      "bytes": 12629916
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/en.py",
+      "sha256": "6b04fad24c84206ef96b742c4b6752f643987d514af69f93b0d26ac483d935b3",
+      "bytes": 2739181
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+      "bytes": 587528
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "bytes": 552446
+    }
+  ],
+  "API_manifest": {
+    "English_symbol_count": 13418,
+    "helper_key_presence": {
+      "spacr.qt.widgets.ambient._animation_paused_for_work": false,
+      "spacr.qt.widgets.ambient._AnimationResourcePolicy.pauses_animation": false
+    },
+    "private_policy_class_or_method_prefix_presence": false,
+    "public_stop_present": true,
+    "public_stop_references_private_wrapper": true,
+    "reference_does_not_publish_the_helper": true
+  },
+  "extractor_rules": [
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "lines": [
+        4108,
+        4120
+      ],
+      "rule": "Single-underscore top-level functions are not visible; only ordinary public functions and selected dunder protocol names are admitted."
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "lines": [
+        4214,
+        4240
+      ],
+      "rule": "A top-level class is admitted only if its name does not start underscore. Children are visited only after class admission, so public-named pauses_animation inside private _AnimationResourcePolicy is excluded."
+    },
+    {
+      "path": "tools/nested_helper_docs.py",
+      "lines": [
+        362,
+        376
+      ],
+      "rule": "Nested inventory requires a lexically enclosing function/async function. A method of a module-level class alone does not qualify."
+    },
+    {
+      "path": "docs/source/conf.py",
+      "lines": [
+        156,
+        160
+      ],
+      "rule": "AutoAPI options omit private-members."
+    }
+  ],
+  "helper_lexical_ancestry": {
+    "_animation_paused_for_work": {
+      "line": 12660,
+      "lexical_ancestors": [],
+      "has_enclosing_function": false
+    },
+    "pauses_animation": {
+      "line": 12538,
+      "lexical_ancestors": [
+        {
+          "type": "ClassDef",
+          "name": "_AnimationResourcePolicy"
+        }
+      ],
+      "has_enclosing_function": false
+    }
+  },
+  "runtime": {
+    "English_UI_source_count": 7612,
+    "helper_docstring_presence": {
+      "Whether CPU-heavy analysis currently pauses every animation.": false,
+      "Whether CPU-heavy work currently pauses every animation.": false
+    },
+    "dynamic_animation_caption_present": true,
+    "dynamic_tooltip_present": true,
+    "extractor": "tools/build_i18n_catalogs.py:4114 extracts owned Qt presentation literals; these private docstrings are not UI call arguments.",
+    "runtime_symbol_or_private_docstring_search": "Source text search across runtime/catalog/review/API surfaces found no helper-owned record; existing wrapper reference occurs within public Stop API prose."
+  },
+  "future_generator_scope": {
+    "only_two_helpers_changed": "No required generated English API/runtime or nine-locale helper records. Normal source validation may be performed after authorized change, but do not manufacture entries or alter visibility rollout merely to translate these helpers.",
+    "separately_accepted_public_Stop": "Update actual AmbientWidget.stop source after release, then normal tools/build_documentation_i18n.py --sources-only and source-bound reviewed API locale refresh/validation. Public Stop record is a real translation surface.",
+    "separately_accepted_Dynamic_tooltip": "Update actual tr() tooltip source after release, then normal tools/build_i18n_catalogs.py --sources-only and reviewed runtime locale refresh/validation. Tooltip is a real translation surface.",
+    "nested_generator_scope": "Neither helper becomes an active nested-helper entry; no helper rollout/visibility change is needed.",
+    "line_metadata_limit": "Private docstring length changes can shift later source spans; preserve existing postrelease relocation plan and normal source-bound review metadata tools, rather than manual generated edits."
+  },
+  "no_execution_or_changes": [
+    "No extractor/generator invoked",
+    "No application/tools imports",
+    "No Qt/tests/runtime/GPU",
+    "No source/catalog/review/translation edits"
+  ]
+}
