@@ -4032,6 +4032,8 @@ class MainWindow(QMainWindow):
                     return (focus.undo, focus.redo,
                             focus.isUndoAvailable, focus.isRedoAvailable)
                 if inside and isinstance(focus, (QTextEdit, QPlainTextEdit)):
+                    if focus.isReadOnly():
+                        return None
                     document = focus.document()
                     return (focus.undo, focus.redo,
                             document.isUndoAvailable, document.isRedoAvailable)

@@ -1,0 +1,60 @@
+{
+  "tested_base_commit": "70a46a36524b9b41ed578521b74e7592796efd31",
+  "source_sha256": "5222415eaa0f628a5e375eeb21254aa67f4b94558768e2ce604dd6cb04fcd06f",
+  "test_sha256": "9a668f4beb05f07839ffb327c5d5b80f88d5d9ce51c18da17337aceb6134d962",
+  "signatures_docstrings_and_caption_sources_unchanged": true,
+  "generator_delta_required": false,
+  "source_scope": "Only MainWindow._edit_target readonly guard for QTextEdit/QPlainTextEdit; QLineEdit and other history routes unchanged.",
+  "status": "Completed scoped implementation repair: Edit cannot alter focused readonly rich/plain text or fall through to another editor history.",
+  "validation": {
+    "original_source_baseline": {
+      "passed": 4,
+      "failed": 2,
+      "actual_exit": 1,
+      "seconds": 11.92,
+      "actual_failure": "QTextEdit and QPlainTextEdit changed abcd to abc after being made readonly while menu Undo was already enabled."
+    },
+    "final_owning": {
+      "passed": 18,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "actual_exit": 0,
+      "seconds": 21.53
+    },
+    "changed_executable_lines_covered": [
+      4035,
+      4036
+    ],
+    "changed_lines_missing": [],
+    "missing_branches_from_changed_lines": [],
+    "unchanged_history_routes": "Editable text, native QLineEdit, settings/gates/masks/temporary annotation history and normal keyboard handlers."
+  },
+  "limitations": [
+    "Linux CPU offscreen Qt6.12 native widgets; no new physical macOS/Windows acceptance.",
+    "Temporary native editor/document histories only; existing annotation test operates on its temporary synthetic database, no live source/labels changed.",
+    "No whole-module coverage floor/fullCI or whole N649 feature recount."
+  ],
+  "artifacts": {
+    "baseline.xml": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n649-readonly-undo-20261014/baseline.xml",
+      "sha256": "97a7b74d0a078b40d57e716ed4173e25a2aff2908f3f8b7148517f0d9438897d"
+    },
+    "baseline.exit": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n649-readonly-undo-20261014/baseline.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "owning.xml": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n649-readonly-undo-20261014/owning.xml",
+      "sha256": "fe94b525e37b413bab1583e1ed8ed198823d375aaa628a65ddcc44948ec1ee5f"
+    },
+    "owning.exit": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n649-readonly-undo-20261014/owning.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "coverage.json": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n649-readonly-undo-20261014/coverage.json",
+      "sha256": "6faa88158337fe78c7bd6d9ef1a6299f75cafedb954692c4ed639ee86bfb0c83"
+    }
+  }
+}

@@ -2921,6 +2921,179 @@ def _macos_online_commands(record, version, workdir):
     return install, probe, relaunch
 
 
+def _runtime_exchange(first, second):
+    """Atomically exchange two runtime directories, with no missing-prefix gap."""
+    import ctypes
+
+    library = ctypes.CDLL(None, use_errno=True)
+    left, right = os.fsencode(first), os.fsencode(second)
+    if sys.platform == "darwin":
+        operation = library.renamex_np
+        operation.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+        arguments = (left, right, 2)
+    elif sys.platform.startswith("linux"):
+        operation = library.renameat2
+        operation.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+        arguments = (-100, left, -100, right, 2)
+    else:
+        raise OSError("atomic runtime exchange is not available on this platform")
+    operation.restype = ctypes.c_int
+    if operation(*arguments) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), first)
+
+
+def _runtime_staging_allowed(prefix, machine):
+    """Refuse shared or linked environments before invoking a package tool."""
+    prefix = os.path.realpath(prefix)
+    configuration = os.path.join(prefix, "pyvenv.cfg")
+    if not os.path.isfile(configuration) or os.path.isdir(os.path.join(prefix, "conda-meta")):
+        raise ValueError("this update requires a dedicated virtual environment")
+    with open(configuration, encoding="utf-8") as handle:
+        config = handle.read().lower().replace(" ", "")
+    if "include-system-site-packages=true" in config:
+        raise ValueError("shared system packages cannot be updated by runtime replacement")
+    if any(_exists(path) and _inside(os.path.realpath(path), prefix)
+           for path in _user_data(machine)):
+        raise ValueError("configured user data inside the runtime must remain untouched")
+    for directory, _folders, files in os.walk(prefix):
+        for name in files:
+            path = os.path.join(directory, name)
+            if name.endswith(".egg-link"):
+                raise ValueError("linked editable packages require their package manager")
+            if name.endswith(".pth"):
+                with open(path, encoding="utf-8", errors="replace") as handle:
+                    if prefix in handle.read():
+                        raise ValueError("absolute links to the active runtime cannot be staged safely")
+            if name == "direct_url.json" and directory.endswith(".dist-info"):
+                with open(path, encoding="utf-8") as handle:
+                    if json.load(handle).get("dir_info", {}).get("editable"):
+                        raise ValueError("editable packages require their source checkout")
+
+
+def _transactional_runtime_update(record, version, install, *, machine, runner=None, activate=None):
+    """Update a private POSIX runtime through a verified atomic exchange.
+
+    The previous runtime is retained as a rollback copy. All package operations
+    target a copied sibling environment; the active prefix is only exchanged
+    after the staged application's identity and dependency checks pass.
+    """
+    runner = runner or _run
+    prefix = os.path.realpath(os.path.dirname(os.path.dirname(record.python)))
+    _runtime_staging_allowed(prefix, machine)
+    parent = os.path.dirname(prefix)
+    lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
+    os.mkdir(lock, 0o700)
+    transaction = None
+    exchanged = False
+    committed = False
+    try:
+        transaction = tempfile.mkdtemp(prefix=".spacr-runtime-update-", dir=parent)
+        staged = os.path.join(transaction, "runtime")
+        journal = os.path.join(transaction, "transaction.json")
+        state = {"schema": 1, "prefix": prefix, "rollback_runtime": staged,
+                 "requested_version": str(version), "state": "staging"}
+
+        def note(phase):
+            state["state"] = phase
+            temporary = journal + ".next"
+            with open(temporary, "w", encoding="utf-8") as handle:
+                json.dump(state, handle, indent=2)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, journal)
+
+        note("staging")
+        shutil.copytree(prefix, staged, symlinks=True)
+        for directory, folders, files in os.walk(staged):
+            for name in folders + files:
+                path = os.path.join(directory, name)
+                if os.path.islink(path):
+                    target = os.readlink(path)
+                    if os.path.isabs(target) and _inside(target, prefix):
+                        original = os.path.join(prefix, os.path.relpath(path, staged))
+                        os.unlink(path)
+                        os.symlink(os.path.relpath(target, os.path.dirname(original)), path)
+        staged_python = os.path.join(staged, "bin", "python")
+        command = list(install)
+        position = command.index("--python") + 1
+        if os.path.realpath(command[position]) != os.path.realpath(record.python):
+            raise ValueError("the package command does not target this private runtime")
+        command[position] = staged_python
+        code, output = runner(command)
+        if code:
+            raise RuntimeError(f"The staged package upgrade failed with exit code {code}: {output}")
+        code, checked = runner([command[0], "pip", "check", "--python", staged_python])
+        if code:
+            raise RuntimeError(f"Staged package dependencies failed verification: {checked}")
+        code, imported = runner([staged_python, "-I", "-c", "import spacr.qt"])
+        if code:
+            raise RuntimeError(f"The staged application import failed: {imported}")
+        code, observed = runner(_runtime_identity_command(staged_python, version, minimum=True))
+        if code:
+            raise RuntimeError("The staged application identity could not be verified: " + observed)
+        try:
+            identity = json.loads(observed)
+        except (ValueError, TypeError) as error:
+            raise RuntimeError("The staged application identity could not be verified: " + observed) from error
+        if (identity.get("verified") is not True
+                or identity.get("requested_version") != str(version)
+                or _macos_online_version(identity["version"]) < _macos_online_version(version)
+                or (record.version and _macos_online_version(identity["version"]) < _macos_online_version(record.version))):
+            raise RuntimeError("The staged application identity could not be verified: " + observed)
+        for name in os.listdir(os.path.join(staged, "bin")):
+            script = os.path.join(staged, "bin", name)
+            if os.path.islink(script) or not os.path.isfile(script):
+                continue
+            with open(script, "rb") as handle:
+                first_line = handle.readline(8192)
+                if not first_line.startswith(b"#!"):
+                    continue
+                header = first_line + handle.readline(8192) + handle.readline(8192)
+                if os.fsencode(staged) not in header:
+                    continue
+                remainder = handle.read()
+            with open(script, "wb") as handle:
+                handle.write(header.replace(os.fsencode(staged), os.fsencode(prefix)) + remainder)
+        note("ready")
+        _runtime_exchange(prefix, staged)
+        exchanged = True
+        note("verifying")
+        code, final = runner(_runtime_identity_command(record.python, version, minimum=True))
+        if code:
+            raise RuntimeError("The activated application identity could not be verified: " + final)
+        try:
+            final_identity = json.loads(final)
+        except (ValueError, TypeError) as error:
+            raise RuntimeError("The activated application identity could not be verified: " + final) from error
+        if final_identity.get("verified") is not True or final_identity.get("version") != identity["version"]:
+            raise RuntimeError("The activated application identity could not be verified: " + final)
+        code, final_import = runner([record.python, "-I", "-c", "import spacr.qt"])
+        if code:
+            raise RuntimeError("The activated application import failed: " + final_import)
+        state["verified_version"] = identity["version"]
+        note("committed")
+        if activate is not None:
+            activate(identity["version"])
+        committed = True
+        return identity["version"], output + "\nPrevious runtime retained at " + staged
+    except BaseException:
+        if exchanged:
+            try:
+                _runtime_exchange(prefix, staged)
+                exchanged = False
+                if transaction:
+                    note("rolled_back")
+            except BaseException as rollback_error:
+                raise RuntimeError("Runtime restoration failed; previous runtime retained at " + staged) from rollback_error
+        raise
+    finally:
+        if transaction and not committed and not exchanged:
+            shutil.rmtree(transaction, ignore_errors=True)
+        if not exchanged or committed:
+            os.rmdir(lock)
+
+
 def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     """Carry out an approved macOS online update in its own environment.
 
@@ -2938,28 +3111,9 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     handshake.ready()
     handshake.wait_for_shutdown(wait)
     _macos_online_commands(record, plan["version"], plan["workdir"])
-    runner = run or _run
-    code, output = runner(install)
-    if code:
-        raise RuntimeError(f"The package upgrade failed with exit code {code}: {output}")
-    code, observed = runner(probe)
-    try:
-        identity = json.loads(observed)
-        observed_version = _macos_online_version(identity["version"])
-        offered_version = _macos_online_version(plan["version"])
-        previous_version = _macos_online_version(record.version) if record.version else None
-        verified = (code == 0 and identity.get("verified") is True
-                    and identity.get("requested_version") == plan["version"]
-                    and observed_version >= offered_version
-                    and (previous_version is None or observed_version >= previous_version))
-    except (ValueError, TypeError, KeyError, AttributeError):
-        verified = False
-    if not verified:
-        raise RuntimeError(
-            f"The package command completed, but spaCR {plan['version']} could not be verified "
-            f"in the existing environment: {observed.strip()}. No relaunch was requested.")
-    (spawn or _spawn_detached)(relaunch, None, plan["workdir"])
-    return identity["version"], output
+    return _transactional_runtime_update(
+        record, plan["version"], install, machine=machine, runner=run,
+        activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
 
 
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
