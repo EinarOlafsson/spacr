@@ -92,3 +92,23 @@ This closes local implementation, NOT whole-item hosted acceptance. Original
 Home still owns publication: verify actual GitHub and PyPI links/rendering and
 leading content on the published source, including all locale routes, and
 promote approved README/docs outputs to main using the established procedure.
+
+2026-10-14 — Home-B verified PyPI sanitization and prepared exact promotion.
+The four owning PyPI packaging checks passed in 1.26s. The explicit panel-link
+check now uses readme_renderer.rst (PyPI's actual sanitizing renderer), verifying
+each of the 65 English panel images retains its own exact readable destination
+after rendering setup.py's real long_description. The existing image/alt and
+external-link checks also pass. No runtime packaging defect was demonstrated.
+setup.py intentionally resolves these links against main, not nightly.
+
+A documentation-only promotion patch contains exactly 678 files: ten READMEs,
+650 readable pages, seventeen model pages and their index. All 1,707 image assets
+referenced by those READMEs already match main e0bedd1534d71708f65b60a2d9e24b6328d4ce9d
+byte-for-byte. The patch applies to an alternate index loaded from that exact
+main commit and produces tree 189ef70712fa327c66896502100ad0c681a7ddac without
+changing any branch, working tree or remote. Patch, exact file list and source
+manifest: /mnt/wd4tb/scratch/home-b-n704-20261014/promotion/.
+Receipt: data/704_pypi_sanitizer_acceptance_2026-10-14/receipt.json.
+This is renderer verification and promotion preparation, not a PyPI upload,
+actual public route acceptance or whole-item completion. Original Home owns
+the remaining publication and hosted checks.

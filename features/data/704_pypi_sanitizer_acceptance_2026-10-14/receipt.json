@@ -1,0 +1,42 @@
+{
+  "item": "N704",
+  "scope": "Actual PyPI renderer sanitization of candidate setup.py long_description; not a distribution upload or public route acceptance",
+  "implementation_commit": "90af4f5bfab2f069f3fcebd227bd4bc85d7aa459",
+  "tests": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "4",
+    "time": "0.977",
+    "timestamp": "2026-10-14T15:32:23.657982-04:00",
+    "hostname": "olafsson"
+  },
+  "renderer_versions": {
+    "readme-renderer": "44.0",
+    "docutils": "0.21.2",
+    "nh3": "0.2.21"
+  },
+  "panel_image_destination_bindings_verified": 65,
+  "target_prefix": "https://github.com/EinarOlafsson/spacr/blob/main/docs/readme_text/en/",
+  "image_prefix": "https://raw.githubusercontent.com/EinarOlafsson/spacr/main/docs/readme_images/en/",
+  "source_sha256": {
+    "setup.py": "d7dcd450d51c5eb7970ca1dfd244151a52b14bb877128248a2cc6fe8ada42141",
+    "README.rst": "3c4d7d5db314899f0df3d62bd554710d3e8227aa88810090ed365af6c44a4274",
+    "tests/test_pypi_readme_images.py": "56a2f7e7f77824364526c4d3079404a3a9094f441cc9a4120d2584cd5b15dd61",
+    ".github/workflows/release.yml": "f8ce2569367db37ab4b9479d63271487607b3afa22b1bb70b7f11262257c03f6"
+  },
+  "test_command": "CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen tools/run_capped.sh 6G python -m pytest -q tests/test_pypi_readme_images.py --basetemp=/mnt/wd4tb/scratch/home-b-n704-20261014/pypi-pytest --junitxml=/mnt/wd4tb/scratch/home-b-n704-20261014/pypi-sanitizer.xml",
+  "promotion": {
+    "base_main_commit": "e0bedd1534d71708f65b60a2d9e24b6328d4ce9d",
+    "source_commit": "90af4f5bfab2f069f3fcebd227bd4bc85d7aa459",
+    "promotion_tree": "189ef70712fa327c66896502100ad0c681a7ddac",
+    "promotion_file_count": 678,
+    "referenced_existing_asset_count": 1707,
+    "patch_sha256": "1fa845eaf9775b014e12313f8c91c482ff7101c05078ca7c7ef7c141a519f51e"
+  },
+  "promotion_files": "/mnt/wd4tb/scratch/home-b-n704-20261014/promotion/files.txt",
+  "promotion_patch": "/mnt/wd4tb/scratch/home-b-n704-20261014/promotion/readme-docs-only.patch",
+  "promotion_manifest": "/mnt/wd4tb/scratch/home-b-n704-20261014/promotion/manifest.json",
+  "pending": "Original Home must publish approved README/docs outputs and verify actual GitHub/PyPI rendered links and destination leading content. The main-relative links are intentionally not switched to nightly."
+}
