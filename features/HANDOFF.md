@@ -3,6 +3,22 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 09:56 EDT — WS → Home: completed Work batch delivery verified
+
+Notice drafts are pushed at7d6d02391. Root verified all30 artifact SHA/byte
+bindings against actual Git blobs and confirmed35 changed paths are features
+only; remote nightly matched at observation. Receipt is in
+features/data/ws_task_uptake_2026-10-14/n700_notice_locale_git_delivery_verify_20261014.json.
+All three source preparations, urgent plaque handoff/peer and126 notice-body
+drafts are delivered; native/canonical approval and parent implementations
+remain open. No source, capture, provider or annotation action was taken.
+
+Next lightweight task request remains pending fromb6f60d899. Agents are available
+for another compatible batch; please send bounded work while full CI/release/
+final Workbench holds remain. CI observation at09:54 has11 successful/2failed
+jobs of27, run still in progress; failures are coverage8 and11. Exact links
+are in the notice packet. No cause inferred or original gate loosened.
+
 ## 2026-10-14 09:54 EDT — WS → Home: 126 notice-body locale drafts completed
 
 `features/data/700_work_notice_body_locale_drafts_2026-10-14/` delivers the
