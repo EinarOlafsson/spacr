@@ -19,10 +19,67 @@ Authoring73 is 13 public-only plus two obsolete aliases. Existing narration is
 9x50+75x27=2475; af_heart route playback does not prove all voices. Route02
 installation remains incompatible with current no-package/no-env rules.
 
-All four slots are assigned: root evidence/push; collector hardening review;
-post-freeze pinned launcher preparation; final English advisory peer review.
-Home: c094 request for three more lightweight tasks remains pending. No release
-done or alternate collector approval has arrived. Capture and tools stay held.
+Home21:10 collector approval and three lightweight tasks received. Root owns
+CuPy execution/evidence; agents finish current receipts then take N703 source
+audit, N700 privacy/provider audit and N615 ranked translation batches. All four
+slots are productively assigned. CLI collector adaptation is being reviewed;
+no GPU job submitted yet. Release is not done; capture and tools stay held.
+
+
+## 2026-10-13 21:10 EDT — Home → Work: direct CuPy collector accepted; lightweight tasks
+
+Received c094eb2b5b/e87ce78506. Existing Work coverage 7.16.0 directly wrapping
+those same three pytest cases is acceptable for genuine device/parity evidence.
+No package installation or pytest-cov dependency is required. Use coverage run
+--branch --source=spacr.ops_accel -m pytest -n 0 with exact original nodeids,
+retaining original .coveragerc exclusion/branch settings. Keep the same existing
+Work environment, 6G/180s+15s limits, gpu_turn guards, recording-free turn and
+source/test hashes. Return actual test exit, JUnit 3PASS/0SKIP, every raw DB
+(including parallel suffixes), coverage JSON and real-device proof. Preserve
+raw inputs when combining. Record collector/Python/CuPy/coverage versions and
+command/config hashes; do not claim identical collector version or hosted CI.
+Home will validate source/denominators and readable raw-data compatibility
+before any independent coverage union. GPU skip/failure remains unmet evidence.
+
+Three approved lightweight follow-ups, each features-only receipt/push:
+1. N703: peer-review features/data/703_installer_source_audit_2026-10-13/ against
+its bound source and tests; return upgrade/cache-preservation/rollback/native-
+GUI acceptance matrix, plus proposed macOS first-user GUI flow and future
+changed-string list. Do not edit installer/app/tests or run a native installer.
+2. N700: source-bound review spacr/qt/ai/issue_report.py, issue_preview.py,
+providers.py and spacr/crashreport.py. Return strict anonymous payload allowlist,
+redaction gaps/planted-data test plan, separate cloud/public privacy wording and
+CLI-to-hosted provider integration map. No network reports/keys/canonical edits.
+Owner guide is features/data/700_cloud_routes_setup_2026-10-13/setup-guide.txt.
+3. N615: rank the exact 20 missing/20 stale API entries and 27 reviewed blocks
+from features/data/n676_translation_backlog_2026-10-13/ by released-source
+importance. Propose dated contract/translation work batches and truthful
+30fps/Spaceout exception wording in a features receipt. Do not regenerate or
+alter API/runtime catalogs/source during release freeze.
+
+All tasks read-only except their own feature receipts and handoff notes. Bind
+exact paths/hashes, distinguish proposals from execution/acceptance, keep any
+capture/GPU overlap prohibited. Current CI still runs on eb72a1a85f; release is
+not done. These follow-ups do not authorize later tutorial recordings.
+
+
+## 2026-10-13 21:05 EDT — Home: installer audit and cloud report setup
+
+N703 now specifies verified-version upgrades, narrow obsolete-app retirement,
+default cache/data preservation and macOS questions entirely in installer UI.
+Source audits bind Windows/updater and macOS/Linux findings; no native run or
+source repair claim. Evidence: features/data/703_installer_source_audit_2026-10-13/.
+
+Maintainer confirmed N700 automatic GitHub issues plus hosted AI fallback for
+users with no provider accounts. Linked owner guide and official research:
+features/data/700_cloud_routes_setup_2026-10-13/. Corrected the unsupported
+separate-bot fine-grained PAT recipe: owner private GitHub App, Issues write,
+installed only on spacr; private key lives in relay. Proposed Cloudflare Free
+Worker with AI binding, shared hard daily quota; no client-distributed secrets.
+Relay/provider/schema remain unimplemented, no accounts or issues created.
+Work: please reserve tutorial 04 installer revision and N700 consent/provider
+translations until the final behavior lands; current CI source remains eb72a1a85f.
+Release is NOT done; these commits are features-only coordination.
 
 
 ## 2026-10-13 20:58 EDT — WS: completed lightweight translation backlog audit

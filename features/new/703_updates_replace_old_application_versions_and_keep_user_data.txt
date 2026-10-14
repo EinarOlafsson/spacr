@@ -1,0 +1,84 @@
+================================================================================
+UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
+================================================================================
+
+Status:    specified and source-audited; implementation not started
+Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
+           reopen an old version. Replace obsolete application installations,
+           preserve cache and temporary/user files unless cleanup is required
+           for reinstall or explicitly chosen, and ask all macOS questions
+           inside the installer window instead of Terminal after it closes.
+Owner:     Home (updater/installers); Work (translations/tutorial 04);
+           native Windows/macOS/Linux validation lane
+Related:   spacr/updater.py, spacr/install_cleanup.py, packaging/online/,
+           frozen desktop packaging, N627 (never downgrade a newer runtime)
+
+--------------------------------------------------------------------------------
+REQUIREMENTS
+--------------------------------------------------------------------------------
+
+1. Inventory spaCR-owned application copies, private runtimes, bundle/package
+   metadata and launchers on each supported OS. Install the requested version;
+   inherited package pins, cached wheels and offline bundles must not silently
+   install another version. Preserve N627's no-downgrade contract.
+2. Before success, verify the actual import version, module path, interpreter
+   and executable used by the desktop launcher and restarted application.
+   Installer exit 0, registry/plist display versions and isolated import probes
+   alone cannot establish the launched version.
+3. Stage and validate before retiring the working application. On failure
+   retain/restore its runtime and launchers. Then remove obsolete spaCR-owned
+   application code and launchers. Do not erase unrelated Python/Conda
+   environments, packages, projects, outputs, models or preferences.
+4. Preserve caches, downloaded data and nonessential temporary files by default.
+   A separate default-off GUI cleanup choice shows each folder's path, contents
+   and size. Automatically remove only identified spaCR-owned staging or
+   interrupted-install artifacts needed for replacement. Do not conflate app
+   replacement with whole-root deletion; retain macOS rollback backups safely.
+5. macOS consent, dependency, administrator, retry and cleanup choices stay in
+   the installer/progress window throughout first-user runtime setup. No helper
+   opens Terminal for questions after .pkg closes. Cancellation/failure leaves
+   a clear usable state. Use GUI choices on other desktop platforms too.
+6. Cover in-app update and each shipped installer: Windows NSIS/PowerShell,
+   macOS online .pkg/app launcher and frozen app, Linux online/frozen .deb and
+   launchers. Discover stale custom/all-users launchers safely. Do not claim
+   RPM app support merely because dnf dependencies exist.
+7. User strings use tr(); Work receives final strings/behavior for tutorial 04.
+   Implementation remains held during the current CI/release source freeze.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- Native old-to-new upgrade and same-version reinstall through in-app and each
+  desktop installer: reopened version/module/executable match the request;
+  obsolete spaCR application code and launchers are gone.
+- Newer runtime is not silently downgraded. Stable/nightly choices, overrides,
+  offline/cached wheels and interrupted locks cannot yield wrong-version success.
+- Default upgrade preserves caches, models, outputs, preferences and configured
+  folders nested inside an installation root. Optional cleanup removes only
+  selected folders. Required reinstall temp cleanup is narrowly scoped.
+- Missing dependencies, permissions, disk exhaustion, import failure and
+  cancellation preserve a working previous installation or verified rollback.
+- macOS first install and update require no Terminal answers. Native acceptance
+  exercises the actual installer and desktop launch, not just its helper.
+- Repeated installs are idempotent; owning contracts exercise wrong-version
+  detection, preservation, rollback and launcher resolution.
+
+--------------------------------------------------------------------------------
+2026-10-13 21:00 EDT — HOME SOURCE AUDIT, NOT NATIVE ACCEPTANCE
+--------------------------------------------------------------------------------
+
+Read-only evidence: features/data/703_installer_source_audit_2026-10-13/.
+macOS launcher only checks private Python existence, so replacing the bundle
+can launch an older runtime. First-user setup explicitly opens Terminal and
+the Unix helper asks three TTY questions. Linux Exec=spacr can pick an earlier
+PATH copy; discovery misses some custom/launcher roots. Windows inherited
+package/offline overrides can defeat the requested version; validation prints
+but does not compare it while NSIS records the requested display version.
+The updater trusts helper success without a final runtime/path check.
+Whole-root cleanup can delete cache/test_data and nested user folders; removal
+before dependencies validate defeats rollback. Some current tests require
+those old deletion behaviors.
+
+No installation, update, uninstall, deletion, native test or source edit was
+performed. Platform repairs and acceptance remain open after CI/release.

@@ -1,10 +1,10 @@
-Home/Work progress — 2026-10-13 20:15 EDT
+Home/Work progress — 2026-10-13 21:06 EDT
 
-— means no defensible percentage or elapsed-time estimate. ✅ marks verified recent achievements; descriptions identify any remaining publication gate.
+— means no defensible percentage or elapsed-time estimate. ✅ marks achievements verified in the last 12 hours; remaining gates appear in the descriptions.
 
 | item | percent done | time left | owner | detailed description |
 |---|---|---|---|---|
-| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Candidate eb72a1a85f published; full tests run 38488240863 dispatched. Main promotion authorized after full green. Duplicate push and superseded run cancellation requested. |
+| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Exact candidate eb72a1a85f: 13 hosted jobs pass, 14 remain active, no failures observed. Promotion authorized only after full green; release has not run. |
 | CI repair implementation | ✅ | Done; fullCIpending | Home Codex team | Published at9af7f3dc12: cached painting palette, safe import fallback, walkthrough-aware navigation test, exact sparse colour crossfade and real source-default coverage. Localchecks74+106+185+48PASS;9existinglocale findingsreport-only. |
 | CI N701 layout compatibility | ✅ | Published; full CI pending | Home Qt agent | Private 1a9a138c76 adds the shipped Hide judged fields button to the full order contract. 38 tests pass; exit 0 and JUnit verified. |
 | CI Model Zoo backend coverage | ✅ | Published; full CI pending | Home Qt agent | 11 tests pass; real model-row regression checks missing-backend Install action and ready-backend state. Both branch outcomes verified; no source or ratchet edits. |
@@ -14,14 +14,14 @@ Home/Work progress — 2026-10-13 20:15 EDT
 | Lesson 20 telemetry correction | — | Validated; held for release | Work | Private 6dfed0613: 15 new plus 11 gate tests pass; corrected replay still rejects both opening captures at unchanged 26.96/26.92 fps. |
 | Lesson 20 staging contract | — | Validated; held for release | Work | Private 67dbbd20b checks exact scientific, clip and gate evidence with video/native/receipt hash bindings; 63 owning cases pass. |
 | Tutorial queue preflight | — | Validated; held for release | Work | Private 6487de73a/facc4b16a detect capture placeholders and missing paths before jobs are emitted; 12 cases pass. Dispatcher remains inactive. |
-| N43 | — | CI-dependent | Home | All observed current-run failures repaired and validated: 196 combined tests pass. Exact new candidate eb72a1a85f awaits full hosted run 38488240863. |
-| F288 | — | CI + Work GPU acceptance | Home + Work | Source-identical local 664-module diagnostic passes with zero regressions; baseline unchanged. Final hosted gate and actual CuPy coverage for the remaining ops_accel literal-90% deficit remain pending. |
+| N43 | — | CI-dependent | Home | Coherent repairs and 196 combined owning tests pass. Full hosted run 38488240863 remains active on eb72a1a85f; 13 jobs green so far. |
+| F288 | — | CI + Work GPU acceptance | Home + Work | Local source-bound 664-module diagnostic passes without baseline changes. Hosted union pending; three genuine CuPy parity cases requested from Work, never Home GPU. |
 | Make Masks lesson 14 performance | — | After release | Home | Review held edits, finish repaint/stall fixes, test owning files and stress the lesson driver for crashes. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |
 | N696 | — | After N697 | Home + Work | Rebase held automatic-diameter implementation; finish source-bound translations and validate GUI/CLI/run/preview parity. |
 | README panel text links | 0% | After held branches | Home | Each panel links to its text; existing destination pages begin with the panel text. Preserve current visuals and copy generated outputs to main. |
 | N699 | 0% | Queued | Home + Work + maintainer | Discover SSH settings, support keyboard-interactive MFA, reuse authentication and verify a real Great Lakes submission. |
-| N700 | 0% | Queued; bot setup needed | Home + maintainer | Redaction, first-run disclosure, retry queue and validating relay; credentials live exclusively in the relay. |
+| N700 | 0% | Account setup now; implementation after release | Home + maintainer | Owner setup guide prepared. Use repository-owner GitHub App instead of unsupported separate-bot fine-grained PAT. Redaction/relay/consent/retry/schema still unimplemented. |
 | N698 | 0% | Queued | Home + Work | Model-specific site pages, HF ZeroGPU and browser WebGPU, test images, desktop parity and complete result ZIPs. |
 | N702 | 0% | Queued; ordering pending | Home + Work | Resolve/download missing zoo models by exact version and checksum; safe concurrent downloads and clear offline/unknown-model failures. |
 | N701 | ✅ | Done | Work | Published Hide judged fields and --exclude-verdicts with folder persistence, navigation safeguards, tests and nine-locale records (9692fd146). |
@@ -36,7 +36,7 @@ Home/Work progress — 2026-10-13 20:15 EDT
 | Tutorial 24 | — | After 43 | Work | Record and publish current alpha-off layout. |
 | Tutorial 26 | — | After 24 | Work | Record and publish current alpha-off layout and updated controls. |
 | Remaining tutorial remakes | — | Not estimated | Work | Four of 84 routes published; 80 not yet remade, plus 05 recapture and 07/08 quality reassessment. Work source inventory is verified. |
-| Held tutorial tooling | — | After release | Work | Work integration f7b88b7ce has 165 owning cases passing; scientific helpers/queue separately pass. Capture/narration code remains held until release done. |
+| Held tutorial tooling | — | After release | Work | Work held integration fcf4055999 with pinned eb72 source has 215 selected checks passing. Goal source-blocked; no recording or upload until release and final app repair. |
 | Shutdown exit verification | ✅ | Done | Work | Measure Templates/shortcuts capture r25-08-templates-b on d0c99e841 includes a540d62b5 and exited rc 0; Work recorded provenance in b394f90407. |
 | N615 | — | Ongoing | Work | Keep API, runtime, guides and tutorial records source-current; close outstanding catalogue arrivals. |
 | Dynamic animation wording | — | Docs queue | Work | Tooltip and AmbientWidget.stop docstring must describe slowing to 30 fps during CPU work. |
@@ -68,3 +68,7 @@ Home/Work progress — 2026-10-13 20:15 EDT
 | Tutorial 05 quality repair | — | After cold Apply fix | Work | Fresh whole-lesson recording with stable-widget telemetry; old publication remains archived and accessible. |
 | Tutorial 07 quality reassessment | — | After final source/tooling | Work | Fresh telemetry and acceptance check for batch settings; legacy freeze estimate alone does not establish a physical GUI stall. |
 | Tutorial 08 quality reassessment | — | After final source/tooling | Work | Fresh telemetry and acceptance check for all channels; legacy freeze estimate alone does not establish a physical GUI stall. |
+| N703 | 0% | After release; native checks required | Home + Work | Replace obsolete application versions, verify actual launched runtime, preserve caches/data and keep macOS questions in installer GUI. Specification added; no fixes shipped. |
+| Installer/update source audit | ✅ | Done; implementation open | Home Qt + colour agents | Completed Windows/in-app and macOS/Linux audits with source hashes. Found stale runtimes/package overrides, missing final version checks, destructive root cleanup and Terminal prompts. Native symptoms not reproduced. |
+| Account-free cloud AI fallback | 0% | After release and owner setup | Home + maintainer | Proposed Cloudflare Worker AI binding serves users without provider accounts. Shared hard free quota, bounded redacted inputs and hosted-provider adapter still need implementation. |
+| GitHub/cloud setup guide | ✅ | Done; owner actions listed | Home Codex team | Explicit linked guide saved; GitHub App permissions/install/private key, Cloudflare Free Worker/AI/D1 and remaining integration clearly separated. No deployment or account creation claimed. |
