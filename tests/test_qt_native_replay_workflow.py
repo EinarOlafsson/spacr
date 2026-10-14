@@ -38,10 +38,11 @@ def _stable_sha256(value):
     return hashlib.sha256(payload).hexdigest()
 
 
-def _evaluate_condition(expression, *, event, replay):
+def _evaluate_condition(expression, *, event, replay, pixel=False):
     """Evaluate the narrow Boolean routing vocabulary used by these jobs."""
     body = expression.replace('github.event_name', repr(event))
     body = body.replace('inputs.native_batch_replay', repr(replay))
+    body = body.replace('inputs.pixel_context_a744', repr(pixel))
     body = body.replace('&&', ' and ').replace('||', ' or ')
     body = re.sub(r'(?<![!=])!(?!=)', ' not ', body)
     assert re.fullmatch(r"[\w\s'\"!=()\-]+", body)
@@ -87,7 +88,7 @@ def test_registered_serial_route_preserves_original_job_and_isolates_replay():
 def test_native_replay_is_opt_in_source_bound_and_two_independent_original_batches():
     workflow = _workflow()
     assert set(workflow['on']) == {'workflow_call', 'workflow_dispatch'}
-    assert set(workflow['jobs']) == {'replay'}
+    assert set(workflow['jobs']) == {'replay', 'pixel-context'}
     job = workflow['jobs']['replay']
     assert job['runs-on'] == 'ubuntu-24.04'
     assert job.get('permissions', workflow['permissions']) == {'contents': 'read'}
@@ -131,6 +132,46 @@ def test_native_replay_is_opt_in_source_bound_and_two_independent_original_batch
         assert f'{flag} {value}' in command
     assert 'qt_serial_rss_journal' in command
     assert 'collect_qt_native_backtrace.py" --record-core-route' in command
+
+
+
+def test_pixel_context_requires_opt_in_and_never_runs_the_historical_replay():
+    """One diagnostic dispatch preserves the original replay and full CI gate."""
+    workflow = _workflow()
+    option = workflow['on']['workflow_dispatch']['inputs']['pixel_context_a744']
+    assert option['type'] == 'boolean'
+    assert option['required'] == option['default'] == 'false'
+    historical, pixel = workflow['jobs']['replay'], workflow['jobs']['pixel-context']
+    for event, opt_in, historical_expected, pixel_expected in (
+            ('workflow_call', False, True, False),
+            ('workflow_dispatch', False, True, False),
+            ('workflow_dispatch', True, False, True)):
+        assert _evaluate_condition(historical['if'], event=event, replay=False,
+                                   pixel=opt_in) is historical_expected
+        assert _evaluate_condition(pixel['if'], event=event, replay=False,
+                                   pixel=opt_in) is pixel_expected
+    assert pixel['runs-on'] == 'ubuntu-24.04'
+    assert pixel.get('permissions', workflow['permissions']) == {'contents': 'read'}
+    assert pixel['env']['CUDA_VISIBLE_DEVICES'] == ''
+    steps = {step['name']: step for step in pixel['steps'] if 'name' in step}
+    source = steps['Checkout immutable original application and assertions']['with']
+    assert source['ref'] == 'ff1b2a487d378cfa804c3c1923fb834e0cc17dc2'
+    assert source['persist-credentials'] == 'false'
+    assert source['path'] == 'source'
+    context = json.loads((REPO / 'tools/qt_pixel_context_a744.json').read_text())
+    assert context['source_sha'] == source['ref']
+    assert len(context['nodes']) == len(set(context['nodes'])) == 104
+    assert list(dict.fromkeys(node.split('::', 1)[0] for node in context['nodes'])) == context['modules']
+    assert len(context['modules']) == 6
+    command = steps['One original 104-node worker context; capture only after failure']['run']
+    assert 'qt_pixel_context_diagnostic.py" run' in command
+    assert 'for attempt' not in command and 'continue-on-error' not in steps['One original 104-node worker context; capture only after failure']
+    driver = (REPO / 'tools/qt_pixel_context_diagnostic.py').read_text()
+    assert '"actual_original_pytest_exit": original.returncode' in driver
+    assert '"full_ci_acceptance": False' in driver
+    assert '"retries": 0' in driver
+    assert '"--max-worker-restart=0"' in driver
+    assert '"-n", "1"' in driver
 
 
 def test_native_replay_retains_failure_and_bounded_core_capture():

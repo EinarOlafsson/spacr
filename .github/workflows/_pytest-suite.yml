@@ -197,6 +197,7 @@ jobs:
           SPACR_PYTEST_FILE_SHARD_COUNT: ${{ inputs.file_shard_count }}
           PYTHONFAULTHANDLER: "1"
           SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ startsWith(inputs.suite_name, 'Qt') && format('{0}/spacr-qt-native', runner.temp) || '' }}
+          SPACR_QT_PIXEL_FAILURE_DIR: ${{ startsWith(inputs.suite_name, 'Qt') && format('{0}/spacr-qt-pixel-failure', runner.temp) || '' }}
         run: |
           if [ -n "$SPACR_QT_NATIVE_EVIDENCE_DIR" ]; then
             if ! ulimit -S -c 16777216; then
@@ -204,7 +205,7 @@ jobs:
             fi
             python tools/collect_qt_native_backtrace.py --record-core-route \
               --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
-            export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal"
+            export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal -p tools.pytest_plugins.qt_failure_images"
           fi
           if [ "${{ inputs.memory_telemetry_seconds }}" -gt 0 ]; then
             # A LOST RUNNER KEEPS ONLY WHAT IT HAS ALREADY LOGGED. Qt shard 0
@@ -313,6 +314,15 @@ jobs:
             ${{ runner.temp }}/spacr-qt-native/process-*.jsonl
             ${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt
             ${{ runner.temp }}/spacr-qt-native/core-route.json
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Upload ordinary Qt post-assertion pixel evidence
+        if: always() && startsWith(inputs.suite_name, 'Qt')
+        uses: actions/upload-artifact@v7
+        with:
+          name: qt-pixels-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.file_shard_index }}
+          path: ${{ runner.temp }}/spacr-qt-pixel-failure/
           if-no-files-found: ignore
           retention-days: 3
 

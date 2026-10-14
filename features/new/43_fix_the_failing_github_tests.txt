@@ -3833,3 +3833,14 @@ Source-bound receipts and independent static hosted-fallback review:
 data/43_opaque_diagnostic_context_2026-10-14/. Root owns next focused hosted
 diagnostic review/integration; proposal not yet deployed or dispatched. Fresh
 whole 30-job green remains mandatory after a defensible source repair.
+
+2026-10-14 08:28 EDT — Focused hosted diagnostic 38560980131 completed successfully:
+104 PASS, no failures/errors/skips, actual original and diagnostic exit 0,
+exact original gw0 node order and source guard intact. Hosted Python 3.12.15,
+Qt 6.12.0 and observed plugins bound; FF1 test source retains A744 app tree.
+No image artifacts because the unchanged dark assertion passed. This is not
+a rendering-cause diagnosis, full CI acceptance, main promotion or release.
+A fresh whole candidate includes the real metadata archive repair plus
+post-assertion image capture in ordinary Qt jobs. Existing native contracts,
+markers/workers/timeouts/thresholds/app/test assertions stay unchanged. One
+manual full CI run is next; no successful diagnostic is used to bypass it.
