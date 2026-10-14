@@ -1,0 +1,33 @@
+{
+  "observed_at_utc": "2026-10-14T03:04:49.557695+00:00",
+  "run": 38488240863,
+  "headSha": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38488240863",
+  "status": "completed",
+  "conclusion": "failure",
+  "job_counts": {
+    "success": 28,
+    "failure": 2
+  },
+  "nonpassing_jobs": [
+    {
+      "databaseId": 115607608157,
+      "name": "Qt (2) / Qt shard 2 of 3 (ubuntu-24.04, py3.12)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-14T00:24:46Z",
+      "completedAt": "2026-10-14T02:29:20Z",
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38488240863/job/115607608157"
+    },
+    {
+      "databaseId": 115657528471,
+      "name": "Release gate / zero unexpected failures",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-14T03:01:41Z",
+      "completedAt": "2026-10-14T03:01:46Z",
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38488240863/job/115657528471"
+    }
+  ],
+  "source_or_release_clearance": false
+}

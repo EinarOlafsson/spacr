@@ -1,0 +1,170 @@
+{
+  "status": "Root delivery verification; source-only findings and terminal failed CI",
+  "artifacts": [
+    {
+      "file": "qt2_Q1_preview_refresh_call_paths_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/qt2_Q1_preview_refresh_call_paths_20261013.json",
+      "sha256": "8c8d96dde98e7fe70727b64d51500f32d2bc2f10ae99ab093cdd71983e26277c",
+      "bytes": 18993
+    },
+    {
+      "file": "q2_pixmap_cache_source_map_eb72_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/q2_pixmap_cache_source_map_eb72_20261013.json",
+      "sha256": "d0f4534c1090b9973bf4c98827c0bb18bb5afa506e8187be56bf52a6b9cdba26",
+      "bytes": 10204
+    },
+    {
+      "file": "qt2_Q3_pixmap_opacity_shape_source_map_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/qt2_Q3_pixmap_opacity_shape_source_map_20261013.json",
+      "sha256": "090b802a3393d0bf0fa7b34dbd84099fe03429e6e1a58338ca2f7b4cb13a3ac4",
+      "bytes": 14664
+    },
+    {
+      "file": "qt2_Q1_Q2_Q3_final_delivery_consistency_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/qt2_Q1_Q2_Q3_final_delivery_consistency_20261013.json",
+      "sha256": "b252bb8fa324dbc4d796a84248fed326014f6d435941c16174e47bde9aa84460",
+      "bytes": 24843
+    },
+    {
+      "file": "root_ci_terminal_failure_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/root_ci_terminal_failure_20261013.json",
+      "sha256": "8824e19af3c06a0eeaf42caa76c67eae8c7bca1d996162ba9204044adc1e941c",
+      "bytes": 1097
+    }
+  ],
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "unique_source_files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/live_preview.py",
+      "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "size_bytes": 269226,
+      "git_path": "spacr/qt/widgets/live_preview.py",
+      "eb72_blob_sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "eb72_blob_bytes": 269226
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "size_bytes": 590758,
+      "git_path": "spacr/qt/screens/app_screen.py",
+      "eb72_blob_sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "eb72_blob_bytes": 590758
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/job_runner.py",
+      "sha256": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b",
+      "size_bytes": 14871,
+      "git_path": "spacr/qt/job_runner.py",
+      "eb72_blob_sha256": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b",
+      "eb72_blob_bytes": 14871
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/__init__.py",
+      "sha256": "557a2eb740b3202c9dd200041d9b205bfc407cbdcbdb6d07bdf86f942fe43cb3",
+      "size_bytes": 20794,
+      "git_path": "spacr/qt/__init__.py",
+      "eb72_blob_sha256": "557a2eb740b3202c9dd200041d9b205bfc407cbdcbdb6d07bdf86f942fe43cb3",
+      "eb72_blob_bytes": 20794
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_module_screen_timers_do_not_stall_20261012.py",
+      "sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e",
+      "size_bytes": 18118,
+      "git_path": "tests/qt/test_module_screen_timers_do_not_stall_20261012.py",
+      "eb72_blob_sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e",
+      "eb72_blob_bytes": 18118
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "size_bytes": 581838,
+      "git_path": "spacr/qt/widgets/ambient.py",
+      "eb72_blob_sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "eb72_blob_bytes": 581838
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/resource_cleanup.py",
+      "sha256": "44def331d580e12a6165dcf36687b332b19bface555cb57396640ac23a194be2",
+      "size_bytes": 70115,
+      "git_path": "spacr/qt/resource_cleanup.py",
+      "eb72_blob_sha256": "44def331d580e12a6165dcf36687b332b19bface555cb57396640ac23a194be2",
+      "eb72_blob_bytes": 70115
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/crop_thumbs.py",
+      "sha256": "5326e83a716c82f8be096d91cf1a81c29ee9f4f84e8c421d063357c2581f475a",
+      "size_bytes": 13729,
+      "git_path": "spacr/qt/crop_thumbs.py",
+      "eb72_blob_sha256": "5326e83a716c82f8be096d91cf1a81c29ee9f4f84e8c421d063357c2581f475a",
+      "eb72_blob_bytes": 13729
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/figure_queue.py",
+      "sha256": "296ea2cbecb72efccad201f31a25ed02f96b3978810cdd82554003f1b16a7849",
+      "size_bytes": 126635,
+      "git_path": "spacr/qt/widgets/figure_queue.py",
+      "eb72_blob_sha256": "296ea2cbecb72efccad201f31a25ed02f96b3978810cdd82554003f1b16a7849",
+      "eb72_blob_bytes": 126635
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/segmentation_views.py",
+      "sha256": "aa26722a4d47b410d27c54e83c6fe167821317dc637bb29bcce34b5eba93630f",
+      "size_bytes": 22682,
+      "git_path": "spacr/qt/widgets/segmentation_views.py",
+      "eb72_blob_sha256": "aa26722a4d47b410d27c54e83c6fe167821317dc637bb29bcce34b5eba93630f",
+      "eb72_blob_bytes": 22682
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/timelapse_preview.py",
+      "sha256": "34f89b49cc96bd9f8885bd81de35a431d427ef750ff2a6a19a31b39734b7e211",
+      "size_bytes": 145947,
+      "git_path": "spacr/qt/widgets/timelapse_preview.py",
+      "eb72_blob_sha256": "34f89b49cc96bd9f8885bd81de35a431d427ef750ff2a6a19a31b39734b7e211",
+      "eb72_blob_bytes": 145947
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/host_pathogen_preview.py",
+      "sha256": "ced0a558f0480e5f452afeee5efa78f30c0219b8049d1c81bb3ed8b0e68447bd",
+      "size_bytes": 18993,
+      "git_path": "spacr/qt/widgets/host_pathogen_preview.py",
+      "eb72_blob_sha256": "ced0a558f0480e5f452afeee5efa78f30c0219b8049d1c81bb3ed8b0e68447bd",
+      "eb72_blob_bytes": 18993
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/image_ruler.py",
+      "sha256": "8288acdce12b50fc8a9c888e6b9ffddc44c68504830d9a0e34f7e19e2227666c",
+      "size_bytes": 9384,
+      "git_path": "spacr/qt/widgets/image_ruler.py",
+      "eb72_blob_sha256": "8288acdce12b50fc8a9c888e6b9ffddc44c68504830d9a0e34f7e19e2227666c",
+      "eb72_blob_bytes": 9384
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/picture_export.py",
+      "sha256": "aa4af7393c19e337cc8d415c9b1cecace4095b4f5924920e9c96b11cf432104a",
+      "size_bytes": 14844,
+      "git_path": "spacr/qt/widgets/picture_export.py",
+      "eb72_blob_sha256": "aa4af7393c19e337cc8d415c9b1cecace4095b4f5924920e9c96b11cf432104a",
+      "eb72_blob_bytes": 14844
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/cursor_zoom.py",
+      "sha256": "7e26ab31d8868cdcb63038de60d09b490cb7de1a4d0dfd0eb60bbbf5fed018e1",
+      "size_bytes": 1979,
+      "git_path": "spacr/qt/widgets/cursor_zoom.py",
+      "eb72_blob_sha256": "7e26ab31d8868cdcb63038de60d09b490cb7de1a4d0dfd0eb60bbbf5fed018e1",
+      "eb72_blob_bytes": 1979
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "size_bytes": 552446,
+      "git_path": "spacr/qt/preferences.py",
+      "eb72_blob_sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "eb72_blob_bytes": 552446
+    }
+  ],
+  "all_16_current_and_candidate_hashes_checked": true,
+  "native_runtime_or_repair_acceptance": false,
+  "strict_bound": 0.75,
+  "source_release_hold": true
+}
