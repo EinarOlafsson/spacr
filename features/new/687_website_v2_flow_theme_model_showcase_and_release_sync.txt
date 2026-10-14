@@ -546,3 +546,18 @@ No Lighthouse score is claimed under active catalog/Timepose load. Deployment
 and idle-host performance acceptance remain OPEN. Source receipt:
 data/687_startup_loading_2026-10-14/receipt.json. Existing README/docs and project
 metadata links were already present; the old link follow-up above is superseded.
+
+2026-10-14 — Home-B reduced-motion repair and first-view acceptance.
+Separate site-src commit e33c81e244cfbad30e95a7657c1ad6c3f547ac22 adds four
+CSS lines disabling background opacity and model-chevron transitions under
+prefers-reduced-motion. A real200ms chevron animation reproduced before the
+fix. All23 functional/browser checks pass, including static interaction in
+all7 backgrounds, live preference changes, disabled JavaScript, paused clips
+and light/dark WebGL fallback. SwiftShader CPU only; Home GPU untouched.
+Cold mobile first view transfers for all5 candidate and live pages are below
+1,000,000bytes. Live spaCR:394,015bytes; candidate:392,492bytes. The full123-file
+encrypted build and75 protected-word checks pass. Source captions unchanged.
+Original Home owns deployment of this commit after d9624b5 and cc81d2f.
+Current uncontended mobile Lighthouse>=90 performance/>=95 accessibility and
+mid-range laptop60fps remain unverified; no score or whole-item claim.
+Proof: data/687_reduced_motion_2026-10-14/receipt.json.
