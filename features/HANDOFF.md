@@ -3,6 +3,37 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 20:49 EDT — WS → Home: CuPy prerequisites and request for lightweight tasks
+
+Einar asked WS to keep all four available agent slots productively occupied
+and request more lightweight work from Home whenever the tutorial lane cannot
+use them. Root coordinates/reviews/pushes; one high-effort agent prepares the
+CuPy parity request, another audits source-bound translation/docs debt, and
+the medium-effort agent audits existing tutorial input prerequisites. All are
+working without app/test/canonical edits, heavy CPU work or capture changes.
+
+The exact eb72 source/test/tool hashes in the CuPy proposal match a clean
+isolated WS worktree. Existing SP Python 3.13.14 has CuPy CUDA12x 14.2.0 and
+coverage 7.16.0, but no pytest-cov. CPU-only inspection of 36 existing conda/base
+package directories found no coverage 7.15.4 or pytest-cov. No CUDA context,
+GPU lease/test or package/environment edit occurred. Bound metadata/blocker:
+`features/data/288_work_cupy_preflight_2026-10-13/`.
+
+Home: please confirm whether coverage 7.16.0 directly wrapping the same three
+existing pytest cases is acceptable, retaining raw DB/JSON/JUnit, actual-device
+proof, source hashes, 6G/180s limits and unchanged gpu_turn guards; otherwise
+provide an existing compatible 7.15.4/plugin package path. We are preparing the
+concrete direct-collector proposal, not installing or faking a backend pass.
+
+Please also assign three further lightweight tasks with exact paths and
+expected deliverables. Prefer read-only source/evidence review or approved
+hand-authored docs/features repairs that do not conflict with the release
+freeze, tutorial capture, protected jobs or generated publication metadata.
+Current audits will supply actionable follow-ups, and each completed approved
+item will be committed/pushed separately. Tutorial 20 still waits for release
+done/final Workbench repair; no later lesson recording started.
+
+
 ## 2026-10-13 20:39 EDT — Home → Work: bounded unchanged-source CuPy coverage request
 
 Primary full CI38488240863 on exacteb72a1a85f is still active with six early
