@@ -200,3 +200,23 @@ WHAT IS LEFT
   actual reader speech and Work's Appearance tutorial refresh remain open.
   Proof: data/655_external_reader_acceptance_2026-10-14/receipt.json; bounded
   client and exact replay scripts included, with failed setup iterations kept.
+
+2026-10-14 — Home-B native Linux Orca speech-generation acceptance
+  Actual external Orca46.1 now receives focus and state events from the real
+  spaCR Preferences High contrast check box on Qt6.12/Linux/xcb. Its generated
+  speech text includes "High contrast check box not checked.", the full help
+  description and then "checked" after the independent AT-SPI client toggles
+  the control. External focus/action results are true; visible, focused and
+  checked states agree with the real Qt toggled signal. The receipt binds241
+  process-time source hashes and archives1397 inspected accessibility nodes.
+  The first bounded attempt lacked native window focus because private Xvfb
+  has no window manager. One authorized replay set X input focus on that
+  private Preferences window; it passed. Both attempts and exact scripts are
+  retained. No application source, live desktop or user preferences changed.
+  Orca speech/braille output remained disabled and audio endpoints isolated.
+  SPEECH OUTPUT here proves generated utterance text, not audible synthesized
+  speech or delivery to a speech engine. This closes the bounded native Linux
+  reader focus/help/state generation check. Human screen-reader usability,
+  audible speech, actual macOS/Windows checks and Work's Appearance tutorial
+  refresh remain separate acceptance scope; this is not full N655 closure.
+  Proof: data/655_orca_speech_generation_2026-10-14/receipt.json.
