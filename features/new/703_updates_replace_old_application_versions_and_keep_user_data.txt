@@ -125,3 +125,44 @@ cleanup; native old-to-new and same-version reinstall on each shipped platform,
 actual desktop launch identity, frozen adapters, custom/all-users launchers and
 permission/disk/cancellation recovery. Existing native Windows/PowerShell and
 macOS execution cannot be established by Linux fixtures. N703 is still partial.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE MACOS FIRST-USER WINDOW IMPLEMENTATION
+--------------------------------------------------------------------------------
+
+The native launcher now invokes a bundled AppKit setup window instead of Terminal
+when its private runtime is missing or fails actual identity/minimum-version
+verification against the packaged version. A verified newer runtime still opens
+without a pinned reinstall (N627); ordinary installer verification remains exact.
+The packaged standard-library verifier is the same source as the updater helper.
+
+The first-user window contains automatic/CPU backend selection and the existing
+three optional reporting/account choices, default off. It displays bounded live
+installation output and progress, provides cancel/retry controls, and starts the
+application only after helper success. All new window strings use the installer's
+normal ten-locale resources, including English; the nine translations are AI
+technical authoring, not human/native-speaker signoff. No service/provider setup
+or account action ran as part of this validation.
+
+The child helper runs with closed stdin and explicit consent choices. A private
+process group lets cancellation stop its installer children; signal handling runs
+the existing runtime-restoration cleanup and releases the per-user lock. The GUI
+cannot silently install into a runtime override that differs from the native
+launcher's user path. A second active installer is a failure to retry, not false
+success. The universal native GUI helper is signed before sealing its app bundle.
+
+Portable owning acceptance closed 313 distinct cases: 310 initial PASS plus the
+three corrected fixture expectations; the final four-node closure exited 0 with
+four PASS (one already-passed GUI guard also rechecked). No skips. Actual C launch
+routing, process-group cancellation/rollback-trap execution, helper arguments and
+lock cleanup, version-floor CLI, nested signing order and all locale keys were
+exercised. Existing failures were test harnesses expecting old -I-free argv or
+inline helper code, and a repeated printf header. Fatal Ruff and shell syntax
+passed; normal locale rendering/audit verified 10 catalogs with 78 keys each.
+
+Native macOS AppKit compilation, signed installer/desktop launch, fonts/layout,
+missing dependencies, cancel/retry and permission behavior have not run on Linux.
+Those native acceptance gates remain open, as do transactional in-place pip/macOS
+package rollback, optional per-folder GUI cleanup and the other native platform
+acceptance requirements. N703 remains partial; neither private component is a
+whole-item completion or full CI/release acceptance.

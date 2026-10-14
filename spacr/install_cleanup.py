@@ -3335,6 +3335,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     verify.add_argument("--python", required=True)
     verify.add_argument("--version")
     verify.add_argument("--prefix")
+    verify.add_argument("--minimum", action="store_true")
     verify.add_argument("--retiring-prefix")
     find = commands.add_parser("find", help="list every spaCR installation")
     find.add_argument("--json", action="store_true")
@@ -3369,7 +3370,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
                                   "preserved_paths": retained}))
                 return 2
         code, output = _run(_runtime_identity_command(
-            args.python, args.version, prefix=args.prefix), timeout=30)
+            args.python, args.version, prefix=args.prefix, minimum=args.minimum), timeout=30)
         print(output.strip())
         return code
     if args.command == "recover-macos-frozen":

@@ -63,5 +63,18 @@
   "old_install_kept": "予以保留。环境无论如何都会被替换；缓存和设置将保留。",
   "old_install_noninteractive": "并非终端，因此未作询问。环境将被替换；缓存和设置将保留。",
   "old_install_same": "这与本安装程序所含版本相同。",
-  "old_copy_not_removed": "安装已停止：无法删除旧版 spaCR（见上文）。请关闭所有正在运行的 spaCR，然后重新运行安装程序。"
+  "old_copy_not_removed": "安装已停止：无法删除旧版 spaCR（见上文）。请关闭所有正在运行的 spaCR，然后重新运行安装程序。",
+  "gui_explanation": "在此窗口中安装私有 Python 和 spaCR 依赖。此用户运行环境无需在“终端”中回答问题，也无需管理员密码。",
+  "gui_public_reports": "问题报告是公开的，且无法保证撤回。每次发送前都会对报告进行脱敏并显示预览。这些选项均为可选项，之后可在“偏好设置”中更改。",
+  "gui_share_diagnostics": "在报告预览中包含脱敏的诊断日志",
+  "gui_report_issues": "启用公开 GitHub 问题报告操作",
+  "gui_account_setup": "首次启动时打开账户设置",
+  "gui_preserve": "保留现有数据、模型、缓存和偏好设置。未选择任何可选清理。",
+  "gui_close": "关闭",
+  "gui_install": "安装",
+  "gui_cancel": "取消安装",
+  "gui_retry": "重试",
+  "gui_cancelled": "已取消安装。重试前请查看日志。",
+  "gui_failed": "安装或启动失败。请查看日志并在此窗口中重试。",
+  "gui_stopping": "正在停止安装并恢复此前的运行环境…"
 }

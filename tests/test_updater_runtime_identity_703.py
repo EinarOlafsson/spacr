@@ -143,3 +143,16 @@ def test_mixed_runtime_and_declared_user_data_refuses_swap_before_verification(t
     assert cleanup._main(['verify-runtime', '--python', 'unused',
                           '--retiring-prefix', str(runtime)]) == 2
     assert saved.read_bytes() == b'irreplaceable judgments'
+
+
+@pytest.mark.parametrize('minimum,expected_code', [(False, 1), (True, 0)])
+def test_cli_minimum_version_keeps_newer_runtime_without_weakening_exact_install_pin(runtime, minimum, expected_code):
+    _, python, _, _ = runtime
+    argv = [sys.executable, '-I', cleanup.__file__, 'verify-runtime', '--python', str(python),
+            '--version', '1.5.1.4']
+    if minimum:
+        argv.append('--minimum')
+    result = subprocess.run(argv, capture_output=True, text=True, timeout=30)
+    assert result.returncode == expected_code, result.stderr
+    if minimum:
+        assert json.loads(result.stdout)['version'] == '1.5.1.5'

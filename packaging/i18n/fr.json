@@ -63,5 +63,18 @@
   "old_install_kept": "Conservée. L'environnement est remplacé dans tous les cas ; les caches et les réglages restent.",
   "old_install_noninteractive": "Pas un terminal, donc rien n'a été demandé. L'environnement est remplacé ; les caches et les réglages restent.",
   "old_install_same": "C'est la même version que celle fournie par ce programme d'installation.",
-  "old_copy_not_removed": "Installation interrompue : un ancien spaCR n’a pas pu être supprimé (voir ci-dessus). Fermez tout spaCR en cours d’exécution et relancez le programme d’installation."
+  "old_copy_not_removed": "Installation interrompue : un ancien spaCR n’a pas pu être supprimé (voir ci-dessus). Fermez tout spaCR en cours d’exécution et relancez le programme d’installation.",
+  "gui_explanation": "Installez Python privé et les dépendances de spaCR dans cette fenêtre. Cet environnement utilisateur ne nécessite ni réponse dans Terminal ni mot de passe administrateur.",
+  "gui_public_reports": "Les rapports de problèmes sont publics et leur retrait ne peut pas être garanti. Les informations sensibles sont masquées et un aperçu est présenté avant chaque envoi. Ces choix sont facultatifs et peuvent être modifiés ensuite dans les Préférences.",
+  "gui_share_diagnostics": "Inclure les journaux de diagnostic expurgés dans les aperçus des rapports",
+  "gui_report_issues": "Activer le signalement public de problèmes sur GitHub",
+  "gui_account_setup": "Ouvrir la configuration des comptes au premier lancement",
+  "gui_preserve": "Vos données, modèles, caches et préférences existants sont conservés. Aucun nettoyage facultatif n’est sélectionné.",
+  "gui_close": "Fermer",
+  "gui_install": "Installer",
+  "gui_cancel": "Annuler l’installation",
+  "gui_retry": "Réessayer",
+  "gui_cancelled": "Installation annulée. Consultez le journal avant de réessayer.",
+  "gui_failed": "Échec de l’installation ou du lancement. Consultez le journal et réessayez dans cette fenêtre.",
+  "gui_stopping": "Arrêt de l’installation et restauration de l’environnement précédent…"
 }
