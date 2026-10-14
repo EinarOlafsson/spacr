@@ -23,3 +23,35 @@ DONE NOTE
   Moves go to <folder>/spacr-<cache>, recorded in ~/.spacr/cache_locations.json
   and applied at import. Docs: docs/source/run_history.rst.
   Left: captions await the next catalog rebuild.
+
+2026-10-14 — cache relocation persistence failure repaired (Home):
+A real temporary-store failure (cache_locations.json is a directory)
+previously moved the cache before failing to save its new location, leaving
+the original path empty and the process environment unchanged. The native
+regression failed on the original source. Relocation now catches the
+persistence OSError and attempts a native rename back only while the old
+path is absent. If another writer has recreated it, or native rollback is
+refused, both trees are preserved and the retained target is logged; the
+original persistence error is still raised. No cache files are deleted to
+recover. An empty newly created target is removed only with rmdir; a
+preexisting target or a newly populated target is retained.
+
+Six new cases cover repeated native failure then repair/retry, original-
+path recreation during the metadata commit, injected cross-device rollback
+refusal, and all three empty-target ownership states. The first finite
+storage cohort passed 59 cases; its one failure was a missing sparse
+checkout installer fixture, not an application failure. Materializing the
+exact three tracked fixture files fixed that context. A final eight-case
+closure passed (exit 0, 5.37 s), including all six new cases and the existing
+success/static-installer checks, after preserving the original move ordering.
+Fresh final-source coverage executes all 21 changed statements and every
+branch exit from changed lines; no older-source database was merged.
+Existing signatures/docstrings and UI captions are unchanged.
+
+Scope: Linux temporary folders and controlled concurrent-writer/failure
+seams. Automatic cross-device rollback is deliberately not promised: a
+refused native rename retains the cache at its destination and reports
+failure. No live cache, user dataset, GPU or physical macOS/Windows test.
+This note records an actual implementation repair; it does not independently
+reclassify the historical translation/native acceptance notes above.
+Evidence: features/data/644_cache_relocation_failure_2026-10-14/receipt.json.
