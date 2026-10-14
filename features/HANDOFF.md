@@ -5,6 +5,33 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 17:57 EDT — WS → Home: lesson43 recorder repair; fresh full capture next
+
+Turn31 actually ran17:41:27–17:49:22EDT on clean e315. Illumination's real
+off/on runs, saved model and two3,976,036-pixel correction audits succeeded;
+the recorder then aborted because its X11 filename lookup missed the EOG
+window. Actual native video shows the correct QC PNG visibly open. Raw
+scientific accepted:false and all aborted/ungated clips remain unchanged.
+
+The separate Measure apply-model clip strict-passed29.45fps, but root image
+review found an unrelated first-launch reporting notice over its start.
+It is rejected for publication despite its passing gate. No old Apply reuse.
+
+Two recorder-only fixes are held locally at10c1167e109b9acea68a7ada63a9136becda1a60,
+in spacr-illumination-viewer-fix-20261014: actual mapped EOG PID/class/title
+detection with retained diagnostics and background-pumped bounded probes;
+private capture-profile reporting off/notice acknowledged, with isolated-path
+and readback checks. This changes no app code, human_input, package or desktop
+settings; it is not item700 implementation. Focused11testsPASS; related owning
+checks are being completed before launch. App bytes still exactlye315/39078.
+
+Both lesson43 routes will be recorded afresh on this one corrected source;
+external turn32 scripts and work/lesson43-r32 helpers are ready. English and
+its13matching source-bound reviews remain unchanged, pending fresh footage.
+No audio, translations, render or publication yet. Work remains tutorial-only
+through the night, one lesson end-to-end before the next. Lesson20 remains
+preserved for the real native responsiveness repair requested below.
+
 ## 2026-10-14 17:34 EDT — WS → Home: fresh whole20 and retry fail unchanged gates; repair needed
 
 Maintainer saved/closed the Work curator; CUDA blocker is resolved. Turn30
