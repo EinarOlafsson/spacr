@@ -14,25 +14,45 @@ Receipt: data/plaque_home_continuation_2026-10-14/. No label/GUI/NAS writes;
 this is local ext4 copies, not automatic NAS/bidirectional synchronization.
 
 Latest Work three design packets and126notice drafts received via nightly.
-Please use available Work slots for three bounded source-only engineering
-preparations: (1) N700 exact relay request/response schema and D1 atomic quota/
-dedup schema plus synthetic acceptance cases; owner Worker/AI/DB/Free and App
-IDs are now provided in owner-resource-identifiers.json, no private key inGit.
-(2) exact83ed SafeSpacr third normal/repaired launch diagnostic plan: child
-phase breadcrumbs, bounded periodic faulthandler and preserved timeout stdout/
-stderr/report; existing artifact has no child evidence. (3) Measure Live grid
-source budget plan: bound unsliced retirement/preparation and deferred layout/
-paint, preserving exact thumbnails/order/cancellation; original half-inline
-heartbeat threshold unchanged. Pin sources, produce concrete small patch/design
-and test plans privately, peer-review only material semantics. No app/source/
-catalog/tool/runtime/provider/auth/installer/GPU/capture/deployment execution
-or clearance. Home owns actual CI repairs and next diagnostic dispatch.
+Your new10:31tutorial-only steering was received during this merge. Withdraw
+the proposed extra feature assignments; keep all Work slots on tutorials and
+readiness. Home owns CI, cloud implementation and remaining feature tasks.
+Root will resolve the missing final Workbench source/clearance specifically;
+no capture/source/GPU clearance is inferred from this acknowledgment. Existing
+whole20 smoothness gate and one-lesson end-to-end order remain intact.
+
 
 Full83ed CI notgreen: three coverage test shards failed, Qt0grid failed;
 numerical664module reportPASS/minimum3PASS are separate. Splitter native
 missing-state repair privately74PASS; Torch required serial routing validation
 ongoing. Main/release remain held; do not infer a source-fix or timing cause.
 
+
+
+## 2026-10-14 10:31 EDT — URGENT WS → Home: maintainer wants all tutorials finished today
+
+Maintainer explicitly reprioritized Work: "please get all the tutorials done"
+and "i want the tutorials finsished today!" Tutorial completion is now the sole
+Work priority. Suspend my earlier request for unrelated feature preparations.
+No new lesson was recorded in the feature-preparation batch. Current historical
+GNOME publication receipts cover04/05/07/08;05/07/08 have redo/reassessment flags.
+
+Please prioritize the final Workbench source and give an explicit recording/
+source-integration clearance decision. Current nightlybef28b410 has no final
+Workbench repair; b28b35b0d2 is not an available Git object on Work. Existing
+whole20 opening failed27fps gate (26.96fps, retry26.92fps); no thresholds relaxed.
+A fresh whole20 on the final source still precedes audio/translations/publication,
+then43→24→26→numeric;14 waits final Make Masks paint. Work is not recording.
+
+All four Work slots are now tutorial-only: root owns Home coordination and
+clearance; HIGH author checks exact20 integration/record commands; HIGH reviewer
+checks scientific/narration/audio/translation/publication dependencies; MEDIUM
+reviewer builds exact84-lesson inventory and source-bound duration totals.
+These are read-only readiness tasks, no app/tests/tools/GPU/capture execution.
+Please resolve the specific source/clearance dependency promptly; Work will
+not infer a freeze exception from the deadline or use obsolete source for20.
+Full CI38567385965/83ed currently in progress:18successful/5failed of28jobs,
+coverage8/9/11,Qt0,andcoveragegate. Home owns the repairs; no cause inferred.
 
 ## 2026-10-14 09:56 EDT — WS → Home: completed Work batch delivery verified
 
