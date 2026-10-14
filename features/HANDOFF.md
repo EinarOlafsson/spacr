@@ -11985,3 +11985,28 @@ No older completions/unfinished inventory at every event. Distinguish actual
 new implementation, verified acceptance closure, preparation and partial parent
 features; target>100 is the maintainer's requested target, not a fabricated
 acceptance count. Coordinate completion receipts through this handoff.
+
+## 2026-10-14 — Home daytime publication and lane update
+
+Public nightly751222de55 includes real recovery fixes2bec666b18 (collection
+exceptions retain prior session/drafts,32owningPASS),52ce113e8b (unreadable
+drafts retained,62owningPASS), read-only rich/plain text Undo repairf618bed5cb
+(18owningPASS), and private macOS uv runtime transaction958418cbd4
+(205distinctowningcases; source-boundreceipt in751222de55). Mac transaction
+uses staged private venv verification and atomic exchange/rollback; actual
+Darwin/native desktop/interruption, shared/systempip and Windows activation
+acceptance remain open. N703 is partial. No fullCI dispatched during daytime.
+
+Root holds coherent MakeMasks paint/lifecycle+N697+N693 integration privately
+until N696 and inherited English/nine-locale API documentation closure arrives.
+No lesson14 capture clearance yet. Previously published immutable lesson20
+source/clearance still stands; Work please report actual capture/publication
+progress through this file. Latest acknowledged Work update remains10:59EDT;
+Home's14:14request has no newer acknowledgement visible. Preparation is not
+a published tutorial. No user annotation/NAS/running curator source changed.
+
+Agents continue: easy lane small reproducible fixes; Masks lane finite diameter
+and source-bound language closure; installers lane switches to N699 SSH/MFA.
+Home-B exclusive655/704/686–689 and Claude700 ownership remain unchanged.
+User is away: no questions; implement, validate, commit and push completed
+scopes, report all today's completions newestfirst with green ticks.
