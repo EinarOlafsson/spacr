@@ -10281,40 +10281,6 @@ class PreferencesDialog:
         share_diagnostics_check.setChecked(get_share_diagnostic_logs())
         modules.addRow(tr("Report logs"), share_diagnostics_check)
 
-        from spacr import crashreport as _crashreport
-
-        anonymous_reports_check = Toggle(tr("Send anonymised error reports"))
-        anonymous_reports_check.setObjectName("AnonymousReports")
-        anonymous_reports_check.setToolTip(tr(
-            "On by default. When a run fails or spaCR crashes, spaCR sends a "
-            "short anonymised summary through spaCR's relay, which files it "
-            "as a public GitHub issue on EinarOlafsson/spacr. No GitHub "
-            "account is needed. The summary holds versions, the operating "
-            "system, the GPU type, the module, the error type, a scrubbed "
-            "message and the call stack without paths. Logs, settings, file "
-            "names and paths are never sent. Off sends nothing."
-        ))
-        anonymous_reports_check.setChecked(
-            _crashreport.anonymous_reports_enabled())
-        anonymous_reports_what = QPushButton(tr("What is sent…"))
-        anonymous_reports_what.setObjectName("AnonymousReportsWhatIsSent")
-        anonymous_reports_what.setFlat(True)
-        anonymous_reports_what.setCursor(Qt.PointingHandCursor)
-
-        def _show_what_is_sent() -> None:
-            """Open the example of an anonymised report."""
-            from .install_consent import AnonymousReportExampleDialog
-
-            AnonymousReportExampleDialog(dlg).exec()
-
-        anonymous_reports_what.clicked.connect(_show_what_is_sent)
-        anonymous_reports_row = QWidget()
-        anonymous_reports_layout = QHBoxLayout(anonymous_reports_row)
-        anonymous_reports_layout.setContentsMargins(0, 0, 0, 0)
-        anonymous_reports_layout.addWidget(anonymous_reports_check)
-        anonymous_reports_layout.addWidget(anonymous_reports_what)
-        anonymous_reports_layout.addStretch(1)
-        modules.addRow(tr("Error reports"), anonymous_reports_row)
 
         refresh_news_check = Toggle(
             tr("Show newer releases than this build in Home's News panel")
@@ -10488,6 +10454,44 @@ class PreferencesDialog:
 
         ai_providers_btn.clicked.connect(_open_providers)
         ai_form.addRow("", ai_providers_btn)
+
+        from spacr import crashreport as _crashreport
+
+        error_report_combo = QComboBox()
+        error_report_combo.setObjectName("AiErrorReport")
+        for _key, _label in _crashreport.ERROR_REPORT_MODES:
+            error_report_combo.addItem(tr(_label), _key)
+        error_report_combo.setCurrentIndex(max(0, error_report_combo.findData(
+            _crashreport.error_report_mode())))
+        error_report_combo.setToolTip(tr(
+            "What happens when a run fails or spaCR crashes, including a "
+            "setting or validation error found before a run starts. "
+            "\"Summarize\" has the AI chosen above explain the error in the "
+            "console. \"Send\" files an anonymised report as a public GitHub "
+            "issue on EinarOlafsson/spacr through spaCR's relay, with no "
+            "GitHub account. \"Faults\" are unexpected errors in spaCR, not "
+            "settings the user can fix. Code context adds the line of spaCR's "
+            "own code at each step, never yours. Logs, settings, file names "
+            "and paths are never sent. Default: summarize and send all "
+            "errors."))
+        error_report_what = QPushButton(tr("What is sent…"))
+        error_report_what.setObjectName("AnonymousReportsWhatIsSent")
+        error_report_what.setFlat(True)
+        error_report_what.setCursor(Qt.PointingHandCursor)
+
+        def _show_what_is_sent() -> None:
+            """Open the example of an anonymised report."""
+            from .install_consent import AnonymousReportExampleDialog
+
+            AnonymousReportExampleDialog(dlg).exec()
+
+        error_report_what.clicked.connect(_show_what_is_sent)
+        error_report_row = QWidget()
+        error_report_layout = QHBoxLayout(error_report_row)
+        error_report_layout.setContentsMargins(0, 0, 0, 0)
+        error_report_layout.addWidget(error_report_combo, 1)
+        error_report_layout.addWidget(error_report_what)
+        ai_form.addRow(tr("AI Error report"), error_report_row)
 
         alpha_check = Toggle(tr("Show Alpha modules and settings"))
         alpha_check.setObjectName("ShowAlphaFeatures")
@@ -11651,8 +11655,8 @@ class PreferencesDialog:
                 _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
-                anonymous_reports_check.setChecked(
-                    _crashreport.DEFAULT_ANONYMOUS_REPORTS)
+                _select(error_report_combo,
+                        _crashreport.DEFAULT_ERROR_REPORT_MODE)
                 refresh_news_check.setChecked(get_refresh_news())
                 restore_session_check.setChecked(_get_restore_session())
                 _select(update_channel_combo, _get_update_channel())
@@ -11756,8 +11760,9 @@ class PreferencesDialog:
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
             try:
-                _crashreport.set_anonymous_reports_enabled(
-                    anonymous_reports_check.isChecked())
+                _crashreport.set_error_report_mode(
+                    error_report_combo.currentData()
+                    or _crashreport.DEFAULT_ERROR_REPORT_MODE)
             except OSError:
                 LOG.warning("could not save the error-report choice",
                             exc_info=True)

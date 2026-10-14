@@ -63,6 +63,11 @@ class FakeRelay:
             "https://github.com/EinarOlafsson/spacr/issues/12",
             "deduplicated": False})]
         self.calls = []
+        self.routes = {}
+
+    def calls_to(self, route):
+        """The calls made to one route, such as ``"/report"``."""
+        return [c for c in self.calls if c["url"].split("?")[0].endswith(route)]
 
     def __call__(self, request, timeout):
         self.calls.append({"url": request.full_url,
@@ -70,7 +75,14 @@ class FakeRelay:
                            "timeout": timeout,
                            "body": json.loads(request.data.decode())
                            if request.data else None})
-        answer = self.answers[min(len(self.calls) - 1, len(self.answers) - 1)]
+        route = "/" + request.full_url.split("?")[0].rsplit("/", 1)[-1]
+        if route in self.routes:
+            answers = self.routes[route]
+            answer = answers[min(len(self.calls_to(route)) - 1,
+                                 len(answers) - 1)]
+        else:
+            answer = self.answers[min(len(self.calls) - 1,
+                                      len(self.answers) - 1)]
         if isinstance(answer, BaseException):
             raise answer
         status, payload = answer
@@ -614,3 +626,51 @@ class TestDailyAllowances:
         assert refused.value.reason == "quota"
         assert refused.value.scope == scope
         assert refused.value.resets_at == cr.next_reset_utc()
+
+
+class TestDynamicAllowanceAndModes:
+    """The relay's dynamic share, and the AI Error report choices."""
+
+    def test_the_dynamic_fields_are_read(self, relay):
+        relay.answers = [(200, {
+            "ai": {"best_left": 3, "light_left": 10, "neurons_left": 600,
+                   "share_neurons": 1000, "share_pct": 2.5,
+                   "active_users": 40, "tier_now": "light"},
+            "reports_left": 5, "pool": "light", "pool_pct_left": 12.5,
+            "resets_at": "2026-10-15T00:00:00Z"})]
+        allowance = cr.fetch_allowance()
+        assert allowance["ai"] == {"best_left": 3, "light_left": 10,
+                                   "neurons_left": 600, "share_neurons": 1000,
+                                   "share_pct": 2.5, "active_users": 40,
+                                   "tier_now": "light"}
+        assert allowance["pool_pct_left"] == 12.5
+
+    def test_the_default_choice(self):
+        assert cr.error_report_mode() == "all"
+        assert cr.mode_explains() and cr.mode_sends("fault")
+        assert cr.mode_sends("user_error") and not cr.mode_code_context()
+
+    def test_the_old_off_switch_is_kept(self):
+        cr._update_state(enabled=False)
+        assert cr.error_report_mode() == "off"
+
+    def test_an_unknown_choice_is_refused(self):
+        with pytest.raises(ValueError):
+            cr.set_error_report_mode("everything")
+
+    def test_a_choice_that_sends_nothing_clears_the_queue(self, relay):
+        relay.answers = [OSError("offline")]
+        cr.submit_public_summary(_summary())
+        cr.set_error_report_mode("summarize")
+        assert cr.queued_summaries() == []
+        assert cr.anonymous_reports_enabled() is False
+
+    def test_kinds(self):
+        from spacr.errors import ConfigurationError
+
+        assert cr.classify_failure(ConfigurationError("x")) == "user_error"
+        assert cr.classify_failure(ValueError("x")) == "fault"
+        assert cr.classify_failure(
+            traceback_text="spacr.errors.ConfigurationError: x") == \
+            "user_error"
+        assert _summary()["kind"] == "fault"

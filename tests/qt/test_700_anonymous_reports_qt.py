@@ -58,22 +58,35 @@ class TestPreferences:
         qtbot.addWidget(dialog)
         return dialog
 
-    def test_the_switch_is_on_by_default_and_saves_off(self, qtbot,
-                                                       qt_theme_applied):
-        from PySide6.QtWidgets import QDialogButtonBox, QPushButton
+    def test_one_dropdown_defaults_to_summarize_and_send_all(
+            self, qtbot, qt_theme_applied):
+        from PySide6.QtWidgets import (QComboBox, QDialogButtonBox,
+                                       QPushButton)
 
         from spacr.qt.widgets.toggle import Toggle
 
         dialog = self._dialog(qtbot)
-        switch = dialog.findChild(Toggle, "AnonymousReports")
-        assert switch is not None and switch.isChecked()
+        assert dialog.findChild(Toggle, "AnonymousReports") is None
+        combo = dialog.findChild(QComboBox, "AiErrorReport")
+        assert [combo.itemText(i) for i in range(combo.count())] == [
+            "Summarize and send all errors",
+            "Summarize and send all errors, with code context",
+            "Summarize all errors, send only faults",
+            "Summarize all errors, send nothing",
+            "Send all errors, no AI summary",
+            "Send only faults, no AI summary",
+            "Off"]
+        assert combo.currentData() == "all"
         assert dialog.findChild(QPushButton, "AnonymousReportsWhatIsSent")
-        switch.setChecked(False)
+        page = dialog.findChild(object, "PreferencesTabAI")
+        assert page.isAncestorOf(combo)
+        combo.setCurrentIndex(combo.findData("off"))
         boxes = [box for box in dialog.findChildren(QDialogButtonBox)
                  if box.button(QDialogButtonBox.Ok) is not None
                  or box.button(QDialogButtonBox.Save) is not None]
         assert boxes, "no OK/Save button box in Preferences"
         boxes[0].accepted.emit()
+        assert cr.error_report_mode() == "off"
         assert cr.anonymous_reports_enabled() is False
 
     def test_what_is_sent_shows_an_allowlisted_example(self, qtbot,
@@ -154,6 +167,7 @@ class TestFailedRunWiring:
         screen._recorded = recorder
         monkeypatch.setattr(screen, "_report_summary_provider",
                             providers.hosted_provider)
+        cr.set_error_report_mode("send_all")
         return screen
 
     def _fail(self, screen):
@@ -171,7 +185,7 @@ class TestFailedRunWiring:
         self._fail(screen)
         fn, on_done = screen._recorded.jobs[0]
         on_done(fn())
-        assert any("Reported as issue #12" in line
+        assert any("Reported anonymously as issue #12" in line
                    and "/issues/12" in line for line in screen._notices)
         body = relay.calls[0]["body"]
         assert body["module"] == "mask"
@@ -193,11 +207,12 @@ class TestFailedRunWiring:
         assert all(fn.__name__ != "_send" for fn, _ in screen._recorded.jobs)
         assert relay.calls == []
 
-    def test_a_settings_path_error_is_not_sent(self, screen, relay):
+    def test_a_settings_error_is_a_user_error(self, screen, relay):
         screen._on_pipeline_error(
             "Traceback (most recent call last):\n"
             "spacr.errors.ConfigurationError: src does not exist\n")
-        assert screen._anonymous_report_due is False
+        assert screen._anonymous_report_due is True
+        assert screen._failure_kind == "user_error"
 
     def test_the_github_button_is_still_offered(self, screen, relay):
         from spacr.qt.ai import settings as ai_settings
@@ -378,15 +393,17 @@ class TestDailyAllowanceDisplay:
         relay.answers = [(200, self.ALLOWANCE)]
         panel = ConsolePanel()
         qtbot.addWidget(panel)
-        label = panel.findChild(QLabel, "HostedAiAllowance")
-        assert label.isHidden()
+        label = panel.findChild(QLabel, "AiUsageText")
+        row = panel.findChild(object, "AiUsageRow")
+        assert row.isHidden()
         panel.set_ai_provider(providers.HOSTED_PROVIDER_NAME)
-        qtbot.waitUntil(lambda: not label.isHidden(), timeout=5000)
+        qtbot.waitUntil(lambda: "4 of 5" in label.text(), timeout=5000)
         assert "4 of 5 best-model questions left today" in label.text()
-        assert providers.hosted_cli_hint() in label.text()
+        assert providers.hosted_cli_hint() in row.toolTip()
         assert relay.calls[0]["method"] == "GET"
         panel.set_ai_provider("claude")
-        assert label.isHidden()
+        assert label.text() == ("Your own Claude account · limits set by "
+                                "Anthropic")
 
     def test_the_line_refreshes_after_an_answer(self, qtbot, qt_theme_applied,
                                                 relay, monkeypatch):
@@ -402,7 +419,7 @@ class TestDailyAllowanceDisplay:
                             dict(self.ALLOWANCE,
                                  ai={"best_left": 3, "light_left": 10}))
         panel._on_stream_finished(True, "answer")
-        label = panel.findChild(QLabel, "HostedAiAllowance")
+        label = panel.findChild(QLabel, "AiUsageText")
         assert "3 of 5 best-model questions left today" in label.text()
 
     def test_a_quota_refused_report_says_it_waits(self, qtbot,
@@ -430,7 +447,7 @@ class TestDailyAllowanceDisplay:
         qtbot.addWidget(notice)
         text = " ".join(label.text() for label in notice.findChildren(QLabel))
         assert "up to 5 reports a day" in text
-        assert "5 questions a day on the best model" in text
+        assert "about 5 questions a day on the best model" in text
         assert "10 more on a light model" in text
 
 
@@ -638,20 +655,34 @@ class TestReportAiSummary:
         on_done(fn())
         return screen._notices[-1]
 
-    def test_with_a_relay_summary(self, screen, relay):
-        relay.answers = [(200, {"issue_number": 7, "issue_url": "u",
-                                "deduplicated": False,
-                                "ai_summary_source": "relay"})]
+    def test_spacr_ai_explains_once_and_the_text_is_the_summary(
+            self, screen, relay):
+        relay.routes["/diagnose"] = [(200, {
+            "advice": "The column cell_area is missing; set it in Measure.",
+            "model": "big", "tier": "best"})]
+        relay.routes["/report"] = [(200, {"issue_number": 7, "issue_url": "u",
+                                          "deduplicated": False,
+                                          "ai_summary_source": "client"})]
         assert "Reported as issue #7 (with AI summary)" in self._run(screen)
-        assert relay.calls[0]["body"]["summarize"] is True
+        assert any(line.startswith("spaCR AI: The column cell_area")
+                   for line in screen._notices)
+        assert len(relay.calls_to("/diagnose")) == 1, "one AI call"
+        body = relay.calls_to("/report")[0]["body"]
+        assert body["ai_summary"].startswith("The column cell_area")
+        assert "summarize" not in body
 
     def test_without_a_summary_when_the_allowance_is_used(self, screen,
                                                           relay):
-        relay.answers = [(200, {"issue_number": 8, "issue_url": "u",
-                                "deduplicated": False,
-                                "ai_summary_source": "none"})]
+        relay.routes["/diagnose"] = [(429, {"refused": "quota",
+                                            "scope": "install"})]
+        relay.routes["/report"] = [(200, {"issue_number": 8, "issue_url": "u",
+                                          "deduplicated": False,
+                                          "ai_summary_source": "none"})]
         assert ("Reported as issue #8 (without AI summary: daily AI "
                 "allowance used)") in self._run(screen)
+        assert any("today's free AI is used up" in line
+                   for line in screen._notices)
+        assert "ai_summary" not in relay.calls_to("/report")[0]["body"]
 
     def test_with_a_private_cli_summary(self, screen, relay, monkeypatch):
         cli = _FakeCli("Cause: a missing column in measure_crop.")
@@ -660,7 +691,11 @@ class TestReportAiSummary:
                                 "deduplicated": False,
                                 "ai_summary_source": "client"})]
         assert "Reported as issue #9 (with AI summary)" in self._run(screen)
-        assert relay.calls[0]["body"]["ai_summary"].startswith("Cause:")
+        assert relay.calls_to("/diagnose") == []
+        assert relay.calls_to("/report")[0]["body"]["ai_summary"].startswith(
+            "Cause:")
+        assert any(line.startswith("spaCR AI: Cause:")
+                   for line in screen._notices)
 
     def test_a_failing_cli_still_files(self, screen, relay, monkeypatch):
         cli = _FakeCli(error=RuntimeError("signed out"))
@@ -670,7 +705,7 @@ class TestReportAiSummary:
                                 "ai_summary_source": "none"})]
         assert "Reported as issue #10 (without AI summary)" in \
             self._run(screen)
-        assert "ai_summary" not in relay.calls[0]["body"]
+        assert "ai_summary" not in relay.calls_to("/report")[0]["body"]
 
     def test_the_notice_mentions_the_ai_summary(self, qtbot,
                                                  qt_theme_applied):
@@ -683,3 +718,218 @@ class TestReportAiSummary:
         text = " ".join(label.text() for label in notice.findChildren(QLabel))
         assert "AI-written summary" in text
         assert "your own AI when one is connected" in text
+
+
+FAULT_TB = (
+    "Traceback (most recent call last):\n"
+    '  File "/home/annasvensson/my_script.py", line 5, in <module>\n'
+    "    run_my_plate('/home/annasvensson/secret_plate')\n"
+    '  File "/home/annasvensson/envs/spacr/lib/python3.11/site-packages/'
+    'spacr/measure.py", line 88, in measure_crop\n'
+    "    raise KeyError(name)\n"
+    "KeyError: 'cell_area'\n")
+
+USER_TB = ("spacr.errors.ConfigurationError: At least one registered "
+           "*_channel (for example cell_channel or organelle_channel) must "
+           "be set; no masks can be generated.")
+
+#: (explains, sends a fault, sends a user error) for every choice.
+EXPECTED = {
+    "all": (True, True, True),
+    "all_code": (True, True, True),
+    "faults": (True, True, False),
+    "summarize": (True, False, False),
+    "send_all": (False, True, True),
+    "send_faults": (False, True, False),
+    "off": (False, False, False),
+}
+
+
+class TestEveryAiErrorReportChoice:
+    """What is explained and what is sent, for each choice and each kind."""
+
+    @pytest.fixture
+    def screen(self, qtbot, qt_theme_applied, monkeypatch):
+        from spacr.qt.screens.app_screen import AppScreen
+
+        screen = AppScreen("mask")
+        qtbot.addWidget(screen)
+        notices = []
+        monkeypatch.setattr(screen._console, "append_notice",
+                            lambda source, **values: notices.append(
+                                source.format(**values)))
+        screen._notices = notices
+        recorder = _Jobs()
+        monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
+        screen._recorded = recorder
+        monkeypatch.setattr(screen, "_report_summary_provider",
+                            providers.hosted_provider)
+        return screen
+
+    def _fail(self, screen, relay, tb):
+        relay.routes["/diagnose"] = [(200, {"advice": "Set cell_channel.",
+                                            "model": "big", "tier": "best"})]
+        relay.routes["/report"] = [(200, {"issue_number": 3, "issue_url": "u",
+                                          "deduplicated": False})]
+        screen._on_pipeline_error(tb)
+        screen._settle_the_report(failed=True)
+        for fn, on_done in list(screen._recorded.jobs):
+            on_done(fn())
+
+    @pytest.mark.parametrize("mode", list(EXPECTED))
+    @pytest.mark.parametrize("kind", ["fault", "user_error"])
+    def test_the_choice(self, screen, relay, mode, kind):
+        cr.set_error_report_mode(mode)
+        self._fail(screen, relay, FAULT_TB if kind == "fault" else USER_TB)
+        explains, sends_fault, sends_user = EXPECTED[mode]
+        sends = sends_fault if kind == "fault" else sends_user
+        assert screen._failure_kind == kind
+        assert bool(relay.calls_to("/diagnose")) is explains
+        assert any(n.startswith("spaCR AI: Set cell_channel.")
+                   for n in screen._notices) is explains
+        reports = relay.calls_to("/report")
+        assert bool(reports) is sends
+        if sends:
+            body = reports[0]["body"]
+            assert body["kind"] == kind
+            assert ("ai_summary" in body) is explains
+            codes = [f.get("code") for f in body["frames"]]
+            if mode == "all_code" and kind == "fault":
+                assert codes == [None, "raise KeyError(name)"], (
+                    "code only for the spaCR frame, never the user's")
+            else:
+                assert codes == [None] * len(codes)
+            assert "secret_plate" not in json.dumps(body)
+
+    def test_code_context_never_includes_user_code(self):
+        summary = cr.public_summary(traceback_text=FAULT_TB,
+                                    code_context=True)
+        user, spacr_frame = summary["frames"]
+        assert user["file"] == "<user-code>" and "code" not in user
+        assert spacr_frame["code"] == "raise KeyError(name)"
+        assert all(len(f.get("code", "")) <= cr.MAX_CODE_CHARS
+                   for f in summary["frames"])
+
+
+class TestARunRefusedBeforeItStarts:
+    """The maintainer's case: a missing channel, refused before the run."""
+
+    def test_the_refusal_is_explained_and_reported(self, qtbot,
+                                                   qt_theme_applied,
+                                                   monkeypatch, relay):
+        from spacr.errors import raise_if_strict
+        from spacr.qt.screens.app_screen import AppScreen
+
+        screen = AppScreen("mask")
+        qtbot.addWidget(screen)
+        notices = []
+        monkeypatch.setattr(screen._console, "append_notice",
+                            lambda source, **values: notices.append(
+                                source.format(**values)))
+        recorder = _Jobs()
+        monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
+        monkeypatch.setattr(screen, "_report_summary_provider",
+                            providers.hosted_provider)
+        relay.routes["/diagnose"] = [(200, {"advice": "Set cell_channel.",
+                                            "model": "big", "tier": "best"})]
+        relay.routes["/report"] = [(200, {"issue_number": 4, "issue_url": "u",
+                                          "deduplicated": False})]
+
+        screen._watch_for_refusals()
+        raise_if_strict("At least one registered *_channel (for example "
+                        "cell_channel or organelle_channel) must be set; no "
+                        "masks can be generated.", settings={})
+        screen._on_finished(True)
+
+        assert any(n.startswith("✗ The run did not start: At least one "
+                                "registered *_channel") for n in notices)
+        assert not any(n.startswith("✓ Finished") for n in notices)
+        assert len(recorder.jobs) == 1
+        fn, on_done = recorder.jobs[0]
+        on_done(fn())
+        assert any(n.startswith("spaCR AI: Set cell_channel.")
+                   for n in notices)
+        body = relay.calls_to("/report")[0]["body"]
+        assert body["kind"] == "user_error"
+        assert body["exception_type"] == "ConfigurationError"
+        assert "_channel" in body["message"]
+
+    def test_a_clean_run_is_still_finished(self, qtbot, qt_theme_applied,
+                                           monkeypatch):
+        from spacr.qt.screens.app_screen import AppScreen
+
+        screen = AppScreen("mask")
+        qtbot.addWidget(screen)
+        notices = []
+        monkeypatch.setattr(screen._console, "append_notice",
+                            lambda source, **values: notices.append(source))
+        screen._watch_for_refusals()
+        screen._on_finished(True)
+        assert any(n.startswith("✓ Finished") for n in notices)
+
+
+class TestTheUsageBar:
+    """The slim bar under the chat box, for each provider."""
+
+    DYNAMIC = {"ai": {"best_left": 3, "light_left": 10, "neurons_left": 600,
+                      "share_neurons": 1000, "share_pct": 2.5,
+                      "active_users": 40, "tier_now": "best"},
+               "pool": "best", "pool_pct_left": 72.0,
+               "resets_at": "2026-10-15T00:00:00Z"}
+
+    def _when(self):
+        return providers.local_reset_time("2026-10-15T00:00:00Z")
+
+    def test_spacr_ai_shows_its_share(self):
+        pct, text = providers.usage_bar(providers.HOSTED_PROVIDER_NAME,
+                                        self.DYNAMIC)
+        assert pct == 60
+        assert text == (f"60% of your share left · 40 users sharing today · "
+                        f"resets {self._when()}")
+
+    def test_the_light_model_is_named(self):
+        allowance = json.loads(json.dumps(self.DYNAMIC))
+        allowance["ai"]["tier_now"] = "light"
+        assert providers.usage_bar(providers.HOSTED_PROVIDER_NAME,
+                                   allowance)[1].endswith(" · light model")
+
+    def test_an_empty_share(self):
+        allowance = json.loads(json.dumps(self.DYNAMIC))
+        allowance["ai"]["neurons_left"] = 0
+        assert providers.usage_bar(providers.HOSTED_PROVIDER_NAME,
+                                   allowance) == (
+            0, "Daily share used. Errors are still reported without an AI "
+               "summary.")
+
+    def test_an_older_relay_falls_back_to_the_estimate(self):
+        old = {"ai": {"best_left": 4, "light_left": 10}, "pool": "best",
+               "resets_at": "2026-10-15T00:00:00Z"}
+        pct, text = providers.usage_bar(providers.HOSTED_PROVIDER_NAME, old)
+        assert pct is None and text.startswith("4 of 5 best-model")
+
+    @pytest.mark.parametrize("name, text", [
+        ("claude", "Your own Claude account · limits set by Anthropic"),
+        ("codex", "Your own ChatGPT account (Codex) · limits set by OpenAI"),
+        ("gemini", "Your own Google account (Gemini) · limits set by Google"),
+    ])
+    def test_a_cli_has_no_bar_and_no_numbers(self, name, text):
+        assert providers.usage_bar(name, self.DYNAMIC) == (None, text)
+
+    def test_the_bar_in_the_console(self, qtbot, qt_theme_applied, relay):
+        from PySide6.QtWidgets import QLabel, QProgressBar
+
+        from spacr.qt.widgets.console_panel import ConsolePanel
+
+        relay.answers = [(200, self.DYNAMIC)]
+        panel = ConsolePanel()
+        qtbot.addWidget(panel)
+        bar = panel.findChild(QProgressBar, "AiUsageBar")
+        text = panel.findChild(QLabel, "AiUsageText")
+        panel.set_ai_provider(providers.HOSTED_PROVIDER_NAME)
+        qtbot.waitUntil(lambda: "60%" in text.text(), timeout=5000)
+        assert bar.value() == 60 and not bar.isHidden()
+        panel.set_ai_provider("gemini")
+        assert bar.isHidden()
+        assert "limits set by Google" in text.text()
+        panel.set_ai_provider(None)
+        assert panel.findChild(object, "AiUsageRow").isHidden()

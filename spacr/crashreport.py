@@ -128,6 +128,12 @@ __all__ = [
     "fetch_allowance",
     "next_reset_utc",
     "ai_summary_prompt",
+    "classify_failure",
+    "error_report_mode",
+    "set_error_report_mode",
+    "mode_explains",
+    "mode_sends",
+    "mode_code_context",
     "example_public_summary",
     "build_parser",
     "main",
@@ -858,11 +864,13 @@ NO_NETWORK_ENV = "SPACR_NO_NETWORK"
 PUBLIC_SUMMARY_SCHEMA = 1
 
 #: Every key a summary may carry, in the order it is built. ``user_note``,
-#: ``dry_run``, ``ai_summary`` and ``summarize`` are present only when given.
+#: ``dry_run``, ``ai_summary``, ``summarize`` and ``kind`` are present only
+#: when given. A frame may also carry ``code``, its source line, but only for
+#: a frame inside the spaCR package and only when code context is chosen.
 PUBLIC_SUMMARY_KEYS: Tuple[str, ...] = (
     "schema_version", "install_id", "spacr_version", "os", "python", "qt",
     "torch", "gpu", "module", "exception_type", "message", "frames",
-    "user_note", "dry_run", "ai_summary", "summarize",
+    "user_note", "dry_run", "ai_summary", "summarize", "kind",
 )
 
 #: The relay refuses a body larger than this many bytes.
@@ -904,6 +912,35 @@ DIAGNOSE_TIMEOUT_S = 60.0
 
 #: Whether a profile that never chose sends anonymised reports.
 DEFAULT_ANONYMOUS_REPORTS = True
+
+#: The longest source line a frame's ``code`` carries, in characters.
+MAX_CODE_CHARS = 160
+
+#: A failure that is spaCR's own fault: an unexpected exception.
+KIND_FAULT = "fault"
+
+#: A failure the user can fix: a settings, validation or settings-path error.
+KIND_USER_ERROR = "user_error"
+
+#: The "AI Error report" choices, ``(key, label)``, in the order offered.
+ERROR_REPORT_MODES: Tuple[Tuple[str, str], ...] = (
+    ("all", "Summarize and send all errors"),
+    ("all_code", "Summarize and send all errors, with code context"),
+    ("faults", "Summarize all errors, send only faults"),
+    ("summarize", "Summarize all errors, send nothing"),
+    ("send_all", "Send all errors, no AI summary"),
+    ("send_faults", "Send only faults, no AI summary"),
+    ("off", "Off"),
+)
+
+#: The choice for a profile that never made one.
+DEFAULT_ERROR_REPORT_MODE = "all"
+
+#: The fixed question a failure is explained with.
+EXPLAIN_QUESTION = (
+    "Explain the likely cause of this spaCR error in one or two sentences, "
+    "say where in spaCR it happens, then give a short fix the user can "
+    "apply. Do not include any personal data.")
 
 #: Anonymised reports the relay accepts from one install per UTC day.
 REPORTS_PER_DAY = 5
@@ -1114,29 +1151,142 @@ def _update_state(**values: Any) -> None:
         _write_state(state)
 
 
-def anonymous_reports_enabled() -> bool:
-    """Whether failed runs and crashes are sent as anonymised reports.
+def error_report_mode() -> str:
+    """Return the "AI Error report" choice, a key of :data:`ERROR_REPORT_MODES`.
 
-    :returns: the saved choice, or :data:`DEFAULT_ANONYMOUS_REPORTS` for a
-        profile that never made one.
+    A profile that only ever turned the older on/off switch off reads as
+    ``"off"``.
+
+    :returns: the saved key, or :data:`DEFAULT_ERROR_REPORT_MODE`.
     """
-    value = _read_state().get("enabled", DEFAULT_ANONYMOUS_REPORTS)
-    return value if isinstance(value, bool) else DEFAULT_ANONYMOUS_REPORTS
+    state = _read_state()
+    mode = state.get("mode")
+    if mode in dict(ERROR_REPORT_MODES):
+        return str(mode)
+    if state.get("enabled") is False:
+        return "off"
+    return DEFAULT_ERROR_REPORT_MODE
 
 
-def set_anonymous_reports_enabled(enabled: bool) -> None:
-    """Save the anonymised-report switch.
+def set_error_report_mode(mode: str) -> None:
+    """Save the "AI Error report" choice.
 
-    Turning it off also deletes every report still waiting, so nothing
-    queued before the change is sent after it.
+    A choice that sends nothing also deletes every report still waiting, so
+    nothing queued before the change is sent after it.
 
-    :param enabled: whether reports may be sent.
+    :param mode: a key of :data:`ERROR_REPORT_MODES`.
+    :raises ValueError: for any other value.
     """
-    _update_state(enabled=bool(enabled))
-    if not enabled:
+    if mode not in dict(ERROR_REPORT_MODES):
+        raise ValueError(f"unknown error-report mode: {mode!r}")
+    _update_state(mode=mode, enabled=mode_sends(KIND_USER_ERROR, mode)
+                  or mode_sends(KIND_FAULT, mode))
+    if not (mode_sends(KIND_FAULT, mode) or mode_sends(KIND_USER_ERROR, mode)):
         with _STATE_LOCK:
             for path in _queue_files():
                 path.unlink(missing_ok=True)
+
+
+def mode_explains(mode: Optional[str] = None) -> bool:
+    """Whether a choice has the AI explain every failure in the console.
+
+    :param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved
+        one.
+    :returns: ``True`` for the four "Summarize" choices.
+    """
+    mode = error_report_mode() if mode is None else mode
+    return mode in ("all", "all_code", "faults", "summarize")
+
+
+def mode_sends(kind: str, mode: Optional[str] = None) -> bool:
+    """Whether a choice files a failure of ``kind`` as an issue.
+
+    :param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.
+    :param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved
+        one.
+    :returns: whether it is sent.
+    """
+    mode = error_report_mode() if mode is None else mode
+    if mode in ("all", "all_code", "send_all"):
+        return True
+    if mode in ("faults", "send_faults"):
+        return kind == KIND_FAULT
+    return False
+
+
+def mode_code_context(mode: Optional[str] = None) -> bool:
+    """Whether a choice adds each spaCR frame's source line to a report.
+
+    :param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved
+        one.
+    :returns: ``True`` only for ``"all_code"``.
+    """
+    mode = error_report_mode() if mode is None else mode
+    return mode == "all_code"
+
+
+def anonymous_reports_enabled() -> bool:
+    """Whether any failure is sent as an anonymised report.
+
+    :returns: ``False`` for the choices that send nothing.
+    """
+    mode = error_report_mode()
+    return mode_sends(KIND_FAULT, mode) or mode_sends(KIND_USER_ERROR, mode)
+
+
+def set_anonymous_reports_enabled(enabled: bool) -> None:
+    """Turn reports on or off, as the first-run notice's switch does.
+
+    On restores the default choice when the current one sends nothing;
+    off is ``"off"``.
+
+    :param enabled: whether reports may be sent.
+    """
+    if not enabled:
+        set_error_report_mode("off")
+    elif not anonymous_reports_enabled():
+        set_error_report_mode(DEFAULT_ERROR_REPORT_MODE)
+
+
+def _user_error_names() -> set:
+    """Names of every exception class that is the user's to fix."""
+    from .errors import ConfigurationError
+
+    names = {"ConfigurationError"}
+    pending = [ConfigurationError]
+    while pending:
+        cls = pending.pop()
+        for sub in cls.__subclasses__():
+            if sub.__name__ not in names:
+                names.add(sub.__name__)
+                pending.append(sub)
+    return names
+
+
+def classify_failure(exception: Optional[BaseException] = None,
+                     traceback_text: str = "") -> str:
+    """Return whether a failure is a fault or a user error.
+
+    A :class:`spacr.errors.ConfigurationError`, or any of its subclasses, is
+    a user error: a setting, a validation or a missing input the user can
+    fix. Anything else is a fault.
+
+    :param exception: the exception, when at hand.
+    :param traceback_text: a formatted traceback otherwise.
+    :returns: :data:`KIND_USER_ERROR` or :data:`KIND_FAULT`.
+    """
+    try:
+        from .errors import ConfigurationError
+
+        if isinstance(exception, ConfigurationError):
+            return KIND_USER_ERROR
+        if exception is None and traceback_text:
+            kind, _message, _frames = _parse_traceback_text(traceback_text)
+            if kind in _user_error_names():
+                return KIND_USER_ERROR
+    except Exception:
+        pass
+    return KIND_FAULT
 
 
 def anonymous_report_notice_due() -> bool:
@@ -1305,11 +1455,30 @@ def _line_number(value: Any) -> int:
         return 0
 
 
-def _frame(file: Any, function: Any, line: Any) -> Dict[str, Any]:
-    """Return one published frame: ``{file, function, line}``."""
-    return {"file": _public_frame_file(file),
-            "function": _safe_token(function) or "<unknown>",
-            "line": _line_number(line)}
+def _is_spacr_file(path: Any) -> bool:
+    """Whether a frame's file is part of the spaCR package itself."""
+    normal = str(path or "").replace("\\", "/").lower()
+    root = str(Path(__file__).resolve().parent).replace("\\", "/").lower()
+    return (normal.startswith(root.rstrip("/") + "/")
+            or re.search(r"/(?:site|dist)-packages/spacr/", normal) is not None)
+
+
+def _frame(file: Any, function: Any, line: Any,
+           code: Any = None) -> Dict[str, Any]:
+    """Return one published frame: ``{file, function, line}``.
+
+    ``code``, the frame's source line, is kept only for a file inside the
+    spaCR package, scrubbed and cut to :data:`MAX_CODE_CHARS`; a user's own
+    code never leaves the computer.
+    """
+    out: Dict[str, Any] = {"file": _public_frame_file(file),
+                           "function": _safe_token(function) or "<unknown>",
+                           "line": _line_number(line)}
+    if code and _is_spacr_file(file):
+        text = scrub_public_text(str(code).strip(), MAX_CODE_CHARS)
+        if text:
+            out["code"] = text
+    return out
 
 
 def _parse_traceback_text(text: str) -> Tuple[str, str, List[Dict[str, Any]]]:
@@ -1324,23 +1493,25 @@ def _parse_traceback_text(text: str) -> Tuple[str, str, List[Dict[str, Any]]]:
     for index, line in enumerate(lines):
         if line.strip().startswith("Traceback (most recent call last)"):
             start = index
-    frames: List[Dict[str, Any]] = []
+    raw: List[List[Any]] = []
     tail: List[str] = []
     for line in lines[start:]:
         match = _FRAME_LINE_RE.match(line)
         if match is not None:
-            frames.append(_frame(match.group("file"),
-                                 match.group("function") or "",
-                                 match.group("line")))
+            raw.append([match.group("file"), match.group("function") or "",
+                        match.group("line"), None])
             tail = []
             continue
         if line.startswith((" ", "\t")) or not line.strip():
             if tail and line.strip():
                 tail.append(line.strip())
+            elif raw and not tail and raw[-1][3] is None and line.strip():
+                raw[-1][3] = line.strip()
             continue
         if line.strip().startswith("Traceback"):
             continue
         tail = [line.strip()]
+    frames = [_frame(*entry) for entry in raw]
     if not tail:
         stripped = [line.strip() for line in lines if line.strip()]
         tail = stripped[-1:] if stripped else []
@@ -1435,13 +1606,17 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
     if isinstance(frames, (list, tuple)):
         for frame in list(frames)[-MAX_FRAMES:]:
             if isinstance(frame, Mapping):
-                out["frames"].append({
+                kept = {
                     "file": _safe_token(frame.get("file", ""), 80)
                     or "<unknown>",
                     "function": _safe_token(frame.get("function", ""), 80)
                     or "<unknown>",
                     "line": _line_number(frame.get("line", 0)),
-                })
+                }
+                code = frame.get("code")
+                if code and kept["file"] != "<user-code>":
+                    kept["code"] = scrub_public_text(code, MAX_CODE_CHARS)
+                out["frames"].append(kept)
     note = scrub_public_text(source.get("user_note", ""), MAX_NOTE_CHARS) \
         if source.get("user_note") else ""
     if note:
@@ -1455,6 +1630,8 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
         out["ai_summary"] = summary_text
     elif source.get("summarize") is True:
         out["summarize"] = True
+    if source.get("kind") in (KIND_FAULT, KIND_USER_ERROR):
+        out["kind"] = source["kind"]
     while (len(json.dumps(out).encode("utf-8")) > MAX_SUMMARY_BYTES
            and out["frames"]):
         out["frames"].pop(0)
@@ -1463,7 +1640,8 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
 
 def public_summary(exception: Optional[BaseException] = None, *,
                    traceback_text: str = "", module: str = "",
-                   user_note: str = "", dry_run: bool = False
+                   user_note: str = "", dry_run: bool = False,
+                   kind: str = "", code_context: bool = False
                    ) -> Dict[str, Any]:
     """Build the anonymised summary of an error that may be published.
 
@@ -1483,16 +1661,25 @@ def public_summary(exception: Optional[BaseException] = None, *,
         :data:`MAX_NOTE_CHARS`; left out when empty.
     :param dry_run: ask the relay to validate without filing; left out when
         false.
+    :param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out
+        by :func:`classify_failure` when empty.
+    :param code_context: add each spaCR frame's source line as ``code``.
+        Frames of any other file never carry code.
     :returns: the summary, ready for :func:`submit_public_summary`.
     """
+    failure_kind = kind or classify_failure(exception, traceback_text)
     kind, message, frames = "", "", []
     if exception is not None:
         kind = type(exception).__name__
         message = str(exception)
-        frames = [_frame(item.filename, item.name, item.lineno)
+        frames = [_frame(item.filename, item.name, item.lineno,
+                         item.line if code_context else None)
                   for item in traceback.extract_tb(exception.__traceback__)]
     elif traceback_text:
         kind, message, frames = _parse_traceback_text(traceback_text)
+        if not code_context:
+            for frame in frames:
+                frame.pop("code", None)
     return _validated_summary({
         "install_id": install_id(),
         "spacr_version": _spacr_version(),
@@ -1507,6 +1694,7 @@ def public_summary(exception: Optional[BaseException] = None, *,
         "frames": frames,
         "user_note": user_note,
         "dry_run": bool(dry_run),
+        "kind": failure_kind,
     })
 
 
@@ -1525,10 +1713,10 @@ def ai_summary_prompt(summary: Mapping[str, Any]) -> str:
     return (
         "Below is an anonymised spaCR error report as JSON. Summarise the "
         "likely cause of the error and where in spaCR it happens (module, "
-        "file and function). Use plain prose, at most "
-        f"{AI_SUMMARY_TARGET_CHARS} characters. Do not include any personal "
-        "data: no paths, file names, user or host names, e-mail or IP "
-        "addresses, or tokens.\n\n"
+        "file and function), then give a short fix the user can apply. Use "
+        f"plain prose, at most {AI_SUMMARY_TARGET_CHARS} characters. Do not "
+        "include any personal data: no paths, file names, user or host "
+        "names, e-mail or IP addresses, or tokens.\n\n"
         + json.dumps(shown, indent=2))
 
 
@@ -1902,14 +2090,31 @@ def _normal_allowance(data: Mapping[str, Any]) -> Dict[str, Any]:
     """Return the relay's allowance in one fixed shape, counts as ints."""
     ai = data.get("ai") if isinstance(data.get("ai"), Mapping) else {}
     pool = str(data.get("pool", "") or "best")
-    return {
-        "ai": {"best_left": _count(ai.get("best_left")),
-               "light_left": _count(ai.get("light_left"))},
+    out_ai: Dict[str, Any] = {"best_left": _count(ai.get("best_left")),
+                              "light_left": _count(ai.get("light_left"))}
+    for key in ("neurons_left", "share_neurons", "active_users"):
+        if ai.get(key) is not None:
+            out_ai[key] = _count(ai.get(key))
+    if ai.get("share_pct") is not None:
+        try:
+            out_ai["share_pct"] = max(0.0, float(ai.get("share_pct")))
+        except (TypeError, ValueError):
+            pass
+    if ai.get("tier_now") in ("best", "light"):
+        out_ai["tier_now"] = ai.get("tier_now")
+    out = {
+        "ai": out_ai,
         "reports_left": _count(data.get("reports_left", REPORTS_PER_DAY)),
         "pool": pool if pool in ("best", "light", "exhausted") else "best",
         "resets_at": (_parse_reset(data.get("resets_at"))
                       or next_reset_utc()).isoformat(),
     }
+    if data.get("pool_pct_left") is not None:
+        try:
+            out["pool_pct_left"] = max(0.0, float(data.get("pool_pct_left")))
+        except (TypeError, ValueError):
+            pass
+    return out
 
 
 def fetch_allowance(timeout: float = SEND_TIMEOUT_S

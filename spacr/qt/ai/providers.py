@@ -1225,6 +1225,104 @@ def with_ai_summary(summary: Dict, provider: Optional[ChatProvider]) -> Dict:
     return out
 
 
+def explain_failure(summary: Dict, provider: Optional[ChatProvider],
+                    timeout: Optional[float] = None) -> Dict:
+    """Have the active AI explain a failure once, for the console and the issue.
+
+    spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised
+    summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI
+    answers :func:`spacr.crashreport.ai_summary_prompt` here
+    (:func:`write_report_summary`). The same text is shown in the console
+    and sent as the report's ``ai_summary``, so a failure costs one AI call.
+    Blocks, so call it off the GUI thread.
+
+    :param summary: a summary from :func:`spacr.crashreport.public_summary`.
+    :param provider: the active provider, or ``None``.
+    :param timeout: seconds a vendor CLI may take; defaults to
+        :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.
+    :returns: ``{"text": explanation or "", "tier": "best"|"light"|"",
+        "refused": "" or "quota"|"network"|"error"|"none"}``.
+    """
+    from ... import crashreport
+
+    if provider is None:
+        return {"text": "", "tier": "", "refused": "none"}
+    if provider.name == HOSTED_PROVIDER_NAME:
+        try:
+            answer = crashreport.diagnose_remotely(
+                summary, crashreport.EXPLAIN_QUESTION,
+                timeout=crashreport.AI_SUMMARY_TIMEOUT_S)
+        except crashreport.RelayRefused as exc:
+            return {"text": "", "tier": "", "refused": exc.reason}
+        except Exception:
+            return {"text": "", "tier": "", "refused": "error"}
+        allowance = answer.get("allowance")
+        if allowance:
+            provider.last_allowance = allowance
+        text = crashreport.scrub_public_text(
+            answer.get("advice", ""), crashreport.MAX_AI_SUMMARY_CHARS)
+        return {"text": text, "tier": answer.get("tier", "best"),
+                "refused": "" if text else "error"}
+    text = write_report_summary(summary, provider, timeout)
+    return {"text": text, "tier": "", "refused": "" if text else "error"}
+
+
+#: What each vendor CLI can say about its remaining usage, checked
+#: 2026-10-14. None has a reliable, free, non-interactive, machine-readable
+#: source: Claude Code shows plan limits only inside an interactive session
+#: (``/usage``, and the JSON it hands a status-line command, which only a
+#: running session invokes); ``claude -p --output-format json`` reports
+#: the tokens and cost of the call just made, not what is left. The Codex
+#: CLI shows limits in its interactive ``/status`` view only. The Gemini
+#: CLI's ``/stats`` is interactive and covers the current session. So no
+#: bar is drawn for them and no number is invented.
+CLI_USAGE_TEXT: Dict[str, str] = {
+    "claude": "Your own Claude account · limits set by Anthropic",
+    "codex": "Your own ChatGPT account (Codex) · limits set by OpenAI",
+    "gemini": "Your own Google account (Gemini) · limits set by Google",
+}
+
+
+def usage_bar(provider_name: Optional[str],
+              allowance: Optional[Dict] = None) -> Tuple[Optional[int], str]:
+    """What the usage bar under the AI chat box shows for a provider.
+
+    For spaCR AI (free) the bar is the user's share of today's shared free
+    capacity, ``neurons_left / share_neurons``, from the relay's dynamic
+    allowance. For a vendor CLI there is no reliable usage source
+    (:data:`CLI_USAGE_TEXT`), so the bar is hidden and only a line is shown.
+
+    :param provider_name: the selected provider's name, or ``None``.
+    :param allowance: what :func:`spacr.crashreport.fetch_allowance`
+        returned, for spaCR AI.
+    :returns: ``(percent or None to hide the bar, translated text)``.
+    """
+    from ..i18n import tr
+
+    if provider_name in CLI_USAGE_TEXT:
+        return None, tr(CLI_USAGE_TEXT[provider_name])
+    if provider_name != HOSTED_PROVIDER_NAME:
+        return None, ""
+    if not allowance:
+        return None, hosted_cli_hint()
+    ai = allowance.get("ai") or {}
+    share = ai.get("share_neurons")
+    left = ai.get("neurons_left")
+    if share is None or left is None:
+        return None, hosted_allowance_text(allowance)
+    share, left = int(share or 0), int(left or 0)
+    if share <= 0 or left <= 0 or allowance.get("pool") == "exhausted":
+        return 0, tr("Daily share used. Errors are still reported without an "
+                     "AI summary.")
+    percent = max(0, min(100, round(100 * left / share)))
+    text = tr("{pct}% of your share left · {n} users sharing today · resets "
+              "{time}", pct=percent, n=int(ai.get("active_users", 0) or 0),
+              time=local_reset_time(allowance.get("resets_at")))
+    if ai.get("tier_now") == "light":
+        text += " · " + tr("light model")
+    return percent, text
+
+
 def hosted_daily_allowance_text() -> str:
     """The free allowance of spaCR AI, as Preferences states it.
 

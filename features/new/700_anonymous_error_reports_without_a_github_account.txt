@@ -246,3 +246,36 @@ after the daily limit resets". The first-run notice states both allowances.
   allowance used)". Response field ai_summary_source is read.
 - The first-run notice says reports include an AI-written summary, made with
   the user's own AI when one is connected.
+
+2026-10-14 — BUILT, every failure handled (client side). The maintainer's
+Mask run refused for a missing channel produced no AI message and no report:
+outside strict mode spacr.errors.raise_if_strict only logs the refusal and
+the pipeline returns, so the run read as finished. AppScreen now watches the
+spacr.errors logger for the length of a run; a refusal turns the end of the
+run into "✗ The run did not start: <message>" and a user_error failure.
+- Preferences → AI → "AI Error report" replaces the on/off switch: Summarize
+  and send all errors (default) / … with code context / Summarize all
+  errors, send only faults / Summarize all errors, send nothing / Send all
+  errors, no AI summary / Send only faults, no AI summary / Off. Faults are
+  unexpected exceptions; ConfigurationError and its subclasses and
+  settings-path errors are user errors. Code context adds frames[].code
+  (<=160 chars, scrubbed) for spaCR frames only. The first-run notice points
+  to the setting; its switch maps to "all"/"off".
+- Summarize choices: one AI call per failure (spaCR AI via /diagnose with a
+  fixed question, or the user's CLI), shown as "spaCR AI: …" and reused as
+  the issue's ai_summary. No allowance gives a one-line note and the report
+  is still filed per the choice. The gh-based automatic filing steps aside
+  when the relay files the report.
+- Usage bar under the chat box: spaCR AI shows neurons_left/share_neurons
+  with "{pct}% of your share left · {n} users sharing today · resets
+  {time}" (+ "· light model"), or "Daily share used. Errors are still
+  reported without an AI summary."; refreshed off the GUI thread on provider
+  switch and after answers. Vendor CLIs: no reliable free non-interactive
+  usage source was found (Claude Code shows plan limits only inside an
+  interactive session, /usage and the status-line JSON; `claude -p --output-
+  format json` reports the call's own cost; Codex shows limits only in its
+  interactive /status; Gemini's /stats is interactive and per session), so
+  the bar is hidden and the line names the account and who sets its limits.
+- /report gains kind ("fault" | "user_error") and frames[].code; the
+  allowance gains ai.neurons_left, share_neurons, share_pct, active_users,
+  tier_now and pool_pct_left.

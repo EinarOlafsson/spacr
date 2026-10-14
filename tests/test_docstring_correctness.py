@@ -4107,7 +4107,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     client700_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text())
-    assert len(client700_additions) == 47
+    assert len(client700_additions) == 55
     assert {key: docs[key] for key in client700_additions} == client700_additions
     assert not client700_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **client700_additions}

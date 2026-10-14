@@ -8940,6 +8940,7 @@ class AppScreen(QWidget):
 
         self._announce_the_fit(settings)
 
+        self._watch_for_refusals()
         self._thread, worker = make_thread(entry, settings)
         self._worker = worker
         worker.line_ready.connect(self._console.append_stdout)
@@ -9316,11 +9317,14 @@ class AppScreen(QWidget):
         console says nothing was sent and how to send it.
         """
         self._last_error_text = tb
+        self._failure_kind = self._kind_of_failure(tb)
+        self._anonymous_report_due = True
 
         routed = False
         try:
             from ..ai import settings as _ai_settings
             if (self._console._ai_active
+                    and not self._the_failure_is_explained_after_the_run()
                     and self._console._current_provider() is not None
                     and _ai_settings.get_route_errors_through_ai()):
                 self._console.open_error_flow(
@@ -9343,11 +9347,6 @@ class AppScreen(QWidget):
                 tb, self._settings_snapshot()):
             always = False
             self._report_is_a_settings_path = True
-        try:
-            self._anonymous_report_due = not self._is_a_settings_path_error(
-                tb, self._settings_snapshot())
-        except Exception:                                    # noqa: BLE001
-            self._anonymous_report_due = False
         agreed = always and self._the_terms_allow_automatic_filing()
         self._report_files_itself = agreed
         self._report_awaits_the_terms = always and not agreed
@@ -9482,8 +9481,12 @@ class AppScreen(QWidget):
         """
         anonymous_due = getattr(self, "_anonymous_report_due", False)
         self._anonymous_report_due = False
+        relay_files = False
         if failed and anonymous_due:
-            self._send_the_anonymous_report()
+            relay_files = self._send_the_anonymous_report(
+                getattr(self, "_failure_kind", ""))
+        if relay_files:
+            self._report_files_itself = False
         files_itself = getattr(self, "_report_files_itself", False)
         awaits_the_terms = getattr(self, "_report_awaits_the_terms", False)
         self._report_files_itself = False
@@ -9510,54 +9513,157 @@ class AppScreen(QWidget):
             return
         self._say_the_report_was_not_sent(failed=failed)
 
-    def _send_the_anonymous_report(self) -> None:
-        """Send the failed run's anonymised summary, off the GUI thread.
+    def _kind_of_failure(self, tb: str) -> str:
+        """Whether a failed run is a fault or the user's to fix.
 
-        Runs when "Send anonymised error reports" is on
-        (:func:`spacr.crashreport.anonymous_reports_enabled`) and the network
-        is allowed. Only :func:`spacr.crashreport.public_summary` of the
-        traceback leaves the computer, through spaCR's relay, so no GitHub
-        sign-in is needed; the GitHub report and its preview are unchanged
-        and still offered. A settings path error is not sent. The outcome is
-        one line in the console (:meth:`_on_anonymous_report_sent`).
+        A settings, validation or settings-path error is a user error
+        (:func:`spacr.crashreport.classify_failure`, and
+        :meth:`_is_a_settings_path_error`); anything else is a fault.
+
+        :param tb: the formatted traceback.
+        :returns: ``"fault"`` or ``"user_error"``.
+        """
+        from ... import crashreport
+
+        try:
+            if self._is_a_settings_path_error(tb, self._settings_snapshot()):
+                return crashreport.KIND_USER_ERROR
+            return crashreport.classify_failure(traceback_text=tb)
+        except Exception:                                    # noqa: BLE001
+            return crashreport.KIND_FAULT
+
+    def _the_failure_is_explained_after_the_run(self) -> bool:
+        """Whether the "AI Error report" choice explains this failure itself.
+
+        Then the console does not also send the error to the AI as it
+        arrives: a failure costs one AI call, made when the run has ended
+        (:meth:`_send_the_anonymous_report`).
+
+        :returns: ``True`` for a "Summarize" choice with the network allowed
+            and an AI to ask.
+        """
+        from ... import crashreport
+
+        try:
+            return bool(crashreport.mode_explains()
+                        and crashreport.network_allowed()
+                        and self._report_summary_provider() is not None)
+        except Exception:                                    # noqa: BLE001
+            return False
+
+    def _send_the_anonymous_report(self, kind: str = "") -> bool:
+        """Explain and report a failure as Preferences → AI → AI Error report says.
+
+        Every failure takes this path, faults and user errors alike,
+        including a run refused before it started. A "Summarize" choice has
+        the active AI explain it once (:func:`spacr.qt.ai.providers
+        .explain_failure`): the text is shown in the console as "spaCR AI:"
+        and, when the failure is sent, travels as the report's
+        ``ai_summary``. A choice that sends this kind of failure files the
+        anonymised :func:`spacr.crashreport.public_summary` through spaCR's
+        relay, with each spaCR frame's source line when code context is
+        chosen. All of it runs on the background runner; the outcome is
+        written by :meth:`_on_anonymous_report_sent`.
+
+        :param kind: ``"fault"`` or ``"user_error"``; worked out from the
+            traceback when empty.
+        :returns: whether a report is being sent through the relay, in which
+            case the GitHub sign-in path does not file it a second time.
         """
         from ... import crashreport
 
         tb = getattr(self, "_last_error_text", "") or ""
         if not tb:
-            return
+            return False
         try:
-            if not (crashreport.anonymous_reports_enabled()
-                    and crashreport.network_allowed()):
-                return
+            kind = kind or self._kind_of_failure(tb)
+            mode = crashreport.error_report_mode()
+            online = crashreport.network_allowed()
+            explain = bool(crashreport.mode_explains(mode) and online)
+            send = bool(crashreport.mode_sends(kind, mode)
+                        and crashreport.anonymous_reports_enabled() and online)
         except Exception:                                    # noqa: BLE001
-            return
+            return False
+        provider = self._report_summary_provider() if explain else None
+        explain = explain and provider is not None
+        if not (explain or send):
+            return False
         app_key = str(self.app_key or "")
-        provider = self._report_summary_provider()
+        code_context = crashreport.mode_code_context(mode)
 
         def _send() -> dict:
-            """Build, summarise, queue and post the report. Off the GUI thread."""
-            from ..ai.providers import HOSTED_PROVIDER_NAME, with_ai_summary
+            """Explain, summarise and post the failure. Off the GUI thread."""
+            from ..ai.providers import explain_failure
 
-            wanted = ""
-            if provider is not None:
-                wanted = ("relay" if provider.name == HOSTED_PROVIDER_NAME
-                          else "client")
+            explanation: dict = {}
+            outcome: dict = {"status": "not_sent"}
             try:
-                summary = crashreport.public_summary(traceback_text=tb,
-                                                     module=app_key)
-                try:
-                    summary = with_ai_summary(summary, provider)
-                except Exception:         # noqa: BLE001 - the report goes anyway
-                    LOG.debug("no AI summary for the report", exc_info=True)
-                outcome = crashreport.submit_public_summary(summary)
+                summary = crashreport.public_summary(
+                    traceback_text=tb, module=app_key, kind=kind,
+                    code_context=code_context)
+                if explain:
+                    try:
+                        explanation = explain_failure(summary, provider)
+                    except Exception as exc:  # noqa: BLE001 - report anyway
+                        explanation = {"text": "", "refused": "error",
+                                       "detail": str(exc)}
+                if send:
+                    if explanation.get("text"):
+                        summary["ai_summary"] = explanation["text"]
+                    outcome = crashreport.submit_public_summary(summary)
+                    outcome["ai_summary_attached"] = bool(
+                        explanation.get("text"))
             except Exception as exc:      # noqa: BLE001 - reported, not hidden
                 outcome = {"status": crashreport.REPORT_QUEUED,
                            "detail": f"{type(exc).__name__}: {exc}"}
-            outcome["ai_summary_wanted"] = wanted
+            outcome["explained"] = explain
+            outcome["explanation"] = explanation
+            outcome["kind"] = kind
             return outcome
 
         self._jobs.submit(_send, self._on_anonymous_report_sent)
+        return send
+
+    def _watch_for_refusals(self) -> None:
+        """Start noting runs that :func:`spacr.errors.raise_if_strict` refuses.
+
+        Outside strict mode a pipeline that finds its settings unusable
+        (for example "At least one registered *_channel … must be set")
+        logs the refusal on ``spacr.errors`` and returns, so the run ends
+        without an exception and used to read as finished. The refusals
+        logged while the run is going are collected and handed to
+        :meth:`_stop_watching_refusals`.
+        """
+        import logging
+
+        self._stop_watching_refusals()
+        seen: list = []
+        handler = logging.Handler(level=logging.ERROR)
+        handler.emit = seen.append
+        logging.getLogger("spacr.errors").addHandler(handler)
+        self._refusal_watch = (handler, seen)
+
+    def _stop_watching_refusals(self) -> list:
+        """Stop noting refusals and return their messages.
+
+        :returns: the messages logged on ``spacr.errors`` at ``ERROR`` since
+            :meth:`_watch_for_refusals`, oldest first.
+        """
+        import logging
+
+        watch = getattr(self, "_refusal_watch", None)
+        self._refusal_watch = None
+        if watch is None:
+            return []
+        handler, seen = watch
+        logging.getLogger("spacr.errors").removeHandler(handler)
+        out = []
+        for record in seen:
+            try:
+                out.append(str(record.getMessage()))
+            except Exception:                                # noqa: BLE001
+                continue
+        return out
 
     def _report_summary_provider(self):
         """The provider that writes a report's AI summary: the one in use.
@@ -9589,6 +9695,27 @@ class AppScreen(QWidget):
 
         outcome = dict(outcome or {})
         status = outcome.get("status")
+        explanation = dict(outcome.get("explanation") or {})
+        refused = str(explanation.get("refused", "") or "")
+        if outcome.get("explained"):
+            if explanation.get("text"):
+                light = " [light model]" if explanation.get(
+                    "tier") == "light" else ""
+                self._console.append_notice(
+                    "spaCR AI: {text}{light}\n",
+                    text=explanation["text"], light=light)
+            elif refused == "quota":
+                self._console.append_notice(
+                    "spaCR AI: today's free AI is used up, so this error is "
+                    "not explained. It is still handled as Preferences → AI "
+                    "→ AI Error report says.\n")
+            else:
+                self._console.append_notice(
+                    "spaCR AI could not explain this error this time.\n")
+            try:
+                self._console.refresh_ai_usage()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not refresh the AI usage", exc_info=True)
         if status == crashreport.REPORT_SENT:
             number = outcome.get("issue_number") or "?"
             url = str(outcome.get("issue_url", "") or "")
@@ -9597,16 +9724,16 @@ class AppScreen(QWidget):
                     "[report] Reported anonymously: this error already has "
                     "issue #{number}, which now counts it again. {url}\n",
                     number=number, url=url)
-            elif outcome.get("ai_summary_source") in ("client", "relay"):
+            elif outcome.get("ai_summary_attached"):
                 self._console.append_notice(
                     "[report] Reported as issue #{number} (with AI summary). "
                     "{url}\n", number=number, url=url)
-            elif outcome.get("ai_summary_wanted") == "relay":
+            elif outcome.get("explained") and refused == "quota":
                 self._console.append_notice(
                     "[report] Reported as issue #{number} (without AI "
                     "summary: daily AI allowance used). {url}\n",
                     number=number, url=url)
-            elif outcome.get("ai_summary_wanted") == "client":
+            elif outcome.get("explained"):
                 self._console.append_notice(
                     "[report] Reported as issue #{number} (without AI "
                     "summary). {url}\n", number=number, url=url)
@@ -10596,6 +10723,10 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         cancelled = bool(
             getattr(getattr(self, "_worker", None), "was_cancelled", False))
+        refusals = self._stop_watching_refusals()
+        refused = bool(ok and not cancelled and refusals)
+        if refused:
+            ok = False
         import time as _elapsed_time
         self._update_run_in_runs_tab(
             status=("stopped" if cancelled else ("ok" if ok else "failed")),
@@ -10604,11 +10735,23 @@ class AppScreen(QWidget):
         if cancelled:
             self._console.append_notice(
                 "■ Stopped safely at a field, trial, or job boundary\n")
+        elif refused:
+            self._console.append_notice(
+                "✗ The run did not start: {message}\n", message=refusals[-1])
         else:
             self._console.append_notice(
                 "✓ Finished\n" if ok else
                 "✗ Failed — see traceback above\n")
-        self._settle_the_report(failed=not ok and not cancelled)
+        if refused:
+            from ... import crashreport
+
+            self._settle_the_report(failed=False)
+            self._last_error_text = (
+                "spacr.errors.ConfigurationError: " + refusals[-1])
+            self._failure_kind = crashreport.KIND_USER_ERROR
+            self._send_the_anonymous_report(crashreport.KIND_USER_ERROR)
+        else:
+            self._settle_the_report(failed=not ok and not cancelled)
         if (ok and not cancelled and getattr(self, "_results_panel", None)
                 and not getattr(self, "_results_loaded_in_memory", False)):
             try:

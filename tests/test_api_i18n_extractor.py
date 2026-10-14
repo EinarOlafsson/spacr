@@ -1567,7 +1567,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     client700_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts"
         / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text())
-    assert len(client700_arrivals) == 47
+    assert len(client700_arrivals) == 55
     assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
     assert not client700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **client700_arrivals}

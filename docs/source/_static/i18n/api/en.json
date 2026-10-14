@@ -9829,11 +9829,11 @@
     },
     "spacr.crashreport.anonymous_reports_enabled": {
       "source_blocks_sha256": [
-        "c8e99f4d8e6cf835f3ec003d76bdfe334fcdd4c947bdcb771fb243a8bcca4d81",
-        "4e5b8827210aa3b8cbd5757f93efe1a284b1b726c6598f020b248db2c6f4680f"
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
       ],
-      "source_sha256": "d98d7f9dfdb910e44d9189151decba6e4418a79905b9330da7d09478e5c9202f",
-      "text": "Whether failed runs and crashes are sent as anonymised reports.\n\n:returns: the saved choice, or :data:`DEFAULT_ANONYMOUS_REPORTS` for a\n    profile that never made one."
+      "source_sha256": "7ef7463a6276e9fb8ee5c88ffe18a3e3ab7f6bd560bbddec970d2a8882c9875b",
+      "text": "Whether any failure is sent as an anonymised report.\n\n:returns: ``False`` for the choices that send nothing."
     },
     "spacr.crashreport.build_parser": {
       "source_blocks_sha256": [
@@ -9842,6 +9842,17 @@
       ],
       "source_sha256": "0aab8c8468e450df92f7c64ea60d5262caea942ba2a2fe77bb1013886b979f24",
       "text": "Return the ``spacr-crashreport`` argument parser.\n\n:returns: the parser, built separately so a test can exercise the argument\n    surface without running a collection."
+    },
+    "spacr.crashreport.classify_failure": {
+      "source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
+      ],
+      "source_sha256": "2a648f589ae7cbaad695a8b78a423c22c79c9fa59ca14fd1456ae91a800f3d1e",
+      "text": "Return whether a failure is a fault or a user error.\n\nA :class:`spacr.errors.ConfigurationError`, or any of its subclasses, is\na user error: a setting, a validation or a missing input the user can\nfix. Anything else is a fault.\n\n:param exception: the exception, when at hand.\n:param traceback_text: a formatted traceback otherwise.\n:returns: :data:`KIND_USER_ERROR` or :data:`KIND_FAULT`."
     },
     "spacr.crashreport.collect": {
       "source_blocks_sha256": [
@@ -9880,6 +9891,15 @@
       ],
       "source_sha256": "82fb0e7132840a9f75447a5ab1b7e82f6105790d60c93ba5996028dcdfe478d2",
       "text": "Ask the relay's hosted model about an error, with no account.\n\nSends the anonymised summary and the scrubbed question, cut to\n:data:`MAX_QUESTION_CHARS`, to ``/diagnose``. The answer is generated\nadvice, not a checked fix. Blocks, so call it off the GUI thread.\n\n:param summary: a summary from :func:`public_summary`.\n:param question: what the user asks; may be empty.\n:param timeout: seconds the model may take.\n:returns: ``{\"advice\": text, \"model\": model name}``.\n:raises RelayRefused: with ``reason`` ``\"quota\"`` when the free daily\n    limit is used up, ``\"network\"`` when the relay cannot be reached or\n    the network is forbidden, and ``\"error\"`` otherwise."
+    },
+    "spacr.crashreport.error_report_mode": {
+      "source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ],
+      "source_sha256": "35bf036e89a7b78d5cde1c46f99a1b652716db8a011fcd1a4dc708cc9dcb2a88",
+      "text": "Return the \"AI Error report\" choice, a key of :data:`ERROR_REPORT_MODES`.\n\nA profile that only ever turned the older on/off switch off reads as\n``\"off\"``.\n\n:returns: the saved key, or :data:`DEFAULT_ERROR_REPORT_MODE`."
     },
     "spacr.crashreport.example_public_summary": {
       "source_blocks_sha256": [
@@ -9963,6 +9983,34 @@
       "source_sha256": "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad",
       "text": "Record that the notice about anonymised reports has been shown."
     },
+    "spacr.crashreport.mode_code_context": {
+      "source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ],
+      "source_sha256": "f51c17fbd4961b03df65dcf8653b866aeed2192f284480a3c8a063e2895f2485",
+      "text": "Whether a choice adds each spaCR frame's source line to a report.\n\n:param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved\n    one.\n:returns: ``True`` only for ``\"all_code\"``."
+    },
+    "spacr.crashreport.mode_explains": {
+      "source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ],
+      "source_sha256": "8ef9b3a636ec21ab6b1d9f1801960e5d95dcc776f857af9db75e462b49f787c0",
+      "text": "Whether a choice has the AI explain every failure in the console.\n\n:param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved\n    one.\n:returns: ``True`` for the four \"Summarize\" choices."
+    },
+    "spacr.crashreport.mode_sends": {
+      "source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ],
+      "source_sha256": "4bedb3bfe06a1e2a45775df22d01bcb84e042554bae6b3205d3c8ac1c45b8da6",
+      "text": "Whether a choice files a failure of ``kind`` as an issue.\n\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.\n:param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved\n    one.\n:returns: whether it is sent."
+    },
     "spacr.crashreport.network_allowed": {
       "source_blocks_sha256": [
         "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
@@ -9989,10 +10037,12 @@
         "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
         "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
         "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
         "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
       ],
-      "source_sha256": "6e47571646496533f625a526a323e1112b06976a1648d0b309e605e378fec969",
-      "text": "Build the anonymised summary of an error that may be published.\n\nOnly the keys in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is\npassed through :func:`scrub_public_text` and cut to\n:data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES`\n``{file, function, line}`` records with the file as a basename, or\n``<user-code>`` for a file outside spaCR, Python and its libraries.\nNo log, setting, environment variable or path is read into it.\n\n:param exception: the exception, with its traceback.\n:param traceback_text: a formatted traceback, used when no exception\n    object is at hand (a failed pipeline run reports one as text).\n:param module: the spaCR module key the error happened in, such as\n    ``mask`` or ``measure``.\n:param user_note: what the user adds, scrubbed and cut to\n    :data:`MAX_NOTE_CHARS`; left out when empty.\n:param dry_run: ask the relay to validate without filing; left out when\n    false.\n:returns: the summary, ready for :func:`submit_public_summary`."
+      "source_sha256": "482667be04613bff5ac95931b2b9ea1b8fa90469003d2ddb71c19cd271e51f55",
+      "text": "Build the anonymised summary of an error that may be published.\n\nOnly the keys in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is\npassed through :func:`scrub_public_text` and cut to\n:data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES`\n``{file, function, line}`` records with the file as a basename, or\n``<user-code>`` for a file outside spaCR, Python and its libraries.\nNo log, setting, environment variable or path is read into it.\n\n:param exception: the exception, with its traceback.\n:param traceback_text: a formatted traceback, used when no exception\n    object is at hand (a failed pipeline run reports one as text).\n:param module: the spaCR module key the error happened in, such as\n    ``mask`` or ``measure``.\n:param user_note: what the user adds, scrubbed and cut to\n    :data:`MAX_NOTE_CHARS`; left out when empty.\n:param dry_run: ask the relay to validate without filing; left out when\n    false.\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out\n    by :func:`classify_failure` when empty.\n:param code_context: add each spaCR frame's source line as ``code``.\n    Frames of any other file never carry code.\n:returns: the summary, ready for :func:`submit_public_summary`."
     },
     "spacr.crashreport.queued_summaries": {
       "source_blocks_sha256": [
@@ -10037,12 +10087,22 @@
     },
     "spacr.crashreport.set_anonymous_reports_enabled": {
       "source_blocks_sha256": [
-        "2b9ae6b6eb3a60ea9e2eae0e8cffc55c9f5831ec03761d854f8bb0988b030f7b",
-        "9bc41d1b7f7443bcb38799022dfd98953dc93144d51314951ebe8e7c08712870",
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
         "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
       ],
-      "source_sha256": "c99529abfcc7bfa30254fd6f635cbe442b6542fbb21f5dd453cbc176054b33d3",
-      "text": "Save the anonymised-report switch.\n\nTurning it off also deletes every report still waiting, so nothing\nqueued before the change is sent after it.\n\n:param enabled: whether reports may be sent."
+      "source_sha256": "c1733374423ede60015b9adde6dab9c2b15931d19d44685e7595fddbdd09cf31",
+      "text": "Turn reports on or off, as the first-run notice's switch does.\n\nOn restores the default choice when the current one sends nothing;\noff is ``\"off\"``.\n\n:param enabled: whether reports may be sent."
+    },
+    "spacr.crashreport.set_error_report_mode": {
+      "source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ],
+      "source_sha256": "a9df70e5bc023d295da9b5e05b8c7e2606bd48dc5b79493b313dfe0dd62eee81",
+      "text": "Save the \"AI Error report\" choice.\n\nA choice that sends nothing also deletes every report still waiting, so\nnothing queued before the change is sent after it.\n\n:param mode: a key of :data:`ERROR_REPORT_MODES`.\n:raises ValueError: for any other value."
     },
     "spacr.crashreport.submit_public_summary": {
       "source_blocks_sha256": [
@@ -43727,6 +43787,18 @@
       "source_sha256": "3173d3a2ba19dba050f7152112ff7e4324ad10142a37f21ba6117a710d70a273",
       "text": "Return the name of the provider Preferences shows as chosen.\n\n:param preferred: the stored preference; ``\"\"`` (never chosen) means\n    spaCR AI (free).\n:returns: a name from :data:`PROVIDER_CHOICES`."
     },
+    "spacr.qt.ai.providers.explain_failure": {
+      "source_blocks_sha256": [
+        "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+        "bd98b7f9865a2d9fdea51da602e8a141bedd9cce2a20decd137961d2201263e4",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+        "4a7fef46b5430397881ee32f12751f3ee9a9d79bb7a64f99423974ca2412d951"
+      ],
+      "source_sha256": "78242dad7ceab8aaaea9bbaa73956021492cc15092a2da3837b574f50ed6eaaa",
+      "text": "Have the active AI explain a failure once, for the console and the issue.\n\nspaCR AI (free) asks the relay's ``/diagnose`` with the anonymised\nsummary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI\nanswers :func:`spacr.crashreport.ai_summary_prompt` here\n(:func:`write_report_summary`). The same text is shown in the console\nand sent as the report's ``ai_summary``, so a failure costs one AI call.\nBlocks, so call it off the GUI thread.\n\n:param summary: a summary from :func:`spacr.crashreport.public_summary`.\n:param provider: the active provider, or ``None``.\n:param timeout: seconds a vendor CLI may take; defaults to\n    :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.\n:returns: ``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\",\n    \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``."
+    },
     "spacr.qt.ai.providers.get_provider": {
       "source_blocks_sha256": [
         "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
@@ -43860,6 +43932,17 @@
       ],
       "source_sha256": "05a7e29bbb30ab96a4bb65901379f9bc50a18add3198b85d1055aec07e081f1c",
       "text": "Terminate active provider subprocesses and release their readers.\n\n:returns: Number of subprocesses for which termination was requested."
+    },
+    "spacr.qt.ai.providers.usage_bar": {
+      "source_blocks_sha256": [
+        "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+        "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+        "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+        "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+        "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8"
+      ],
+      "source_sha256": "aed23315c0b27715e04b662ac7fed5c800bd14cd1db2482fb0149fa88a2e00e4",
+      "text": "What the usage bar under the AI chat box shows for a provider.\n\nFor spaCR AI (free) the bar is the user's share of today's shared free\ncapacity, ``neurons_left / share_neurons``, from the relay's dynamic\nallowance. For a vendor CLI there is no reliable usage source\n(:data:`CLI_USAGE_TEXT`), so the bar is hidden and only a line is shown.\n\n:param provider_name: the selected provider's name, or ``None``.\n:param allowance: what :func:`spacr.crashreport.fetch_allowance`\n    returned, for spaCR AI.\n:returns: ``(percent or None to hide the bar, translated text)``."
     },
     "spacr.qt.ai.providers.with_ai_summary": {
       "source_blocks_sha256": [
@@ -60531,10 +60614,10 @@
     },
     "spacr.qt.screens.app_screen.AppScreen._send_the_anonymous_report._send": {
       "source_blocks_sha256": [
-        "dda74430a9eaada15f8dee43185d2989aa8a7e6b705377edef314dcfe27a9550"
+        "de51d1780a8ea02c953ce55540b35d8cbbd6f6df9a18ca2cd667a02ff37a4e34"
       ],
-      "source_sha256": "dda74430a9eaada15f8dee43185d2989aa8a7e6b705377edef314dcfe27a9550",
-      "text": "Build, summarise, queue and post the report. Off the GUI thread."
+      "source_sha256": "de51d1780a8ea02c953ce55540b35d8cbbd6f6df9a18ca2cd667a02ff37a4e34",
+      "text": "Explain, summarise and post the failure. Off the GUI thread."
     },
     "spacr.qt.screens.app_screen.AppScreen._with_the_controls.swap": {
       "source_blocks_sha256": [
@@ -82525,13 +82608,13 @@
       "source_sha256": "d5188a38c862b59b8f2ba79fd6189fbdcd77af363e701506c9a4dd538b7ab510",
       "text": "Bring ``bar``'s section to the top of the view and expand it.\n\nThe console is a transcript, so the order of its sections is the one\nproperty a log has: this scrolls, it does not reorder.\n\nRaising a section also stops the view following new output. A user who\nclicked a heading is reading that section, and new output would\notherwise move the viewport away from it. Following resumes when they\nscroll back to the bottom, which is the convention every log viewer\nuses.\n\n:param bar: the topic bar (section heading) whose section is meant."
     },
-    "spacr.qt.widgets.console_panel.ConsolePanel.refresh_hosted_allowance": {
+    "spacr.qt.widgets.console_panel.ConsolePanel.refresh_ai_usage": {
       "source_blocks_sha256": [
-        "b39ef13bcc2a021ae8822f568cf09d8e7164cda9521859cb33f6a4926b89eec2",
-        "484b478cb1991d246d1ccf6949e0f08251fb47242aa84672aafa19a976ede747"
+        "13f63a9f65c97e989683a04c438818197791a303dfef952cacd398046f629819",
+        "e7f733bc058f4449ccef55e1758262b4686f785db432b3eef923a3ad32cb3955"
       ],
-      "source_sha256": "8a628bd0aa1eab8f8a788ad23ce1b0c3177568a991a9bf0af7eec645d80a09e5",
-      "text": "Ask the relay, off the GUI thread, how many free questions are left.\n\nOnly while the hosted provider is selected; otherwise the allowance\nline is hidden. The request runs on a plain thread that touches no\nQt object; a single-shot timer tied to this panel collects the answer\non the GUI thread and passes it to :meth:`_show_hosted_allowance`, so a\npanel closed meanwhile simply never hears back."
+      "source_sha256": "1c972934e82e5844e640dc08a3972eb00a0615263cf77da38470fbbc82b2f01c",
+      "text": "Refresh the usage bar under the chat box for the selected provider.\n\nFor spaCR AI (free) the relay is asked, off the GUI thread, how much\nof today's share is left; the request runs on a plain thread that\ntouches no Qt object, and a single-shot timer tied to this panel\ncollects the answer on the GUI thread, so a panel closed meanwhile\nnever hears back. A vendor CLI has no usage source, so its line is\nshown at once and the bar is hidden\n(:func:`spacr.qt.ai.providers.usage_bar`). No provider hides the row."
     },
     "spacr.qt.widgets.console_panel.ConsolePanel.section_body": {
       "source_blocks_sha256": [

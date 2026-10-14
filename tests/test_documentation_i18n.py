@@ -3434,7 +3434,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     # 2026-10-14: Item 700 client: anonymised error reports through spaCR's relay, the first-run notice and the hosted AI provider; one named contract.
     client700_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text())
-    assert len(client700_arrivals) == 47
+    assert len(client700_arrivals) == 55
     assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
     assert not client700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **client700_arrivals}

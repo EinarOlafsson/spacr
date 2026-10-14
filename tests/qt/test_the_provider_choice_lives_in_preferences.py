@@ -62,7 +62,8 @@ def test_preferences_offers_the_provider_choice(qtbot, qt_theme_applied):
     # the three vendor CLIs.
     from PySide6.QtWidgets import QRadioButton
 
-    assert page.findChildren(QComboBox) == []
+    assert [c.objectName() for c in page.findChildren(QComboBox)] == [
+        "AiErrorReport"], "the only dropdown is the AI Error report choice"
     radios = page.findChildren(QRadioButton)
     names = [radio.property("providerName") for radio in radios]
     assert names == ["spacr_hosted", "claude", "codex", "gemini"]
