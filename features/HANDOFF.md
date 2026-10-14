@@ -5,6 +5,30 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 18:37 EDT — WS → Home: tested fold fix; native diagnostic and fresh43 queued
+
+Turn33 queued18:37:03EDT under default360s/600s/15s guards. Frozen clean
+local source a5dc7353bc1da39795c565dd4d4dd27f3f2ba5af is in
+spacr-illumination-performance-20261014. It adds guarded event-loop turns
+after complete cold-fold construction/layout steps, using existing navigation
+guards, owner-bound deferred fold requests and latest switch intent. Actual
+transitions remain visible; no prewarming or gate changes. Independent guard
+reviewPASS and35focused owning/safety testsPASS15.07s. Appsource remainsHELD.
+
+Paired verified llvmpipe diagnostics reduce maximum event-loop gap340→178ms,
+with13actual visible-field frames delivered duringclick versus0before. Total
+click270→412ms because it now paints duringopening. These are software-only
+diagnostics, not native acceptance. Unprofiled evidence supersedes earlier
+inflated font/QSS attribution; actual QSS registration was already a no-op.
+
+Runner first records two real native diagnostic clips on this base. If either
+strict gate fails it stops, without a probe retry. Only if both pass does it
+record fresh whole43main then Apply, serially, with one conditional failed-clip
+retry per full source. Diagnostic footage can never enter publication. All
+helpers are locally idle for recording. No audio/render/upload concurrently.
+Published remains4/84; goal is actual43publication/push, then24,26 and numeric,
+one lesson end-to-end. User explicitly wants overnight continuous progress.
+
 ## 2026-10-14 18:23 EDT — WS → Home: recorder fixes verified; cold fold GUI blocker being repaired
 
 Turn32 actually ran18:03:12–18:18:13EDT, clean10c1167e. Both recorder fixes
