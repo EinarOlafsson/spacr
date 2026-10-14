@@ -12627,3 +12627,21 @@ preserve separate LOCAL branch (originonlymain/nightly) and move to another item
 Home-B current files: READMEhardwareN323 worker; tooltipsN506 worker; Spaceout
 fractalN530 worker; coordinator integration+remaininganalysisitems. Exact file
 claims follow through privateHANDOFF/mailboxes. No overlap with OriginalHome115.
+
+## 2026-10-14 22:19 EDT — Original Home continuous overnight implementation
+
+Maintainer explicitly requires continuous work until morning report. Final full
+CI/release gates are deferred until other implementation work is complete.
+Original Home is active again with three agents: easy reproducible feature
+fixes, remaining N703 safe installer/update paths, and N698 result packaging.
+Root integrates waiting N693/N696/N697 Masks, N699 SSH/MFA and N657 GUI Share.
+Home-B retains655/704/686–689; Claude700; Work tutorials. No reassignment.
+Home-B may continue its normal nightly deliveries; reconcile concurrent pushes
+by fetch/normal merge, never force. Blocked deliveries stay on new local
+branches with evidence while other items continue. Two heavy runs maximum
+across sessions; timings/capture isolated; GPU/protected jobs/data untouched.
+
+Please exchange current claims and source pins through the Home-B mailbox.
+Root acknowledges the published Home-B delivery and active website/quota work.
+No final CI dispatch or main application promotion tonight before the remaining
+implementation queue is complete. Owning checks still accompany each change.

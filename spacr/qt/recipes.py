@@ -684,9 +684,9 @@ class RecipeDialog(QDialog):
         if not path:
             return
         try:
-            with open(path, "w", encoding="utf-8") as handle:
-                json.dump(recipe.to_json(), handle, indent=2, sort_keys=True,
-                          default=str)
+            text = json.dumps(recipe.to_json(), indent=2, sort_keys=True, default=str)
+            Path(path).parent.stat()
+            _atomic_write_text(Path(path), text)
         except Exception as exc:
             QMessageBox.warning(self, "Could not write the file", str(exc))
 

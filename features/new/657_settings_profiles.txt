@@ -63,3 +63,27 @@ This is a bounded N657 durable-save repair, not a recount of its old parent
 completion or a native Windows/macOS/full-CI claim. Temporary local profiles
 only; no user data, network, GPU, annotation or provider operation.
 Evidence: features/data/657_failed_profile_save_preservation_2026-10-14/receipt.json.
+
+2026-10-14 — actual GUI Share export preservation completed (Home):
+The separate Share handler still opened a selected existing export before
+JSON serialization, so a native serialization error corrupted that file.
+It now prepares complete JSON, verifies the selected parent exists using
+native stat, then reuses the already imported atomic UTF-8 writer. Share
+captions/warnings, chosen filename, JSON options, cancelled/no-selection
+behavior and the existing missing-parent refusal remain unchanged.
+
+The actual Share-button baseline had 2 failures: serialization corrupted the
+existing file, and the old direct writer bypassed the atomic-commit refusal
+seam. The final finite owning cohort passed 6 cases in 18.04 s (exit 0).
+Repeated actual button clicks after serialization errors or native replace
+errors preserve the previous readable export exactly; correction/retry saves
+new settings. The replace error is native, through a targeted adapter to a
+protected nonempty directory; no disk-exhaustion claim. Sentinel bytes,
+original stored profile and Recipe.path survive, with no temporary orphan.
+All four existing Share branches pass; fresh coverage executes every handler
+statement/branch exit. Signatures/docstrings/tr() calls remain unchanged and
+the normal index check passes without generated delta. This completes only
+the bounded GUI Share durability repair, distinct from backend save repair.
+Temporary offscreen Linux acceptance, no physical other-OS/full-CI claim or
+user-data, provider, network, annotation or GPU operation.
+Evidence: features/data/657_share_export_preservation_2026-10-14/receipt.json.
