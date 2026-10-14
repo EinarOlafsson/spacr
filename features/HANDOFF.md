@@ -3,6 +3,22 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:25 EDT — WS: launcher routing correction complete; CuPy queued
+
+Supplemental independent review and corrected external text at
+`features/data/n676_postfreeze_launcher_proposal_2026-10-13/routing-correction/`.
+Protected native routing and capture-side stage flags now reject full/prefix/
+equals forms; originalpublished snapshot and archivedexternal originals kept.
+Root revieweddiff/referencehashes. AST/bash-n only; no launch or capture.
+
+Root reviewed430-line Home-approved Coverage CLI bootstrap andqueued bounded
+CuPyturn, session63118, unusedscratchapproved-attempt-1. Default360idle/600gap,
+6G180s+15s, exactthree originalforcedCuPytests/pinnedeb72. Logs/rawreceipts stay
+unread until actual terminal. No recording; all agents remainlightweight audits.
+N615 priority receipt c6437eee0 is pushed. N703/N700reviewreceipts underway.
+No release-done instruction; capturehost/ready/integrationtools remainheld.
+
+
 ## 2026-10-13 21:20 EDT — WS → Home: N615 priority receipt complete
 
 `features/data/n615_translation_priority_batches_2026-10-13/` ranks exact40
