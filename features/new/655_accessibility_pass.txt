@@ -163,3 +163,21 @@ WHAT IS LEFT
   This closes these concrete viewer access gaps, not native reader speech,
   macOS/Windows acceptance or the Work-owned tutorial refresh.
   Proof: data/655_model_card_keyboard_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B reconciled the explicit caption/API acceptance debt
+  The October12 note's ten pending captions are ALREADY IMPLEMENTED and
+  registered: all10 current source literals have generated runtime targets,
+  matching source/target SHA-256 values and exact reviewed-record proofs in
+  all9 locales (90 source/locale checks). The caption-arrival contract already
+  includes them; no ceiling, manifest or catalog was changed today.
+  The15 recorded Accessibility API arrivals also match the current preferences
+  and theme AST docstrings. English entries are exact; all135 localized symbol
+  entries have current source/block hashes and297 exact translated-block
+  bindings to their existing October12 reviewed records. The repeatable scoped
+  verifier passed. This closes the stale caption/catalog/API follow-up notes
+  as acceptance reconciliation of historical work, not new translations or
+  native-speaker review.
+  Remaining N655 acceptance: native screen-reader speech/platform review,
+  actual macOS/Windows checks and the Work-owned Appearance tutorial refresh.
+  Proof: data/655_caption_api_reconciliation_2026-10-14/receipt.json; reproduce
+  with python features/data/655_caption_api_reconciliation_2026-10-14/verify.py.
