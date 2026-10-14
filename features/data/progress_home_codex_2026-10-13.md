@@ -1,20 +1,20 @@
-Home/Work progress — 2026-10-13 20:04 EDT
+Home/Work progress — 2026-10-13 20:15 EDT
 
 — means no defensible percentage or elapsed-time estimate. ✅ marks verified recent achievements; descriptions identify any remaining publication gate.
 
 | item | percent done | time left | owner | detailed description |
 |---|---|---|---|---|
-| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Main promotion authorized after full green CI. Current run has three independent compatibility failures: popup repaired locally; tutorial publication receipt, cache key and native-timing metadata are being reconciled. |
+| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Candidate eb72a1a85f published; full tests run 38488240863 dispatched. Main promotion authorized after full green. Duplicate push and superseded run cancellation requested. |
 | CI repair implementation | ✅ | Done; fullCIpending | Home Codex team | Published at9af7f3dc12: cached painting palette, safe import fallback, walkthrough-aware navigation test, exact sparse colour crossfade and real source-default coverage. Localchecks74+106+185+48PASS;9existinglocale findingsreport-only. |
-| CI N701 layout compatibility | ✅ | Done locally; publish pending | Home Qt agent | Private 1a9a138c76 adds the shipped Hide judged fields button to the full order contract. 38 tests pass; exit 0 and JUnit verified. |
-| CI Model Zoo backend coverage | ✅ | Done locally; publish pending | Home Qt agent | 11 tests pass; real model-row regression checks missing-backend Install action and ready-backend state. Both branch outcomes verified; no source or ratchet edits. |
-| CI console fallback coverage | ✅ | Done locally; publish pending | Home colour agent | 63 tests pass, exit 0/JUnit verified. Real idle/copied fallback pixels match neutral ink; both missing lines executed. No source or ratchet edits. |
-| CI tutorial publication integrity | ✅ | Done locally; hosted acceptance pending | Home + Work | Imported Work’s exact verified 148-file checkpoint; asset cache and 07/08 native timing audits corrected. Combined ten owning files: 196 pass, exit 0. |
+| CI N701 layout compatibility | ✅ | Published; full CI pending | Home Qt agent | Private 1a9a138c76 adds the shipped Hide judged fields button to the full order contract. 38 tests pass; exit 0 and JUnit verified. |
+| CI Model Zoo backend coverage | ✅ | Published; full CI pending | Home Qt agent | 11 tests pass; real model-row regression checks missing-backend Install action and ready-backend state. Both branch outcomes verified; no source or ratchet edits. |
+| CI console fallback coverage | ✅ | Published; full CI pending | Home colour agent | 63 tests pass, exit 0/JUnit verified. Real idle/copied fallback pixels match neutral ink; both missing lines executed. No source or ratchet edits. |
+| CI tutorial publication integrity | ✅ | Published; full CI pending | Home + Work | Imported Work’s exact verified 148-file checkpoint; asset cache and 07/08 native timing audits corrected. Combined ten owning files: 196 pass, exit 0. |
 | Lesson 20 reference checks | ✅ | Done | Work | Both r28 captures match three saved masks and three figure arrays to their source outputs. This verifies attribution, not segmentation accuracy or capture acceptance. |
 | Lesson 20 telemetry correction | — | Validated; held for release | Work | Private 6dfed0613: 15 new plus 11 gate tests pass; corrected replay still rejects both opening captures at unchanged 26.96/26.92 fps. |
 | Lesson 20 staging contract | — | Validated; held for release | Work | Private 67dbbd20b checks exact scientific, clip and gate evidence with video/native/receipt hash bindings; 63 owning cases pass. |
 | Tutorial queue preflight | — | Validated; held for release | Work | Private 6487de73a/facc4b16a detect capture placeholders and missing paths before jobs are emitted; 12 cases pass. Dispatcher remains inactive. |
-| N43 | — | CI-dependent | Home | Known blockers repaired. Full nightly run38477246153 must pass before this parent closes; duplicatepush38477235004 andsuperseded38470784040 cancelled. |
+| N43 | — | CI-dependent | Home | All observed current-run failures repaired and validated: 196 combined tests pass. Exact new candidate eb72a1a85f awaits full hosted run 38488240863. |
 | F288 | — | CI + Work GPU acceptance | Home + Work | Source-identical local 664-module diagnostic passes with zero regressions; baseline unchanged. Final hosted gate and actual CuPy coverage for the remaining ops_accel literal-90% deficit remain pending. |
 | Make Masks lesson 14 performance | — | After release | Home | Review held edits, finish repaint/stall fixes, test owning files and stress the lesson driver for crashes. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |

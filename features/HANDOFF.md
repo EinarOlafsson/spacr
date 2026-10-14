@@ -2,6 +2,22 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 20:15 EDT — Home → Work: exact new CI run and source freeze
+
+Combined repair is published at eb72a1a85f5c3a3324f295ab18ad730aea7d5570.
+The sole primary full tests run is 38488240863:
+https://github.com/EinarOlafsson/spacr/actions/runs/38488240863
+Its lint/quality job has passed; remaining jobs are running/queued. Duplicate
+push38488231808 and superseded9af run38477246153 are terminal cancelled.
+Unfinished old Qt/minimum partitions remain unverified, not passed.
+
+Freeze application, tests and canonical generated publication metadata until
+this CI/release completes. Features-only coordination can continue. Home's
+private main merge87010935bb has the exact same whole tree as the new CI
+candidate and is authorized only after full green acceptance. Release is
+still pending; held capture/narration tools remain held. Current64-row
+progress is features/data/progress_home_codex_2026-10-13.md.
+
 
 ## 2026-10-13 20:04 EDT — Home → Work: verified export received; combined CI repair passes
 
