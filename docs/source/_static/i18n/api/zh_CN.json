@@ -4063,15 +4063,15 @@
       "source_blocks_sha256": [
         "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "fcffe5b1b1fecf0608b6e7bb0730e4028130b5e09ec0d3320666be0ed972e54e",
+        "4466592e71ffabc4dce79c4a52be7450d61528d7bff7ed1d2b108fb03c443593",
         "e68ee04dff59551b7d1ae07a2f8a00dc61d841628948da3d2781630706a05e92"
       ],
-      "source_sha256": "3966a680156611651475949527196692bf9e5de584343ed493226e8f8d0ce038",
-      "text": "图像配置和 Cellpose 分区。\n\n参数\n----------\n: 实验室显微镜片文件夹,或一系列实验房显微镜片,包含源显微图像。  cell_channel, nucleus_channel, pathogen_channel: 用于每个分割目标的基于零的强度图像数据通道。  当对象不应该被分段时,将其留在 ``None``。  至少需要一个。  cell_diameter, nucleus_diameter, pathogen_diameter: 以像素为单位的预期物体直径。  ``None`` 允许 spaCR 从具有代表性的显微镜视场估计直径。 图像数据通道:在合并的显微镜视场阵列中保留的强度图像信息通道。 : 与处理会话一起记录的物镜放大倍率。 pipeline_style: ``\"v1\"`` 为稳定的磁盘工作流或 ``\"v2\"`` 为实验流路径。 额外:未经标记的显微镜视野所代表的先进设置。 重复键入微镜视野的结构数据名称被拒绝,因此一个脚本不能包含两个答案。 test_mode:在最多``test_images``完整图像集的随机子组上运行掩膜,并在处理完整来源之前启用``<src>/test``以下的诊断点。 dry_run:在重型工作流进口、模型加载、分区或写作之前,运行掩膜预测并返回所报告的问题。\n\n例子\n--------\n>>> config = MaskConfig(\n...     \"/data/plate01\", cell_channel=0, nucleus_channel=1,\n...     cell_diameter=60, nucleus_diameter=20,\n... )\n>>> settings = config.to_settings()\n>>> settings[\"src\"]\n'/data/plate01'",
+      "source_sha256": "9a42e4b6cab65ff13193d22acecabeb713666e02208d8d53bfb3a79eac5b5348",
+      "text": "图像配置和 Cellpose 分区。\n\n参数\n----------\nsrc: 包含原始显微图像的实验微孔板文件夹，或这些文件夹的序列。cell_channel, nucleus_channel, pathogen_channel: 各分割对象使用的从零开始的强度通道。不应分割的对象设为 ``None``；至少需要一个对象。cell_diameter, nucleus_diameter, pathogen_diameter: 预期对象直径，以像素计。``None`` 使用放大倍数默认值（细胞为 ``2*magnification+80``，细胞核为 ``0.75*magnification+45``，病原体为 ``magnification``）；``0`` 或 ``\"auto\"`` 请求 Cellpose 3 的大小模型估计大小，或让没有大小模型的 Cellpose-SAM 使用原始尺度。channels: 在合并后的图像视野数组中保留的强度通道。magnification: 随运行记录的物镜放大倍数。pipeline_style: ``\"v1\"`` 为稳定的磁盘工作流程，``\"v2\"`` 为实验性流式路径。extra: 未由具名类型配置字段表示的高级设置。重复具名字段的键会被拒绝，避免一个脚本提供两个答案。test_mode: 先在最多 ``test_images`` 组完整图像的随机子集上运行 Mask，该子集位于 ``<src>/test`` 下，并启用诊断图，再处理全部源图像。dry_run: 执行 Mask 预检查并返回问题，然后才进行大型流程模块导入、模型加载、分割或写入。\n\n例子\n--------\n>>> config = MaskConfig(\n...     \"/data/plate01\", cell_channel=0, nucleus_channel=1,\n...     cell_diameter=60, nucleus_diameter=20,\n... )\n>>> settings = config.to_settings()\n>>> settings[\"src\"]\n'/data/plate01'",
       "translation_source_blocks_sha256": [
         "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "b3dee46d8a9c26dde930c257e50064b3f43c7cdebf01e5994c471fd106990006",
+        "ad4ce71c32828259a56e4c588c23adf4876ab1ecc1511100035e32b79e10300a",
         "e68ee04dff59551b7d1ae07a2f8a00dc61d841628948da3d2781630706a05e92"
       ]
     },
@@ -12650,7 +12650,7 @@
     "spacr.cli.resolve_settings": {
       "source_blocks_sha256": [
         "f3d1675d6373512aaf8780357b985072552b3f49af6086e184a6e13203535029",
-        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+        "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
         "c998f8049bcc807beabebb18310e626c88529dc5ac089a2d3a5ce5fa2785155c",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
@@ -12658,11 +12658,11 @@
         "2cc6a76c58a49d195847a74804f935ee41c29975c1c3418beefdc05931028e87",
         "6e3e14af2ace89206379e9a90bddf7fe57a7ee2d5b07cf2af8e1d11c09eb14ca"
       ],
-      "source_sha256": "ebfa14142607bd5aba13feb89aaa7836ec861d59889429c7cbff4afc40579f0c",
-      "text": "构建工作流接收的关键值地图设置。\n\n按从低到高的顺序分层：模块自身的默认值、设置文件，然后是 ``--set`` 覆盖值。文件会先按当前名称读取——参见 :func:`_under_todays_names`；没有它，文件中以旧名称设置的值会输给已经位于新名称下的默认值。\n\n:param module: 模块正在执行。\n:param settings_path: 路径到设置文件,或 None 仅为默认。\n:param overrides: ``key=value`` 线条。\n:param moved: 用于接收迁移提示的列表，直接传给 :func:`_under_todays_names`；打印预检报告的调用方会把这些提示交给 :func:`_preflight`，以便在报告中仍能列出被合并所消耗的键。\n:returns: 完全解决的设置 关键值地图。\n:raises SettingsError: 在任何不可阅读的文件,未知的结构数据名称或坏值。",
+      "source_sha256": "650ba523ce0f6140bd9e6086ad2b0c65f928e41581052c1266c1e086b206374d",
+      "text": "构建工作流接收的关键值地图设置。\n\n按优先级从低到高依次叠加：模块自身默认值、设置文件、``--set`` 覆盖值。首先按当前名称读取文件 -- 参见 :func:`_under_todays_names`；否则文件中使用旧名称的值会被新名称下已有的默认值压过。对象直径为 0 或 \"auto\" 时均输出为 \"auto\"，即两者唯一的保存形式（项目 696）。\n\n:param module: 模块正在执行。\n:param settings_path: 路径到设置文件,或 None 仅为默认。\n:param overrides: ``key=value`` 线条。\n:param moved: 用于接收迁移提示的列表，直接传给 :func:`_under_todays_names`；打印预检报告的调用方会把这些提示交给 :func:`_preflight`，以便在报告中仍能列出被合并所消耗的键。\n:returns: 完全解决的设置 关键值地图。\n:raises SettingsError: 在任何不可阅读的文件,未知的结构数据名称或坏值。",
       "translation_source_blocks_sha256": [
         "b7832c7628f6e8c9d15869e2f88c861643a435b4d6bda39eafe0a79fa8775b84",
-        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+        "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
         "e295dfa1dfcf50f522ed7ae884473dd79d2b83ccf13269ef8cf7250d759bf8cd",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
@@ -106095,16 +106095,18 @@
         "fe74fe42a97cea40763e133c21c0453665c43915444583a260aeea2ff23f6d9c",
         "ee6d472928e626f00007cf56e3f94c4a70085d843fa57dc314019f81075c0066",
         "8959b9b018d7ffd429e1104c996a4329808323ce84c4d54786f48c2d685ac012",
-        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788"
+        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788",
+        "23c53da4fb3f076808686ed4a7fe1c858727be4da25818188d1dad5ef4a44aea"
       ],
-      "source_sha256": "c29b70472c13cd0af4334d0b3187e96d7e40e4eb627bfdb0f0c09908577c04ac",
-      "text": "将过滤器列表应用于界面上的视野；返回被隐藏的对象数量。\n\n在视野加载时会自动运行——草稿分割结果通常在每个视野中都带有同类的杂质——此外，每当列表被编辑以及用户按下 Filter 时也会运行。\n\n只有一个引擎：:func:`mask_engine.apply_filters`，即掩膜生成的 ``object_filters`` 设置所运行的同一个引擎，对列表中指定的每个属性只进行一次 ``regionprops_table`` 计算。结果是一个撤销步骤和一个记录整个列表的台账条目，因此掩膜的来源记录会说明是哪些过滤器塑造了它。\n\n每个被隐藏的对象都会写入 Filter 类别的台账中，每个对象一行红色记录，在每次运行开始时清空。\n\n:param on_load: 当这是打开视野时的自动运行时为 True。它会建立新的基准，并让未隐藏任何对象的运行保持安静。",
+      "source_sha256": "d324e56e03e857fd41bfe8be1384c9a8d7a9d8d47abc209f4fa61c0143dd208e",
+      "text": "将过滤器列表应用于界面上的视野；返回被隐藏的对象数量。\n\n在视野加载时会自动运行——草稿分割结果通常在每个视野中都带有同类的杂质——此外，每当列表被编辑以及用户按下 Filter 时也会运行。\n\n只有一个引擎：:func:`mask_engine.apply_filters`，即掩膜生成的 ``object_filters`` 设置所运行的同一个引擎，对列表中指定的每个属性只进行一次 ``regionprops_table`` 计算。结果是一个撤销步骤和一个记录整个列表的台账条目，因此掩膜的来源记录会说明是哪些过滤器塑造了它。\n\n每个被隐藏的对象都会写入 Filter 类别的台账中，每个对象一行红色记录，在每次运行开始时清空。\n\n:param on_load: 当这是打开视野时的自动运行时为 True。它会建立新的基准，并让未隐藏任何对象的运行保持安静。\n\n每次运行只读取一次界面语言（:func:`spacr.qt.i18n.ui_language_resolved_once`）：记录表每行调用 :func:`spacr.qt.i18n.tr` 七次；课程图像视野中的 286 个隐藏对象曾使 GUI 线程花费 150 ms 读取首选项。",
       "translation_source_blocks_sha256": [
         "51130b8a001584435bc063b240760cc9a8a8fff4df41584a2fc53bb3bcef297e",
         "fe74fe42a97cea40763e133c21c0453665c43915444583a260aeea2ff23f6d9c",
         "ee6d472928e626f00007cf56e3f94c4a70085d843fa57dc314019f81075c0066",
         "b6f5bbc4a9d00b407cda7eb07eebfb1bc0d4512eaa68d9d713e1df7b57f855bd",
-        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788"
+        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788",
+        "1d3d436a8025e3fc458888c6ae7e8873aad10731ccb314cd80c765609c6949a5"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.clear_mask": {
@@ -118651,14 +118653,26 @@
         "6708b859e74faf247d3b90e174ac087934c09814af74abd596523e2c9ab1dabf"
       ]
     },
+    "spacr.qt.stall_watch.watch_this_application._main_stack": {
+      "source_blocks_sha256": [
+        "9aa9ec84dc3a6eb2e02d87eca4e26f8c6124ccdfd4ef19a1698b7507afa68732",
+        "935bba3f4daeaeb1b6e0ce64086ccba74fa5d8fd6feb4a3a25bf155961ba9c1a"
+      ],
+      "source_sha256": "0b139e81a21e1f86594d3345837dc76e430ef4d2e2f140ed21ceeba5191c6c82",
+      "text": "将 GUI 线程的调用栈表示为纯文本栈帧摘要，或返回 None。\n\n任何栈帧对象都不会存活到本次调用结束之后。监视器保留的栈帧会在 GUI 线程退出函数后继续保持该函数局部对象存活，随后监视器会在自己的线程上释放它们。``QPainter`` 在 ``paintEvent`` 中创建后 曾在绘制结束后仍然活动（\"QBackingStore::endPaint() called with active painter\"），并在 GUI 线程之外被销毁，导致下次重绘窗口时发生段错误。在课程 14 驱动程序中，使用保留最后栈帧的监视器测得：6 次运行中崩溃 4 次。",
+      "translation_source_blocks_sha256": [
+        "8ea626f85aac7de1cf28e50436666f0cc7f346d39558ab4f82d62967b0c16d03",
+        "e9df3f227b79785bd0890981e3193358f554272e67dd696b4c57d32340a5d52a"
+      ]
+    },
     "spacr.qt.stall_watch.watch_this_application._where": {
       "source_blocks_sha256": [
-        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+        "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4"
       ],
-      "source_sha256": "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953",
-      "text": "最内层的帧，形式为 ``file:line function``。",
+      "source_sha256": "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4",
+      "text": "``stack`` 中最内层的栈帧，格式为 ``file:line function``。",
       "translation_source_blocks_sha256": [
-        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+        "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4"
       ]
     },
     "spacr.qt.stall_watch.watch_this_application.tick": {
@@ -161824,14 +161838,16 @@
         "0bcb7f4fd63755efa034e33731de4b491a885f241f8eb267f7fb942dddadc971",
         "e9608bac5ac7124191014fffa0a16648357363fa1ba36b1848f280644a6bca07",
         "f12190afb33dca2591d085eaee4a2d134bf45fc0e65b487d2758d23379912cf4",
+        "30dcec65e2aa650f79507b49f7e0e1a710e7774d2946631f78155fcc4c322910",
         "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
       ],
-      "source_sha256": "7ab05516a3afe4fc0e5b3d5812e5bbd6ee78d722a26eb777c720a12a70bd53ea",
-      "text": "把表格的自己的字段写在桌子上。\n\n没有它,在网外改变的值 - 表不声称的对象的平行行,预设置,直播预览,加载设置文件 - 会留下表显示旧值。\n\n桌子不被重新编辑: `seed` 重建整个桌子,在掩膜上需要 30 ms 和 10 个 organelles 的 100 ms. 在一个 `textChanged` 中,每个键盘都会运行,并从编辑的细胞中移动通道。\n\n:returns: 多少个 widget 已连接",
+      "source_sha256": "e72a9df5053ddde57875cfd7272cbebdfe84dc397a1afc517ffb657ecdc9d902",
+      "text": "把表格的自己的字段写在桌子上。\n\n没有它,在网外改变的值 - 表不声称的对象的平行行,预设置,直播预览,加载设置文件 - 会留下表显示旧值。\n\n桌子不被重新编辑: `seed` 重建整个桌子,在掩膜上需要 30 ms 和 10 个 organelles 的 100 ms. 在一个 `textChanged` 中,每个键盘都会运行,并从编辑的细胞中移动通道。\n\n也会跟随放大倍数输入字段：对象直径留空时显示放大倍数默认值，并随其变化（项目 696）。\n\n:returns: 多少个 widget 已连接",
       "translation_source_blocks_sha256": [
         "0bcb7f4fd63755efa034e33731de4b491a885f241f8eb267f7fb942dddadc971",
         "e9608bac5ac7124191014fffa0a16648357363fa1ba36b1848f280644a6bca07",
         "f12190afb33dca2591d085eaee4a2d134bf45fc0e65b487d2758d23379912cf4",
+        "cd5bf1a209ce9144428b3690e32f01ed9141a1335fad2fb1ee50b2b42f8f37be",
         "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
       ]
     },
@@ -185335,10 +185351,11 @@
         "e0214bb996a8c9e7f917dcbdf934d5cd766f489de1eaf62baf86023179e0f37b",
         "bd2ba3f9d896237073978163d11cfe92bbca79902af882f4bb4e9b37475643af",
         "68c410d95ae3531f518cbea42722195316d740281700e632816a4c0abb9691da",
-        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951"
+        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951",
+        "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417"
       ],
-      "source_sha256": "87131eb9c7c6402fd0f28d6ef8dfea475d64004568163db0932633c000dda268",
-      "text": "一个单一工作流引用的磁盘记录。\n\n实例由 :func:`open_run` 产生,用户不直接构建。\n\n:ivar app_key: ID 启动处理会议的工作流应用程序。\n:ivar settings: 设置 关键值地图原先转移到工作流。\n:ivar dir: 处理会议文件夹路径(``~/.spacr/runs/<ts>_<uuid>__<app>``)。\n:ivar start_ts: 时钟的Uix秒,当跑步开启时。\n:ivar end_ts: 运行关闭时 unix 时秒(输出时设置为 :func:`open_run`)。\n:ivar status: ``\"running\"`` / ``\"success\"`` / ``\"failed\"`` / ``\"cancelled\"``。 最后一个是用户停止运行,这不是打破的运行,两者想要不同的事情做下一个。\n:ivar model_hashes: 关键值地图为 ``{human-name: \"filename:sha256-16\"}``. 由通话者通过 :meth:`record_model` 的人口化。\n:ivar model_files: 完整的SHA-256,尺寸和路径记录模型。\n:ivar input_hashes: 全 SHA-256 输入源。\n:ivar output_hashes: 全 SHA-256 输出源。\n:ivar seeds: 已宣布种子和运行时间的RNG国家识别器。\n:ivar provenance_warnings: 非致命的路/哈什失败在示范中保持,而不是被沉默地排除。\n:ivar run_warnings: 由工作流发出的不同警报线。\n:ivar environment: 主机, spaCR, Git, 和安装包装版本。\n:ivar stages: 统一的 FlowView 生命周期记录在执行顺序中。\n:ivar stdout_path: 捕获的标准输出日志路径,当一个被附加时。\n:ivar error_traceback: 错误或取消运行的格式化异常回溯;  为成功运行。",
+      "source_sha256": "f0b419fbd976519a37361333fb1a4282ab223bb5fb02fa612c7e74f86dcb003a",
+      "text": "一个单一工作流引用的磁盘记录。\n\n实例由 :func:`open_run` 产生,用户不直接构建。\n\n:ivar app_key: ID 启动处理会议的工作流应用程序。\n:ivar settings: 设置 关键值地图原先转移到工作流。\n:ivar dir: 处理会议文件夹路径(``~/.spacr/runs/<ts>_<uuid>__<app>``)。\n:ivar start_ts: 时钟的Uix秒,当跑步开启时。\n:ivar end_ts: 运行关闭时 unix 时秒(输出时设置为 :func:`open_run`)。\n:ivar status: ``\"running\"`` / ``\"success\"`` / ``\"failed\"`` / ``\"cancelled\"``。 最后一个是用户停止运行,这不是打破的运行,两者想要不同的事情做下一个。\n:ivar model_hashes: 关键值地图为 ``{human-name: \"filename:sha256-16\"}``. 由通话者通过 :meth:`record_model` 的人口化。\n:ivar model_files: 完整的SHA-256,尺寸和路径记录模型。\n:ivar input_hashes: 全 SHA-256 输入源。\n:ivar output_hashes: 全 SHA-256 输出源。\n:ivar seeds: 已宣布种子和运行时间的RNG国家识别器。\n:ivar provenance_warnings: 非致命的路/哈什失败在示范中保持,而不是被沉默地排除。\n:ivar run_warnings: 由工作流发出的不同警报线。\n:ivar environment: 主机, spaCR, Git, 和安装包装版本。\n:ivar stages: 统一的 FlowView 生命周期记录在执行顺序中。\n:ivar stdout_path: 捕获的标准输出日志路径,当一个被附加时。\n:ivar error_traceback: 错误或取消运行的格式化异常回溯;  为成功运行。\n:ivar diameters: 记录每个对象实际分割时所用的直径，例如 ``\"120 px (magnification 20x default)\"`` 或 ``\"auto (Cellpose estimated 57.3 px)\"``（项目 696）。",
       "translation_source_blocks_sha256": [
         "07118148f29baa09bef3cd5a5173d3e9fd317302408fb5361f8c36422aaa8ee6",
         "642369dcbcf0954560157ccece9a94a9600e79ad5cddf147249e73f6895085fa",
@@ -185358,7 +185375,8 @@
         "e0214bb996a8c9e7f917dcbdf934d5cd766f489de1eaf62baf86023179e0f37b",
         "bd2ba3f9d896237073978163d11cfe92bbca79902af882f4bb4e9b37475643af",
         "68c410d95ae3531f518cbea42722195316d740281700e632816a4c0abb9691da",
-        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951"
+        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951",
+        "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417"
       ]
     },
     "spacr.run_journal.Run.attach_output": {

@@ -67,13 +67,6 @@
     },
     {
       "table": "ui",
-      "key": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1) and 0 means 'unset', which is the same thing.",
-      "source_sha256": "0fc61427171945cfa8a403b21f41d6fb79f14856644307c2462a675bcc337022",
-      "source": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1) and 0 means 'unset', which is the same thing.",
-      "translation": "(float, px) 예상 객체 직경입니다. Cellpose-SAM 은 이 값을 사용합니다. 분할 전에 이미지를 30/diameter 비율로 조정하므로 값을 높이면 더 큰 객체를, 낮추면 더 작은 객체를 검출합니다. 30은 크기를 변경하지 않으며(30/30 = 1), 0은 'unset' 을 의미하여 동일하게 동작합니다."
-    },
-    {
-      "table": "ui",
       "key": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",
       "source_sha256": "f40fe7b371d4ce347fbe8103ce5daa614833777ea008436dd23e598fc021f8ee",
       "source": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",

@@ -1126,27 +1126,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_diameter",
-      "source": "Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
-      "source_sha256": "c0522ea640336af4540951ec1bf709c48d2ea6799cb5cf9279f4ff37e21da08e",
-      "translation": "预期的细胞直径（像素）。Cellpose 4 在分割之前按 30/diameter 重新缩放图像，使预期对象大小与训练 CPSAM 所用的尺度一致；保留为 None 则以原生尺度分割。当细胞远大于或远小于约 30 px、且分割产生碎片化或合并的掩膜时，请设置此项。spacr.diameter.estimate_diameters 可根据所选视野估计一个值。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_diameter",
-      "source": "Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
-      "source_sha256": "d2cb2db47fddc1e1c03763a45b4d3cbf3cabf6752a346f4bde49813f105ed4da",
-      "translation": "预期的细胞核直径（像素），Cellpose 4 在分割之前据此按 30/diameter 重新缩放图像。None 表示以原生尺度分割。由于细胞核通常是被分割的最小对象，对于低倍率采集，此参数往往需要显式设置。spacr.diameter.estimate_diameters 可估计一个值。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_diameter",
-      "source": "Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
-      "source_sha256": "acdded81afff918e3a71e83fb47eef1b3ba87a058508f30ffa4a4b1b2587fdd1",
-      "translation": "预期的病原体直径（像素），Cellpose 4 在分割之前据此按 30/diameter 重新缩放图像。None 表示以原生尺度分割。在低倍率下，胞内寄生虫往往只有几个像素宽，此时重新缩放最为重要。spacr.diameter.estimate_diameters 可给出建议值。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "anndata_export",
       "source": "Export the measurement tables as AnnData (.h5ad) - N objects x M features with per-object metadata, feature definitions, embeddings and provenance - so scanpy, scvi-tools and squidpy can read a spaCR run directly.",
       "source_sha256": "511f73eb85d74cb7ec8b3f50a0d5e41a000c2db08ba6f2af433956436b2cdea9",
@@ -2866,13 +2845,6 @@
       "source": "Object tables joined into the cell-anchored export. Dropping a table drops its features from X: without 'pathogen' there are no pathogen columns and no count_pathogen, and without 'png_list' the crop paths, annotations and model scores are all absent from obs. Default ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list'].",
       "source_sha256": "a14ab71833e1cd7807bc5853579e9e4b74e1d3c2ea274d5276985c055fcca7c1",
       "translation": "连接到以细胞为锚点的导出中的对象表。删除一个表会从 X 中删除其特征：没有 'pathogen' 就没有病原体列和 count_pathogen，没有 'png_list' 则 obs 中不会有裁剪图路径、注释和模型评分。默认值 ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "magnification",
-      "source": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
-      "source_sha256": "d6a066048ede229da859af72ddbdd37cb9528677a77d5bcc7a805df31ac015f3",
-      "translation": "物镜放大倍数，仅用于推导预期对象大小：细胞的像素直径为 2*mag+80，细胞核为 0.75*mag+45，病原体为 mag，最小/最大面积限制为 diameter^2/4 和 diameter^2*10。显式设置的 cell_diameter、nucleus_diameter 或 pathogen_diameter 会覆盖它。请将其设为采集所用物镜的放大倍数（10、20、40 或 60）。默认值 40。"
     },
     {
       "table": "setting_tooltips",

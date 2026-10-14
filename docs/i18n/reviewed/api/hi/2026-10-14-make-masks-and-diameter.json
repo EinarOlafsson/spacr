@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "Exactly eight new/changed paragraphs in seven API symbols. Untouched paragraphs retain their existing history/review evidence. Historical crash/timing descriptions are not current native acceptance.",
+  "records": [
+    {
+      "label": "spacr.api.MaskConfig#2",
+      "source": "src: Plate folder, or a sequence of plate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` uses the magnification default (``2*magnification+80`` for cells, ``0.75*magnification+45`` for nuclei, ``magnification`` for pathogens); ``0`` or ``\"auto\"`` requests size estimation with a Cellpose 3 size model, or native scale with Cellpose-SAM, which has no size model. channels: Intensity channels retained in the merged field arrays. magnification: Objective magnification recorded with the run. pipeline_style: ``\"v1\"`` for the stable disk-based pipeline or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed fields. Keys that repeat a typed field are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy pipeline imports, model loading, segmentation, or writes.",
+      "source_sha256": "4466592e71ffabc4dce79c4a52be7450d61528d7bff7ed1d2b108fb03c443593",
+      "context": "src: Laboratory microplate folder, or a sequence of laboratory microplate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity image data channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` uses the magnification default (``2*magnification+80`` for cells, ``0.75*magnification+45`` for nuclei, ``magnification`` for pathogens); ``0`` or ``\"auto\"`` requests size estimation with a Cellpose 3 size model, or native scale with Cellpose-SAM, which has no size model. image data channels: Intensity image data channels retained in the merged microscope field of view arrays. magnification: Objective magnification recorded with the processing session. pipeline_style: ``\"v1\"`` for the stable disk-based workflow or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed microscope fields of view. Structured-data names that repeat a typed microscope field of view are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy workflow imports, model loading, segmentation, or writes.",
+      "translation": "src: मूल माइक्रोस्कोपी चित्रों वाली प्रयोगशाला माइक्रोप्लेट की निर्देशिका या ऐसी निर्देशिकाओं का क्रम। cell_channel, nucleus_channel, pathogen_channel: प्रत्येक विभाजन लक्ष्य के लिए शून्य से क्रमांकित तीव्रता चैनल। जिस वस्तु का विभाजन नहीं करना है उसे ``None`` रखें। कम से कम एक आवश्यक है। cell_diameter, nucleus_diameter, pathogen_diameter: पिक्सेल में अपेक्षित वस्तु व्यास। ``None`` आवर्धन का डिफ़ॉल्ट उपयोग करता है (कोशिकाओं के लिए ``2*magnification+80``, केंद्रकों के लिए ``0.75*magnification+45``, रोगजनकों के लिए ``magnification``); ``0`` या ``\"auto\"`` Cellpose 3 के आकार मॉडल से अनुमान या आकार मॉडल रहित Cellpose-SAM में मूल पैमाने का अनुरोध करता है। channels: संयुक्त चित्र-क्षेत्र एरे में रखे गए तीव्रता चैनल। magnification: रन के साथ दर्ज ऑब्जेक्टिव लेंस का आवर्धन। pipeline_style: स्थिर डिस्क-आधारित प्रक्रिया के लिए ``\"v1\"`` या प्रायोगिक स्ट्रीमिंग मार्ग के लिए ``\"v2\"``। extra: स्पष्ट प्रकार वाले कॉन्फ़िगरेशन फ़ील्ड में न दर्शाई गई उन्नत सेटिंग। किसी ऐसे फ़ील्ड को दोहराने वाली कुंजियाँ अस्वीकृत होती हैं ताकि एक स्क्रिप्ट दो उत्तर न दे। test_mode: अधिकतम ``test_images`` पूर्ण चित्र समूहों के यादृच्छिक उपसमूह पर ``<src>/test`` में Mask चलाएँ और पूरी स्रोत सामग्री संसाधित करने से पहले निदान आरेख सक्षम करें। dry_run: भारी प्रक्रिया मॉड्यूल आयात, मॉडल लोडिंग, विभाजन या लेखन से पहले Mask की पूर्वजाँच चलाएँ और समस्याएँ लौटाएँ।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli.resolve_settings#1",
+      "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one. An object diameter of 0 or \"auto\" comes out as \"auto\", the one form both are stored in (item 696).",
+      "source_sha256": "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
+      "context": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one. An object diameter of 0 or \"auto\" comes out as \"auto\", the one form both are stored in (item 696).",
+      "translation": "न्यूनतम से अधिकतम प्राथमिकता के स्तर: मॉड्यूल के अपने डिफ़ॉल्ट, सेटिंग फ़ाइल और फिर ``--set`` से बदलाव। फ़ाइल पहले वर्तमान नामों के साथ पढ़ी जाती है -- :func:`_under_todays_names` देखें; इसके बिना पुराने नाम पर सहेजा मान नए नाम पर पहले से मौजूद डिफ़ॉल्ट से दब जाता। 0 या \"auto\" वस्तु व्यास \"auto\" बनकर लौटता है, दोनों का एकमात्र संग्रहित रूप (विषय 696)।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter#5",
+      "source": "The interface language is read once for the run (:func:`spacr.qt.i18n.ui_language_resolved_once`): the ledger's rows ask :func:`spacr.qt.i18n.tr` seven times each, and 286 hidden objects on the lesson's field cost 150 ms of preference reads on the GUI thread.",
+      "source_sha256": "23c53da4fb3f076808686ed4a7fe1c858727be4da25818188d1dad5ef4a44aea",
+      "context": "The interface language is read once for the processing session (:func:`spacr.qt.i18n.ui_language_resolved_once`): the ledger's rows ask :func:`spacr.qt.i18n.tr` seven times each, and 286 hidden objects on the lesson's microscope field of view cost 150 ms of preference reads on the main GUI execution path.",
+      "translation": "इंटरफ़ेस भाषा प्रत्येक रन में एक बार पढ़ी जाती है (:func:`spacr.qt.i18n.ui_language_resolved_once`): रजिस्टर की हर पंक्ति :func:`spacr.qt.i18n.tr` को सात बार बुलाती है, और पाठ के चित्र-क्षेत्र में 286 छिपी वस्तुओं ने GUI थ्रेड पर प्राथमिकताएँ पढ़ने में 150 ms लिए।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._main_stack#0",
+      "source": "The GUI thread's stack as text-only frame summaries, or None.",
+      "source_sha256": "9aa9ec84dc3a6eb2e02d87eca4e26f8c6124ccdfd4ef19a1698b7507afa68732",
+      "context": "The main GUI execution path's stack as text-only frame summaries, or None.",
+      "translation": "GUI थ्रेड का स्टैक केवल पाठ वाले कॉल-फ़्रेम सारांशों के रूप में, या None।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._main_stack#1",
+      "source": "No frame object outlives this call. A frame held by the watcher keeps its function's locals alive after the GUI thread has returned from it, and the watcher then drops them on its own thread: a ``QPainter`` made in a ``paintEvent`` stayed active past the paint (\"QBackingStore::endPaint() called with active painter\") and was destroyed off the GUI thread, a segmentation fault in the next window repaint. Measured on the lesson 14 driver with a watcher that kept its last frame: 4 crashes in 6 runs.",
+      "source_sha256": "935bba3f4daeaeb1b6e0ce64086ccba74fa5d8fd6feb4a3a25bf155961ba9c1a",
+      "context": "No frame object outlives this call. A frame held by the watcher keeps its function's locals alive after the main GUI execution path has returned from it, and the watcher then drops them on its own independent execution path: a ``QPainter`` made in a ``paintEvent`` stayed active past the paint (\"QBackingStore::endPaint() called with active painter\") and was destroyed off the main GUI execution path, a segmentation fault in the next window repaint. Measured on the lesson 14 driver with a watcher that kept its last frame: 4 crashes in 6 runs.",
+      "translation": "कोई फ़्रेम ऑब्जेक्ट इस कॉल से आगे जीवित नहीं रहता। निगरानीकर्ता द्वारा रखा गया फ़्रेम GUI थ्रेड के फ़ंक्शन से लौटने के बाद भी उसके स्थानीय ऑब्जेक्ट जीवित रखता है; फिर निगरानीकर्ता उन्हें अपने थ्रेड पर छोड़ता है। ``QPainter`` जो ``paintEvent`` में बना था पेंटिंग के बाद सक्रिय रहा (\"QBackingStore::endPaint() called with active painter\") और GUI थ्रेड के बाहर नष्ट हुआ, जिससे अगले विंडो पुनःचित्रण में सेगमेंटेशन फ़ॉल्ट हुआ। पाठ 14 के ड्राइवर और अंतिम फ़्रेम रखने वाले निगरानीकर्ता पर मापा गया: 6 रन में 4 क्रैश।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._where#0",
+      "source": "The innermost frame of ``stack``, as ``file:line function``.",
+      "source_sha256": "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4",
+      "context": "The innermost frame of ``stack``, as ``file:line function``.",
+      "translation": "``stack`` का सबसे अंदरूनी कॉल फ़्रेम, ``file:line function`` के रूप में।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.follow_the_form#3",
+      "source": "The magnification field is followed as well: a blank object diameter shows the magnification default, which moves with it (item 696).",
+      "source_sha256": "30dcec65e2aa650f79507b49f7e0e1a710e7774d2946631f78155fcc4c322910",
+      "context": "The magnification microscope field of view is followed as well: a blank object diameter shows the magnification default, which moves with it (item 696).",
+      "translation": "आवर्धन इनपुट फ़ील्ड भी देखा जाता है: खाली वस्तु व्यास आवर्धन का डिफ़ॉल्ट दिखाता है और उसके साथ बदलता है (विषय 696)।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.run_journal.Run#19",
+      "source": "per object, the diameter it was segmented with, e.g. ``\"120 px (magnification 20x default)\"`` or ``\"auto (Cellpose estimated 57.3 px)\"`` (item 696).",
+      "source_sha256": "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417",
+      "context": "per object, the diameter it was segmented with, e.g. ``\"120 px (magnification 20x default)\"`` or ``\"auto (Cellpose estimated 57.3 px)\"`` (item 696).",
+      "translation": "प्रत्येक वस्तु का विभाजन जिस व्यास से हुआ, जैसे ``\"120 px (magnification 20x default)\"`` या ``\"auto (Cellpose estimated 57.3 px)\"`` (विषय 696)।",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    }
+  ]
+}

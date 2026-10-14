@@ -143,11 +143,15 @@ class ObjectGridBinding(QObject):
         `textChanged` that would run per keystroke and move the cursor out
         of the cell being edited. One cell is written instead.
 
+        The magnification field is followed as well: a blank object
+        diameter shows the magnification default, which moves with it
+        (item 696).
+
         :returns: how many widgets were newly connected.
         """
         widgets = getattr(self._panel, "_widgets", None) or {}
         connected = 0
-        for key in self.owned_keys() | self._switch_keys():
+        for key in self.owned_keys() | self._switch_keys() | {"magnification"}:
             widget = widgets.get(key)
             if widget is None or id(widget) in self._followed:
                 continue
@@ -200,6 +204,9 @@ class ObjectGridBinding(QObject):
         keep = getattr(self._grid, "_keep_the_switches", None)
         if callable(keep):
             keep(current)
+        follow = getattr(self._grid, "_follow_magnification", None)
+        if callable(follow) and "magnification" in current:
+            follow(current["magnification"])
         shown = self._grid.settings()
         moved = 0
         for key in self.owned_keys():

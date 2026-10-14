@@ -4062,15 +4062,15 @@
       "source_blocks_sha256": [
         "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "fcffe5b1b1fecf0608b6e7bb0730e4028130b5e09ec0d3320666be0ed972e54e",
+        "4466592e71ffabc4dce79c4a52be7450d61528d7bff7ed1d2b108fb03c443593",
         "e68ee04dff59551b7d1ae07a2f8a00dc61d841628948da3d2781630706a05e92"
       ],
-      "source_sha256": "3966a680156611651475949527196692bf9e5de584343ed493226e8f8d0ce038",
-      "text": "Configuração para preparação de imagens e segmentação Cellpose.\n\nParâmetros\n----------\nsrc: Pasta de microplacas de laboratório, ou uma sequência de pastas de microplates de laboratório que contém as imagens de microscopia de origem. cell_channel, nucleus_channel, pathogen_channel: Canal de dados de imagem de intensidade baseado em zero usado para cada alvo de segmentação. Deixe um objeto em ``None`` quando não deve ser segmentado. Pelo menos um é necessário. cell_diameter, nucleus_diameter, pathogen_diameter: Diâmetros de dados esperados em pixels. ``None`` permite a estimativa de campos de spaCR pipeline_style: ``\"v1\"`` para o fluxo de trabalho baseado em disco estável ou ``\"v2\"`` para o caminho de streaming experimental. extra: Configurações avançadas não representadas por campos de visão de microscópio digitados. Nomes de dados estruturados que repetem um campo de visão de microscópio digitado são recusados para que um script não possa conter duas respostas. test_mode: Execute a máscara em um subconjunto aleatório de até ``test_images`` conjuntos de imagens completos em ``<src>/test`` e habilite plotagens de diagnóstico antes de processar a fonte completa. dry_run: Execute o preflight da Máscara e retorne seus problemas relatados antes das importações pesadas do fluxo de trabalho, do carregamento do modelo, da segmentação ou das gravações.\n\nExemplos\n--------\n>>> config = MaskConfig(\n...     \"/data/plate01\", cell_channel=0, nucleus_channel=1,\n...     cell_diameter=60, nucleus_diameter=20,\n... )\n>>> settings = config.to_settings()\n>>> settings[\"src\"]\n'/data/plate01'",
+      "source_sha256": "9a42e4b6cab65ff13193d22acecabeb713666e02208d8d53bfb3a79eac5b5348",
+      "text": "Configuração para preparação de imagens e segmentação Cellpose.\n\nParâmetros\n----------\nsrc: Pasta de uma microplaca de laboratório, ou uma sequência dessas pastas, contendo as imagens de microscopia originais. cell_channel, nucleus_channel, pathogen_channel: Canal de intensidade indexado a partir de zero para cada alvo de segmentação. Deixe um objeto em ``None`` quando ele não deve ser segmentado. É necessário pelo menos um. cell_diameter, nucleus_diameter, pathogen_diameter: Diâmetros esperados dos objetos em pixels. ``None`` usa o padrão da ampliação (``2*magnification+80`` para células, ``0.75*magnification+45`` para núcleos, ``magnification`` para patógenos); ``0`` ou ``\"auto\"`` solicita a estimativa por um modelo de tamanho do Cellpose 3, ou a escala original com Cellpose-SAM, que não tem modelo de tamanho. channels: Canais de intensidade mantidos nos arrays dos campos de imagem combinados. magnification: Ampliação do objetivo registrada com a execução. pipeline_style: ``\"v1\"`` para o fluxo estável baseado em disco ou ``\"v2\"`` para a via experimental de streaming. extra: Ajustes avançados sem campo de configuração tipado próprio. Chaves que repetem um campo tipado são recusadas para impedir duas respostas no mesmo script. test_mode: Execute Mask em um subconjunto aleatório de até ``test_images`` conjuntos completos de imagens em ``<src>/test`` e habilite gráficos de diagnóstico antes de processar toda a origem. dry_run: Execute a verificação prévia de Mask e retorne os problemas antes de importações pesadas do fluxo, carregamento do modelo, segmentação ou gravações.\n\nExemplos\n--------\n>>> config = MaskConfig(\n...     \"/data/plate01\", cell_channel=0, nucleus_channel=1,\n...     cell_diameter=60, nucleus_diameter=20,\n... )\n>>> settings = config.to_settings()\n>>> settings[\"src\"]\n'/data/plate01'",
       "translation_source_blocks_sha256": [
         "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "b3dee46d8a9c26dde930c257e50064b3f43c7cdebf01e5994c471fd106990006",
+        "ad4ce71c32828259a56e4c588c23adf4876ab1ecc1511100035e32b79e10300a",
         "e68ee04dff59551b7d1ae07a2f8a00dc61d841628948da3d2781630706a05e92"
       ]
     },
@@ -12649,7 +12649,7 @@
     "spacr.cli.resolve_settings": {
       "source_blocks_sha256": [
         "f3d1675d6373512aaf8780357b985072552b3f49af6086e184a6e13203535029",
-        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+        "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
         "c998f8049bcc807beabebb18310e626c88529dc5ac089a2d3a5ce5fa2785155c",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
@@ -12657,11 +12657,11 @@
         "2cc6a76c58a49d195847a74804f935ee41c29975c1c3418beefdc05931028e87",
         "6e3e14af2ace89206379e9a90bddf7fe57a7ee2d5b07cf2af8e1d11c09eb14ca"
       ],
-      "source_sha256": "ebfa14142607bd5aba13feb89aaa7836ec861d59889429c7cbff4afc40579f0c",
-      "text": "Crie o mapeamento de valores-chave de configurações que o fluxo de trabalho recebe.\n\nCamadas da mais baixa para a mais alta: os padrões do próprio módulo, o arquivo de configurações e, em seguida, as substituições de ``--set``. O arquivo é lido primeiro com os nomes atuais -- veja :func:`_under_todays_names`; sem isso, um valor que o arquivo definia com um nome antigo perdia para o padrão já presente com o nome novo.\n\n:param module: módulo a ser executado.\n:param settings_path: caminho para o arquivo de configurações, ou None apenas para padrões.\n:param overrides: ``key=value`` Cordas.\n:param moved: lista que recebe os avisos de migração, repassada diretamente a :func:`_under_todays_names`; um chamador que imprime um relatório de pré-verificação entrega esses avisos a :func:`_preflight`, para que as chaves consumidas pela consolidação ainda sejam nomeadas ali.\n:returns: o mapeamento chave-valor das configurações totalmente resolvidas.\n:raises SettingsError: em qualquer arquivo ilegível, nome de dados estruturados desconhecido ou valor ruim.",
+      "source_sha256": "650ba523ce0f6140bd9e6086ad2b0c65f928e41581052c1266c1e086b206374d",
+      "text": "Crie o mapeamento de valores-chave de configurações que o fluxo de trabalho recebe.\n\nCamadas da menor para a maior prioridade: padrões do módulo, arquivo de ajustes e depois substituições com ``--set``. O arquivo é lido primeiro com os nomes atuais -- veja :func:`_under_todays_names`; sem isso, um valor salvo com nome antigo perderia para o padrão já presente com o nome novo. Um diâmetro de objeto de 0 ou \"auto\" sai como \"auto\", a forma única de armazenamento dos dois (item 696).\n\n:param module: módulo a ser executado.\n:param settings_path: caminho para o arquivo de configurações, ou None apenas para padrões.\n:param overrides: ``key=value`` Cordas.\n:param moved: lista que recebe os avisos de migração, repassada diretamente a :func:`_under_todays_names`; um chamador que imprime um relatório de pré-verificação entrega esses avisos a :func:`_preflight`, para que as chaves consumidas pela consolidação ainda sejam nomeadas ali.\n:returns: o mapeamento chave-valor das configurações totalmente resolvidas.\n:raises SettingsError: em qualquer arquivo ilegível, nome de dados estruturados desconhecido ou valor ruim.",
       "translation_source_blocks_sha256": [
         "b7832c7628f6e8c9d15869e2f88c861643a435b4d6bda39eafe0a79fa8775b84",
-        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+        "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
         "e295dfa1dfcf50f522ed7ae884473dd79d2b83ccf13269ef8cf7250d759bf8cd",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
@@ -106094,16 +106094,18 @@
         "fe74fe42a97cea40763e133c21c0453665c43915444583a260aeea2ff23f6d9c",
         "ee6d472928e626f00007cf56e3f94c4a70085d843fa57dc314019f81075c0066",
         "8959b9b018d7ffd429e1104c996a4329808323ce84c4d54786f48c2d685ac012",
-        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788"
+        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788",
+        "23c53da4fb3f076808686ed4a7fe1c858727be4da25818188d1dad5ef4a44aea"
       ],
-      "source_sha256": "c29b70472c13cd0af4334d0b3187e96d7e40e4eb627bfdb0f0c09908577c04ac",
-      "text": "Aplica a lista de filtros ao campo na tela; retorna quantos objetos ela oculta.\n\nExecuta-se sozinho quando um campo é carregado -- uma segmentação de rascunho costuma chegar com o mesmo tipo de lixo em todos os campos --, sempre que a lista é editada e quando o usuário pressiona Filter.\n\nUm único mecanismo: :func:`mask_engine.apply_filters`, o mesmo que a configuração ``object_filters`` da geração de máscaras executa, com uma única passagem de ``regionprops_table`` para todas as propriedades que a lista nomeia. O resultado é um único passo de desfazer e uma única entrada no registro que grava a lista inteira, para que a proveniência da máscara diga quais filtros a moldaram.\n\nCada objeto oculto é gravado no registro da categoria Filter, uma linha vermelha para cada um, e o registro é limpo no início de cada execução.\n\n:param on_load: True quando esta é a execução automática ao abrir um campo. Ela inicia uma nova linha de base e mantém silenciosa uma execução que não ocultou nada.",
+      "source_sha256": "d324e56e03e857fd41bfe8be1384c9a8d7a9d8d47abc209f4fa61c0143dd208e",
+      "text": "Aplica a lista de filtros ao campo na tela; retorna quantos objetos ela oculta.\n\nExecuta-se sozinho quando um campo é carregado -- uma segmentação de rascunho costuma chegar com o mesmo tipo de lixo em todos os campos --, sempre que a lista é editada e quando o usuário pressiona Filter.\n\nUm único mecanismo: :func:`mask_engine.apply_filters`, o mesmo que a configuração ``object_filters`` da geração de máscaras executa, com uma única passagem de ``regionprops_table`` para todas as propriedades que a lista nomeia. O resultado é um único passo de desfazer e uma única entrada no registro que grava a lista inteira, para que a proveniência da máscara diga quais filtros a moldaram.\n\nCada objeto oculto é gravado no registro da categoria Filter, uma linha vermelha para cada um, e o registro é limpo no início de cada execução.\n\n:param on_load: True quando esta é a execução automática ao abrir um campo. Ela inicia uma nova linha de base e mantém silenciosa uma execução que não ocultou nada.\n\nO idioma da interface é lido uma vez por execução (:func:`spacr.qt.i18n.ui_language_resolved_once`): cada linha do registro chama :func:`spacr.qt.i18n.tr` sete vezes, e 286 objetos ocultos no campo de imagem da lição custaram 150 ms de leituras de preferências na thread GUI da interface.",
       "translation_source_blocks_sha256": [
         "51130b8a001584435bc063b240760cc9a8a8fff4df41584a2fc53bb3bcef297e",
         "fe74fe42a97cea40763e133c21c0453665c43915444583a260aeea2ff23f6d9c",
         "ee6d472928e626f00007cf56e3f94c4a70085d843fa57dc314019f81075c0066",
         "b6f5bbc4a9d00b407cda7eb07eebfb1bc0d4512eaa68d9d713e1df7b57f855bd",
-        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788"
+        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788",
+        "1d3d436a8025e3fc458888c6ae7e8873aad10731ccb314cd80c765609c6949a5"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.clear_mask": {
@@ -118650,14 +118652,26 @@
         "6708b859e74faf247d3b90e174ac087934c09814af74abd596523e2c9ab1dabf"
       ]
     },
+    "spacr.qt.stall_watch.watch_this_application._main_stack": {
+      "source_blocks_sha256": [
+        "9aa9ec84dc3a6eb2e02d87eca4e26f8c6124ccdfd4ef19a1698b7507afa68732",
+        "935bba3f4daeaeb1b6e0ce64086ccba74fa5d8fd6feb4a3a25bf155961ba9c1a"
+      ],
+      "source_sha256": "0b139e81a21e1f86594d3345837dc76e430ef4d2e2f140ed21ceeba5191c6c82",
+      "text": "A pilha da thread GUI da interface como resumos de quadros de chamada somente em texto, ou None.\n\nNenhum objeto de quadro de chamada sobrevive a esta chamada. Um quadro retido pelo observador mantém vivos os objetos locais da função depois que a thread GUI da interface sai dela; o observador então os libera em sua própria thread. Um ``QPainter`` criado em um ``paintEvent`` permanecia ativo após a pintura (\"QBackingStore::endPaint() called with active painter\") e era destruído fora da thread GUI da interface, causando uma falha de segmentação no próximo redesenho da janela. Medido com o controlador da lição 14 e um observador que retinha o último quadro: 4 falhas em 6 execuções.",
+      "translation_source_blocks_sha256": [
+        "8ea626f85aac7de1cf28e50436666f0cc7f346d39558ab4f82d62967b0c16d03",
+        "e9df3f227b79785bd0890981e3193358f554272e67dd696b4c57d32340a5d52a"
+      ]
+    },
     "spacr.qt.stall_watch.watch_this_application._where": {
       "source_blocks_sha256": [
-        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+        "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4"
       ],
-      "source_sha256": "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953",
-      "text": "O quadro de pilha mais interno, como ``file:line function``.",
+      "source_sha256": "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4",
+      "text": "O quadro de chamada mais interno de ``stack``, como ``file:line function``.",
       "translation_source_blocks_sha256": [
-        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+        "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4"
       ]
     },
     "spacr.qt.stall_watch.watch_this_application.tick": {
@@ -161823,14 +161837,16 @@
         "0bcb7f4fd63755efa034e33731de4b491a885f241f8eb267f7fb942dddadc971",
         "e9608bac5ac7124191014fffa0a16648357363fa1ba36b1848f280644a6bca07",
         "f12190afb33dca2591d085eaee4a2d134bf45fc0e65b487d2758d23379912cf4",
+        "30dcec65e2aa650f79507b49f7e0e1a710e7774d2946631f78155fcc4c322910",
         "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
       ],
-      "source_sha256": "7ab05516a3afe4fc0e5b3d5812e5bbd6ee78d722a26eb777c720a12a70bd53ea",
-      "text": "Faça com que os próprios campos do formulário escrevam na tabela.\n\nSem ele, um valor alterado fora da grade - a linha plana para um objeto que a tabela não reivindica, uma predefinição, a Visualização ao vivo, um arquivo de configurações carregadas - deixaria a tabela mostrando o valor antigo.\n\nA tabela não é resemeada: `seed` reconstrói a tabela inteira, que leva 30 ms em Mask e 100 ms com dez organelas. Em um  `textChanged` que seria executado por pressionamento de tecla e mover o cursor para fora da célula que está sendo editada. Uma célula é escrita em vez disso.\n\n:returns: Quantos widgets foram recentemente conectados.",
+      "source_sha256": "e72a9df5053ddde57875cfd7272cbebdfe84dc397a1afc517ffb657ecdc9d902",
+      "text": "Faça com que os próprios campos do formulário escrevam na tabela.\n\nSem ele, um valor alterado fora da grade - a linha plana para um objeto que a tabela não reivindica, uma predefinição, a Visualização ao vivo, um arquivo de configurações carregadas - deixaria a tabela mostrando o valor antigo.\n\nA tabela não é resemeada: `seed` reconstrói a tabela inteira, que leva 30 ms em Mask e 100 ms com dez organelas. Em um  `textChanged` que seria executado por pressionamento de tecla e mover o cursor para fora da célula que está sendo editada. Uma célula é escrita em vez disso.\n\nO campo de ampliação também é acompanhado: um diâmetro de objeto em branco mostra o padrão da ampliação, que muda com ele (item 696).\n\n:returns: Quantos widgets foram recentemente conectados.",
       "translation_source_blocks_sha256": [
         "0bcb7f4fd63755efa034e33731de4b491a885f241f8eb267f7fb942dddadc971",
         "e9608bac5ac7124191014fffa0a16648357363fa1ba36b1848f280644a6bca07",
         "f12190afb33dca2591d085eaee4a2d134bf45fc0e65b487d2758d23379912cf4",
+        "cd5bf1a209ce9144428b3690e32f01ed9141a1335fad2fb1ee50b2b42f8f37be",
         "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
       ]
     },
@@ -185334,10 +185350,11 @@
         "e0214bb996a8c9e7f917dcbdf934d5cd766f489de1eaf62baf86023179e0f37b",
         "bd2ba3f9d896237073978163d11cfe92bbca79902af882f4bb4e9b37475643af",
         "68c410d95ae3531f518cbea42722195316d740281700e632816a4c0abb9691da",
-        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951"
+        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951",
+        "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417"
       ],
-      "source_sha256": "87131eb9c7c6402fd0f28d6ef8dfea475d64004568163db0932633c000dda268",
-      "text": "Registro de uma única invocação de fluxo de trabalho no disco.\n\nAs instâncias são produzidas por :func:`open_run`. Os usuários não as constroem diretamente.\n\n:ivar app_key: id do aplicativo de fluxo de trabalho que abriu a sessão de processamento.\n:ivar settings: O mapeamento de chave-valor foi originalmente passado para o fluxo de trabalho.\n:ivar dir: caminho da pasta de processamento-sessão (``~/.spacr/runs/<ts>_<uuid>__<app>``).\n:ivar start_ts: unix epoch segundos quando a corrida foi aberta.\n:ivar end_ts: unix epoch segundos quando a execução foi fechada (definido por :func:`open_run` na saída).\n:ivar status: ``\"running\"``/``\"success\"`` /  ``\"failed\"`` /``\"cancelled\"``. O último é uma execução que o usuário parou, que não é uma execução que quebrou, e os dois querem coisas diferentes feitas a seguir.\n:ivar model_hashes: mapeamento chave-valor de ``{human-name: \"filename:sha256-16\"}``. Populado por chamadas via  :meth:`record_model`.\n:ivar model_files: SHA-256 completo, tamanho e registros de caminho para modelos.\n:ivar input_hashes: por arquivo completo SHA-256 proveniência de entrada.\n:ivar output_hashes: por arquivo completo SHA-256 procedência de saída.\n:ivar seeds: sementes declaradas e identificadores de estado RNG em tempo de execução.\n:ivar provenance_warnings: falhas de caminho/hash não fatais retidas no manifesto em vez de serem descartadas silenciosamente.\n:ivar run_warnings: linhas de aviso distintas emitidas pelo fluxo de trabalho.\n:ivar environment: host, spaCR, Git e versões de pacote instalado.\n:ivar stages: registros de ciclo de vida consolidados FlowView em ordem de execução.\n:ivar stdout_path: caminho de log de saída padrão capturado, quando um é anexado.\n:ivar error_traceback: Traceback de exceção formatado para execuções falhadas ou canceladas; vazio para execuções bem-sucedidas.",
+      "source_sha256": "f0b419fbd976519a37361333fb1a4282ab223bb5fb02fa612c7e74f86dcb003a",
+      "text": "Registro de uma única invocação de fluxo de trabalho no disco.\n\nAs instâncias são produzidas por :func:`open_run`. Os usuários não as constroem diretamente.\n\n:ivar app_key: id do aplicativo de fluxo de trabalho que abriu a sessão de processamento.\n:ivar settings: O mapeamento de chave-valor foi originalmente passado para o fluxo de trabalho.\n:ivar dir: caminho da pasta de processamento-sessão (``~/.spacr/runs/<ts>_<uuid>__<app>``).\n:ivar start_ts: unix epoch segundos quando a corrida foi aberta.\n:ivar end_ts: unix epoch segundos quando a execução foi fechada (definido por :func:`open_run` na saída).\n:ivar status: ``\"running\"``/``\"success\"`` /  ``\"failed\"`` /``\"cancelled\"``. O último é uma execução que o usuário parou, que não é uma execução que quebrou, e os dois querem coisas diferentes feitas a seguir.\n:ivar model_hashes: mapeamento chave-valor de ``{human-name: \"filename:sha256-16\"}``. Populado por chamadas via  :meth:`record_model`.\n:ivar model_files: SHA-256 completo, tamanho e registros de caminho para modelos.\n:ivar input_hashes: por arquivo completo SHA-256 proveniência de entrada.\n:ivar output_hashes: por arquivo completo SHA-256 procedência de saída.\n:ivar seeds: sementes declaradas e identificadores de estado RNG em tempo de execução.\n:ivar provenance_warnings: falhas de caminho/hash não fatais retidas no manifesto em vez de serem descartadas silenciosamente.\n:ivar run_warnings: linhas de aviso distintas emitidas pelo fluxo de trabalho.\n:ivar environment: host, spaCR, Git e versões de pacote instalado.\n:ivar stages: registros de ciclo de vida consolidados FlowView em ordem de execução.\n:ivar stdout_path: caminho de log de saída padrão capturado, quando um é anexado.\n:ivar error_traceback: Traceback de exceção formatado para execuções falhadas ou canceladas; vazio para execuções bem-sucedidas.\n:ivar diameters: por objeto, o diâmetro com que foi segmentado, por exemplo ``\"120 px (magnification 20x default)\"`` ou ``\"auto (Cellpose estimated 57.3 px)\"`` (item 696).",
       "translation_source_blocks_sha256": [
         "07118148f29baa09bef3cd5a5173d3e9fd317302408fb5361f8c36422aaa8ee6",
         "642369dcbcf0954560157ccece9a94a9600e79ad5cddf147249e73f6895085fa",
@@ -185357,7 +185374,8 @@
         "e0214bb996a8c9e7f917dcbdf934d5cd766f489de1eaf62baf86023179e0f37b",
         "bd2ba3f9d896237073978163d11cfe92bbca79902af882f4bb4e9b37475643af",
         "68c410d95ae3531f518cbea42722195316d740281700e632816a4c0abb9691da",
-        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951"
+        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951",
+        "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417"
       ]
     },
     "spacr.run_journal.Run.attach_output": {

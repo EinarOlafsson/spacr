@@ -118,8 +118,59 @@ DIAMETER_TOOLTIP = (
     "(float, px) Expected object diameter. Cellpose-SAM uses it: the "
     "image is rescaled by 30/diameter before segmentation, so raising it "
     "finds bigger objects and lowering it finds smaller ones. 30 is the "
-    "no-op (30/30 = 1) and 0 means 'unset', which is the same thing."
+    "no-op (30/30 = 1). 0 and auto are the same value: Cellpose estimates "
+    "the size (Cellpose-SAM, which has no size model, keeps the native "
+    "scale). An object diameter left blank opens at its magnification "
+    "default, as the run uses it."
 )
+
+
+class _DiameterSpinBox(QDoubleSpinBox):
+    """The preview's diameter: a number of pixels, or 0 shown as "auto".
+
+    Item 696. The box used to carry a " px" suffix, so "auto" could not be
+    typed. The unit is in the row's label and the tooltip instead, and
+    "auto", "Auto" and 0 all mean the box's minimum, which reads "auto".
+    """
+
+    def __init__(self, parent=None):
+        """Make the box, 0 to 400 px, its minimum reading "auto"."""
+        super().__init__(parent)
+        self.setRange(0, 400)
+        self.setSpecialValueText("auto")
+
+    def validate(self, text, pos):
+        """Accept any case of "auto" and anything a number box accepts.
+
+        :param text: what is in the box.
+        :param pos: the cursor position.
+        """
+        from PySide6.QtGui import QValidator
+
+        word = str(text).strip().lower()
+        if word and "auto".startswith(word):
+            state = (QValidator.Acceptable if word == "auto"
+                     else QValidator.Intermediate)
+            return state, text, pos
+        return super().validate(text, pos)
+
+    def valueFromText(self, text):
+        """"auto" in any case is 0, the value Cellpose estimates at.
+
+        :param text: what is in the box.
+        """
+        if str(text).strip().lower() == "auto":
+            return 0.0
+        return super().valueFromText(text)
+
+    def fixup(self, text):
+        """Write a typed "Auto" the way the box shows it.
+
+        :param text: what is in the box.
+        """
+        if str(text).strip().lower() == "auto":
+            return "auto"
+        return super().fixup(text)
 
 OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen", "organelle")
 
@@ -1193,7 +1244,7 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
 
     backend, masks_of = route
     settings = dict(req.preprocess_settings)
-    settings[f"{obj}_diameter"] = float(req.diameter) or None
+    settings[f"{obj}_diameter"] = float(req.diameter) or "auto"
     settings[f"{obj}_flow_threshold"] = float(req.flow_threshold)
     settings[f"{obj}_cellprob_threshold"] = float(req.cellprob)
     image = image_2d
@@ -2308,9 +2359,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._organelle_channel = QSpinBox(self)
         self._organelle_channel.setRange(0, 8); self._organelle_channel.setValue(3)
 
-        self._diameter = QDoubleSpinBox(self)
-        self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
-        self._diameter.setSuffix(" px")
+        self._diameter = _DiameterSpinBox(self)
+        self._diameter.setValue(30.0)
+        self._diameter_default_seeded: Optional[Tuple[str, float]] = None
         self._flow = QDoubleSpinBox(self)
         self._flow.setRange(-1, 100); self._flow.setSingleStep(0.05)
         self._flow.setValue(0.4)
@@ -3589,8 +3640,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "pathogen_channel": int(self._pathogen_channel.value()),
             f"{self._active_organelle_role}_channel": int(
                 self._organelle_channel.value()),
-            f"{primary}_diameter": self._unclamped(
-                self._diameter, float(self._diameter.value())),
+            f"{primary}_diameter": self._diameter_to_propagate(primary),
             f"{primary}_flow_threshold": self._unclamped(
                 self._flow, float(self._flow.value())),
             f"{primary}_cellprob_threshold": self._unclamped(
@@ -3605,6 +3655,65 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if hasattr(self, "_compartment_widgets"):
             out.update(self._compartment_settings())
         return out
+
+    def _seed_the_diameter(self, settings: dict, primary: str) -> None:
+        """Show the diameter the run will segment ``primary`` with (item 696).
+
+        The run's rule, :func:`spacr.object_settings_table._resolved_diameter`:
+        the object's own number; 0 or "auto", shown as "auto"; and for a
+        blank diameter the magnification default -- which the box then
+        shows, so the preview segments at what the run segments at. A
+        module that names its one diameter ``diameter`` is seeded from that
+        key as before.
+
+        :param settings: the module's settings.
+        :param primary: the object the box speaks for.
+        """
+        from spacr.object_settings_table import (_AUTO_DIAMETER,
+                                                 _canonical_diameter,
+                                                 _resolved_diameter)
+
+        self._diameter_default_seeded = None
+        if settings.get("diameter") is not None:
+            raw = _canonical_diameter(settings["diameter"])
+            resolved = 0.0 if raw == _AUTO_DIAMETER else raw
+        else:
+            resolved = _resolved_diameter(
+                settings.get(f"{primary}_diameter"),
+                settings.get("magnification"), primary)
+            if resolved == _AUTO_DIAMETER:
+                resolved = 0.0
+        if resolved is None:
+            return
+        try:
+            wanted = float(resolved)
+        except (TypeError, ValueError):
+            LOG.debug("apply_settings: %r is not a diameter", resolved)
+            return
+        self._diameter.setValue(wanted)
+        held = float(self._diameter.value())
+        if held != wanted:
+            self._clamped_on_seeding[id(self._diameter)] = (held, wanted)
+        else:
+            self._clamped_on_seeding.pop(id(self._diameter), None)
+        if (settings.get("diameter") is None
+                and settings.get(f"{primary}_diameter") in (None, "")):
+            self._diameter_default_seeded = (primary, held)
+
+    def _diameter_to_propagate(self, primary: str):
+        """The box's diameter as the object's setting stores it (item 696).
+
+        0 is "auto". The magnification default the box was seeded with goes
+        back as blank, so a later change of magnification still moves it.
+
+        :param primary: the object the box speaks for.
+        """
+        value = float(self._diameter.value())
+        if value <= 0:
+            return "auto"
+        if self._diameter_default_seeded == (primary, value):
+            return None
+        return self._unclamped(self._diameter, value)
 
     def _model_write_back(self, model: str) -> Dict[str, Any]:
         """The model keys a registry module's run reads, written back safely.
@@ -3781,10 +3890,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 return
 
         for native, suffix in self._SEGMENTATION_ALIASES:
-            widget = {"diameter": self._diameter,
-                      "flow_threshold": self._flow,
+            if native == "diameter":
+                continue
+            widget = {"flow_threshold": self._flow,
                       "CP_prob": self._prob}[native]
             _seed(widget, (native, f"{primary}_{suffix}"), float)
+        self._seed_the_diameter(settings, primary)
 
         for comp in COMPARTMENTS:
             key = (f"{self._active_organelle_role}_channel"
@@ -4819,6 +4930,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._composite_roles = ()
         self._follow_object_channel()
         self._reseed_the_model_for_the_object()
+        self._seed_the_diameter(self._settings or {}, self._primary_object())
         self._refresh_cycle_controls()
         self._recompute_masks()
 
@@ -5718,7 +5830,7 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Nucleus channel", panel._nucleus_channel)
         form.addRow("Pathogen channel", panel._pathogen_channel)
         form.addRow("Organelle channel", panel._organelle_channel)
-        form.addRow("Diameter", panel._diameter)
+        form.addRow(tr("Diameter (px)"), panel._diameter)
         form.addRow("Flow threshold", panel._flow)
         form.addRow("Cell probability", panel._prob)
         form.addRow(panel._normalise_check)

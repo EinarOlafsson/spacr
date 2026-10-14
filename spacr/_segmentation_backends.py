@@ -3688,6 +3688,7 @@ class _RemoteBackend:
         self.note = (f"in its own environment, {self.env}"
                      + (f"; model {self.model}" if self.model else ""))
         self._said = set()
+        self.estimated_diameters = []
 
     def eval(self, x, batch_size=None, channel_axis=-1, normalize=True,
              diameter=None, flow_threshold=None, cellprob_threshold=0.0,
@@ -3736,6 +3737,9 @@ class _RemoteBackend:
                 device=self.device, inputs=inputs, outputs=scratch,
                 params=params, options=self.options)
             self._report(reply)
+            self.estimated_diameters = [
+                float(value) for value in
+                reply.get("estimated_diameters") or ()]
             masks, flows = [], []
             for item in reply.get("outputs") or ():
                 masks.append(np.load(item["mask"], allow_pickle=False))
@@ -4158,6 +4162,7 @@ class _Cellpose3Adapter:
         self.model = model
         self.ignored = set()
         self.translated = set()
+        self.estimated_diameters = []
         where = torch.device(device)
         gpu = where.type != "cpu"
         if model in _CELLPOSE3_MODELS:
@@ -4219,6 +4224,7 @@ class _Cellpose3Adapter:
         extra.update({k: v for k, v in other.items() if v is not None})
         extra = self._accepted(extra)
         masks, flows = [], []
+        self.estimated_diameters = []
         for image in x:
             image = np.asarray(image)
             channels, axis = [0, 0], None
@@ -4239,6 +4245,9 @@ class _Cellpose3Adapter:
                 normalize=normalize, flow_threshold=flow_threshold,
                 cellprob_threshold=cellprob_threshold, min_size=min_size,
                 resample=resample, **extra)
+            if size == 0.0 and len(output) > 3:
+                self.estimated_diameters.append(
+                    float(np.mean(np.asarray(output[3], dtype=float))))
             parts = list(output[1])[:3]
             masks.append(_as_label_image(output[0]))
             flows.append(parts + [None] * (4 - len(parts)))
@@ -5120,6 +5129,9 @@ def _worker_segment(name, request, adapters):
         reply["ignored"] = ignored
     if translated:
         reply["translated"] = translated
+    estimated = list(getattr(adapter, "estimated_diameters", ()) or ())
+    if estimated:
+        reply["estimated_diameters"] = [float(value) for value in estimated]
     return reply
 
 

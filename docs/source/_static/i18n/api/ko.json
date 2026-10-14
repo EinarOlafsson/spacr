@@ -4062,15 +4062,15 @@
       "source_blocks_sha256": [
         "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "fcffe5b1b1fecf0608b6e7bb0730e4028130b5e09ec0d3320666be0ed972e54e",
+        "4466592e71ffabc4dce79c4a52be7450d61528d7bff7ed1d2b108fb03c443593",
         "e68ee04dff59551b7d1ae07a2f8a00dc61d841628948da3d2781630706a05e92"
       ],
-      "source_sha256": "3966a680156611651475949527196692bf9e5de584343ed493226e8f8d0ce038",
-      "text": "이미지 준비 및 Cellpose 분할을 위한 설정.\n\n매개변수\n----------\nsrc : 실험실 마이크로 플레이트 폴더, 또는 출처 미크로스코피 이미지를 포함하는 실험소 마이크를 폴드의 순서. cell_channel, nucleus_channel, pathogen_channel: 각 분할 목표에 사용되는 제로 기반 강도 이미지 데이터 채널. ``None`` 적어도 하나가 필요하지 않을 때, 그것은 분할되어야합니다. cell_diameter, nucleus_diameter, pathogen_diameter: 예상된 개체 직경 픽셀. ``None`` 허락해 주세요 spaCR 이미지 데이터 채널: 밀도 이미지 데이터의 채널은 융합 된 마이크로스코프 필드의 시야에서 유지됩니다. 확대 : 처리 세션과 함께 기록된 객관적 확대. pipeline_style : 안정적인 디스크 기반 작업 흐름을 위해 ``\"v1\"`` 또는 실험 스트리밍 경로를 위해 ``\"v2\"``입니다. 추가: 타입된 마이크로스코프 시야에서 나타나지 않는 고급 설정. 인쇄된 마이크로스코프 시각 필드를 반복하는 구조화된 데이터 이름은 거부되므로 하나의 스크립트에는 두 가지 답변이 포함되지 않습니다. test_mode : 최대 ``test_images`` 완전한 이미지 세트의 우연한 하위 세트에서 마스크를 실행하고 ``<src>/test`` 아래로 진단 플레이트를 활성화하여 전체 출처를 처리하기 전에. dry_run : 실행 마스크는 무거운 작업 흐름의 수입, 모델 충전, 분류 또는 작성 전에 문제를 예측하고 반환합니다.\n\n샘플\n--------\n>>> config = MaskConfig(\n...     \"/data/plate01\", cell_channel=0, nucleus_channel=1,\n...     cell_diameter=60, nucleus_diameter=20,\n... )\n>>> settings = config.to_settings()\n>>> settings[\"src\"]\n'/data/plate01'",
+      "source_sha256": "9a42e4b6cab65ff13193d22acecabeb713666e02208d8d53bfb3a79eac5b5348",
+      "text": "이미지 준비 및 Cellpose 분할을 위한 설정.\n\n매개변수\n----------\nsrc: 원본 현미경 영상이 들어 있는 실험실 마이크로플레이트 폴더 또는 그러한 폴더의 시퀀스입니다. cell_channel, nucleus_channel, pathogen_channel: 각 분할 대상에 쓰는 0부터 시작하는 강도 채널입니다. 분할하지 않을 객체는 ``None`` 으로 두며 최소 하나는 필요합니다. cell_diameter, nucleus_diameter, pathogen_diameter: 픽셀 단위의 예상 객체 지름입니다. ``None`` 은 배율 기본값(세포는 ``2*magnification+80``, 핵은 ``0.75*magnification+45``, 병원체는 ``magnification``)을 사용합니다. ``0`` 또는 ``\"auto\"`` 는 Cellpose 3 크기 모델의 추정이나 크기 모델이 없는 Cellpose-SAM의 원래 척도를 요청합니다. channels: 합쳐진 영상 영역 배열에서 유지하는 강도 채널입니다. magnification: 실행과 함께 기록한 대물렌즈 배율입니다. pipeline_style: 안정적인 디스크 기반 처리 과정은 ``\"v1\"``, 실험적인 스트리밍 경로는 ``\"v2\"`` 입니다. extra: 명시적인 형식의 설정 필드에 없는 고급 설정입니다. 한 스크립트에 두 값이 들어가지 않도록 그러한 필드를 반복하는 키는 거부합니다. test_mode: 전체 원본을 처리하기 전에 최대 ``test_images`` 개의 완전한 영상 집합으로 된 무작위 부분집합에 ``<src>/test`` 아래에서 Mask를 실행하고 진단 그래프를 켭니다. dry_run: 무거운 처리 모듈 가져오기, 모델 로딩, 분할 또는 쓰기를 시작하기 전에 Mask 사전 검사를 실행하고 문제를 반환합니다.\n\n샘플\n--------\n>>> config = MaskConfig(\n...     \"/data/plate01\", cell_channel=0, nucleus_channel=1,\n...     cell_diameter=60, nucleus_diameter=20,\n... )\n>>> settings = config.to_settings()\n>>> settings[\"src\"]\n'/data/plate01'",
       "translation_source_blocks_sha256": [
         "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "b3dee46d8a9c26dde930c257e50064b3f43c7cdebf01e5994c471fd106990006",
+        "ad4ce71c32828259a56e4c588c23adf4876ab1ecc1511100035e32b79e10300a",
         "e68ee04dff59551b7d1ae07a2f8a00dc61d841628948da3d2781630706a05e92"
       ]
     },
@@ -12649,7 +12649,7 @@
     "spacr.cli.resolve_settings": {
       "source_blocks_sha256": [
         "f3d1675d6373512aaf8780357b985072552b3f49af6086e184a6e13203535029",
-        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+        "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
         "c998f8049bcc807beabebb18310e626c88529dc5ac089a2d3a5ce5fa2785155c",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
@@ -12657,11 +12657,11 @@
         "2cc6a76c58a49d195847a74804f935ee41c29975c1c3418beefdc05931028e87",
         "6e3e14af2ace89206379e9a90bddf7fe57a7ee2d5b07cf2af8e1d11c09eb14ca"
       ],
-      "source_sha256": "ebfa14142607bd5aba13feb89aaa7836ec861d59889429c7cbff4afc40579f0c",
-      "text": "작업 흐름이 수신하는 키 값 지도 설정을 구축합니다.\n\n낮은 우선순위에서 높은 순으로 계층화됩니다: 모듈 자체의 기본값, 설정 파일, 그다음 ``--set`` 재정의입니다. 파일은 먼저 현재 이름으로 읽힙니다. :func:`_under_todays_names` 를 참조하십시오. 이것이 없으면 파일이 옛 이름으로 설정한 값이 새 이름 아래에 이미 있는 기본값에 밀려 사라졌습니다.\n\n:param module: 모듈이 실행되고 있습니다.\n:param settings_path: 설정 파일로 가는 경로, 또는 None 기본 단지.\n:param overrides: ``key=value`` 스트립\n:param moved: 마이그레이션 알림을 받을 목록으로, :func:`_under_todays_names` 에 그대로 전달됩니다. 사전 점검 보고서를 출력하는 호출자는 이를 :func:`_preflight` 에 넘겨, 병합 과정에서 소비된 키가 그 보고서에도 표시되도록 합니다.\n:returns: 완전히 해결된 설정 키 가치 지도.\n:raises SettingsError: 읽을 수없는 파일, 알려지지 않은 구조 데이터 이름 또는 나쁜 값.",
+      "source_sha256": "650ba523ce0f6140bd9e6086ad2b0c65f928e41581052c1266c1e086b206374d",
+      "text": "작업 흐름이 수신하는 키 값 지도 설정을 구축합니다.\n\n우선순위가 낮은 순서부터 모듈 기본값, 설정 파일, ``--set`` 재정의를 겹칩니다. 파일은 먼저 현재 이름으로 읽습니다 -- :func:`_under_todays_names` 를 참조하세요. 그렇지 않으면 파일의 이전 이름에 설정된 값이 새 이름에 이미 있는 기본값에 밀립니다. 객체 지름 0 또는 \"auto\"는 공통 저장 형식인 \"auto\"로 반환됩니다(항목 696).\n\n:param module: 모듈이 실행되고 있습니다.\n:param settings_path: 설정 파일로 가는 경로, 또는 None 기본 단지.\n:param overrides: ``key=value`` 스트립\n:param moved: 마이그레이션 알림을 받을 목록으로, :func:`_under_todays_names` 에 그대로 전달됩니다. 사전 점검 보고서를 출력하는 호출자는 이를 :func:`_preflight` 에 넘겨, 병합 과정에서 소비된 키가 그 보고서에도 표시되도록 합니다.\n:returns: 완전히 해결된 설정 키 가치 지도.\n:raises SettingsError: 읽을 수없는 파일, 알려지지 않은 구조 데이터 이름 또는 나쁜 값.",
       "translation_source_blocks_sha256": [
         "b7832c7628f6e8c9d15869e2f88c861643a435b4d6bda39eafe0a79fa8775b84",
-        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+        "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
         "e295dfa1dfcf50f522ed7ae884473dd79d2b83ccf13269ef8cf7250d759bf8cd",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
@@ -106094,16 +106094,18 @@
         "fe74fe42a97cea40763e133c21c0453665c43915444583a260aeea2ff23f6d9c",
         "ee6d472928e626f00007cf56e3f94c4a70085d843fa57dc314019f81075c0066",
         "8959b9b018d7ffd429e1104c996a4329808323ce84c4d54786f48c2d685ac012",
-        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788"
+        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788",
+        "23c53da4fb3f076808686ed4a7fe1c858727be4da25818188d1dad5ef4a44aea"
       ],
-      "source_sha256": "c29b70472c13cd0af4334d0b3187e96d7e40e4eb627bfdb0f0c09908577c04ac",
-      "text": "필터 목록을 화면의 현미경 시야에 적용하고, 숨긴 객체 수를 반환합니다.\n\n현미경 시야가 로드될 때(초안 분할은 보통 모든 현미경 시야에 같은 종류의 쓰레기를 담고 있음), 목록이 편집될 때마다, 그리고 사용자가 Filter 를 누를 때 스스로 실행됩니다.\n\n엔진은 하나입니다. :func:`mask_engine.apply_filters` 이며, Mask 생성의 ``object_filters`` 설정이 실행하는 것과 같고, 목록이 명시하는 모든 속성에 대해 ``regionprops_table`` 처리를 한 번 합니다. 결과는 실행 취소 한 단계와 목록 전체를 기록하는 원장 항목 하나이므로, 마스크의 출처 정보에 어떤 필터가 마스크를 만들었는지 남습니다.\n\n숨겨진 모든 객체는 Filter 범주의 원장에 하나당 빨간 행 하나로 기록되며, 매 실행이 시작될 때 지워집니다.\n\n:param on_load: 현미경 시야를 열 때의 자동 실행이면 True 입니다. 새 기준선을 시작하며, 아무것도 숨기지 않은 실행은 조용히 유지합니다.",
+      "source_sha256": "d324e56e03e857fd41bfe8be1384c9a8d7a9d8d47abc209f4fa61c0143dd208e",
+      "text": "필터 목록을 화면의 현미경 시야에 적용하고, 숨긴 객체 수를 반환합니다.\n\n현미경 시야가 로드될 때(초안 분할은 보통 모든 현미경 시야에 같은 종류의 쓰레기를 담고 있음), 목록이 편집될 때마다, 그리고 사용자가 Filter 를 누를 때 스스로 실행됩니다.\n\n엔진은 하나입니다. :func:`mask_engine.apply_filters` 이며, Mask 생성의 ``object_filters`` 설정이 실행하는 것과 같고, 목록이 명시하는 모든 속성에 대해 ``regionprops_table`` 처리를 한 번 합니다. 결과는 실행 취소 한 단계와 목록 전체를 기록하는 원장 항목 하나이므로, 마스크의 출처 정보에 어떤 필터가 마스크를 만들었는지 남습니다.\n\n숨겨진 모든 객체는 Filter 범주의 원장에 하나당 빨간 행 하나로 기록되며, 매 실행이 시작될 때 지워집니다.\n\n:param on_load: 현미경 시야를 열 때의 자동 실행이면 True 입니다. 새 기준선을 시작하며, 아무것도 숨기지 않은 실행은 조용히 유지합니다.\n\n인터페이스 언어는 실행마다 한 번 읽습니다(:func:`spacr.qt.i18n.ui_language_resolved_once`). 기록표의 각 행은 :func:`spacr.qt.i18n.tr` 을 일곱 번 호출하며, 수업 영상 영역의 숨긴 객체 286개 때문에 GUI 스레드에서 설정을 읽는 데 150 ms가 걸렸습니다.",
       "translation_source_blocks_sha256": [
         "51130b8a001584435bc063b240760cc9a8a8fff4df41584a2fc53bb3bcef297e",
         "fe74fe42a97cea40763e133c21c0453665c43915444583a260aeea2ff23f6d9c",
         "ee6d472928e626f00007cf56e3f94c4a70085d843fa57dc314019f81075c0066",
         "b6f5bbc4a9d00b407cda7eb07eebfb1bc0d4512eaa68d9d713e1df7b57f855bd",
-        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788"
+        "d4e18e94e45c0c119fd93742cf7b3c36c0ae5cfad11c44f82ec94f12ba5a9788",
+        "1d3d436a8025e3fc458888c6ae7e8873aad10731ccb314cd80c765609c6949a5"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.clear_mask": {
@@ -118650,14 +118652,26 @@
         "6708b859e74faf247d3b90e174ac087934c09814af74abd596523e2c9ab1dabf"
       ]
     },
+    "spacr.qt.stall_watch.watch_this_application._main_stack": {
+      "source_blocks_sha256": [
+        "9aa9ec84dc3a6eb2e02d87eca4e26f8c6124ccdfd4ef19a1698b7507afa68732",
+        "935bba3f4daeaeb1b6e0ce64086ccba74fa5d8fd6feb4a3a25bf155961ba9c1a"
+      ],
+      "source_sha256": "0b139e81a21e1f86594d3345837dc76e430ef4d2e2f140ed21ceeba5191c6c82",
+      "text": "GUI 스레드의 스택을 텍스트 전용 호출 프레임 요약으로 반환하거나 None을 반환합니다.\n\n어떤 프레임 객체도 이 호출보다 오래 살아 있지 않습니다. 감시자가 보관한 프레임은 GUI 스레드가 함수에서 돌아온 후에도 그 함수의 지역 객체를 유지하며, 감시자는 나중에 자기 스레드에서 이를 해제합니다. ``QPainter`` 가 ``paintEvent`` 에서 만들어진 후 그리기 후에도 활성 상태였고(\"QBackingStore::endPaint() called with active painter\") GUI 스레드 밖에서 파괴되어 다음 창 다시 그리기에서 세그먼테이션 오류가 났습니다. 수업 14 드라이버와 마지막 프레임을 보관하는 감시자에서 측정한 결과는 6회 실행 중 4회 충돌입니다.",
+      "translation_source_blocks_sha256": [
+        "8ea626f85aac7de1cf28e50436666f0cc7f346d39558ab4f82d62967b0c16d03",
+        "e9df3f227b79785bd0890981e3193358f554272e67dd696b4c57d32340a5d52a"
+      ]
+    },
     "spacr.qt.stall_watch.watch_this_application._where": {
       "source_blocks_sha256": [
-        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+        "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4"
       ],
-      "source_sha256": "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953",
-      "text": "가장 안쪽 프레임으로, ``file:line function`` 형식입니다.",
+      "source_sha256": "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4",
+      "text": "``stack`` 의 가장 안쪽 호출 프레임을 ``file:line function`` 형식으로 나타냅니다.",
       "translation_source_blocks_sha256": [
-        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+        "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4"
       ]
     },
     "spacr.qt.stall_watch.watch_this_application.tick": {
@@ -161823,14 +161837,16 @@
         "0bcb7f4fd63755efa034e33731de4b491a885f241f8eb267f7fb942dddadc971",
         "e9608bac5ac7124191014fffa0a16648357363fa1ba36b1848f280644a6bca07",
         "f12190afb33dca2591d085eaee4a2d134bf45fc0e65b487d2758d23379912cf4",
+        "30dcec65e2aa650f79507b49f7e0e1a710e7774d2946631f78155fcc4c322910",
         "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
       ],
-      "source_sha256": "7ab05516a3afe4fc0e5b3d5812e5bbd6ee78d722a26eb777c720a12a70bd53ea",
-      "text": "양식의 자신의 필드를 테이블에 입력하십시오.\n\n그것이 없으면, 네트워크 밖에서 변경된 값 - 테이블이 주장하지 않는 개체에 대한 평평한 순서, 사전 설정, 라이브 프레비전, 충전 된 설정 파일 -은 이전 값을 표시하는 테이프를 떠날 것입니다.\n\n테이블은 재구성되지 않습니다 : `seed`는 전체 테이브를 재건, 마스크에 30 ms와 10 organelles로 100 ms가 걸립니다. `textChanged`는 키스트로크를 실행하고 편집되는 세포에서 코서를 이동합니다.\n\n:returns: 얼마나 많은 위젯이 새로 연결되었는지.",
+      "source_sha256": "e72a9df5053ddde57875cfd7272cbebdfe84dc397a1afc517ffb657ecdc9d902",
+      "text": "양식의 자신의 필드를 테이블에 입력하십시오.\n\n그것이 없으면, 네트워크 밖에서 변경된 값 - 테이블이 주장하지 않는 개체에 대한 평평한 순서, 사전 설정, 라이브 프레비전, 충전 된 설정 파일 -은 이전 값을 표시하는 테이프를 떠날 것입니다.\n\n테이블은 재구성되지 않습니다 : `seed`는 전체 테이브를 재건, 마스크에 30 ms와 10 organelles로 100 ms가 걸립니다. `textChanged`는 키스트로크를 실행하고 편집되는 세포에서 코서를 이동합니다.\n\n배율 입력 필드도 따릅니다. 빈 객체 지름은 배율 기본값을 표시하고 배율에 따라 바뀝니다(항목 696).\n\n:returns: 얼마나 많은 위젯이 새로 연결되었는지.",
       "translation_source_blocks_sha256": [
         "0bcb7f4fd63755efa034e33731de4b491a885f241f8eb267f7fb942dddadc971",
         "e9608bac5ac7124191014fffa0a16648357363fa1ba36b1848f280644a6bca07",
         "f12190afb33dca2591d085eaee4a2d134bf45fc0e65b487d2758d23379912cf4",
+        "cd5bf1a209ce9144428b3690e32f01ed9141a1335fad2fb1ee50b2b42f8f37be",
         "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
       ]
     },
@@ -185334,10 +185350,11 @@
         "e0214bb996a8c9e7f917dcbdf934d5cd766f489de1eaf62baf86023179e0f37b",
         "bd2ba3f9d896237073978163d11cfe92bbca79902af882f4bb4e9b37475643af",
         "68c410d95ae3531f518cbea42722195316d740281700e632816a4c0abb9691da",
-        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951"
+        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951",
+        "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417"
       ],
-      "source_sha256": "87131eb9c7c6402fd0f28d6ef8dfea475d64004568163db0932633c000dda268",
-      "text": "단일 작업 흐름 초청의 디스크 기록.\n\n본질은 :func:`open_run`에 의해 생성됩니다.사용자는 직접 그들을 구축하지 않습니다.\n\n:ivar app_key: 처리 세션을 열었던 작업 흐름 앱의 ID.\n:ivar settings: 설정 키 가치 지도 원래 작업 흐름에 전달.\n:ivar dir: 처리 세션 폴더 경로 (``~/.spacr/runs/<ts>_<uuid>__<app>``)\n:ivar start_ts: 윈도우가 열렸을 때 2초 정도의 시간.\n:ivar end_ts: 윈크 시대 초에 실행이 종료되면 (출력에서 :func:`open_run`로 설정).\n:ivar status: ``\"running\"`` / ``\"success\"`` /``\"failed\"`` / ``\"cancelled\"``. 마지막은 사용자가 멈추는 실행이며, 이 실행은 깨진 실행이 아니며, 두 사람은 다음에 다른 일을하고 싶어합니다.\n:ivar model_hashes: ``{human-name: \"filename:sha256-16\"}``의 키 가치 맵링. :meth:`record_model`을 통해 호출자에 의해 인기를 얻습니다.\n:ivar model_files: 전체 SHA-256, 크기, 모델에 대한 경로 기록.\n:ivar input_hashes: SHA-256 입력 출처를 완료합니다.\n:ivar output_hashes: SHA-256 출력의 전체 파일.\n:ivar seeds: 선언된 씨앗과 런 타임 RNG-국가 식별자.\n:ivar provenance_warnings: 비 치명적인 경로/하쉬 실패는 침묵적으로 거부되는 대신에 표현에서 유지됩니다.\n:ivar run_warnings: 작업 흐름에 의해 발행 된 별도의 경고 라인.\n:ivar environment: 호스트, spaCR, Git 및 설치된 패키지 버전.\n:ivar stages: 집합된 FlowView 생명주기 기록은 실행 순서에 있습니다.\n:ivar stdout_path: 캡처 된 표준 출력 로그 경로, 하나가 붙여있을 때.\n:ivar error_traceback: 실패하거나 취소한 레이스에 대한 형식된 예외 트랙베이크; 성공적인 레이스를 위해 빈.",
+      "source_sha256": "f0b419fbd976519a37361333fb1a4282ab223bb5fb02fa612c7e74f86dcb003a",
+      "text": "단일 작업 흐름 초청의 디스크 기록.\n\n본질은 :func:`open_run`에 의해 생성됩니다.사용자는 직접 그들을 구축하지 않습니다.\n\n:ivar app_key: 처리 세션을 열었던 작업 흐름 앱의 ID.\n:ivar settings: 설정 키 가치 지도 원래 작업 흐름에 전달.\n:ivar dir: 처리 세션 폴더 경로 (``~/.spacr/runs/<ts>_<uuid>__<app>``)\n:ivar start_ts: 윈도우가 열렸을 때 2초 정도의 시간.\n:ivar end_ts: 윈크 시대 초에 실행이 종료되면 (출력에서 :func:`open_run`로 설정).\n:ivar status: ``\"running\"`` / ``\"success\"`` /``\"failed\"`` / ``\"cancelled\"``. 마지막은 사용자가 멈추는 실행이며, 이 실행은 깨진 실행이 아니며, 두 사람은 다음에 다른 일을하고 싶어합니다.\n:ivar model_hashes: ``{human-name: \"filename:sha256-16\"}``의 키 가치 맵링. :meth:`record_model`을 통해 호출자에 의해 인기를 얻습니다.\n:ivar model_files: 전체 SHA-256, 크기, 모델에 대한 경로 기록.\n:ivar input_hashes: SHA-256 입력 출처를 완료합니다.\n:ivar output_hashes: SHA-256 출력의 전체 파일.\n:ivar seeds: 선언된 씨앗과 런 타임 RNG-국가 식별자.\n:ivar provenance_warnings: 비 치명적인 경로/하쉬 실패는 침묵적으로 거부되는 대신에 표현에서 유지됩니다.\n:ivar run_warnings: 작업 흐름에 의해 발행 된 별도의 경고 라인.\n:ivar environment: 호스트, spaCR, Git 및 설치된 패키지 버전.\n:ivar stages: 집합된 FlowView 생명주기 기록은 실행 순서에 있습니다.\n:ivar stdout_path: 캡처 된 표준 출력 로그 경로, 하나가 붙여있을 때.\n:ivar error_traceback: 실패하거나 취소한 레이스에 대한 형식된 예외 트랙베이크; 성공적인 레이스를 위해 빈.\n:ivar diameters: 객체별로 분할에 사용한 지름을 기록합니다. 예: ``\"120 px (magnification 20x default)\"`` 또는 ``\"auto (Cellpose estimated 57.3 px)\"`` (항목 696).",
       "translation_source_blocks_sha256": [
         "07118148f29baa09bef3cd5a5173d3e9fd317302408fb5361f8c36422aaa8ee6",
         "642369dcbcf0954560157ccece9a94a9600e79ad5cddf147249e73f6895085fa",
@@ -185357,7 +185374,8 @@
         "e0214bb996a8c9e7f917dcbdf934d5cd766f489de1eaf62baf86023179e0f37b",
         "bd2ba3f9d896237073978163d11cfe92bbca79902af882f4bb4e9b37475643af",
         "68c410d95ae3531f518cbea42722195316d740281700e632816a4c0abb9691da",
-        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951"
+        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951",
+        "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417"
       ]
     },
     "spacr.run_journal.Run.attach_output": {
