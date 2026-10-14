@@ -24,3 +24,23 @@ DONE 2026-10-04
   docs/source/features.rst "Picking up where you left off".
   Left: catalog rebuild for the new captions (in _AWAITING_CATALOG_REBUILD);
   a Windows/macOS manual check (store is QSettings, so no path code differs).
+
+2026-10-14 — unread draft preservation repaired (Home):
+_take_drafts used to clear the store even when reading it failed or its
+record could not be decoded as a modules mapping. A succeeding second store
+access could therefore erase recoverable drafts without offering them.
+Clearing now follows successful JSON and modules-map validation. Valid
+drafts retain their existing consume-once behavior. Unreadable/unrecognized
+records are left alone by the take operation; later deliberate saves/clears
+can still replace them, so this is not an indefinite archival promise.
+
+All five new regressions failed on the original source. The final finite
+owning cohort passed 62 cases (30.43 s, exit 0), covering valid consume-once,
+startup restoration, draft prompts, autosave retry and these failures. The
+new tests use real temporary Qt INI files: two transient read-error seams
+are controlled injections; three malformed native-store values are retained
+byte-for-byte. Fresh coverage executes every changed statement and branch
+exit from changed lines. No API/docstring/UI-caption change or generator
+delta, no app.py/clean-close change, no live user-store operation or new
+macOS/Windows native claim. Existing broader acceptance notes remain scoped.
+Evidence: features/data/647_unread_draft_preservation_2026-10-14/receipt.json.

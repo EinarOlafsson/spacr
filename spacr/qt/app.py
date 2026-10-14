@@ -5673,12 +5673,14 @@ class MainWindow(QMainWindow):
         return found
 
     @staticmethod
-    def _collect_screen(screen) -> dict:
+    def _collect_screen(screen, *, strict=False) -> dict:
         """Return a screen's current settings, or an empty mapping."""
         model = getattr(screen, "_settings_model", None)
         try:
             return dict((model.collect() if model is not None else {}) or {})
         except Exception:                                    # noqa: BLE001
+            if strict:
+                raise
             LOG.debug("could not collect settings", exc_info=True)
             return {}
 
@@ -5686,7 +5688,7 @@ class MainWindow(QMainWindow):
         """Return the visible module key and its settings."""
         screen = self._stack.currentWidget()
         key = str(getattr(screen, "app_key", "") or "")
-        return key, (self._collect_screen(screen) if key else {})
+        return key, (self._collect_screen(screen, strict=True) if key else {})
 
     def _start_settings_autosave(self) -> None:
         """Start the timer that keeps the session and drafts current.
@@ -5717,9 +5719,13 @@ class MainWindow(QMainWindow):
 
         if getattr(self, "_closing", False):
             return False
-        drafts = {key: self._collect_screen(screen)
-                  for key, screen in self._open_app_screens().items()}
-        module, settings = self._current_session()
+        try:
+            drafts = {key: self._collect_screen(screen, strict=True)
+                      for key, screen in self._open_app_screens().items()}
+            module, settings = self._current_session()
+        except Exception:
+            LOG.debug("could not collect settings for autosave", exc_info=True)
+            return False
         fingerprint = json.dumps([module, drafts], sort_keys=True,
                                  default=str)
         if fingerprint == getattr(self, "_last_autosave", ""):
