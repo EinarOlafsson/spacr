@@ -1,16 +1,12 @@
-import { limits, nextUtcMidnight } from "./config.js";
-import { aiAllowance, handleDiagnose, poolState, summarizeWithRelay } from "./diagnose.js";
-import { GLOBAL, ROUTE, hashIp, installScope, pruneOldCounters, readCount, reserveAll } from "./quota.js";
+import { limits } from "./config.js";
+import { buildAllowance } from "./allowance.js";
+import { handleDiagnose, summarizeWithRelay } from "./diagnose.js";
+import { GLOBAL, ROUTE, hashIp, installScope, pruneOldCounters, reserveAll } from "./quota.js";
 import { fileReport, issueBody, issueTitle, obtainSummary, signatureOf, sourceOf } from "./report.js";
 import { HttpError, VERSION, json, readJsonBody, refusedQuota, utcDay } from "./util.js";
 import { UUID_RE, validatePayload } from "./validate.js";
 
 export const ROUTES = ["GET /health", "GET /allowance", "POST /report", "POST /diagnose"];
-
-async function reportsLeft(db, day, cfg, installId) {
-  const used = await readCount(db, day, ROUTE.report, installScope(installId));
-  return Math.max(0, cfg.reportsPerInstall - used);
-}
 
 async function handleReport(request, env, ctx, now) {
   const body = await readJsonBody(request);
@@ -27,11 +23,7 @@ async function handleReport(request, env, ctx, now) {
   if (!quota.ok) return refusedQuota(quota.refused);
   if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(pruneOldCounters(env.DB, day));
   const getSummary = () => summarizeWithRelay(env, report, now);
-  const allowance = async () => ({
-    reports_left: await reportsLeft(env.DB, day, cfg, report.install_id),
-    ...(await aiAllowance(env.DB, day, cfg, report.install_id)),
-    resets_at: nextUtcMidnight(now),
-  });
+  const allowance = () => buildAllowance(env.DB, day, cfg, report.install_id, now, Boolean(env.AI));
   if (report.dry_run) {
     const signature = await signatureOf(report);
     const summary = await obtainSummary(report, getSummary);
@@ -54,13 +46,7 @@ async function handleAllowance(url, env, now) {
   const id = installId.toLowerCase();
   const cfg = limits(env);
   const day = utcDay(now);
-  const used = await readCount(env.DB, day, ROUTE.aiNeurons, GLOBAL);
-  return json(200, {
-    ai: await aiAllowance(env.DB, day, cfg, id),
-    reports_left: await reportsLeft(env.DB, day, cfg, id),
-    pool: env.AI ? poolState(cfg, used) : "exhausted",
-    resets_at: nextUtcMidnight(now),
-  });
+  return json(200, await buildAllowance(env.DB, day, cfg, id, now, Boolean(env.AI)));
 }
 
 export async function handle(request, env, ctx, now = new Date()) {

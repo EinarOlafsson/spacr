@@ -6,6 +6,8 @@ export const MAX_MESSAGE = 300;
 export const MAX_NOTE = 1000;
 export const MAX_QUESTION = 2000;
 export const MAX_AI_SUMMARY = 2000;
+export const MAX_CODE = 160;
+export const KINDS = Object.freeze(["fault", "user_error"]);
 
 const OS_VALUES = new Set(["linux", "windows", "macos"]);
 
@@ -107,7 +109,7 @@ function checkFrames(body) {
   return frames.map((f, i) => {
     if (!isPlainObject(f)) throw bad(`frames[${i}] must be an object`);
     for (const key of Object.keys(f)) {
-      if (!["file", "function", "line"].includes(key)) {
+      if (!["file", "function", "line", "code"].includes(key)) {
         throw bad(`frames[${i}] has unknown field: ${key}`);
       }
     }
@@ -122,7 +124,18 @@ function checkFrames(body) {
     if (!Number.isInteger(f.line) || f.line < 0 || f.line > 10_000_000) {
       throw bad(`frames[${i}].line must be a non-negative integer`);
     }
-    return { file: f.file, function: f.function, line: f.line };
+    const frame = { file: f.file, function: f.function, line: f.line };
+    if (f.code !== undefined && f.code !== null) {
+      if (typeof f.code !== "string") throw bad(`frames[${i}].code must be a string`);
+      if (f.code.length > MAX_CODE) throw bad(`frames[${i}].code exceeds ${MAX_CODE} characters`);
+      if (/[\u0000-\u0008\u000A-\u001F\u007F]/.test(f.code)) {
+        throw bad(`frames[${i}].code must be a single line without control characters`);
+      }
+      const hit = findSensitive(f.code);
+      if (hit) throw bad(`frames[${i}].code looks like it contains ${hit}; remove it and retry`);
+      if (f.code.trim()) frame.code = f.code;
+    }
+    return frame;
   });
 }
 
@@ -140,6 +153,7 @@ const COMMON_FIELDS = [
   "message",
   "frames",
   "user_note",
+  "kind",
 ];
 
 const REPORT_FIELDS = new Set([...COMMON_FIELDS, "dry_run", "ai_summary", "summarize"]);
@@ -170,6 +184,10 @@ export function validatePayload(body, kind) {
   out.message = checkText(body, "message", MAX_MESSAGE, { optional: false });
   out.frames = checkFrames(body);
   out.user_note = checkText(body, "user_note", MAX_NOTE);
+  if (body.kind !== undefined && body.kind !== null && !KINDS.includes(body.kind)) {
+    throw bad("field kind must be fault or user_error");
+  }
+  out.kind = body.kind === "user_error" ? "user_error" : "fault";
   if (kind === "diagnose") {
     out.question = checkText(body, "question", MAX_QUESTION);
   } else {

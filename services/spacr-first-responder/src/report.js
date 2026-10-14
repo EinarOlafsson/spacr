@@ -3,6 +3,11 @@ import { createComment, createIssue } from "./github.js";
 import { sha256Hex } from "./util.js";
 
 export const ISSUE_LABEL = "user-report";
+export const USER_ERROR_LABEL = "user-error";
+
+export function issueLabels(r) {
+  return r.kind === "user_error" ? [ISSUE_LABEL, USER_ERROR_LABEL] : [ISSUE_LABEL];
+}
 export const SIGNATURE_FRAMES = 5;
 
 export function topFrames(frames, n = SIGNATURE_FRAMES) {
@@ -51,13 +56,16 @@ export function environmentLine(r) {
 
 export function issueTitle(r) {
   const msg = oneLine(r.message || "", 80);
-  const base = `[user-report] ${r.exception_type} in ${r.module}`;
+  const prefix = r.kind === "user_error" ? "[user-report][settings]" : "[user-report]";
+  const base = `${prefix} ${r.exception_type} in ${r.module}`;
   return msg ? `${base}: ${msg}` : base;
 }
 
 export function tracebackText(frames) {
   if (frames.length === 0) return "(no frames)";
-  return frames.map((f) => `  ${f.file}:${f.line} in ${f.function}`).join("\n");
+  return frames
+    .map((f) => (f.code ? `  ${f.file}:${f.line} in ${f.function}\n      ${f.code.trim()}` : `  ${f.file}:${f.line} in ${f.function}`))
+    .join("\n");
 }
 
 export function summarySection(summary) {
@@ -77,6 +85,7 @@ export function issueBody(r, signature, summary = null) {
     "### Error",
     "",
     `**${r.exception_type}** in \`${r.module}\``,
+    ...(r.kind === "user_error" ? ["", "Kind: **user error** (settings or usage), reported from spaCR."] : []),
     "",
     fence(r.message || ""),
     "",
@@ -145,7 +154,7 @@ async function openNewIssue(env, r, signature, now, getSummary) {
   let summary = null;
   try {
     summary = await obtainSummary(r, getSummary);
-    issue = await createIssue(env, issueTitle(r), issueBody(r, signature, summary), [ISSUE_LABEL]);
+    issue = await createIssue(env, issueTitle(r), issueBody(r, signature, summary), issueLabels(r));
   } catch (err) {
     await env.DB.prepare(SQL.dropSignature).bind(signature).run();
     throw err;

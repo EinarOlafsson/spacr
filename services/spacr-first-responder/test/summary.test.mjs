@@ -11,7 +11,7 @@ const DAY1 = new Date("2026-10-14T12:00:00Z");
 const DAY2 = new Date("2026-10-15T12:00:00Z");
 const LIGHT = "@cf/meta/llama-3.1-8b-instruct-fp8";
 const POOL = "2026-10-14|ai_neurons|global";
-const LIGHT_KEY = `2026-10-14|ai_light|install:${sampleReport().install_id}`;
+const MINE = `2026-10-14|ai_install_neurons|install:${sampleReport().install_id}`;
 const HEADING = "### AI summary (generated, may be wrong)";
 
 let gh;
@@ -66,7 +66,8 @@ test("client summary goes into the issue with its source and costs no AI", async
   assert.match(body, /Shape mismatch between mask and image/);
   assert.match(body, /_summary written by the reporter's own AI_/);
   assert.equal(aiCalls.length, 0);
-  assert.equal(r.body.allowance.light_left, 10);
+  assert.equal(r.body.allowance.ai.neurons_left, 4500);
+  assert.equal(env.DB.counters.has(MINE), false, "a client summary does not make the install active");
 });
 
 test("client summary is checked for personal data", async () => {
@@ -91,8 +92,12 @@ test("relay summary uses the light model, one light question and the shared pool
   const body = issueCall().body.body;
   assert.ok(body.includes(HEADING));
   assert.match(body, new RegExp(`_summary written by spaCR AI \\(${LIGHT.replace(/[.\/]/g, "\\$&")}\\)_`));
-  assert.deepEqual(r.body.allowance, { reports_left: 4, best_left: 5, light_left: 9, resets_at: "2026-10-15T00:00:00.000Z" });
-  assert.ok(env.DB.counters.get(POOL) > 0);
+  const spent = env.DB.counters.get(MINE);
+  assert.ok(spent > 0);
+  assert.equal(env.DB.counters.get(POOL), spent);
+  assert.equal(r.body.allowance.ai.neurons_left, 4500 - spent);
+  assert.equal(r.body.allowance.ai.active_users, 1);
+  assert.equal(r.body.allowance.reports_left, 4);
 });
 
 test("client summary wins over summarize", async () => {
@@ -113,8 +118,8 @@ test("relay summary is capped at 1200 characters and neutralises markup", async 
   assert.ok(quoted <= SUMMARY_MAX_CHARS + 120);
 });
 
-test("no light allowance left: the report is filed without a summary", async () => {
-  env.AI_LIGHT_PER_INSTALL = "0";
+test("share exhausted: the report is filed without a summary", async () => {
+  env.DB.counters.set(MINE, 4500);
   const r = await post(sampleReport({ summarize: true }));
   assert.equal(r.status, 200);
   assert.equal(r.body.ai_summary_source, "none");
@@ -128,7 +133,7 @@ test("exhausted pool: filed without a summary, nothing consumed", async () => {
   assert.equal(r.status, 200);
   assert.equal(r.body.ai_summary_source, "none");
   assert.equal(aiCalls.length, 0);
-  assert.equal(env.DB.counters.get(LIGHT_KEY) ?? 0, 0);
+  assert.equal(env.DB.counters.get(MINE) ?? 0, 0);
 });
 
 test("AI error: filed without a summary and the light question is refunded", async () => {
@@ -136,7 +141,7 @@ test("AI error: filed without a summary and the light question is refunded", asy
   const r = await post(sampleReport({ summarize: true }));
   assert.equal(r.status, 200);
   assert.equal(r.body.ai_summary_source, "none");
-  assert.equal(r.body.allowance.light_left, 10);
+  assert.equal(r.body.allowance.ai.neurons_left, 4500);
 });
 
 test("AI 4006: filed without a summary and the pool is closed", async () => {
@@ -152,7 +157,7 @@ test("AI timeout: filed without a summary", async () => {
   env.aiHang = true;
   const s = await summarizeWithRelay(env, { ...sampleReport(), question: null }, DAY1, 20);
   assert.equal(s, null);
-  assert.equal(env.DB.counters.get(LIGHT_KEY), 0);
+  assert.equal(env.DB.counters.get(MINE), 0);
 });
 
 test("dry run includes the relay summary without calling GitHub", async () => {
@@ -160,7 +165,7 @@ test("dry run includes the relay summary without calling GitHub", async () => {
   assert.equal(r.status, 200);
   assert.equal(r.body.ai_summary_source, "relay");
   assert.ok(r.body.body.includes(HEADING));
-  assert.equal(r.body.allowance.light_left, 9);
+  assert.ok(r.body.allowance.ai.neurons_left < 4500);
   assert.equal(gh.calls.length, 0);
 });
 
@@ -203,4 +208,23 @@ test("dedupe: a failed relay summary leaves the slot open for a later report", a
   delete env.aiError;
   const third = await post(sampleReport({ summarize: true }), DAY2);
   assert.equal(third.body.ai_summary_source, "relay");
+});
+
+test("a shrunken share skips the summary but still files the report", async () => {
+  env.DB.counters.set(MINE, 1000);
+  for (let i = 0; i < 9; i++) env.DB.counters.set(`2026-10-14|ai_install_neurons|install:other-${i}`, 10);
+  const r = await post(sampleReport({ summarize: true }));
+  assert.equal(r.status, 200);
+  assert.equal(r.body.ai_summary_source, "none");
+  assert.equal(r.body.allowance.ai.share_neurons, 818);
+  assert.equal(r.body.allowance.ai.neurons_left, 0);
+  assert.equal(aiCalls.length, 0);
+});
+
+test("optional light cap still applies to summaries", async () => {
+  env.AI_LIGHT_PER_INSTALL = "1";
+  await post(sampleReport({ summarize: true, dry_run: true }));
+  const r = await post(sampleReport({ summarize: true, dry_run: true }));
+  assert.equal(r.body.ai_summary_source, "none");
+  assert.equal(aiCalls.length, 1);
 });

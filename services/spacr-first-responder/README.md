@@ -17,14 +17,41 @@ Every response is JSON. `GET /` answers like `/health`.
 | Route | Request | 200 response |
 | --- | --- | --- |
 | `GET /health` | none | `{ok, version, routes}` |
-| `GET /allowance?install_id=<uuid>` | none; consumes nothing | `{ai: {best_left, light_left}, reports_left, pool: "best"\|"light"\|"exhausted", resets_at}` |
-| `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize` | `{issue_number, issue_url, deduplicated, commented?, ai_summary_source, allowance}` |
+| `GET /allowance?install_id=<uuid>` | none; consumes nothing | the allowance object below |
+| `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize`, `kind` | `{issue_number, issue_url, deduplicated, commented?, ai_summary_source, allowance}` |
 | `POST /report` with `dry_run: true` | same | `{dry_run: true, title, body, signature, ai_summary_source, allowance}` |
-| `POST /diagnose` | report JSON plus optional `question` | `{advice, model, tier: "best"\|"light", allowance: {best_left, light_left, resets_at}}` |
+| `POST /diagnose` | report JSON plus optional `question` | `{advice, model, tier: "best"\|"light", allowance}` |
 
-On `/report`, `allowance` is `{reports_left, best_left, light_left, resets_at}`;
-`ai_summary_source` is `"client"`, `"relay"` or `"none"`; `resets_at` is the next
-00:00 UTC as ISO 8601.
+The allowance object is the same on all three routes:
+
+```json
+{
+  "ai": {
+    "neurons_left": 4451,
+    "share_neurons": 4500,
+    "share_pct": 50,
+    "active_users": 1,
+    "active_users_definition": "installs that used hosted AI (diagnosis or report summary) today, UTC, counting you; allowance queries do not count",
+    "best_left": 45,
+    "light_left": 178,
+    "tier_now": "best"
+  },
+  "best_left": 45,
+  "light_left": 178,
+  "reports_left": 5,
+  "pool": "best",
+  "pool_pct_left": 99.5,
+  "resets_at": "2026-10-15T00:00:00.000Z"
+}
+```
+
+- `tier_now` is `"best"`, `"light"` or `"none"`. `pool` is `"best"`, `"light"` or
+  `"exhausted"`.
+- `best_left` and `light_left` are estimates: remaining share divided by a typical
+  answer's cost (1,000 tokens in, 400 out). They are repeated at the top level for
+  clients built against 3b50b593d.
+- `ai_summary_source` is `"client"`, `"relay"` or `"none"`.
+- `resets_at` is the next 00:00 UTC, in ISO 8601.
 
 Errors: `400 {error}` (validation), `413 {error}` (body over 16 KB), `404/405 {error}`,
 `429 {refused: "quota", scope}` with scope `install`, `ip` or `global`,
@@ -32,7 +59,8 @@ Errors: `400 {error}` (validation), `413 {error}` (body over 16 KB), `404/405 {e
 
 ### Report schema (version 1)
 
-Unknown fields are rejected. Body at most 16 KB.
+Unknown fields are rejected. Body at most 16 KB. Every field added since 3b50b593d
+is optional, so older clients keep working.
 
 | Field | Rule |
 | --- | --- |
@@ -45,81 +73,119 @@ Unknown fields are rejected. Body at most 16 KB.
 | `module` | spaCR module/app key, e.g. `spacr.measure` |
 | `exception_type` | e.g. `ValueError` |
 | `message` | scrubbed message, max 300 chars |
-| `frames` | max 40 `{file, function, line}`; `file` is a base name, no path |
+| `frames` | max 40 `{file, function, line, code?}`; `file` is a base name, no path; `code` is the optional source line, single line, max 160 chars |
+| `kind` | optional `"fault"` (default) or `"user_error"` (settings or usage error) |
 | `user_note` | optional, max 1000 chars |
 | `dry_run` | `/report` only, optional boolean |
 | `ai_summary` | `/report` only, optional, max 2000 chars, written by the user's own AI |
 | `summarize` | `/report` only, optional boolean: ask the relay to write the summary |
 | `question` | `/diagnose` only, optional, max 2000 chars |
 
-Free text (`message`, `user_note`, `ai_summary`, `question`) is refused with a clear
-400 if it looks like it contains an absolute path (Unix, `~/`, Windows drive, UNC,
-`file://`), an e-mail address, an IPv4/IPv6 address, a URL with credentials, or a
-token or key (GitHub, OpenAI-style, AWS, Slack, Hugging Face, Google, JWT, PEM,
-`password=`-style pairs, long random strings). The spaCR client must scrub before
-sending; the relay only double-checks.
+Free text (`message`, `user_note`, `ai_summary`, `question`, `frames[].code`) is
+refused with a clear 400 if it looks like it contains an absolute path (Unix, `~/`,
+Windows drive, UNC, `file://`), an e-mail address, an IPv4/IPv6 address, a URL with
+credentials, or a token or key (GitHub, OpenAI-style, AWS, Slack, Hugging Face,
+Google, JWT, PEM, `password=`-style pairs, long random strings). The spaCR client
+must scrub before sending; the relay only double-checks.
 
-### De-duplication
+### Issues
 
-Signature = SHA-256 of `exception_type`, `module` and the five innermost frames
-(`file:function`; line numbers are left out so one bug keeps one issue across
-releases). A new signature opens an issue labelled `user-report`. A known signature
-adds a `+1` comment with the version/OS line, at most one comment per signature per
-UTC day; further repeats only increase the stored count. If the issue was deleted,
-a new one is opened. Counters and signatures live in D1 (`schema.sql`); raw reports
-are never stored, and IP addresses are only used as a daily salted hash.
+- **Title.** `[user-report] <exception> in <module>: <message>`. A
+  `kind: "user_error"` report gets `[user-report][settings]` and the extra label
+  `user-error`.
+- **Traceback.** File names only. A frame's `code` is shown indented under its
+  `file:line in function` line, and is also sent to the model for diagnoses and
+  summaries.
+- **De-duplication.**
+  - Signature = SHA-256 of `exception_type`, `module` and the five innermost frames
+    (`file:function`). Line numbers, `code` and `kind` are left out, so one bug keeps
+    one issue across releases.
+  - A new signature opens an issue labelled `user-report`.
+  - A known signature adds a `+1` comment with the version/OS line, at most one
+    comment per signature per UTC day; further repeats only increase the stored
+    count.
+  - If the issue was deleted, a new one is opened.
+- **Storage.** Counters and signatures live in D1 (`schema.sql`); raw reports are
+  never stored, and IP addresses are only used as a daily salted hash.
 
 ### AI summary on issues
 
 An issue body (or a `+1` comment) can carry a section
 `### AI summary (generated, may be wrong)`, followed by its source:
 "summary written by the reporter's own AI" (`ai_summary` from the client) or
-"summary written by spaCR AI (<model>)" (relay, when `summarize: true` and no
-`ai_summary`). The relay summary uses the LIGHT model with a fixed prompt (likely
-cause and where in spaCR it happens, no speculation about the user, at most 1,200
-characters, 350 output tokens, 20 s timeout). It costs one LIGHT question from the
-install's allowance and is counted in the shared neuron pool.
+"summary written by spaCR AI (<model>)" (written by the relay when `summarize: true`
+and there is no `ai_summary`).
 
-The report is **never** refused because of the summary: with no LIGHT question left,
-an exhausted pool, a model error or a timeout, the issue is filed without one
-(`ai_summary_source: "none"`) and the LIGHT question is refunded. A `+1` comment
-carries a summary only while the issue has none yet (`has_summary` in
-`issue_signatures`), and only when that day's comment slot is free, so no AI is
+The relay summary:
+
+- uses the LIGHT model with a fixed prompt: likely cause and where in spaCR it
+  happens, no speculation about the user;
+- is limited to 1,200 characters, 350 output tokens and a 20 s timeout;
+- is paid from the install's AI share, like a LIGHT diagnosis, and counted in the
+  shared neuron pool.
+
+The report is **never** refused because of the summary. If the share is used up,
+the pool is exhausted, the model fails or it times out, the issue is filed without
+a summary (`ai_summary_source: "none"`) and any reservation is refunded to the share.
+
+A `+1` comment carries a summary only while the issue has none yet (`has_summary`
+in `issue_signatures`), and only when that day's comment slot is free, so no AI is
 spent on a summary that would not be posted.
 
 ## Allowances
 
 All limits are `[vars]` in `wrangler.toml`; counters reset at 00:00 UTC.
 
-| What | Per install per day | Shared | Setting |
-| --- | --- | --- | --- |
-| BEST diagnosis (`@cf/qwen/qwen2.5-coder-32b-instruct`) | 5 | while the pool has at least 40% left | `AI_BEST_PER_INSTALL`, `AI_MODEL_BEST`, `AI_LIGHT_THRESHOLD` |
-| LIGHT diagnosis or relay summary (`@cf/meta/llama-3.1-8b-instruct-fp8`) | 10 more | while the pool fits a worst-case LIGHT call | `AI_LIGHT_PER_INSTALL`, `AI_MODEL_LIGHT` |
-| AI neuron pool | | 9,000 of the free 10,000 neurons | `AI_DAILY_NEURON_CAP` (clamped to 10,000) |
-| Error reports | 5 | 200 (issues and comments) | `REPORTS_PER_INSTALL`, `DAILY_REPORT_LIMIT` |
-| Per hashed IP, per route (second guard) | | 60 | `PER_IP_DAILY_LIMIT` |
+| What | Limit | Setting |
+| --- | --- | --- |
+| AI neuron pool, shared by all installs | 9,000 of the free 10,000 neurons a day | `AI_DAILY_NEURON_CAP` (clamped to 10,000) |
+| AI share per install | `floor(cap / (N + 1))`, at least 300, at most the cap | `AI_MIN_SHARE_NEURONS` |
+| BEST model `@cf/qwen/qwen2.5-coder-32b-instruct` | while at least 40% of the pool is left and the share covers this call's worst case | `AI_MODEL_BEST`, `AI_LIGHT_THRESHOLD` |
+| LIGHT model `@cf/meta/llama-3.1-8b-instruct-fp8` (diagnoses and summaries) | otherwise, while the share and the pool cover this call's worst case | `AI_MODEL_LIGHT` |
+| Optional hard caps on BEST / LIGHT calls per install | 0 = off (default) | `AI_BEST_PER_INSTALL`, `AI_LIGHT_PER_INSTALL` |
+| Error reports | 5 per install, 200 in total (issues and comments) | `REPORTS_PER_INSTALL`, `DAILY_REPORT_LIMIT` |
+| Per hashed IP, per route (second guard) | 60 | `PER_IP_DAILY_LIMIT` |
 
-The ladder for `/diagnose`:
+**Active users.** N counts the installs that used hosted AI today (a diagnosis or a
+relay summary), including the one asking. A `/allowance` query does not make an
+install active, so idle app launches do not shrink anyone's share. It reports N as
+if the caller were to use AI now.
 
-1. The per-IP guard (60 a day) must pass; otherwise `429 scope "ip"`.
+| Active users N | Share | % of the pool | Typical BEST answers (97 neurons) | Typical LIGHT answers (25 neurons) |
+| --- | --- | --- | --- | --- |
+| 1 | 4,500 | 50% | 46 | 180 |
+| 2 | 3,000 | 33.3% | 30 | 120 |
+| 3 | 2,250 | 25% | 23 | 90 |
+| 10 | 818 | 9.1% | 8 | 32 |
+| 29 or more | 300 (floor) | 3.3% | 3 | 12 |
+
+Each install's neurons used today count against its **current** share. When new
+users arrive the share shrinks; an install that has already used more than the new
+share gets `429 scope "install"` until the reset. Shares are a fairness rule, not a
+reservation: when many installs are active, the floors can add up to more than the
+pool, and the pool cap still wins (`429 scope "global"`).
+
+The ladder for `/diagnose` and relay summaries:
+
+1. Diagnoses only: the per-IP guard (60 a day) must pass; otherwise `429 scope "ip"`.
 2. If the pool cannot fit a worst-case LIGHT call: `429 scope "global"`.
-3. If the pool has at least 40% (3,600 neurons) left and the user has BEST left, the
-   relay reserves one BEST question and the worst-case BEST neurons, and answers
-   with the BEST model.
-4. Otherwise it reserves one LIGHT question and LIGHT neurons. Below 40% everyone is
-   served LIGHT, and BEST questions are not spent.
-5. With no LIGHT question left: `429 scope "install"` (or `"global"` if the user still
-   has BEST questions that the low pool cannot serve). Any earlier reservation is
-   refunded.
-6. After the call, the reservation is settled to the real cost from the `usage`
-   tokens the model returns (or an estimate from the text). A failed call refunds the
-   user's question and keeps the conservative neuron reservation. Workers AI error
-   4006 (free allocation used up) fills the pool to the cap and answers
-   `429 scope "global"`.
+3. If at least 40% of the pool is left (3,600 neurons), the relay tries BEST. In one
+   atomic statement each, it reserves this call's worst-case cost (estimated prompt
+   tokens plus the full output budget) against the install's share, then against
+   the pool. Summaries skip this step.
+4. Otherwise, or if that fails, it tries LIGHT the same way. Below 40% everyone is
+   served LIGHT.
+5. If neither fits: `429 scope "install"` when the share is short, `"global"` when the
+   pool is short. Every earlier reservation is refunded.
+6. After the call, both reservations are settled to the real cost from the `usage`
+   tokens the model returns (or an estimate from the text).
+   - A failed call refunds the share and keeps the conservative pool reservation.
+   - Workers AI error 4006 (free allocation used up) fills the pool to the cap and
+     answers `429 scope "global"`.
 
 Reservations are single atomic D1 statements (`INSERT ... ON CONFLICT DO UPDATE
 ... WHERE n + amount <= limit RETURNING n`), so concurrent requests can never push
-a counter or the neuron pool over its limit.
+a share or the pool over its limit.
 
 ### Neuron math
 
@@ -131,15 +197,15 @@ Prices in neurons per million tokens, from Cloudflare's pricing page (2026-10-14
 | `@cf/meta/llama-3.1-8b-instruct-fp8` (LIGHT) | 13,778 | 26,128 | 114 | 25 |
 
 \* 16 KB body plus the system prompt counted at 2.5 characters per token (about
-7,100 tokens) and the full 600 output tokens. A relay summary is at most about 106
-neurons (350 output tokens).
+7,100 tokens) and the full 600 output tokens. A relay summary is at most about 108
+neurons (350 output tokens). The reservation for a real call uses that call's own
+prompt, so a typical report reserves about 95 (BEST) or 25 (LIGHT) neurons, and the
+300-neuron floor always covers at least one BEST answer.
 
 With the defaults, BEST is served while the pool spends its first 5,400 neurons
-(about 55 typical BEST answers, at least 11 worst-case ones), then LIGHT until fewer
-than 114 neurons remain (about 140 typical LIGHT answers). One install's full day
-(5 BEST + 10 LIGHT) costs about 735 neurons typically. The 1,000-neuron margin
-under the free 10,000 covers estimation error; the relay never reserves past
-`AI_DAILY_NEURON_CAP`.
+(about 55 typical BEST answers), then LIGHT until fewer than 114 neurons remain
+(about 140 typical LIGHT answers). The 1,000-neuron margin under the free 10,000
+covers estimation error; the relay never reserves past `AI_DAILY_NEURON_CAP`.
 
 ### Zero cost
 
@@ -221,8 +287,9 @@ npx wrangler login
 npx wrangler d1 execute spacr-support --remote --file=schema.sql
 ```
 
-Running it again is harmless. If you applied an earlier copy of `schema.sql` that
-had no `has_summary` column, add it once:
+Running it again is harmless. The per-install AI shares added after 3b50b593d need
+no schema change; they use the existing `daily_counters` table. If you applied an
+earlier copy of `schema.sql` that had no `has_summary` column, add it once:
 
 ```sh
 npx wrangler d1 execute spacr-support --remote \
@@ -295,10 +362,11 @@ curl -s -X POST $URL/diagnose -H 'content-type: application/json' -d '{
 }'
 ```
 
-Expected: `/health` returns `{"ok":true,...}`; `/allowance` returns 5 BEST, 10 LIGHT
-and 5 reports left with `pool: "best"`; the dry run returns the issue title and body
+Expected: `/health` returns `{"ok":true,...}`; `/allowance` returns the allowance
+object with `tier_now: "best"`, 5 reports left and `pool: "best"`; the dry run returns the issue title and body
 it *would* file, with an "AI summary" section and `ai_summary_source: "relay"`,
-without touching GitHub (it does use one LIGHT question and one dry-run report);
+without touching GitHub (it does spend a few neurons of the share and one dry-run
+report);
 `/diagnose` returns `{"advice": "...", "model": "@cf/qwen/qwen2.5-coder-32b-instruct",
 "tier": "best", "allowance": {...}}`.
 
@@ -320,6 +388,7 @@ they need no network or account. `schema.sql` is the source of truth for the tab
 
 Configuration names: variables `APP_ID`, `INSTALLATION_ID`, `REPO`, `AI_MODEL_BEST`,
 `AI_MODEL_LIGHT`, `AI_BEST_PER_INSTALL`, `AI_LIGHT_PER_INSTALL`, `AI_DAILY_NEURON_CAP`,
+`AI_MIN_SHARE_NEURONS`,
 `AI_LIGHT_THRESHOLD`, `REPORTS_PER_INSTALL`, `DAILY_REPORT_LIMIT`, `PER_IP_DAILY_LIMIT`,
 optional `GITHUB_API_VERSION` (default `2022-11-28`); secrets `GITHUB_APP_PRIVATE_KEY`
 and optional `IP_HASH_SALT`.

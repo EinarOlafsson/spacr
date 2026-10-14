@@ -9,6 +9,7 @@ export const SQL = Object.freeze({
     "INSERT INTO daily_counters (day, route, scope, n) VALUES (?1, ?2, ?3, ?4) " +
     "ON CONFLICT (day, route, scope) DO UPDATE SET n = MAX(daily_counters.n, excluded.n)",
   read: "SELECT n FROM daily_counters WHERE day = ?1 AND route = ?2 AND scope = ?3",
+  countRoute: "SELECT COUNT(*) AS c FROM daily_counters WHERE day = ?1 AND route = ?2",
   prune: "DELETE FROM daily_counters WHERE day < ?1",
   bumpSignature:
     "UPDATE issue_signatures SET count = count + 1, last_seen = ?2 WHERE signature = ?1 " +

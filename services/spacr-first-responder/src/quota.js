@@ -8,6 +8,7 @@ export const ROUTE = Object.freeze({
   aiBest: "ai_best",
   aiLight: "ai_light",
   aiNeurons: "ai_neurons",
+  aiInstallNeurons: "ai_install_neurons",
 });
 
 export const GLOBAL = "global";
@@ -49,6 +50,15 @@ export async function raiseTo(db, day, route, scope, value) {
 export async function readCount(db, day, route, scope) {
   const row = await db.prepare(SQL.read).bind(day, route, scope).first();
   return row && typeof row.n === "number" ? row.n : 0;
+}
+
+export async function readRow(db, day, route, scope) {
+  return (await db.prepare(SQL.read).bind(day, route, scope).first()) || null;
+}
+
+export async function countRoute(db, day, route) {
+  const row = await db.prepare(SQL.countRoute).bind(day, route).first();
+  return row && typeof row.c === "number" ? row.c : 0;
 }
 
 export async function reserveAll(db, day, buckets) {

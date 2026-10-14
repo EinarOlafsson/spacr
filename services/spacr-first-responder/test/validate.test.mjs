@@ -93,3 +93,34 @@ test("does not flag ordinary error text", () => {
   ];
   for (const text of ok) assert.equal(findSensitive(text), null, text);
 });
+
+test("frames[].code is optional, single-line, at most 160 chars and scrubbed", () => {
+  const ok = sampleReport();
+  ok.frames[0].code = "masks = load_masks(settings['src'])";
+  assert.equal(validatePayload(ok, "report").frames[0].code, "masks = load_masks(settings['src'])");
+  const nul = sampleReport();
+  nul.frames[0].code = null;
+  assert.equal(validatePayload(nul, "report").frames[0].code, undefined);
+  const cases = [
+    ["x".repeat(161), /exceeds 160/],
+    ["a = 1\nb = 2", /single line/],
+    ["open('/home/alice/plate.tif')", /absolute path/],
+    ["send('bob@example.com')", /e-mail/],
+    ["connect('10.0.0.12')", /IP address/],
+    ["token = 'ghp_abcdefghijklmnopqrstuvwxyz0123456789'", /token or key/],
+  ];
+  for (const [code, re] of cases) {
+    const r = sampleReport();
+    r.frames[1].code = code;
+    rejects(r, "report", re);
+  }
+  const wrongType = sampleReport();
+  wrongType.frames[0].code = 5;
+  rejects(wrongType, "report", /code must be a string/);
+});
+
+test("kind defaults to fault and accepts user_error on both routes", () => {
+  assert.equal(validatePayload(sampleReport(), "report").kind, "fault");
+  assert.equal(validatePayload(sampleReport({ kind: "user_error" }), "diagnose").kind, "user_error");
+  rejects(sampleReport({ kind: "bug" }), "report", /kind/);
+});

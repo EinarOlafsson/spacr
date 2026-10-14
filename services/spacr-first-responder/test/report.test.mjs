@@ -83,13 +83,18 @@ test("dry run returns title and body without GitHub", async () => {
 test("first report opens an issue with the user-report label", async () => {
   const r = await post("/report", sampleReport());
   assert.equal(r.status, 200);
-  assert.deepEqual(r.body, {
+  const { allowance, ...rest } = r.body;
+  assert.deepEqual(rest, {
     issue_number: 101,
     issue_url: "https://github.com/EinarOlafsson/spacr/issues/101",
     deduplicated: false,
     ai_summary_source: "none",
-    allowance: { reports_left: 4, best_left: 5, light_left: 10, resets_at: "2026-10-15T00:00:00.000Z" },
   });
+  assert.equal(allowance.reports_left, 4);
+  assert.equal(allowance.resets_at, "2026-10-15T00:00:00.000Z");
+  assert.equal(allowance.pool, "exhausted", "no AI binding in this env");
+  assert.equal(allowance.ai.tier_now, "none");
+  assert.equal(allowance.best_left, 0);
   const create = gh.calls.find((c) => c.url.endsWith("/repos/EinarOlafsson/spacr/issues"));
   assert.deepEqual(create.body.labels, ["user-report"]);
   assert.equal(create.headers["user-agent"], "spacr-first-responder");
@@ -226,11 +231,36 @@ test("allowance endpoint validates the uuid and consumes nothing", async () => {
     res = await handle(makeRequest(url, { method: "GET" }), env, null, DAY1);
     assert.equal(res.status, 200);
   }
-  assert.deepEqual(await res.json(), {
-    ai: { best_left: 5, light_left: 10 },
-    reports_left: 4,
-    pool: "exhausted",
-    resets_at: "2026-10-15T00:00:00.000Z",
-  });
+  const a = await res.json();
+  assert.equal(a.reports_left, 4);
+  assert.equal(a.pool, "exhausted");
+  assert.equal(a.resets_at, "2026-10-15T00:00:00.000Z");
   assert.deepEqual(env.DB.counters, before);
+});
+
+test("kind user_error gets the settings prefix and the user-error label; dedupe as before", async () => {
+  const r = await post("/report", sampleReport({ kind: "user_error", exception_type: "SettingsError" }));
+  assert.equal(r.status, 200);
+  const create = gh.calls.find((c) => /\/issues$/.test(c.url));
+  assert.match(create.body.title, /^\[user-report\]\[settings\] SettingsError in spacr\.measure/);
+  assert.deepEqual(create.body.labels, ["user-report", "user-error"]);
+  assert.match(create.body.body, /Kind: \*\*user error\*\*/);
+  const again = await post("/report", sampleReport({ kind: "user_error", exception_type: "SettingsError" }));
+  assert.equal(again.body.deduplicated, true);
+  const fault = await post("/report", sampleReport({ kind: "fault", exception_type: "OtherError" }));
+  const second = gh.calls.filter((c) => /\/issues$/.test(c.url))[1];
+  assert.equal(fault.body.deduplicated, false);
+  assert.match(second.body.title, /^\[user-report\] OtherError/);
+  assert.deepEqual(second.body.labels, ["user-report"]);
+  const bad = await post("/report", sampleReport({ kind: "crash" }));
+  assert.equal(bad.status, 400);
+  assert.match(bad.body.error, /kind/);
+});
+
+test("frames[].code is rendered under its frame line in the traceback", async () => {
+  const report = sampleReport();
+  report.frames[3].code = "    mean = np.mean(image[mask > 0])";
+  const r = await post("/report", { ...report, dry_run: true });
+  assert.equal(r.status, 200);
+  assert.match(r.body.body, /measure\.py:233 in _measure_intensity\n {6}mean = np\.mean\(image\[mask > 0\]\)/);
 });

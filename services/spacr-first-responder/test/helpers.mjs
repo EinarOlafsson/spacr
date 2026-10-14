@@ -61,6 +61,14 @@ export class FakeD1 {
         const key = `${a[0]}|${a[1]}|${a[2]}`;
         return this.counters.has(key) ? [{ n: this.counters.get(key) }] : [];
       }
+      case SQL.countRoute: {
+        let c = 0;
+        for (const key of this.counters.keys()) {
+          const [day, route] = key.split("|");
+          if (day === a[0] && route === a[1]) c++;
+        }
+        return [{ c }];
+      }
       case SQL.prune: {
         for (const key of [...this.counters.keys()]) {
           if (key.split("|")[0] < a[0]) this.counters.delete(key);
