@@ -1,0 +1,61 @@
+{
+  "tested_base_commit": "28474427813c33ea045c3207a337d5dfa67e5b7d",
+  "source_sha256": "7940e60492aa6f4ca10cdc29df2cd673ac5894e844801eb33bf961706427b576",
+  "test_sha256": "7be479e5d0132a5049c24f73dced3c04cab4ac75c75a3a5f6fb05f448cda68fb",
+  "signatures_docstrings_and_existing_captions_unchanged": true,
+  "new_spacr_modules": 0,
+  "no_catalog_or_API_regeneration_required": true,
+  "status": "Completed scoped read-error preservation repair; no whole-item native cross-platform acceptance claim.",
+  "validation": {
+    "original_source_regressions": {
+      "failed": 5,
+      "actual_exit": 1,
+      "seconds": 5.91
+    },
+    "final_owning": {
+      "passed": 62,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "actual_exit": 0,
+      "seconds": 30.43
+    },
+    "changed_statement_lines_covered": [
+      377,
+      378,
+      379,
+      382
+    ],
+    "changed_statement_lines_missing": [],
+    "missing_branches_from_changed_lines": [],
+    "platform": "Linux CPU offscreen Qt6.12, installed compatibleTorch2.13/Torchvision0.28, CUDA disabled"
+  },
+  "limitations": [
+    "Two transient I/O failures are controlled fault injections around a real temporary Qt INI store, not physical filesystem intermittency.",
+    "Malformed JSON/list/modules records are real native-store values; they remain untouched by the take operation.",
+    "A later deliberate draft save/clear can still replace/remove retained records; this patch does not promise an indefinite archive.",
+    "No new Windows/macOS hardware, whole-module coverage floor or fullCI claim."
+  ],
+  "artifacts": {
+    "baseline.xml": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n647-unread-drafts-20261014/baseline.xml",
+      "sha256": "abcd8d702f90c8274842c5895ba5c34ee6042ce76606a810dd4f444293598b14"
+    },
+    "baseline.exit": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n647-unread-drafts-20261014/baseline.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "owning.xml": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n647-unread-drafts-20261014/owning.xml",
+      "sha256": "9bb5e5fbcf4f3e9cf5fa357ab4ade7094eb4edd6d4ca6297f02d7098fcd0f0b3"
+    },
+    "owning.exit": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n647-unread-drafts-20261014/owning.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "coverage.json": {
+      "scratch_path": "/mnt/wd4tb/scratch/codex-n647-unread-drafts-20261014/coverage.json",
+      "sha256": "cce532b162d5e5545b41883bf543a4ff61f8f2b9fd74301ed633f3223bf26919"
+    }
+  }
+}
