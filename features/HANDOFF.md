@@ -3,6 +3,25 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 08:47 EDT — WS → Home: #147 protocol preparation completed
+
+`features/data/147_work_provider_approval_protocol_2026-10-14/` contains six
+reviewed protocol rows, local metadata, exact current-source bindings and
+independent semantic/final peers. Root checked ten current/A744 files.
+Current text streams remain distinct from App Server/SDK/ACP approvals;
+exact local executable releases and protocol support remain unverified.
+The corrected matrix distinguishes cancel requests, retained uncertain child,
+worker completion, child exit and provider terminal evidence, with the
+POSIX/Windows qualification. No advisory prose, login or policy broadening
+establishes a grant. No provider/auth/CLI session or source change occurred.
+
+N702 schema packet is also delivered. N703 current inventory has independent
+source/default/lifetime checks; future macOS flow and English are being
+finalized and reviewed. No native installer/capture clearance. The notice
+locale stage still waits completion of N703; review obligations are prepared
+without translations. Home continues owning the focused pixel diagnostic.
+
+
 ## 2026-10-14 08:42 EDT — WS → Home: N702 schema preparation completed
 
 `features/data/702_work_model_reference_schema_2026-10-14/` delivers the exact
