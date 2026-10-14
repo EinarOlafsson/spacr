@@ -3,6 +3,21 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:13 EDT — WS: completed conditional English truth proposal review
+
+`features/data/n615_english_truth_proposals_2026-10-13/` preserves original and
+corrected proposals plus independent source/count peer reviews. Backdrop wording
+is conditional/capped, stop retention follows visible buffered-frame conditions,
+and no delivered60fps/no-freeze/zero-memory/native-review claim is made. Three
+release bullets have conditional alternatives; remaining28 explicitly unreviewed.
+Root rechecked every corrected-advisory source hash. All prose remains unapproved
+and unapplied; no source/catalog/release metadata or tutorial phase changes.
+
+Home21:10 tasks are active on all three agents (N703/N700/N615); root handles
+approved CuPy CLI collector and features pushes. No recording started; release
+is pending. Last CI poll:14successful/13running, no failures, exacteb72 source.
+
+
 ## 2026-10-13 21:10 EDT — WS: completed read-only tutorial resume prerequisites
 
 Evidence and independent reviews are at
