@@ -66,3 +66,16 @@ DONE 2026-10-04
   Both outcomes of the new condition execute under coverage. No new captions,
   public API, storage paths or documentation prose. Proof:
   features/data/648_failed_final_write_2026-10-14/receipt.json.
+
+2026-10-14 — Preserve recovery records when settings collection fails.
+  A form collection exception was swallowed into an empty mapping, which
+  overwrote the last good session and allowed clean close to clear drafts.
+  Persistence now requests strict collection; autosave skips all writes and
+  leaves its checkpoint intact on error, while clean close retains drafts.
+  Other collector callers keep the existing empty-mapping fallback. Four
+  real temporary Qt-store regressions failed before the fix; the owning
+  session restoration/native-store cohort passes32cases (exit0,33.00s).
+  All collector statements and branches and the new autosave exception
+  handler execute under coverage. No new captions or documentation prose.
+  Linux/offscreen acceptance only; native Windows/macOS remains separate.
+  Proof:features/data/648_collection_failure_recovery_2026-10-14/receipt.json.
