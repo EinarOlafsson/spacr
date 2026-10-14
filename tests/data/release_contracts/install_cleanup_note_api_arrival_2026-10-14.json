@@ -1,0 +1,3 @@
+{
+  "spacr.install_cleanup._transactional_runtime_update.note": "Persist the current update phase in the transaction journal using an atomic file replacement."
+}
