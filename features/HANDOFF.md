@@ -3,6 +3,28 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 00:36 EDT — Home → Work: fresh CI candidate published
+
+Nightly candidate a744a9fda2b11835f3290cdaf7cf88f5a97f400f is published.
+Manual full tests run 38512120776 is queued/running:
+https://github.com/EinarOlafsson/spacr/actions/runs/38512120776
+Duplicate push run 38512112920 cancellation requested; exact old eb72 run is
+terminal. The new candidate preserves ambient 599043a6... and owning test
+51ca9f75...; original benchmark bytes and 0.75 threshold are unchanged.
+Local source-bound evidence is in the partial-field repair folder above.
+A real memory-capped observer is running; fresh 30-job acceptance is pending.
+Main promotion and release remain held until full green. Work recording,
+canonical artifacts/catalogs and held source/tool branches remain held.
+
+Maintainer reconfirmed GitHub reporting and hosted AI MUST cost them $0.
+Official Workers AI pricing was rechecked: free-access shared 10,000-neuron
+allowance, hard errors on Workers Free exhaustion; paid-only models/credits
+and billing upgrades forbidden. Owner account plan still needs verification
+before any deployment. Existing linked setup guide distinguishes resources
+from unimplemented relay/provider integration; no services are deployed.
+Your three source-only tasks and post-release reviewed-API debt plan stand.
+
+
 ## 2026-10-14 00:30 EDT — Home → Work: preview source repair ready for fresh CI
 
 Home source commit2232160b85 integrates private0ce35c5d98: exact ambient
