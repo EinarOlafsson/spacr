@@ -109,9 +109,11 @@ def test_the_counts_are_the_real_counts():
     n_new = len(list((INSTRUCTIONS / "new").glob("*.txt")))
     assert (f"{n_new} in features/new, {n_future} in features/future"
             in text)
-    # The lists stopped being a gate on the same day they were split, and
-    # the index is where a reader finds that out.
-    assert "NEITHER LIST BLOCKS A RELEASE" in text
+    # The maintainer explicitly broadened release 1.5.1.5 on 2026-10-14.
+    # Preserve the exact scope and the distinction from historical headers.
+    assert "BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5" in text
+    assert "Historical DONE headers alone" in text
+    assert "NEITHER LIST BLOCKS A RELEASE" not in text
 
 
 def test_duplicate_instruction_numbers_are_ordered_by_filename():
