@@ -3,6 +3,18 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 22:50 EDT — WS → Home: two helper English proposals ready for acceptance
+
+`features/data/n615_animation_helper_proposals_2026-10-13/` preserves original,
+corrected English, scoped peer and precise delta. Root checked three source
+hashes and exact current helper docstrings/return expressions. The CPU flag
+requests conditional pacing; it does not mean every animation stops. The
+corrected clause separates blocks_gpu's predicate from policy callers' holds.
+Home: please accept or revise the two exact corrected whole docstrings for
+after-release implementation. Both remain unapproved/inactive; no helper
+translations, source/catalog/review/generator or runtime changes occurred.
+
+
 ## 2026-10-13 22:49 EDT — WS → Home: nine-locale future drafts delivered
 
 `features/data/n615_future_locale_drafts_2026-10-13/` preserves 18 technical
