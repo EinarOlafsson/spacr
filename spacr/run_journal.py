@@ -4273,17 +4273,34 @@ def _relocate_cache(key: str, parent: Any) -> Path:
     src = source.resolve() if source.exists() else source
     if src == target or src in target.parents or target in src.parents:
         raise ValueError(f"{target} overlaps {src}")
+    path = _cache_locations_path()
     target.parent.mkdir(parents=True, exist_ok=True)
-    if source.is_dir():
+    had_source = source.is_dir()
+    if had_source:
         if target.exists():
             target.rmdir()
         shutil.move(str(source), str(target))
     else:
+        had_target = target.exists()
         target.mkdir(parents=True, exist_ok=True)
     recorded[env] = str(target)
-    path = _cache_locations_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
+    except OSError:
+        if had_source:
+            try:
+                if source.exists():
+                    raise FileExistsError(str(source))
+                target.rename(source)
+            except OSError:
+                LOG.warning("Cache retained at %s", target, exc_info=True)
+        elif not had_target:
+            try:
+                target.rmdir()
+            except OSError:
+                LOG.warning("Cache retained at %s", target, exc_info=True)
+        raise
     os.environ[env] = str(target)
     return target
 

@@ -55,3 +55,14 @@ DONE 2026-10-04
   Proof:features/data/648_native_store_status_2026-10-14/receipt.json.
   This is actual Linux/offscreen Qt6.12/temporary-INI acceptance. It does not
   claim new Windows/macOS-native, screen-reader or hard-power-loss testing.
+
+2026-10-14 — Keep recovery drafts if the final session write fails.
+  Clean shutdown previously cleared already saved drafts even when saving
+  the final session returned False. It now clears only after a successful
+  final write, or when closing Home without an active module. Timer stopping
+  and exception preservation are unchanged. A real Qt-store draft readback
+  regression failed before the repair; failure/exception/Home guards and the
+  owning restoration/native-status cohort now pass28cases (actual exit0).
+  Both outcomes of the new condition execute under coverage. No new captions,
+  public API, storage paths or documentation prose. Proof:
+  features/data/648_failed_final_write_2026-10-14/receipt.json.
