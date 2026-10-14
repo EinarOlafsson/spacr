@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "item": "N657",
+  "scope": "Preserve complete saved template bytes when serialization or atomic replacement fails",
+  "review_time": "2026-10-14T16:04:29.051665-04:00",
+  "base_commit": "920526f137e8f1470ed071b4ea924cbe3822f6c4",
+  "source_bindings": {
+    "spacr/qt/recipes.py": {
+      "sha256": "fd54bd4bf40f714c09e881881bcbca0f291b692c9652e655d7dfa941c3b91a00",
+      "bytes": 38160
+    },
+    "spacr/run_journal.py": {
+      "sha256": "dc5e70041912dc29c399d8b6b47d60ebc0993b77cf0b9ef7b17da8a5ec4874e3",
+      "bytes": 170929
+    },
+    "tests/qt/test_n657_failed_profile_save_preserves_bytes.py": {
+      "sha256": "38dad330e51bbc2beb39d1b6ccb6e55a003c1020ce20d874974933b9496cf718",
+      "bytes": 1912
+    },
+    "tests/qt/test_recipes.py": {
+      "sha256": "6a027b695e40734f28d7f7aed6bfd0c0719c920aba99d9d19d60284524f9e76e",
+      "bytes": 10038
+    },
+    "tests/qt/test_recipes_dialog.py": {
+      "sha256": "f3b72af294eb0ca3d5018b285ebe12c6ffdd1f062f15af40dafa30cd959ad9ce",
+      "bytes": 34288
+    },
+    "tests/qt/test_rebindable_shortcuts_and_settings_profiles.py": {
+      "sha256": "66669f0402ecb4f084c41a0df294855e923b2818a24a19d0efc618140bd64a0e",
+      "bytes": 9887
+    },
+    ".coveragerc": {
+      "sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "bytes": 460
+    }
+  },
+  "baseline": {
+    "cases": 3,
+    "passed": 1,
+    "failed": 2,
+    "exit": 1,
+    "seconds": 5.84,
+    "reason": "Real json serialization ValueError after open(w) partially overwrites both a default-store profile and a directory-override profile."
+  },
+  "owning": {
+    "cases": 102,
+    "passed": 102,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit": 0,
+    "seconds": 75.74,
+    "memory_cap": "6GiB",
+    "xdist_workers": 2,
+    "Qt": "6.12.0",
+    "CUDA_VISIBLE_DEVICES": "",
+    "scope": "Three new native temporary-file cases plus existing recipes, recipe dialogs and shortcut/profile owning modules."
+  },
+  "coverage": {
+    "source": "spacr/qt/recipes.py",
+    "function": "save_recipe",
+    "line_bounds": [
+      241,
+      257
+    ],
+    "missing_statements": [],
+    "missing_branch_exits": [],
+    "claim": "All save_recipe statements and branch exits covered in this fresh scoped cohort; no whole-module floor or full CI claim."
+  },
+  "contracts": {
+    "all_existing_function_signatures_and_docstrings_unchanged": true,
+    "all_tr_calls_unchanged": true,
+    "new_helpers": 0,
+    "existing_atomic_writer_reused": "spacr.run_journal._atomic_write_text"
+  },
+  "index_check": "Normal tools/build_instruction_index.py --check passes with no generated index delta",
+  "behavior": [
+    "Complete JSON serialization precedes existing atomic writer; same indent/sort/default options retain successful file bytes.",
+    "Two repeated native serialization failures preserve the previously saved profile exactly; correcting values writes a loadable updated profile.",
+    "A native directory replacement failure preserves its sentinel bytes and the prior Recipe.path, leaving no temporary file.",
+    "Existing Save, Import and Rename use save_recipe; directory-override test exercises that backend option, not the separate GUI Share writer."
+  ],
+  "limitations": [
+    "No physical Windows/macOS recording or full-CI acceptance claim.",
+    "Temporary local profiles only; no user settings, annotation, data, provider or network operation.",
+    "Separate GUI Share writer remains unchanged and is not claimed to have gained atomic-save behavior.",
+    "No new module/helper/API/docstring/caption or generated language artifact required."
+  ],
+  "evidence": {
+    "baseline.log": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/baseline.log",
+      "sha256": "4cb9a9a06d052855e6983aabdf9d250309e17fd3e69c6b8fbfa030bd25559f3b",
+      "bytes": 8582
+    },
+    "baseline.xml": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/baseline.xml",
+      "sha256": "896cb5c9e5a5eb4828c2c37ea8fecfe2c4653db817cdeee767716725dced86f3",
+      "bytes": 7738
+    },
+    "baseline.exit": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/baseline.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "owning.log": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/owning.log",
+      "sha256": "a95b0094d90fa0c24a73afadd505ee44eeb02c1435b52ae01aca0a428fd4e3a4",
+      "bytes": 31035
+    },
+    "owning.xml": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/owning.xml",
+      "sha256": "8ea3044fe9ab852a6c3522b2218c0509343805de32909c63ddfbe7d9e6c0fa25",
+      "bytes": 13289
+    },
+    "owning.exit": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/owning.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "coverage.json": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/coverage.json",
+      "sha256": "2b2b7537b5dbc7e7bc1a02b944840cd1338f28b4811154066d89f4071ba9c211",
+      "bytes": 40216
+    },
+    "source-contract.json": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/source-contract.json",
+      "sha256": "443a72eee0bbe83133b27bbce6ca26d4384152b6d639bf083543aecc7914f4e4",
+      "bytes": 201
+    },
+    "source-bindings.json": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/source-bindings.json",
+      "sha256": "f57d04babdbfb044bb3c98db911cb0b3ddd6daa753f4acbf361d44c2eff4db1b",
+      "bytes": 1153
+    },
+    "baseline-run.sh": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/baseline-run.sh",
+      "sha256": "c09daa427972f0c6f41abb65fa081eb2e8b39f8d1b746dc8a1bb98f0c5dccfb0",
+      "bytes": 1354
+    },
+    "owning-run.sh": {
+      "path": "/mnt/wd4tb/scratch/codex-n657-profile-save-preservation-20261014/owning-run.sh",
+      "sha256": "2b775924105d5b4ecd2d9b210c44bb7ae900206e75932c79a2f076b6475cc8af",
+      "bytes": 1742
+    }
+  }
+}
