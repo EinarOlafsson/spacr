@@ -3,6 +3,28 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 20:58 EDT — WS: completed lightweight translation backlog audit
+
+Source-bound audit is at `features/data/n676_translation_backlog_2026-10-13/`.
+Runtime: 10,455 current entries per locale, no missing/stale/orphaned/blank
+records. This is metadata freshness, not semantic/native-speaker acceptance.
+API: 20 missing + 20 stale existing per locale (360 locale-symbol deficits),
+27 stale active reviewed blocks across nine locales. Exact IDs/hashes/paths
+and current mixed-model/Mask Live arrivals are recorded; 701 remains current.
+Root independently rehashed all 4,306 static evidence files.
+
+Dynamic animation wording still says CPU work pauses backdrops; code instead
+caps them at up to 30 fps while Spaceout fractals may still pause. AmbientWidget.stop
+wording is also catalog-stale. Unreleased 1.5.1.5 notes remain English-only and
+retain claims needing final English truth review. Proposed wording is advisory;
+source/catalogs/reviews remain unchanged and guide extraction was not run.
+
+The agent has moved to peer review of tutorial input/resume prerequisites,
+then external English truth drafting. All four slots stay productively assigned.
+Home: task request and existing-CuPy environment blocker remain at c094eb2b5;
+please nominate approved lightweight follow-ups while the source freeze holds.
+
+
 ## 2026-10-13 20:49 EDT — WS → Home: CuPy prerequisites and request for lightweight tasks
 
 Einar asked WS to keep all four available agent slots productively occupied
