@@ -360,7 +360,7 @@ def _conda_lock_text() -> Optional[str]:
     return _run_quiet([conda, "list", "--explicit", "--prefix", prefix])
 
 
-_ENV_LOCK_MEMO: Dict[str, Dict[str, Optional[str]]] = {}
+_ENV_LOCK_MEMO: Dict[str, Tuple[Dict[str, Optional[str]], bool]] = {}
 _ENV_LOCK_MEMO_GUARD = threading.Lock()
 
 
@@ -375,33 +375,38 @@ def _environment_lock_texts(digest: str,
     """
     with _ENV_LOCK_MEMO_GUARD:
         cached = _ENV_LOCK_MEMO.get(digest)
-        if cached is not None:
-            return cached
+        if cached is not None and cached[1]:
+            return cached[0]
         store = runs_root().parent / "env_locks" / digest[:32]
         pip_file = store / _PIP_LOCK_NAME
         conda_file = store / _CONDA_LOCK_NAME
-        texts: Optional[Dict[str, Optional[str]]] = None
-        try:
-            if pip_file.is_file():
-                pip_text = pip_file.read_text(encoding="utf-8")
-                conda_text = (conda_file.read_text(encoding="utf-8")
-                              if conda_file.is_file() else None)
-                if pip_text.strip() and (conda_text is None or conda_text.strip()):
-                    texts = {"pip": pip_text, "conda": conda_text}
-        except (OSError, UnicodeError):
-            pass
+        texts = cached[0] if cached is not None else None
+        saved = False
+        if texts is None:
+            try:
+                if pip_file.is_file():
+                    pip_text = pip_file.read_text(encoding="utf-8")
+                    conda_text = (conda_file.read_text(encoding="utf-8")
+                                  if conda_file.is_file() else None)
+                    if pip_text.strip() and (conda_text is None or conda_text.strip()):
+                        texts = {"pip": pip_text, "conda": conda_text}
+                        saved = True
+            except (OSError, UnicodeError):
+                pass
         if texts is None:
             texts = {"pip": _pip_lock_text(packages),
                      "conda": _conda_lock_text()}
+        if not saved:
             try:
                 store.mkdir(parents=True, exist_ok=True)
                 if texts["conda"]:
                     _atomic_write_text(conda_file, texts["conda"])
                 _atomic_write_text(pip_file, texts["pip"] or "")
+                saved = True
             except OSError as exc:
                 LOG.warning("Could not save the environment lock in %s: %s",
                             store, exc)
-        _ENV_LOCK_MEMO[digest] = texts
+        _ENV_LOCK_MEMO[digest] = (texts, saved)
         return texts
 
 

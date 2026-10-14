@@ -56,3 +56,25 @@ Existing signatures/docstrings/captions remain unchanged, with no generator
 debt. No actual pip/conda command, package install, download or user-cache
 operation, no full spec-semantic validator or physical Windows/macOS claim.
 Evidence: features/data/654_corrupt_environment_lock_cache_2026-10-14/receipt.json.
+
+2026-10-14 — environment-lock cache write recovery completed (Home):
+After a native cache-write error, the exact generated pip/conda texts were
+memoized as if their durable cache had been saved. A later run therefore
+never retried the shared cache even after its directory recovered. The
+private memo now records persistence success and retries the existing
+atomic writes until both requested cache files are saved, reusing the
+same generated text. Successful memory/disk reuse, per-run artifacts and
+the environment_lock manifest schema remain unchanged.
+
+The two original native temporary-file cases failed after storage recovery;
+the final finite owning cohort passed 18 cases in 9.06 s (exit 0). Both
+pip and conda blockers survive repeated errors with their sentinel bytes
+intact, are preserved by rename, and recovery saves exact cached/run bytes
+without calling the deterministic providers again. Clearing process memory
+then reuses the durable files. Fresh helper coverage has no missing
+statements or branch exits. Existing signatures/docstrings/captions are
+unchanged; the normal instruction-index check passes without generated delta.
+No pip/conda command, installation, network or user-cache operation, no
+physical Windows/macOS or full-CI claim. This is a bounded N654 recovery
+subtask, not a recount of the previously completed parent feature.
+Evidence: features/data/654_environment_lock_cache_write_retry_2026-10-14/receipt.json.
