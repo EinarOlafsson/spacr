@@ -5739,8 +5739,8 @@ class MainWindow(QMainWindow):
             timer.stop()
         try:
             module, settings = self._current_session()
-            restart_state._save_session(module, settings)
-            restart_state._clear_drafts()
+            if restart_state._save_session(module, settings) or not module:
+                restart_state._clear_drafts()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not record the session on close", exc_info=True)
 
