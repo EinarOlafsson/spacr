@@ -1,0 +1,184 @@
+{
+  "source_sha": "ff1b2a487d378cfa804c3c1923fb834e0cc17dc2",
+  "original_failing_ci_source_sha": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "spacr_tree": "e619efd9a9e1baf146ac1e7e342e3ae31cb0bce3",
+  "source_bindings": {
+    "spacr/qt/widgets/ambient.py": {
+      "bytes": 587528,
+      "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40"
+    },
+    "pytest.ini": {
+      "bytes": 2176,
+      "sha256": "caf6e3e410306f81e370605a4282dc997cafd8ed51aed76a49ca4af23de5a26c"
+    },
+    "tests/conftest.py": {
+      "bytes": 128608,
+      "sha256": "2a9ddb09444b199e4a785a4926d5c4eb050b92bbe21c6285677e0e71cb0c7fd3"
+    },
+    "tools/run_pytest_batches.py": {
+      "bytes": 13017,
+      "sha256": "85303bf62f482782818c40e950c7b1a8d11e54fd4351e5c5834a989f48d9488d"
+    },
+    "tools/pytest_plugins/qt_serial_rss_journal.py": {
+      "bytes": 9558,
+      "sha256": "5bce9646a7624968f84a460e4d4d77dbcfec1adaa8c7f846aaf604b3035e4291"
+    },
+    "tools/collect_qt_native_backtrace.py": {
+      "bytes": 27815,
+      "sha256": "ce7aff7d9e6b93f40637c1fc485ca454cb4ce0fcfd98205c5ee26257882f80f8"
+    },
+    "tools/ci_memory_telemetry.sh": {
+      "bytes": 5362,
+      "sha256": "5decafa2061d8101b459ab228dbb6148e6a430f642e6be77129446673b208988"
+    },
+    "tests/qt/test_field_fade.py": {
+      "bytes": 25220,
+      "sha256": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15"
+    },
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py": {
+      "bytes": 10227,
+      "sha256": "b31afc66f8d403db1a23bfc9dbf5823c3430f2eec3ce6799a8c217e66beb9750"
+    },
+    "tests/qt/test_field_grab_physics_and_input.py": {
+      "bytes": 16271,
+      "sha256": "cbcb38b08a31a095ec8b2253e8a98ab0f757761cd5f804e4c5622617b6f5c9e8"
+    },
+    "tests/qt/test_features_table_editing_and_recovery.py": {
+      "bytes": 6405,
+      "sha256": "261383c045c1c05b21ffdb91c8190ade9d3ed8080d5650572ef223fbfa4c1a38"
+    },
+    "tests/qt/test_features_settings_and_recovery.py": {
+      "bytes": 5502,
+      "sha256": "86c7983329e74a94660533abac8aae58474bf41436f9cd963999b90b214a89e9"
+    },
+    "tests/qt/test_field_paints_opaquely_20261012.py": {
+      "bytes": 15215,
+      "sha256": "9f63f1325ebf182e05d63f8243597230472f405529ea63eebc4c0218a836de5d"
+    }
+  },
+  "hosted_original_run": 38512120776,
+  "attempt": 1,
+  "job_id": 115682750283,
+  "worker": "gw0",
+  "nodes": [
+    "tests/qt/test_field_fade.py::test_the_curve_is_a_cubic_ease_in_on_transparency",
+    "tests/qt/test_field_fade.py::test_the_sampled_profile_reaches_both_ends_and_only_falls",
+    "tests/qt/test_field_fade.py::test_a_rendered_field_follows_the_cubic_across_its_width",
+    "tests/qt/test_field_fade.py::test_the_outline_fades_on_the_same_ramp_as_the_fill",
+    "tests/qt/test_field_fade.py::test_the_text_stays_fully_opaque_all_the_way_across",
+    "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.0]",
+    "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.25]",
+    "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.6]",
+    "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[1.0]",
+    "tests/qt/test_field_fade.py::test_it_is_on_by_default_and_round_trips",
+    "tests/qt/test_field_fade.py::test_turning_it_off_restores_the_plain_field",
+    "tests/qt/test_field_fade.py::test_the_preferences_dialog_carries_the_toggle",
+    "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QLineEdit]",
+    "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QComboBox]",
+    "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QSpinBox]",
+    "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QDoubleSpinBox]",
+    "tests/qt/test_field_fade.py::test_the_editor_inside_a_spin_box_does_not_fade_twice",
+    "tests/qt/test_field_fade.py::test_a_widget_can_opt_out",
+    "tests/qt/test_field_fade.py::test_an_item_views_cell_editor_is_not_a_field",
+    "tests/qt/test_field_fade.py::test_multi_line_editors_are_not_fields",
+    "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[dark-dark]",
+    "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[light-light]",
+    "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[cell:filopodia-cell]",
+    "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[glass-glass]",
+    "tests/qt/test_field_fade.py::test_glass_keeps_its_translucent_rim_and_still_reaches_zero",
+    "tests/qt/test_field_fade.py::test_applying_preferences_installs_the_hook_and_the_block",
+    "tests/qt/test_field_fade.py::test_the_hook_is_a_no_op_without_a_qapplication",
+    "tests/qt/test_field_fade.py::test_a_broken_palette_does_not_stop_a_field_drawing",
+    "tests/qt/test_field_fade.py::test_the_field_owner_outlives_its_native_painter",
+    "tests/qt/test_field_fade.py::test_repaint_fields_reaches_every_live_field",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_a_click_on_a_python_screen_card_or_label_ripples[<lambda>0]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_a_click_on_a_python_screen_card_or_label_ripples[<lambda>1]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_a_click_on_a_python_screen_card_or_label_ripples[<lambda>2]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_controls_and_canvases_keep_their_clicks_to_themselves[<lambda>0]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_controls_and_canvases_keep_their_clicks_to_themselves[<lambda>1]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_controls_and_canvases_keep_their_clicks_to_themselves[<lambda>2]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_a_press_on_a_control_cancels_an_unreleased_background_click",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_spaceout_field_theme_also_ripples_on_click",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_folding_a_section_sends_several_rings_that_gather_the_dots",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_fold_rings_gather_dots_toward_each_front[True]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_fold_rings_gather_dots_toward_each_front[False]",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_fold_rings_respect_the_ripple_slider",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_a_hover_move_sets_the_gravity_pointer_without_a_tick",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_a_move_wakes_the_shading_thread_and_the_frame_is_painted_promptly",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_gravity_moves_do_not_wake_shading_during_a_run",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_hover_moves_drive_gravity_on_other_interactive_art",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py::test_shipped_frame_rate_is_thirty",
+    "tests/qt/test_field_grab_physics_and_input.py::test_constant_target_and_release_are_independent_of_step_partition",
+    "tests/qt/test_field_grab_physics_and_input.py::test_release_and_regrab_are_continuous_and_restore_the_same_seeded_field",
+    "tests/qt/test_field_grab_physics_and_input.py::test_handle_is_bounded_under_large_targets_direction_changes_and_clock_jumps",
+    "tests/qt/test_field_grab_physics_and_input.py::test_nonfinite_handle_does_not_enable_field_displacement[nan]",
+    "tests/qt/test_field_grab_physics_and_input.py::test_nonfinite_handle_does_not_enable_field_displacement[inf]",
+    "tests/qt/test_field_grab_physics_and_input.py::test_nonfinite_handle_does_not_enable_field_displacement[-inf]",
+    "tests/qt/test_field_grab_physics_and_input.py::test_grab_has_finite_material_reach_at_zero_hover_gravity",
+    "tests/qt/test_field_grab_physics_and_input.py::test_worker_input_is_latest_immutable_bounded_and_never_replays_a_handle",
+    "tests/qt/test_field_grab_physics_and_input.py::test_actual_background_press_drag_release_drives_field_without_hover_gravity",
+    "tests/qt/test_field_grab_physics_and_input.py::test_buttons_inputs_and_scientific_canvas_still_receive_their_original_events",
+    "tests/qt/test_field_grab_physics_and_input.py::test_scroll_viewports_dialogs_and_right_clicks_do_not_begin_grabbing",
+    "tests/qt/test_field_grab_physics_and_input.py::test_grab_offers_do_not_block_a_busy_worker_and_hide_discards_stale_handle",
+    "tests/qt/test_field_grab_physics_and_input.py::test_real_mask_canvas_ignored_and_box_tool_input_never_grabs_background",
+    "tests/qt/test_field_grab_physics_and_input.py::test_custom_screen_plain_container_dpr_and_resize_cancel_are_consistent",
+    "tests/qt/test_field_grab_physics_and_input.py::test_leave_retains_handle_until_release_and_deactivation_cancels",
+    "tests/qt/test_field_grab_physics_and_input.py::test_other_theme_and_detached_background_cannot_keep_a_field_handle",
+    "tests/qt/test_field_grab_physics_and_input.py::test_hover_gravity_changes_preserve_an_explicit_held_material_patch",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_sorted_browse_and_remove_reach_the_visible_field",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_editing_a_sorted_well_finishes_without_deleting_the_active_item",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_cancelled_picker_and_identity_cells_preserve_assignments",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_invalid_destination_never_remembers_or_assigns_file[-1-cell]",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_invalid_destination_never_remembers_or_assigns_file[1-cell]",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_invalid_destination_never_remembers_or_assigns_file[0-channel:-1]",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_invalid_destination_never_remembers_or_assigns_file[0-channel:2]",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_invalid_destination_never_remembers_or_assigns_file[0-pathogen]",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_invalid_destination_never_remembers_or_assigns_file[0-unknown]",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_shape_controls_remove_only_files_from_removed_columns",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_clear_cancels_pending_scan_and_forgets_all_file_memory",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_scan_submission_refusal_falls_back_to_assigning_file_names",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_failed_scan_reports_error_without_destroying_existing_rows",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_invalid_regex_application_preserves_current_assignments",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_remote_urls_and_text_are_not_accepted_as_local_files",
+    "tests/qt/test_features_table_editing_and_recovery.py::test_walk_expands_only_one_level_and_reports_io_failure",
+    "tests/qt/test_features_settings_and_recovery.py::test_saved_boolean_values_reach_the_checkbox[yes-True]",
+    "tests/qt/test_features_settings_and_recovery.py::test_saved_boolean_values_reach_the_checkbox[1-True]",
+    "tests/qt/test_features_settings_and_recovery.py::test_saved_boolean_values_reach_the_checkbox[false-False]",
+    "tests/qt/test_features_settings_and_recovery.py::test_saved_boolean_values_reach_the_checkbox[None-False]",
+    "tests/qt/test_features_settings_and_recovery.py::test_numeric_controls_accept_numbers_and_preserve_them_on_bad_input[QSpinBox-12.8-12]",
+    "tests/qt/test_features_settings_and_recovery.py::test_numeric_controls_accept_numbers_and_preserve_them_on_bad_input[QDoubleSpinBox-12.75-12.75]",
+    "tests/qt/test_features_settings_and_recovery.py::test_auto_numeric_control_keeps_auto_distinct_from_a_number",
+    "tests/qt/test_features_settings_and_recovery.py::test_choice_controls_match_data_then_text_without_inventing_options",
+    "tests/qt/test_features_settings_and_recovery.py::test_text_none_clears_the_control_and_unknown_widgets_are_refused",
+    "tests/qt/test_features_settings_and_recovery.py::test_a_failing_settings_reader_keeps_table_derived_answers",
+    "tests/qt/test_features_settings_and_recovery.py::test_a_broken_setting_does_not_drop_other_settings_in_the_same_pack",
+    "tests/qt/test_features_settings_and_recovery.py::test_one_broken_derived_control_does_not_prevent_the_others_refreshing",
+    "tests/qt/test_features_settings_and_recovery.py::test_completion_reports_absent_results_and_missing_database[None-produced no result]",
+    "tests/qt/test_features_settings_and_recovery.py::test_completion_reports_absent_results_and_missing_database[result1-WARNING]",
+    "tests/qt/test_features_settings_and_recovery.py::test_settings_section_failure_still_leaves_a_working_window",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_covers_opaquely_reads_the_alpha_of_the_picture",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_the_claim_survives_polish_and_restyle",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_the_claim_is_withheld_where_the_field_lets_through",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_a_small_scene_is_identical_on_every_first_frame",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_home_and_mask_are_identical_to_the_classic_paint[dark]",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_home_and_mask_are_identical_to_the_classic_paint[light]",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_home_and_mask_are_identical_to_the_classic_paint[glass]",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_home_and_mask_are_identical_to_the_classic_paint[high_contrast]",
+    "tests/qt/test_field_paints_opaquely_20261012.py::test_home_tiles_hand_their_hover_through_the_hub"
+  ],
+  "modules": [
+    "tests/qt/test_field_fade.py",
+    "tests/qt/test_field_clicks_folds_and_prompt_gravity_20261011.py",
+    "tests/qt/test_field_grab_physics_and_input.py",
+    "tests/qt/test_features_table_editing_and_recovery.py",
+    "tests/qt/test_features_settings_and_recovery.py",
+    "tests/qt/test_field_paints_opaquely_20261012.py"
+  ],
+  "scope": "Original104-node same-worker context only; one worker intentionally excludes original concurrent gw1 scheduling/load. Original assertions unchanged; no fullCI acceptance.",
+  "trees": {
+    "spacr": "e619efd9a9e1baf146ac1e7e342e3ae31cb0bce3",
+    "tests": "ee564280c1c81adc6b94762721e7b02b7e0310b6",
+    "tools": "7cce29087c7a3f15e57ed62d81bcb1afbe9df5eb",
+    ".github": "87a9e04884e4a44c3588ce87dccf823a803400b3"
+  }
+}

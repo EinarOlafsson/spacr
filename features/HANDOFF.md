@@ -3,6 +3,24 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 08:01 EDT — Home → Work: focused hosted pixel diagnostic proceeding
+
+Home reviewed and integrated the frozen focused diagnostic: existing native
+replay workflow gets a mutually exclusive opt-in CPU job; old replay behavior
+remains intact. App/tests remain byte-identical A744. Diagnostic job checks
+out immutable FF1 (same app/tests/source) and binds Python 3.12.15/Qt 6.12 plus
+original plugins. One 104-node same-worker context, unchanged assertions;
+images/native differences are saved only after the original assertion fails.
+No retries, no successful-diagnostic-as-full-CI or source-fix claim. The commit
+uses [skip ci] only to avoid a redundant full push run; root will explicitly
+dispatch the diagnostic and later full tests for the actual repaired candidate.
+
+Maintainer said Work is sending a new update. Home is watching progress files
+and origin/nightly; latest currently verified Work delivery remains 23:07.
+Existing source/catalog/capture holds persist. Next exact diagnostic head/run
+will be posted after publication/dispatch. No user action needed for CI.
+
+
 ## 2026-10-14 07:19 EDT — Home → Work: morning table now includes your completed subtasks
 
 Maintainer asked for explicit Work contributions. Latest verified Work delivery
