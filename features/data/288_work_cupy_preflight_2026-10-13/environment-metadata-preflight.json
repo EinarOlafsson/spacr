@@ -1,0 +1,347 @@
+{
+  "schema": 1,
+  "checked_at": "2026-10-14T00:46:32.985320+00:00",
+  "status": "CPU metadata preflight; no GPU lease/test/device initialization started",
+  "worktree": "/media/carruthers/mnt3/claude/spacr-f288-cupy-20261013",
+  "HEAD": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "worktree_clean": true,
+  "source_test_tool_hashes_match_proposal": true,
+  "bindings": [
+    {
+      "path": "spacr/ops_accel.py",
+      "bytes": 12908,
+      "sha256": "57e9181b5784a4aac225580878664ae341fdcbca7476dd6b8b0ffd126a1ecde0",
+      "git_blob": "20597ea5df36627182e2fc309cb6c4171080123e",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": "tests/test_the_ops_primitives_agree_on_every_backend.py",
+      "bytes": 14816,
+      "sha256": "82521146c3536b9651ad7835e12bb48e05307eabf9c0fdebd22b4806886e50dd",
+      "git_blob": "5c17e62585dccf3904bfc780d053d9b9016e0e93",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": "tools/gpu_turn.sh",
+      "bytes": 2334,
+      "sha256": "a567cfd80b5f9eb79bdbb3f369bd778ff6ebac7f1ada83e179c5f572a0f7e6bc",
+      "git_blob": "b94903366f77898118a94ddb3d52099bf13b633c",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": "tools/run_capped.sh",
+      "bytes": 1640,
+      "sha256": "875c64c77a75e9caa15b0366e1fde38ce5ac2917c58dee7916eba94185d8846a",
+      "git_blob": "a7f0f969b2ef47456e1773db09b6aa4d1381a709",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": ".coveragerc",
+      "bytes": 460,
+      "sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "git_blob": "9bca1308ba6e1b1e32fb4a638a3a29389f6fc669",
+      "identical_9af_eb72": true
+    }
+  ],
+  "candidate_count": 36,
+  "candidates": [
+    {
+      "environment": "/home/carruthers/anaconda3",
+      "site_packages": "/home/carruthers/anaconda3/lib/python3.9/site-packages",
+      "packages": {
+        "torch": "2.5.1",
+        "numpy": "1.26.4",
+        "pyside6": "6.10.3",
+        "pytest": "7.1.1"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/pymol",
+      "site_packages": "/home/carruthers/anaconda3/envs/pymol/lib/python3.14/site-packages",
+      "packages": {
+        "numpy": "2.4.6",
+        "pyside6": "6.11.1",
+        "torch": "2.13.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/af3",
+      "site_packages": "/home/carruthers/anaconda3/envs/af3/lib/python3.1/site-packages",
+      "packages": {
+        "numpy": "2.5.1"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/af3",
+      "site_packages": "/home/carruthers/anaconda3/envs/af3/lib/python3.12/site-packages",
+      "packages": {
+        "numpy": "2.5.1"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr8",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr8/lib/python3.8/site-packages",
+      "packages": {}
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/starplast",
+      "site_packages": "/home/carruthers/anaconda3/envs/starplast/lib/python3.1/site-packages",
+      "packages": {
+        "coverage": "7.16.1",
+        "pytest": "9.1.1",
+        "numpy": "2.4.6"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/starplast",
+      "site_packages": "/home/carruthers/anaconda3/envs/starplast/lib/python3.12/site-packages",
+      "packages": {
+        "coverage": "7.16.1",
+        "pytest": "9.1.1",
+        "numpy": "2.4.6"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr12",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr12/lib/python3.1/site-packages",
+      "packages": {
+        "pyside6": "6.11.2",
+        "numpy": "2.5.2",
+        "torch": "2.13.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr12",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr12/lib/python3.12/site-packages",
+      "packages": {
+        "pyside6": "6.11.2",
+        "numpy": "2.5.2",
+        "torch": "2.13.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacrnewr",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacrnewr/lib/python3.1/site-packages",
+      "packages": {
+        "pyside6": "6.12.0",
+        "torch": "2.14.1",
+        "numpy": "2.5.3"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacrnewr",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacrnewr/lib/python3.12/site-packages",
+      "packages": {
+        "pyside6": "6.12.0",
+        "torch": "2.14.1",
+        "numpy": "2.5.3"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr11",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr11/lib/python3.11/site-packages",
+      "packages": {
+        "numpy": "2.4.6",
+        "pyside6": "6.11.2",
+        "torch": "2.13.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr11",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr11/lib/python3.1/site-packages",
+      "packages": {
+        "numpy": "2.4.6",
+        "pyside6": "6.11.2",
+        "torch": "2.13.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/autotrade",
+      "site_packages": "/home/carruthers/anaconda3/envs/autotrade/lib/python3.1/site-packages",
+      "packages": {
+        "pytest": "9.1.1",
+        "numpy": "2.5.3"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/autotrade",
+      "site_packages": "/home/carruthers/anaconda3/envs/autotrade/lib/python3.12/site-packages",
+      "packages": {
+        "pytest": "9.1.1",
+        "numpy": "2.5.3"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/af3tools",
+      "site_packages": "/home/carruthers/anaconda3/envs/af3tools/lib/python3.1/site-packages",
+      "packages": {}
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/af3tools",
+      "site_packages": "/home/carruthers/anaconda3/envs/af3tools/lib/python3.12/site-packages",
+      "packages": {}
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/yolo",
+      "site_packages": "/home/carruthers/anaconda3/envs/yolo/lib/python3.11/site-packages",
+      "packages": {
+        "torch": "2.14.0",
+        "numpy": "2.4.6"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/yolo",
+      "site_packages": "/home/carruthers/anaconda3/envs/yolo/lib/python3.1/site-packages",
+      "packages": {
+        "torch": "2.14.0",
+        "numpy": "2.4.6"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr9",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr9/lib/python3.9/site-packages",
+      "packages": {
+        "torch": "2.8.0",
+        "numpy": "1.26.4",
+        "pyside6": "6.10.3"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/yolo8",
+      "site_packages": "/home/carruthers/anaconda3/envs/yolo8/lib/python3.13/site-packages",
+      "packages": {
+        "numpy": "2.4.3",
+        "torch": "2.10.0",
+        "pyside6": "6.11.1",
+        "pytest": "9.1.1",
+        "pytest-xdist": "3.8.0",
+        "coverage": "7.16.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr_clone_1",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr_clone_1/lib/python3.1/site-packages",
+      "packages": {
+        "numpy": "1.26.4"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr_clone_1",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr_clone_1/lib/python3.10/site-packages",
+      "packages": {
+        "numpy": "1.26.4"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/localagent",
+      "site_packages": "/home/carruthers/anaconda3/envs/localagent/lib/python3.1/site-packages",
+      "packages": {}
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/localagent",
+      "site_packages": "/home/carruthers/anaconda3/envs/localagent/lib/python3.12/site-packages",
+      "packages": {}
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages",
+      "packages": {
+        "numpy": "2.4.3",
+        "torch": "2.10.0",
+        "cupy-cuda12x": "14.2.0",
+        "pyside6": "6.11.1",
+        "pytest": "9.1.1",
+        "pytest-xdist": "3.8.0",
+        "coverage": "7.16.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/deeptmhmm",
+      "site_packages": "/home/carruthers/anaconda3/envs/deeptmhmm/lib/python3.8/site-packages",
+      "packages": {
+        "numpy": "1.23.4",
+        "torch": "2.0.1+cu118"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr13",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr13/lib/python3.13/site-packages",
+      "packages": {
+        "pyside6": "6.11.2",
+        "numpy": "2.5.2",
+        "torch": "2.13.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr10",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr10/lib/python3.1/site-packages",
+      "packages": {
+        "torch": "2.6.0",
+        "pyside6": "6.11.2",
+        "numpy": "1.26.4"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr10",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr10/lib/python3.10/site-packages",
+      "packages": {
+        "torch": "2.6.0",
+        "pyside6": "6.11.2",
+        "numpy": "1.26.4"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/cp",
+      "site_packages": "/home/carruthers/anaconda3/envs/cp/lib/python3.9/site-packages",
+      "packages": {}
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/spacr14",
+      "site_packages": "/home/carruthers/anaconda3/envs/spacr14/lib/python3.14/site-packages",
+      "packages": {
+        "torch": "2.14.0",
+        "pyside6": "6.11.2",
+        "numpy": "2.5.3"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/cpsam421",
+      "site_packages": "/home/carruthers/anaconda3/envs/cpsam421/lib/python3.13/site-packages",
+      "packages": {
+        "numpy": "2.4.3",
+        "torch": "2.10.0",
+        "pyside6": "6.11.1",
+        "pytest": "9.1.1",
+        "pytest-xdist": "3.8.0",
+        "coverage": "7.16.0"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/cp2",
+      "site_packages": "/home/carruthers/anaconda3/envs/cp2/lib/python3.9/site-packages",
+      "packages": {
+        "numpy": "1.24.4"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/toxonet",
+      "site_packages": "/home/carruthers/anaconda3/envs/toxonet/lib/python3.11/site-packages",
+      "packages": {
+        "numpy": "2.4.6",
+        "torch": "2.5.1+cu124"
+      }
+    },
+    {
+      "environment": "/home/carruthers/anaconda3/envs/toxonet",
+      "site_packages": "/home/carruthers/anaconda3/envs/toxonet/lib/python3.1/site-packages",
+      "packages": {
+        "numpy": "2.4.6",
+        "torch": "2.5.1+cu124"
+      }
+    }
+  ],
+  "required_coverage": "7.15.4",
+  "matching_coverage_candidates": [],
+  "pytest_cov_candidates": [],
+  "cuda_compatibility": "Not initialized or measured; CPU wheel metadata only."
+}

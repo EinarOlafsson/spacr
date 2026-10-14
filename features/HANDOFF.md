@@ -3,6 +3,43 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:10 EDT — Home → Work: direct CuPy collector accepted; lightweight tasks
+
+Received c094eb2b5b/e87ce78506. Existing Work coverage 7.16.0 directly wrapping
+those same three pytest cases is acceptable for genuine device/parity evidence.
+No package installation or pytest-cov dependency is required. Use coverage run
+--branch --source=spacr.ops_accel -m pytest -n 0 with exact original nodeids,
+retaining original .coveragerc exclusion/branch settings. Keep the same existing
+Work environment, 6G/180s+15s limits, gpu_turn guards, recording-free turn and
+source/test hashes. Return actual test exit, JUnit 3PASS/0SKIP, every raw DB
+(including parallel suffixes), coverage JSON and real-device proof. Preserve
+raw inputs when combining. Record collector/Python/CuPy/coverage versions and
+command/config hashes; do not claim identical collector version or hosted CI.
+Home will validate source/denominators and readable raw-data compatibility
+before any independent coverage union. GPU skip/failure remains unmet evidence.
+
+Three approved lightweight follow-ups, each features-only receipt/push:
+1. N703: peer-review features/data/703_installer_source_audit_2026-10-13/ against
+its bound source and tests; return upgrade/cache-preservation/rollback/native-
+GUI acceptance matrix, plus proposed macOS first-user GUI flow and future
+changed-string list. Do not edit installer/app/tests or run a native installer.
+2. N700: source-bound review spacr/qt/ai/issue_report.py, issue_preview.py,
+providers.py and spacr/crashreport.py. Return strict anonymous payload allowlist,
+redaction gaps/planted-data test plan, separate cloud/public privacy wording and
+CLI-to-hosted provider integration map. No network reports/keys/canonical edits.
+Owner guide is features/data/700_cloud_routes_setup_2026-10-13/setup-guide.txt.
+3. N615: rank the exact 20 missing/20 stale API entries and 27 reviewed blocks
+from features/data/n676_translation_backlog_2026-10-13/ by released-source
+importance. Propose dated contract/translation work batches and truthful
+30fps/Spaceout exception wording in a features receipt. Do not regenerate or
+alter API/runtime catalogs/source during release freeze.
+
+All tasks read-only except their own feature receipts and handoff notes. Bind
+exact paths/hashes, distinguish proposals from execution/acceptance, keep any
+capture/GPU overlap prohibited. Current CI still runs on eb72a1a85f; release is
+not done. These follow-ups do not authorize later tutorial recordings.
+
+
 ## 2026-10-13 21:05 EDT — Home: installer audit and cloud report setup
 
 N703 now specifies verified-version upgrades, narrow obsolete-app retirement,
@@ -20,6 +57,59 @@ Relay/provider/schema remain unimplemented, no accounts or issues created.
 Work: please reserve tutorial 04 installer revision and N700 consent/provider
 translations until the final behavior lands; current CI source remains eb72a1a85f.
 Release is NOT done; these commits are features-only coordination.
+
+
+## 2026-10-13 20:58 EDT — WS: completed lightweight translation backlog audit
+
+Source-bound audit is at `features/data/n676_translation_backlog_2026-10-13/`.
+Runtime: 10,455 current entries per locale, no missing/stale/orphaned/blank
+records. This is metadata freshness, not semantic/native-speaker acceptance.
+API: 20 missing + 20 stale existing per locale (360 locale-symbol deficits),
+27 stale active reviewed blocks across nine locales. Exact IDs/hashes/paths
+and current mixed-model/Mask Live arrivals are recorded; 701 remains current.
+Root independently rehashed all 4,306 static evidence files.
+
+Dynamic animation wording still says CPU work pauses backdrops; code instead
+caps them at up to 30 fps while Spaceout fractals may still pause. AmbientWidget.stop
+wording is also catalog-stale. Unreleased 1.5.1.5 notes remain English-only and
+retain claims needing final English truth review. Proposed wording is advisory;
+source/catalogs/reviews remain unchanged and guide extraction was not run.
+
+The agent has moved to peer review of tutorial input/resume prerequisites,
+then external English truth drafting. All four slots stay productively assigned.
+Home: task request and existing-CuPy environment blocker remain at c094eb2b5;
+please nominate approved lightweight follow-ups while the source freeze holds.
+
+
+## 2026-10-13 20:49 EDT — WS → Home: CuPy prerequisites and request for lightweight tasks
+
+Einar asked WS to keep all four available agent slots productively occupied
+and request more lightweight work from Home whenever the tutorial lane cannot
+use them. Root coordinates/reviews/pushes; one high-effort agent prepares the
+CuPy parity request, another audits source-bound translation/docs debt, and
+the medium-effort agent audits existing tutorial input prerequisites. All are
+working without app/test/canonical edits, heavy CPU work or capture changes.
+
+The exact eb72 source/test/tool hashes in the CuPy proposal match a clean
+isolated WS worktree. Existing SP Python 3.13.14 has CuPy CUDA12x 14.2.0 and
+coverage 7.16.0, but no pytest-cov. CPU-only inspection of 36 existing conda/base
+package directories found no coverage 7.15.4 or pytest-cov. No CUDA context,
+GPU lease/test or package/environment edit occurred. Bound metadata/blocker:
+`features/data/288_work_cupy_preflight_2026-10-13/`.
+
+Home: please confirm whether coverage 7.16.0 directly wrapping the same three
+existing pytest cases is acceptable, retaining raw DB/JSON/JUnit, actual-device
+proof, source hashes, 6G/180s limits and unchanged gpu_turn guards; otherwise
+provide an existing compatible 7.15.4/plugin package path. We are preparing the
+concrete direct-collector proposal, not installing or faking a backend pass.
+
+Please also assign three further lightweight tasks with exact paths and
+expected deliverables. Prefer read-only source/evidence review or approved
+hand-authored docs/features repairs that do not conflict with the release
+freeze, tutorial capture, protected jobs or generated publication metadata.
+Current audits will supply actionable follow-ups, and each completed approved
+item will be committed/pushed separately. Tutorial 20 still waits for release
+done/final Workbench repair; no later lesson recording started.
 
 
 ## 2026-10-13 20:39 EDT — Home → Work: bounded unchanged-source CuPy coverage request
