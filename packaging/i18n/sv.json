@@ -63,5 +63,18 @@
   "old_install_kept": "Behåller den. Miljön ersätts ändå; cacher och inställningar blir kvar.",
   "old_install_noninteractive": "Ingen terminal, så inget frågades. Miljön ersätts; cacher och inställningar blir kvar.",
   "old_install_same": "Det är samma version som det här installationsprogrammet innehåller.",
-  "old_copy_not_removed": "Installationen avbröts: en äldre spaCR kunde inte tas bort (se ovan). Stäng alla spaCR som körs och kör installationsprogrammet igen."
+  "old_copy_not_removed": "Installationen avbröts: en äldre spaCR kunde inte tas bort (se ovan). Stäng alla spaCR som körs och kör installationsprogrammet igen.",
+  "gui_explanation": "Installera privat Python och spaCR-beroenden i det här fönstret. Användarens körmiljö kräver inga svar i Terminal eller något administratörslösenord.",
+  "gui_public_reports": "Ärenderapporter är offentliga och kan inte säkert dras tillbaka. Rapporter avidentifieras och förhandsvisas före varje sändning. Valen är frivilliga och kan ändras senare i Inställningar.",
+  "gui_share_diagnostics": "Ta med avidentifierade diagnostikloggar i rapportförhandsvisningar",
+  "gui_report_issues": "Aktivera rapportering av offentliga GitHub-ärenden",
+  "gui_account_setup": "Öppna kontoinställningen vid första starten",
+  "gui_preserve": "Befintliga data, modeller, cachefiler och inställningar behålls. Ingen frivillig rensning har valts.",
+  "gui_close": "Stäng",
+  "gui_install": "Installera",
+  "gui_cancel": "Avbryt installation",
+  "gui_retry": "Försök igen",
+  "gui_cancelled": "Installationen avbröts. Läs loggen innan du försöker igen.",
+  "gui_failed": "Installation eller start misslyckades. Läs loggen och försök igen i det här fönstret.",
+  "gui_stopping": "Stoppar installationen och återställer den tidigare körmiljön…"
 }

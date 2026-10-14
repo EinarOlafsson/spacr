@@ -374,10 +374,12 @@ def _take_drafts() -> Dict[str, Dict[str, Any]]:
     The drafts are removed before this returns, so a draft is offered once.
     """
     document = _read_json(_DRAFTS_KEY)
-    _clear_drafts()
-    modules = (document or {}).get("modules")
+    if document is None:
+        return {}
+    modules = document.get("modules")
     if not isinstance(modules, dict):
         return {}
+    _clear_drafts()
     return {str(k): v for k, v in modules.items() if isinstance(v, dict)}
 
 

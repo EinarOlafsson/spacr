@@ -3045,7 +3045,8 @@ class MainWindow(QMainWindow):
             from PySide6.QtCore import QTimer
 
             from .first_run import maybe_show_tour
-            from .install_consent import maybe_show_installer_consent
+            from .install_consent import (maybe_show_anonymous_report_notice,
+                                          maybe_show_installer_consent)
             from .preferences import in_safe_mode
             self._tour_timer = QTimer(self)
             self._tour_timer.setSingleShot(True)
@@ -3056,9 +3057,18 @@ class MainWindow(QMainWindow):
             self._consent_timer.setSingleShot(True)
 
             def _finish_installer_onboarding():
-                """Show the installer consent, then start the tour after it closes."""
+                """Show the installer consent and the report notice, then the tour.
+
+                The anonymised-report notice is not modal, so the tour waits
+                for it to close rather than opening over it.
+                """
                 maybe_show_installer_consent(self)
-                self._tour_timer.start(500)
+                notice = maybe_show_anonymous_report_notice(self)
+                if notice is None:
+                    self._tour_timer.start(500)
+                else:
+                    notice.finished.connect(
+                        lambda _result: self._tour_timer.start(500))
 
             self._consent_timer.timeout.connect(
                 lambda: self._after_the_startup_sequence(
@@ -4032,6 +4042,8 @@ class MainWindow(QMainWindow):
                     return (focus.undo, focus.redo,
                             focus.isUndoAvailable, focus.isRedoAvailable)
                 if inside and isinstance(focus, (QTextEdit, QPlainTextEdit)):
+                    if focus.isReadOnly():
+                        return None
                     document = focus.document()
                     return (focus.undo, focus.redo,
                             document.isUndoAvailable, document.isRedoAvailable)
@@ -5673,12 +5685,14 @@ class MainWindow(QMainWindow):
         return found
 
     @staticmethod
-    def _collect_screen(screen) -> dict:
+    def _collect_screen(screen, *, strict=False) -> dict:
         """Return a screen's current settings, or an empty mapping."""
         model = getattr(screen, "_settings_model", None)
         try:
             return dict((model.collect() if model is not None else {}) or {})
         except Exception:                                    # noqa: BLE001
+            if strict:
+                raise
             LOG.debug("could not collect settings", exc_info=True)
             return {}
 
@@ -5686,7 +5700,7 @@ class MainWindow(QMainWindow):
         """Return the visible module key and its settings."""
         screen = self._stack.currentWidget()
         key = str(getattr(screen, "app_key", "") or "")
-        return key, (self._collect_screen(screen) if key else {})
+        return key, (self._collect_screen(screen, strict=True) if key else {})
 
     def _start_settings_autosave(self) -> None:
         """Start the timer that keeps the session and drafts current.
@@ -5717,9 +5731,13 @@ class MainWindow(QMainWindow):
 
         if getattr(self, "_closing", False):
             return False
-        drafts = {key: self._collect_screen(screen)
-                  for key, screen in self._open_app_screens().items()}
-        module, settings = self._current_session()
+        try:
+            drafts = {key: self._collect_screen(screen, strict=True)
+                      for key, screen in self._open_app_screens().items()}
+            module, settings = self._current_session()
+        except Exception:
+            LOG.debug("could not collect settings for autosave", exc_info=True)
+            return False
         fingerprint = json.dumps([module, drafts], sort_keys=True,
                                  default=str)
         if fingerprint == getattr(self, "_last_autosave", ""):
@@ -5739,8 +5757,8 @@ class MainWindow(QMainWindow):
             timer.stop()
         try:
             module, settings = self._current_session()
-            restart_state._save_session(module, settings)
-            restart_state._clear_drafts()
+            if restart_state._save_session(module, settings) or not module:
+                restart_state._clear_drafts()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not record the session on close", exc_info=True)
 

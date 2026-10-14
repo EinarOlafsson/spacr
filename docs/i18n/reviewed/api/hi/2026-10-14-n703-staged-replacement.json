@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "N703: exactly three rewritten paragraphs. Directly authored from current English after normal MT inverted cache/model preservation in German and Spanish. All untouched paragraphs retain existing reviewed/history evidence. This record does not certify native installer behavior.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#1",
+      "source": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "source_sha256": "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
+      "context": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "translation": "ऑनलाइन इंस्टॉलर पुराने अनुप्रयोग की प्रतियों को हटाने से पहले नए रनटाइम को तैयार करते हैं और उसकी जाँच करते हैं। तैयारी के दौरान मौजूदा इंस्टॉलेशन सुरक्षित रहता है; यदि नया रनटाइम सत्यापन में विफल हो, तो पिछला रनटाइम बहाल किया जाता है। अपडेट सहायक अन्य प्रतियों को हटाने या पुनः आरंभ का अनुरोध करने से पहले डेस्कटॉप लॉन्च में इस्तेमाल होने वाले इंटरप्रेटर और वास्तव में आयात किए गए अनुप्रयोग का सत्यापन करता है। :func:`run_update_sequence` स्पष्ट रूप से चलाए गए सफाई आदेशों के लिए निम्न-स्तरीय हटाने की प्रक्रिया बना रहता है।",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
+      "context": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "translation": "इंस्टॉलर द्वारा बनाई गई प्रति का अनुप्रयोग कोड, लॉन्चर, शॉर्टकट, मेनू प्रविष्टियाँ और अनइंस्टॉल पंजीकरण हटा दिए जाते हैं। ज्ञात कैश, मॉडल, परीक्षण डेटा, कॉन्फ़िगर किए गए उपयोगकर्ता स्थान और ऑनलाइन रनटाइम के मूल फ़ोल्डरों में अनुप्रयोग से असंबंधित प्रविष्टियाँ सुरक्षित रखी जाती हैं। इन फ़ाइलों को रखने के लिए मूल फ़ोल्डर बना रह सकता है। Debian पैकेज को पैकेज प्रबंधक से हटाया जाता है; यदि व्यवस्थापक अधिकारों की कमी इसे रोकती है, तो उनकी आवश्यकता बताई जाती है। उपयोगकर्ता द्वारा बनाए गए परिवेश से केवल spaCR पैकेज अनइंस्टॉल होता है, और केवल ``ticked`` होने पर; परिवेश स्वयं बना रहता है। स्रोत कोड की चेकआउट प्रति को छोड़ दिया जाता है।",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+      "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "translation": "सामान्य प्रतिस्थापन प्रक्रिया नए इंस्टॉलर को डाउनलोड करके चलाती है, जो इंस्टॉलेशन तैयार करता है; फिर वास्तविक इंटरप्रेटर और आयात किए गए अनुप्रयोग का सत्यापन होता है, अन्य प्रतियाँ हटाई जाती हैं और अनुप्रयोग शुरू किया जाता है। इंस्टॉलेशन या सत्यापन विफल होने पर पिछली कार्यशील प्रति नहीं हटाई जाती। अन्य प्रतियों को हटाने में विफलता दर्ज की जाती है, लेकिन अनुप्रयोग दोबारा शुरू नहीं होता।",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    }
+  ]
+}

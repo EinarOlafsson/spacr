@@ -161,6 +161,9 @@ def sign_app(path):
     arguments = ['codesign', '--force', '--sign', config['CODESIGN_IDENTITY'] if config else '-']
     if config:
         arguments += ['--timestamp', '--options', 'runtime', *_keychain_arguments()]
+    helper = Path(path) / 'Contents/MacOS/install-spacr-gui'
+    if helper.is_file():
+        _run([*arguments, str(helper)])
     _run([*arguments, str(path)])
     _run(['codesign', '--verify', '--deep', '--strict', str(path)])
 

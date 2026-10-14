@@ -63,5 +63,18 @@
   "old_install_kept": "Mantida. O ambiente é substituído de qualquer forma; caches e definições permanecem.",
   "old_install_noninteractive": "Não é um terminal, por isso nada foi perguntado. O ambiente é substituído; caches e definições permanecem.",
   "old_install_same": "É a mesma versão que este instalador traz.",
-  "old_copy_not_removed": "Instalação interrompida: não foi possível remover um spaCR mais antigo (veja acima). Feche qualquer spaCR em execução e execute o instalador novamente."
+  "old_copy_not_removed": "Instalação interrompida: não foi possível remover um spaCR mais antigo (veja acima). Feche qualquer spaCR em execução e execute o instalador novamente.",
+  "gui_explanation": "Instale Python privado e as dependências do spaCR nesta janela. Este ambiente do utilizador não exige respostas no Terminal nem palavra-passe de administrador.",
+  "gui_public_reports": "Os relatórios de problemas são públicos e não podem ser retirados de forma fiável. Os relatórios ocultam dados sensíveis e são apresentados antes de cada envio. Estas opções são facultativas e podem ser alteradas depois nas Preferências.",
+  "gui_share_diagnostics": "Incluir registos de diagnóstico sem dados sensíveis nas pré-visualizações",
+  "gui_report_issues": "Ativar o envio de problemas públicos para o GitHub",
+  "gui_account_setup": "Abrir a configuração de contas no primeiro arranque",
+  "gui_preserve": "Os dados, modelos, caches e preferências existentes são preservados. Não está selecionada qualquer limpeza opcional.",
+  "gui_close": "Fechar",
+  "gui_install": "Instalar",
+  "gui_cancel": "Cancelar instalação",
+  "gui_retry": "Tentar novamente",
+  "gui_cancelled": "Instalação cancelada. Consulte o registo antes de tentar novamente.",
+  "gui_failed": "Falha na instalação ou no arranque. Consulte o registo e tente novamente nesta janela.",
+  "gui_stopping": "A parar a instalação e a restaurar o ambiente anterior…"
 }

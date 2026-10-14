@@ -532,11 +532,12 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     assert "uninstall-spacr.sh" in source
     assert "PRODUCTSIGN_IDENTITY" in signing
     assert "install-for-user.sh" in source
-    assert "osascript" in launcher
+    assert "install-spacr-gui" in launcher
+    assert "osascript" not in launcher
     assert "execv(python, args)" in launcher
     assert "-arch arm64 -arch x86_64" in source
     assert '$HOME/Library/Application Support/spaCR' in source
-    assert "--no-command-launcher" in source
+    assert "--no-command-launcher" in _text(ONLINE / "install_for_macos_user.sh")
     postinstall = source[source.index('cat > "$SCRIPTS/postinstall"'):]
     assert "install-online.sh" not in postinstall
 

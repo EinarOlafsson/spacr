@@ -29,6 +29,7 @@ import os
 import sqlite3
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 
 import numpy as np
@@ -506,6 +507,13 @@ def pytest_configure(config):
     # attribute would not.
     os.environ[_SOUND_CACHE_ENV] = str(_DOT_SPACR_SANDBOX / "sounds")
 
+    # Item 700: anonymised error reports and the hosted AI provider post to
+    # spaCR's relay. No test may reach it: `SPACR_NO_NETWORK` turns both off
+    # for the whole run, child processes included, and
+    # `_isolated_dot_spacr_store` also replaces the transport. A test of
+    # either feature deletes the variable and installs its own fake.
+    os.environ["SPACR_NO_NETWORK"] = "1"
+
     global _QSETTINGS_ACTIVE
     if _qsettings_module() is None:
         return
@@ -934,6 +942,22 @@ def _isolated_dot_spacr_store(monkeypatch):
         monkeypatch.setattr(
             plate_queue, "_queue_path",
             lambda: _DOT_SPACR_SANDBOX / "queue.json", raising=False)
+    # Item 700: the anonymised-report switch, notice flag, install id and
+    # queue get a folder per test, and the transport refuses to connect.
+    try:
+        from spacr import crashreport
+    except Exception:                                            # noqa: BLE001
+        pass
+    else:
+        reports = _DOT_SPACR_SANDBOX / "anonymous_reports" / uuid.uuid4().hex
+        monkeypatch.setattr(crashreport, "_reports_dir", lambda: reports,
+                            raising=False)
+
+        def _no_relay(request, timeout):
+            raise OSError("tests never reach spaCR's relay")
+
+        monkeypatch.setattr(crashreport, "_open_url", _no_relay,
+                            raising=False)
     yield
 
 

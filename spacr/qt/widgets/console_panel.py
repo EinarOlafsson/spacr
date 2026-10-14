@@ -1168,9 +1168,13 @@ class ConsolePanel(QWidget):
 
         input_row = QWidget()
         self._chat_row = input_row
-        row = QHBoxLayout(input_row)
+        chat_column = QVBoxLayout(input_row)
+        chat_column.setContentsMargins(0, 0, 0, 0)
+        chat_column.setSpacing(SPACING["xs"])
+        row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
+        chat_column.addLayout(row, 1)
 
         self._input = _ChatInput()
         self._input.setObjectName("ConsoleChatInput")
@@ -1180,6 +1184,26 @@ class ConsolePanel(QWidget):
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
+
+        from PySide6.QtWidgets import QProgressBar
+
+        self._usage_row = QWidget()
+        self._usage_row.setObjectName("AiUsageRow")
+        usage = QHBoxLayout(self._usage_row)
+        usage.setContentsMargins(0, 0, 0, 0)
+        usage.setSpacing(SPACING["sm"])
+        self._usage_bar = QProgressBar()
+        self._usage_bar.setObjectName("AiUsageBar")
+        self._usage_bar.setRange(0, 100)
+        self._usage_bar.setTextVisible(False)
+        self._usage_bar.setFixedHeight(6)
+        self._usage_bar.setFixedWidth(96)
+        self._usage_text = QLabel()
+        self._usage_text.setObjectName("AiUsageText")
+        usage.addWidget(self._usage_bar)
+        usage.addWidget(self._usage_text, 1)
+        self._usage_row.setVisible(False)
+        chat_column.addWidget(self._usage_row)
         self._split.addWidget(input_row)
 
         self._split.setStretchFactor(0, 1)
@@ -1894,6 +1918,76 @@ class ConsolePanel(QWidget):
         :param provider_name: the provider's name, or None to unset it.
         """
         self._current_provider_name = provider_name
+        self.refresh_ai_usage()
+
+    def _hosted_is_current(self) -> bool:
+        """Whether the selected provider is spaCR's hosted one."""
+        from ..ai.providers import HOSTED_PROVIDER_NAME
+
+        return self._current_provider_name == HOSTED_PROVIDER_NAME
+
+    def refresh_ai_usage(self) -> None:
+        """Refresh the usage bar under the chat box for the selected provider.
+
+        For spaCR AI (free) the relay is asked, off the GUI thread, how much
+        of today's share is left; the request runs on a plain thread that
+        touches no Qt object, and a single-shot timer tied to this panel
+        collects the answer on the GUI thread, so a panel closed meanwhile
+        never hears back. A vendor CLI has no usage source, so its line is
+        shown at once and the bar is hidden
+        (:func:`spacr.qt.ai.providers.usage_bar`). No provider hides the row.
+        """
+        name = self._current_provider_name
+        if not self._hosted_is_current():
+            self._show_ai_usage(None)
+            return
+        import threading
+
+        from PySide6.QtCore import QTimer
+
+        from ... import crashreport
+
+        box: dict = {}
+
+        def _fetch() -> None:
+            """Fetch the allowance into ``box``; touches no Qt object."""
+            try:
+                box["allowance"] = crashreport.fetch_allowance()
+            except Exception:
+                box["allowance"] = None
+
+        fetcher = threading.Thread(target=_fetch,
+                                   name="spacr-hosted-allowance", daemon=True)
+
+        def _collect() -> None:
+            """On the GUI thread: show the allowance once it has arrived."""
+            if "allowance" not in box and fetcher.is_alive():
+                QTimer.singleShot(100, self, _collect)
+                return
+            if self._current_provider_name == name:
+                self._show_ai_usage(box.get("allowance"))
+
+        fetcher.start()
+        QTimer.singleShot(100, self, _collect)
+
+    def _show_ai_usage(self, allowance: object) -> None:
+        """Draw the usage bar and its text for the selected provider.
+
+        :param allowance: for spaCR AI, what
+            :func:`spacr.crashreport.fetch_allowance` returned, or ``None``.
+        """
+        from ..ai.providers import hosted_cli_hint, usage_bar
+
+        percent, text = usage_bar(
+            self._current_provider_name,
+            allowance if isinstance(allowance, dict) else None)
+        self._usage_bar.setVisible(percent is not None)
+        if percent is not None:
+            self._usage_bar.setValue(int(percent))
+        self._usage_text.setText(text)
+        self._usage_row.setToolTip(
+            hosted_cli_hint() if self._hosted_is_current() else "")
+        self._usage_row.setVisible(bool(text))
 
     def _current_provider(self) -> Optional[ChatProvider]:
         """Resolve the selected AI provider.
@@ -2276,9 +2370,18 @@ class ConsolePanel(QWidget):
                 self.append_notice(
                     "(empty response — try again or switch provider)\n"
                 )
+            if self._hosted_is_current():
+                provider = self._current_provider()
+                allowance = getattr(provider, "last_allowance", None)
+                if allowance:
+                    self._show_ai_usage(allowance)
+                else:
+                    self.refresh_ai_usage()
         else:
             self.append_notice(
                 "[AI error] {detail}\n", detail=final_text)
+            if self._hosted_is_current():
+                self.refresh_ai_usage()
         if self._current_stdout is not None:
             self._current_stdout.append("\n")
         self._ai_buf = []

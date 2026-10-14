@@ -10281,6 +10281,7 @@ class PreferencesDialog:
         share_diagnostics_check.setChecked(get_share_diagnostic_logs())
         modules.addRow(tr("Report logs"), share_diagnostics_check)
 
+
         refresh_news_check = Toggle(
             tr("Show newer releases than this build in Home's News panel")
         )
@@ -10355,24 +10356,85 @@ class PreferencesDialog:
         db_edit_check.setChecked(get_db_browser_editable())
         modules.addRow(tr("Database Browser"), db_edit_check)
 
-        ai_provider_combo = QComboBox()
-        ai_provider_combo.setObjectName("AiProvider")
-        ai_provider_combo.addItem(tr("Automatic (first available)"), "")
-        try:
-            from . import ai as _ai_module
+        from PySide6.QtWidgets import QButtonGroup, QRadioButton
 
-            for _p in _ai_module.configured_providers():
-                ai_provider_combo.addItem(_p.label, _p.name)
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("could not list AI providers", exc_info=True)
-        _wanted = get_preferred_provider()
-        _at = ai_provider_combo.findData(_wanted)
-        ai_provider_combo.setCurrentIndex(_at if _at >= 0 else 0)
-        ai_provider_combo.setToolTip(tr(
-            "Which assistant the AI switch routes through. Automatic picks "
-            "the first vendor CLI that is installed and logged in."
-        ))
-        ai_form.addRow(tr("Provider"), ai_provider_combo)
+        from .ai.providers import (HOSTED_PROVIDER_NAME, PROVIDER_CHOICES,
+                                   apply_provider_choice,
+                                   effective_provider_name)
+
+        ai_provider_box = QWidget()
+        ai_provider_box.setObjectName("AiProviderChoice")
+        ai_provider_box.setToolTip(tr(
+            "Which assistant the AI switch routes through. spaCR AI (free) "
+            "needs no account and answers within a daily allowance; Claude, "
+            "GPT (Codex) and Gemini use your own CLI login. A switch takes "
+            "effect at once."))
+        ai_provider_layout = QVBoxLayout(ai_provider_box)
+        ai_provider_layout.setContentsMargins(0, 0, 0, 0)
+        ai_provider_group = QButtonGroup(ai_provider_box)
+        ai_provider_group.setExclusive(True)
+        ai_provider_radios = {}
+        for _name, _label, _needs in PROVIDER_CHOICES:
+            _radio = QRadioButton(tr(_label))
+            _radio.setObjectName(f"AiProvider_{_name}")
+            _radio.setProperty("providerName", _name)
+            _needs_label = QLabel(tr(_needs))
+            _needs_label.setObjectName("SubtitleSmall")
+            _needs_label.setWordWrap(True)
+            _needs_label.setContentsMargins(scaled_px(24), 0, 0, 0)
+            ai_provider_group.addButton(_radio)
+            ai_provider_layout.addWidget(_radio)
+            ai_provider_layout.addWidget(_needs_label)
+            ai_provider_radios[_name] = _radio
+        ai_allowance_note = QLabel()
+        ai_allowance_note.setObjectName("AiProviderAllowance")
+        ai_allowance_note.setWordWrap(True)
+        ai_provider_layout.addWidget(ai_allowance_note)
+        ai_provider_status = QLabel()
+        ai_provider_status.setObjectName("AiProviderStatus")
+        ai_provider_status.setWordWrap(True)
+        ai_provider_layout.addWidget(ai_provider_status)
+        ai_provider_radios.get(
+            effective_provider_name(get_preferred_provider()),
+            ai_provider_radios[HOSTED_PROVIDER_NAME]).setChecked(True)
+
+        def _chosen_provider() -> str:
+            """The provider whose switch is on."""
+            for _key, _button in ai_provider_radios.items():
+                if _button.isChecked():
+                    return _key
+            return HOSTED_PROVIDER_NAME
+
+        def _on_provider_switched(*_args) -> None:
+            """Use the provider just chosen at once, and say what it needs."""
+            from shiboken6 import isValid
+
+            from .ai.providers import hosted_daily_allowance_text
+
+            if not (isValid(ai_allowance_note) and isValid(ai_provider_status)
+                    and all(isValid(b) for b in ai_provider_radios.values())):
+                return
+            chosen = _chosen_provider()
+            hosted = chosen == HOSTED_PROVIDER_NAME
+            ai_allowance_note.setVisible(hosted)
+            ai_allowance_note.setText(
+                hosted_daily_allowance_text() if hosted else "")
+            ready = apply_provider_choice(chosen)
+            ai_provider_status.setVisible(not ready)
+            ai_provider_status.setText("" if ready else tr(
+                "Not set up on this computer yet: press Providers… to "
+                "install it and sign in. Until then spaCR AI (free) answers."))
+
+        ai_provider_group.buttonToggled.connect(
+            lambda _button, on: on and _on_provider_switched())
+        ai_allowance_note.setVisible(False)
+        ai_provider_status.setVisible(False)
+        if _chosen_provider() == HOSTED_PROVIDER_NAME:
+            from .ai.providers import hosted_daily_allowance_text
+
+            ai_allowance_note.setText(hosted_daily_allowance_text())
+            ai_allowance_note.setVisible(True)
+        ai_form.addRow(tr("Provider"), ai_provider_box)
 
         ai_providers_btn = QPushButton(tr("Providers…"))
         ai_providers_btn.setObjectName("AiProvidersButton")
@@ -10381,29 +10443,55 @@ class PreferencesDialog:
         ))
 
         def _open_providers():
-            """Open the install/login dialog, then re-list the providers."""
+            """Open the install/login dialog, then apply the choice again."""
             from PySide6.QtWidgets import QDialog
 
             from .widgets.ai_chat_panel import _ProvidersDialog
 
             if _ProvidersDialog(dlg).exec() != QDialog.Accepted:
                 return
-            chosen = ai_provider_combo.currentData()
-            ai_provider_combo.clear()
-            ai_provider_combo.addItem(
-                tr("Automatic (first available)"), "")
-            try:
-                from . import ai as _ai
-
-                for _q in _ai.configured_providers():
-                    ai_provider_combo.addItem(_q.label, _q.name)
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not re-list AI providers", exc_info=True)
-            back = ai_provider_combo.findData(chosen)
-            ai_provider_combo.setCurrentIndex(back if back >= 0 else 0)
+            _on_provider_switched()
 
         ai_providers_btn.clicked.connect(_open_providers)
         ai_form.addRow("", ai_providers_btn)
+
+        from spacr import crashreport as _crashreport
+
+        error_report_combo = QComboBox()
+        error_report_combo.setObjectName("AiErrorReport")
+        for _key, _label in _crashreport.ERROR_REPORT_MODES:
+            error_report_combo.addItem(tr(_label), _key)
+        error_report_combo.setCurrentIndex(max(0, error_report_combo.findData(
+            _crashreport.error_report_mode())))
+        error_report_combo.setToolTip(tr(
+            "What happens when a run fails or spaCR crashes, including a "
+            "setting or validation error found before a run starts. "
+            "\"Summarize\" has the AI chosen above explain the error in the "
+            "console. \"Send\" files an anonymised report as a public GitHub "
+            "issue on EinarOlafsson/spacr through spaCR's relay, with no "
+            "GitHub account. \"Faults\" are unexpected errors in spaCR, not "
+            "settings the user can fix. Code context adds the line of spaCR's "
+            "own code at each step, never yours. Logs, settings, file names "
+            "and paths are never sent. Default: summarize and send all "
+            "errors."))
+        error_report_what = QPushButton(tr("What is sent…"))
+        error_report_what.setObjectName("AnonymousReportsWhatIsSent")
+        error_report_what.setFlat(True)
+        error_report_what.setCursor(Qt.PointingHandCursor)
+
+        def _show_what_is_sent() -> None:
+            """Open the example of an anonymised report."""
+            from .install_consent import AnonymousReportExampleDialog
+
+            AnonymousReportExampleDialog(dlg).exec()
+
+        error_report_what.clicked.connect(_show_what_is_sent)
+        error_report_row = QWidget()
+        error_report_layout = QHBoxLayout(error_report_row)
+        error_report_layout.setContentsMargins(0, 0, 0, 0)
+        error_report_layout.addWidget(error_report_combo, 1)
+        error_report_layout.addWidget(error_report_what)
+        ai_form.addRow(tr("AI Error report"), error_report_row)
 
         alpha_check = Toggle(tr("Show Alpha modules and settings"))
         alpha_check.setObjectName("ShowAlphaFeatures")
@@ -11567,6 +11655,8 @@ class PreferencesDialog:
                 _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
+                _select(error_report_combo,
+                        _crashreport.DEFAULT_ERROR_REPORT_MODE)
                 refresh_news_check.setChecked(get_refresh_news())
                 restore_session_check.setChecked(_get_restore_session())
                 _select(update_channel_combo, _get_update_channel())
@@ -11650,7 +11740,7 @@ class PreferencesDialog:
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
-            set_preferred_provider(ai_provider_combo.currentData() or "")
+            set_preferred_provider(_chosen_provider())
             scale_settle.stop()
             set_font_scale(scale_slider.value() / 100.0)
             set_gui_scale(gui_scale_slider.value() / 100.0)
@@ -11669,6 +11759,13 @@ class PreferencesDialog:
             set_verbose_logging(verbose_check.isChecked())
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
+            try:
+                _crashreport.set_error_report_mode(
+                    error_report_combo.currentData()
+                    or _crashreport.DEFAULT_ERROR_REPORT_MODE)
+            except OSError:
+                LOG.warning("could not save the error-report choice",
+                            exc_info=True)
             set_refresh_news(refresh_news_check.isChecked())
             _set_restore_session(restore_session_check.isChecked())
             _set_update_channel(update_channel_combo.currentData())

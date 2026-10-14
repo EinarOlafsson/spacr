@@ -120,7 +120,11 @@ def take_the_setup_flags(argv):
 #: screen writes the same store every other panel reads, so an answer given
 #: here and an answer given in Preferences are the same answer.
 def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
-    """Build the question list against the live preference module."""
+    """Build the question list against the live preference module.
+
+    No question picks an AI provider (item 700): a new user starts with the
+    AI on and spaCR AI (free), and changes provider in Preferences → AI.
+    """
     from . import preferences as prefs
 
     def choices_of(names):
@@ -149,8 +153,6 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
         ("share_logs", "Include recent logs in a report",
          prefs.get_share_diagnostic_logs, prefs.set_share_diagnostic_logs,
          None),
-        ("ai_provider", "AI provider", prefs.get_preferred_provider,
-         prefs.set_preferred_provider, _provider_choices()),
     ]
     return [q for q in out if q[4] is None or q[4]]
 

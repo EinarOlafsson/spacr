@@ -20,6 +20,33 @@ from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox  # noqa: E402
 
 from spacr.qt.widgets.setup_slides import GREETINGS, PROVIDERS, SLIDES, SetupSlides, greeting_for
 
+@pytest.fixture(autouse=True)
+def _the_provider_step_is_offered_back(monkeypatch):
+    """Offer the AI-provider question again, so its slide is still tested.
+
+    Item 700 (2026-10-14) took the question out of first-run setup: a new
+    user starts on spaCR AI (free) and changes provider in Preferences.
+    The slide that draws the question is kept for a question list that
+    offers it, and these tests drive it through exactly that.
+    """
+    from spacr.qt import preferences as prefs
+    from spacr.qt import setup_screen
+
+    shipped = setup_screen.questions
+
+    def with_the_provider_question():
+        rows = list(shipped())
+        choices = setup_screen._provider_choices()
+        if choices:
+            rows.append(("ai_provider", "AI provider",
+                         prefs.get_preferred_provider,
+                         prefs.set_preferred_provider, choices))
+        return rows
+
+    monkeypatch.setattr(setup_screen, "questions",
+                        with_the_provider_question)
+
+
 
 def _past_the_greeting(slides):
     """Take the slides off the language page, pause included.

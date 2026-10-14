@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "N703: exactly three rewritten paragraphs. Directly authored from current English after normal MT inverted cache/model preservation in German and Spanish. All untouched paragraphs retain existing reviewed/history evidence. This record does not certify native installer behavior.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#1",
+      "source": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "source_sha256": "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
+      "context": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "translation": "Os instaladores online preparam e validam o novo ambiente de execução antes de remover cópias antigas da aplicação. Preservam a instalação atual durante a preparação e restauram o ambiente de execução anterior se a substituição falhar na verificação. O assistente de atualização verifica o interpretador usado para iniciar a aplicação no ambiente de trabalho e a aplicação importada antes de remover outras cópias ou solicitar um reinício. :func:`run_update_sequence` continua a ser o procedimento de remoção de baixo nível usado pelos comandos explícitos de limpeza.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
+      "context": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "translation": "O código da aplicação, os lançadores, os atalhos, as entradas de menu e os registos de desinstalação de uma cópia criada pelo instalador são removidos. As caches conhecidas, os modelos, os dados de teste, as localizações de utilizador configuradas e os elementos que não pertencem à aplicação nas raízes do ambiente de execução online são preservados. O diretório raiz pode permanecer para guardar esses ficheiros. Um pacote Debian é removido através do gestor de pacotes; se a falta de direitos de administrador impedir a remoção, essa necessidade é comunicada. Num ambiente criado pelo utilizador, apenas o pacote spaCR é desinstalado, e apenas quando ``ticked``; o ambiente mantém-se. Uma cópia de trabalho do código-fonte é ignorada.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+      "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "translation": "O procedimento normal de substituição descarrega e executa o novo instalador que prepara a instalação, verifica o seu interpretador real e a aplicação importada e, em seguida, remove outras cópias e inicia a aplicação. Uma falha na instalação ou na verificação não remove a cópia anterior que funcionava. Uma falha ao remover outras cópias é registada sem voltar a iniciar a aplicação.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    }
+  ]
+}

@@ -380,14 +380,17 @@ def _environment_lock_texts(digest: str,
         store = runs_root().parent / "env_locks" / digest[:32]
         pip_file = store / _PIP_LOCK_NAME
         conda_file = store / _CONDA_LOCK_NAME
-        texts: Dict[str, Optional[str]]
-        if pip_file.is_file():
-            texts = {
-                "pip": pip_file.read_text(encoding="utf-8"),
-                "conda": (conda_file.read_text(encoding="utf-8")
-                          if conda_file.is_file() else None),
-            }
-        else:
+        texts: Optional[Dict[str, Optional[str]]] = None
+        try:
+            if pip_file.is_file():
+                pip_text = pip_file.read_text(encoding="utf-8")
+                conda_text = (conda_file.read_text(encoding="utf-8")
+                              if conda_file.is_file() else None)
+                if pip_text.strip() and (conda_text is None or conda_text.strip()):
+                    texts = {"pip": pip_text, "conda": conda_text}
+        except (OSError, UnicodeError):
+            pass
+        if texts is None:
             texts = {"pip": _pip_lock_text(packages),
                      "conda": _conda_lock_text()}
             try:
@@ -4273,17 +4276,34 @@ def _relocate_cache(key: str, parent: Any) -> Path:
     src = source.resolve() if source.exists() else source
     if src == target or src in target.parents or target in src.parents:
         raise ValueError(f"{target} overlaps {src}")
+    path = _cache_locations_path()
     target.parent.mkdir(parents=True, exist_ok=True)
-    if source.is_dir():
+    had_source = source.is_dir()
+    if had_source:
         if target.exists():
             target.rmdir()
         shutil.move(str(source), str(target))
     else:
+        had_target = target.exists()
         target.mkdir(parents=True, exist_ok=True)
     recorded[env] = str(target)
-    path = _cache_locations_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
+    except OSError:
+        if had_source:
+            try:
+                if source.exists():
+                    raise FileExistsError(str(source))
+                target.rename(source)
+            except OSError:
+                LOG.warning("Cache retained at %s", target, exc_info=True)
+        elif not had_target:
+            try:
+                target.rmdir()
+            except OSError:
+                LOG.warning("Cache retained at %s", target, exc_info=True)
+        raise
     os.environ[env] = str(target)
     return target
 

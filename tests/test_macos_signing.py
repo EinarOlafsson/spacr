@@ -221,7 +221,7 @@ def test_native_launcher_executes_private_python_with_exact_arguments(launcher, 
     result = subprocess.run([str(launcher), *args], env={**os.environ, 'HOME': str(home)},
                             cwd=tmp_path, text=True, capture_output=True)
     assert result.returncode == 7
-    assert result.stdout.splitlines() == ['-m', 'spacr.qt', *args]
+    assert result.stdout.splitlines() == ['-I', '-m', 'spacr.qt', *args]
     assert not (tmp_path / 'forbidden-file').exists()
 
 

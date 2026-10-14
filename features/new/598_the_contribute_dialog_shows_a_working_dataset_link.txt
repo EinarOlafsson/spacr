@@ -41,3 +41,18 @@ catalog pass. Until then the report-only external-caption count check
 xfails because the two old captions were removed.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-14 — acceptance closure on nightly 0b9480472383:
+The historical two-caption catalog wait above is superseded. Both captions
+are present in all nine non-English runtime catalogs, with current source
+hashes and the existing 2026-09-30 technical-review records. Those reviews
+explicitly have no native-speaker signoff. Both pending-caption sets are empty.
+The two contribution-dialog API class entries also match current English
+source in all ten catalogs. The unchanged item-598 owning module passed all
+four cases (CPU, offscreen Qt 6.12, 4.59 s, exit 0): Make Masks' whole clickable
+and selectable dataset URL, missing-name state, escaped thank-you/PR link,
+and Plaque Assay's dataset/PR links. No new application implementation or
+remote upload was needed; this closes the remaining acceptance debt for the
+existing September implementation. It does not assert that a not-yet-uploaded
+community dataset exists. Source-bound evidence:
+features/data/598_acceptance_closure_2026-10-14/receipt.json.

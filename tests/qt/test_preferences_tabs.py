@@ -91,7 +91,7 @@ CONTROLS = {
     # The Providers button opens the dialog that carries the rest of the AI
     # settings (response speed, system prompt, console-awareness), so those
     # moved with it rather than being left unreachable.
-    "AiProvider": "AI",
+    "AiProviderChoice": "AI",
     "AiProvidersButton": "AI",
 }
 

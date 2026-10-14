@@ -61,21 +61,6 @@
       "source_sha256": "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2",
       "text": "Stop ``widgets`` painting a background of their own.\n\nA backdrop — the theme's wallpaper, or the DNA rain on the\nsequencing screen — is behind the *page*, and in the opaque themes\nevery container between it and the eye is an opaque ``bg`` by\nvirtue of the blanket ``QWidget`` rule. One container is enough to\nbury it: a screen's header widget, its splitter, a scroll area and\nthat scroll area's viewport are each a QWidget, and each one used to\npaint solid black over the animation the screen had just installed.\n\nTag the layout containers with this and the backdrop reaches the\neye; leave the cards, panels and inputs alone and they stay the\nreadable surface on top of it. Safe to call on a widget that is\nalready visible — the style is re-polished so the change takes\neffect immediately rather than at the next theme switch.\n\nA ``QScrollArea``'s ``viewport()`` is tagged automatically along\nwith it: they are two widgets, the viewport is the one that\nactually paints, and forgetting it is the obvious way to get this\nwrong."
     },
-    "562e1dc09ac09d15663a7270e942e42388d7df4d21bdb7a9c86f1ddfc6b142f6": {
-      "source_blocks_sha256": [
-        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
-        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
-        "d2768ce97d3a78a65d2b983658052353a68421df6ba68fac84583102446a94ee",
-        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
-        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
-        "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
-        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
-        "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67"
-      ],
-      "source_sha256": "562e1dc09ac09d15663a7270e942e42388d7df4d21bdb7a9c86f1ddfc6b142f6",
-      "text": "A bounded session of curation work over one folder.\n\n:ivar layout: what was found, and where.\n:ivar items: the fields to offer this session — unreviewed, ordered, and\n    cut to ``limit``.\n:ivar status: every status row read, including rows about stems that are\n    not in this folder.\n:ivar order: the ordering that was asked for.\n:ivar effective_order: the ordering actually used, which differs from\n    ``order`` when ``prob``, ``easy`` or ``uncertain`` fell back to\n    ``value`` for want of scores.\n:ivar limit: the cap that was applied, or ``None``.\n:ivar summary: counts over the whole folder, not over this session.\n:ivar notices: warnings for the curator before the first field --\n    a ``prob``, ``easy`` or ``uncertain`` order with no scores, or with\n    fields the scores do not name, and a resume record that is the\n    external tool's file beside the folder, which every save then writes\n    to. Printed when the queue is built and shown by the editor with it,\n    so that a changed ordering or a save outside the opened folder is\n    reported."
-    },
     "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8": {
       "source_blocks_sha256": [
         "1b4beaadd943ccea9a259c41141ff5d6c11aece455dc4f143cb72ed2369884ef",
@@ -85,29 +70,6 @@
       ],
       "source_sha256": "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8",
       "text": "Watch the widgets this filter is installed on.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
-    },
-    "6040f6e345510a316be7cb2979328f9294415458493d0294c882eb2b517a6a82": {
-      "source_blocks_sha256": [
-        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
-        "887fe6ff2f78b9ff24bcd5bf75e2b1d57b97e30241f3cd3b0a723e5eacf10960",
-        "9f19e289380a170cb9dcae60de6b5bd74f1b29c60a81f9e0767c4c612cc21d45",
-        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
-        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
-        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
-        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
-        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
-        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
-        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
-        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
-        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
-        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
-        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
-        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
-        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
-        "d3f8e8e2ef6e22fed100bec035e600c05ed61562197fb1731038c10b761e37d9"
-      ],
-      "source_sha256": "6040f6e345510a316be7cb2979328f9294415458493d0294c882eb2b517a6a82",
-      "text": "Open a folder as a bounded curation session.\n\nIn order: detect the layout, read the resume record, drop everything\nalready reviewed, order what is left, and only then apply the limit — so\n``--limit 20`` means the first twenty fields of the ordered pending list,\nnot the first twenty found.\n\nProbabilities are read only for the orders that use them, so ``name``\nand ``value`` read no scores file at all; ``uncertain`` reads\n``curate_uncertainty.csv`` instead. For ``prob`` and ``easy`` a missing\nscores file is reported: it falls back to ``value`` with a notice\nnaming both places it looked; a scores file that\nleaves some waiting fields unscored says how many; and where the scores\ncame from is printed. Those warnings, and the one that says progress\nis being written back to the external tool's record beside the folder,\nare kept on the queue as :attr:`CurationQueue.notices` for the editor\nto show.\n\n:param folder: the queue folder.\n:param order: one of :data:`ORDERS`; :data:`DEFAULT_ORDER` by default.\n:param limit: how many fields this session offers, or ``None`` for all.\n:param probs: probabilities to use instead of reading\n    ``curate_scores.csv``.\n:param counts: draft counts to use instead of reading the drafts.\n:param announce: where notices go; defaults to :func:`print`.\n:param include_reviewed: offer reviewed fields too. Off by default;\n    this is what \"resume\" means.\n:param min_objects: passed to :func:`value_key`.\n:param min_diameter: passed to :func:`value_key`.\n:param cache_counts: whether ``easy`` may write its count cache.\n:returns: the :class:`CurationQueue`.\n:raises LayoutError: when the folder is not one unambiguous layout.\n:raises StatusFileError: when the status file cannot be read.\n:raises ValueError: when ``order`` is not one of :data:`ORDERS`, or\n    ``limit`` is negative."
     },
     "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715": {
       "source_blocks_sha256": [

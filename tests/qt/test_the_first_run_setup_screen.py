@@ -129,7 +129,8 @@ class TestTheGrouping:
 
         asked = {q[0] for q in questions()}
         grouped = {k for _, keys in GROUPS for k in keys}
-        assert grouped <= asked | {"module_visibility", "github_login"}
+        assert grouped <= asked | {"module_visibility", "github_login",
+                                   "ai_provider"}
 
     def test_every_question_is_in_a_group(self):
         """A question with no group would be built and never shown."""
@@ -207,13 +208,12 @@ class TestTheProviderQuestion:
         monkeypatch.setattr(setup_screen, "_provider_choices", lambda: [])
         assert "ai_provider" not in {q[0] for q in setup_screen.questions()}
 
-    def test_whatever_is_available_is_the_default(self, monkeypatch):
-        """A machine with two CLIs today may have one tomorrow, and a pinned
-        name that is gone is worse than no preference."""
+    def test_it_is_never_asked_even_with_clis_installed(self, monkeypatch):
+        """Item 700: a new user starts on spaCR AI (free); the provider is
+        chosen in Preferences → AI, never at first run."""
         from spacr.qt import setup_screen
 
         monkeypatch.setattr(setup_screen, "_provider_choices",
                             lambda: [("", "whatever is available"),
                                      ("claude", "claude")])
-        found = {q[0]: q for q in setup_screen.questions()}
-        assert found["ai_provider"][4][0][0] == ""
+        assert "ai_provider" not in {q[0] for q in setup_screen.questions()}

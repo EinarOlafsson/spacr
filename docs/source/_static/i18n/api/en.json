@@ -9702,10 +9702,12 @@
         "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
         "34bf351789296cbbba94e38a10c9dfc9e40681a41010f4619f6eb06d9c5bc4a9",
         "a6724ffb4ecb91a395ea0821b3a86e8d17e557581896ee311264413d8ebbc18a",
+        "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+        "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66"
       ],
-      "source_sha256": "90277a8e7db959e73b3530028830ea10245cb95a962620f4d937fb17710fe215",
-      "text": "Create an attachable diagnostic bundle with ``spacr-crashreport``.\n\nThis module produces one ``.zip`` with the logs, settings, versions and\ndiagnostics a bug report needs, for attaching to a GitHub issue, and it is\nassembled out of the pieces spaCR already keeps rather than collected a second\ntime:\n\n* :mod:`spacr.doctor` runs 17 checks over the installation — the running\n  checkout, duplicate installs, the GPU, the Cellpose version, the project\n  database, the settings — and every non-``PASS`` row already carries the fix.\n* :mod:`spacr.runctx` writes a per-run JSONL log keyed by run id, so \"show me\n  everything from the run that produced this\" has an answer. The bundle carries\n  that run's log verbatim, not a filtered summary of it.\n* :mod:`spacr.errors` stamps each run's status onto the artifact it wrote, so\n  the report can say whether the last run *finished* — which is a different\n  question from whether it crashed just now, and the more useful one when a\n  user reports numbers rather than a traceback.\n\nDesign rules:\n\n**Collectors do not raise.** Every collector runs through :func:`_collect`,\nwhich turns a failure into a manifest entry naming what could not be gathered\nand why. Catching ``Exception`` is acceptable here because the failure is\nrecorded in the output: the manifest is part of the bundle, so a missing\nsection is visible to the report recipient instead of silently absent.\n\n**Bounded size.** ``spacr.log`` rotates but a single run can still write\nhundreds of megabytes. The bundle takes the *tail* of it, capped by\n:data:`MAX_LOG_BYTES`, and the manifest records how much was dropped.\n\n**Nothing secret.** Environment variables are included because ``SPACR_*``,\n``CUDA_*`` and ``PATH`` explain a large fraction of \"works here, not there\" —\nbut a value whose *name* looks like a credential is replaced with\n``\"<redacted>\"`` and listed by name in the manifest, so you can see what was\nwithheld and the report recipient can see that something was. Absolute paths are\nkept: they name the checkout, the plate and the database, and a report with\nthem stripped cannot be acted on.\n\n**Deterministic layout.** File names and ordering remain stable so repeated\nreports are quick to inspect.\n\nUsage\n-----\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise"
+      "source_sha256": "e84b3bdc78d9ce63c1083f867b50b0b166105ea8352b996a80c6fa1b71e69aca",
+      "text": "Create an attachable diagnostic bundle with ``spacr-crashreport``.\n\nThis module produces one ``.zip`` with the logs, settings, versions and\ndiagnostics a bug report needs, for attaching to a GitHub issue, and it is\nassembled out of the pieces spaCR already keeps rather than collected a second\ntime:\n\n* :mod:`spacr.doctor` runs 17 checks over the installation — the running\n  checkout, duplicate installs, the GPU, the Cellpose version, the project\n  database, the settings — and every non-``PASS`` row already carries the fix.\n* :mod:`spacr.runctx` writes a per-run JSONL log keyed by run id, so \"show me\n  everything from the run that produced this\" has an answer. The bundle carries\n  that run's log verbatim, not a filtered summary of it.\n* :mod:`spacr.errors` stamps each run's status onto the artifact it wrote, so\n  the report can say whether the last run *finished* — which is a different\n  question from whether it crashed just now, and the more useful one when a\n  user reports numbers rather than a traceback.\n\nDesign rules:\n\n**Collectors do not raise.** Every collector runs through :func:`_collect`,\nwhich turns a failure into a manifest entry naming what could not be gathered\nand why. Catching ``Exception`` is acceptable here because the failure is\nrecorded in the output: the manifest is part of the bundle, so a missing\nsection is visible to the report recipient instead of silently absent.\n\n**Bounded size.** ``spacr.log`` rotates but a single run can still write\nhundreds of megabytes. The bundle takes the *tail* of it, capped by\n:data:`MAX_LOG_BYTES`, and the manifest records how much was dropped.\n\n**Nothing secret.** Environment variables are included because ``SPACR_*``,\n``CUDA_*`` and ``PATH`` explain a large fraction of \"works here, not there\" —\nbut a value whose *name* looks like a credential is replaced with\n``\"<redacted>\"`` and listed by name in the manifest, so you can see what was\nwithheld and the report recipient can see that something was. Absolute paths are\nkept: they name the checkout, the plate and the database, and a report with\nthem stripped cannot be acted on.\n\n**Deterministic layout.** File names and ordering remain stable so repeated\nreports are quick to inspect.\n\nAnonymous reports\n-----------------\nThe bundle above stays on this computer. What may leave it is a separate,\nmuch smaller thing: :func:`public_summary`, an allowlisted record of the\nversions, the operating-system family, the GPU class, the module, the\nexception type, a scrubbed one-line message and the call stack as file\nbasenames, function names and line numbers. No log, setting, environment\nvariable or path is in it. :func:`submit_public_summary` posts it to spaCR's\nrelay (:data:`REPORT_RELAY_URL`), which files it as a public issue on\nEinarOlafsson/spacr, so a user needs no GitHub account. The switch is\n:func:`anonymous_reports_enabled`, on unless the user turns it off; with it\noff, or with :data:`NO_NETWORK_ENV` set, nothing is sent. A report that\ncannot be sent waits in a small queue (:data:`QUEUE_LIMIT` reports,\n:data:`QUEUE_RETENTION_S` seconds) and is tried again later.\n:func:`diagnose_remotely` sends the same summary to the relay's hosted model\nfor advice.\n\nUsage\n-----\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise"
     },
     "spacr.crashreport.CrashReport": {
       "source_blocks_sha256": [
@@ -9745,6 +9747,18 @@
       ],
       "source_sha256": "a4962dda3f28baba639c4e8c79fde7f36f9772ca5c7a9832bfe12489a29f1b82",
       "text": "One short block naming the run, the versions and what is missing.\n\nThis is also ``summary.txt``, the first file in the bundle, because a\nreport recipient opening a zip should not have to guess which file to read\nfirst.\n\n:returns: the summary text."
+    },
+    "spacr.crashreport.RelayRefused": {
+      "source_blocks_sha256": [
+        "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+        "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+        "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+        "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+        "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+        "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12"
+      ],
+      "source_sha256": "0179cafbf4d8e9a02e4af871c5b3587deb4f86bc357ed260a39336e4ed80af75",
+      "text": "The relay did not answer a hosted diagnosis.\n\n:param reason: ``\"quota\"`` when a free daily limit is used up,\n    ``\"network\"`` when the relay could not be reached or the network is\n    forbidden, and ``\"error\"`` for any other refusal.\n:param detail: what the relay or the network said, for the log.\n:param scope: for a quota refusal, whose limit it was: ``\"install\"``\n    (this install's questions), ``\"global\"`` (spaCR's shared free\n    capacity) or ``\"ip\"``.\n:param resets_at: when the limit resets, as an aware UTC datetime;\n    defaults to the next 00:00 UTC.\n\nThe values are kept on the exception as ``reason``, ``scope`` and\n``resets_at``.\nKeep the reason, scope and reset time, and the detail as the message."
     },
     "spacr.crashreport._doctor_sections.gather_json": {
       "source_blocks_sha256": [
@@ -9795,6 +9809,32 @@
       "source_sha256": "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970",
       "text": "Return explicit or recorded settings as JSON, or ``None`` if absent."
     },
+    "spacr.crashreport.ai_summary_prompt": {
+      "source_blocks_sha256": [
+        "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+        "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b"
+      ],
+      "source_sha256": "b4d1fc41e1fc41ac675bf79a0e9cca0166b945126446ce9f311a4ee2f927a374",
+      "text": "The fixed prompt that asks the user's own AI to summarise a report.\n\nThe AI sees only the anonymised summary, never the traceback, log or\nsettings, and what it writes is scrubbed again before it is sent.\n\n:param summary: a summary from :func:`public_summary`.\n:returns: the prompt."
+    },
+    "spacr.crashreport.anonymous_report_notice_due": {
+      "source_blocks_sha256": [
+        "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+        "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31"
+      ],
+      "source_sha256": "f44f97ee84fdb0f2d0f93b0c4536cfec5d4c86a9fd1c5135eeef12bc6a492663",
+      "text": "Whether the one-time notice about anonymised reports is still to show.\n\n:returns: ``True`` until :func:`mark_anonymous_report_notice_shown`."
+    },
+    "spacr.crashreport.anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
+      ],
+      "source_sha256": "7ef7463a6276e9fb8ee5c88ffe18a3e3ab7f6bd560bbddec970d2a8882c9875b",
+      "text": "Whether any failure is sent as an anonymised report.\n\n:returns: ``False`` for the choices that send nothing."
+    },
     "spacr.crashreport.build_parser": {
       "source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
@@ -9802,6 +9842,17 @@
       ],
       "source_sha256": "0aab8c8468e450df92f7c64ea60d5262caea942ba2a2fe77bb1013886b979f24",
       "text": "Return the ``spacr-crashreport`` argument parser.\n\n:returns: the parser, built separately so a test can exercise the argument\n    surface without running a collection."
+    },
+    "spacr.crashreport.classify_failure": {
+      "source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
+      ],
+      "source_sha256": "2a648f589ae7cbaad695a8b78a423c22c79c9fa59ca14fd1456ae91a800f3d1e",
+      "text": "Return whether a failure is a fault or a user error.\n\nA :class:`spacr.errors.ConfigurationError`, or any of its subclasses, is\na user error: a setting, a validation or a missing input the user can\nfix. Anything else is a fault.\n\n:param exception: the exception, when at hand.\n:param traceback_text: a formatted traceback otherwise.\n:returns: :data:`KIND_USER_ERROR` or :data:`KIND_FAULT`."
     },
     "spacr.crashreport.collect": {
       "source_blocks_sha256": [
@@ -9828,6 +9879,47 @@
       "source_sha256": "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b",
       "text": "Return redacted environment JSON and record every redacted name."
     },
+    "spacr.crashreport.diagnose_remotely": {
+      "source_blocks_sha256": [
+        "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+        "0c08fd76ea2777f1ade8f2cd1ab141a5989aee9f7af0f8a35100dba49a0c5b25",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+        "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+        "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+        "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf"
+      ],
+      "source_sha256": "82fb0e7132840a9f75447a5ab1b7e82f6105790d60c93ba5996028dcdfe478d2",
+      "text": "Ask the relay's hosted model about an error, with no account.\n\nSends the anonymised summary and the scrubbed question, cut to\n:data:`MAX_QUESTION_CHARS`, to ``/diagnose``. The answer is generated\nadvice, not a checked fix. Blocks, so call it off the GUI thread.\n\n:param summary: a summary from :func:`public_summary`.\n:param question: what the user asks; may be empty.\n:param timeout: seconds the model may take.\n:returns: ``{\"advice\": text, \"model\": model name}``.\n:raises RelayRefused: with ``reason`` ``\"quota\"`` when the free daily\n    limit is used up, ``\"network\"`` when the relay cannot be reached or\n    the network is forbidden, and ``\"error\"`` otherwise."
+    },
+    "spacr.crashreport.error_report_mode": {
+      "source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ],
+      "source_sha256": "35bf036e89a7b78d5cde1c46f99a1b652716db8a011fcd1a4dc708cc9dcb2a88",
+      "text": "Return the \"AI Error report\" choice, a key of :data:`ERROR_REPORT_MODES`.\n\nA profile that only ever turned the older on/off switch off reads as\n``\"off\"``.\n\n:returns: the saved key, or :data:`DEFAULT_ERROR_REPORT_MODE`."
+    },
+    "spacr.crashreport.example_public_summary": {
+      "source_blocks_sha256": [
+        "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+        "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+        "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9"
+      ],
+      "source_sha256": "690e9175dc789677a4bf0a4dde0501bdf7d0cce8106e086e8d0786d9e1775ddb",
+      "text": "Build a summary from a made-up error, to show what a report holds.\n\nThe error's message names a plate file under the home folder, an\ne-mail address and a token, so the example shows each one removed.\n\n:returns: a summary built exactly as a real one is."
+    },
+    "spacr.crashreport.fetch_allowance": {
+      "source_blocks_sha256": [
+        "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+        "9bf42f368604e18e22d800d3ba0bf8741eac420ef07f4c210b155b59ce0c4728",
+        "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+        "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181"
+      ],
+      "source_sha256": "25f125c34546472ffdeddf8c2246da48d1276847c9274a3fd40ec34ee4177367",
+      "text": "Ask the relay how much of today's free allowance this install has left.\n\nA GET of ``/allowance?install_id=...``; it uses up nothing. Blocks, so\ncall it off the GUI thread.\n\n:param timeout: seconds the request may take.\n:returns: ``{\"ai\": {\"best_left\", \"light_left\"}, \"reports_left\",\n    \"pool\", \"resets_at\"}`` with ``pool`` one of ``best``, ``light`` or\n    ``exhausted`` and ``resets_at`` an ISO-8601 UTC time; ``None`` when\n    the network is forbidden or the relay gives no answer."
+    },
     "spacr.crashreport.find_last_run_id": {
       "source_blocks_sha256": [
         "687f5e050f35a6d9e2b1f35deef01405f216961f79e90a861a307daf00bb0dc2",
@@ -9838,16 +9930,26 @@
       "source_sha256": "f5f13d97e0290dffe45ff29a573fb0ba7ebb792eb8fc10bcb7709fefbf33f032",
       "text": "Return the id of the most recent run this machine logged.\n\nThe run ids live one JSONL file per run under\n:func:`spacr.runctx.runs_log_dir`, so \"the last run\" is the newest file\nthere. An active run wins over it: inside a ``run_context`` the crash being\nreported is *this* run, not the one before it.\n\n:param problems: optional list that anything which went wrong on the way to\n    the answer is appended to. It distinguishes \"no run was found\" from\n    \"the run directory could not be read\". :func:`collect` passes one and\n    puts it in the manifest.\n:returns: the run id, or ``''`` when none could be identified. Never raises\n    -- a missing log directory is an ordinary answer here."
     },
+    "spacr.crashreport.flush_report_queue": {
+      "source_blocks_sha256": [
+        "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+        "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+        "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+        "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff"
+      ],
+      "source_sha256": "1dc67555e116f49a2b2c3754eb2eb5ae7b36d46e8fd62310a37ed22195d79c7c",
+      "text": "Try to send every waiting report, oldest first.\n\nStops at the first report that has to wait again (no network, a server\nerror or the relay's quota), so an offline computer makes one attempt,\nnot twenty. Does nothing while another send is running.\n\n:param timeout: seconds each post may take.\n:returns: ``{\"sent\": n, \"dropped\": n, \"kept\": n}``."
+    },
     "spacr.crashreport.install_excepthook": {
       "source_blocks_sha256": [
         "49bf5b5e049e03c34d1ea1594317c72c2d0bebf96f00ffb075fa9fd27dbf2740",
-        "dfa27694dae26de542e375ae534fa60bdb943819d439c4741310663271a43ffe",
+        "6e4475333500fb58da97eb3935c895fd4d1e0b5cd44a10e5e9924c12c73d262f",
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
       ],
-      "source_sha256": "eef02f55a5953b26e7226e351612756bfdb90993489be3ff976203f86af1227e",
-      "text": "Write a crash report on any unhandled exception, then behave as before.\n\nChains rather than replaces: the previous ``sys.excepthook`` still runs, so\nthe traceback the user is used to seeing still appears, with one line after\nit saying where the bundle is.\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: passed to :func:`collect`.\n:returns: the hook that was installed, so a caller can restore\n    ``sys.excepthook`` to what it was."
+      "source_sha256": "046d712db264844b07fc976f04efbbf4feb3d60224de2a83f406805254d410e4",
+      "text": "Write a crash report on any unhandled exception, then behave as before.\n\nChains rather than replaces: the previous ``sys.excepthook`` still runs, so\nthe traceback the user is used to seeing still appears, with one line after\nit saying where the bundle is. With anonymised reports on\n(:func:`anonymous_reports_enabled`), the crash's :func:`public_summary` is\nalso queued and sent on a background thread; the bundle is never sent.\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: passed to :func:`collect`.\n:returns: the hook that was installed, so a caller can restore\n    ``sys.excepthook`` to what it was."
     },
     "spacr.crashreport.install_excepthook.hook": {
       "source_blocks_sha256": [
@@ -9855,6 +9957,15 @@
       ],
       "source_sha256": "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f",
       "text": "Report, then delegate to the hook that was installed before."
+    },
+    "spacr.crashreport.install_id": {
+      "source_blocks_sha256": [
+        "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+        "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+        "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1"
+      ],
+      "source_sha256": "766b00f539a50c92ac672676be1fbf4aaaf1afc001bfdbfea8ab6c67c75d057d",
+      "text": "Return this profile's random install id, creating it on first use.\n\nThe id is a random UUID, not derived from the computer, the user or the\nnetwork. The relay uses it only to share its free allowance fairly.\n\n:returns: the id as a string."
     },
     "spacr.crashreport.main": {
       "source_blocks_sha256": [
@@ -9864,6 +9975,92 @@
       ],
       "source_sha256": "e8cdf2058271ce570fbcdda9b1de6e58c6c5ad6cbd0056c69bcd2d93a2674a57",
       "text": "Command-line entry point. ``python -m spacr.crashreport``.\n\n:param argv: arguments, defaulting to ``sys.argv[1:]``.\n:returns: ``0`` when the bundle was written, ``1`` when it could not be —\n    and never anything else; a section that could not be gathered does not\n    change the exit code."
+    },
+    "spacr.crashreport.mark_anonymous_report_notice_shown": {
+      "source_blocks_sha256": [
+        "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad"
+      ],
+      "source_sha256": "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad",
+      "text": "Record that the notice about anonymised reports has been shown."
+    },
+    "spacr.crashreport.mode_code_context": {
+      "source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ],
+      "source_sha256": "f51c17fbd4961b03df65dcf8653b866aeed2192f284480a3c8a063e2895f2485",
+      "text": "Whether a choice adds each spaCR frame's source line to a report.\n\n:param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved\n    one.\n:returns: ``True`` only for ``\"all_code\"``."
+    },
+    "spacr.crashreport.mode_explains": {
+      "source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ],
+      "source_sha256": "8ef9b3a636ec21ab6b1d9f1801960e5d95dcc776f857af9db75e462b49f787c0",
+      "text": "Whether a choice has the AI explain every failure in the console.\n\n:param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved\n    one.\n:returns: ``True`` for the four \"Summarize\" choices."
+    },
+    "spacr.crashreport.mode_sends": {
+      "source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ],
+      "source_sha256": "4bedb3bfe06a1e2a45775df22d01bcb84e042554bae6b3205d3c8ac1c45b8da6",
+      "text": "Whether a choice files a failure of ``kind`` as an issue.\n\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.\n:param mode: a key of :data:`ERROR_REPORT_MODES`; defaults to the saved\n    one.\n:returns: whether it is sent."
+    },
+    "spacr.crashreport.network_allowed": {
+      "source_blocks_sha256": [
+        "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+        "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601"
+      ],
+      "source_sha256": "d95b02bbcc7b788ea8100f10b7b243d3011494ef3a6335f9bd3b02660f4abc97",
+      "text": "Whether a report or a hosted diagnosis may use the network at all.\n\n:returns: ``False`` when :data:`NO_NETWORK_ENV` is set or spaCR runs in\n    safe mode, ``True`` otherwise."
+    },
+    "spacr.crashreport.next_reset_utc": {
+      "source_blocks_sha256": [
+        "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+        "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+        "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91"
+      ],
+      "source_sha256": "5899757a4ffad4f37f24eae8e2120b2c48edccadda8c0c6d81859436c64fa63a",
+      "text": "Return the next 00:00 UTC, when the relay's daily allowances reset.\n\n:param now: the moment to count from; defaults to now.\n:returns: an aware UTC datetime."
+    },
+    "spacr.crashreport.public_summary": {
+      "source_blocks_sha256": [
+        "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+        "c3b7eb8820126de0b319bcc04c1d421425d97cc6122ee4756d56397e44be4326",
+        "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+        "0bc8a12f04c86ce745abf2ae3bfaea4242fbc5ede43b65a5e270d29ce93f4109",
+        "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+        "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+        "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
+      ],
+      "source_sha256": "482667be04613bff5ac95931b2b9ea1b8fa90469003d2ddb71c19cd271e51f55",
+      "text": "Build the anonymised summary of an error that may be published.\n\nOnly the keys in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is\npassed through :func:`scrub_public_text` and cut to\n:data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES`\n``{file, function, line}`` records with the file as a basename, or\n``<user-code>`` for a file outside spaCR, Python and its libraries.\nNo log, setting, environment variable or path is read into it.\n\n:param exception: the exception, with its traceback.\n:param traceback_text: a formatted traceback, used when no exception\n    object is at hand (a failed pipeline run reports one as text).\n:param module: the spaCR module key the error happened in, such as\n    ``mask`` or ``measure``.\n:param user_note: what the user adds, scrubbed and cut to\n    :data:`MAX_NOTE_CHARS`; left out when empty.\n:param dry_run: ask the relay to validate without filing; left out when\n    false.\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out\n    by :func:`classify_failure` when empty.\n:param code_context: add each spaCR frame's source line as ``code``.\n    Frames of any other file never carry code.\n:returns: the summary, ready for :func:`submit_public_summary`."
+    },
+    "spacr.crashreport.queued_summaries": {
+      "source_blocks_sha256": [
+        "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+        "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+        "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135"
+      ],
+      "source_sha256": "b1229b6d3f587a65cf1499208964e2ee29834241e99220ac42f71bdf11fb92f2",
+      "text": "Return the reports waiting to be sent, oldest first.\n\nExpired and surplus reports are deleted first.\n\n:returns: the summaries."
+    },
+    "spacr.crashreport.relay_url": {
+      "source_blocks_sha256": [
+        "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+        "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+        "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1"
+      ],
+      "source_sha256": "e376098bcff2f96d488cfd56564de1885a5db30e7a4ba203e60f0134ca027c71",
+      "text": "Return the relay address reports are posted to, without a trailing slash.\n\n:data:`REPORT_RELAY_ENV` overrides :data:`REPORT_RELAY_URL` when it holds\nan ``https://`` address, or an ``http://`` one on this computer.\n\n:returns: the base address."
     },
     "spacr.crashreport.report_exception": {
       "source_blocks_sha256": [
@@ -9876,6 +10073,65 @@
       ],
       "source_sha256": "56ca1f2b9fb8ac403446bf4fe300131d5c5aa86dd2e441710f9cd659a8ed8643",
       "text": "Write a crash report about ``exception`` and return where it went.\n\nThe call to make from an ``except`` block that is about to re-raise.\n\n:param exception: the exception being reported.\n:param destination: as :func:`write_crash_report`.\n:param kwargs: passed to :func:`collect`.\n:returns: the path written, or ``''`` when even writing the file failed --\n    which is reported on stderr rather than raised, because this is called\n    from a failure path and must never replace the user's exception with\n    one of its own."
+    },
+    "spacr.crashreport.scrub_public_text": {
+      "source_blocks_sha256": [
+        "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+        "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
+      ],
+      "source_sha256": "9a10c9ae6eaccdd4eaea16879bf58ac538c298c0831106b6294882eaed6bf48c",
+      "text": "Remove anything personal from a short text that will be published.\n\nAbsolute paths (POSIX, Windows and network shares) become ``<PATH>``,\nfile names with a data or code extension ``<FILE>``, e-mail addresses\n``<EMAIL>``, web addresses ``<URL>``, IP addresses ``<IP>``, host names\n``<HOST>``, this computer's login name ``<USER>``, and anything shaped\nlike a key, token or long hexadecimal or base64 string ``<TOKEN>``. The\nredaction helpers of :mod:`spacr.qt.ai.issue_report` run first, and these\nstricter rules after them.\n\n:param text: the text; anything else is turned into text first.\n:param limit: the longest result, in characters; a longer one is cut and\n    ends in ``…``.\n:returns: the scrubbed text on one line."
+    },
+    "spacr.crashreport.set_anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+        "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
+      ],
+      "source_sha256": "c1733374423ede60015b9adde6dab9c2b15931d19d44685e7595fddbdd09cf31",
+      "text": "Turn reports on or off, as the first-run notice's switch does.\n\nOn restores the default choice when the current one sends nothing;\noff is ``\"off\"``.\n\n:param enabled: whether reports may be sent."
+    },
+    "spacr.crashreport.set_error_report_mode": {
+      "source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ],
+      "source_sha256": "a9df70e5bc023d295da9b5e05b8c7e2606bd48dc5b79493b313dfe0dd62eee81",
+      "text": "Save the \"AI Error report\" choice.\n\nA choice that sends nothing also deletes every report still waiting, so\nnothing queued before the change is sent after it.\n\n:param mode: a key of :data:`ERROR_REPORT_MODES`.\n:raises ValueError: for any other value."
+    },
+    "spacr.crashreport.submit_public_summary": {
+      "source_blocks_sha256": [
+        "382e7b5f1e8c6056b58bdbfc06309644cc1ff9acd0dbc9c17244bc221310c430",
+        "57ebc2ab058cc17613889817a361e7c87e8851bf74448d32ed8d9be852a753ae",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+        "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7"
+      ],
+      "source_sha256": "0a8f97213024263941413ffc0ff78c595ad2961b96eac11b5c36b4408bb621f3",
+      "text": "Send an anonymised summary to the relay, or queue it for later.\n\nBlocks for up to ``timeout`` seconds, so call it off the GUI thread, or\nuse :func:`submit_public_summary_in_background`. With reports off, or\nthe network forbidden, nothing is sent and nothing is stored.\n\n:param summary: a summary from :func:`public_summary`.\n:param timeout: seconds the post may take.\n:returns: ``{\"status\": ...}`` with :data:`REPORT_SENT` (and\n    ``issue_number``, ``issue_url``, ``deduplicated``),\n    :data:`REPORT_QUEUED` (kept to try again), :data:`REPORT_DROPPED`\n    (rejected, not retried) or :data:`REPORT_DISABLED`."
+    },
+    "spacr.crashreport.submit_public_summary_in_background": {
+      "source_blocks_sha256": [
+        "fb1a33d40b8fdd3d215d1ca9fb04ce19c060f866a688544fe338b5de73f4b130",
+        "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+        "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617"
+      ],
+      "source_sha256": "278609c44d278c1df1707cedf7f7a5e8673d06d7ae8bd3fc4fa99f8480eb9ae8",
+      "text": "Queue a summary now and send it on a daemon thread.\n\nThe summary is on disk before this returns, so a process that ends at\nonce still sends it the next time spaCR starts.\n\n:param summary: a summary from :func:`public_summary`.\n:param on_done: called with the outcome :func:`submit_public_summary`\n    describes, on the sending thread.\n:returns: the thread, or ``None`` when reports are off and nothing was\n    queued."
+    },
+    "spacr.crashreport.submit_public_summary_in_background._run": {
+      "source_blocks_sha256": [
+        "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3"
+      ],
+      "source_sha256": "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3",
+      "text": "Send the queued summary and hand the outcome to ``on_done``."
     },
     "spacr.crashreport.write_crash_report": {
       "source_blocks_sha256": [
@@ -23445,8 +23701,7 @@
     "spacr.install_cleanup": {
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
-        "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-        "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+        "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
         "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
         "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
@@ -23454,8 +23709,8 @@
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "4664935c5708e2759c797cd0a448c5d63ec46f5b1bdd7b323e26cdc2bf0c2610",
-      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe standard replacement procedure runs three steps in order:\n\n1. find old spaCR files -- :func:`find_old_installs`\n2. delete old spaCR files -- :func:`remove_install`\n3. install new spaCR -- :func:`run_update_sequence` runs the install only\n   after step 2 removed every installer-made copy.\n\nIn-app updates use a different procedure for supported macOS installations.\nAn online installation upgrades spaCR in its existing Python environment\nusing its bundled ``uv`` executable. It keeps the environment, bootstrap\nfiles, application launcher, and installed packages that need no update.\nIt verifies the installed spaCR version before restarting the application.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
+      "source_sha256": "9c073fe0e4c8861a2609fcc5b092122cbb386bb97418f6f9be6768d9e67c443d",
+      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe online installers stage and validate the new runtime before retiring old\napplication copies. They preserve the current installation during staging and\nrestore its previous runtime if the replacement fails verification. The update\nhelper verifies the desktop interpreter and imported application before retiring\nother copies or requesting a restart. :func:`run_update_sequence` remains the\nlow-level removal procedure used by explicit cleanup commands.\n\nIn-app updates use a different procedure for supported macOS installations.\nAn online installation upgrades spaCR in its existing Python environment\nusing its bundled ``uv`` executable. It keeps the environment, bootstrap\nfiles, application launcher, and installed packages that need no update.\nIt verifies the installed spaCR version before restarting the application.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
     },
     "spacr.install_cleanup.InstallRecord": {
       "source_blocks_sha256": [
@@ -23562,7 +23817,7 @@
     "spacr.install_cleanup.remove_install": {
       "source_blocks_sha256": [
         "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
-        "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
+        "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
         "f52072a1b49616e15acdb24b4dad1ea554ae869e24ff5497e82292c8cc1d8212",
         "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
         "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
@@ -23570,8 +23825,8 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b"
       ],
-      "source_sha256": "61fb9a18ee523c1f9655e8b356a0ccbbfa40521558f838aff75c2185fb2631c8",
-      "text": "Remove one installation, without running its own uninstaller.\n\nAn installer-made copy is removed completely: its folder, launchers,\nshortcuts, menu entries and uninstall registrations. A Debian package is\nremoved through the package manager, and reported as needing\nadministrator rights when that is what stops it. From an environment the\nuser made, only the spaCR package is uninstalled, and only when\n``ticked``; the environment itself stays. A source checkout is skipped.\n\nThe running copy is not removed here, because on Windows an installation\ncannot delete itself while it runs. :func:`start_update_helper` runs the\nappropriate update procedure after spaCR has closed.\n\n:param record: an installation from :func:`find_old_installs`.\n:param ticked: whether the user ticked this environment for removal.\n:param keep: paths to leave in place, such as the log of the install\n    that is about to start.\n:param system: the computer; ``None`` means this one.\n:returns: what was removed, what could not be, and why."
+      "source_sha256": "588028ad0cbc664aa01c494aa0875a93b82271a9d42d74ca3af27449ab7765fb",
+      "text": "Remove one installation, without running its own uninstaller.\n\nAn installer-made copy's application code, launchers, shortcuts, menu entries\nand uninstall registrations are removed. Known caches, models, test data,\nconfigured user locations and non-application entries in online runtime\nroots are kept. Its root can remain to hold those files. A Debian package is\nremoved through the package manager, and reported as needing\nadministrator rights when that is what stops it. From an environment the\nuser made, only the spaCR package is uninstalled, and only when\n``ticked``; the environment itself stays. A source checkout is skipped.\n\nThe running copy is not removed here, because on Windows an installation\ncannot delete itself while it runs. :func:`start_update_helper` runs the\nappropriate update procedure after spaCR has closed.\n\n:param record: an installation from :func:`find_old_installs`.\n:param ticked: whether the user ticked this environment for removal.\n:param keep: paths to leave in place, such as the log of the install\n    that is about to start.\n:param system: the computer; ``None`` means this one.\n:returns: what was removed, what could not be, and why."
     },
     "spacr.install_cleanup.run_update_sequence": {
       "source_blocks_sha256": [
@@ -23594,7 +23849,7 @@
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
         "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
+        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -23605,8 +23860,8 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "7036c695cf013f2260b456984cc02a023d51243732380a7e0c9b40cafb15c1bd",
-      "text": "Run an installation update in a process that outlives spaCR.\n\nThe running spaCR must be an installer-made copy. The helper waits for\nthis process to exit before changing the installation.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to upgrade spaCR in the same environment.\nPreserve the environment directory, bootstrap files, application launcher,\nand installed packages that need no update. Restart only after verifying\nthat the installed version is at least ``version`` and newer than the\nprevious version, when that previous version is known. A failed upgrade\nor version check does not trigger removal or a replacement installer.\n\nThe standard replacement path downloads the new installer, removes older\ninstaller-made copies, installs the new version, and starts it. If any\nrequired removal fails, skip installation and write the reason to the log.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
+      "source_sha256": "acf28538d5426fdbb8177d87a8669f0039215e6009dba523e47bdcca83085040",
+      "text": "Run an installation update in a process that outlives spaCR.\n\nThe running spaCR must be an installer-made copy. The helper waits for\nthis process to exit before changing the installation.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to upgrade spaCR in the same environment.\nPreserve the environment directory, bootstrap files, application launcher,\nand installed packages that need no update. Restart only after verifying\nthat the installed version is at least ``version`` and newer than the\nprevious version, when that previous version is known. A failed upgrade\nor version check does not trigger removal or a replacement installer.\n\nThe standard replacement path downloads and runs the new staged installer,\nverifies its actual interpreter and imported application, then retires other\ncopies and starts it. Failed installation or verification does not remove\nthe previous working copy. A failed retirement is logged without relaunch.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
     },
     "spacr.install_profile": {
       "source_blocks_sha256": [
@@ -43234,12 +43489,13 @@
         "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
         "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
         "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+        "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
         "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
         "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
         "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a"
       ],
-      "source_sha256": "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa",
-      "text": "Provider abstraction — one class per AI vendor. Each shells out to\nthe vendor's own coding-agent CLI so authentication piggy-backs on\nthe user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team,\nGoogle account) — no separate API billing.\n\n* Anthropic Claude → the `claude` CLI (\"Claude Code\")\n* OpenAI ChatGPT   → the `codex`  CLI\n* Google Gemini    → the `gemini` CLI\n\nEach provider::\n\n    is_installed()   — is the CLI on PATH?\n    is_logged_in()   — best-effort check; falls back to \"assume yes if\n                       installed\" (the actual auth error surfaces on\n                       the first stream chunk).\n    stream_chat()    — spawn the CLI subprocess, yield stdout chunks.\n\nConversation context is carried by concatenating the full message\nhistory into each prompt (simplest approach that works uniformly\nacross all three CLIs). For subscription users token count is not a\nconcern.\n\nHow each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds\none row per way of installing it on each operating system, and both the\n``install_hint`` a screen shows and the command\n:mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI\nis described the same way by :class:`GitHubCli`, which shares the\n:class:`CommandLineTool` interface without being a chat provider."
+      "source_sha256": "301f390b43f57c07fb27466cfe0dcc3a436d5dcba811422e70f8bb9b4fca9c05",
+      "text": "Provider abstraction — one class per AI vendor. Each shells out to\nthe vendor's own coding-agent CLI so authentication piggy-backs on\nthe user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team,\nGoogle account) — no separate API billing.\n\n* Anthropic Claude → the `claude` CLI (\"Claude Code\")\n* OpenAI ChatGPT   → the `codex`  CLI\n* Google Gemini    → the `gemini` CLI\n\nA fourth, :class:`HostedProvider`, needs no CLI and no account: it asks\nspaCR's relay, which answers with a free hosted model, and it is the default\nwhen none of the three is installed and signed in (:func:`default_provider`).\n\nEach provider::\n\n    is_installed()   — is the CLI on PATH?\n    is_logged_in()   — best-effort check; falls back to \"assume yes if\n                       installed\" (the actual auth error surfaces on\n                       the first stream chunk).\n    stream_chat()    — spawn the CLI subprocess, yield stdout chunks.\n\nConversation context is carried by concatenating the full message\nhistory into each prompt (simplest approach that works uniformly\nacross all three CLIs). For subscription users token count is not a\nconcern.\n\nHow each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds\none row per way of installing it on each operating system, and both the\n``install_hint`` a screen shows and the command\n:mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI\nis described the same way by :class:`GitHubCli`, which shares the\n:class:`CommandLineTool` interface without being a chat provider."
     },
     "spacr.qt.ai.providers.ChatProvider": {
       "source_blocks_sha256": [
@@ -43395,6 +43651,73 @@
       "source_sha256": "81076a7c1019c5ab23a390a90293e17303d2ab360bd3cef69226269606b5d660",
       "text": "Return True when ``gh auth token`` has a token to give.\n\nRuns a process, so call it off the GUI thread."
     },
+    "spacr.qt.ai.providers.HostedProvider": {
+      "source_blocks_sha256": [
+        "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+        "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2"
+      ],
+      "source_sha256": "4773f76a6059809b4623707b83f6c3ef3e2d6d12cee16157da92c174392641af",
+      "text": "spaCR's hosted assistant: advice from spaCR's relay, no account needed.\n\nIt sends only what :func:`_hosted_request` keeps, the anonymised error\nsummary and the question, to the relay's ``/diagnose`` route through\n:func:`spacr.crashreport.diagnose_remotely`. The answer is generated\nadvice and is labelled as such. It is the provider used when no vendor\nCLI is installed and signed in (:func:`default_provider`), and it is\nunavailable when the network is forbidden\n(:func:`spacr.crashreport.network_allowed`)."
+    },
+    "spacr.qt.ai.providers.HostedProvider.check_signed_in": {
+      "source_blocks_sha256": [
+        "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+        "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3"
+      ],
+      "source_sha256": "790a0387cd9cdc858eacaa57cd0febd871b497b1b6b70a9f630b195e1bb89489",
+      "text": "There is no sign-in to check.\n\n:returns: ``None``."
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_configured": {
+      "source_blocks_sha256": [
+        "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa"
+      ],
+      "source_sha256": "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa",
+      "text": "Whether the hosted provider may be used: the network is allowed."
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_installed": {
+      "source_blocks_sha256": [
+        "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf"
+      ],
+      "source_sha256": "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf",
+      "text": "Nothing to install: the hosted provider is always present."
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_logged_in": {
+      "source_blocks_sha256": [
+        "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc"
+      ],
+      "source_sha256": "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc",
+      "text": "Nothing to sign in to: the relay needs no account."
+    },
+    "spacr.qt.ai.providers.HostedProvider.source_of_key": {
+      "source_blocks_sha256": [
+        "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc"
+      ],
+      "source_sha256": "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc",
+      "text": "Say where answers come from, in place of a CLI's location."
+    },
+    "spacr.qt.ai.providers.HostedProvider.stream_chat": {
+      "source_blocks_sha256": [
+        "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+        "274d88becafc4c017d49f19efba6109161035e4ca2d817a1e65c090316e51861",
+        "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+        "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+        "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+        "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471"
+      ],
+      "source_sha256": "4d92f670852f5e91aca4209ba43b8195ce1cb671acaadfecdc4d986b26a54a77",
+      "text": "Ask the relay and yield its advice, then a line saying what it is.\n\n:param messages: conversation history as ``{role, content}`` dicts;\n    only the anonymised summary and the newest question leave this\n    computer.\n:param system: ignored; the relay holds spaCR's own prompt.\n:param model: ignored; the relay chooses its free model.\n:returns: iterator yielding the answer.\n:raises HostedProviderRefused: with a message that says the free\n    daily limit is reached, or that the relay could not be reached."
+    },
+    "spacr.qt.ai.providers.HostedProviderRefused": {
+      "source_blocks_sha256": [
+        "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+        "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+        "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+        "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+        "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e"
+      ],
+      "source_sha256": "a4fe8b47d82f627ae57295271338280ea85f102a02f4187bcd609956a7662800",
+      "text": "spaCR's relay gave no advice: its free daily limit, or no connection.\n\nA :class:`ProviderFailed`, so the console writes the message as it\nstands after \"[AI error]\".\n\n:param message: the sentence the user reads.\n:param reason: ``\"quota\"``, ``\"network\"`` or ``\"error\"``, from\n    :class:`spacr.crashreport.RelayRefused`, kept on the exception as\n    ``reason``.\nKeep the reason; the message is the whole text shown."
+    },
     "spacr.qt.ai.providers.InstallMethod": {
       "source_blocks_sha256": [
         "8de5633b37ae1fb2d99dcb5e128da24ce1608c7149eedc0f177393fd1e329cd5",
@@ -43428,21 +43751,62 @@
       "source_sha256": "1610af26b495b2ceee799988ca1b0a708ab44edb6cf1305af3aee286ae9a3f16",
       "text": "A provider CLI exited with a non-zero status, so what it printed is an\nerror message and not an answer.\n\nThe three vendor CLIs report a failure the way any command-line tool does:\na line on stdout or stderr, then a non-zero exit. A signed-out ``claude``\nprints ``Not logged in · Please run /login`` and exits 1. In GitHub #117\nan expired one printed ``Failed to authenticate: OAuth session expired\nand could not be refreshed``. Streamed as if it were a reply, that line\nwas shown as spaCR AI's answer to a crash, and it was filed into GitHub\nissues as \"spaCR AI's analysis of this error\".\n\n:param cli: the executable that failed, for the message.\n:param exit_status: its exit status.\n:param output_tail: the last lines it printed, already stripped.\n:param login_command: the command that signs in to this provider, or\n    ``\"\"`` when the caller did not say which provider this was.\n:ivar exit_status: the exit status, for a caller that needs the number.\n:ivar output_tail: the quoted output, for a caller that needs the text.\nBuild the message a user reads after ``[AI error]``."
     },
+    "spacr.qt.ai.providers.apply_provider_choice": {
+      "source_blocks_sha256": [
+        "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+        "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+        "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7"
+      ],
+      "source_sha256": "669ae71fde5dd5ec4bd217271b16610343479efb31f9370bd49d29c3ba4685c6",
+      "text": "Save a provider choice and use it at once in every open console.\n\nA vendor CLI that is not installed and signed in is saved but not\napplied; the consoles keep spaCR AI (free) until it is set up.\n\n:param name: a name from :data:`PROVIDER_CHOICES`.\n:returns: whether the chosen provider can answer now."
+    },
     "spacr.qt.ai.providers.configured_providers": {
       "source_blocks_sha256": [
-        "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8"
+        "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+        "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11"
       ],
-      "source_sha256": "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8",
-      "text": "Return only providers whose CLI is installed and logged in."
+      "source_sha256": "4ae62e7e53101b84263a26377252d817bcdfd2f4318c1be65edc94565747cb49",
+      "text": "Return the providers that can answer now, spaCR AI (free) first.\n\nThe hosted provider leads whenever the network is allowed, since it is\nthe default; a vendor CLI follows when it is installed and logged in."
+    },
+    "spacr.qt.ai.providers.default_provider": {
+      "source_blocks_sha256": [
+        "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+        "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+        "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5"
+      ],
+      "source_sha256": "d3e33116b8bac3ed15f1f67560e4ea14d5f5e04ec4aa1f1c27a4334b042f7ade",
+      "text": "Return the provider the AI switch uses.\n\n:param preferred: the provider Preferences names, or ``\"\"``.\n:returns: ``preferred`` when it can answer; otherwise spaCR AI (free);\n    otherwise, with the network forbidden, the first vendor CLI that is\n    installed and logged in; ``None`` when nothing can answer."
+    },
+    "spacr.qt.ai.providers.effective_provider_name": {
+      "source_blocks_sha256": [
+        "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+        "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50"
+      ],
+      "source_sha256": "3173d3a2ba19dba050f7152112ff7e4324ad10142a37f21ba6117a710d70a273",
+      "text": "Return the name of the provider Preferences shows as chosen.\n\n:param preferred: the stored preference; ``\"\"`` (never chosen) means\n    spaCR AI (free).\n:returns: a name from :data:`PROVIDER_CHOICES`."
+    },
+    "spacr.qt.ai.providers.explain_failure": {
+      "source_blocks_sha256": [
+        "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+        "bd98b7f9865a2d9fdea51da602e8a141bedd9cce2a20decd137961d2201263e4",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+        "4a7fef46b5430397881ee32f12751f3ee9a9d79bb7a64f99423974ca2412d951"
+      ],
+      "source_sha256": "78242dad7ceab8aaaea9bbaa73956021492cc15092a2da3837b574f50ed6eaaa",
+      "text": "Have the active AI explain a failure once, for the console and the issue.\n\nspaCR AI (free) asks the relay's ``/diagnose`` with the anonymised\nsummary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI\nanswers :func:`spacr.crashreport.ai_summary_prompt` here\n(:func:`write_report_summary`). The same text is shown in the console\nand sent as the report's ``ai_summary``, so a failure costs one AI call.\nBlocks, so call it off the GUI thread.\n\n:param summary: a summary from :func:`spacr.crashreport.public_summary`.\n:param provider: the active provider, or ``None``.\n:param timeout: seconds a vendor CLI may take; defaults to\n    :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.\n:returns: ``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\",\n    \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``."
     },
     "spacr.qt.ai.providers.get_provider": {
       "source_blocks_sha256": [
-        "30906fb91ecf62ea89c8e2b71dc1d2c0ca3fb234bcd103052f2c6f295530433c",
-        "d83dba46805c378a842ba1ac5d9b9beb8c704e8e9ed516b04a5a0c8208598f6d",
+        "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+        "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
         "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f"
       ],
-      "source_sha256": "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f",
-      "text": "Look up a registered provider by its short id.\n\n:param name: provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"``).\n:returns: the matching provider, or ``None`` if no such id."
+      "source_sha256": "baf06038267e2aa4d031dd09f5e561ffe7260ef3fc0ecc09b49a254c3d9b4041",
+      "text": "Look up a provider by its short id.\n\n:param name: provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` or\n    :data:`HOSTED_PROVIDER_NAME`).\n:returns: the matching provider, or ``None`` if no such id."
     },
     "spacr.qt.ai.providers.gh_conda_row": {
       "source_blocks_sha256": [
@@ -43460,6 +43824,49 @@
       ],
       "source_sha256": "8cd53fc9e4aa4072d4b031dd3941c4a1cab8e24c8e886bd3483a6a3ce7432f90",
       "text": "The GitHub CLI, described the way the AI providers are."
+    },
+    "spacr.qt.ai.providers.hosted_allowance_text": {
+      "source_blocks_sha256": [
+        "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+        "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+        "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66"
+      ],
+      "source_sha256": "0bb52493f86c0a386211c367c09456cc1ab0c4696a1c9ffeb0619f1a4594f92a",
+      "text": "One line saying how many free hosted-AI questions are left today.\n\n:param allowance: what :func:`spacr.crashreport.fetch_allowance`\n    returns, or ``None`` when it is not known.\n:returns: the translated line, or ``\"\"`` when nothing is known."
+    },
+    "spacr.qt.ai.providers.hosted_cli_hint": {
+      "source_blocks_sha256": [
+        "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ],
+      "source_sha256": "2068913ea8dbe264b6254f04474da17f8e03ee077dc20b131a9ff6485f02d3e9",
+      "text": "The hint that a user's own CLI gives unlimited answers.\n\n:returns: the translated sentence."
+    },
+    "spacr.qt.ai.providers.hosted_daily_allowance_text": {
+      "source_blocks_sha256": [
+        "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ],
+      "source_sha256": "8587455ead43ac3bf36d55bfaf0abb3fe8cd4ece3414dd3aa9f491c7a7f1b790",
+      "text": "The free allowance of spaCR AI, as Preferences states it.\n\n:returns: the translated sentence."
+    },
+    "spacr.qt.ai.providers.hosted_provider": {
+      "source_blocks_sha256": [
+        "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370"
+      ],
+      "source_sha256": "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370",
+      "text": "Return spaCR's hosted provider."
+    },
+    "spacr.qt.ai.providers.hosted_refusal_message": {
+      "source_blocks_sha256": [
+        "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+        "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+        "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+        "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+        "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914"
+      ],
+      "source_sha256": "bdb6a48e5fea8f4e590354dee121b6185949a0ddd0f411db896d5a4d523327bb",
+      "text": "The sentence shown when the hosted provider gives no advice.\n\n:param reason: ``\"quota\"``, ``\"network\"`` or anything else.\n:param scope: for a quota refusal, ``\"install\"`` (this install's daily\n    questions are used), ``\"global\"`` (spaCR's shared free capacity is)\n    or ``\"ip\"``.\n:param resets_at: when the limit resets; defaults to the next 00:00 UTC.\n:returns: the translated sentence; a quota refusal also carries\n    :func:`hosted_cli_hint`."
     },
     "spacr.qt.ai.providers.install_hint_for": {
       "source_blocks_sha256": [
@@ -43484,10 +43891,20 @@
     },
     "spacr.qt.ai.providers.list_providers": {
       "source_blocks_sha256": [
-        "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e"
+        "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+        "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033"
       ],
-      "source_sha256": "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e",
-      "text": "Return every registered provider, regardless of install state."
+      "source_sha256": "f031b2220c1b65f42927c3a6dae4d5d3bab613d3f1187f5416aba0773c6be3f6",
+      "text": "Return every vendor CLI provider, regardless of install state.\n\nThe hosted provider is not one of them: it has nothing to install or\nsign in to. :func:`hosted_provider` returns it."
+    },
+    "spacr.qt.ai.providers.local_reset_time": {
+      "source_blocks_sha256": [
+        "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+        "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+        "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916"
+      ],
+      "source_sha256": "15a51af7eab2ede803f6dc0d05fecf798270be21b27206045579425e16c10dd3",
+      "text": "The time the free allowances reset, in this computer's local time.\n\n:param resets_at: an aware datetime or an ISO-8601 string; defaults to\n    the next 00:00 UTC.\n:returns: ``HH:MM``, followed by the weekday when it is not today."
     },
     "spacr.qt.ai.providers.platform_family": {
       "source_blocks_sha256": [
@@ -43515,6 +43932,40 @@
       ],
       "source_sha256": "05a7e29bbb30ab96a4bb65901379f9bc50a18add3198b85d1055aec07e081f1c",
       "text": "Terminate active provider subprocesses and release their readers.\n\n:returns: Number of subprocesses for which termination was requested."
+    },
+    "spacr.qt.ai.providers.usage_bar": {
+      "source_blocks_sha256": [
+        "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+        "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+        "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+        "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+        "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8"
+      ],
+      "source_sha256": "aed23315c0b27715e04b662ac7fed5c800bd14cd1db2482fb0149fa88a2e00e4",
+      "text": "What the usage bar under the AI chat box shows for a provider.\n\nFor spaCR AI (free) the bar is the user's share of today's shared free\ncapacity, ``neurons_left / share_neurons``, from the relay's dynamic\nallowance. For a vendor CLI there is no reliable usage source\n(:data:`CLI_USAGE_TEXT`), so the bar is hidden and only a line is shown.\n\n:param provider_name: the selected provider's name, or ``None``.\n:param allowance: what :func:`spacr.crashreport.fetch_allowance`\n    returned, for spaCR AI.\n:returns: ``(percent or None to hide the bar, translated text)``."
+    },
+    "spacr.qt.ai.providers.with_ai_summary": {
+      "source_blocks_sha256": [
+        "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+        "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "02b60c6a60beb4f41286fcff30e5fd3f8cc2a9d33c3aa4f96666fae1136ad480"
+      ],
+      "source_sha256": "1d8884f9b19130dfecc0fad4b2c63f699369dc1d9f13391ead56019e4e83a853",
+      "text": "Return the report with the AI summary its provider allows.\n\nspaCR AI (free) asks the relay to write it (``summarize: true``, charged\nto the user's light-model allowance). A vendor CLI writes it here\n(:func:`write_report_summary`) and it travels as ``ai_summary``. With\nno provider, or when the CLI gives nothing, the report is unchanged.\n\n:param summary: a summary from :func:`spacr.crashreport.public_summary`.\n:param provider: the active provider, or ``None``.\n:returns: a new summary dict."
+    },
+    "spacr.qt.ai.providers.write_report_summary": {
+      "source_blocks_sha256": [
+        "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+        "4316497ce7fa874d6ef3f0d3ac98265e07ce9ad4d8a3d18b26899a4eba8a49d1",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+        "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+        "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c"
+      ],
+      "source_sha256": "0418496b2fe56dad7f850993d90e358492ba5006f99ed28e21ec45f806dc2415",
+      "text": "Have the user's own AI summarise an anonymised report, or return ``\"\"``.\n\nThe provider is given :func:`spacr.crashreport.ai_summary_prompt` and\nnothing else. It runs on a thread of its own and is stopped after\n``timeout`` seconds; a failure, a timeout or an empty answer gives\n``\"\"``, and the report is then filed without a summary. Blocks, so call\nit off the GUI thread.\n\n:param summary: a summary from :func:`spacr.crashreport.public_summary`.\n:param provider: a vendor CLI provider, or ``None``.\n:param timeout: seconds to wait; defaults to\n    :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.\n:returns: the summary text, scrubbed and cut to\n    :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS`."
     },
     "spacr.qt.ai.pty_sign_in": {
       "source_blocks_sha256": [
@@ -44204,10 +44655,11 @@
     },
     "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding": {
       "source_blocks_sha256": [
-        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+        "d970ffa3ccdb7c7349c81fac9b9500978ba5ef68e5aa710e77fa9539b41b9b8a",
+        "7b7dc721c66e1bf7e8682c6734bb33d5b6685feaebf4aadaa1eb8ae5e7470910"
       ],
-      "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
-      "text": "Show the installer consent, then start the tour after it closes."
+      "source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "text": "Show the installer consent and the report notice, then the tour.\n\nThe anonymised-report notice is not modal, so the tour waits\nfor it to close rather than opening over it."
     },
     "spacr.qt.app.MainWindow._retry_screen_backdrop.again": {
       "source_blocks_sha256": [
@@ -51000,10 +51452,33 @@
     },
     "spacr.qt.install_consent": {
       "source_blocks_sha256": [
-        "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb"
+        "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb",
+        "7a6c03ff56f1375004006752704d5671ad44632d7ebe2e63d5c80c97985e3afd"
       ],
-      "source_sha256": "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb",
-      "text": "Apply privacy and account choices collected by desktop installation."
+      "source_sha256": "d501c1d1cf422a940d8a5d88783bd1c3b8befb450c3e84819f5c88de22af7c65",
+      "text": "Apply privacy and account choices collected by desktop installation.\n\nAlso the one-time notice that anonymised error reports are on by default\n(:func:`maybe_show_anonymous_report_notice`) and the example of what such a\nreport holds (:class:`AnonymousReportExampleDialog`)."
+    },
+    "spacr.qt.install_consent.AnonymousReportExampleDialog": {
+      "source_blocks_sha256": [
+        "fe877a0d4379dc6dd9cd9816cf6932a440eee16b201b8ba0e45e8728fcf99e98",
+        "69b50ed281f63477123750f1cc2dd7a8e6a26ab2963a0cfc1bb0eaa5bf1758c7",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "7268ae47157c3ca69b4e79d1473553c99ca5f81729281fe01c97c85c233ea61a",
+        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ],
+      "source_sha256": "3dfd5d10a3b33be8109c1eb26dbd50b9a886c0338e684a7365004d437ac018a7",
+      "text": "Show exactly what an anonymised error report holds, with an example.\n\nThe example is built by :func:`spacr.crashreport.example_public_summary`\nfrom a made-up error whose message names a file under the home folder,\nan e-mail address and a token, so the dialog shows each one removed.\n\n:param parent: parent widget.\nBuild the explanation, the example and a Close button.\n\n:param parent: parent widget, or ``None``."
+    },
+    "spacr.qt.install_consent.AnonymousReportNotice": {
+      "source_blocks_sha256": [
+        "021093902d1d12452eb287b2a1d9ee52ad8206aaa25563fe74b23525fdfce090",
+        "acb914cf6fa8074c55ac1c0cab88b0e8278dbeba2caeaafd58869a6323465a98",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "2c84f5c7022f88beb3cb188e153873f6d0644cd743250664df0d4a91359a16b7",
+        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ],
+      "source_sha256": "5916ff921fc440f4079183de7d95b2fe020cac325be1a0490d433a71276bd957",
+      "text": "The one-time notice that anonymised error reports are on by default.\n\nNot modal: it never stands between the user and the window. Closing it\nsaves the switch as it is then.\n\n:param parent: parent widget.\nBuild the notice, its switch and its two buttons.\n\n:param parent: parent widget, or ``None``."
     },
     "spacr.qt.install_consent.InstallerConsentDialog": {
       "source_blocks_sha256": [
@@ -51030,6 +51505,16 @@
       ],
       "source_sha256": "33dc88d71488e293ea93fde6a0e1a8a9e6ed5ed5aa6227bfe1f725235507bcfe",
       "text": "Persist choices and return whether account setup was requested.\n\n:param choices: the consent answers, read by the keys\n    ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a\n    missing or unrecognised value counts as no."
+    },
+    "spacr.qt.install_consent.maybe_show_anonymous_report_notice": {
+      "source_blocks_sha256": [
+        "85df7e4ef9131655e2d2612486741440a88e64bdc5103d881a0efe3a2c0c33de",
+        "0510bc9cb093340a77ca6d86e3b99963f6d66c9a791a686bf33dc071bdc71c05",
+        "82a17fcbfe612fcba99d9bb25f3ca59287d021913cc9e079f66c193d12060eb8",
+        "863f43b44af439bcd801d7fe8c1611efadbcd11568c842a7c8c48dc95380ec2b"
+      ],
+      "source_sha256": "1bc6a5720f2a87745498f639b2579ec3e8c7a818131d0ceecd0c08642217b0ae",
+      "text": "Show the anonymised-report notice once per profile, without blocking.\n\nNothing is shown while the network is forbidden\n(:func:`spacr.crashreport.network_allowed`), since no report could be\nsent; the notice then waits for a start that allows it. Waiting reports\nare also given another try, on a background thread.\n\n:param parent: the window that parents the notice.\n:returns: the notice, already showing, or ``None`` when it was not due."
     },
     "spacr.qt.install_consent.maybe_show_installer_consent": {
       "source_blocks_sha256": [
@@ -55319,6 +55804,13 @@
       "source_sha256": "c38843999435ffcf9bd5d22f8bf490aa30bae0dbaee370e0c029d7e3e18078d1",
       "text": "Add a folded category to Appearance and return its form.\n\nThe category is the same widget the module screens group their\nsettings with, so it folds and looks the way every other\nsettings category does. Its rows sit in a holder named\n``object_name``, which is what the Help search opens the dialog\non; the navigation unfolds the category on the way to a row."
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._chosen_provider": {
+      "source_blocks_sha256": [
+        "b00a9fd195a06b5b3e8b117804ae6bda106058e7c8c6c649ccdf3b1df561f9af"
+      ],
+      "source_sha256": "b00a9fd195a06b5b3e8b117804ae6bda106058e7c8c6c649ccdf3b1df561f9af",
+      "text": "The provider whose switch is on."
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._contrast_follows_the_theme": {
       "source_blocks_sha256": [
         "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
@@ -55370,12 +55862,19 @@
       "source_sha256": "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee",
       "text": "The motion values the Animation controls show now."
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._on_provider_switched": {
+      "source_blocks_sha256": [
+        "419ff178990a53acfa46e9a2af52bddb534efdc49162eac78738a1324712bf10"
+      ],
+      "source_sha256": "419ff178990a53acfa46e9a2af52bddb534efdc49162eac78738a1324712bf10",
+      "text": "Use the provider just chosen at once, and say what it needs."
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers": {
       "source_blocks_sha256": [
-        "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+        "758f7a64e6b68b77124239ff70480074c117ffd0997733e1eee416e8e34be092"
       ],
-      "source_sha256": "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f",
-      "text": "Open the install/login dialog, then re-list the providers."
+      "source_sha256": "758f7a64e6b68b77124239ff70480074c117ffd0997733e1eee416e8e34be092",
+      "text": "Open the install/login dialog, then apply the choice again."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {
       "source_blocks_sha256": [
@@ -55525,6 +56024,13 @@
       ],
       "source_sha256": "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e",
       "text": "Put a set of motion values on the Animation controls."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._show_what_is_sent": {
+      "source_blocks_sha256": [
+        "57a482979ecce706038133cce741f0d8a31950314ebe41907ba1d353e75e0563"
+      ],
+      "source_sha256": "57a482979ecce706038133cce741f0d8a31950314ebe41907ba1d353e75e0563",
+      "text": "Open the example of an anonymised report."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided": {
       "source_blocks_sha256": [
@@ -60105,6 +60611,13 @@
       ],
       "source_sha256": "5d56c3d1bdf047ad304329d962da73db4759784dada4c824759ce48be8fa4b6a",
       "text": "Whether deferred rows belong to a count-requested organelle."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._send_the_anonymous_report._send": {
+      "source_blocks_sha256": [
+        "de51d1780a8ea02c953ce55540b35d8cbbd6f6df9a18ca2cd667a02ff37a4e34"
+      ],
+      "source_sha256": "de51d1780a8ea02c953ce55540b35d8cbbd6f6df9a18ca2cd667a02ff37a4e34",
+      "text": "Explain, summarise and post the failure. Off the GUI thread."
     },
     "spacr.qt.screens.app_screen.AppScreen._with_the_controls.swap": {
       "source_blocks_sha256": [
@@ -73355,10 +73868,11 @@
     },
     "spacr.qt.setup_screen.questions": {
       "source_blocks_sha256": [
-        "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893"
+        "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893",
+        "da5e7c31441b469b1c6744d69c7c9984531091189acd41d39f316dd32c207005"
       ],
-      "source_sha256": "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893",
-      "text": "Build the question list against the live preference module."
+      "source_sha256": "396d525d428a2eba3296dcc29dd58c2eacc1f76078bbdee0612a92a8ef308cdc",
+      "text": "Build the question list against the live preference module.\n\nNo question picks an AI provider (item 700): a new user starts with the\nAI on and spaCR AI (free), and changes provider in Preferences → AI."
     },
     "spacr.qt.setup_screen.questions.choices_of": {
       "source_blocks_sha256": [
@@ -82093,6 +82607,14 @@
       ],
       "source_sha256": "d5188a38c862b59b8f2ba79fd6189fbdcd77af363e701506c9a4dd538b7ab510",
       "text": "Bring ``bar``'s section to the top of the view and expand it.\n\nThe console is a transcript, so the order of its sections is the one\nproperty a log has: this scrolls, it does not reorder.\n\nRaising a section also stops the view following new output. A user who\nclicked a heading is reading that section, and new output would\notherwise move the viewport away from it. Following resumes when they\nscroll back to the bottom, which is the convention every log viewer\nuses.\n\n:param bar: the topic bar (section heading) whose section is meant."
+    },
+    "spacr.qt.widgets.console_panel.ConsolePanel.refresh_ai_usage": {
+      "source_blocks_sha256": [
+        "13f63a9f65c97e989683a04c438818197791a303dfef952cacd398046f629819",
+        "e7f733bc058f4449ccef55e1758262b4686f785db432b3eef923a3ad32cb3955"
+      ],
+      "source_sha256": "1c972934e82e5844e640dc08a3972eb00a0615263cf77da38470fbbc82b2f01c",
+      "text": "Refresh the usage bar under the chat box for the selected provider.\n\nFor spaCR AI (free) the relay is asked, off the GUI thread, how much\nof today's share is left; the request runs on a plain thread that\ntouches no Qt object, and a single-shot timer tied to this panel\ncollects the answer on the GUI thread, so a panel closed meanwhile\nnever hears back. A vendor CLI has no usage source, so its line is\nshown at once and the bar is hidden\n(:func:`spacr.qt.ai.providers.usage_bar`). No provider hides the row."
     },
     "spacr.qt.widgets.console_panel.ConsolePanel.section_body": {
       "source_blocks_sha256": [

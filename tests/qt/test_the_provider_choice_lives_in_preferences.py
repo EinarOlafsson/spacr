@@ -57,12 +57,17 @@ def test_preferences_offers_the_provider_choice(qtbot, qt_theme_applied):
 
     assert "AI" in titles, f"no AI tab among {titles}"
     page = dialog.findChild(object, "PreferencesTabAI")
-    combos = page.findChildren(QComboBox)
+    # Item 700 (2026-10-14): the choice is a row of switches, not a combo:
+    # spaCR AI (free) first and on for a profile that never chose, then
+    # the three vendor CLIs.
+    from PySide6.QtWidgets import QRadioButton
 
-    assert len(combos) == 1, "the AI page should offer exactly one choice"
-    # Automatic is first, so a user who has never chosen gets the behaviour
-    # the chevron used to give them: the first vendor CLI that is installed.
-    assert combos[0].itemData(0) == ""
+    assert [c.objectName() for c in page.findChildren(QComboBox)] == [
+        "AiErrorReport"], "the only dropdown is the AI Error report choice"
+    radios = page.findChildren(QRadioButton)
+    names = [radio.property("providerName") for radio in radios]
+    assert names == ["spacr_hosted", "claude", "codex", "gemini"]
+    assert radios[0].isChecked()
 
 
 def test_the_screen_honours_the_preference_when_the_switch_goes_on(

@@ -261,3 +261,106 @@ def test_the_uninstallers_offer_purge():
     assert '"/PURGE"' in uninstall and "install_cleanup purge" in uninstall
     mac = (root / "build_macos_online.sh").read_text(encoding="utf-8")
     assert "spacr.install_cleanup purge" in mac
+
+
+def test_failed_cache_location_write_can_be_retried_without_losing_cache(home, tmp_path):
+    source = home / '.spacr' / 'news'
+    source.mkdir(parents=True)
+    payload = b'cached release news\x00\xff'
+    (source / 'releases.json').write_bytes(payload)
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir()
+    parent = tmp_path / 'other-disk'
+    target = parent / 'spacr-news'
+    for _ in range(2):
+        with pytest.raises(OSError):
+            rj._relocate_cache('news', parent)
+        assert (source / 'releases.json').read_bytes() == payload
+        assert not target.exists()
+        assert 'SPACR_NEWS_CACHE' not in os.environ
+    record.rmdir()
+    assert rj._relocate_cache('news', parent) == target
+    assert (target / 'releases.json').read_bytes() == payload
+    assert json.loads(record.read_text()) == {'SPACR_NEWS_CACHE': str(target)}
+
+
+def test_failed_move_keeps_both_caches_when_original_path_was_recreated(home, tmp_path, monkeypatch):
+    source = home / '.spacr' / 'news'
+    source.mkdir(parents=True)
+    (source / 'saved.json').write_bytes(b'original cache')
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir()
+    replace = os.replace
+
+    def replacement(src, dst):
+        if Path(dst) == record:
+            source.mkdir()
+            (source / 'new.json').write_bytes(b'concurrent writer')
+        return replace(src, dst)
+
+    monkeypatch.setattr(os, 'replace', replacement)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', tmp_path / 'other-disk')
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    assert (source / 'new.json').read_bytes() == b'concurrent writer'
+    assert not (source / 'saved.json').exists()
+    assert (target / 'saved.json').read_bytes() == b'original cache'
+    assert 'SPACR_NEWS_CACHE' not in os.environ
+
+
+def test_failed_move_retains_cache_when_native_rollback_is_refused(home, tmp_path, monkeypatch, caplog):
+    import errno
+    source = home / '.spacr' / 'news'
+    source.mkdir(parents=True)
+    (source / 'saved.json').write_bytes(b'preserve at destination')
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir()
+
+    def refused(path, destination):
+        raise OSError(errno.EXDEV, os.strerror(errno.EXDEV), str(path))
+
+    monkeypatch.setattr(Path, 'rename', refused)
+    with pytest.raises(OSError) as failure:
+        rj._relocate_cache('news', tmp_path / 'other-disk')
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    assert Path(failure.value.filename2 or failure.value.filename) == record
+    assert (target / 'saved.json').read_bytes() == b'preserve at destination'
+    assert not source.exists()
+    assert 'SPACR_NEWS_CACHE' not in os.environ
+    assert str(target) in caplog.text
+
+
+def test_failed_empty_cache_move_removes_only_an_empty_created_folder(home, tmp_path):
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir(parents=True)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', tmp_path / 'other-disk')
+    assert not (tmp_path / 'other-disk' / 'spacr-news').exists()
+    assert 'SPACR_NEWS_CACHE' not in os.environ
+
+
+def test_failed_empty_cache_move_preserves_a_preexisting_empty_target(home, tmp_path):
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir(parents=True)
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    target.mkdir(parents=True)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', target.parent)
+    assert target.is_dir() and not list(target.iterdir())
+
+
+def test_failed_empty_cache_move_preserves_files_created_at_target(home, tmp_path, monkeypatch):
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir(parents=True)
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    replace = os.replace
+
+    def replacement(src, dst):
+        if Path(dst) == record:
+            (target / 'new.json').write_bytes(b'concurrent target writer')
+        return replace(src, dst)
+
+    monkeypatch.setattr(os, 'replace', replacement)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', target.parent)
+    assert (target / 'new.json').read_bytes() == b'concurrent target writer'

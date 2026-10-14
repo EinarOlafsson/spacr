@@ -2,7 +2,7 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    specified and source-audited; implementation not started
+Status:    partial implementation; private staged-runtime repair validated
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -43,7 +43,7 @@ REQUIREMENTS
    launchers. Discover stale custom/all-users launchers safely. Do not claim
    RPM app support merely because dnf dependencies exist.
 7. User strings use tr(); Work receives final strings/behavior for tutorial 04.
-   Implementation remains held during the current CI/release source freeze.
+   Publish required repairs with their owning checks; release acceptance stays open.
 
 --------------------------------------------------------------------------------
 ACCEPTANCE
@@ -82,3 +82,133 @@ those old deletion behaviors.
 
 No installation, update, uninstall, deletion, native test or source edit was
 performed. Platform repairs and acceptance remain open after CI/release.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE STAGED-RUNTIME REPLACEMENT COMPONENT
+--------------------------------------------------------------------------------
+
+Implemented on the Home updater/installer lane; not native installer acceptance.
+Windows and Unix online helpers stage dependencies and verify the actual imported
+spaCR code, distribution version, private interpreter and prefix before replacing
+the existing runtime. A published-runtime verification failure restores its prior
+runtime. The helper waits for a verified replacement before retiring other copies
+or restarting. Desktop and restart commands use the same isolated interpreter
+mode as the identity probe, preventing current-directory/PYTHONPATH shadow copies.
+Pinned pip upgrades reject an older target before invoking the package tool; the
+existing macOS unpinned adapter retains its no-downgrade floor and verifies actual
+code identity after installation.
+
+Default retirement preserves declared data/cache/model locations, known data
+folders nested inside installation roots, and unknown user folders. Current-root
+launchers are retained during staging. Offline test data is not overwritten. A
+configured user-data location inside the retiring Python environment causes a
+refusal before replacement, rather than destructive relocation. No real user
+installation or data was modified by the validation.
+
+Finite owning cohort: 292 PASS, actual exit 0, including real private temporary
+runtime/installer-CLI identity probes, wrong imported code/version/owner/prefix,
+no-downgrade, nested data retention and isolated-launch commands. The native-C
+launcher argument fixture ran on Linux; this is not native macOS acceptance.
+Fatal Ruff and Unix shell syntax passed. Normal English API regeneration/audit
+passed for 13,418 symbols. The normal scoped generator regenerated exactly
+three changed API entries in all nine locales and validated each current block
+(actual exit 0). Semantic review caught and corrected an initial German/Spanish
+MT inversion of cache preservation. All 27 rewritten locale paragraphs now have
+exact-source AI technical reviews (Codex; no human/native-speaker signoff).
+Unchanged review blocks were rebound to their actual index and rewritten blocks
+retired in place, retaining original reviews. Unrelated catalog/model-input
+records and existing review debt were unchanged.
+
+Remaining N703 acceptance: transactional in-place pip/macOS dependency failure
+rollback; Terminal-free macOS first-user progress/questions and GUI optional
+cleanup; native old-to-new and same-version reinstall on each shipped platform,
+actual desktop launch identity, frozen adapters, custom/all-users launchers and
+permission/disk/cancellation recovery. Existing native Windows/PowerShell and
+macOS execution cannot be established by Linux fixtures. N703 is still partial.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE MACOS FIRST-USER WINDOW IMPLEMENTATION
+--------------------------------------------------------------------------------
+
+The native launcher now invokes a bundled AppKit setup window instead of Terminal
+when its private runtime is missing or fails actual identity/minimum-version
+verification against the packaged version. A verified newer runtime still opens
+without a pinned reinstall (N627); ordinary installer verification remains exact.
+The packaged standard-library verifier is the same source as the updater helper.
+
+The first-user window contains automatic/CPU backend selection and the existing
+three optional reporting/account choices, default off. It displays bounded live
+installation output and progress, provides cancel/retry controls, and starts the
+application only after helper success. All new window strings use the installer's
+normal ten-locale resources, including English; the nine translations are AI
+technical authoring, not human/native-speaker signoff. No service/provider setup
+or account action ran as part of this validation.
+
+The child helper runs with closed stdin and explicit consent choices. A private
+process group lets cancellation stop its installer children; signal handling runs
+the existing runtime-restoration cleanup and releases the per-user lock. The GUI
+cannot silently install into a runtime override that differs from the native
+launcher's user path. A second active installer is a failure to retry, not false
+success. The universal native GUI helper is signed before sealing its app bundle.
+
+Portable owning acceptance closed 313 distinct cases: 310 initial PASS plus the
+three corrected fixture expectations; the final four-node closure exited 0 with
+four PASS (one already-passed GUI guard also rechecked). No skips. Actual C launch
+routing, process-group cancellation/rollback-trap execution, helper arguments and
+lock cleanup, version-floor CLI, nested signing order and all locale keys were
+exercised. Existing failures were test harnesses expecting old -I-free argv or
+inline helper code, and a repeated printf header. Fatal Ruff and shell syntax
+passed; normal locale rendering/audit verified 10 catalogs with 78 keys each.
+
+Native macOS AppKit compilation, signed installer/desktop launch, fonts/layout,
+missing dependencies, cancel/retry and permission behavior have not run on Linux.
+Those native acceptance gates remain open, as do transactional in-place pip/macOS
+package rollback, optional per-folder GUI cleanup and the other native platform
+acceptance requirements. N703 remains partial; neither private component is a
+whole-item completion or full CI/release acceptance.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE MACOS ONLINE RUNTIME TRANSACTION
+--------------------------------------------------------------------------------
+
+The supported macOS private-uv in-app adapter no longer runs its package command
+against the working runtime. After its existing authorized shutdown handshake,
+it copies the dedicated venv into private sibling staging, updates only that
+staged interpreter, checks package dependencies and the Qt package import, and
+verifies actual code/distribution/version/prefix identity. It refuses staged
+versions below either the offer or the previously recorded version.
+
+A supported atomic directory-exchange operation activates the verified runtime
+without an interval in which the desktop prefix is missing. Final identity/import
+checks and restart refusal restore the original runtime through the same atomic
+exchange. Successful updates retain the original runtime with a transaction
+journal as a rollback copy; data, caches and bootstrap files are not retired.
+A restoration failure keeps both the original bytes and journal/lock for explicit
+recovery, instead of deleting them or claiming success. The staged install rewrites
+its POSIX entrypoint headers to the final prefix, including pip's long-path shell
+trampolines. The approved private interpreter and existing uv bootstrap remain
+required; there is no in-place fallback.
+
+The owning evidence closes 205 distinct cases: 192 initial PASS, followed by a
+14-case PASS/actual exit 0 closure covering two corrected historical phase-list
+fixtures, eleven added branch cases and one already-passed success case extended
+with internal-link preservation. All 149 added helper statements were executed;
+the remaining two uncovered arcs are the benign-pth continuation and a redundant
+transaction-present condition after a successful exchange. Original raw coverage
+was retained; the local closure appended only to a copy with identical production
+source. No hosted CI/baseline/ceiling claim is made.
+
+Real offline fake wheels and private temporary venvs exercised Linux kernel
+atomic exchange, successful final console launch, byte-identical rollback after
+installation/dependency/import/final-identity/restart failure, unsupported shared
+or editable layouts, and preservation after deliberately refused restoration.
+Darwin binding/flags were unit-checked only; actual Darwin filesystem exchange,
+large dependency cloning, signed desktop restart and interruption/cancellation
+still require native macOS acceptance. No real user environment was copied,
+installed into, replaced or deleted; no network/model/GPU operation ran.
+
+Shared/system/Conda pip environments and Windows in-app activation remain open:
+they need an explicit deferred handoff/ownership contract, script relocation and
+native DLL/other-process validation. Their existing in-place API must not be
+advertised as transactional. Optional per-folder cleanup and remaining native
+installer acceptance are also still required. N703 remains partial.
