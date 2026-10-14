@@ -448,7 +448,7 @@ jobs:
           fi
           python tools/collect_qt_native_backtrace.py --record-core-route \
             --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
-          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal"
+          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal --deselect=tests/qt/test_torch_libraries_map_without_the_interpreter_lock_20261013.py::test_importing_torch_after_the_map_blocks_other_threads_far_less"
           python tools/run_coverage_batches.py tests \
             --marker "not gui" \
             --shard-index "$SPACR_COVERAGE_SHARD" \

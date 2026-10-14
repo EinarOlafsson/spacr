@@ -174,6 +174,25 @@ def test_a_wheel_cuda_library_is_found_past_an_empty_nvidia_folder(
         "nvjitlink", "libnvJitLink.so.*[0-9]") is None
 
 
+@pytest.mark.skipif(not sys.platform.startswith("linux"),
+                    reason="the early mapping uses Linux dlopen")
+def test_the_native_loader_releases_the_lock_and_uses_pointer_sized_handles():
+    import ctypes
+
+    from spacr.qt import gil_priority
+
+    opener = gil_priority._dlopen_without_the_lock()
+    assert opener.restype is ctypes.c_void_p
+    assert opener.argtypes == (ctypes.c_char_p, ctypes.c_int)
+    assert not opener._flags_ & ctypes._FUNCFLAG_PYTHONAPI
+    handle = opener(None, os.RTLD_NOW)
+    assert handle
+    closer = ctypes.CDLL(None).dlclose
+    closer.restype = ctypes.c_int
+    closer.argtypes = (ctypes.c_void_p,)
+    assert closer(handle) == 0
+
+
 @pytest.fixture
 def torch_build(tmp_path, monkeypatch):
     """A fake torch install whose ``lib`` folder each test fills."""

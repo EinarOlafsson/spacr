@@ -221,6 +221,9 @@ jobs:
             telemetry_pid=$!
             trap 'kill "$telemetry_pid" 2>/dev/null || true' EXIT
           fi
+          original_pytest_addopts="${PYTEST_ADDOPTS:-}"
+          torch_timing_node=tests/qt/test_torch_libraries_map_without_the_interpreter_lock_20261013.py::test_importing_torch_after_the_map_blocks_other_threads_far_less
+          export PYTEST_ADDOPTS="$original_pytest_addopts --deselect=$torch_timing_node"
           xdist_args=()
           if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
             xdist_args=(-n "${{ inputs.xdist_workers }}" --dist loadfile)
@@ -282,6 +285,7 @@ jobs:
             # Keep the measurement suites serial after the parallel functional
             # workers have exited. Reset file sharding so every measurement
             # file runs exactly once on the designated shard.
+            PYTEST_ADDOPTS="$original_pytest_addopts" \
             SPACR_PYTEST_FILE_SHARD_INDEX=0 \
             SPACR_PYTEST_FILE_SHARD_COUNT=1 python -m pytest \
               -o faulthandler_timeout=900 \
@@ -294,6 +298,7 @@ jobs:
               tests/qt/test_pca.py \
               tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
               tests/qt/test_the_backdrop_survives_a_run.py \
+              "$torch_timing_node" \
               -m '${{ inputs.marker_expression }}' -v --tb=short
           fi
 

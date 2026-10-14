@@ -2763,6 +2763,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                                     and not self._export_source_loading)
         self._render_generation += 1
         self._render_plan.clear()
+        if self._threaded:
+            columns = max(
+                1, self._grid_scroll.viewport().width() // (self._thumb_px + 12))
+            steps = self._render_grid_steps(
+                self._crops, columns, self._crop_token,
+                self._object_box.currentText(), self._group_cells.isChecked(),
+                len(self._checked_sources) > 1)
+            self._render_plan.append((self._place_grid_step, (steps,)))
+            self._continue_render(self._render_generation)
+            return
         self._clear_grid()
         if not self._crops:
             return
@@ -2794,6 +2804,57 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             row += (len(entries) + columns - 1) // columns
         self._continue_render(self._render_generation)
 
+    def _render_grid_steps(self, crops, columns, token, object_type,
+                           group_cells, separate_sources):
+        """Retire, prepare and place one owned render without a bulk GUI phase."""
+        retired = 0
+        while self._grid.count():
+            yield self._retire_grid_item, ()
+            retired += 1
+            if retired % 32 == 0:
+                yield self._grid_checkpoint, (True,)
+        if retired % 32:
+            yield self._grid_checkpoint, (True,)
+        grouped = defaultdict(list)
+        for index, entry in enumerate(crops):
+            category = (entry.get("category", "Unclassified")
+                        if object_type == "cell" and group_cells
+                        else object_type.capitalize())
+            if separate_sources:
+                category += " · " + Path(entry.get("source_path", "")).name
+            grouped[category].append((index, entry))
+            yield self._grid_checkpoint, (False,)
+        row = 0
+        for category in sorted(grouped):
+            entries = grouped[category]
+            yield self._place_header, (category, entries, row, columns)
+            row += 1
+            for offset, (index, entry) in enumerate(entries):
+                yield self._place_thumb, (
+                    index, entry, row + offset // columns, offset % columns, token)
+            row += (len(entries) + columns - 1) // columns
+
+    def _retire_grid_item(self) -> None:
+        """Detach one old item; native widget destruction runs after this slice."""
+        item = self._grid.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.hide()
+            widget.deleteLater()
+
+    def _grid_checkpoint(self, yield_now: bool) -> bool:
+        """Account for preparation and bound deferred deletions per GUI turn."""
+        return yield_now
+
+    def _place_grid_step(self, steps) -> bool:
+        """Advance the current render; cancelling its plan releases its iterator."""
+        try:
+            place, args = next(steps)
+        except StopIteration:
+            return False
+        self._render_plan.appendleft((self._place_grid_step, (steps,)))
+        return bool(place(*args))
+
     def _continue_render(self, generation: int) -> None:
         """Place the next slice of the grid, then yield to the event loop.
 
@@ -2806,10 +2867,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         plan = self._render_plan
         while plan:
             place, args = plan.popleft()
-            place(*args)
+            yield_now = place(*args)
             if (plan and self._threaded
-                    and time.perf_counter() - start >= _RENDER_SLICE_S):
-                _after(0, self,
+                    and (yield_now or time.perf_counter() - start >= _RENDER_SLICE_S / 2)):
+                _after(1, self,
                        lambda: self._continue_render(generation))
                 return
 
