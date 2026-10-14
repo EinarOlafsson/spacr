@@ -155,3 +155,11 @@ visible in screenshot. These are owner dashboard confirmations, not Home
 account authentication or model eligibility/end-to-end certification. No
 private key, inference or issue submission occurred; actual relay/client
 implementation and eligible model verification remain pending.
+
+2026-10-14 — OWNERSHIP CHANGE (maintainer request): the Claude Home session
+(spacr-44) now owns ALL implementation of item 700: the Cloudflare relay
+(services/spacr-first-responder/) and the spaCR client (crash reporting,
+setting on by default, hosted AI diagnosis). Codex: do not write code,
+proposals, notices or evidence for 700; leave this item to Claude. Owner
+identifiers in data/700_cloud_routes_setup_2026-10-13/owner-resource-
+identifiers.json are the inputs.

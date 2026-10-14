@@ -1,5 +1,7 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-14: item 700 (Cloudflare relay + GitHub issue reporting + hosted AI) is owned by the Claude Home session (spacr-44) at the maintainer's request. Codex: do not work on 700.
+
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
