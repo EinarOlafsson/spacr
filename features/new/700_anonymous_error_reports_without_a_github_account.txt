@@ -176,3 +176,106 @@ identifiers.json are the inputs.
   AI summary written by the user's own AI if connected (their tokens), else by
   spaCR AI's light model charged to their allowance, else without a summary.
 - Allowances are shown in the AI panel and in the first-run notice.
+
+2026-10-14 — BUILT (client side, Claude Home, branch client-700). spaCR now
+builds, queues and sends the anonymised report and asks the hosted model;
+the relay (services/spacr-first-responder/) is a separate worktree and is
+not part of this note. Contract matched exactly: base URL
+https://spacr-first-responder.einar-olafsson.workers.dev (constant
+spacr.crashreport.REPORT_RELAY_URL; SPACR_REPORT_RELAY overrides it with an
+https or local http address); POST /report and POST /diagnose with the
+snake_case fields schema_version, install_id, spacr_version, os, python, qt,
+torch, gpu, module, exception_type, message, frames[{file, function, line}],
+optional user_note, dry_run, and question (diagnose only).
+- spacr/crashreport.py: public_summary (allowlist only, message <=300 chars
+  through scrub_public_text, <=40 innermost frames as basenames, files outside
+  spaCR/Python/site-packages shown as <user-code>, body <=16 KB), install_id
+  (random UUID in <spaCR home>/anonymous_reports/state.json), urllib sender
+  with an 8 s timeout, queue (20 reports, 7 days; dropped on success or 4xx,
+  kept on 429, 5xx or network error; flushed after a success and at start),
+  diagnose_remotely (RelayRefused reason quota/network/error),
+  SPACR_NO_NETWORK and safe mode send nothing, install_excepthook also
+  queues the summary. The local ZIP bundle is never sent.
+- Preferences: "Send anonymised error reports" (on by default) with
+  "What is sent…" showing example_public_summary of a planted fake error.
+- First start: one non-modal notice (install_consent.AnonymousReportNotice),
+  shown once, with the switch; the tour waits for it to close.
+- A failed run sends the summary on the background runner (settings path
+  errors excluded) and prints "Reported anonymously as issue #N" or "will
+  retry later"; File as issue and its preview are unchanged.
+- Hosted AI: providers.HostedProvider "spaCR hosted (no account needed)",
+  default when no vendor CLI is configured (default_provider), labelled as
+  generated advice, quota refusal as a plain sentence; manuscripts never use
+  it.
+- Tests: tests/test_700_anonymous_error_reports.py and
+  tests/qt/test_700_anonymous_reports_qt.py (planted personal data, exact
+  schema and caps, default on, notice once, off = zero sockets, queue rules,
+  non-blocking send, provider default, 429 text). tests/conftest.py sets
+  SPACR_NO_NETWORK and replaces the transport for every test.
+Still open: the relay itself, its deployment and an end-to-end forced
+exception against the live relay; translations of the new strings (WS lane).
+
+2026-10-14 — BUILT, daily allowances (client side, maintainer's new rules):
+5 reports per install per UTC day; hosted AI 5 best-model then 10
+light-model questions per day, light for everyone when the shared pool is
+low. Client reads GET /allowance?install_id= (fetch_allowance, consumes
+nothing), /report 200 allowance, /diagnose 200 tier + allowance, and 429
+{refused: "quota", scope}. The AI console shows "4 of 5 best-model questions
+left today · then 10 on the light model · resets at <local time>" while the
+hosted provider is selected (fetched on selection, refreshed after each
+answer), tags light answers "[light model]", and gives the install/global
+quota sentences plus the own-CLI hint. A report refused for quota stays
+queued, nothing is posted until 00:00 UTC, and the console says "Will report
+after the daily limit resets". The first-run notice states both allowances.
+
+2026-10-14 — BUILT, AI defaults and report summaries (client side):
+- The AI is on at launch with "spaCR AI (free)". The first-run setup no
+  longer asks for an AI provider (setup_screen.questions has no ai_provider
+  row, so neither the dialog nor the slides draw that step).
+- Preferences → AI: four switches, "spaCR AI (free, daily allowance)",
+  "Claude", "GPT (Codex)", "Gemini", one line each on what it needs; a
+  switch applies at once to every open console (apply_provider_choice); a
+  CLI that is not set up is saved and spaCR AI keeps answering; the
+  allowance line shows only for spaCR AI.
+- Reports carry an AI summary: a private CLI writes it locally from the
+  sanitized summary with a fixed prompt (cause and where in spaCR, <=1200
+  chars, no personal data), 30 s limit, scrubbed, sent as ai_summary
+  (<=2000); spaCR AI sends summarize: true for the relay's light model; a
+  failure, timeout or used allowance files the report without one. Console:
+  "Reported as issue #N (with AI summary)" or "(without AI summary: daily AI
+  allowance used)". Response field ai_summary_source is read.
+- The first-run notice says reports include an AI-written summary, made with
+  the user's own AI when one is connected.
+
+2026-10-14 — BUILT, every failure handled (client side). The maintainer's
+Mask run refused for a missing channel produced no AI message and no report:
+outside strict mode spacr.errors.raise_if_strict only logs the refusal and
+the pipeline returns, so the run read as finished. AppScreen now watches the
+spacr.errors logger for the length of a run; a refusal turns the end of the
+run into "✗ The run did not start: <message>" and a user_error failure.
+- Preferences → AI → "AI Error report" replaces the on/off switch: Summarize
+  and send all errors (default) / … with code context / Summarize all
+  errors, send only faults / Summarize all errors, send nothing / Send all
+  errors, no AI summary / Send only faults, no AI summary / Off. Faults are
+  unexpected exceptions; ConfigurationError and its subclasses and
+  settings-path errors are user errors. Code context adds frames[].code
+  (<=160 chars, scrubbed) for spaCR frames only. The first-run notice points
+  to the setting; its switch maps to "all"/"off".
+- Summarize choices: one AI call per failure (spaCR AI via /diagnose with a
+  fixed question, or the user's CLI), shown as "spaCR AI: …" and reused as
+  the issue's ai_summary. No allowance gives a one-line note and the report
+  is still filed per the choice. The gh-based automatic filing steps aside
+  when the relay files the report.
+- Usage bar under the chat box: spaCR AI shows neurons_left/share_neurons
+  with "{pct}% of your share left · {n} users sharing today · resets
+  {time}" (+ "· light model"), or "Daily share used. Errors are still
+  reported without an AI summary."; refreshed off the GUI thread on provider
+  switch and after answers. Vendor CLIs: no reliable free non-interactive
+  usage source was found (Claude Code shows plan limits only inside an
+  interactive session, /usage and the status-line JSON; `claude -p --output-
+  format json` reports the call's own cost; Codex shows limits only in its
+  interactive /status; Gemini's /stats is interactive and per session), so
+  the bar is hidden and the line names the account and who sets its limits.
+- /report gains kind ("fault" | "user_error") and frames[].code; the
+  allowance gains ai.neurons_left, share_neurons, share_pct, active_users,
+  tier_now and pool_pct_left.

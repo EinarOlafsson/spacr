@@ -36,21 +36,6 @@
       "source_sha256": "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3",
       "text": "Follow a live theme switch when nobody else is going to.\n\nA host that passed its own ``background`` owns that colour and is\nexpected to re-set it (that is what ``app_screen`` does, because it\nalso has to re-resolve the wallpaper). A host that did not gets this\nfor free instead of a stale dark rectangle on a white page.\n\n:param event: the change event; it goes to the base class first, and\n    only an ``ApplicationPaletteChange`` is acted on."
     },
-    "4664935c5708e2759c797cd0a448c5d63ec46f5b1bdd7b323e26cdc2bf0c2610": {
-      "source_blocks_sha256": [
-        "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
-        "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-        "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
-        "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-        "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
-        "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
-        "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
-        "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
-      ],
-      "source_sha256": "4664935c5708e2759c797cd0a448c5d63ec46f5b1bdd7b323e26cdc2bf0c2610",
-      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe standard replacement procedure runs three steps in order:\n\n1. find old spaCR files -- :func:`find_old_installs`\n2. delete old spaCR files -- :func:`remove_install`\n3. install new spaCR -- :func:`run_update_sequence` runs the install only\n   after step 2 removed every installer-made copy.\n\nIn-app updates use a different procedure for supported macOS installations.\nAn online installation upgrades spaCR in its existing Python environment\nusing its bundled ``uv`` executable. It keeps the environment, bootstrap\nfiles, application launcher, and installed packages that need no update.\nIt verifies the installed spaCR version before restarting the application.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
-    },
     "4c9005419e7ae8085a496769d929fc5111fa1537e91cb1c1cff442bfa09e4ee4": {
       "source_blocks_sha256": [
         "f5bdc2e28db64f11115d2c47c0245d4a96e92885264e91da9df2c57a2164e354",
@@ -86,20 +71,6 @@
       "source_sha256": "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8",
       "text": "Watch the widgets this filter is installed on.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
     },
-    "61fb9a18ee523c1f9655e8b356a0ccbbfa40521558f838aff75c2185fb2631c8": {
-      "source_blocks_sha256": [
-        "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
-        "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
-        "f52072a1b49616e15acdb24b4dad1ea554ae869e24ff5497e82292c8cc1d8212",
-        "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
-        "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
-        "168f9714cc4b89c880d2335fb7457443bd0d8527f9b18d71931970c6491f81c1",
-        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
-        "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b"
-      ],
-      "source_sha256": "61fb9a18ee523c1f9655e8b356a0ccbbfa40521558f838aff75c2185fb2631c8",
-      "text": "Remove one installation, without running its own uninstaller.\n\nAn installer-made copy is removed completely: its folder, launchers,\nshortcuts, menu entries and uninstall registrations. A Debian package is\nremoved through the package manager, and reported as needing\nadministrator rights when that is what stops it. From an environment the\nuser made, only the spaCR package is uninstalled, and only when\n``ticked``; the environment itself stays. A source checkout is skipped.\n\nThe running copy is not removed here, because on Windows an installation\ncannot delete itself while it runs. :func:`start_update_helper` runs the\nappropriate update procedure after spaCR has closed.\n\n:param record: an installation from :func:`find_old_installs`.\n:param ticked: whether the user ticked this environment for removal.\n:param keep: paths to leave in place, such as the log of the install\n    that is about to start.\n:param system: the computer; ``None`` means this one.\n:returns: what was removed, what could not be, and why."
-    },
     "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715": {
       "source_blocks_sha256": [
         "52522f631b6fe8619e1e06d811cb063b55678b47109553519a3defa06e393509",
@@ -107,25 +78,6 @@
       ],
       "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
       "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
-    },
-    "7036c695cf013f2260b456984cc02a023d51243732380a7e0c9b40cafb15c1bd": {
-      "source_blocks_sha256": [
-        "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
-        "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
-        "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
-        "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
-        "cc3b6cb25b19441b1007a8196c241f842cf130721109778b50093f3dd9fe8b72",
-        "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
-        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
-        "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
-        "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
-      ],
-      "source_sha256": "7036c695cf013f2260b456984cc02a023d51243732380a7e0c9b40cafb15c1bd",
-      "text": "Run an installation update in a process that outlives spaCR.\n\nThe running spaCR must be an installer-made copy. The helper waits for\nthis process to exit before changing the installation.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to upgrade spaCR in the same environment.\nPreserve the environment directory, bootstrap files, application launcher,\nand installed packages that need no update. Restart only after verifying\nthat the installed version is at least ``version`` and newer than the\nprevious version, when that previous version is known. A failed upgrade\nor version check does not trigger removal or a replacement installer.\n\nThe standard replacement path downloads the new installer, removes older\ninstaller-made copies, installs the new version, and starts it. If any\nrequired removal fails, skip installation and write the reason to the log.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
     },
     "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483": {
       "source_blocks_sha256": [

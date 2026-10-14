@@ -33,7 +33,8 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from ...methods_export import (Verification, check_draft, render_methods,
                                render_prompt, render_results)
-from .providers import ChatProvider, configured_providers, list_providers
+from .providers import (HOSTED_PROVIDER_NAME, ChatProvider,
+                        configured_providers, list_providers)
 
 __all__ = [
     "Availability",
@@ -78,7 +79,8 @@ def availability() -> Availability:
     is a ``PATH`` lookup and :meth:`is_logged_in` is best-effort.
     """
     try:
-        ready = configured_providers()
+        ready = [provider for provider in configured_providers()
+                 if provider.name != HOSTED_PROVIDER_NAME]
     except Exception as exc:                          # noqa: BLE001
         LOG.info("provider discovery failed", exc_info=True)
         return Availability(

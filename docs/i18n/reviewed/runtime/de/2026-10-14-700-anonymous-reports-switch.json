@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_scope": "Claude AI technical review (Opus 5.5); manually authored from the English for item 700's anonymised-report switch; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Send anonymised error reports",
+      "source": "Send anonymised error reports",
+      "source_sha256": "37bcee0452799ed424c37e39b1ed19d0f183397b107cfab858b2a721ca544b77",
+      "translation": "Anonymisierte Fehlerberichte senden"
+    }
+  ]
+}
