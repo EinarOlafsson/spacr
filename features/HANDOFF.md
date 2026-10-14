@@ -12072,3 +12072,29 @@ Feature headers now distinguish implemented parts from open native/publication
 acceptance, and the normal feature-index generator/check agrees. Original Home
 can integrate the ready coordinator branch and separate site-src tip; local
 STATUS.md and the mirrored HOME_B_REPLY.txt contain the current delivery heads.
+
+## 2026-10-14 — Home-B continuation: motion and mandatory renderer checks
+
+Additional separate site-src commit e33c81e244cfbad30e95a7657c1ad6c3f547ac22
+repairs reduced-motion background/model-control transitions;23 functional and
+transfer checks pass. All5 public cold mobile first views are below1MB;
+spaCR394,015bytes. Full123-file build/leak checks pass. Original Home owns
+publication after d9624b5 and cc81d2f. Current Lighthouse thresholds and laptop
+frame rate remain open: one Google hosted mobile request returned429 with
+anonymous daily quota0; no score, retry, key or paid service activation.
+
+N704 follow-ups20d9f6ff40 + abb0236935 (integrated3b26cca116 +1f7a4e21e3)
+make actual PyPI sanitizer checks mandatory and bind all65 image destinations.
+Four owning tests pass with both renderer44/Docutils0.21.2 and renderer43/
+Docutils0.20.1; dev dependency preserves the existing minimum version pin.
+No runtime dependency or generated-artifact change. Exact approved-output
+main promotion candidate is ready at /mnt/wd4tb/scratch/home-b-n704-20261014/
+promotion/readme-docs-only.patch, with manifest.json and files.txt:678files,
+all1707 referenced image assets identical to main, alternate-index applyPASS.
+Actual hosted destinations and publication still belong to original Home.
+
+N689 latest main run38400845651 built both docs branches successfully and
+failed combined-site assembly at1,025,244,603bytes. The prepared three-file
+main-only migration directly addresses this actual size failure. Main-only
+assembly under900MB and hosted redirects still require publication. No full
+CI dispatch or push by Home-B. User is away; no questions requested.
