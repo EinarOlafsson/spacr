@@ -43,7 +43,7 @@ class Images(HTMLParser):
 
 
 def test_packaged_readme_renders_all_original_images(metadata):
-    renderer = pytest.importorskip("readme_renderer.rst")
+    from readme_renderer import rst as renderer
     render = renderer.render
     from docutils.core import publish_parts
 
@@ -88,7 +88,7 @@ def test_packaged_readme_renders_all_original_images(metadata):
 def test_pypi_keeps_each_readable_panel_destination(metadata):
     from tests.readme_source_words import readme_tool
 
-    renderer = pytest.importorskip("readme_renderer.rst")
+    from readme_renderer import rst as renderer
     packaged, _ = metadata
     warnings = io.StringIO()
     html = renderer.render(packaged["long_description"], stream=warnings)

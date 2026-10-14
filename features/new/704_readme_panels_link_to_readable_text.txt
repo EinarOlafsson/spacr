@@ -112,3 +112,12 @@ Receipt: data/704_pypi_sanitizer_acceptance_2026-10-14/receipt.json.
 This is renderer verification and promotion preparation, not a PyPI upload,
 actual public route acceptance or whole-item completion. Original Home owns
 the remaining publication and hosted checks.
+
+Follow-up: PyPI renderer checks now import the declared dev dependency directly,
+so a clean CI environment cannot skip sanitizer acceptance. The dev-only bound
+readme-renderer>=43,<45 preserves the unchanged minimum-py39 Docutils 0.20.1
+constraint: renderer 43 supports that floor; renderer 44 needs Docutils>=0.21.2.
+The four checks pass with both installed renderer 44/Docutils 0.21.2 and the
+isolated renderer 43/Docutils 0.20.1 pair. These were Python 3.12 executions,
+not a claim of a new native Python 3.9 run. No runtime dependencies or minimum
+constraint files changed. Final receipts retain both actual-renderer cohorts.
