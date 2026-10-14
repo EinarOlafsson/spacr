@@ -1,0 +1,228 @@
+{
+  "scene": "22_native_filter_reduces_objects",
+  "file_bindings": {
+    "native_video": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.native.mp4",
+      "sha256": "1ddff074571d03c21753cba0a6b600463eeea9872ebd5e62ebf838e8ff391494",
+      "bytes": 12480430
+    },
+    "handoff_video": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.mp4",
+      "sha256": "13db4663e5cfe029d77871e0692f7ad08ed273dd4491b7f79b2dc58f26295001",
+      "bytes": 16410397
+    },
+    "host": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.host.json",
+      "sha256": "2dc85d67701ef033912aea81c8ac670d27b912ba2294488a63a80effd32654eb",
+      "bytes": 9212
+    },
+    "previous_gate": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.gate.json",
+      "sha256": "28333af14130fec455daf4aef06e4782a6b144437894d5a3cb769ef0fe8f2407",
+      "bytes": 1908
+    },
+    "capture_receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.capture.json",
+      "sha256": "793e477b35cf87130cd43507138d878610e4c083061bb6136dac542e7a4e8d08",
+      "bytes": 62673
+    },
+    "pointer": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.pointer.json",
+      "sha256": "499cd83b0470637dc2ef12e6edbca453e8fd0d6cfdd810d20d1c1935b889b48e",
+      "bytes": 16255
+    },
+    "physical_stall_stacks": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.stalls.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "recorder_log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.native.gst.log",
+      "sha256": "aea45240d27f146fd1504429df5230021e4bdfcc329e3d06cb269a0e3548e512",
+      "bytes": 497
+    }
+  },
+  "original_gate_passed": true,
+  "original_diagnostics": {
+    "app_freeze_seconds": [],
+    "app_slow_seconds": [],
+    "capture_loss_seconds": [
+      0,
+      3,
+      13,
+      14,
+      16,
+      22
+    ],
+    "app_stall_windows_s": []
+  },
+  "all_previous_video_pointer_topbar_metrics_and_limits_exactly_unchanged": true,
+  "compared_metric_keys": [
+    "size",
+    "fps",
+    "duration_s",
+    "frames",
+    "limits",
+    "field_window_s",
+    "distinct_fps",
+    "distinct_fraction",
+    "longest_unchanged_run_frames",
+    "distinct_per_second",
+    "unchanged_frames",
+    "exact_md5_distinct_fraction",
+    "cursor",
+    "top_bar",
+    "adapter_bypasses"
+  ],
+  "corrected_gate": {
+    "video": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/22_native_filter_reduces_objects.native.mp4",
+    "size": [
+      2560,
+      1440
+    ],
+    "fps": 30.0,
+    "duration_s": 23.6,
+    "frames": 708,
+    "passed": true,
+    "reasons": [],
+    "limits": {
+      "min_fps": 27.9,
+      "change_level": 10,
+      "change_pixels": 4,
+      "cursor_box": 72,
+      "peak_per_frame": 0.02,
+      "jump_margin": 1.5,
+      "min_cursor_found": 0.9,
+      "top_bar_height": 32,
+      "top_bar_every": 10
+    },
+    "field_window_s": null,
+    "distinct_fps": 28.64,
+    "distinct_fraction": 0.9547,
+    "longest_unchanged_run_frames": 5,
+    "distinct_per_second": [
+      27,
+      30,
+      29,
+      25,
+      30,
+      30,
+      29,
+      30,
+      30,
+      29,
+      29,
+      30,
+      30,
+      27,
+      26,
+      28,
+      27,
+      29,
+      29,
+      28,
+      30,
+      30,
+      27
+    ],
+    "app_painted_per_second": [
+      320.7,
+      260.2,
+      208.5,
+      134.4,
+      132.7,
+      135.6,
+      146.2,
+      152.1,
+      160.7,
+      151.3,
+      157.2,
+      163.8,
+      159.7,
+      154.5,
+      148.0,
+      136.9,
+      147.2,
+      156.4,
+      146.0,
+      151.7,
+      165.6,
+      164.0,
+      169.0
+    ],
+    "app_paint_counter_semantics": "legacy_visible_widget_sum",
+    "app_paint_counter_scope": "legacy_visible_widget_sum",
+    "app_diagnostic_painted_per_second": [
+      320.7,
+      260.2,
+      208.5,
+      134.4,
+      132.7,
+      135.6,
+      146.2,
+      152.1,
+      160.7,
+      151.3,
+      157.2,
+      163.8,
+      159.7,
+      154.5,
+      148.0,
+      136.9,
+      147.2,
+      156.4,
+      146.0,
+      151.7,
+      165.6,
+      164.0,
+      169.0
+    ],
+    "app_diagnostic_paint_scope": "legacy_aggregate_estimate",
+    "app_gui_sampler_gaps_s": [],
+    "app_gui_sampler_gap_evidence": "inferred_legacy_gui_sampler",
+    "app_freeze_seconds": [],
+    "app_slow_seconds": [],
+    "capture_loss_seconds": [
+      0,
+      3,
+      13,
+      14,
+      16,
+      22
+    ],
+    "app_unknown_seconds": [],
+    "app_stall_windows_s": [],
+    "app_stall_video_offset_s": 0.0,
+    "unchanged_frames": 32,
+    "unchanged_frames_in_app_stalls": 0,
+    "exact_md5_distinct_fraction": 0.9929,
+    "cursor": {
+      "found_fraction": 1.0,
+      "shapes_seen": [
+        "left_ptr@32"
+      ],
+      "max_step_px": 37.2,
+      "p95_step_px": 17.6,
+      "bound_px": 76.8,
+      "jumps": [],
+      "jump_count": 0
+    },
+    "top_bar": {
+      "hidden": true,
+      "sampled_frames": 71,
+      "visible_in": [],
+      "first_sample": {
+        "frame": 0,
+        "visible": false,
+        "black_fraction": 0.0074,
+        "top_rows_black": 0.0,
+        "text_pixels": 0,
+        "below_black_fraction": 0.0
+      }
+    },
+    "adapter_bypasses": []
+  },
+  "physical_stall_stack_evidence": [],
+  "diagnostic_scope": "Legacy receipt replay; inferred sampler delays are evidence of interrupted GUI delivery, aggregate paint estimates alone do not independently establish physical GUI pauses. Physical watcher stacks are preserved separately.",
+  "changed_next_action": "Still passes this replay; old aggregate telemetry cannot substitute for modern telemetry in the next complete recording."
+}

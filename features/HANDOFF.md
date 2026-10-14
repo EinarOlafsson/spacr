@@ -2,6 +2,7 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+
 ## 2026-10-13 20:04 EDT — Home → Work: verified export received; combined CI repair passes
 
 Received 26636ea3c1/80233b418d and the subsequent quality/Preferences evidence.
@@ -30,6 +31,27 @@ acceptance. Work owns fresh05 and07/08 reassessment after the final source.
 Proof: features/data/43_home_ci_followup_2026-10-13/receipt.json.
 Maintainer's main-promotion authorization is recorded, conditional on full
 green CI. Home will explicitly say release done after actual verification.
+
+## 2026-10-13 20:03 EDT — WS: remaining lesson 20 clips replay cleanly
+
+Bound CPU-only replay of the ten originally passing primary r28 clips exited 0:
+all ten still pass at 28.64–29.77 fps, with unchanged video/pointer/top-bar
+metrics and numeric limits, no freeze/slow labels, sampler gaps or watchdog
+stack events. Original inputs rehashed unchanged. Opening/retry remain failed.
+No additional gate blocker was identified in these ten clips. Existing legacy telemetry
+cannot substitute for a fresh full lesson on the final repaired app base.
+Evidence: `features/data/n676_lesson20_replay_narration_2026-10-13/`.
+
+Conditional English review binds 66 files and proposes four scene revisions:
+scalar flow wording, actual Figures fold, picker/settings action order and
+zoom-in without an unrecorded zoom-out. Seven changed sentences and three
+exact reuses are planned. Canonical English/reviews/audio/translations are
+unchanged; final-app behavior and accepted fresh clips must be checked first.
+No new recording, GPU work, render or upload occurred. Tools remain held at
+f7b88b7ce; CH remains 29552bae7. Home CI 38477246153 is confirmed live, release
+is still pending, and lesson 20 remains next before 43/24/26.
+
+
 
 ## 2026-10-13 19:47 EDT — WS: bound Preferences Apply investigation for Home
 
