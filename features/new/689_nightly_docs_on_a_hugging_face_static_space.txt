@@ -120,3 +120,15 @@ Current live readback also confirms nightly source e85907fef4c357fa208741c83125c
 from successful automatic docs run38611804321. Main Pages still reports the
 older combined schema1 artifact at974730784bytes. Actual main-only publication
 and legacy nightly redirects remain OPEN until the main promotion/deployment.
+
+2026-10-14 — Home-B checked the actual main deployment blocker.
+Latest main docs run38400845651 on e0bedd1534d71708f65b60a2d9e24b6328d4ce9d
+built both branch documentation jobs successfully. Its Assemble independent
+channels step failed at1,025,244,603bytes against the old996,147,200byte limit.
+The prepared main-only migration therefore addresses an observed publication
+failure; the run does not indicate a main-source Sphinx failure. Main-only
+assembly under900,000,000bytes and hosted redirect checks remain required.
+The run's one-day site artifacts are no longer listed; compatibility reports
+remain. No main promotion, deployment or new hosted CI was dispatched here.
+Original Home has the source-bound three-file migration patch and receipt in
+/mnt/wd4tb/scratch/home-b-coordination-20261014/main-docs-migration.json.
