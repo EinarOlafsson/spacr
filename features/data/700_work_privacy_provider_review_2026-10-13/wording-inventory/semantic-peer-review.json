@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:41:10.417011+00:00",
+  "review_kind": "Codex AI bounded independent N700 future wording-map semantic peer",
+  "status": "ADVISORY CORRECTIONS REQUIRED FOR FUTURE MAP; no current replacement, translation or implementation approval",
+  "inputs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_future_changed_string_inventory_20261013.json",
+      "sha256": "671a4bdfc2fb8f8e9939ad4f9f4d1686bd3cfd01300db67fc146899679bb1d58",
+      "bytes": 66419
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_anonymous_payload_provider_audit_20261013/audit.json",
+      "sha256": "39d1b7937b237062145a73c9c8955b392008da4663dd89dc836019a4acdea41f",
+      "bytes": 30922
+    }
+  ],
+  "scope": "Semantic destination/action classification only; root owns exact56 AST/literal binding verification. No extraction rescan or global catalog completeness claim.",
+  "findings": [
+    {
+      "id": "MAP1",
+      "priority": "must clarify before future replacement",
+      "records": [
+        "N700-current-011",
+        "N700-current-012",
+        "N700-current-035",
+        "N700-current-036",
+        "N700-current-037",
+        "N700-current-038",
+        "N700-current-039",
+        "N700-current-045",
+        "N700-current-046",
+        "N700-current-047",
+        "N700-current-048",
+        "N700-current-054"
+      ],
+      "finding": "Existing user-owned CLI installation/provider/authentication labels are mapped only to hosted cloud_error/cloud_chat drafts, which cannot truthfully replace them wholesale. The draft cloud_error explicitly promises no own AI account; that is only a proposed hosted route, not current CLI behavior.",
+      "requested_adjustment": "Add explicit existing_cli/provider_selection scope and preserve correct CLI install/auth instructions where CLI remains selected; use separate hosted capability-specific labels only after implemented and approved. Current subscription/billing claims still need factual qualification. Do not imply every external CLI is remote.",
+      "audit_basis": [
+        "N700-R5",
+        "N700-R8",
+        "N700-R10",
+        "CLI_to_hosted_integration_map.Registry/settings/UI"
+      ]
+    },
+    {
+      "id": "MAP2",
+      "priority": "must clarify",
+      "records": [
+        "N700-current-007",
+        "N700-current-008",
+        "N700-current-009",
+        "N700-current-010",
+        "N700-current-011",
+        "N700-current-012",
+        "N700-current-013",
+        "N700-current-014",
+        "N700-current-015",
+        "N700-current-016",
+        "N700-current-017",
+        "N700-current-018",
+        "N700-current-019",
+        "N700-current-020",
+        "N700-current-021",
+        "N700-current-022",
+        "N700-current-023",
+        "N700-current-024",
+        "N700-current-051",
+        "N700-current-055",
+        "N700-current-056"
+      ],
+      "finding": "Generic Diagnose/console error status refers to the selected provider and may reuse existing advice; cloud_error is a possible future route, not proof every current request is a cloud send or account-free. Existing fresh Diagnose intentionally bypasses volunteer-AI toggle.",
+      "requested_adjustment": "Make route selection and possible reuse explicit in semantic checks. Hosted disclosure must apply only when a new hosted request actually starts, while current CLI/raw traceback handling remains a distinct sensitive flow. Keep generated advice qualification.",
+      "audit_basis": [
+        "N700-R5",
+        "N700-R9"
+      ]
+    },
+    {
+      "id": "MAP3",
+      "priority": "must add action-specific constraints",
+      "records": [
+        "N700-current-002",
+        "N700-current-006",
+        "N700-current-023",
+        "N700-current-041"
+      ],
+      "finding": "002/041 already limit no-send to public submission, but006 Cancel and023 timeout have empty semantic checks. In current source Cancel rejects dialog and timeout ends polling; neither invokes console/provider cancellation.",
+      "requested_adjustment": "Add exact distinction: dismissal prevents the pending public submission, not already-started provider work; timeout is UI polling timeout, not evidence transport was stopped. Any future real cloud cancellation/deadline claim requires changed implementation and owning proof.",
+      "audit_basis": [
+        "N700-R9"
+      ]
+    },
+    {
+      "id": "MAP4",
+      "priority": "drop unrelated scope / separate artifacts",
+      "records": [
+        "N700-current-012",
+        "N700-current-029",
+        "N700-current-030",
+        "N700-current-031",
+        "N700-current-032",
+        "N700-current-033",
+        "N700-current-034",
+        "N700-current-036",
+        "N700-current-047",
+        "N700-current-048",
+        "N700-current-053"
+      ],
+      "finding": "local_bundle tagging of012/036/047/048/053 is unrelated to those provider/account/GitHub strings.029–034 describe a standalone recent-log artifact/report preference, which is different from crashreport raw ZIP.",
+      "requested_adjustment": "Remove unrelated local_bundle tags/checks from012/036/047/048/053. Add explicit local_log_excerpt scope for029–034, or qualify local artifact scope without substituting rawZIP description. Keep localZIP sensitive/nonanonymous manual-sharing disclaimer in its distinct future surface.",
+      "audit_basis": [
+        "N700-R6",
+        "N700-R7",
+        "CLI_to_hosted_integration_map.Localbundle/CLIcrashreport"
+      ]
+    },
+    {
+      "id": "MAP5",
+      "priority": "must constrain automatic-body mapping",
+      "records": [
+        "N700-current-025",
+        "N700-current-026",
+        "N700-current-027",
+        "N700-current-028",
+        "N700-current-029",
+        "N700-current-030",
+        "N700-current-031"
+      ],
+      "finding": "Current legacy report-builder headers include raw traceback and generated analysis; tagging them public_automatic does not authorize their inclusion in proposed strict typed automatic payload. The immutable allowlist forbids raw traceback, arbitrary AI advice and log tails.",
+      "requested_adjustment": "Mark025–027 and raw log content029/031 as legacy expanded public-body/manual scope and OMIT from strict automatic payload.028 Environment can remain a heading only if populated from approved typed enums/numeric versions. Keep030 explicit no-log disclosure where true, not a promise that all legacy body content is anonymous. No automatic AI-analysis publication by changing words.",
+      "audit_basis": [
+        "strict_anonymous_allowlist.explicitly_forbidden_fields",
+        "N700-R1",
+        "N700-R7",
+        "N700-R9"
+      ]
+    },
+    {
+      "id": "MAP6",
+      "priority": "preserve honest success wording",
+      "records": [
+        "N700-current-044"
+      ],
+      "finding": "Report handoff completion may be a browser issue-form handoff rather than a successfully published GitHub issue. Current handoff wording is appropriately qualified.",
+      "requested_adjustment": "Do not replace with filed/published/sent-success language unless the final selected route actually confirms creation/update. Account/auth requirements stay separate for direct GitHub versus managed relay.",
+      "audit_basis": [
+        "N700-R8",
+        "CLI_to_hosted_integration_map.Publicsubmission"
+      ]
+    }
+  ],
+  "supported_current_boundaries": [
+    "Inventory explicitly remains proposed/unapproved with final behavior and English gates before nine-locale translations.",
+    "Public report, generated advice, hosted freeform chat and sensitive local rawZIP remain distinct. Freeform chat text/context is not strict anonymous technical payload.",
+    "Draft account-free service/schema/exclusion/retention text copied from immutable audit remains conditional, not currently implemented behavior.",
+    "Do not remove CLI provider account/auth wording globally; future hosted route must coexist with correctly labelled retainedCLI capabilities."
+  ],
+  "source_facts_rechecked_readonly": [
+    "issue_preview.py125–235: reuse/current-provider checks, fresh error flow, UI-only timeout",
+    "app_screen.py10000–10075: rejected preview stops public submission; submit_report result says handoff"
+  ],
+  "source_bindings_for_rechecked_sections": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "sha256": "bb07744b8595346bd92c07aec463aaec75f2ff3f40fc08097706b89c18d21bed",
+      "size_bytes": 11698
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "size_bytes": 590758
+    }
+  ],
+  "no_execution_or_changes": {
+    "AST_rescan": false,
+    "tests_GUI_GPU_network": false,
+    "source_catalog_review_env_packages": false,
+    "original_map_audit_modified": false,
+    "translations": false,
+    "push": false
+  },
+  "owner_action": "lesson20_preflight owns corrected external map and archive; root reviews corrected SHA and owns publication. Preserve immutable audit and original inventory.",
+  "record_binding_scope": "Affected record IDs refer to the exact SHA-bound input inventory; literal/source paths are preserved there, not duplicated or independently re-extracted in this peer."
+}
