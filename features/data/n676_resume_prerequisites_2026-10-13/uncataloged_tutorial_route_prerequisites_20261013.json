@@ -1,0 +1,1119 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-14T01:03:45.225346+00:00",
+  "source_checkout": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013",
+  "source_commit": "fcf4055999a6b5a40fd1875496189bc03709389a",
+  "scope": "Exactlythree existinguncatalogedroutes; boundedlocal-source/assetmetadata, no recording/CLI/model/install execution",
+  "catalog_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/host_jobs_a.json",
+      "exists": true,
+      "sha256": "5202f0c033157cd0223e02ddb4fc9c2e8186b97d62b188800cf595ab2c858cc7",
+      "bytes": 7167
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/host_jobs_b.json",
+      "exists": true,
+      "sha256": "8f08f2a7dacb6d7aad363d1ee76855c925539a9738b26184a9f6e9dfdbca213e",
+      "bytes": 8684
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/host_jobs_c.json",
+      "exists": true,
+      "sha256": "a943452ebc1677da0e4d30e1ff5d8f23e1bc186886a6b20873b83476de44973a",
+      "bytes": 14405
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/host_jobs_d.json",
+      "exists": true,
+      "sha256": "481ec38f2e9827fab019ac68a24939fe697da3b14f2d4e235eace478455835c3",
+      "bytes": 13623
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/host_jobs_e.json",
+      "exists": true,
+      "sha256": "a9c4102e608dbf57406c72c3a6018984ec5e37ae515153ef24d09712ec029f59",
+      "bytes": 3047
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/host_jobs_f.json",
+      "exists": true,
+      "sha256": "ca0ef7801c8f5f766d30b4f89536d84f2d0bf3131cc322023f84b5975ec99092",
+      "bytes": 8192
+    }
+  ],
+  "lessons": {
+    "01_pypi_github": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/01_pypi_github.json",
+        "exists": true,
+        "sha256": "a9b2c6286ca623128da907ed39bd1e1e4a11689695a3f8285a9e9cadf09e990f",
+        "bytes": 3357
+      },
+      "title": "Find spaCR on GitHub, PyPI and conda-forge",
+      "number": 1,
+      "cataloged": false,
+      "scene_actions": [
+        {
+          "scene": 1,
+          "visual": "01_pypi_current_release",
+          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Read actualPyPI releaseheader andinstallationcommand; repeatedvisual alsoexplains routechoice",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 2,
+          "visual": "01_pypi_current_release",
+          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Read actualPyPI releaseheader andinstallationcommand; repeatedvisual alsoexplains routechoice",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 3,
+          "visual": "02_pypi_project_links",
+          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Open/read actualProjectlinks andbookmark documentation/source/issues",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 4,
+          "visual": "03_github_main_branch",
+          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Show actualGitHub main/nightly branchselection",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 5,
+          "visual": "04_github_current_assets",
+          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. The Platform installers lesson explains installation, launching spaCR and uninstalling it on each operating system.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Expand actualReleaseAssets; download genuineinstaller onlyiflaterauthorized, neverrun it inthisaudit",
+          "environment_or_filesystem_scope": "Potential scratchfiledownload; no packageinstallation; downloads forbiddenin currentmetadata task",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 6,
+          "visual": "05_conda_current_package",
+          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Read actualconda-forge release/channel command",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 7,
+          "visual": "05_conda_current_package",
+          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow Install spaCR to create that environment, install the package and launch the application. That lesson also explains package and environment removal.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Read actualconda-forge release/channel command",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 8,
+          "visual": "01_pypi_current_release",
+          "narration": "Continue with Install spaCR for pip or conda-forge, or Platform installers for a desktop installer. Both lessons include uninstall guidance. Once spaCR opens, move to Home, then the pipeline overviews to choose a workflow for your data.",
+          "action_kind": "real_public_browser",
+          "required_real_action": "Read actualPyPI releaseheader andinstallationcommand; repeatedvisual alsoexplains routechoice",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        }
+      ],
+      "recording_readiness": "not_recording_ready; currenttask authorizes localmetadata only"
+    },
+    "02_install_spacr": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/02_install_spacr.json",
+        "exists": true,
+        "sha256": "21c4a3dacc742874bf86dafe61ded87f22cfd4df8ea171a56220b80570a9f85d",
+        "bytes": 6683
+      },
+      "title": "Install spaCR",
+      "number": 2,
+      "cataloged": false,
+      "scene_actions": [
+        {
+          "scene": 1,
+          "visual": "00_install_routes",
+          "narration": "Choose one installation route. Pip installs spaCR inside either a Python virtual environment or a Conda environment. Conda-forge installs into a Conda environment; it cannot install packages into a Python virtual environment. The three routes below are alternatives, so you need only one.",
+          "action_kind": "documentation_guidance",
+          "required_real_action": "Compare pip-in-venv,pip-in-Conda andconda-forge routes; existingroutecards are referenceguidance, notinstallationproof",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 2,
+          "visual": "pip_01_create_venv",
+          "narration": "For pip with a virtual environment, create a dedicated folder and run Python three point twelve with dash m venv to create dot venv. Use a different folder if it already contains an environment.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Create newPython3.12 .venv",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 3,
+          "visual": "pip_02_activate_venv",
+          "narration": "Activate dot venv before every install, update or launch. On Linux and macOS, source its bin slash activate script. In Windows PowerShell, run dot venv backslash Scripts backslash Activate dot ps one. The environment prompt and Python path confirm which interpreter you are using.",
+          "action_kind": "real_terminal_existing_environment",
+          "required_real_action": "Activate anexisting isolatedenvironment andverify its path/package identity",
+          "environment_or_filesystem_scope": "Shellprocessenvironment only, ifexistingverifiedprivateenvironment; nopackagefileschanged",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 4,
+          "visual": "pip_03_install",
+          "narration": "With the environment active, upgrade pip, then run pip install spacr. The package installation includes the Qt dependencies used by the desktop application. Wait for the scientific and desktop dependencies to finish installing.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Upgrade pip andinstall realspaCR package",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 5,
+          "visual": "pip_04_check",
+          "narration": "Check the installed version and package path, then run python dash m pip check. Keep the version with your analysis notes. This route installs the published PyPI package; a source checkout or nightly build can have newer interface features.",
+          "action_kind": "real_terminal_verification",
+          "required_real_action": "Read installedpackage version/path andpip check",
+          "environment_or_filesystem_scope": "Verification/launch againstexistingprivateenvironment only; doctorGPU probe/config writes require explicit scope; notauthorized now",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 6,
+          "visual": "pip_05_launch",
+          "narration": "Run spacr-doctor and follow any missing-dependency guidance relevant to your work. Then enter spacr to launch the installed application. Close the application before changing its environment.",
+          "action_kind": "installed_app_and_doctor",
+          "required_real_action": "Run doctor thenlaunch installedspaCR",
+          "environment_or_filesystem_scope": "Verification/launch againstexistingprivateenvironment only; doctorGPU probe/config writes require explicit scope; notauthorized now",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 7,
+          "visual": "pip_conda_01_create",
+          "narration": "For pip inside Conda, create an environment named spacr-pip with Python three point twelve and pip, then activate it. Conda supplies the interpreter; pip will supply spaCR. Choose a distinct name if spacr-pip already exists.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Create freshConda environment withPython/pip",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 8,
+          "visual": "pip_conda_02_install",
+          "narration": "With spacr-pip active, upgrade pip and run pip install spacr. The package installation includes its Qt desktop dependencies. Check the package version and run pip check, just as in the virtual-environment route. Launch spacr from this same active environment.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Upgradepip/installPyPIpackage inConda",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 9,
+          "visual": "conda_01_create",
+          "narration": "For conda-forge, create a new environment named spacr-conda with Python three point twelve and spacr from the conda-forge channel in one command. Solving the interpreter and spaCR together avoids adding the package into an unrelated environment.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Create newconda-forge environment containingPython/spaCR",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 10,
+          "visual": "conda_02_plan",
+          "narration": "Conda shows its package plan before installing. Review it, accept the plan and let the downloads and installation finish. The available conda-forge release may differ from the latest PyPI or nightly version.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Review andaccept actualsolver plan, theninstall/download",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 11,
+          "visual": "conda_03_activate",
+          "narration": "Activate spacr-conda. Check the Python environment path and run conda list spacr to confirm the installed version and channel. Then run spacr-doctor and launch spacr from this environment.",
+          "action_kind": "real_terminal_existing_environment",
+          "required_real_action": "Activate anexisting isolatedenvironment andverify its path/package identity",
+          "environment_or_filesystem_scope": "Shellprocessenvironment only, ifexistingverifiedprivateenvironment; nopackagefileschanged",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 12,
+          "visual": "06_current_home",
+          "narration": "This companion shows the current nightly Home interface. Your installed release may look different. The environment commands install the published package from the selected channel; this current-source view does not claim that all nightly features are already published.",
+          "action_kind": "actual_app_companion",
+          "required_real_action": "Show currentnightly Home with explicit companionlabel; it doesnotprove installedrelease launched",
+          "environment_or_filesystem_scope": "none",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 13,
+          "visual": "pip_06_update",
+          "narration": "To update a pip installation, close spaCR, activate its environment and run pip install dash dash upgrade spacr. Check the version afterwards. Use pip for spaCR updates in both pip routes, including the Conda environment created for pip.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Update realpipinstallation andcheck dependencies",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 14,
+          "visual": "conda_04_update",
+          "narration": "For the conda-forge route, close spaCR, activate spacr-conda and run conda update dash c conda-forge spacr. If no newer build is available, Conda reports that the requested packages are already installed. Check the installed version rather than assuming the interface has changed.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Update realconda-forge installation",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 15,
+          "visual": "pip_07_uninstall",
+          "narration": "To remove a pip installation, activate its environment and run python dash m pip uninstall spacr, then accept the removal prompt. This removes the spaCR package. It does not remove your microscopy projects or automatically remove every dependency.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Uninstall actualspaCR package",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 16,
+          "visual": "pip_08_remove_environment",
+          "narration": "If dot venv was created only for spaCR, deactivate it and remove that dedicated dot venv folder. For the dedicated spacr-pip Conda environment, run conda deactivate, then conda env remove dash n spacr-pip. Remove only the environment you created for this tutorial.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Remove dedicatedvenv orCondaenvironment",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 17,
+          "visual": "conda_05_uninstall",
+          "narration": "In the conda-forge environment, conda remove spacr removes the package after you review its removal plan. To remove the entire dedicated environment instead, deactivate it and run conda env remove dash n spacr-conda. Keep your project folders separately; uninstalling the environment is not deleting your analysis data.",
+          "action_kind": "real_terminal_environment_mutation",
+          "required_real_action": "Remove actualConda package afterplan review",
+          "environment_or_filesystem_scope": "Creates/removes/changes installedenvironment orpackages; forbiddenwithout explicitmaintainerexception",
+          "blocked_by_no_environment_package_changes": true,
+          "allowed_in_current_metadata_task": false
+        }
+      ],
+      "recording_readiness": "not_recording_ready; currenttask authorizes localmetadata only"
+    },
+    "06_api": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/06_api.json",
+        "exists": true,
+        "sha256": "a7a67a5ed3103d5fca855e03397c1ae0a461cbd9cfa0ad8ecb1e79e868a13d0b",
+        "bytes": 3584
+      },
+      "title": "Python API and batch commands",
+      "number": 6,
+      "cataloged": false,
+      "scene_actions": [
+        {
+          "scene": 1,
+          "visual": "01_version",
+          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+          "action_kind": "real_terminal_readonly_CLI",
+          "required_real_action": "Import installed spaCR andprint realversion/path",
+          "environment_or_filesystem_scope": "Maywrite privateterminal/config/log staging; no packagechange orscientificanalysis intended",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 2,
+          "visual": "02_list",
+          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+          "action_kind": "real_terminal_readonly_CLI",
+          "required_real_action": "Run spacr-run --list andinspect actualmodulecontracts",
+          "environment_or_filesystem_scope": "Maywrite privateterminal/config/log staging; no packagechange orscientificanalysis intended",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 3,
+          "visual": "03_describe",
+          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+          "action_kind": "real_terminal_readonly_CLI",
+          "required_real_action": "Run spacr-run --describe regression; finalreusedvisual explains removing--dry-run, it doesnotdocument executinganalysis",
+          "environment_or_filesystem_scope": "Maywrite privateterminal/config/log staging; no packagechange orscientificanalysis intended",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 4,
+          "visual": "05_report_api",
+          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+          "action_kind": "real_terminal_readonly_CLI",
+          "required_real_action": "Inspect realbuild_report signature withoutcallingit",
+          "environment_or_filesystem_scope": "Maywrite privateterminal/config/log staging; no packagechange orscientificanalysis intended",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 5,
+          "visual": "06_dry_run",
+          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+          "action_kind": "real_terminal_readonly_CLI",
+          "required_real_action": "Run realRegression settingspreflight with--dry-run; analysisfunction mustremainuncalled",
+          "environment_or_filesystem_scope": "Maywrite privateterminal/config/log staging; no packagechange orscientificanalysis intended",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        },
+        {
+          "scene": 6,
+          "visual": "03_describe",
+          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module\u2019s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+          "action_kind": "real_terminal_readonly_CLI",
+          "required_real_action": "Run spacr-run --describe regression; finalreusedvisual explains removing--dry-run, it doesnotdocument executinganalysis",
+          "environment_or_filesystem_scope": "Maywrite privateterminal/config/log staging; no packagechange orscientificanalysis intended",
+          "blocked_by_no_environment_package_changes": false,
+          "allowed_in_current_metadata_task": false
+        }
+      ],
+      "recording_readiness": "not_recording_ready; currenttask authorizes localmetadata only"
+    }
+  },
+  "existing_tool_bindings": {
+    "capture_installation_sources.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/capture_installation_sources.py",
+      "exists": true,
+      "sha256": "96f970060867d78108deaaa6f3ec13a1204042cb5040b744a3ffce01aa721bb7",
+      "bytes": 6738
+    },
+    "authoring/tools/capture_install_web.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/authoring/tools/capture_install_web.py",
+      "exists": true,
+      "sha256": "46045e0ffe9cac644f0fa37bf4503de9c50406d2d237a9ca025bee19b3259aed",
+      "bytes": 18248
+    },
+    "capture_terminal_install.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/capture_terminal_install.py",
+      "exists": true,
+      "sha256": "4175be607743bc99d4f4621c817aa8d1bf91b4eefa03b4cfafe4afd9b01d01c3",
+      "bytes": 44857
+    },
+    "capture_pip_installation.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/capture_pip_installation.py",
+      "exists": true,
+      "sha256": "3b29b13ff0e46304aa5fac5a4aec31ef19009d23bc225a3a4e6bdce08b6ba2fc",
+      "bytes": 22926
+    },
+    "check_pip_installation.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/check_pip_installation.py",
+      "exists": true,
+      "sha256": "53a4157b948e3162ca178e66e48d96bdcd7007b6adb42a4dc4eef0ceb2f2974d",
+      "bytes": 6246
+    },
+    "check_conda_installation.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/check_conda_installation.py",
+      "exists": true,
+      "sha256": "4cc5a2c983c9cdd6ab6bc67e7bad159ed92bbe1d4e612b3f1d7b8d169199c32c",
+      "bytes": 7201
+    },
+    "check_linux_installation.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/check_linux_installation.py",
+      "exists": true,
+      "sha256": "48444aab70a8846e2144e1b5229f1867ad11019caf1aee17caede2999a5aae7f",
+      "bytes": 6492
+    },
+    "check_release_installer.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/check_release_installer.py",
+      "exists": true,
+      "sha256": "2b69761f6025b53417b44a4338e01fa538bed56638e207df26fa1f98febb8b18",
+      "bytes": 5366
+    },
+    "compose_installation_capture.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/compose_installation_capture.py",
+      "exists": true,
+      "sha256": "c9a3d261350caa30d2ae854ff04f9d4aeb5a354b3334d1aaf4d412cff88dfe6f",
+      "bytes": 7107
+    },
+    "render_installation_route_cards.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/render_installation_route_cards.py",
+      "exists": true,
+      "sha256": "bd565cac02a3273201e5ec939e3e0a8e2362e14c8ec31929792e447e942785d7",
+      "bytes": 8089
+    },
+    "render_installer_instruction_cards.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/render_installer_instruction_cards.py",
+      "exists": true,
+      "sha256": "4472c8a18c00a32d5067a602c88ace2aa6b58c425fdb9a80fd826ade9e3d7b75",
+      "bytes": 9168
+    },
+    "capture_cli.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/capture_cli.py",
+      "exists": true,
+      "sha256": "26cb43edea4822804b821a9004ca9bd7ce7f27750027be720450a29e10c3bb12",
+      "bytes": 9941
+    },
+    "capture_install_nightly.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/capture_install_nightly.py",
+      "exists": true,
+      "sha256": "cccd1077bf65a0fb07a831ad7434747f490987a34a4ce5b59455dbc2a649d1df",
+      "bytes": 4034
+    }
+  },
+  "legacy_cue_bindings": [
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/authoring/production/01_pypi_github/scenes.json",
+        "exists": true,
+        "sha256": "10b9664122def1a3e7cda8d03b559c2146422aacfb7eb93bd9be11ea095d5d8c",
+        "bytes": 3675
+      },
+      "scene_count": 7,
+      "pointers": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "scope": "Legacycues/statickeyframes; no modernGNOMEvideo/smoothness acceptance"
+    }
+  ],
+  "historical_installation_receipts": [
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/receipt.json",
+        "exists": true,
+        "sha256": "ec651453ab6347841a7d2fd9d86376fc9dc30dab1709ef38344b236075d36061",
+        "bytes": 4177
+      },
+      "accepted_claim": true,
+      "scope": "Linux conda-forge install, package/Qt import and doctor; no GUI, GPU allocation or other-platform claim",
+      "recorded_version": "1.5.0.4",
+      "recorded_tag": null,
+      "recorded_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws",
+      "recorded_folder_exists": false,
+      "step_count": 5,
+      "recorded_step_statuses": [
+        {
+          "name": "01_solve",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "02_install",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "03_import",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "04_doctor",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "05_packages",
+          "returncode": 0,
+          "completed": true
+        }
+      ],
+      "candidate_existing_interpreters": [
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/venv/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python",
+          "exists": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/runtime/venv/bin/python",
+          "exists": false
+        }
+      ],
+      "freshness_limit": "Historicalreceipt fields/hashes only; installedpackagebytes/outputs andcurrentreleasecompatibility notreverified"
+    },
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/receipt.json",
+        "exists": true,
+        "sha256": "0b3cdfdb57507ee1394bbcbe079aa2570761ca57eb2e160761c13fb292877ec9",
+        "bytes": 3901
+      },
+      "accepted_claim": true,
+      "scope": "Downloaded bytes match exact public release; no installation or GUI success claimed",
+      "recorded_version": null,
+      "recorded_tag": "v1.5.0.5",
+      "recorded_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev",
+      "recorded_folder_exists": false,
+      "step_count": 0,
+      "recorded_step_statuses": [],
+      "candidate_existing_interpreters": [
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/venv/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/env/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/runtime/venv/bin/python",
+          "exists": false
+        }
+      ],
+      "freshness_limit": "Historicalreceipt fields/hashes only; installedpackagebytes/outputs andcurrentreleasecompatibility notreverified"
+    },
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-pnucamrv/receipt.json",
+        "exists": true,
+        "sha256": "940e52af49700ada07bb09bfa99f6c9096308d71a38a1c8bec4b2dcae213cce0",
+        "bytes": 3223
+      },
+      "accepted_claim": false,
+      "scope": "Downloaded bytes match exact public release; no installation or GUI success claimed",
+      "recorded_version": null,
+      "recorded_tag": "v1.5.0.5",
+      "recorded_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-pnucamrv",
+      "recorded_folder_exists": false,
+      "step_count": 0,
+      "recorded_step_statuses": [],
+      "candidate_existing_interpreters": [
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-pnucamrv/venv/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-pnucamrv/env/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-pnucamrv/runtime/venv/bin/python",
+          "exists": false
+        }
+      ],
+      "freshness_limit": "Historicalreceipt fields/hashes only; installedpackagebytes/outputs andcurrentreleasecompatibility notreverified"
+    },
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/receipt.json",
+        "exists": true,
+        "sha256": "905d6ac9415fbc0d2162d280f4ca89747cbc72bc567c80c0df5192360023de9e",
+        "bytes": 3099
+      },
+      "accepted_claim": true,
+      "scope": "Linux installer, real imports and doctor; no GUI, GPU throughput, Windows or macOS acceptance",
+      "recorded_version": null,
+      "recorded_tag": "v1.5.0.5",
+      "recorded_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_",
+      "recorded_folder_exists": false,
+      "step_count": 3,
+      "recorded_step_statuses": [
+        {
+          "name": "01_installer",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "02_import",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "03_doctor",
+          "returncode": 0,
+          "completed": true
+        }
+      ],
+      "candidate_existing_interpreters": [
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/venv/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/env/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/bin/python",
+          "exists": false
+        }
+      ],
+      "freshness_limit": "Historicalreceipt fields/hashes only; installedpackagebytes/outputs andcurrentreleasecompatibility notreverified"
+    },
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/receipt.json",
+        "exists": true,
+        "sha256": "247946709aaccbe204c09d26e5b0d38047d6106b12d7c21bafee8c46e8007125",
+        "bytes": 5964
+      },
+      "accepted_claim": true,
+      "scope": "Linux installation, pip consistency, real package imports and doctor only; no GUI or other-platform success claimed",
+      "recorded_version": "1.5.0.5",
+      "recorded_tag": null,
+      "recorded_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt",
+      "recorded_folder_exists": false,
+      "step_count": 6,
+      "recorded_step_statuses": [
+        {
+          "name": "01_create",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "02_upgrade_pip",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "03_install",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "04_dependency_check",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "05_import",
+          "returncode": 0,
+          "completed": true
+        },
+        {
+          "name": "06_doctor",
+          "returncode": 0,
+          "completed": true
+        }
+      ],
+      "candidate_existing_interpreters": [
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/env/bin/python",
+          "exists": false
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/runtime/venv/bin/python",
+          "exists": false
+        }
+      ],
+      "freshness_limit": "Historicalreceipt fields/hashes only; installedpackagebytes/outputs andcurrentreleasecompatibility notreverified"
+    }
+  ],
+  "api_settings_candidate": {
+    "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/regression_release/batch_settings.json",
+    "exists": true,
+    "sha256": "aab7ad77f188c0dc4a6f64eedd6237720964d2add6f66edc7011a627864c172e",
+    "bytes": 4033,
+    "top_level_type": "dict",
+    "top_level_keys": [
+      "src",
+      "paired_data",
+      "analysis_mode",
+      "inference",
+      "analysis_unit",
+      "guide_min_wells",
+      "guide_primary_min_wells",
+      "guide_permutations",
+      "guide_permutation_seed",
+      "guide_permutation_block",
+      "guide_nuisance_columns",
+      "grna_statistic",
+      "guide_presence_threshold",
+      "guide_permutation_batch_size",
+      "multiple_testing_method",
+      "fdr_alpha",
+      "p_threshold_alpha",
+      "p_threshold_kind",
+      "rra_alpha",
+      "rra_permutations",
+      "positive_control",
+      "negative_control",
+      "min_n",
+      "controls",
+      "exclude_grnas",
+      "normalise_fraction",
+      "positive_control_wells",
+      "negative_control_wells",
+      "mixed_control_wells",
+      "fraction_threshold",
+      "calibrate_fraction_threshold",
+      "dependent_variable",
+      "threshold_method",
+      "threshold_multiplier",
+      "target_unique_count",
+      "transform",
+      "outlier_detection",
+      "agg_type",
+      "min_cell_count",
+      "regression_type",
+      "intercept",
+      "intercept_value",
+      "regression_backend",
+      "level",
+      "model_plate_position",
+      "random_row_column_effects",
+      "cov_type",
+      "alpha",
+      "l1_ratio",
+      "quantile",
+      "hinge_threshold",
+      "hinge_n_boot",
+      "huber_t",
+      "spline_knots",
+      "spline_degree",
+      "lasso_n_boot",
+      "lasso_selection_threshold",
+      "group_lasso_lambda",
+      "filter_value",
+      "filter_column",
+      "count_grna_column",
+      "count_value_column",
+      "independent_variable_layout",
+      "wide_predictor_columns",
+      "model_data_layout",
+      "batch_correction",
+      "batch_column",
+      "batch_control_column",
+      "batch_control_values",
+      "batch_covariate_column",
+      "batch_combat_mean_only",
+      "batch_min_samples",
+      "batch_missing_control",
+      "metadata_files",
+      "annotation_source",
+      "tolerance",
+      "invert_dependent_variable",
+      "regression_panel_manifest",
+      "cell_area_outlier_mads",
+      "nucleus_area_outlier_mads",
+      "cell_intensity_outlier_mads",
+      "nucleus_intensity_outlier_mads",
+      "regression_qc",
+      "control_wells",
+      "Toxoplasma",
+      "verbose",
+      "strict_errors",
+      "max_failure_rate"
+    ],
+    "src_spelling": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv",
+    "scope": "ExistingRegression settingsbytes; no scientificsource-preflight execution ornewstage binding"
+  },
+  "current_cli_source": {
+    "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/spacr/cli.py",
+    "exists": true,
+    "sha256": "1c582d8d550ed053c3a798c2b63909dbd0e1fe6bfa872568b90f4ef49fa11969",
+    "bytes": 95368
+  },
+  "critical_source_lines": {
+    "browser_screenshot_only": [
+      {
+        "line": 20,
+        "text": "def public_json(url):"
+      },
+      {
+        "line": 42,
+        "text": "pypi, pypi_source = public_json('https://pypi.org/pypi/spacr/json')"
+      },
+      {
+        "line": 43,
+        "text": "release, release_source = public_json('https://api.github.com/repos/EinarOlafsson/spacr/releases/latest')"
+      },
+      {
+        "line": 44,
+        "text": "conda, conda_source = public_json('https://api.anaconda.org/package/conda-forge/spacr')"
+      },
+      {
+        "line": 58,
+        "text": "browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)"
+      },
+      {
+        "line": 81,
+        "text": "page.screenshot(path=str(path))"
+      },
+      {
+        "line": 108,
+        "text": "assets.click()"
+      },
+      {
+        "line": 120,
+        "text": "page.screenshot(path=str(output / '99_capture_failure.png'))"
+      }
+    ],
+    "legacy_release_hardcode": [
+      {
+        "line": 37,
+        "text": "RELEASE_VERSION = \"1.5.0.4\""
+      }
+    ],
+    "terminal_actual_mutations": [
+      {
+        "line": 61,
+        "text": "'install' runs with CUDA devices hidden and needs no GPU turn. 'gpu' shows"
+      },
+      {
+        "line": 63,
+        "text": "desktop installer's own CUDA check) and runs inside tools/gpu_turn.sh."
+      },
+      {
+        "line": 69,
+        "text": "reset = [('quiet', 'conda env remove -n spacr-pip -y', 900)] if phase == 'recreate' else []"
+      },
+      {
+        "line": 72,
+        "text": "('run', 'conda create -n spacr-pip -c conda-forge python=3.12 pip', 1800, [PROCEED]),"
+      },
+      {
+        "line": 76,
+        "text": "('clear',), ('run', 'pip install --upgrade pip', 900),"
+      },
+      {
+        "line": 77,
+        "text": "('run', 'pip install spacr', 5400),"
+      },
+      {
+        "line": 86,
+        "text": "('clear',), ('run', 'pip uninstall spacr', 300, [(r'Proceed \\(Y/n\\)\\?', 'y')]),"
+      },
+      {
+        "line": 90,
+        "text": "('run', 'conda env remove -n spacr-pip', 900,"
+      },
+      {
+        "line": 96,
+        "text": "('run', 'conda env remove -n spacr-pip', 300,"
+      },
+      {
+        "line": 111,
+        "text": "('clear',), ('run', 'python -m pip install --upgrade pip', 900),"
+      },
+      {
+        "line": 112,
+        "text": "('run', 'pip install spacr', 5400), ('shot', '09_install_package'),"
+      },
+      {
+        "line": 115,
+        "text": "('clear',), ('run', 'pip install --upgrade spacr', 1800),"
+      },
+      {
+        "line": 126,
+        "text": "('clear',), ('run', 'python -m pip install --upgrade pip', 900),"
+      },
+      {
+        "line": 127,
+        "text": "('run', 'pip install spacr', 5400,"
+      },
+      {
+        "line": 142,
+        "text": "('clear',), ('run', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr', 5400,"
+      },
+      {
+        "line": 156,
+        "text": "('quiet', 'conda env remove -n spacr-conda -y', 900),"
+      },
+      {
+        "line": 157,
+        "text": "('clear',), ('run', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr', 5400,"
+      },
+      {
+        "line": 176,
+        "text": "('clear',), ('run', 'conda update -c conda-forge spacr', 3600, [PROCEED]),"
+      },
+      {
+        "line": 184,
+        "text": "('clear',), ('run', 'python -m pip install vispy', 900),"
+      },
+      {
+        "line": 584,
+        "text": "# doctor's hardware reports without a GPU turn."
+      },
+      {
+        "line": 701,
+        "text": "parser.add_argument('--phase', choices=('install', 'recreate', 'reinstall', 'update', 'resume', 'relist',"
+      },
+      {
+        "line": 704,
+        "text": "help='install/update: CUDA hidden, no GPU turn. gpu: inside tools/gpu_turn.sh')"
+      },
+      {
+        "line": 802,
+        "text": "sys.executable, str(TOOL), '--inside', '--route', args.route, '--phase', args.phase,"
+      },
+      {
+        "line": 805,
+        "text": "# SPACR_GPU_TURN_HELD=1: the caller already runs inside one gpu_turn.sh"
+      },
+      {
+        "line": 808,
+        "text": "command = [str(REPO / 'tools/gpu_turn.sh'), f'358-install-{args.route}-capture', *command]"
+      }
+    ],
+    "installed_verification_only": [
+      {
+        "line": 4,
+        "text": "The previously completed clean-install receipt is mandatory. This recorder"
+      },
+      {
+        "line": 5,
+        "text": "does not install an editable checkout, replay invented output, or claim to"
+      },
+      {
+        "line": 61,
+        "text": "('05_doctor', ['spacr-doctor', '--no-gpu-probe'], 'pylibCZIrw'),"
+      },
+      {
+        "line": 68,
+        "text": "result[4] = ('05_doctor', ['spacr-doctor', '--no-gpu-probe'], 'pylibCZIrw')"
+      },
+      {
+        "line": 232,
+        "text": "str(Path(__file__).resolve()), '--stage', str(stage), '--installation', str(root),"
+      },
+      {
+        "line": 364,
+        "text": "parser.add_argument('--installation', type=Path, required=True)"
+      },
+      {
+        "line": 372,
+        "text": "if Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}:"
+      },
+      {
+        "line": 374,
+        "text": "capture = stage / 'captures' / args.capture_name"
+      },
+      {
+        "line": 387,
+        "text": "private = stage / 'desktop' / args.capture_name"
+      },
+      {
+        "line": 414,
+        "text": "'--installation', str(root), '--capture-name', args.capture_name, '--route', args.route, '--inside'],"
+      }
+    ],
+    "APIcommands": [
+      {
+        "line": 34,
+        "text": "shutil.copy2(stage / 'captures/regression_release/batch_settings.json',"
+      },
+      {
+        "line": 37,
+        "text": "('01_version', ['python', '-c', 'import spacr; print(spacr.__version__)'], 0, '1.5.'),"
+      },
+      {
+        "line": 38,
+        "text": "('02_list', ['spacr-run', '--list'], 0, 'classify_merged'),"
+      },
+      {
+        "line": 39,
+        "text": "('03_describe', ['spacr-run', '--describe', 'regression'], 0, 'perform_regression'),"
+      },
+      {
+        "line": 41,
+        "text": "('05_report_api', ['python', '-c', 'import inspect; from spacr.report import build_report; print(inspect.signature(build_report))'], 0, 'src'),"
+      },
+      {
+        "line": 42,
+        "text": "('06_dry_run', ['spacr-run', 'regression', '--settings', 'regression.settings.json', '--dry-run'], 0, 'was not called'),"
+      },
+      {
+        "line": 73,
+        "text": "from capture_diagnostics import PrivateDesktop"
+      },
+      {
+        "line": 91,
+        "text": "desktop = PrivateDesktop(stage)"
+      },
+      {
+        "line": 126,
+        "text": "if module == 'api' and scene == '02_list':"
+      },
+      {
+        "line": 198,
+        "text": "'xvfb-run', '-a', '-s', '-screen 0 3840x2160x24', 'dbus-run-session', '--',"
+      }
+    ],
+    "current_dryrun_semantics": [
+      {
+        "line": 1826,
+        "text": "if args.dry_run:"
+      },
+      {
+        "line": 1834,
+        "text": "print(f\"--dry-run: nothing was executed. \""
+      },
+      {
+        "line": 1835,
+        "text": "f\"{module.module_name}.{module.func_name}() was not called.\")"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "lesson": "01_pypi_github",
+      "problem": "Existingdrivers fetch authenticpublicpages butcapturestill screenshots andDOM-driven scrolls; currentstrictremake requiresactualGNOME browserwindow+realpointer. LegacyDevToolsdriver hardcodes1.5.0.4; do not reuse ascurrentrelease evidence.",
+      "required": "Futureauthorizedrealbrowser route verifieslivePyPI/GitHub/conda identities without editingpagecontent; releaseassetdownload optionalscope mustmatchnarration andactualaction."
+    },
+    {
+      "lesson": "02_install_spacr",
+      "problem": "Actualterminalinstall driver performs forbiddenenvironment/packagecreation/update/removal evenunderprivatehome; installedverificationdriver cannotstandinforinstalling. Existingreceiptversions arehistorical1.5.0.4/1.5.0.5; mostexpected privateinterpreters aremissingafterrelocation.",
+      "required": "Maintainer mustexplicitlyauthorize disposableenvironment/package lifecycle exception, or explicitlyapprove meaningfulguidance-onlyremake/wording change. Home cannot silentlyreplace installationfootage withreferencecards. Preservehistoricalreceipts ashistorical."
+    },
+    {
+      "lesson": "06_api",
+      "problem": "Existingdriver isrealterminalcommand execution butusesXvfb/stillcapture, dependsstage/captures/regression_release/batch_settings.json andinstalledconsoleentrypoints; oldsrc mayfailpreflight. It intentionallydoesnotrunscientificanalysis.",
+      "required": "FutureGNOME terminalroute withworktree/sourceandsettingsidentity pinning; expecteddryrunsubstring remainscompatible withfcfCLI; preflight success/refusal mustbesupported byactualoutput, notpaintedlogs.",
+      "expected_dryrun_output_compatible": true
+    }
+  ],
+  "approved_readonly_actions_now": [
+    "Readlocal lesson/catalog/driver/legacycue text andhashbindings",
+    "Inspecthistoricalinstallationreceipt declarations andinterpreterfile existence",
+    "Inspectsettingsschema andCLI sourcewithout invokingit"
+  ],
+  "future_actions_that_do_not_require_package_mutation_but_are_not_started": [
+    "Realpublicbrowser navigation/metadata reads afterthatlesson isactive andcapturereleased",
+    "Realversion/list/describe/signature/dryrun commands inverifiedexistingprivateenvironment afterterminalroute approval",
+    "ActualcurrentnightlyHome companion with explicitdifferent-appidentity"
+  ],
+  "authorization_and_workflow_questions_for_Home": [
+    "01: whichrealGNOME browserhostdriver andfreshreleasepageidentity willbeused? Noheadlessscreenshots silentlysubstituted.",
+    "02: request explicitmaintainerexception forprivate disposableenvironment/packagecreate/install/update/uninstall/removal, or obtainapproval forreference-guidance scope/Englishchanges preservingmeaning. Currentstrictnoenv/packagechanges remainsbinding.",
+    "02: whichpre-existing verifiedprivateinstaller/package environment can supportgenuine read-onlyverification/launch withoutnewinstallation, andhowwillhistoricalversion/folderidentity bebound?",
+    "06: approve actualGNOME terminalcapture route; choosecurrent installedentrypoint versusfinal-worktree python -mspacr.cli identity explicitly, stageprivateRegression settingsandpreflightdata, retain no-scientificexecution scope.",
+    "All: clarify tutorial terminal/browser appearance andrealpointer expectations; record these onlyintheir properfuturelessonturn after20andapprovedorder; noenvironment/network/GUI actions authorizedbythisaudit."
+  ],
+  "limits": [
+    "NoGUI,GPU,tests,CLIanalysis,installer,download,package/environment changes performed",
+    "No newscene/catalog/English/voice/translationorqueue generated",
+    "Historicalreceipt acceptance andcopiedassetfilenames do notprovecurrentinstallationorremakequality",
+    "No fakeinstallerlogs/mockterminal outputs/staticcontent substitutions",
+    "CurrentHome sourcefreeze andlesson20end-to-end precedence persist"
+  ]
+}

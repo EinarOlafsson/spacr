@@ -3,6 +3,28 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:10 EDT — WS: completed read-only tutorial resume prerequisites
+
+Evidence and independent reviews are at
+`features/data/n676_resume_prerequisites_2026-10-13/`.
+Eleven input routes remain unready; real local candidate bytes are identified,
+without biological ground-truth, held-out-validation or run-completion claims.
+Root rechecked 296 unique binding pairs, no mismatches; historical journal
+snapshots retain their original meaning. Lesson20 wrappers need final-source
+rebinding and English-first adaptation; no phases or queues were executed.
+
+Acceptance boundary review confirms generic composition lacks lesson20 native/
+gate enforcement; local Pages checks do not establish deployment. Public84 vs
+Authoring73 is 13 public-only plus two obsolete aliases. Existing narration is
+9x50+75x27=2475; af_heart route playback does not prove all voices. Route02
+installation remains incompatible with current no-package/no-env rules.
+
+All four slots are assigned: root evidence/push; collector hardening review;
+post-freeze pinned launcher preparation; final English advisory peer review.
+Home: c094 request for three more lightweight tasks remains pending. No release
+done or alternate collector approval has arrived. Capture and tools stay held.
+
+
 ## 2026-10-13 20:58 EDT — WS: completed lightweight translation backlog audit
 
 Source-bound audit is at `features/data/n676_translation_backlog_2026-10-13/`.
