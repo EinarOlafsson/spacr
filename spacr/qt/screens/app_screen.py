@@ -7882,9 +7882,9 @@ class AppScreen(QWidget):
         self._btn_import.clicked.connect(self._on_import_settings)
         buttons.addWidget(self._btn_import)
 
-        from ..i18n import set_translatable_text as _set_text
+        from ..i18n import set_translatable_text
         self._btn_export = QPushButton()
-        _set_text(self._btn_export, "Export settings…")
+        set_translatable_text(self._btn_export, "Export settings…")
         self._btn_export.setObjectName("GhostButton")
         self._btn_export.setCursor(Qt.PointingHandCursor)
         self._btn_export.clicked.connect(self._on_export_settings)

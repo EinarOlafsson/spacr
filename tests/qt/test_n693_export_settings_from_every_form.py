@@ -359,3 +359,13 @@ def test_an_empty_hidden_text_setting_reads_back_empty(qtbot):
     assert model.set_hidden_value("cloud_endpoint", "s3.example")
     assert model.set_hidden_value("cloud_endpoint", None)
     assert model.collect()["cloud_endpoint"] is None
+
+
+@pytest.mark.parametrize("language", ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"))
+def test_export_button_uses_its_current_translation(qtbot, monkeypatch, language):
+    from spacr.qt.i18n import ENV_LANGUAGE, tr
+    monkeypatch.setenv(ENV_LANGUAGE, language)
+    screen = _screen(qtbot, "measure")
+    expected = tr("Export settings…", language=language)
+    assert expected != "Export settings…"
+    assert screen._btn_export.text() == expected
