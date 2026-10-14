@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:52:26.183000+00:00",
+  "review_kind": "Codex AI bounded final N700 zero-cost notice semantic consistency",
+  "inputs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_20261013.json",
+      "sha256": "aac60576389ff4c917b1e66f2c22192fec0cf22340e606913378d21579ee28f8",
+      "bytes": 20022
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_corrected_20261013.json",
+      "sha256": "48333176c9526f589bed69e3e24429695e4918cf438336f5a859fe48da77e40b",
+      "bytes": 25194
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_corrected_final_20261013.json",
+      "sha256": "cd8851c2ee3f4fb1853829bb8c34a8aa1451204717be47e9e5ea7a041d431cbb",
+      "bytes": 25616
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_semantic_peerreview_20261013.json",
+      "sha256": "c39e77eef2c73cce27aa7356ccdd2fb653eb43f635a2d03a5a632804fa825c8f",
+      "bytes": 9919
+    }
+  ],
+  "status": "Reviewed future proposal is consistent in specified scope; no remaining required fixes. No Home English, service, billing or runtime acceptance.",
+  "checks": {
+    "continuing_verification": "ZC01 and continuing gate require currently valid owner plan/model/resource verification. Stale, changed, failed or incompatible verification disables managed routes.",
+    "mandatory_no_paid_managed_resources": "No managed paid resources, credits, fallback, hosting/domain/GPU rental or plan upgrades even with consent; automatic-only loopholes removed. Separate explicit user-owned CLI account terms remain unaffected.",
+    "quota_refusal_and_permitted_queues": "General texts and per-notice predicates allow queuing only under implemented disclosed bounded purpose-specific content/location/retention/deletion/retry policy and valid consent/reconciled identity; otherwise refuse. Actual refused and queued statuses require corresponding evidence.",
+    "unknown_outcome": "Whole ZC09 unchanged: indeterminate acceptance proves neither filing nor nothing sent; reconcile request identity before retry. No false cancellation/guaranteed eventual filing.",
+    "independent_consent": "ZC14 plus global gate state separate public/cloud settings, data disclosures, consent and opt-outs; one purpose does not authorize another, and disabled purpose sends no request.",
+    "selected_CLI_scope": "Whole ZC13 unchanged; explicit user-owned accounts/transport/billing remain separate, with no silent fallback from exhausted hosted service.",
+    "future_only": "All14 Home-approved/applied flags false and actual-state verification/deployment/managed implementation/release flags false. Source/guide/audit/map and handoff bindings unchanged.",
+    "editorial_revision": "Only ZC10 sentence boundary differs between corrected483 and finalcd885; no semantic change."
+  },
+  "deltas": {
+    "existing_notice_texts_changed": [
+      "ZC01",
+      "ZC02",
+      "ZC03",
+      "ZC04",
+      "ZC05",
+      "ZC06",
+      "ZC07",
+      "ZC08",
+      "ZC10",
+      "ZC12"
+    ],
+    "new_notice": "ZC14",
+    "whole_records_preserved": [
+      "ZC09",
+      "ZC13"
+    ],
+    "original_aac605_preserved": true,
+    "prior_corrected_483331_preserved": true,
+    "peer_c39e77_preserved": true
+  },
+  "bounded_validation": "Read-only JSON comparisons, exact artifact/text hashes and semantic reading. No pricing research, provider/network calls, tests, source/catalog changes, deployment or push.",
+  "limits": [
+    "Final implementation/owner configuration and exact English approval remain required before use; this is not a billing guarantee.",
+    "Guide vendor links are inherited provenance only, not freshly verified pricing/policy.",
+    "No payload/transport anonymity, zero retention, all-provider/no-charge or whole-source acceptance asserted."
+  ],
+  "remaining_required_fixes": []
+}

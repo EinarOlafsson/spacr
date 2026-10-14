@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:17:23.318323+00:00",
+  "review_kind": "Codex AI independent bounded technical-language semantic peer of four B locale drafts",
+  "inputs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_future_locale_drafts_B_20261013.json",
+      "sha256": "75880d8da43d4be1eb62b4d7027138e5f1077ae695171fc263ae0c960cdc1fc4",
+      "bytes": 21039
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n615_english_truth_proposals_2026-10-13/home-accepted-future-english.json",
+      "sha256": "c30d17f08d8740e4863635bba3b5b77de32b7e8eb079e145d0a2ac12381f130a",
+      "bytes": 2082
+    }
+  ],
+  "scope": "hi/is/ko/zh_CN two accepted-future texts; semantic constraints only. Mechanical checks already passed byowner/root and not repeated.",
+  "supported_meanings": {
+    "all_four_tooltips": "Already-animating background condition, at-most30cap, separateCPU/GPUjobs, CPUdecorative rendering, GPU-backedSpaceoutpause, restoredsavedsettings andOffworkloadpolicyonly/otherlimits present. No delivered30guarantee.",
+    "all_four_stop_blocks": "Producerexists AND visiblewidgetwithBufferedEngine AND availablelastpublishedframe preserved. Allstopreasons, hiddennotretainingthatframe, no all-state/zero-memory claim, CPUjobdoesnotitselfstopotherwiseeligiblebackdrop andpolicy/active cancap_RUN_FPS preserved. Animation/visibility/Reduce motion/minimization retaineligibilitycontrol.",
+    "chat_or_narration_scope": "No tutorial narration, wholelocale/catalog or applied source acceptance inferred."
+  },
+  "technical_findings": [
+    {
+      "id": "B-zh1",
+      "locale": "zh_CN",
+      "label": "tooltip",
+      "kind": "bounded source-fidelity refinement",
+      "quoted_draft": "装饰性渲染改用 CPU",
+      "meaning": "Says decorative rendering switches toCPU; acceptedEnglish only says usesCPU. Existing mode may already beCPU.",
+      "suggested": "装饰性渲染使用 CPU",
+      "impact": "Avoid extra implied priorGPUmode/change; no widerwording rewrite requested."
+    },
+    {
+      "id": "B-hi1",
+      "locale": "hi",
+      "label": "tooltip",
+      "kind": "clarify temporarypause, not new runtimeclaim",
+      "quoted_draft": [
+        "Spaceout फ़्रैक्टल को रोक देती है",
+        "Spaceout फ़्रैक्टल रुक जाते हैं"
+      ],
+      "meaning": "Uses stop wording. Taskendsettings restoration already qualifies temporal effect, but explicit temporary wording bettermatches pauses.",
+      "suggested": [
+        "Spaceout फ़्रैक्टल को अस्थायी रूप से रोक देती है",
+        "GPU पर आधारित Spaceout फ़्रैक्टल अस्थायी रूप से रुक जाते हैं"
+      ],
+      "impact": "Clarify pause inbothworkload clauses without promising resumedmotion independentlyofremainingeligibility controls."
+    }
+  ],
+  "locale_review_limits": {
+    "hi": "Technical AIreading supportsconditions; borrowed shading/producer terminology and register stillneed owningeditor/native review.",
+    "is": "Technicalconditions recognizable; compoundterms skrautmyndgerð/skyggingarframleiðandi and state-wording remaineditorial/native uncertainty. No proposed semanticrewrite needed here.",
+    "ko": "Conjunction/cap/hidden/notallstate clauses technicallyconsistent. Termchoiceforretiring shadingthread needsnormal owninglanguage review, not native signoff here.",
+    "zh_CN": "Stopblock clearconditionalretention and noallstate release. Only tooltipuses-vs-switches refinement identified."
+  },
+  "thread_retirement_qualification": "B stoptranslations useend/finishwording forretire; no explicit force-kill or all-resource-releaseclaim detected. Futureeditor may sharpen terminology, but thispeerdoesnot infer actual synchronous threadexit.",
+  "status": "Two bounded tooltip refinements sent toowner; otherwise no semantic blocker identified in specifiedscope. Draft-only, not native-speaker/whole-locale/canonical acceptance.",
+  "no_actions": {
+    "mechanical_rescan": false,
+    "source_catalog_review_tests_generators": false,
+    "GPU_GUI_audio_network": false,
+    "B_original_modified": false,
+    "push": false
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "status": "Root delivery verified; future unapproved inactive wording only",
+  "artifacts": [
+    {
+      "file": "n700_zero_cost_future_notices_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_20261013.json",
+      "sha256": "aac60576389ff4c917b1e66f2c22192fec0cf22340e606913378d21579ee28f8",
+      "bytes": 20022
+    },
+    {
+      "file": "n700_zero_cost_future_notices_corrected_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_corrected_20261013.json",
+      "sha256": "48333176c9526f589bed69e3e24429695e4918cf438336f5a859fe48da77e40b",
+      "bytes": 25194
+    },
+    {
+      "file": "n700_zero_cost_future_notices_corrected_final_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_corrected_final_20261013.json",
+      "sha256": "cd8851c2ee3f4fb1853829bb8c34a8aa1451204717be47e9e5ea7a041d431cbb",
+      "bytes": 25616
+    },
+    {
+      "file": "n700_zero_cost_future_notices_correction_delta_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_correction_delta_20261013.json",
+      "sha256": "1348881f3314f550c8a704129e156a732e3f9c499fbe5a0bc3f4f2b3e3b4d6ff",
+      "bytes": 4897
+    },
+    {
+      "file": "n700_zero_cost_future_notices_final_consistency_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_final_consistency_20261013.json",
+      "sha256": "584e9fa7d4f74167c40dfe8e141aa123af5c00c62e6fadc5884717bc9f155699",
+      "bytes": 4009
+    },
+    {
+      "file": "n700_zero_cost_future_notices_semantic_peerreview_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_zero_cost_future_notices_semantic_peerreview_20261013.json",
+      "sha256": "c39e77eef2c73cce27aa7356ccdd2fb653eb43f635a2d03a5a632804fa825c8f",
+      "bytes": 9919
+    }
+  ],
+  "source_bindings": {
+    "requirement": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/700_cloud_routes_setup_2026-10-13/zero-cost-requirement.json",
+      "sha256": "0e81eaf9223d04742fc31143956c6a5e530b6c75b6de015687fa714ef1104499",
+      "size_bytes": 954
+    },
+    "guide": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/700_cloud_routes_setup_2026-10-13/setup-guide.txt",
+      "sha256": "bc6f33803c6979dd5ee74f418f7e07c36534ba54cb56563162cdd0c49db4a889",
+      "size_bytes": 8349
+    },
+    "reviewed_N700_destination_audit": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_anonymous_payload_provider_audit_20261013/audit.json",
+      "sha256": "39d1b7937b237062145a73c9c8955b392008da4663dd89dc836019a4acdea41f",
+      "size_bytes": 30922
+    },
+    "reviewed_current_wording_map": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_future_changed_string_inventory_corrected_20261013.json",
+      "sha256": "60e75a796bc12ed876a58d6afc3cd9ed9fc61e58de82931544b4de4d51d997f0",
+      "size_bytes": 88672
+    }
+  },
+  "notices": 14,
+  "all_text_hashes_verified": true,
+  "original_unknown_and_CLI_records_unchanged": true,
+  "current_owner_verification": false,
+  "deployment": false,
+  "source_or_catalog_applied": false
+}

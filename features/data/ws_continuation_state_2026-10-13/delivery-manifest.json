@@ -1,0 +1,35 @@
+{
+  "status": "Continuation and immutable evidence references; full tutorial goal blocked",
+  "artifacts": [
+    {
+      "file": "root_ci_status_20261013_2258.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/root_ci_status_20261013_2258.json",
+      "sha256": "614002e7ca19b5ae1fd969b6aea03e05f5e244432751dd3a035af069258b5b1a",
+      "bytes": 1117
+    },
+    {
+      "file": "root_completed_feature_deliveries_20261013.json",
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/work/root_completed_feature_deliveries_20261013.json",
+      "sha256": "b1fe27a817c50346e7ba150d04201194a59adb8e2c612bbc7937f4f1cfe438ad",
+      "bytes": 7918
+    }
+  ],
+  "journal_appends": [
+    {
+      "source_path": "/media/carruthers/mnt3/claude/n676_stages/CAPTURE_STATE_2026-10-13.md",
+      "source_sha256_at_copy": "6273d8b5dbf7202634574cdc2a4d5dc226191714baa5be03fe810d94fc7457eb",
+      "source_bytes_at_copy": 47312,
+      "extract_file": "capture-section18.md",
+      "extract_sha256": "8968af8975bde03b4446b7621a499d060a940ec51e4a98555ceb7e64f0904132"
+    },
+    {
+      "source_path": "/media/carruthers/mnt3/claude/HANDOFF_WS_to_codex_2026-10-13.md",
+      "source_sha256_at_copy": "308b0fd4cc9e452ab8892e6c7f4dc098b7a00e02c3aef98703759c0322eb1ab8",
+      "source_bytes_at_copy": 21503,
+      "extract_file": "overall-continuation-update.md",
+      "extract_sha256": "8052a7711b4c570a45f4a1d20a0b8739ea124a11dea7c00cc12db2cff6802bbe"
+    }
+  ],
+  "root_report_head_before_this_commit": "541bee2b5",
+  "source_or_release_clearance": false
+}

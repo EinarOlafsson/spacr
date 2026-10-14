@@ -1,0 +1,410 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:21:57.507664+00:00",
+  "status": "FINAL DELTA MECHANICAL PASS",
+  "initial_combined_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_future_locale_drafts_combined_mechanical_review_20261013.json",
+    "sha256": "aceecfd36de57ac263fff9fc978d19e8ebdb0815f6413cf9af41f8a980b9925a",
+    "size_bytes": 32587
+  },
+  "original_and_final_bindings": {
+    "A_original": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_future_locale_drafts_A_20261013.json",
+      "sha256": "7b72474f587ec903a5936b86b128b0a2884ed688b69a8e196257d7de8c7e4c1d",
+      "size_bytes": 16704
+    },
+    "A_final": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_future_locale_drafts_A_corrected_20261013.json",
+      "sha256": "12235c2c06a73df7c45eb1d879569096e1aacfd1b76f88e3629929ade27613e4",
+      "size_bytes": 18504
+    },
+    "B_original": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_future_locale_drafts_B_20261013_initial_75880d8d.json",
+      "sha256": "75880d8da43d4be1eb62b4d7027138e5f1077ae695171fc263ae0c960cdc1fc4",
+      "size_bytes": 21039
+    },
+    "B_final": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_future_locale_drafts_B_20261013.json",
+      "sha256": "fc7328b7d9dd28552b89594a551ea3bffaf25e4c1b38abf1678fbdf00543c838",
+      "size_bytes": 21660
+    }
+  },
+  "Home_accepted_receipt": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n615_english_truth_proposals_2026-10-13/home-accepted-future-english.json",
+    "sha256": "c30d17f08d8740e4863635bba3b5b77de32b7e8eb079e145d0a2ac12381f130a",
+    "size_bytes": 2082
+  },
+  "actual_final_source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "size_bytes": 552446
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "size_bytes": 581838
+    }
+  ],
+  "changed_tooltip_records": [
+    {
+      "part": "A",
+      "locale": "de",
+      "role": "tooltip",
+      "original_text_sha256": "b375a4524e23246b241ddecc7fe249930e6f0ce29bb59a555b5f738211333486",
+      "final_text_sha256": "75b7a3564184cc1bdb885ee42c3a3a154cf12d37f2d6e426054f1eebdf4c049b",
+      "original_text": "Während ein CPU-intensiver Auftrag wie Measure läuft, begrenzt diese Richtlinie bereits animierte Hintergründe auf höchstens 30 fps und pausiert Spaceout-Fraktale. Während ein GPU-Auftrag wie die Maskenerzeugung läuft, nutzt die dekorative Darstellung die CPU und GPU-basierte Spaceout-Fraktale pausieren. Nach Abschluss der Aufträge gelten wieder Ihre gespeicherten Animationseinstellungen. Off deaktiviert diese Richtlinie für laufende Aufträge; andere Animationsgrenzen gelten weiterhin.",
+      "final_text": "Während ein CPU-intensiver Auftrag wie Measure läuft, begrenzt diese Richtlinie Hintergründe, die bereits animiert werden, auf höchstens 30 fps und pausiert Spaceout-Fraktale. Während ein GPU-Auftrag wie die Maskenerzeugung läuft, nutzt die dekorative Darstellung die CPU und GPU-basierte Spaceout-Fraktale pausieren. Nach Abschluss der Aufträge gelten wieder Ihre gespeicherten Animationseinstellungen. Off deaktiviert diese Richtlinie für laufende Aufträge; andere Animationsgrenzen gelten weiterhin."
+    },
+    {
+      "part": "A",
+      "locale": "fr",
+      "role": "tooltip",
+      "original_text_sha256": "b438d055cc086931d042bdc0f75e9ac2ad7dc3e0b987788c8cddeb5f6b405c5c",
+      "final_text_sha256": "65e2d8f2f63664bb0ce97cf02e0bc08c6a5e3e10dddd23d32622de26deae2c32",
+      "original_text": "Lorsqu’une tâche sollicitant fortement le CPU, telle que Measure, s’exécute, cette politique limite les arrière-plans déjà animés à un maximum de 30 fps et met les fractales Spaceout en pause. Lorsqu’une tâche GPU, telle que la génération de masques, s’exécute, le rendu décoratif utilise le CPU et les fractales Spaceout utilisant le GPU se mettent en pause. Vos paramètres d’animation enregistrés sont rétablis lorsque les tâches se terminent. Off désactive cette politique liée à la charge de travail ; les autres limites d’animation restent applicables.",
+      "final_text": "Lorsqu’une tâche sollicitant fortement le CPU, telle que Measure, s’exécute, cette politique limite à un maximum de 30 fps les arrière-plans déjà en cours d’animation et met les fractales Spaceout en pause. Lorsqu’une tâche GPU, telle que la génération de masques, s’exécute, le rendu décoratif utilise le CPU et les fractales Spaceout utilisant le GPU se mettent en pause. Vos paramètres d’animation enregistrés sont rétablis lorsque les tâches se terminent. Off désactive cette politique liée à la charge de travail ; les autres limites d’animation restent applicables."
+    },
+    {
+      "part": "A",
+      "locale": "pt",
+      "role": "tooltip",
+      "original_text_sha256": "8b2d911bb177e8a675c7014e0302abb5f97a79a45fafb6532bc4cb59bc350b3f",
+      "final_text_sha256": "2d4eee95a8cdd29a0d89e446165c00192bec22dcd86f0a6bd06b9c9e9ecc36b1",
+      "original_text": "Enquanto uma tarefa com alta carga de CPU, como Measure, estiver em execução, esta política limita os planos de fundo que já estão animados a no máximo 30 fps e pausa os fractais do Spaceout. Enquanto uma tarefa de GPU, como a geração de máscaras, estiver em execução, a renderização decorativa usa a CPU e os fractais do Spaceout que usam a GPU ficam pausados. Suas configurações de animação salvas voltam a valer quando as tarefas terminam. Off desativa esta política de carga de trabalho; os outros limites de animação continuam valendo.",
+      "final_text": "Enquanto uma tarefa com alta carga de CPU, como Measure, estiver em execução, esta política limita os planos de fundo que já estão sendo animados a no máximo 30 fps e pausa os fractais do Spaceout. Enquanto uma tarefa de GPU, como a geração de máscaras, estiver em execução, a renderização decorativa usa a CPU e os fractais do Spaceout que usam a GPU ficam pausados. Suas configurações de animação salvas voltam a valer quando as tarefas terminam. Off desativa esta política de carga de trabalho; os outros limites de animação continuam valendo."
+    },
+    {
+      "part": "B",
+      "locale": "hi",
+      "role": "tooltip",
+      "original_text_sha256": "7a64f25f3e207ce315fdb42dde06d5b3b6511193c0552ec52445841b3018b81c",
+      "final_text_sha256": "be988123b37151843a97fade859bac5b835885a4ff4aa10c6feba5d24177038a",
+      "original_text": "Measure जैसे बहुत अधिक CPU इस्तेमाल करने वाले काम के चलने पर, यह नीति उन पृष्ठभूमियों की गति को अधिकतम 30 fps तक सीमित करती है जो पहले से एनिमेट हो रही हैं, और Spaceout फ़्रैक्टल को रोक देती है। मास्क बनाने जैसे GPU वाले काम के चलने पर, सजावटी रेंडरिंग CPU का इस्तेमाल करती है और GPU पर आधारित Spaceout फ़्रैक्टल रुक जाते हैं। ये काम पूरे होने पर आपकी सहेजी गई एनिमेशन सेटिंग वापस आ जाती हैं। Off काम के भार से जुड़ी इस नीति को बंद करता है; एनिमेशन की अन्य सीमाएँ लागू रहती हैं।",
+      "final_text": "Measure जैसे बहुत अधिक CPU इस्तेमाल करने वाले काम के चलने पर, यह नीति उन पृष्ठभूमियों की गति को अधिकतम 30 fps तक सीमित करती है जो पहले से एनिमेट हो रही हैं, और Spaceout फ़्रैक्टल को अस्थायी रूप से रोक देती है। मास्क बनाने जैसे GPU वाले काम के चलने पर, सजावटी रेंडरिंग CPU का इस्तेमाल करती है और GPU पर आधारित Spaceout फ़्रैक्टल अस्थायी रूप से रुक जाते हैं। ये काम पूरे होने पर आपकी सहेजी गई एनिमेशन सेटिंग वापस आ जाती हैं। Off काम के भार से जुड़ी इस नीति को बंद करता है; एनिमेशन की अन्य सीमाएँ लागू रहती हैं।"
+    },
+    {
+      "part": "B",
+      "locale": "zh_CN",
+      "role": "tooltip",
+      "original_text_sha256": "9469df4a6260e7448bf68f9e51d50c3f1d4fd67cb783366d39921be4caece05c",
+      "final_text_sha256": "db14f71b19e43082e1f4f846a0d31fdefe4d2ff18cbd5fcb0a0a57e3e4618b11",
+      "original_text": "运行 Measure 等 CPU 密集型任务时，此策略会将已在播放动画的背景限制在不超过 30 fps，并暂停 Spaceout 分形。运行掩膜生成等 GPU 任务时，装饰性渲染改用 CPU，基于 GPU 的 Spaceout 分形会暂停。任务结束后，将恢复您保存的动画设置。Off 会禁用此工作负载策略；其他动画限制仍然适用。",
+      "final_text": "运行 Measure 等 CPU 密集型任务时，此策略会将已在播放动画的背景限制在不超过 30 fps，并暂停 Spaceout 分形。运行掩膜生成等 GPU 任务时，装饰性渲染使用 CPU，基于 GPU 的 Spaceout 分形会暂停。任务结束后，将恢复您保存的动画设置。Off 会禁用此工作负载策略；其他动画限制仍然适用。"
+    }
+  ],
+  "unchanged13_target_bindings": [
+    {
+      "locale": "de",
+      "role": "AmbientWidget_stop",
+      "sha256": "b697b0da49fc75e71aa90f6ddf1c2d68fad097ab2d450bce6c3490c048f970d7"
+    },
+    {
+      "locale": "es",
+      "role": "tooltip",
+      "sha256": "7087f684d04928f75d7f25124abe8961df05eb28bc3a3731eadd685e3a35ee95"
+    },
+    {
+      "locale": "es",
+      "role": "AmbientWidget_stop",
+      "sha256": "31d81fdc4846745a6c6c0ca3a572b507d8f9067c2e6a10010cc536fb2447a422"
+    },
+    {
+      "locale": "fr",
+      "role": "AmbientWidget_stop",
+      "sha256": "0cb21efb2d0438ca383283b63fef96b0f4f1091d3f9f892a615a905933b084bf"
+    },
+    {
+      "locale": "pt",
+      "role": "AmbientWidget_stop",
+      "sha256": "c8c0d319e1a9f1739c1181ae5686cff51e0a0996962f7c01e652daa4bdd0700b"
+    },
+    {
+      "locale": "sv",
+      "role": "tooltip",
+      "sha256": "aaf211b45912ebae39660eb56f4b9be0863b15fec8cb4c4e28eff6fb341ea51c"
+    },
+    {
+      "locale": "sv",
+      "role": "AmbientWidget_stop",
+      "sha256": "b3d0befca2a68fbea34d0d317138f6d7d63e3539db8853247f58f368105c035e"
+    },
+    {
+      "locale": "hi",
+      "role": "AmbientWidget_stop",
+      "sha256": "8c7cbc57dfc4ad0b3f0232c17244cf00a616ad9693500e424a36da54dcbffc2c"
+    },
+    {
+      "locale": "is",
+      "role": "tooltip",
+      "sha256": "1e877dba09f23eaf88c4bce788da282dabe186ff415fb56aee157559c480dd9c"
+    },
+    {
+      "locale": "is",
+      "role": "AmbientWidget_stop",
+      "sha256": "e4c01076aee16ddb11cdc0d80c3ecfbf3788d3f01ec26e6d37bbf7af21d1eb76"
+    },
+    {
+      "locale": "ko",
+      "role": "tooltip",
+      "sha256": "b8fe74f8c567fe7d83d60bac0566ff996b77ab160b34275714d3eceb5b94387b"
+    },
+    {
+      "locale": "ko",
+      "role": "AmbientWidget_stop",
+      "sha256": "e6aefe0d5a599a9c8c9d6b043f52687a401aabb7ecac92c64d204302892d658b"
+    },
+    {
+      "locale": "zh_CN",
+      "role": "AmbientWidget_stop",
+      "sha256": "47eae9c430d41b0e0b08253d050db0bdf8abf4ff947ea0bffd01a9263fe72465"
+    }
+  ],
+  "checks": [
+    {
+      "check": "A_original artifact hash",
+      "passed": true,
+      "detail": "Actual original/final bytes match supplied SHA"
+    },
+    {
+      "check": "A_final artifact hash",
+      "passed": true,
+      "detail": "Actual original/final bytes match supplied SHA"
+    },
+    {
+      "check": "B_original artifact hash",
+      "passed": true,
+      "detail": "Actual original/final bytes match supplied SHA"
+    },
+    {
+      "check": "B_final artifact hash",
+      "passed": true,
+      "detail": "Actual original/final bytes match supplied SHA"
+    },
+    {
+      "check": "A baseline metadata unchanged",
+      "passed": true,
+      "detail": "All source/accepted-English/locale/provenance/status/freeze metadata unchanged; new revisionprovenance excluded"
+    },
+    {
+      "check": "de/tooltip final changed target hash",
+      "passed": true,
+      "detail": "Changed target declares exact UTF8 SHA"
+    },
+    {
+      "check": "de/tooltip identifiers/cap",
+      "passed": true,
+      "detail": "Required protected identifiers and30fps retained; no literal60fps claim, no semantic acceptance inferred"
+    },
+    {
+      "check": "de/tooltip unchanged metadata",
+      "passed": true,
+      "detail": "All English binding and reviewprovenance fields retained"
+    },
+    {
+      "check": "de/tooltip no RST span change",
+      "passed": true,
+      "detail": "No technical reference changes in changed tooltip"
+    },
+    {
+      "check": "de/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "es/tooltip unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "es/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "fr/tooltip final changed target hash",
+      "passed": true,
+      "detail": "Changed target declares exact UTF8 SHA"
+    },
+    {
+      "check": "fr/tooltip identifiers/cap",
+      "passed": true,
+      "detail": "Required protected identifiers and30fps retained; no literal60fps claim, no semantic acceptance inferred"
+    },
+    {
+      "check": "fr/tooltip unchanged metadata",
+      "passed": true,
+      "detail": "All English binding and reviewprovenance fields retained"
+    },
+    {
+      "check": "fr/tooltip no RST span change",
+      "passed": true,
+      "detail": "No technical reference changes in changed tooltip"
+    },
+    {
+      "check": "fr/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "pt/tooltip final changed target hash",
+      "passed": true,
+      "detail": "Changed target declares exact UTF8 SHA"
+    },
+    {
+      "check": "pt/tooltip identifiers/cap",
+      "passed": true,
+      "detail": "Required protected identifiers and30fps retained; no literal60fps claim, no semantic acceptance inferred"
+    },
+    {
+      "check": "pt/tooltip unchanged metadata",
+      "passed": true,
+      "detail": "All English binding and reviewprovenance fields retained"
+    },
+    {
+      "check": "pt/tooltip no RST span change",
+      "passed": true,
+      "detail": "No technical reference changes in changed tooltip"
+    },
+    {
+      "check": "pt/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "sv/tooltip unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "sv/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "A exact changed pairset",
+      "passed": true,
+      "detail": "Only requested tooltip pairs changed"
+    },
+    {
+      "check": "B baseline metadata unchanged",
+      "passed": true,
+      "detail": "All source/accepted-English/locale/provenance/status/freeze metadata unchanged; new revisionprovenance excluded"
+    },
+    {
+      "check": "hi/tooltip final changed target hash",
+      "passed": true,
+      "detail": "Changed target declares exact UTF8 SHA"
+    },
+    {
+      "check": "hi/tooltip identifiers/cap",
+      "passed": true,
+      "detail": "Required protected identifiers and30fps retained; no literal60fps claim, no semantic acceptance inferred"
+    },
+    {
+      "check": "hi/tooltip unchanged metadata",
+      "passed": true,
+      "detail": "All English binding and reviewprovenance fields retained"
+    },
+    {
+      "check": "hi/tooltip no RST span change",
+      "passed": true,
+      "detail": "No technical reference changes in changed tooltip"
+    },
+    {
+      "check": "hi/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "is/tooltip unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "is/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "ko/tooltip unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "ko/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "zh_CN/tooltip final changed target hash",
+      "passed": true,
+      "detail": "Changed target declares exact UTF8 SHA"
+    },
+    {
+      "check": "zh_CN/tooltip identifiers/cap",
+      "passed": true,
+      "detail": "Required protected identifiers and30fps retained; no literal60fps claim, no semantic acceptance inferred"
+    },
+    {
+      "check": "zh_CN/tooltip unchanged metadata",
+      "passed": true,
+      "detail": "All English binding and reviewprovenance fields retained"
+    },
+    {
+      "check": "zh_CN/tooltip no RST span change",
+      "passed": true,
+      "detail": "No technical reference changes in changed tooltip"
+    },
+    {
+      "check": "zh_CN/AmbientWidget_stop unchanged whole target",
+      "passed": true,
+      "detail": "Text/hash/reviewmetadata exactly equals initial target"
+    },
+    {
+      "check": "B exact changed pairset",
+      "passed": true,
+      "detail": "Only requested tooltip pairs changed"
+    },
+    {
+      "check": "final18 unique pairs",
+      "passed": true,
+      "detail": "All nine API/runtime locales and two roles exactly once"
+    },
+    {
+      "check": "five changed thirteen unchanged",
+      "passed": true,
+      "detail": "Only threeA and twoB tooltiptexts changed; nine fullstoptexts retained"
+    },
+    {
+      "check": "final Home accepted receipt binding",
+      "passed": true,
+      "detail": "Approved receipt unchanged and finalA/B remain bound"
+    },
+    {
+      "check": "final source hash spacr/qt/preferences.py",
+      "passed": true,
+      "detail": "Actual two current source files unchanged versus accepted binding; no AST repeat"
+    },
+    {
+      "check": "final source hash spacr/qt/widgets/ambient.py",
+      "passed": true,
+      "detail": "Actual two current source files unchanged versus accepted binding; no AST repeat"
+    }
+  ],
+  "summary": {
+    "check_count": 46,
+    "passed": 46,
+    "failed": 0,
+    "changed_texts": 5,
+    "unchanged_texts": 13,
+    "final_pairs": 18
+  },
+  "limits": [
+    "Delta identity/hash/token/provenance checks only; initial145checks not repeated.",
+    "No independent translation semantics/native-language review; numeric/token presence does not prove cap or conditional meaning.",
+    "All accepted English/current source/provenance metadata unchanged; future drafts are not applied source/catalogs/reviews or canonical acceptance.",
+    "No app imports/tests/generators/GUI/GPU/network/source edits; original evidence preserved."
+  ],
+  "no_actions": true
+}

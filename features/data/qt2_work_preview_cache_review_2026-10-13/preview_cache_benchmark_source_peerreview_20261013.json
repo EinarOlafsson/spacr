@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:42:45.674570+00:00",
+  "review_kind": "Codex AI independent bounded preview-cache benchmark method/source-attribution review",
+  "status": "Source-only method review; no runtime attribution or repair acceptance",
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "Home_handoff_binding": {
+    "commit": "73aa3b9b8859d871043c2922e2e486d324518a84",
+    "git_path": "features/HANDOFF.md",
+    "sha256": "45da087c7a42ddca4fddca6c334723ddc744eabbcd08071d45fc4e7b77c4dd9c",
+    "bytes": 707452,
+    "read_scope": "Top Home22:31datedblock reporting Qt2failure/sourcehold; fullblob hash only"
+  },
+  "reported_CI_observation": {
+    "source": "ExactHome73aa handoff; no separate joblog retrieved because exactsource test was identified",
+    "run": 38488240863,
+    "nodeid": "tests/qt/test_module_screen_timers_do_not_stall_20261012.py::test_the_mask_preview_pictures_are_cached_at_the_size_shown",
+    "cached_median_ms_rounded": 1.18,
+    "uncached_median_ms_rounded": 1.56,
+    "reported_ratio": 0.7524828279,
+    "unchanged_bound": 0.75,
+    "result": "reported failure",
+    "qualification": "These are Home-reported measurements, not rerun or independently recovered raw sample arrays. Rounded medians cannot reconstruct exactratio. One marginal failure alone doesnot prove flaky noise or a cache regression."
+  },
+  "scope_ownership": {
+    "this_peer": "Benchmark clocks/warmup/order/sampling/setup controls and attribution limits",
+    "contracts_701": "Cache setup/invalidation/paint correctness peer",
+    "Home_Qt_owner": "Actual isolated runtime investigation and repair; no duplicate runtime work"
+  },
+  "what_is_measured": {
+    "source": [
+      "tests/qt/test_module_screen_timers_do_not_stall_20261012.py:462",
+      "tests/qt/test_module_screen_timers_do_not_stall_20261012.py:474",
+      "tests/qt/test_module_screen_timers_do_not_stall_20261012.py:514"
+    ],
+    "object": "Synchronous backdrop.repaint(QRegion union of both preview viewports) with 2048x2048RGB source and verticallyflipped second image; device-coordinate cached pixmapitems vs sameitems NoCache.",
+    "clock": "time.thread_time, milliseconds: GUIcallingthread CPU, not elapsed walltime/GPU/display/compositor/frame delivery.",
+    "sampling": "9rounds, cached then uncached eachround;1untimed repaint per mode then12timed repaints. _region_ms returns min of12; finalratio is median9cachedminima / median9uncachedminima.216timed repaints total plus18untimed warmups.",
+    "important_correction": "Exacteb72andcurrent boundsource use frames=12, not5; no framesoverride at callsite.",
+    "excluded_costs": "RNG/image conversion, set_pixmap/scene replacement/fit, setCacheMode and warmcache-building repaint lie outside timedspan. Newimage/zoom/resize cache rebuild cost isnot thissteady-state metric.",
+    "shared_costs": "Backdrop/background and transparentdescendant painting plus Qt synchronousdispatch/ruler/view overhead are included; ratio isnot isolated pixmap rescaling cost."
+  },
+  "controls_present": [
+    "Samewindow/backdrop, samepixmapitems/data/transforms and fixedrequested2560x1440 setup forboth modes.",
+    "Deterministic NumPyrngseed0 and same2048images, secondrowflipped.",
+    "DeviceCoordinateCache assignedbyrealset_pixmap and assertedbeforebenchmark.",
+    "Tour overlays hidden; backdropanimation_timer stopped; oneuntimed repaint primes every mode.",
+    "Cached/uncached modes interleaved within eachof9rounds; minima reduce some positiveCPUoutliers.",
+    "Appliedpreferences fixture restores qappfont/palette/sheet and fieldfade state afterward."
+  ],
+  "source_visible_attribution_gaps": [
+    {
+      "id": "P1",
+      "source": "test:515–522",
+      "finding": "Cachedalwaysfirst; no counterbalanced/randomizedorder or pairedper-round ratios. Medianofseparateminimumdistributions is reported withoutspread/rawround samples.",
+      "meaning": "Order-dependent drift or different distributions are candidate biases, not demonstrated cause."
+    },
+    {
+      "id": "P2",
+      "source": "test:331–348,494–506",
+      "finding": "Initialwindowwait300ms + previewwait300ms + pictureswait50ms; no activejobs==0/stablegeometry orframeswarmcount wait. SETTLE_MS3000 applies toseparateheartbeat test, not cachebenchmark. _stop_the_field only stops_timer.",
+      "meaning": "No declared isolation ofproducer/deferredsetup/otherbackgroundwork; whether it affects thisspecificrun is unmeasured."
+    },
+    {
+      "id": "P3",
+      "source": "test:508–513;live_preview.py:1459–1481;ambient.py:11829–11915",
+      "finding": "Only nonemptyviewportunion and itemcachemode asserted; no actualpixmap paint/cachehit/invalidation counts, stableDPR/deviceTransform/visibleintersection evidence or resultingpixel comparisons in thisbenchmark.",
+      "meaning": "Configuration alone doesnot identify cache benefit/rebuild behavior. Currentfixture doesselectvisibleMaskscreen and explicitlyshowpreview; do notclaimwronghiddenpanel wasactuallymeasured."
+    },
+    {
+      "id": "P4",
+      "source": "test:462–470;522–526;ambient.py:11829",
+      "finding": "Fullregion CPU includes common backdrop/Qt painting overhead. Currenttest lacks no-picture baseline even though docstring cites historicalno-picture measurements.",
+      "meaning": "For cachedC,uncachedU,commonB,ratio=(B+C)/(B+U) rises toward1 withlargerB evenifC/U remainsunchanged. That mathematical attribution limit isnot proof currentB increased."
+    },
+    {
+      "id": "P5",
+      "source": "test:462–470;live_preview.py:1459–1481,1558–1567",
+      "finding": "Min12steadyCPU excludescachecreation and walltime/preemption; no selectedzoom/resize/newimage workload in timedloop.",
+      "meaning": "Thiscontract canjudge cheapsteadypaintCPU only, not coldpreviewlatency, physicalsmoothness or correctnessofcacheinvalidations. Ownercorrectnesspeer separatelycovers those sources."
+    }
+  ],
+  "bounded_owner_evidence_recommendations": [
+    "Keep strict0.75bound unchanged. Before choosingrepair, owning isolated investigation shouldretain actualroundsamples, visibleviewportgeometry/transform/DPR and intendedpanel identity.",
+    "Use balancedcached-first/uncached-first comparisons and verify warmcache hit/rebuild attribution; report distribution and actualclock scope, not label smallestCPU sample walltime.",
+    "Separate backdropcommoncost frompixmapcost via explicitpaint attribution or sameconfiguration no-picture diagnostic, without replacingunchangedacceptancebound or claimingregression frombaseline subtraction alone.",
+    "Confirm stablepreviewgeometry and background/deferredworker state; preservedeclared realisticfieldmode rather than silently testinga different workload.",
+    "Maintain independent image/cache correctness on newimage/zoom/resize and do notinferpixels/nativecapture acceptance from timingratio. Home owns runtime/tests; none executedhere."
+  ],
+  "hypotheses_not_measured": [
+    "Sharedpaintoverhead changed",
+    "cached-first order/drift or minsample dispersion",
+    "cache invalidation/eviction or geometry/device transforms",
+    "parallelworkers/backgroundproducer/deferredUIcompetition"
+  ],
+  "source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_module_screen_timers_do_not_stall_20261012.py",
+      "sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e",
+      "bytes": 18118,
+      "git_path": "tests/qt/test_module_screen_timers_do_not_stall_20261012.py",
+      "matches_exact_eb72_Git_blob": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/live_preview.py",
+      "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "bytes": 269226,
+      "git_path": "spacr/qt/widgets/live_preview.py",
+      "matches_exact_eb72_Git_blob": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "bytes": 581838,
+      "git_path": "spacr/qt/widgets/ambient.py",
+      "matches_exact_eb72_Git_blob": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "bytes": 590758,
+      "git_path": "spacr/qt/screens/app_screen.py",
+      "matches_exact_eb72_Git_blob": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/app.py",
+      "sha256": "3e475f8af1694f10e187081ecb3f9c4dcbc1fd187a6d17f7021ff536d74f9cbd",
+      "bytes": 348780,
+      "git_path": "spacr/qt/app.py",
+      "matches_exact_eb72_Git_blob": true
+    }
+  ],
+  "no_actions": {
+    "tests_profiles_GUI_GPU": false,
+    "source_threshold_changes": false,
+    "CI_cancel_restart_dispatch": false,
+    "env_packages_or_shared_checkout": false,
+    "push": false
+  },
+  "conclusion": "Source supports a narrow warmed steady-state GUI-CPU repaint comparison and configuration assertion. Reported0.75248 failure needs actualownermeasurements for attribution; thispeer neitherloosensbound nor certifies cachecorrectness/regression/flakiness."
+}
