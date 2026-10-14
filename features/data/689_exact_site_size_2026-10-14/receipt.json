@@ -1,0 +1,34 @@
+{
+  "item": 689,
+  "scope": "Complete published-site byte accounting and main Pages limit enforcement",
+  "base_commit": "7e074c1cebb9cda313a941a589a394373c962619",
+  "before": {
+    "failed": 5,
+    "seconds": 1.19
+  },
+  "after": {
+    "passed": 29,
+    "failed": 0,
+    "seconds": 4.93
+  },
+  "source_sha256": {
+    "tools/publish_docs_channels.py": "9d444a56d2efa1b27f0c0448bceb97f1513d17b26f409882ca7674f8325fff95",
+    "tests/test_docs_channels.py": "36fbc6e44e64ba05a17606bacca3b42bf14aed0d4d10ffef2c040d582f0a68d4"
+  },
+  "limits_unchanged": {
+    "pages_bytes": 900000000
+  },
+  "remaining": [
+    "Original Home integration",
+    "Main-only Pages deployment and actual legacy nightly redirect after main promotion"
+  ],
+  "live_nightly_readback": {
+    "run_id": 38611804321,
+    "source": "e85907fef4c357fa208741c83125c743cb1b887d"
+  },
+  "live_main_channels": {
+    "schema": 1,
+    "size_bytes": 974730784,
+    "still_combined": true
+  }
+}

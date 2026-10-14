@@ -171,6 +171,20 @@ def site_size(root: Path) -> int:
     return sum(path.stat().st_size for path in root.rglob("*") if path.is_file())
 
 
+def write_channel_receipt(output: Path, receipt: dict) -> dict:
+    """Record the complete site size, including the receipt being published."""
+    target = output / "channels.json"
+    content_size = site_size(output) - (target.stat().st_size if target.exists() else 0)
+    receipt["size_bytes"] = content_size
+    while True:
+        content = json.dumps(receipt, indent=2) + "\n"
+        total = content_size + len(content.encode("utf-8"))
+        if total == receipt["size_bytes"]:
+            target.write_text(content, encoding="utf-8")
+            return receipt
+        receipt["size_bytes"] = total
+
+
 def read_record(source: Path, branch: str) -> dict:
     record = json.loads((source / "publication.json").read_text())
     if record["branch"] != branch or not (source / "index.html").is_file():
@@ -237,13 +251,12 @@ def assemble_main(main: Path, output: Path, base_path: str = "/spacr",
     add_banner(output, channel_banner("main", f"{base}/", nightly_url))
     write_nightly_stub(output, base, nightly_url)
     (output / ".nojekyll").touch()
-    size = site_size(output)
-    if size > limit:
-        raise ValueError(f"Main Pages site is {size:,} bytes; budget is {limit:,}")
     receipt = {"schema": 2, "channels": {"main": record}, "nightly_url": nightly_url,
-               "size_bytes": size, "limit_bytes": limit,
+               "limit_bytes": limit,
                "media_files": len(list((output / "_media").glob("*")))}
-    (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    write_channel_receipt(output, receipt)
+    if receipt["size_bytes"] > limit:
+        raise ValueError(f"Main Pages site is {receipt['size_bytes']:,} bytes; budget is {limit:,}")
     return receipt
 
 
@@ -308,10 +321,9 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     index_links = explicit_index_links(output)
     (output / "README.md").write_text(SPACE_README.format(main_url=main_url))
     receipt = {"schema": 2, "channels": {"nightly": record}, "nightly_url": nightly_url,
-               "size_bytes": site_size(output), "index_links": index_links,
+               "index_links": index_links,
                "media_files": len(list((output / "_media").glob("*")))}
-    (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
-    return receipt
+    return write_channel_receipt(output, receipt)
 
 
 def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:

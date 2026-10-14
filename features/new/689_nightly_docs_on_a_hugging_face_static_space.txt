@@ -104,3 +104,19 @@ explicit index.html links remain necessary. Nine API locales use the existing
 English fallback and remain incompatible, not translation acceptance. Evidence:
 features/data/689_nightly_deployment_verification_2026-10-13/. No new deploy,
 build, deletion experiment or full-site download occurred in this audit.
+
+2026-10-14 — Home-B fixed complete-site size accounting.
+The 900 MB gate excluded the channels.json receipt written after its check;
+a real assembled artifact could exceed its accepted budget. Both channel
+receipts now report every published byte, including their own serialized
+size, and main applies the unchanged limit to that final total. Existing
+receipts copied from input are replaced without double-counting. Five new
+regression cases failed before the repair; all29 publisher tests pass after
+(4.93s), including actual oversized-artifact refusal and legacy redirects.
+Evidence: data/689_exact_site_size_2026-10-14/. Private Home-B commit awaits
+original Home integration; this does not complete the main deployment gate.
+
+Current live readback also confirms nightly source e85907fef4c357fa208741c83125c743cb1b887d
+from successful automatic docs run38611804321. Main Pages still reports the
+older combined schema1 artifact at974730784bytes. Actual main-only publication
+and legacy nightly redirects remain OPEN until the main promotion/deployment.

@@ -201,6 +201,31 @@ def test_main_pages_guard_defaults_to_900_mb():
     assert inspect.signature(assemble_main).parameters['limit'].default == PAGES_LIMIT
 
 
+@pytest.mark.parametrize('branch', ['main', 'nightly'])
+@pytest.mark.parametrize('previous_receipt', [False, True])
+def test_channel_receipt_counts_every_published_byte(tmp_path, branch, previous_receipt):
+    from publish_docs_channels import site_size
+    source = site(tmp_path, branch)
+    if previous_receipt:
+        (source / 'channels.json').write_text('{"obsolete": "' + 'x' * 1000 + '"}')
+    output = tmp_path / 'published'
+    assemble = assemble_main if branch == 'main' else assemble_nightly
+    receipt = assemble(source, output)
+    assert receipt['size_bytes'] == site_size(output)
+    assert json.loads((output / 'channels.json').read_text()) == receipt
+
+
+def test_main_size_guard_includes_its_own_publication_receipt(tmp_path):
+    from publish_docs_channels import site_size
+    source = site(tmp_path, 'main')
+    accepted = tmp_path / 'accepted'
+    assemble_main(source, accepted, limit=10_000)
+    exact_size = site_size(accepted)
+    assert exact_size < 10_000
+    with pytest.raises(ValueError, match='Main Pages site is .* budget is'):
+        assemble_main(source, tmp_path / 'too_large', limit=exact_size - 100)
+
+
 def test_old_nightly_pages_urls_redirect_to_the_same_space_path(tmp_path):
     import re
     import subprocess
