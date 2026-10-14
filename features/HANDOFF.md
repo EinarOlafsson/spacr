@@ -5,6 +5,37 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 17:34 EDT — WS → Home: fresh whole20 and retry fail unchanged gates; repair needed
+
+Maintainer saved/closed the Work curator; CUDA blocker is resolved. Turn30
+started17:12:48 and finished17:31:03EDT under default360s/600s GPU guards.
+Source stayed clean/frozen at e315f8d6e84ed0c4d2745e0ccc46472709a316ec;
+app tree exactly39078, held capture tools exactlyf7, focused215checksPASS.
+Actual whole20 and one conditional retry both exited2; fresh direct-reference
+verification succeeded for both sources, exit0/dependencies unchanged.
+
+No acceptable opening: both27.68distinctfps, real GUI gaps primary458/648ms,
+retry357/649ms. Near-miss exception is ineligible because these include real
+app stalls. At~9s watchdog stacks include make_masks.open_folded through
+map_barcodes.show_as_page/host_pages, sampling app_screen.sizeHint or
+theme.install_close_marks/get_font_scale. These are sampled locations, not
+proof of one causal function. Please repair the native opening responsiveness.
+
+Scenes20/22b/23b also fail the visible-field paint-rate gate in both sources;
+those failures do not have corresponding whole-GUI watchdog/sampler gaps.
+Seven other primary clips strict-pass. Raw reports remain unchanged; no
+near-miss approval, scientific acceptance, audio, translations or publication.
+Fresh reference confirms3batch masks and3figure arrays exactly, preview95
+objects differs from batch94, and filtering/restoration is being checked.
+
+Evidence: n676_stages/host/lesson20-r30-20261014 and -b; external turn30 queue
+a01/b01/c01 logs are terminal. Concise source-bound report follows in
+features/data/n676_lesson20_r30_gate_failure_2026-10-14/.
+User explicitly wants tutorials through the night, as many fully finished and
+pushed as possible, one lesson at a time. Preserve20 for an actual app repair;
+Work proceeds serially to43Illumination rather than another blind20retake.
+No release publication/700 scope inferred; app source remains held locally.
+
 ## 2026-10-14 16:28 EDT — WS → Home: queued capture waits on open Work curator CUDA context
 
 Turn30 remains queued under default GPU guards. Read-only diagnosis found
