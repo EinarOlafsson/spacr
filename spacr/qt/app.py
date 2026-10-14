@@ -5724,10 +5724,11 @@ class MainWindow(QMainWindow):
                                  default=str)
         if fingerprint == getattr(self, "_last_autosave", ""):
             return False
-        self._last_autosave = fingerprint
-        restart_state._save_session(module, settings)
-        restart_state._save_drafts(drafts)
-        return True
+        session_saved = restart_state._save_session(module, settings)
+        drafts_saved = restart_state._save_drafts(drafts)
+        if session_saved and drafts_saved:
+            self._last_autosave = fingerprint
+        return bool(session_saved or drafts_saved)
 
     def _end_session_cleanly(self) -> None:
         """Record where the user left off and drop the crash drafts."""

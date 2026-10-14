@@ -22,3 +22,19 @@ DONE 2026-10-04
   Tests: tests/qt/test_session_restore_and_settings_autosave.py. Docs:
   docs/source/features.rst "Picking up where you left off".
   Left: catalog rebuild for the new captions.
+
+2026-10-14 — Reported autosave failures now retry unchanged settings.
+  MainWindow previously advanced its saved-settings fingerprint before either
+  persistence helper returned. A failed session or draft write therefore
+  suppressed every later autosave until the form changed. The fingerprint now
+  advances only when both writes succeed; partial success still reports that
+  something was written, while the next timer turn retries the complete pair.
+  Three failure/recovery regressions failed against unchanged nightly and now
+  pass. The owning autosave/restart cohort:57PASS, CPU/offscreen Qt6.12, covered;
+  every changed statement and both new conditional arcs executed. Existing
+  captions, public API and documentation prose are unchanged, so no translation
+  or generated catalog update is needed. Evidence:
+  features/data/648_autosave_retry_2026-10-14/receipt.json.
+  Scope:reported False results from the existing persistence helpers. Native
+  QSettings errors reported only through status(), and new Windows/macOS/native
+  crash acceptance, are not established by this fix; those remain separate.

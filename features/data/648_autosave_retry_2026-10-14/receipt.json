@@ -1,0 +1,62 @@
+{
+  "item": 648,
+  "scope": "Retry unchanged form settings after reported partial or complete autosave write failures",
+  "base_commit": "cd26334d236571478fd4c5d2b647152218717aee",
+  "sources": {
+    "spacr/qt/app.py": "662130ebeafef30d6389053e73ada178de8aed6f0ef4a6aafae3867cc0661bce",
+    "tests/qt/test_session_restore_and_settings_autosave.py": "fab25d0b5f03d5ce0ee34d61b946aed073c2c37bb805e0c3b6601e0c8a277c7a"
+  },
+  "baseline_new_cases": {
+    "failed": 3,
+    "exit": 1
+  },
+  "owning_covered_cases": {
+    "passed": 57,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "exit": 0,
+    "seconds": 32.69
+  },
+  "changed_statement_lines": [
+    5727,
+    5728,
+    5729,
+    5730,
+    5731
+  ],
+  "changed_statements_covered": 5,
+  "new_conditional_branches_covered": [
+    [
+      5729,
+      5730
+    ],
+    [
+      5729,
+      5731
+    ]
+  ],
+  "runtime": "CPU/offscreen Qt6.12; Python3.12.13;6GiB/zero swap;-n2",
+  "unchanged_contracts": {
+    "all_app_docstrings_and_definition_names_identical": true,
+    "all_app_tr_calls_identical": true,
+    "tr_call_count": 100,
+    "source_sha256": "662130ebeafef30d6389053e73ada178de8aed6f0ef4a6aafae3867cc0661bce",
+    "normal_catalog_generation_required": false,
+    "reason": "Only existing private method body changes; no new public APIs, functions, translated calls or prose."
+  },
+  "limitations": [
+    "Only persistence helpers reportedFalse results; existing QSettings.status-only errors are outside this patch",
+    "No new native Windows/macOS/crash or fullCI acceptance claim"
+  ],
+  "evidence_sha256": {
+    "baseline.log": "bc3770294045e5fea6fd6ad8ea123cafa4fd1b1d556c6a735b5ddd28c577495e",
+    "baseline.xml": "a267cf31edcb75f231641ed89745a3616ce272ea715ce0831d68167cc941d1b4",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "owning.log": "4cef669bcdece0faf141e3e99fdd797051d001af62d1a8605d1a96492f1abe92",
+    "owning.xml": "1c7c131f861b53f06a23f738eb7e707259bfbf67295d76ee7f413b7eb1effe89",
+    "owning.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "coverage/.coverage": "177f5e8d6997455b7683257f0bc12c0bf813898ed79017d343b63649ebf05e57",
+    "coverage/app.json": "28ca8d55f71ec5274b6e2a152892777debc16293049b1fc3baae0a31a3520cef"
+  }
+}

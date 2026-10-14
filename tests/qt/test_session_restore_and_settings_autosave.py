@@ -141,6 +141,33 @@ def test_the_autosave_timer_runs_in_the_window(qtbot):
     assert timer.interval() == window._SETTINGS_AUTOSAVE_MS
 
 
+@pytest.mark.parametrize("failed", ["session", "drafts", "both"])
+def test_a_failed_autosave_retries_unchanged_settings(qtbot, monkeypatch, failed):
+    window = _window(qtbot, initial_app="regression")
+    window._screens["regression"].apply_settings_dict({"fdr_alpha": 0.08})
+    checkpoint = window._last_autosave
+    counts = {"session": 0, "drafts": 0}
+
+    def save(kind, original):
+        def attempt(*args):
+            counts[kind] += 1
+            if counts[kind] == 1 and failed in {kind, "both"}:
+                return False
+            return original(*args)
+        return attempt
+
+    for kind, name in (("session", "_save_session"), ("drafts", "_save_drafts")):
+        monkeypatch.setattr(restart_state, name, save(kind, getattr(restart_state, name)))
+    assert window._autosave_settings() is (failed != "both")
+    assert window._last_autosave == checkpoint
+    assert window._autosave_settings() is True
+    assert counts == {"session": 2, "drafts": 2}
+    assert window._autosave_settings() is False
+    assert counts == {"session": 2, "drafts": 2}
+    assert restart_state._last_session()["settings"]["fdr_alpha"] == 0.08
+    assert restart_state._take_drafts()["regression"]["fdr_alpha"] == 0.08
+
+
 def test_drafts_from_a_crash_are_offered_and_restored(qtbot):
     from PySide6.QtWidgets import QMessageBox
 
