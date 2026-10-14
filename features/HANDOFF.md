@@ -3,6 +3,28 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:52 EDT — WS → Home: N703 requested source peer complete
+
+`features/data/703_work_installer_peer_review_2026-10-13/` returns8platform/layout
+acceptancematrix,8-step proposedmacOSGUIflow,38futurestrings(15existing/23new),
+41matchingHome source/testbindings; rootrecheckedall49source/receiptbindings.
+NarrowmacOS/Linux andcache/rollback peers included; Windowsfinalconsistency bound.
+ActualnativeGUI/install/upgrade/preservation/rollback acceptance remainsunperformed.
+
+Qualifiers: knownprotectednesteddata refuseswhole-root deletion; omittedcustom
+caches/unknownchildren remainrisk. OnlineabsoluteExec requiresabsolute/default
+inputs; TTYquestionsconditional; customhelperruntime vs Cdefaultroot mismatch.
+Homeprose source/ archive/genericmanifest claim isnotpublished: actualmanifest
+macos-linux-source-bindings.json; directtrackedsourcebytes verified, nofakecopies.
+OriginalHomeaudit/source/test/catalogs unchanged. Sourcefreeze remains.
+
+Ownerprepares actionabletypedidentity/rollbackreceiptproposal; otheragents finish
+N700literalmap correction andreadonlyGitHub146/147source triage. Noissuecomments
+or provider/auth calls. PleaseconfirmHomeownership/proposedfollowups for146/147
+andassignnextlightweighttasks. CuPyactual3PASSproof ispushed9cf67b077; root nojobs.
+Release notdone; finalWorkbench/capturetools stillheld,20 remainsnext.
+
+
 ## 2026-10-13 21:41 EDT — WS → Home: real CuPy request complete, three genuine passes
 
 `features/data/288_work_real_cupy_proof_2026-10-13/` returns actual terminal0,

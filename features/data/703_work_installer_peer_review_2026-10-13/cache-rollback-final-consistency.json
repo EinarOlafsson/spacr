@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:46:46.429882+00:00",
+  "review_kind": "Codex AI scoped independent owner-receipt consistency check",
+  "inputs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_installer_acceptance_peerreview_20261013.json",
+      "sha256": "8d4ab52577e77a6783333502b65cee20d0762a03fb97e899f0fc399cf3a7233e",
+      "bytes": 74533
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_cache_rollback_peerreview_20261013.json",
+      "sha256": "83fa80bcbb26f352210cf255eb9bf7d2f7864cf20106678bd570af852cfa4926",
+      "bytes": 6714
+    }
+  ],
+  "scope": [
+    "CACHE01",
+    "CACHE02",
+    "ROLL01",
+    "Windows_online_NSIS_PowerShell_inapp matrix row only"
+  ],
+  "conclusion": "Relevant final owner qualifiers and Windows matrix are consistent with narrow source/test peer. No additional correction required in this scope.",
+  "checks": {
+    "known_nested_data": {
+      "id": "known_nested_data",
+      "references": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/install_cleanup.py",
+          "line": 1056
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/install_cleanup.py",
+          "line": 1098
+        }
+      ],
+      "observed": "Bidirectional _refusal protects known _user_data/HF/XDG folders nested inside a root by refusing whole-root deletion. Custom omitted SPACR_HOME/CELLPOSE_LOCAL_MODELS_PATH/backends/relocated caches and unknown child files remain at risk. Do not claim every known protected nested directory is deleted."
+    },
+    "Windows_online_matrix": {
+      "source_order": "Owner accurately states cleanup precedes dependencies/staged validation and later venv rename cannot undo deletion.",
+      "test_limit": "Owner correctly limits staging-order test to validation before later rename, not earlier cleanup.",
+      "preservation_and_rollback": "Default preservation and rollback fields are proposed acceptance criteria, not implemented behavior.",
+      "native_boundary": "unperformed; acceptance open"
+    },
+    "future_test_plan": "Owner deliberately marks proposed replacement of root/cache deletion and old-copy-deleted-on-pip-failure expectations; adds nested known/custom data and earlier cleanup ordering. None run.",
+    "sourcepath_vs_native_failure": "No reproduced Windows failure, native GUI pass or test-run claim in the scoped final findings."
+  },
+  "not_reviewed": "Other seven platform flows, proposed macOS GUI,38 strings and broader41-source sweep remain owner scope; this is not independent acceptance of them.",
+  "no_execution_changes": {
+    "tests_installers_GUI_GPU_network": false,
+    "source_env_packages_original_receipts_edits": false,
+    "push": false
+  }
+}
