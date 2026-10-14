@@ -1,0 +1,1 @@
+- [Guia de idiomas e tradução](<../../source/localization.rst>) linguagens de interface, ajuda contextual e política de saída científica.

@@ -1,0 +1,1 @@
+वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए ` spacr[zarr] `, ` spacr[omero] `,` spacr[napari] ` और ` spacr[czi,nd2,lif] `. पूर्ण अतिरिक्त और Python संस्करण संगतता तालिका में [स्थापना गाइड](<../../source/installer_guide.rst>) देखें.

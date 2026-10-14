@@ -1,7 +1,7 @@
 """Write one GitHub-rendered Markdown card per published spaCR model.
 
 The cards live in ``docs/models/<key>.md`` with an index at
-``docs/models/README.md``; each opens with its SVG score card,
+``docs/models/README.md``; each opens with readable score text, then its SVG,
 ``docs/models/cards/<key>.svg``, drawn by ``tools/build_score_cards.py``.
 Every field and number on a card is read from ``BUNDLED_REMOTE_MODELS`` in
 ``spacr/model_zoo.py``, the same records the Model Zoo screen and the
@@ -420,10 +420,11 @@ def render_card(entry: Mapping[str, Any], family: Mapping[str, Any]) -> str:
     key = key_of(entry)
     status = family["status"][key]
     title = str(entry.get("display_name") or key)
-    lines = [GENERATED_NOTE, "", f"# {title}", ""]
     scores = score_cards()
+    lines = [GENERATED_NOTE, "", scores.readable_score(entry, status), ""]
     lines += [f"![{scores.alt_text(entry, status)}]"
               f"({scores.card_name(key)})", ""]
+    lines += [f"## {title}", ""]
     head = f"`{key}`"
     architecture = str(entry.get("architecture") or "").strip()
     if architecture:
@@ -502,7 +503,8 @@ def render_card(entry: Mapping[str, Any], family: Mapping[str, Any]) -> str:
 def render_index(entries=None) -> str:
     """``docs/models/README.md``: every card, defaults first."""
     fams = families(entries)
-    lines = [GENERATED_NOTE, "", "# spaCR model cards", "",
+    lines = [GENERATED_NOTE, "", f"# {score_cards().HEADING_TEXT}", "",
+             "## spaCR model cards", "",
              "One card per published model. Open **Model Zoo** from the spaCR "
              "home screen to install one, or name its key in a settings file.",
              "", "## Default models", "",

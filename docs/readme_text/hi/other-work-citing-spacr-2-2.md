@@ -1,0 +1,1 @@
+- [IRE1α मैक्रोफैग fungicidal गतिविधि को बढ़ावा देने के लिए phagosomal कैल्शियम प्रवाह को बढ़ाता है।](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

@@ -1,0 +1,1 @@
+- [Toxoplasma GRA8 包含主 ESCRT 配件蛋白质 ALG-2 并且对寄生虫的代谢完整性至关重要。](<https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>)

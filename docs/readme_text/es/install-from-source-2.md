@@ -1,0 +1,1 @@
+Así se clona ` main `, la rama predeterminada, que contiene la última versión publicada. El desarrollo se hace en ` nightly `; añada ` --branch nightly ` para clonar esa rama en su lugar. Para una versión concreta:

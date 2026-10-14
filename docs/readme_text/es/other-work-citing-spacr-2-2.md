@@ -1,0 +1,1 @@
+- [IRE1α promueve el flujo de calcio fagosomal para mejorar la actividad fungicida de los macrófagos.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

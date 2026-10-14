@@ -1,0 +1,1 @@
+- [Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity.](<https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>)

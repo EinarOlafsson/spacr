@@ -77,6 +77,23 @@ def test_packaged_readme_renders_all_original_images(metadata):
         i["alt"]: i["src"].split("/main/")[-1] for i in original.images}
 
 
+def test_pypi_keeps_each_readable_panel_destination(metadata):
+    from docutils.core import publish_parts
+    from tests.readme_source_words import readme_tool
+
+    packaged, _ = metadata
+    html = publish_parts(packaged["long_description"], writer_name="html5")["fragment"]
+    article = Images()
+    article.feed(html)
+    destinations = {
+        "https://github.com/EinarOlafsson/spacr/blob/main/"
+        f"docs/readme_text/en/{name}.md"
+        for name in readme_tool().compose("en", render=False).pages
+    }
+    assert len(destinations) == 65
+    assert destinations <= set(article.links)
+
+
 def test_conversion_handles_figures_links_and_preserves_external_urls(metadata):
     _, convert = metadata
     source = """.. figure:: ./docs/picture.png

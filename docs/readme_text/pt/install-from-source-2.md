@@ -1,0 +1,1 @@
+Isso clona ` main `, o branch padrão, que contém a versão mais recente. O desenvolvimento acontece em ` nightly `; adicione ` --branch nightly ` para clonar esse branch no lugar dele. Para uma versão específica:

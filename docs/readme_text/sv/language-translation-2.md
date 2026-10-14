@@ -1,0 +1,1 @@
+De nio icke-engelska katalogerna är maskinskrivna och tekniskt recenserade snarare än lästa ända till slut av en infödd talare. De [Översynens tillämpningsområde](<../../i18n/REVIEW_SCOPE_2026-09-04.md>) skivor som språken har haft ett mänskligt pass och varje term kvar på engelska av beslut.

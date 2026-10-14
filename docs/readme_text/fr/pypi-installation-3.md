@@ -1,0 +1,1 @@
+Les intégrations optionnelles sont installées séparément, par exemple ` spacr[zarr] `, ` spacr[omero] `,` spacr[napari] ` et ` spacr[czi,nd2,lif] `. Voir le [guide d'installation](<../../source/installer_guide.rst>) pour les extras complets et la table de compatibilité Python-version.

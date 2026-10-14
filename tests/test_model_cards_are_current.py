@@ -59,6 +59,37 @@ def test_card_links_resolve():
             assert (path.parent / target).is_file(), (path.name, target)
 
 
+def test_score_text_and_every_plotted_value_precede_the_picture():
+    from markdown_it import MarkdownIt
+    from tests.test_readme_panel_text_destinations import Article
+
+    cards = _cards()
+    scores = cards.score_cards()
+    renderer = MarkdownIt("commonmark").enable("table")
+    for family in cards.families():
+        for entry in family["versions"]:
+            key = cards.key_of(entry)
+            markdown = (cards.CARD_DIR / f"{key}.md").read_text(encoding="utf-8")
+            before_picture = markdown.split("![", 1)[0]
+            article = Article()
+            article.feed(renderer.render(before_picture))
+            assert article.text.startswith(scores.title_of(entry)), key
+            plotted = scores.scores(entry)
+            assert scores._version(key) in article.text
+            for label, mine, theirs in plotted["rows"]:
+                assert label in article.text, (key, label)
+                for value in (mine, theirs):
+                    if value is not None:
+                        assert f"{value:.3f}" in article.text, (key, value)
+            if plotted["holdout"]:
+                assert plotted["holdout"] in article.text, key
+            assert "table" in article.tags and "img" not in article.tags
+    index = Article()
+    index.feed(renderer.render((cards.CARD_DIR / cards.INDEX_NAME).read_text(
+        encoding="utf-8")))
+    assert index.text.startswith(scores.HEADING_TEXT)
+
+
 def test_family_defaults_match_the_zoo_markers():
     cards = _cards()
     defaults = {cards.key_of(e) for e in cards.default_records()}

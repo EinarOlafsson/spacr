@@ -23,9 +23,10 @@ Rendering
     Consecutive prose blocks form one panel image, a dark rounded surface
     (the same surface the model-zoo score cards use) that reads on GitHub
     light, GitHub dark and PyPI alike. A new panel starts at every heading
-    and wherever a second link would otherwise land in one panel, because an
-    image can link to only one place: a panel with one link links there as a
-    whole. A paragraph that is only links becomes a row of link buttons, one
+    and wherever a second link would otherwise land in one panel. Each text
+    panel opens its own readable Markdown page in ``docs/readme_text``;
+    the page preserves the panel's words, structure and original detail links.
+    A paragraph that is only links becomes a row of link buttons, one
     image per link. A list whose items each carry their own link becomes one
     linked image per row. A paragraph that still holds several links is
     followed by one button per link.
@@ -84,6 +85,7 @@ README_DIR = ROOT / "docs" / "i18n" / "readme"
 SOURCE_EN = ROOT / "packaging" / "readme_source.yaml"
 SOURCE_DIR = README_DIR / "source"
 IMAGE_DIR = ROOT / "docs" / "readme_images"
+TEXT_DIR = ROOT / "docs" / "readme_text"
 OPEN_SANS = ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
 
 LANGUAGES = ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
@@ -95,7 +97,7 @@ RENDERER_VERSION = "3"
 #: Every block kind this README may contain. ``generated`` blocks are written
 #: by ``packaging/generate_readme_visuals.py`` (and the installer row by
 #: ``packaging/release.py``) between ``.. spacr-<name>-begin/end`` markers;
-#: this tool copies them through untouched.
+#: this tool rebuilds text-bearing blocks from their generated source sidecars.
 GENERATED_BLOCKS = (
     "language-picker", "hardware", "installer-links", "workflow",
     "model-zoo",
@@ -1466,6 +1468,74 @@ class Output:
     language: str
     text: str = ""
     images: dict = field(default_factory=dict)
+    pages: dict = field(default_factory=dict)
+
+
+def _readable_target(language: str, name: str) -> str:
+    return f"docs/readme_text/{language}/{name}.md"
+
+
+def _readable_inline(text: str, language: str, *, generated: bool = False) -> str:
+    """Preserve the image's inline words and rebase its useful detail links."""
+    parts = []
+    for value, style, target in inline_runs(text):
+        label = re.sub(r"([\\`*_[\]<>|])", r"\\\1", value)
+        if style == "literal":
+            fence = "`" * (max((len(run) for run in re.findall(r"`+", value)),
+                              default=0) + 1)
+            parts.append(f"{fence} {value} {fence}")
+        elif style == "link":
+            if generated:
+                target = _to_repository(target, language)
+            if not re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target) and not \
+                    target.startswith("//"):
+                path, separator, fragment = target.partition("#")
+                source = ROOT / path if path else readme_path(language)
+                target = os.path.relpath(source, TEXT_DIR / language).replace(
+                    os.sep, "/") + (separator + fragment if separator else "")
+            parts.append(f"[{label}](<{target}>)")
+        elif style == "strong":
+            parts.append(f"<strong>{escape(value)}</strong>")
+        elif style == "em":
+            parts.append(f"<em>{escape(value)}</em>")
+        else:
+            parts.append(label)
+    return "".join(parts)
+
+
+def readable_page(blocks: list[dict], language: str, *,
+                  generated: bool = False) -> str:
+    """Copyable structured text from exactly the blocks drawn in a panel.
+
+    Each panel owns a separate page, including shared and external detail
+    destinations. No navigation label precedes the panel's substantive text.
+    """
+    def inline(value):
+        return _readable_inline(value, language, generated=generated)
+
+    parts = []
+    for block in blocks:
+        kind = block["kind"]
+        if kind == "heading":
+            parts.append("#" * block["level"] + " " + inline(block["text"]))
+        elif kind == "paragraph":
+            parts.append(inline(block["text"]))
+        elif kind == "list":
+            parts.append("\n".join("- " + inline(item) for item in block["items"]))
+        elif kind == "table":
+            rows = block["rows"]
+            if rows:
+                def row(cells):
+                    return "| " + " | ".join(inline(cell) for cell in cells) + " |"
+                head = rows[0] if block.get("header_rows") else [""] * len(rows[0])
+                body = rows[1:] if block.get("header_rows") else rows
+                parts.append("\n".join([row(head), row(["---"] * len(head)),
+                                         *(row(cells) for cells in body)]))
+            if block.get("legend"):
+                parts.append(inline(block["legend"]))
+        else:
+            raise ValueError(f"Cannot publish a readable {kind} panel")
+    return "\n\n".join(parts) + "\n"
 
 
 def _relative(target: str, language: str) -> str:
@@ -1626,13 +1696,16 @@ def _panel_images(language: str, name: str, blocks: list[dict],
 
 
 def _panel_markup(language: str, name: str, blocks: list[dict],
-                  images: dict, render: bool) -> str:
+                  images: dict, render: bool, *, pages: Optional[dict] = None,
+                  generated: bool = False) -> str:
     targets = list(dict.fromkeys(
         target for block in blocks for target in _block_links(block)))
     _panel_images(language, name, blocks, images, render,
                   linked=len(targets) == 1)
+    if pages is not None:
+        pages[name] = readable_page(blocks, language, generated=generated)
     markup = _image_directive(language, name, alt_text(blocks),
-                              targets[0] if len(targets) == 1 else None)
+                              _readable_target(language, name))
     if len(targets) > 1:
         links = []
         for block in blocks:
@@ -1646,7 +1719,7 @@ def _panel_markup(language: str, name: str, blocks: list[dict],
 
 
 def _rows_markup(language: str, name: str, block: dict, images: dict,
-                 render: bool) -> list[str]:
+                 render: bool, *, pages: Optional[dict] = None) -> list[str]:
     """A list where every row is its own linked image."""
     parts = []
     for position, item in enumerate(block["items"]):
@@ -1656,8 +1729,10 @@ def _rows_markup(language: str, name: str, block: dict, images: dict,
         row_name = f"{name}-{position + 1}"
         _panel_images(language, row_name, [row], images, render,
                       linked=target is not None, row=True, kind="row")
+        if pages is not None:
+            pages[row_name] = readable_page([row], language)
         parts.append(_image_directive(language, row_name, alt_text([row]),
-                                      target))
+                                      _readable_target(language, row_name)))
         if len(found) > 1:
             parts.append(_chip_grid(language, f"{row_name}-link", found,
                                     images, render))
@@ -1867,7 +1942,7 @@ def _current_markers(language: str) -> dict[str, str]:
 
 def compose(language: str, *, render: bool = True,
             markers: Optional[dict] = None) -> Output:
-    """The README text and its images for one language.
+    """The README, images and readable panel pages for one language.
 
     ``render=False`` skips drawing (and the fonts): each image maps to the
     digest it would carry, which is what the currency check compares.
@@ -1900,6 +1975,11 @@ def compose(language: str, *, render: bool = True,
                     "run packaging/generate_readme_visuals.py")
             if marker == "installer-links":
                 content = responsive_raw(content, language, render)
+            else:
+                content = convert_generated(
+                    _generated_words(language, marker, content), language,
+                    marker, render=render, pages=output.pages,
+                    image_output=output.images)
             parts.append(f".. spacr-{marker}-begin\n\n{content.strip()}\n\n"
                          f".. spacr-{marker}-end")
         elif kind == "chips":
@@ -1910,7 +1990,8 @@ def compose(language: str, *, render: bool = True,
                                     render, columns=2, nav=pager))
         elif kind == "rows":
             block = local[0]
-            rows = _rows_markup(language, name, block, output.images, render)
+            rows = _rows_markup(language, name, block, output.images, render,
+                                pages=output.pages)
             if block.get("marker"):
                 marker = block["marker"]
                 parts.append(f".. spacr-{marker}-begin\n\n"
@@ -1919,7 +2000,7 @@ def compose(language: str, *, render: bool = True,
                 parts.extend(rows)
         else:
             parts.append(_panel_markup(language, name, local, output.images,
-                                       render))
+                                       render, pages=output.pages))
     output.text = "\n\n".join(part.rstrip() for part in parts) + "\n"
     return output
 
@@ -1929,7 +2010,8 @@ def compose(language: str, *, render: bool = True,
 # ---------------------------------------------------------------------------
 
 def convert_generated(markup: str, language: str, block_name: str, *,
-                      render: bool = True) -> str:
+                      render: bool = True, pages: Optional[dict] = None,
+                      image_output: Optional[dict] = None) -> str:
     """Generated RST with every text block turned into images.
 
     ``packaging/generate_readme_visuals.py`` still produces its blocks as RST
@@ -1940,9 +2022,11 @@ def convert_generated(markup: str, language: str, block_name: str, *,
     effect when ``render`` is true, with the markup they were drawn from
     beside them as ``generated-<block>.rst``: the block's words, which
     :func:`source_rst` reads back for tools and tests about the wording.
+    Readable Markdown destinations are generated from the same blocks.
     """
     blocks = parse_rst(markup)
     images: dict = {}
+    readable: dict = {}
     parts: list[str] = []
     counter = 0
     pending: list[dict] = []
@@ -1953,7 +2037,8 @@ def convert_generated(markup: str, language: str, block_name: str, *,
         if pending:
             counter += 1
             parts.append(_panel_markup(language, f"{base}-{counter}",
-                                       pending, images, render))
+                                       pending, images, render, pages=readable,
+                                       generated=True))
             pending = []
 
     for block in blocks:
@@ -1997,7 +2082,8 @@ def convert_generated(markup: str, language: str, block_name: str, *,
             name = f"{base}-{counter}"
             parts.append(_panel_markup(
                 language, name, [{"kind": "heading", "level": 4,
-                                  "text": label}], images, render))
+                                  "text": label}], images, render,
+                pages=readable, generated=True))
             found = [(text, _to_repository(link, language))
                      for text, link in links_of(block["text"])]
             tail = re.findall(r">`__?\s*\(([^)]+)\)", block["text"])
@@ -2015,8 +2101,16 @@ def convert_generated(markup: str, language: str, block_name: str, *,
                 flush_panel()
             pending.append(block)
     flush_panel()
+    if pages is not None:
+        overlap = pages.keys() & readable.keys()
+        if overlap:
+            raise ValueError(f"Duplicate readable panel names: {sorted(overlap)}")
+        pages.update(readable)
+    if image_output is not None:
+        image_output.update(images)
     if render:
         _write_images(language, images, prefix=base, keep=False)
+        _write_pages(language, readable, prefix=base)
         sidecar = IMAGE_DIR / language / f"{base}.rst"
         if not sidecar.is_file() or sidecar.read_text(
                 encoding="utf-8") != markup.strip() + "\n":
@@ -2027,6 +2121,18 @@ def convert_generated(markup: str, language: str, block_name: str, *,
 # ---------------------------------------------------------------------------
 # Writing and checking
 # ---------------------------------------------------------------------------
+
+def _write_pages(language: str, pages: dict, *, prefix: str = "") -> None:
+    directory = TEXT_DIR / language
+    directory.mkdir(parents=True, exist_ok=True)
+    for name, text in pages.items():
+        path = directory / f"{name}.md"
+        if not path.is_file() or path.read_text(encoding="utf-8") != text:
+            path.write_text(text, encoding="utf-8")
+    for path in directory.glob("*.md"):
+        owned = not prefix or path.stem == prefix or path.stem.startswith(prefix + "-")
+        if owned and path.stem not in pages:
+            path.unlink()
 
 def _write_images(language: str, images: dict, *, prefix: str = "",
                   keep: bool = True) -> None:
@@ -2059,6 +2165,7 @@ def build(languages: Sequence[str] = LANGUAGES) -> list[Path]:
     for language in languages:
         output = compose(language)
         _write_images(language, output.images)
+        _write_pages(language, output.pages)
         keep = set(output.images) | _generated_names(language)
         for path in (IMAGE_DIR / language).glob("*.svg"):
             if path.stem not in keep:
@@ -2077,7 +2184,7 @@ def svg_digest(path: Path) -> Optional[str]:
 
 
 def check(languages: Sequence[str] = LANGUAGES) -> list[str]:
-    """Everything stale, without drawing anything or needing the fonts."""
+    """Stale README, images and text pages, without drawing or needing fonts."""
     problems = []
     for language in languages:
         if language != "en":
@@ -2086,6 +2193,15 @@ def check(languages: Sequence[str] = LANGUAGES) -> list[str]:
             if structure:
                 continue
         output = compose(language, render=False)
+        for name, expected in output.pages.items():
+            page = TEXT_DIR / language / f"{name}.md"
+            if not page.is_file():
+                problems.append(f"{page.relative_to(ROOT)} is missing")
+            elif page.read_text(encoding="utf-8") != expected:
+                problems.append(f"{page.relative_to(ROOT)} is stale")
+        for page in (TEXT_DIR / language).glob("*.md"):
+            if page.stem not in output.pages:
+                problems.append(f"{page.relative_to(ROOT)} is obsolete")
         path = readme_path(language)
         if path.read_text(encoding="utf-8") != output.text:
             problems.append(f"{path.relative_to(ROOT)} is not what "
@@ -2125,7 +2241,7 @@ def refresh_generated(languages: Sequence[str] = LANGUAGES) -> None:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--check", action="store_true",
-                        help="report stale README text or images; write "
+                        help="report stale README, images or text pages; write "
                              "nothing")
     parser.add_argument("--refresh-generated", action="store_true",
                         help="first regenerate the blocks owned by "

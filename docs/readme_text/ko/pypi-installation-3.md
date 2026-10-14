@@ -1,0 +1,1 @@
+선택적 통합 기능은 ` spacr[zarr] `, ` spacr[omero] `, ` spacr[napari] ` 및 ` spacr[czi,nd2,lif] `과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 [설치 안내서](<../../source/installer_guide.rst>)를 참조하십시오.

@@ -1,0 +1,1 @@
+## Öll aðrar auðlindir

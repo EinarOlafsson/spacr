@@ -1,0 +1,1 @@
+- [IRE1α främjar fagsomalt kalciumflöde för att öka makrofag fungicid aktivitet.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

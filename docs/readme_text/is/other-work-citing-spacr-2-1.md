@@ -1,0 +1,1 @@
+- [Metabolic adaptability og næringssvopning í Toxoplasma gondii: innsýn frá innihaldskortum mutantum.](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)

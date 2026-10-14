@@ -1,0 +1,1 @@
+Cette commande clone ` main `, la branche par défaut, qui contient la dernière version publiée. Le développement se fait sur ` nightly ` ; ajoutez ` --branch nightly ` pour cloner cette branche à la place. Pour une version précise:
