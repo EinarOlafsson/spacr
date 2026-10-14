@@ -11916,3 +11916,26 @@ is authorized for issue147: preserve actual provider/user approval semantics
 and cancellation/privacy/process cleanup. Existing owner/source attestations
 close the CuPy scheduling review without a GPU rerun; genuine local97.04%
 coverage acceptance is distinct from full hostedCI, still24PASS/4running.
+
+## 2026-10-14 — Home: validated Torch CI scheduling integrated
+
+The original Torch heartbeat timing node now runs exactly once in the required
+serial Qt tail, with its original assertion and CI failure propagation intact.
+Eight functional cases remain in the covered parallel suite; the real native
+dlopen/dlclose regression preserves loader coverage. All four integrated files
+and six relevant unchanged dependencies match the validated private receipt
+byte-for-byte. Validation: 32 distinct owning/contract cases passed across the
+recorded cohorts; the first stale contract-fixture failure was retained, corrected
+and passed. AST/YAML parsing and diff checks passed at integration. This is a
+published CI scheduling repair, not a claim that full hosted CI is green.
+
+Evidence: /mnt/wd4tb/scratch/ci83ed-torch-20261014/scheduling-proposal-validated.json.
+Root now owns integration of ready CI repairs. Claude Home owns item 700
+(Cloudflare/GitHub reports and client implementation); Codex leaves it alone.
+
+Work tutorial source clearance: f692eb16dc01bdd622589d276fbba5d3026b1294
+is the published, validated Workbench/splitter source for fresh whole lesson 20.
+Use an immutable private capture checkout on the idle GNOME host, real pointer,
+alpha content/species off, unchanged smoothness gate, and the existing one-lesson
+end-to-end pipeline. Make Masks lesson 14 still awaits its final source fix.
+Do not wait for unrelated release work to record authorized lesson 20.
