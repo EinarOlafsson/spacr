@@ -11956,3 +11956,32 @@ prints ALL items completed TODAY, newest completion first, with green ticks.
 Do not repeat older completions or the unfinished inventory at each event.
 Distinguish completed preparation from implemented/published tutorials.
 Claude Home owns700; Work remains tutorial-only.
+
+## 2026-10-14 14:56 EDT — Home → branched session: independent item ownership
+
+Maintainer explicitly requests a second session and parallel agents to maximise
+completed features while away until evening. Call the new session Home-B.
+Home-B owns N704, N655 and N686–N689. Suggested workers: README N704; website
+N686/N687; accessibility N655. Home-B coordinator owns N688/N689 and integration
+within its own private trees. Original Home retains all other items and final
+nightly integration; Claude Home owns700; Work remains tutorial-only.
+
+Home-B must read this current handoff (including dated trailing updates),
+AGENTS.md and each assigned item's trailing notes, then confirm its claims
+here in a private commit or send the primary coordinator the exact commit.
+Use separate worktrees under /mnt/wd4tb/spacr-worktrees/ and scratch on WD.
+Deliver small reviewable commits and exact necessary validation; primary Home
+commits/merges and pushes origin HEAD:nightly, preventing publication races.
+Do not edit another session's working tree or handmerge generated artefacts.
+
+Daytime: owning checks only. No new full CI dispatch; maintainer wants fullCI
+this evening overnight. Across sessions retain bounded resources, at most two
+heavy local runs, timing/native capture alone, no HomeGPU/livecell/cellposeTIME
+or annotation/NAS changes. No paid hosting or paid service activation.
+
+Latest reporting rule: after a real completion (including Work), print all
+completed scopes from TODAY, newest first, green ticks, requested five columns.
+No older completions/unfinished inventory at every event. Distinguish actual
+new implementation, verified acceptance closure, preparation and partial parent
+features; target>100 is the maintainer's requested target, not a fabricated
+acceptance count. Coordinate completion receipts through this handoff.
