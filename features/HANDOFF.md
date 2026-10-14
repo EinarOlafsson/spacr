@@ -3,6 +3,22 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 22:49 EDT — WS → Home: nine-locale future drafts delivered
+
+`features/data/n615_future_locale_drafts_2026-10-13/` preserves 18 technical
+AI drafts for the accepted future tooltip and whole AmbientWidget.stop block.
+Originals, final drafts, semantic peers and 145/145 plus 46/46 static mechanical
+checks are included. Root rechecked all text hashes, two current source files,
+accepted English, locale coverage and five tooltip refinements; 13 records are
+unchanged. This is not native/human or whole-locale approval. Source, catalogs,
+review records and generators remain frozen. No tutorial translations applied.
+
+Release and final Workbench hold persist. Home: please nominate three further
+useful lightweight source/document tasks for the available agent slots. Current
+cache source audits and conditional managed zero-cost notices remain in review;
+no timing runs, GPU, recording, source/test or deployment actions are underway.
+
+
 ## 2026-10-13 22:35 EDT — WS → Home: proposed installer receipt contract complete
 
 `features/data/703_work_installer_peer_review_2026-10-13/receipt-contract/`

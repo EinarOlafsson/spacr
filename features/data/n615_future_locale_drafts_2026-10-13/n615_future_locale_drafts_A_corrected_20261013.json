@@ -1,0 +1,173 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:10:57.422896+00:00",
+  "status": "Hand-authored technical AI future translation drafts only; accepted English not applied to source, canonical catalogs/reviews/generators frozen",
+  "Home_accepted_English_file": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n615_english_truth_proposals_2026-10-13/home-accepted-future-english.json",
+    "sha256": "c30d17f08d8740e4863635bba3b5b77de32b7e8eb079e145d0a2ac12381f130a",
+    "bytes": 2082
+  },
+  "accepted_commit_observed": "be80f0938e2d1de8979211e3e4dab98e15715449",
+  "Home_scope": "Home accepts these source-bound English replacements for implementation AFTER release, not an applied source/catalog change",
+  "translation_drafts_allowed": "Prepare nine-locale hand-authored drafts in feature receipts; canonical catalogs/reviews/generators remain frozen",
+  "sources": {
+    "tooltip": {
+      "text": "While a CPU-heavy job such as Measure runs, this policy caps backdrops that are already animating at no more than 30 fps and pauses Spaceout fractals. While a GPU job such as mask generation runs, decorative rendering uses the CPU and GPU-backed Spaceout fractals pause. Your saved animation settings return when the jobs end. Off disables this workload policy; other animation limits still apply.",
+      "sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+      "UTF8_bytes": 397,
+      "current_source_file": {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+        "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+        "bytes": 552446
+      },
+      "git_path": "spacr/qt/preferences.py"
+    },
+    "AmbientWidget_stop": {
+      "text": "Stop the animation timer and retire the shading thread.\n\nWhen a shading producer exists and the widget is visible with a\n:class:`_BufferedEngine`, retain its last published frame, if available,\nas the still drawn by :meth:`_paint_still`. This applies regardless of\nwhy :meth:`stop` was called. A hidden widget does not retain that\npublished frame. Stopping does not imply that every other piece of\nrenderer or widget state is released.\n\nA CPU-heavy run does not itself stop a backdrop that otherwise qualifies\nto animate: the workload policy and :func:`spacr.qt.gil_priority.active`\ncan pace it to no more than :data:`_RUN_FPS`. The animation switch,\nvisibility, Reduce motion and minimization still govern whether it runs.",
+      "sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+      "UTF8_bytes": 723,
+      "current_source_file": {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+        "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+        "bytes": 581838
+      },
+      "git_path": "spacr/qt/widgets/ambient.py"
+    }
+  },
+  "targets": {
+    "de": {
+      "tooltip": {
+        "text": "Während ein CPU-intensiver Auftrag wie Measure läuft, begrenzt diese Richtlinie Hintergründe, die bereits animiert werden, auf höchstens 30 fps und pausiert Spaceout-Fraktale. Während ein GPU-Auftrag wie die Maskenerzeugung läuft, nutzt die dekorative Darstellung die CPU und GPU-basierte Spaceout-Fraktale pausieren. Nach Abschluss der Aufträge gelten wieder Ihre gespeicherten Animationseinstellungen. Off deaktiviert diese Richtlinie für laufende Aufträge; andere Animationsgrenzen gelten weiterhin.",
+        "sha256": "75b7a3564184cc1bdb885ee42c3a3a154cf12d37f2d6e426054f1eebdf4c049b",
+        "source_text_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      },
+      "AmbientWidget_stop": {
+        "text": "Stoppt den Animationstimer und legt den Shading-Thread still.\n\nWenn ein Shading-Produzent vorhanden ist und das Widget mit einer\n:class:`_BufferedEngine` sichtbar ist, wird das zuletzt vom Produzenten\nveröffentlichte Bild, sofern verfügbar, als Standbild für\n:meth:`_paint_still` beibehalten. Dies gilt unabhängig davon, warum\n:meth:`stop` aufgerufen wurde. Ein ausgeblendetes Widget behält dieses\nveröffentlichte Bild nicht bei. Stoppen bedeutet nicht, dass der gesamte\nübrige Zustand des Renderers oder Widgets freigegeben wird.\n\nEin CPU-intensiver Lauf stoppt nicht von sich aus einen Hintergrund,\nder ansonsten die Voraussetzungen für eine Animation erfüllt:\nDie Richtlinie für laufende Aufträge und :func:`spacr.qt.gil_priority.active`\nkönnen seine Bildrate auf höchstens :data:`_RUN_FPS` begrenzen.\nDer Animationsschalter, die Sichtbarkeit, „Bewegung reduzieren“ und die\nMinimierung bestimmen weiterhin, ob die Animation läuft.",
+        "sha256": "b697b0da49fc75e71aa90f6ddf1c2d68fad097ab2d450bce6c3490c048f970d7",
+        "source_text_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      }
+    },
+    "es": {
+      "tooltip": {
+        "text": "Mientras se ejecuta una tarea con alta carga de CPU, como Measure, esta política limita los fondos que ya están animándose a un máximo de 30 fps y pausa los fractales de Spaceout. Mientras se ejecuta una tarea de GPU, como la generación de máscaras, el renderizado decorativo usa la CPU y los fractales de Spaceout que utilizan la GPU se pausan. Tus ajustes de animación guardados se restablecen cuando terminan las tareas. Off desactiva esta política para las tareas en ejecución; los demás límites de animación siguen vigentes.",
+        "sha256": "7087f684d04928f75d7f25124abe8961df05eb28bc3a3731eadd685e3a35ee95",
+        "source_text_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      },
+      "AmbientWidget_stop": {
+        "text": "Detiene el temporizador de animación y retira el hilo de sombreado.\n\nSi hay un productor de sombreado y el widget está visible con\n:class:`_BufferedEngine`, conserva el último fotograma publicado por el\nproductor, si está disponible, como la imagen fija que dibuja\n:meth:`_paint_still`. Esto se aplica independientemente del motivo por\nel que se llamó a :meth:`stop`. Un widget oculto no conserva ese\nfotograma publicado. Detener la animación no implica que se libere\ntodo el resto del estado del renderizador o del widget.\n\nUna ejecución con alta carga de CPU no detiene por sí sola un fondo\nque cumple las demás condiciones para animarse: la política para\nlas tareas en ejecución y :func:`spacr.qt.gil_priority.active` pueden\nlimitar su ritmo a un máximo de :data:`_RUN_FPS`. El interruptor de\nanimación, la visibilidad, Reducir movimiento y la minimización siguen\ndeterminando si se anima.",
+        "sha256": "31d81fdc4846745a6c6c0ca3a572b507d8f9067c2e6a10010cc536fb2447a422",
+        "source_text_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      }
+    },
+    "fr": {
+      "tooltip": {
+        "text": "Lorsqu’une tâche sollicitant fortement le CPU, telle que Measure, s’exécute, cette politique limite à un maximum de 30 fps les arrière-plans déjà en cours d’animation et met les fractales Spaceout en pause. Lorsqu’une tâche GPU, telle que la génération de masques, s’exécute, le rendu décoratif utilise le CPU et les fractales Spaceout utilisant le GPU se mettent en pause. Vos paramètres d’animation enregistrés sont rétablis lorsque les tâches se terminent. Off désactive cette politique liée à la charge de travail ; les autres limites d’animation restent applicables.",
+        "sha256": "65e2d8f2f63664bb0ce97cf02e0bc08c6a5e3e10dddd23d32622de26deae2c32",
+        "source_text_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      },
+      "AmbientWidget_stop": {
+        "text": "Arrête le minuteur d’animation et met fin à l’utilisation du thread d’ombrage.\n\nSi un producteur d’ombrage existe et que le widget est visible avec\n:class:`_BufferedEngine`, conserve la dernière image publiée par le\nproducteur, si elle est disponible, comme image fixe dessinée par\n:meth:`_paint_still`. Cela s’applique quelle que soit la raison de\nl’appel à :meth:`stop`. Un widget masqué ne conserve pas cette image\npubliée. Arrêter l’animation ne signifie pas que tout le reste de\nl’état du moteur de rendu ou du widget soit libéré.\n\nUne tâche sollicitant fortement le CPU ne suffit pas à arrêter un\narrière-plan qui remplit par ailleurs les conditions pour être animé :\nla politique liée à la charge de travail et :func:`spacr.qt.gil_priority.active`\npeuvent limiter sa cadence à un maximum de :data:`_RUN_FPS`. Le réglage\nd’animation, la visibilité, Réduire les mouvements et la minimisation\ncontinuent de déterminer si l’animation s’exécute.",
+        "sha256": "0cb21efb2d0438ca383283b63fef96b0f4f1091d3f9f892a615a905933b084bf",
+        "source_text_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      }
+    },
+    "pt": {
+      "tooltip": {
+        "text": "Enquanto uma tarefa com alta carga de CPU, como Measure, estiver em execução, esta política limita os planos de fundo que já estão sendo animados a no máximo 30 fps e pausa os fractais do Spaceout. Enquanto uma tarefa de GPU, como a geração de máscaras, estiver em execução, a renderização decorativa usa a CPU e os fractais do Spaceout que usam a GPU ficam pausados. Suas configurações de animação salvas voltam a valer quando as tarefas terminam. Off desativa esta política de carga de trabalho; os outros limites de animação continuam valendo.",
+        "sha256": "2d4eee95a8cdd29a0d89e446165c00192bec22dcd86f0a6bd06b9c9e9ecc36b1",
+        "source_text_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      },
+      "AmbientWidget_stop": {
+        "text": "Para o temporizador de animação e encerra o uso da thread de sombreamento.\n\nQuando há um produtor de sombreamento e o widget está visível com\n:class:`_BufferedEngine`, mantém o último quadro publicado pelo produtor,\nse estiver disponível, como a imagem estática desenhada por\n:meth:`_paint_still`. Isso se aplica independentemente do motivo pelo\nqual :meth:`stop` foi chamado. Um widget oculto não mantém esse quadro\npublicado. Parar a animação não significa que todo o restante do\nestado do renderizador ou do widget seja liberado.\n\nUma execução com alta carga de CPU não para por si só um plano de\nfundo que atende às demais condições para ser animado: a política de\ncarga de trabalho e :func:`spacr.qt.gil_priority.active` podem limitar\nsua cadência a no máximo :data:`_RUN_FPS`. A opção de animação, a\nvisibilidade, Reduzir movimento e a minimização continuam determinando\nse a animação funciona.",
+        "sha256": "c8c0d319e1a9f1739c1181ae5686cff51e0a0996962f7c01e652daa4bdd0700b",
+        "source_text_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      }
+    },
+    "sv": {
+      "tooltip": {
+        "text": "När ett CPU-krävande jobb, till exempel Measure, körs begränsar denna policy bakgrunder som redan animeras till högst 30 fps och pausar Spaceout-fraktaler. När ett GPU-jobb, till exempel maskgenerering, körs använder den dekorativa renderingen CPU:n och GPU-baserade Spaceout-fraktaler pausas. Dina sparade animationsinställningar återställs när jobben är klara. Off stänger av denna policy för arbetsbelastning; andra animationsbegränsningar gäller fortfarande.",
+        "sha256": "aaf211b45912ebae39660eb56f4b9be0863b15fec8cb4c4e28eff6fb341ea51c",
+        "source_text_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      },
+      "AmbientWidget_stop": {
+        "text": "Stoppa animationstimern och avveckla skuggningstråden.\n\nNär en skuggningsproducent finns och widgeten är synlig med en\n:class:`_BufferedEngine`, behåll producentens senast publicerade\nbildruta, om den finns, som stillbilden som ritas av :meth:`_paint_still`.\nDetta gäller oavsett varför :meth:`stop` anropades. En dold widget\nbehåller inte den publicerade bildrutan. Att stoppa animationen innebär\ninte att allt annat tillstånd i renderaren eller widgeten frigörs.\n\nEtt CPU-krävande jobb stoppar inte i sig en bakgrund som i övrigt\nuppfyller villkoren för att animeras: policyn för arbetsbelastning och\n:func:`spacr.qt.gil_priority.active` kan begränsa takten till högst\n:data:`_RUN_FPS`. Animationsreglaget, synligheten, Minska rörelse och\nminimering styr fortfarande om animationen körs.",
+        "sha256": "b3d0befca2a68fbea34d0d317138f6d7d63e3539db8853247f58f368105c035e",
+        "source_text_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+        "technical_review": "Codex AI hand-authored technical translation draft. Checked conditional cap/stop/frame-retention semantics and exact role/identifier preservation. Not human/native-speaker review or canonical acceptance."
+      }
+    }
+  },
+  "locales": [
+    "de",
+    "es",
+    "fr",
+    "pt",
+    "sv"
+  ],
+  "Portuguese_variant": "Brazilian Portuguese; API locale key pt",
+  "record_count": 10,
+  "technical_semantic_checks": [
+    "Already-animating backdrop cap at most30fps; no delivered30 guarantee or guaranteed motion.",
+    "CPU andGPU work policies distinct; decorative rendering usesCPU duringGPUwork; GPU-backed Spaceout pauses.",
+    "Saved animation settings return at job end; literalOff disables workload policy only, other animation limits remain.",
+    "Stop published-frame retention requires producer plus visible BufferedEngine plus available frame.",
+    "Hidden widget does not retain that frame; stopping does not promise allstate/zero-memory release.",
+    "CPU-heavy run does not itself stop an otherwise qualifying backdrop; workloadpolicy and active can cap pace to_RUN_FPS; animation switch/visibility/Reduce motion/minimization still govern.",
+    "All5 RST role spans/targets preserved exactly per whole stop block; tooltipCPU/GPU/Measure/Spaceout/Off/30/fps identifiers retained."
+  ],
+  "mechanical_validation": "Stdlib JSON/hash/role/identifier checks and current source SHA comparison only; no imports, extraction, generators or tests.",
+  "provenance": {
+    "author": "Codex AI",
+    "human_native_speaker_review": false,
+    "canonical_translation_approval": false,
+    "tutorial_translation_work": false
+  },
+  "no_actions": {
+    "source_catalog_review_generator_edits": false,
+    "tests_GUI_GPU_audio_network": false,
+    "env_packages_changes": false,
+    "push": false
+  },
+  "clarity_revision": {
+    "created_at_utc": "2026-10-14T02:19:27.278825+00:00",
+    "original_artifact": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_future_locale_drafts_A_20261013.json",
+      "sha256": "7b72474f587ec903a5936b86b128b0a2884ed688b69a8e196257d7de8c7e4c1d",
+      "bytes": 16704
+    },
+    "original_preserved_unchanged": true,
+    "changes": [
+      {
+        "locale": "de",
+        "label": "tooltip",
+        "original_translation_sha256": "b375a4524e23246b241ddecc7fe249930e6f0ce29bb59a555b5f738211333486",
+        "revised_translation_sha256": "75b7a3564184cc1bdb885ee42c3a3a154cf12d37f2d6e426054f1eebdf4c049b",
+        "reason": "Make already-currently-animating condition explicit; no new motion/fps guarantee."
+      },
+      {
+        "locale": "pt",
+        "label": "tooltip",
+        "original_translation_sha256": "8b2d911bb177e8a675c7014e0302abb5f97a79a45fafb6532bc4cb59bc350b3f",
+        "revised_translation_sha256": "2d4eee95a8cdd29a0d89e446165c00192bec22dcd86f0a6bd06b9c9e9ecc36b1",
+        "reason": "Make already-currently-animating condition explicit; no new motion/fps guarantee."
+      },
+      {
+        "locale": "fr",
+        "label": "tooltip",
+        "original_translation_sha256": "b438d055cc086931d042bdc0f75e9ac2ad7dc3e0b987788c8cddeb5f6b405c5c",
+        "revised_translation_sha256": "65e2d8f2f63664bb0ce97cf02e0bc08c6a5e3e10dddd23d32622de26deae2c32",
+        "reason": "Make already-currently-animating condition explicit; no new motion/fps guarantee."
+      }
+    ],
+    "review_scope": "Ownertechnicalpeer identifiedGerman/Portuguese current-animation wording; author also clarifiedsameFrenchadjectivalconstruction. Independentfinalpeer remainsrequired; no source/catalogacceptance."
+  }
+}

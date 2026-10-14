@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:18:55.300929+00:00",
+  "status": "scoped_AI_technical_semantic_peer_no_required_meaning_corrections",
+  "reviewer": "Codex AI technical review, independent of draft producer",
+  "scope": "Ten A target texts de/es/fr/pt(Brazilian Portuguese)/sv against exact Home-accepted futureEnglish; technicalcap/workload/frame-retention meaning only. No source inventory rescan, AST sweep, generators/tests/runtime/native/human review.",
+  "draft_binding": {
+    "artifact": "n615_future_locale_drafts_A_20261013.json",
+    "sha256": "7b72474f587ec903a5936b86b128b0a2884ed688b69a8e196257d7de8c7e4c1d",
+    "bytes": 16704
+  },
+  "accepted_English_binding": {
+    "repo_relative_path": "features/data/n615_english_truth_proposals_2026-10-13/home-accepted-future-english.json",
+    "sha256": "c30d17f08d8740e4863635bba3b5b77de32b7e8eb079e145d0a2ac12381f130a",
+    "bytes": 2082
+  },
+  "record_count": 10,
+  "per_record_findings": [
+    {
+      "locale": "de",
+      "key": "tooltip",
+      "target_sha256": "b375a4524e23246b241ddecc7fe249930e6f0ce29bb59a555b5f738211333486",
+      "accepted_source_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "Already-animating maximum30fps and CPU-triggered Spaceout pause; no delivered-rate guarantee.",
+        "GPU decorative rendering usesCPU; onlyGPU-backed Spaceout pause specified.",
+        "Savedsettings return; Off disables workloadpolicy only and other limits remain."
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "de",
+      "key": "AmbientWidget_stop",
+      "target_sha256": "b697b0da49fc75e71aa90f6ddf1c2d68fad097ab2d450bce6c3490c048f970d7",
+      "accepted_source_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "producer exists AND widget visible with BufferedEngine AND frame available",
+        "Retain producer lastpublished frame as paint_still still regardless of stop reason",
+        "Hidden doesnotretain that frame; otherstate not promised released",
+        "CPU-heavy run itself doesnotstop otherwisequalified backdrop; capped pace _RUN_FPS",
+        "Animation switch/visibility/Reduce motion/minimization continue determining animation eligibility"
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "es",
+      "key": "tooltip",
+      "target_sha256": "7087f684d04928f75d7f25124abe8961df05eb28bc3a3731eadd685e3a35ee95",
+      "accepted_source_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "Already-animating maximum30fps and CPU-triggered Spaceout pause; no delivered-rate guarantee.",
+        "GPU decorative rendering usesCPU; onlyGPU-backed Spaceout pause specified.",
+        "Savedsettings return; Off disables workloadpolicy only and other limits remain."
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "es",
+      "key": "AmbientWidget_stop",
+      "target_sha256": "31d81fdc4846745a6c6c0ca3a572b507d8f9067c2e6a10010cc536fb2447a422",
+      "accepted_source_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "producer exists AND widget visible with BufferedEngine AND frame available",
+        "Retain producer lastpublished frame as paint_still still regardless of stop reason",
+        "Hidden doesnotretain that frame; otherstate not promised released",
+        "CPU-heavy run itself doesnotstop otherwisequalified backdrop; capped pace _RUN_FPS",
+        "Animation switch/visibility/Reduce motion/minimization continue determining animation eligibility"
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "fr",
+      "key": "tooltip",
+      "target_sha256": "b438d055cc086931d042bdc0f75e9ac2ad7dc3e0b987788c8cddeb5f6b405c5c",
+      "accepted_source_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "Already-animating maximum30fps and CPU-triggered Spaceout pause; no delivered-rate guarantee.",
+        "GPU decorative rendering usesCPU; onlyGPU-backed Spaceout pause specified.",
+        "Savedsettings return; Off disables workloadpolicy only and other limits remain."
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "fr",
+      "key": "AmbientWidget_stop",
+      "target_sha256": "0cb21efb2d0438ca383283b63fef96b0f4f1091d3f9f892a615a905933b084bf",
+      "accepted_source_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "producer exists AND widget visible with BufferedEngine AND frame available",
+        "Retain producer lastpublished frame as paint_still still regardless of stop reason",
+        "Hidden doesnotretain that frame; otherstate not promised released",
+        "CPU-heavy run itself doesnotstop otherwisequalified backdrop; capped pace _RUN_FPS",
+        "Animation switch/visibility/Reduce motion/minimization continue determining animation eligibility"
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "pt",
+      "key": "tooltip",
+      "target_sha256": "8b2d911bb177e8a675c7014e0302abb5f97a79a45fafb6532bc4cb59bc350b3f",
+      "accepted_source_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "Already-animating maximum30fps and CPU-triggered Spaceout pause; no delivered-rate guarantee.",
+        "GPU decorative rendering usesCPU; onlyGPU-backed Spaceout pause specified.",
+        "Savedsettings return; Off disables workloadpolicy only and other limits remain."
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "pt",
+      "key": "AmbientWidget_stop",
+      "target_sha256": "c8c0d319e1a9f1739c1181ae5686cff51e0a0996962f7c01e652daa4bdd0700b",
+      "accepted_source_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "producer exists AND widget visible with BufferedEngine AND frame available",
+        "Retain producer lastpublished frame as paint_still still regardless of stop reason",
+        "Hidden doesnotretain that frame; otherstate not promised released",
+        "CPU-heavy run itself doesnotstop otherwisequalified backdrop; capped pace _RUN_FPS",
+        "Animation switch/visibility/Reduce motion/minimization continue determining animation eligibility"
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "sv",
+      "key": "tooltip",
+      "target_sha256": "aaf211b45912ebae39660eb56f4b9be0863b15fec8cb4c4e28eff6fb341ea51c",
+      "accepted_source_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "Already-animating maximum30fps and CPU-triggered Spaceout pause; no delivered-rate guarantee.",
+        "GPU decorative rendering usesCPU; onlyGPU-backed Spaceout pause specified.",
+        "Savedsettings return; Off disables workloadpolicy only and other limits remain."
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    },
+    {
+      "locale": "sv",
+      "key": "AmbientWidget_stop",
+      "target_sha256": "b3d0befca2a68fbea34d0d317138f6d7d63e3539db8853247f58f368105c035e",
+      "accepted_source_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+      "technical_semantic_result": "No required correction in scoped meaning; optional de/pt tooltip clarity noted separately.",
+      "scope_checks": [
+        "producer exists AND widget visible with BufferedEngine AND frame available",
+        "Retain producer lastpublished frame as paint_still still regardless of stop reason",
+        "Hidden doesnotretain that frame; otherstate not promised released",
+        "CPU-heavy run itself doesnotstop otherwisequalified backdrop; capped pace _RUN_FPS",
+        "Animation switch/visibility/Reduce motion/minimization continue determining animation eligibility"
+      ],
+      "source_binding_preserved": true,
+      "role_spans_and_targets_identical": true
+    }
+  ],
+  "approved_scoped_claims": [
+    "Allten texts preserve core accepted-English numerical/cap and workload boundaries.",
+    "Allfive stop texts preserve conjunctive producer+visibleBufferedEngine+availableframe and reason-independent still retention.",
+    "Hidden-frame sentence doesnot claimzero-memory/allstate release.",
+    "Module/RSTfive spans are exact; each target binds same approvedfutureEnglish and declared unchangedcurrent file hash. This peer did not separately reread currentsource."
+  ],
+  "optional_precision_refinements": [
+    {
+      "locale": "de",
+      "key": "tooltip",
+      "current_clause": "bereits animierte Hintergründe",
+      "proposed_clause": "Hintergründe, die bereits animiert werden",
+      "reason": "Makes currentlyalreadyanimating explicit rather than adjectival animated/result state. Context already conveys present workload pacing; no required meaning correction.",
+      "required": false
+    },
+    {
+      "locale": "pt",
+      "key": "tooltip",
+      "current_clause": "os planos de fundo que já estão animados",
+      "proposed_clause": "os planos de fundo que já estão sendo animados",
+      "reason": "Makes ongoing animation explicit rather than alreadyanimated state. Context already preserves maximum cap and temporary policy; no required meaning correction.",
+      "required": false
+    }
+  ],
+  "remaining_limits": [
+    "AI technical peer only; no human/native-speaker or wholelocale/globalcatalog acceptance.",
+    "Localized Reduce motion and technicalshading/widget terminology may need eventual editorial/native review; no semantic blocker identified in scoped conditions.",
+    "Drafts remain futurefeature evidence; no English source/catalog/review/hash-repin or release approval implied.",
+    "Mechanicalpeer owns finalcombinednine-locale bindings; this immutable receipt binds A7b724 initial bytes and must not be relabelled as checking laterchanged records."
+  ],
+  "no_actions": {
+    "source_catalog_review_edits_performed": false,
+    "tests_generators_GUI_GPU_performed": false,
+    "translation_publication_or_push_performed": false
+  }
+}
