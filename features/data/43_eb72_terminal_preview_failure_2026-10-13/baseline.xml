@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="10" time="20.915" timestamp="2026-10-13T22:39:01.905240-04:00" hostname="olafsson"><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_a_reading_in_the_same_band_does_not_repolish_the_bar" time="1.214" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_a_cpu_only_host_never_opens_nvml" time="0.028" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_a_failing_nvml_query_falls_back_to_gputil" time="0.028" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_the_mask_preview_pictures_are_cached_at_the_size_shown" time="7.123"><failure message="AssertionError: the cached previews cost 0.89 of drawing them scaled (0.98 against 1.10 ms a repaint)&#10;assert 0.8949149881246096 &lt;= 0.75">qtbot = &lt;pytestqt.qtbot.QtBot object at 0x7d382cfad640&gt;
+applied = &lt;PySide6.QtWidgets.QApplication(0x6297d53f6f30) at 0x7d384db64740&gt;
+
+    def test_the_mask_preview_pictures_are_cached_at_the_size_shown(
+            qtbot, applied):
+        """A field frame over two 2048-pixel previews blits them, not rescales them.
+    
+        The field repaints the region of the two preview canvases, which is
+        what each field frame does there. The reference is the same repaint
+        with the pictures drawn uncached, measured interleaved in the same
+        test. Offscreen at 2560x1440, load 24-28, median of nine rounds: 3.1 and
+        4.3 ms uncached, 1.4 and 2.0 cached, 0.9 and 1.3 with no picture.
+        """
+        from PySide6.QtCore import QPoint, QRect
+        from PySide6.QtGui import QRegion
+        from PySide6.QtWidgets import QGraphicsItem
+    
+        from spacr.qt.widgets.live_preview import LivePreviewPanel, numpy_to_qpixmap
+    
+        window, screen = _window_on_mask(qtbot, (2560, 1440))
+        qtbot.waitUntil(lambda: window.window_backdrop() is not None,
+                        timeout=20000)
+        backdrop = window.window_backdrop()
+        if not hasattr(backdrop, "_timer"):
+            pytest.skip("the window backdrop is not the field in this setup")
+        screen._on_preview_switch(True)
+        qtbot.wait(300)
+        _hide_tours(window)
+        _stop_the_field(window)
+        panel = window.findChildren(LivePreviewPanel)[0]
+        picture = (np.random.default_rng(0).random((2048, 2048, 3))
+                   * 255).astype(np.uint8)
+        views = (panel._src_view, panel._mask_view)
+        for view, image in zip(views, (picture, picture[::-1])):
+            view.set_pixmap(numpy_to_qpixmap(image))
+            assert (view._pixmap_item.cacheMode()
+                    == QGraphicsItem.DeviceCoordinateCache)
+        qtbot.wait(50)
+        region = QRegion()
+        for view in views:
+            corner = backdrop.mapFrom(
+                window, view.viewport().mapTo(window, QPoint(0, 0)))
+            region = region.united(QRect(corner, view.viewport().size()))
+        assert not region.isEmpty()
+    
+        cached, uncached = [], []
+        for _round in range(9):
+            for mode, out in ((QGraphicsItem.DeviceCoordinateCache, cached),
+                              (QGraphicsItem.NoCache, uncached)):
+                for view in views:
+                    view._pixmap_item.setCacheMode(mode)
+                backdrop.repaint(region)
+                out.append(_region_ms(backdrop, region))
+        ratio = statistics.median(cached) / statistics.median(uncached)
+&gt;       assert ratio &lt;= 0.75, (
+            f"the cached previews cost {ratio:.2f} of drawing them scaled "
+            f"({statistics.median(cached):.2f} against "
+            f"{statistics.median(uncached):.2f} ms a repaint)")
+E       AssertionError: the cached previews cost 0.89 of drawing them scaled (0.98 against 1.10 ms a repaint)
+E       assert 0.8949149881246096 &lt;= 0.75
+
+tests/qt/test_module_screen_timers_do_not_stall_20261012.py:523: AssertionError
+----------------------------- Captured Qt messages -----------------------------
+QtInfoMsg: OpenType support missing for "Open Sans", script 11</failure></testcase><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_a_card_reporting_no_memory_reads_zero_rather_than_dividing" time="0.011" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_a_new_reading_is_painted_with_the_next_frame_not_now" time="0.050" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_the_usage_poll_reads_the_card_without_starting_a_process" time="0.012" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_a_driver_listing_no_card_reads_as_idle" time="0.012" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_a_host_without_nvml_still_has_gputil" time="0.011" /><testcase classname="tests.qt.test_module_screen_timers_do_not_stall_20261012" name="test_no_periodic_timer_holds_the_gui_thread_on_the_mask_screen" time="11.556" /></testsuite></testsuites>

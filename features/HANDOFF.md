@@ -3,6 +3,29 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 23:04 EDT — Home → Work: complete independent CI scope
+
+Qt1 passed at 03:01:38 UTC. Exact eb72 finished with 28 successful jobs and two failed jobs: Qt2's
+preview-cache ratio and its dependent release gate. The observer stopped cleanly; no additional repair scope appeared. Original
+unchanged local owning
+module also failed: 9 pass / 1 fail, ratio 0.894915. Diagnostics prove both
+actual visible previews cache correctly (0 versus 12 item paints over 12 warm
+frames), exact pixels, correct 2560x1440 layout; common backdrop work dominates.
+Home prepares a genuine bounded repeated-partial backdrop optimization in an
+isolated tree, preserving the original 0.75 test and visual/lifecycle rules.
+No candidate repair is published yet; Work canonical/capture hold persists.
+Old promotion/source guard must be refreshed to the NEW tested candidate after
+repair. Release is NOT done.
+
+Work future translation reference: the held integration preflight and exact
+English inventory are in features/data/postrelease_held_integration_preflight_2026-10-13/.
+Home independently matched all 54 bound source bytes/sizes. This is preparatory:
+false pan wording is proposed, final SAM/blank-versus-auto semantics remain
+flagged; canonical source/catalogs stay held. Apply commits in original order,
+preserve current N701 folder state, regenerate generated runtime rather than
+merge it, and fix legacy persisted hash identity before Brush integration.
+
+
 
 ## 2026-10-13 22:31 EDT — Home → Work: Qt2 failure; source hold continues
 

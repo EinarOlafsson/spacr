@@ -1,10 +1,10 @@
-Home/Work progress — 2026-10-13 22:31 EDT
+Home/Work progress — 2026-10-13 23:04 EDT
 
 — means no defensible completion percentage or elapsed-time estimate. ✅ marks verified achievements in the last 12 hours; remaining gates stay explicit.
 
 | item | percent done | time left | owner | detailed description |
 |---|---|---|---|---|
-| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Exact eb72 CI:26pass, Qt2failed preview cache timing ratio0.75248 vs0.75; Qt1stillrunning. Promotion held. Prepared exact-source merge/36reviewed notes remain ready; owning failure repair now assigned. |
+| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Exact eb72 fullCI terminal:28PASS/2FAIL, sole independent Qt2preview-cache failure plus dependent gate. Private genuine paint-cost repair now ready for validation; original0.75 preserved. No promotion/release. |
 | CI repair implementation | ✅ | Done; fullCIpending | Home Codex team | Published at9af7f3dc12: cached painting palette, safe import fallback, walkthrough-aware navigation test, exact sparse colour crossfade and real source-default coverage. Localchecks74+106+185+48PASS;9existinglocale findingsreport-only. |
 | CI N701 layout compatibility | ✅ | Published; full CI pending | Home Qt agent | Private 1a9a138c76 adds the shipped Hide judged fields button to the full order contract. 38 tests pass; exit 0 and JUnit verified. |
 | CI Model Zoo backend coverage | ✅ | Published; full CI pending | Home Qt agent | 11 tests pass; real model-row regression checks missing-backend Install action and ready-backend state. Both branch outcomes verified; no source or ratchet edits. |
@@ -14,9 +14,9 @@ Home/Work progress — 2026-10-13 22:31 EDT
 | Lesson 20 telemetry correction | — | Validated; held for release | Work | Private 6dfed0613: 15 new plus 11 gate tests pass; corrected replay still rejects both opening captures at unchanged 26.96/26.92 fps. |
 | Lesson 20 staging contract | — | Validated; held for release | Work | Private 67dbbd20b checks exact scientific, clip and gate evidence with video/native/receipt hash bindings; 63 owning cases pass. |
 | Tutorial queue preflight | — | Validated; held for release | Work | Private 6487de73a/facc4b16a detect capture placeholders and missing paths before jobs are emitted; 12 cases pass. Dispatcher remains inactive. |
-| N43 | — | CI-dependent | Home | Full run38488240863 has a confirmed Qt2preview-cache timing failure (1.18vs1.56ms); Qt1stillrunning. Preserve threshold, investigate actual paint/cache behavior, then coherent repair and fresh fullCI. |
+| N43 | — | CI-dependent | Home | Qt0/Qt1 pass; sole Qt2failure reproduced locally9PASS/1FAIL. Visible cache works; common backdrop dominates. Prepare bounded repeated-partial optimization with exact parity/lifecycle; fresh fullCI required. |
 | F288 | — | CI + issue acceptance | Home + Work | Hosted gate passes; real CuPy3pass/0skip and local97.04% accepted, all664 above90% without baseline changes. FullCI repair and open issue146/147 requirements remain. |
-| Make Masks lesson 14 performance | — | After release | Home | 138-case byte proof confirms dirty persisted hash defect and exact bounded legacy replacement. Held branch unchanged; finish ledger/shutdown/performance fixes and owning tests after release. |
+| Make Masks lesson 14 performance | — | After release | Home | All54 preflight bindings verified; preserve N701 folder state and proven legacy i8hash before brush integration. Original held2dirtyfiles unchanged; finish lifecycle/performance/ledger acceptance after release. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |
 | N696 | — | After N697 | Home + Work | Rebase automatic diameter; fix issue146 (0 must mean auto), GUI/CLI/run/preview parity, defaults/reseeding/clipping and translations. Held until after697. |
 | README panel text links | 0% | After held branches | Home | Each panel links to its text; existing destination pages begin with the panel text. Preserve current visuals and copy generated outputs to main. |

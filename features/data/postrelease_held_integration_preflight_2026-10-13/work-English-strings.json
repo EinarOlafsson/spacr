@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "scope": "Exact held English for Work preparation; no translations/source/catalogues applied. Final corrected English and source hashes required before canonical translation.",
+  "commit_bindings": {
+    "paint": "71cba5ffcd17c01ed99e28ea9cb6fc158cdb726e",
+    "697": "59e76dd36f9a937e9e0a1d4c512ebe96ecb003ae",
+    "696": "7a93f9216b542197334d1ab0405ba9b50127f03c"
+  },
+  "paint_runtime": [
+    {
+      "text": "The Wand is still filling the last click.",
+      "path": "spacr/qt/screens/make_masks.py",
+      "line": 3093
+    },
+    {
+      "text": "The Wand could not fill that region: {error}",
+      "path": "spacr/qt/screens/make_masks.py",
+      "line": 3155
+    },
+    {
+      "text": "The Wand region was not applied: the mask changed while it was being filled.",
+      "path": "spacr/qt/screens/make_masks.py",
+      "line": 3160
+    }
+  ],
+  "697_runtime": [
+    {
+      "text": "Brush: Shift + drag",
+      "owner": "SHORTCUT_HINTS"
+    },
+    {
+      "text": "Keep painting the last object across a gap",
+      "owner": "SHORTCUT_HINTS"
+    },
+    {
+      "text": "Each separate stroke paints a new object; a stroke that starts on or touches an object extends it. Hold Shift to keep painting the last object across a gap.",
+      "owner": "Brush tooltip"
+    }
+  ],
+  "697_pan_rewording_proposal": {
+    "old_key": "Shift or Alt + drag",
+    "old_text": "Pan, from any tool",
+    "proposed_key": "Alt + drag; other tools also Shift",
+    "proposed_text": "Pan (Brush uses Alt; other tools also use Shift)",
+    "state": "Proposal, not approved/applied; old text contradicts Brush Shift behavior and current owning test pins it."
+  },
+  "696_setting_tooltips": [
+    {
+      "key": "cell_diameter",
+      "text": "Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM. Leave it None (blank) to use the magnification default, 2*magnification+80 px (120 px at 20x, 160 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (a Cellpose 3 size model estimates it; Cellpose-SAM, which has no size model, segments at native scale). spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None."
+    },
+    {
+      "key": "magnification",
+      "text": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40."
+    },
+    {
+      "key": "nucleus_diameter",
+      "text": "Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None (blank) uses the magnification default, 0.75*magnification+45 px (60 px at 20x, 75 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). spacr.diameter.estimate_diameters estimates a value. Default None."
+    },
+    {
+      "key": "pathogen_diameter",
+      "text": "Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None (blank) uses the magnification default, magnification px (20 px at 20x, 40 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None."
+    },
+    {
+      "key": "robustness_diameter_factors",
+      "text": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as its magnification default and 0 or 'auto' as Cellpose's nominal 30 pixels. Default [0.75, 1.25]."
+    }
+  ],
+  "696_UI": [
+    {
+      "path": "spacr/qt/widgets/live_preview.py",
+      "text": "Diameter (px)"
+    },
+    {
+      "path": "spacr/qt/widgets/object_settings_grid.py",
+      "text": "Diameter (px)"
+    },
+    {
+      "path": "spacr/qt/widgets/object_settings_grid.py",
+      "text": "Pixels. Blank uses the magnification default (shown greyed); 0 or auto lets Cellpose estimate the diameter."
+    },
+    {
+      "path": "spacr/qt/widgets/object_settings_grid.py",
+      "text": "{value} is not a diameter: type a number of pixels, 0 or auto to let Cellpose estimate it, or clear the cell for the magnification default."
+    },
+    {
+      "path": "spacr/qt/widgets/timelapse_preview.py",
+      "text": "Diameter (px)"
+    }
+  ],
+  "696_shared_diameter_tooltip": {
+    "path": "spacr/qt/widgets/live_preview.py",
+    "symbol": "DIAMETER_TOOLTIP",
+    "text": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1). 0 and auto are the same value: Cellpose estimates the size (Cellpose-SAM, which has no size model, keeps the native scale). An object diameter left blank opens at its magnification default, as the run uses it."
+  },
+  "696_public_API": [
+    {
+      "symbol": "spacr.api.MaskConfig",
+      "source_blocks_sha256": [
+        "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "8cb7875ccd6954e92c2a7a92a8317b0a0f702ac4a4a7cb1c9800e14ba0b8fc3f",
+        "e68ee04dff59551b7d1ae07a2f8a00dc61d841628948da3d2781630706a05e92"
+      ],
+      "source_sha256": "58c2d77a17cb3064872b6090b0b8ce271045a123c3fd8e2895958cf261568777",
+      "text": "Configuration for image preparation and Cellpose segmentation.\n\nParameters\n----------\nsrc:\n    Plate folder, or a sequence of plate folders, containing the source\n    microscopy images.\ncell_channel, nucleus_channel, pathogen_channel:\n    Zero-based intensity channel used for each segmentation target. Leave\n    an object at ``None`` when it should not be segmented. At least one is\n    required.\ncell_diameter, nucleus_diameter, pathogen_diameter:\n    Expected object diameters in pixels. ``None`` uses the\n    magnification default (``2*magnification+80`` for cells,\n    ``0.75*magnification+45`` for nuclei, ``magnification`` for\n    pathogens); ``0`` or ``\"auto\"`` lets Cellpose estimate it.\nchannels:\n    Intensity channels retained in the merged field arrays.\nmagnification:\n    Objective magnification recorded with the run.\npipeline_style:\n    ``\"v1\"`` for the stable disk-based pipeline or ``\"v2\"`` for the\n    experimental streaming path.\nextra:\n    Advanced settings not represented by typed fields. Keys that repeat a\n    typed field are refused so one script cannot contain two answers.\ntest_mode:\n    Run Mask on a random subset of up to ``test_images`` complete image\n    sets under ``<src>/test`` and enable diagnostic plots before\n    processing the full source.\ndry_run:\n    Run Mask preflight and return its reported problems before heavy\n    pipeline imports, model loading, segmentation, or writes.\n\nExamples\n--------\n>>> config = MaskConfig(\n...     \"/data/plate01\", cell_channel=0, nucleus_channel=1,\n...     cell_diameter=60, nucleus_diameter=20,\n... )\n>>> settings = config.to_settings()\n>>> settings[\"src\"]\n'/data/plate01'"
+    },
+    {
+      "symbol": "spacr.cli.resolve_settings",
+      "source_blocks_sha256": [
+        "f3d1675d6373512aaf8780357b985072552b3f49af6086e184a6e13203535029",
+        "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
+        "c998f8049bcc807beabebb18310e626c88529dc5ac089a2d3a5ce5fa2785155c",
+        "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
+        "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
+        "71cd8a699d1f3109ac9f4f9da2a60e25c20d1190a4f8238e0ac01a0e9cd97806",
+        "2cc6a76c58a49d195847a74804f935ee41c29975c1c3418beefdc05931028e87",
+        "6e3e14af2ace89206379e9a90bddf7fe57a7ee2d5b07cf2af8e1d11c09eb14ca"
+      ],
+      "source_sha256": "650ba523ce0f6140bd9e6086ad2b0c65f928e41581052c1266c1e086b206374d",
+      "text": "Build the settings dict that the pipeline receives.\n\nLayered lowest-to-highest: the module's own defaults, the settings file,\nthen the ``--set`` overrides. The file is read under today's names first\n-- see :func:`_under_todays_names`, without which a value the file set\nunder an old name lost to the default already sitting under the new one.\nAn object diameter of 0 or \"auto\" comes out as \"auto\", the one form\nboth are stored in (item 696).\n\n:param module: module being run.\n:param settings_path: path to the settings file, or None for defaults only.\n:param overrides: ``key=value`` strings.\n:param moved: list to receive the migration notices, passed straight to\n    :func:`_under_todays_names`; a caller that prints a pre-flight report\n    hands these to :func:`_preflight` so the keys the fold consumed are\n    still named there.\n:returns: the fully-resolved settings dict.\n:raises SettingsError: on any unreadable file, unknown key or bad value."
+    },
+    {
+      "symbol": "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.follow_the_form",
+      "source_blocks_sha256": [
+        "0bcb7f4fd63755efa034e33731de4b491a885f241f8eb267f7fb942dddadc971",
+        "e9608bac5ac7124191014fffa0a16648357363fa1ba36b1848f280644a6bca07",
+        "f12190afb33dca2591d085eaee4a2d134bf45fc0e65b487d2758d23379912cf4",
+        "30dcec65e2aa650f79507b49f7e0e1a710e7774d2946631f78155fcc4c322910",
+        "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
+      ],
+      "source_sha256": "e72a9df5053ddde57875cfd7272cbebdfe84dc397a1afc517ffb657ecdc9d902",
+      "text": "Make the form's own fields write into the table.\n\nThis is the form-to-grid half of the two-way binding. Without it, a\nvalue changed outside the grid -- the flat row for an object the\ntable does not claim, a preset, the Live Preview, a loaded settings\nfile -- would leave the table showing the old value.\n\nThe table is not reseeded: `seed` rebuilds the whole table, which\ntakes 30 ms on Mask and 100 ms with ten organelles. On a\n`textChanged` that would run per keystroke and move the cursor out\nof the cell being edited. One cell is written instead.\n\nThe magnification field is followed as well: a blank object\ndiameter shows the magnification default, which moves with it\n(item 696).\n\n:returns: how many widgets were newly connected."
+    },
+    {
+      "symbol": "spacr.run_journal.Run",
+      "source_blocks_sha256": [
+        "a2a37042923ef941c3b6ec612e3a3bd9c1bf627479b069815b3079ed8a1a778f",
+        "642369dcbcf0954560157ccece9a94a9600e79ad5cddf147249e73f6895085fa",
+        "bbc1863905e049853068faae7a601383eeefc48a2d4a8761ee4d977dba3e18e4",
+        "fa9df8fcc7121a6f4bcb87d8aff961d812a60ef692427aa8d5f674b2277ea404",
+        "ea7e6d7914fb1277b78df4a64043ec43ccfcf0bf3a7aa51a6934b13900be8cfb",
+        "ff770c45d11415438fabeb5572b2c07143c75d599022cf41031edd28e327119d",
+        "4e079c0b47cc68042863f25c7c8f67fb4879f9926beb7083496b92915ccf7535",
+        "5160383002075974c167a84ec799e5d40d55dffbdf34e98f4fd075e34b4608b4",
+        "c1329b37840bb8ab62b05490f479c09d7f76dd0268917762f916ddf1a8ea1231",
+        "a87e0e1586670fbcf8d7a5067579aab724ff8a7b1b37936a0839dd83a136de72",
+        "cf63a02a8dfc657eee35ed8306a569e9bd2519097f0a5d4dbaf5c4cc8e15fe5f",
+        "79128b6d7ad38273a9a72eef8b898002930d89691b5526d3f22111e989b794f9",
+        "ec8793e67a3b345ffd50e2785a353afa001317e6139f9c487b9c497dd88d7cf8",
+        "a74577b157a2c760ab129c96cff59ff7d531d2f560a1b11154514c5361d0e613",
+        "269ab2075e34a917d7c77dfd512401af496d4346412683ceceade2be9f7a03c1",
+        "e0214bb996a8c9e7f917dcbdf934d5cd766f489de1eaf62baf86023179e0f37b",
+        "bd2ba3f9d896237073978163d11cfe92bbca79902af882f4bb4e9b37475643af",
+        "68c410d95ae3531f518cbea42722195316d740281700e632816a4c0abb9691da",
+        "e73f8bd5a854415a93b54ede69fd0c04b1bf438d55187aa6a8ed115557014951",
+        "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417"
+      ],
+      "source_sha256": "f0b419fbd976519a37361333fb1a4282ab223bb5fb02fa612c7e74f86dcb003a",
+      "text": "A single pipeline invocation's on-disk record.\n\nInstances are produced by :func:`open_run`. Users don't construct\nthem directly.\n\n:ivar app_key: id of the pipeline app that opened the run.\n:ivar settings: settings dict originally passed to the pipeline.\n:ivar dir: run folder path (``~/.spacr/runs/<ts>_<uuid>__<app>``).\n:ivar start_ts: unix epoch seconds when the run opened.\n:ivar end_ts: unix epoch seconds when the run closed (set by\n    :func:`open_run` on exit).\n:ivar status: ``\"running\"`` / ``\"success\"`` / ``\"failed\"`` /\n    ``\"cancelled\"``. The last is a run the user stopped, which is not a\n    run that broke, and the two want different things done next.\n:ivar model_hashes: dict of ``{human-name: \"filename:sha256-16\"}``.\n    Populated by callers via :meth:`record_model`.\n:ivar model_files: full SHA-256, size, and path records for models.\n:ivar input_hashes: per-file full SHA-256 input provenance.\n:ivar output_hashes: per-file full SHA-256 output provenance.\n:ivar seeds: declared seeds and runtime RNG-state identifiers.\n:ivar provenance_warnings: non-fatal path/hash failures retained in the\n    manifest instead of being silently discarded.\n:ivar run_warnings: distinct warning lines emitted by the pipeline.\n:ivar environment: host, spaCR, Git, and installed-package versions.\n:ivar stages: consolidated FlowView lifecycle records in execution order.\n:ivar stdout_path: captured standard-output log path, when one is attached.\n:ivar error_traceback: formatted exception traceback for failed or\n    cancelled runs; empty for successful runs.\n:ivar diameters: per object, the diameter it was segmented with, e.g.\n    ``\"120 px (magnification 20x default)\"`` or ``\"auto (Cellpose\n    estimated 57.3 px)\"`` (item 696)."
+    }
+  ],
+  "truth_holds": [
+    "Held blank/None means magnification default while auto/0 selects backend-native handling. Current feature WHAT_TO_BUILD says empty and auto must not differ. Resolve this product contradiction before final wording.",
+    "Cellpose-SAM has no size estimator in this implementation. Do not translate an unqualified claim that SAM estimates diameter.",
+    "Timelapse role reseeding and >400px preview/run mismatch need correction before final acceptance."
+  ],
+  "deduplication": "Diameter (px) has three new call sites and may reuse its existing compact translation. Deduplicate exact text/hash; preserve {error}/{value}. Seven new private697 and33 changed private696 docstrings remain in existing detailed inventory; four public696 API records are listed here."
+}
