@@ -221,12 +221,17 @@ def test_brush_strokes_on_a_slice_draw_one_object_and_undo_through_the_volume(st
     assert screen._btn_undo.isEnabled() and screen._objects_now() == 1
     assert stage._count.text().startswith("Object 1:")
     stage.set_slice(7)
-    _stroke(canvas, qtbot, centre - QPoint(30, 0), centre + QPoint(30, 0))
-    assert np.unique(session.mask[7]).tolist() == [0, 1]
+    qtbot.mousePress(canvas, Qt.LeftButton, Qt.ShiftModifier, centre - QPoint(30, 0))
+    qtbot.mouseMove(canvas, centre + QPoint(30, 0))
+    qtbot.mouseRelease(canvas, Qt.LeftButton, Qt.ShiftModifier, centre + QPoint(30, 0))
+    _settle(2)
+    assert np.unique(session.mask[7]).tolist() == [0, 1], "Shift keeps the chosen object"
     stage._labels.setCurrentIndex(stage._labels.findData(0))
     assert stage.draw_label() == 2
-    _stroke(canvas, qtbot, centre + QPoint(0, 40), centre + QPoint(20, 40))
-    assert 2 in session.mask[7] and stage._selected == 2
+    _stroke(canvas, qtbot, canvas._image_to_canvas(4.5, 21.5),
+            canvas._image_to_canvas(10.5, 21.5))
+    assert 2 in session.mask[7] and stage._selected == 2, (
+        "a stroke clear of object 1 is a new object")
     ones = np.count_nonzero(session.mask[7] == 1)
     screen._set_mode(MODE_ERASE)
     _stroke(canvas, qtbot, centre - QPoint(80, 0), centre + QPoint(80, 0))

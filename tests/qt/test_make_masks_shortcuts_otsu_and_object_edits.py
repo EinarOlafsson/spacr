@@ -183,9 +183,11 @@ def test_the_settings_toggle_does_not_take_the_shortcuts_away(screen, qtbot):
 
 
 def test_shift_or_alt_drag_pans_as_the_list_says(screen):
-    """'Shift or Alt + drag — Pan, from any tool'."""
-    for modifier, (to_x, to_y) in ((Qt.ShiftModifier, (20, 20)),
-                                   (Qt.AltModifier, (44, 44))):
+    """'Shift or Alt + drag — Pan, from any tool'; 'Brush: Shift + drag'
+    keeps the last object instead, so Shift pans here with the Erase tool."""
+    for modifier, (to_x, to_y), mode in ((Qt.ShiftModifier, (20, 20), mm.MODE_ERASE),
+                                         (Qt.AltModifier, (44, 44), mm.MODE_BRUSH)):
+        screen._set_mode(mode)
         screen._on_reset_zoom()
         wheel(screen, 32, 32, 120)
         wheel(screen, 32, 32, 120)

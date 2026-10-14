@@ -358,8 +358,8 @@ def test_brush_press_paints_and_signals(canvas):
     canvas.mousePressEvent(press(*canvas_xy(32, 32)))
     assert started == [1] and finished == []
     radius = 40 * IMG_N // PIXMAP_N
-    assert canvas.mask[32, 32] == 255
-    assert canvas.mask[32 - radius, 32 - radius] == 255
+    assert canvas.mask[32, 32] == 1, "a stroke on empty ground is a new object"
+    assert canvas.mask[32 - radius, 32 - radius] == 1
     assert canvas.mask[0, 0] == 0
     painted = int((canvas.mask > 0).sum())
     assert painted == (2 * radius) ** 2, f"got {painted}px"
@@ -380,7 +380,7 @@ def test_brush_drag_paints_a_connected_line(canvas):
     canvas.mouseReleaseEvent(release(*canvas_xy(50, 32)))
 
     row = canvas.mask[32, :]
-    assert row[10] == 255 and row[50] == 255
+    assert row[10] == 1 and row[50] == 1
     # Bresenham stamped every pixel in between — no gaps.
     assert (row[10:51] > 0).all(), f"gap in stroke: {np.where(row[10:51] == 0)}"
     assert row[5] == 0 and row[60] == 0
@@ -460,7 +460,7 @@ def test_drag_entering_the_canvas_still_opens_a_stroke(canvas):
     assert started == [1], "moving into the image must open the stroke"
     canvas.mouseReleaseEvent(release(*canvas_xy(32, 32)))
     assert finished == [1], "the stroke must close so history records it"
-    assert canvas.mask[32, 32] == 255
+    assert canvas.mask[32, 32] == 1
 
 
 def test_drag_leaving_the_canvas_keeps_the_stroke_open(canvas):
@@ -1016,7 +1016,7 @@ def test_drag_from_the_margin_is_undoable(screen):
     c.mousePressEvent(press(MARGIN_X - 25, 200))
     c.mouseMoveEvent(move(*canvas_xy(32, 32)))
     c.mouseReleaseEvent(release(*canvas_xy(32, 32)))
-    assert c.mask[32, 32] == 255
+    assert c.mask[32, 32] == 1
     assert screen._btn_undo.isEnabled(), "off-canvas drag was never recorded"
     screen._on_undo()
     assert not c.mask.any()
