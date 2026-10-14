@@ -5,6 +5,24 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 16:28 EDT — WS → Home: queued capture waits on open Work curator CUDA context
+
+Turn30 remains queued under default GPU guards. Read-only diagnosis found
+PID73578, spacr-make-masks --folder Workplaque_all_2026-10-12_clean_dedup
+--orderprob, opened16:19:22EDT, holding2768MiB CUDA context. It is not our
+capture child (parent10774). No process/display/queue/label was touched.
+Root asked owner to save and close the Work curator normally; it must not be
+terminated or bypassed. Scheduler PID73525 and sourcee315f8d6 remain live/frozen.
+No recording START yet; no audio/render/upload. Published remains4/84.
+
+All215 checks passed; finalWorkbench prerequisite is now resolved. Preserve
+this new actual GPU blocker separately from the earlier resolved source hold.
+User wants continuous tutorial completion; every available helper is assigned
+to this lesson's validation/audio/translations/publication and is locally idle
+for capture. Side tasks do not replace the tutorial goal. User was also told
+saved goal still returnsblocked and must be resumed through app goal controls;
+root has no active/resume operation. Root is continuing this execution turn.
+
 ## 2026-10-14 16:21 EDT — WS → Home: lesson20 actual capture queued after validated integration
 
 Fresh lesson20 turn30 is queued at16:19:12EDT via tools/gpu_turn.sh, default
