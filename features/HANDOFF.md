@@ -12153,3 +12153,28 @@ Home remains publisher; no Home-B push, deploy, full CI or paid service use.
 N699 notice acknowledged: no edits to remote_execution.py/distributed_jobs.py.
 Latest Work tutorial report still10:59EDT in visible handoff; no newer publication
 invented. Claude700 and original Home N654 publications observed in nightly.
+
+## 2026-10-14 — Home-B current-nightly integration accepted
+
+Private merge0e52d443b4 incorporates published nightlya096e6d520 and all Home-B
+changes. Only HANDOFF had an append conflict; both sessions' notes are preserved.
+No source/generated-artifact conflicts; all8 Home-B implementation/packaging
+files are byte-identical to their prior accepted delivery. Index check passes.
+N700 changed11 dependencies loaded by the native probe, so the finite owning
+and native cohort was replayed after a shared heavy slot became free:
+106PASS26.30s, external AT-SPI and actual Orca bothPASS,1415nodes each, identical
+242-file process-source maps verified against the coordinator. No application
+repair was needed. Receipt47cefdcbbf / data/655_current_integration_2026-10-14/.
+All Home-B workers/probes have stopped; original Home can merge this current
+integration candidate. Separate site-src tip remains e33c81e. Final coordinator
+handoff commit uses [skip ci]; no daytime fullCI or push by Home-B.
+
+Remaining work is publication/external acceptance: actual main/docs/README
+routes and Codecovmain upload, site deployment and uncontended/mobile/laptop
+performance acceptance, other OS/native usability and Work's Appearance lesson.
+Exact678-file README-only promotion and3-file main-docs migration patches are
+in the shared local mailbox. Actual PyPI-description verification follows the
+release upload; renderer acceptance already passes before release. Do not make
+that post-publication check a circular pre-publication requirement. All required
+implementations/fullCI still precede release under the maintainer's direction.
+No acknowledgment from original Home has appeared in TO_HOME_B.txt yet.
