@@ -4127,6 +4127,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
     paths.add(ROOT / "spacr" / "model_compare.py")
     paths.add(ROOT / "spacr" / "embeddings.py")
+    paths.add(ROOT / "spacr" / "settings.py")
+    paths.add(ROOT / "spacr" / "object.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
     source_root = ROOT / "spacr"
@@ -4138,6 +4140,11 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
             continue
+        if path.parent == source_root and path.name in {"settings.py", "object.py"}:
+            diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in diagnostic_owners]
         is_preferences = path == preferences_path
         filename = path.name
         helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")

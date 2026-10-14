@@ -1553,8 +1553,10 @@ def _own_diameter(object_settings, settings, object_type):
     try:
         value = _diameter_setting(raw)
     except ValueError:
-        print(f'{object_type.capitalize()} diameter must be an integer or '
-              f'float, 0 or "auto", got {raw!r}')
+        from .qt.i18n import tr
+
+        print(tr('{setting} must be an integer or float, 0 or "auto", '
+                 'got {value}', setting=f'{object_type}_diameter', value=repr(raw)))
         return
     if value is None or value == _AUTO_DIAMETER:
         return

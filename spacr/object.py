@@ -71,8 +71,11 @@ def _eval_diameter(raw, object_type="", default=None, *, estimates=False):
     try:
         value = _diameter_setting(raw)
     except ValueError:
-        print(f"{object_type}_diameter must be a positive number, 0 or "
-              f"'auto', got {raw!r}; using the magnification default instead")
+        from .qt.i18n import tr
+
+        print(tr("{setting} must be a positive number, 0 or 'auto', got "
+                 "{value}; using the magnification default instead",
+                 setting=f'{object_type}_diameter', value=repr(raw)))
         value = None
     if value is None:
         return None if default is None else float(default)
@@ -94,8 +97,10 @@ def _note_the_diameter(settings, object_type, estimate=None):
                          _diameter_used_by(settings, object_type, estimate),
                          estimate=estimate)
     except Exception as exc:
-        print(f"the {object_type} diameter was not recorded in the run "
-              f"journal: {exc}")
+        from .qt.i18n import tr
+
+        print(tr("The diameter for {object_type} was not recorded in the run "
+                 "journal: {error}", object_type=object_type, error=str(exc)))
 
 
 def _cellpose3_eval_settings(settings, object_type, default_diameter):

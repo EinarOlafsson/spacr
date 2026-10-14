@@ -388,3 +388,34 @@ def test_the_backend_client_keeps_the_estimates_it_was_sent():
     client._said = set()
     client.eval([np.zeros((4, 4), np.uint16)], diameter=0.0)
     assert client.estimated_diameters == [38.0]
+
+
+@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
+@pytest.mark.parametrize('diagnostic', [0, 1, 2])
+def test_diameter_failures_are_localized_without_changing_the_fallback(
+        language, diagnostic, monkeypatch, capsys):
+    from pathlib import Path
+    from spacr.settings import _own_diameter
+    from spacr.object import _eval_diameter, _note_the_diameter
+    import spacr.run_journal as journal
+
+    monkeypatch.setenv('SPACR_LANGUAGE', language)
+    record_path = Path(__file__).resolve().parents[1] / (
+        f'docs/i18n/reviewed/runtime/{language}/2026-10-14-diameter-diagnostics.json')
+    record = json.loads(record_path.read_text())['records'][diagnostic]
+    values = {'setting': 'nucleus_diameter', 'value': repr('thirty'),
+              'object_type': 'nucleus', 'error': 'disk unavailable'}
+    if diagnostic == 0:
+        settings = {'diameter': 60.0, 'minimum_size': 900, 'maximum_size': 36000}
+        original = settings.copy()
+        _own_diameter(settings, {'nucleus_diameter': 'thirty'}, 'nucleus')
+        assert settings == original
+    elif diagnostic == 1:
+        assert _eval_diameter('thirty', 'nucleus', 60) == 60.0
+    else:
+        def unavailable(*args, **kwargs):
+            raise OSError('disk unavailable')
+
+        monkeypatch.setattr(journal, '_record_diameter', unavailable)
+        _note_the_diameter({'magnification': 20}, 'nucleus')
+    assert capsys.readouterr().out.strip() == record['translation'].format(**values)
