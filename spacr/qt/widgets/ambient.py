@@ -10249,6 +10249,7 @@ class AmbientWidget(QWidget):
         #: The frame currently on screen. Held so a paint with nothing new
         #: to show can put it up again instead of waiting for one.
         self._last_frame: Optional[QImage] = None
+        self._partial_frame = None
         #: The frame a stopped backdrop on screen shows again, as
         #: ``(key, image)`` (:meth:`_paint_still`), or ``None``.
         self._still = None
@@ -10489,6 +10490,7 @@ class AmbientWidget(QWidget):
                 self._engine._graphics_backend = self._graphics_backend
         if isinstance(self._engine, DriftEngine) and self._timer.isActive():
             _retire_producer(self._producer_box)
+            self._partial_frame = None
             self._last_frame = None
             self._last_composed = None
             self._start_producer()
@@ -10535,6 +10537,7 @@ class AmbientWidget(QWidget):
         only drops the still (:meth:`_paint_still`), so the next
         ``paintEvent`` shades the changed engine.
         """
+        self._partial_frame = None
         self._still = None
         producer = self._producer_box[0]
         if producer is None:
@@ -10559,6 +10562,7 @@ class AmbientWidget(QWidget):
         happens when somebody picks a different animation from a menu, not
         per frame.
         """
+        self._partial_frame = None
         running = self._producer_box[0] is not None
         _retire_producer(self._producer_box)
         with self._engine_lock:
@@ -10877,6 +10881,7 @@ class AmbientWidget(QWidget):
             anything that does not load as a non-null pixmap also gives the
             flat fill.
         """
+        self._partial_frame = None
         self._backdrop = _as_pixmap(source)
         self._opaque_backdrop = _covers_opaquely(self._backdrop)
         self._claim_opaque_paint()
@@ -11079,6 +11084,7 @@ class AmbientWidget(QWidget):
         that frame on the GUI thread against the run's worker took 250-350 ms
         on lesson 08's Measure run. Hidden, it keeps nothing.
         """
+        self._partial_frame = None
         self._field_grab = None
         self._timer.stop()
         self._sync_interaction_filter()
@@ -11111,6 +11117,7 @@ class AmbientWidget(QWidget):
 
     def _drop_card_plan(self) -> None:
         """Give the cards their own paint back, when they are composited."""
+        self._partial_frame = None
         tints = self._card_tints
         if tints is not None:
             tints.invalidate()
@@ -11131,6 +11138,7 @@ class AmbientWidget(QWidget):
         That is the pass the first ``paintEvent`` used to do anyway, moved a
         few microseconds earlier.
         """
+        self._partial_frame = None
         if self._producer_box[0] is not None or _SHADING_RETIRED[0]:
             return
         engine = self._engine
@@ -11458,6 +11466,7 @@ class AmbientWidget(QWidget):
         :param event: the hide event; passed on to the base class before the
             animation stops.
         """
+        self._partial_frame = None
         super().hideEvent(event)
         if getattr(self, "_timer", None) is not None:
             self.stop()
@@ -11581,6 +11590,7 @@ class AmbientWidget(QWidget):
             self._field_grab = None
             self._offer_field_grab()
         elif etype == QEvent.Resize and obj is self.parent():
+            self._partial_frame = None
             if grab is not None:
                 self._field_grab = None
                 self._offer_field_grab()
@@ -11590,6 +11600,7 @@ class AmbientWidget(QWidget):
             self._sync_run_state()
         elif watched is not None and obj is watched and etype in (
                 QEvent.Move, QEvent.ScreenChangeInternal):
+            self._partial_frame = None
             self._follow_screen()
         return False
 
@@ -11826,6 +11837,117 @@ class AmbientWidget(QWidget):
         engine.blit(painter, still[1], width, height)
         return True
 
+    def _paint_partial_frame(self, painter, event, width, height) -> bool:
+        """Reuse an exact presentation raster on repeated partial frame paints."""
+        engine = self._engine
+        frame = self._last_frame
+        tints = self._card_tints
+        if (event.rect().contains(self.rect())
+                or self._producer_box[0] is None
+                or not isinstance(engine, _BufferedEngine)
+                or frame is None or frame.isNull()
+                or self._backdrop is not None
+                or self._background.alpha() != 255
+                or self._corner_radius
+                or (tints is not None and tints.active)):
+            self._partial_frame = None
+            return False
+        device = painter.device()
+        if device is None:
+            self._partial_frame = None
+            return False
+        try:
+            if isinstance(device, QWidget):
+                screen = device.screen()
+                if screen is None or screen.depth() not in (24, 32):
+                    self._partial_frame = None
+                    return False
+                paint_engine = painter.paintEngine()
+                target = None if paint_engine is None else paint_engine.paintDevice()
+            else:
+                target = device
+            if (not isinstance(target, QImage)
+                    or target.format() not in (
+                        QImage.Format_RGB32, QImage.Format_ARGB32,
+                        QImage.Format_ARGB32_Premultiplied)):
+                self._partial_frame = None
+                return False
+            target_format = target.format()
+            ratio = float(target.devicePixelRatioF())
+        except Exception:
+            self._partial_frame = None
+            return False
+        if (not math.isfinite(ratio) or ratio <= 0
+                or ratio != math.floor(ratio)):
+            self._partial_frame = None
+            return False
+        try:
+            transform = painter.deviceTransform()
+            if (not painter.worldTransform().isIdentity()
+                    or transform.m11() != ratio or transform.m22() != ratio
+                    or transform.m12() or transform.m21()
+                    or transform.m13() or transform.m23()
+                    or transform.m33() != 1
+                    or transform.dx() != math.floor(transform.dx())
+                    or transform.dy() != math.floor(transform.dy())):
+                self._partial_frame = None
+                return False
+            region = QRegion(event.region())
+            paint_engine = painter.paintEngine()
+            system_clip = None if paint_engine is None else paint_engine.systemClip()
+            if (system_clip is None
+                    or (not system_clip.isEmpty()
+                        and system_clip != transform.map(region))
+                    or (painter.hasClipping() and painter.clipRegion() != region)
+                    or (system_clip.isEmpty() and not painter.hasClipping())):
+                self._partial_frame = None
+                return False
+        except Exception:
+            self._partial_frame = None
+            return False
+        pixels = (int(math.ceil(width * ratio)),
+                  int(math.ceil(height * ratio)))
+        if min(pixels) <= 0 or pixels[0] * pixels[1] > (48 << 20) // 4:
+            self._partial_frame = None
+            return False
+        key = (id(engine), getattr(engine, "mode", None), id(frame),
+               frame.cacheKey(), width, height, ratio, target_format,
+               self._background.rgba(), region, QTransform(transform))
+        held = self.__dict__.get("_partial_frame")
+        if held is None or held[0] != key:
+            self._partial_frame = (key, None, frame)
+            return False
+        image = held[1]
+        if image is False:
+            return False
+        if image is None:
+            surface = None
+            try:
+                image = QImage(*pixels, QImage.Format_RGB32)
+                if image.isNull():
+                    self._partial_frame = (key, False, frame)
+                    return False
+                image.setDevicePixelRatio(ratio)
+                image.fill(self._background)
+                surface = QPainter(image)
+                if not surface.isActive():
+                    self._partial_frame = (key, False, frame)
+                    return False
+                surface.setClipRegion(region)
+                self._paint_base(surface, QRect(0, 0, width, height))
+                engine.blit(surface, frame, width, height)
+            except Exception:
+                self._partial_frame = (key, False, frame)
+                return False
+            finally:
+                if surface is not None and surface.isActive():
+                    surface.end()
+            self._partial_frame = (key, image, frame)
+        painter.setCompositionMode(QPainter.CompositionMode_Source)
+        painter.drawImage(QPoint(0, 0), image)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        return True
+
     def paintEvent(self, event) -> None:
         """Paint, timed on the timing timeline when timing is on.
 
@@ -11883,6 +12005,9 @@ class AmbientWidget(QWidget):
             width, height = rect.width(), rect.height()
             producer = self._producer_box[0]
             tints = self._card_tints
+            if (event.rect().contains(rect)
+                    or (tints is not None and tints.active)):
+                self._partial_frame = None
             if producer is not None:
                 producer.size = self._art_render_size(width, height)
                 whole = event.rect().contains(rect)
@@ -11907,6 +12032,8 @@ class AmbientWidget(QWidget):
                                       QRect(shown[0].origin, rect.size()))
                     return
 
+            if self._paint_partial_frame(painter, event, width, height):
+                return
             self._paint_base(painter, rect)
             if producer is None:
                 if not self._paint_still(painter, width, height):
