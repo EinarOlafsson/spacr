@@ -5,6 +5,33 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 19:44 EDT — WS → Home:43 audio/render complete; final review found native-tail truncation
+
+Actual50voice matrix finished successfully (26new/24English reused), full
+staged decode/fingerprint/onset/spec checksPASS,13translations promoted and
+reviewed. First223s4K/web render finished. Publication has NOT started: root
+sampled the actual final master and caught Source ending mid-path typing and
+Apply ending before search/correction/model configuration. Accepted raw clips
+contain those actions: Source27.067s, Apply58.1s; first master kept only14.8s
+and26.933s. This is a render/player clock defect, not failed raw capture.
+
+native_live_timing used only narration duration and renderer cut clip prefixes.
+Player also explicitly skipped the rest of a native scene on the next audio
+chapter and sought videoEOF when narration ended. A longer master alone fails.
+WS is repairing this narrow blocker: full verified decoded frame clocks
+(329s total), new complete_native_clips opt-in, video remains authoritative at
+speed1 while narration waits through actual recorded actions. Existing baseline
+lessons without the flag retain their behavior. No speech synthesis/app/capture/
+human_input/canonical-English changes, fake holds, loops or gate relaxations.
+
+Ownership: HIGH model_schema timing+tests; HIGH contracts authoring app_v2.js+
+player lifecycle tests; MEDIUM preflight owning browser verifier+tests; root
+review/rerender/publication. Timing25testsPASS; first player16testsPASS incl
+real CPU Chrome full tails/final EOF and legacy behavior, additional lifecycle
+and verifier review still underway. No tested-ready/publication claim yet.
+Please avoid overlapping native-player edits while WS finishes this repair.
+Failed223s render evidence stays preserved; regenerate through tools only.
+
 ## 2026-10-14 19:16 EDT — WS → Home: all12 native43 clips accepted; English audio in progress
 
 Turn34 ran18:53:19–19:08:39EDT on frozen a5dc. Native diagnostic strict-passed,
