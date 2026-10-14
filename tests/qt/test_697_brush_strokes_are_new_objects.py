@@ -16,7 +16,7 @@ import pytest
 import tifffile
 from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
 from PySide6.QtGui import QMouseEvent
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication, QMessageBox, QWidget
 
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks as mm
@@ -85,6 +85,18 @@ def test_a_stroke_from_inside_an_object_outward_stays_that_object(canvas):
     stroke(canvas, [(25, 25), (45, 25)])
     assert ids(canvas.mask) == {5}
     assert (canvas.mask[24:26, 25:46] == 5).all()
+
+
+def test_stationary_brush_events_keep_one_continuous_object(canvas):
+    stroke(canvas, [(5, 10), (5, 10), (20, 10)])
+    repeated = canvas.mask.copy()
+    assert ids(repeated) == {1}
+    assert int(repeated[10, 12]) == 1
+    assert not canvas.manual_ids
+    canvas.set_image_and_mask(np.zeros((IMG_N, IMG_N), np.uint16),
+                              np.zeros((IMG_N, IMG_N), np.uint8))
+    stroke(canvas, [(5, 10), (20, 10)])
+    np.testing.assert_array_equal(canvas.mask, repeated)
 
 
 def test_a_stroke_on_background_that_touches_an_object_extends_it(canvas):
@@ -339,13 +351,70 @@ def test_3d_undo_and_redo_restore_the_volume_exactly(stage):
         assert _state(session.mask) == states[index]
 
 
+@pytest.mark.parametrize('edge', (0, 9))
+def test_volume_edge_strokes_never_wrap_to_the_opposite_section(stage, edge):
+    session = stage.session
+    stage.set_slice(9 - edge)
+    _stroke_3d(stage, [(4, 4), (12, 4)])
+    assert ids(session.mask) == {1}
+    stage.set_slice(edge)
+    _stroke_3d(stage, [(4, 4), (12, 4)])
+    assert ids(session.mask[edge]) == {2}
+    stage.set_slice(1 if edge == 0 else 8)
+    _stroke_3d(stage, [(14, 6), (20, 6)])
+    assert ids(session.mask[1 if edge == 0 else 8]) == {2}
+    assert ids(session.mask) == {1, 2}
+    stage.dirty = False
+    stage.leave()
+    assert stage._stroke_context(stage.canvas) == (1, ())
+
+
+def test_touching_two_neighbouring_volume_objects_preserves_the_second(stage):
+    session = stage.session
+    stage.set_slice(4)
+    _stroke_3d(stage, [(4, 4), (12, 4)])
+    stage.set_slice(6)
+    _stroke_3d(stage, [(4, 4), (12, 4)])
+    assert ids(session.mask[4]) == {1}
+    assert ids(session.mask[6]) == {2}
+    second = session.mask[6].copy()
+    stage.set_slice(5)
+    _stroke_3d(stage, [(14, 6), (20, 6)])
+    assert ids(session.mask[5]) == {1}
+    assert ids(session.mask) == {1, 2}
+    np.testing.assert_array_equal(session.mask[6], second)
+
+
 def test_the_brush_and_its_shift_are_on_the_shortcut_panel_and_the_tooltip():
     hints = dict(mm.SHORTCUT_HINTS)
     assert "last object" in hints["Brush: Shift + drag"]
-    assert hints["Shift or Alt + drag"] == "Pan, from any tool"
+    assert hints["Alt + drag"] == "Pan; other tools also accept Shift + drag"
+    assert "Shift or Alt + drag" not in hints
     assert all(len(does) <= 52 for _keys, does in mm.SHORTCUT_HINTS)
 
 
 def test_the_brush_button_says_what_shift_does(screen):
     tip = screen._mode_buttons[MODE_BRUSH].toolTip()
     assert "Shift" in tip and "new object" in tip
+    assert "tools other than the Brush" in screen._zoom_speed.property('apiTooltipDescriptionSource')
+
+
+@pytest.mark.parametrize('language', ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'))
+def test_brush_and_pan_hints_follow_each_language_without_changing_the_tool(screen, language):
+    from spacr.qt.i18n import retranslate_widget_tree, tr
+
+    retranslate_widget_tree(screen, 'en')
+    screen._set_mode(MODE_BRUSH)
+    brush_tip = screen._mode_buttons[MODE_BRUSH].property('apiTooltipDescriptionSource')
+    zoom_tip = screen._zoom_speed.property('apiTooltipDescriptionSource')
+    retranslate_widget_tree(screen, language)
+    for keys in ('Alt + drag', 'Brush: Shift + drag'):
+        key_label, detail_label = screen._shortcut_rows[keys]
+        assert key_label.text() == tr(keys, language)
+        assert detail_label.text() == tr(dict(mm.SHORTCUT_HINTS)[keys], language)
+    assert tr(brush_tip, language) in screen._mode_buttons[MODE_BRUSH].toolTip()
+    zoom_label = next(widget for widget in screen.findChildren(QWidget)
+                      if widget.property('settingHelpLabel')
+                      and widget.property('settingKey') == 'make_masks_zoom_speed')
+    assert tr(zoom_tip, language) in zoom_label.toolTip()
+    assert screen._canvas.mode == MODE_BRUSH

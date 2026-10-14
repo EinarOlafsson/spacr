@@ -513,7 +513,7 @@ OTSU_HISTOGRAM_BINS = 256
 #: ``tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py`` rather
 #: than believed.
 SHORTCUT_HINTS = (
-    ("Shift or Alt + drag", "Pan, from any tool"),
+    ("Alt + drag", "Pan; other tools also accept Shift + drag"),
     ("Brush: Shift + drag", "Keep painting the last object across a gap"),
     ("Wheel", "Zoom about the cursor"),
     ("Right button", "Sweep away the objects it passes"),
@@ -2921,7 +2921,7 @@ class _MaskCanvas(QLabel):
         and Ctrl + right removes the object
         under the cursor, the right button sweep-deletes except in Divide /
         Merge where it traces a line that joins objects,
-        and Shift/Alt + left pans. All of them are things you want mid-edit
+        and Alt + left pans (other tools also accept Shift). These are things you want mid-edit
         without putting the brush down and picking it up again. With the
         magnifier on in whole-image scope the right button removes the one
         object under it instead of sweeping.
@@ -3223,11 +3223,10 @@ class _MaskCanvas(QLabel):
                 continue
             ys, xs = np.nonzero(hit)
             far = (ys + rows.start - y0) ** 2 + (xs + cols.start - x0) ** 2
-            for index in np.lexsort((labels[ys, xs], far)):
-                candidate = (int(far[index]), int(labels[ys[index], xs[index]]))
-                if best is None or candidate < best:
-                    best = candidate
-                break
+            index = int(np.lexsort((labels[ys, xs], far))[0])
+            candidate = (int(far[index]), int(labels[ys[index], xs[index]]))
+            if best is None or candidate < best:
+                best = candidate
         if best is None:
             return
         label = best[1]
@@ -13283,11 +13282,12 @@ class MakeMasksScreen(QWidget):
         self._zoom_speed.setRange(1.01, 3.0)
         self._zoom_speed.setSingleStep(0.05)
         self._zoom_speed.setValue(1.15)
-        self._zoom_speed.setToolTip(
+        self._zoom_speed.setToolTip(tr(
             "How far one wheel notch zooms. Higher jumps across a large "
             "field faster; lower gives the fine steps that trimming an "
-            "object boundary needs. Shift or Alt + drag pans, from any tool."
-        )
+            "object boundary needs. Alt + drag pans with every tool; Shift + "
+            "drag also pans with tools other than the Brush."
+        ))
         self._zoom_speed.valueChanged.connect(self._on_zoom_speed_changed)
         norm_form.addRow("Zoom per notch", self._zoom_speed)
         norm_card.body_layout.addLayout(norm_form)

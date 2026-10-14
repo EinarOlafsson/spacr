@@ -94,3 +94,43 @@ test_make_masks_canvas.py, test_make_masks_ported_tools.py,
 test_make_masks_shortcuts_otsu_and_object_edits.py,
 test_make_masks_draw_divide.py and test_673_make_masks_3d_in_container.py
 (its slice-7 stroke two sections from object 1 now uses Shift).
+
+
+2026-10-14 — Home: current-source integration and reviewed runtime help
+
+The held brush implementation is integrated after the validated Make Masks
+lifecycle/hash fix and refreshed on current nightly in a private WD tree.
+Disconnected strokes use separate IDs, touching strokes extend the first
+object, Shift with Brush keeps the previous ID across a gap, and Alt pans.
+The old unconditional Shift-pan row and zoom hint are replaced with the
+actual tool-dependent behavior. Nine changed/new runtime sources (including
+the inherited Wand notices) have authored reviews in all nine locales and
+normal catalog regeneration. Obsolete source-bound reviews are retired by
+deleting their records; the original 99 reviewed UI vocabulary is unchanged.
+
+The normal caption-arrival --refresh command reconstructs the current delta
+from actual source/catalog/review bytes and preserves the immutable 9,833-row
+historical baseline. Its negative contracts reject changed source bodies,
+missing records and drifted hashes. No translation pin or coverage ceiling
+was increased. Private canvas/volume helpers are excluded from the public
+API extractor; no new public API signatures are introduced.
+
+Validation is recorded in WD scratch/n697-current-integration-20261014.
+The original seven-file cohort had 331 passes, one optional mrcfile skip,
+and 11 failures: ten new help
+tests used the wrong HTML/label target and were corrected; all ten then pass,
+along with the strict runtime contracts. The remaining unchanged field-flush
+performance test failed its 1.35 bound in that covered context. A separate
+state-attribution execution passed, but does not establish the earlier cause
+or constitute a performance repair. Keep this acceptance limitation explicit.
+Final focused branch closure checks stationary brush events, first/last volume
+sections without wraparound, adjacent-section extension, and a retired volume
+callback. Exact undo/save IDs and legacy blending/hash tests remain preserved.
+
+Remaining: root review/publication and fresh full CI; Work owns fresh current-
+layout lesson 14 recording/publication. No native-platform/performance/tutorial
+completion is inferred from the private behavioral and translation checks.
+
+Final private closure: 30 owning cases plus one neighboring-volume tie/no-merge
+case PASS, with zero uncovered statements or branches across all seven new
+brush/volume helpers. Source stayed byte-identical during the owning run.
