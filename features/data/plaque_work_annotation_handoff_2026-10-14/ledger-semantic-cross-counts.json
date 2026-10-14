@@ -1,0 +1,2781 @@
+{
+  "verdict_vs_resume_cross_counts": {
+    "done|keep=false": 11,
+    "no_status|keep=false": 1189,
+    "no_status|keep=true": 181,
+    "done|keep=true": 256
+  },
+  "manifest_vs_current_resume_state_counts": {
+    "pending->done": 455,
+    "done->done": 697,
+    "pending->skip": 94,
+    "skip->skip": 49
+  },
+  "overlapping_object_count_text_mismatch_count": 15,
+  "overlapping_object_count_text_mismatch_stems": [
+    "12864_2013_6044_Fig7_HTML__c00__9b3872d84be39f6a4ce6",
+    "12864_2013_6044_Fig7_HTML__p04__w00__274e77d892317ada1b83",
+    "12985_2026_3201_MOESM7_ESM__c01__48ef5844be083c723d64",
+    "13071_2021_4878_Fig2_HTML__p00__w01__e34b281c17cfe98e9dfc",
+    "13071_2024_6187_Fig2_HTML__p01__w04__278c144f978c6b43e317",
+    "13071_2025_6799_Fig4_HTML__p01__028d28__d02__9b39696e6fc7012d9921",
+    "13071_2025_6799_Fig4_HTML__p01__028d28__d03__691d09b8c4b517e39494",
+    "13071_2025_6799_Fig4_HTML__p01__w03__760ed244d9e8869cabea",
+    "13567_2023_1261_MOESM5_ESM__c01__d00__9eed2592d8ea43071101",
+    "41467_2017_2341_Fig2_HTML__p00__w00__60e6ed752880a2cd9ca8",
+    "41467_2017_2341_Fig4_HTML__p02__w01__e2217a51d4ccaa6dfe48",
+    "41467_2024_48685_Fig2_HTML__p00__w00__997e50fd8396f191ef3c",
+    "KVIR_A_2427844_F0003_PB__p00__w01__4545b0f1498f036fabff",
+    "PMC7918358__pathogens-10-00201-g002.jpg__p00__w01__c47ef2fe507ddef82bc1",
+    "mbio.02297-22-s0002__p01__516bda__d06__f203beb08e9ff3893ce9"
+  ],
+  "build_manifest_vs_current_resume_state_difference_count": 549,
+  "build_manifest_differences": [
+    {
+      "stem": "011672f6__p00__1dced7__d00__b2d7f737fd6190fae79f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12860_2020_249_Fig10_HTML__p01__134406__d01__381bd7b77b84fcc26c6f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12860_2020_249_Fig6_HTML__c00__1ff90c4ef744c13791cc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12860_2020_249_Fig6_HTML__c01__3630ae5c019bc71f4603",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12860_2020_249_Fig6_HTML__c03__b1bc5254538738e97379",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__c00__9b3872d84be39f6a4ce6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__c01__119065181d71062f6bf2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__c02__e47436e6ec89a63c1639",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__c07__6d368c98203f8504d8d0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__c11__cfa7ca5de2cc952f22d6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p03__w01__1d0fe689b60716c4b48f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p03__w04__2f9088c97bb1c886927b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p03__w05__87f66044649fff0328b9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__f151a3__d01__30a13400ac9598b18f45",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__f151a3__d02__d79d203bb0929fa68e70",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__f151a3__d04__71bbbee2d061468f2640",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__f151a3__d05__d0c1721c75ae85692a73",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__w00__274e77d892317ada1b83",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__w01__0c0f513b3d28566d6d2c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__w03__5b981fb9edc1348a3a10",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12864_2013_6044_Fig7_HTML__p04__w05__0f693cb21651e7476937",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1290fig3__p00__bedb3f__d03__9404265cf16ba1befd1a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1290fig3__p00__w00__f6f2bb0c9b09be53dbff",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1290fig3__p00__w02__2548cb48b534e4dd56e6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1290fig3__p00__w03__b4e0a9eaa8fcd2fa8c39",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1290fig3__p00__w05__55add11ed004c195a695",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12915_2020_791_Fig8_HTML__p00__w01__232fd7a07061ac352b6e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12985_2026_3201_MOESM7_ESM__c00__4fdd0f0bc1d6ae2a91ec",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "12985_2026_3201_MOESM7_ESM__c01__48ef5844be083c723d64",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2020_4094_Fig3_HTML__p00__w03__33803843cd3e6ec6b884",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2021_4791_Fig7_HTML__p00__ff1245__d00__59db1da805862f7d3ffb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2021_4878_Fig2_HTML__p00__w00__a8d4215c9e8c5823de49",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2021_4878_Fig2_HTML__p00__w01__e34b281c17cfe98e9dfc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2021_4878_Fig4_HTML__p03__181b07__d00__630dd1a0c5fc13f6764f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2021_5023_Fig6_HTML__p01__w00__9ecc46540d5fec09c27a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2021_5023_Fig6_HTML__p01__w01__3c131aed630aa8e373f2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2022_5295_Fig3_HTML__p02__w01__a669381cb69d0e76531a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2023_5698_Fig2_HTML__p02__w00__a364b5025c29dd57c4b2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2023_5698_Fig2_HTML__p02__w01__e0e333cfb46369297950",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig3_HTML__p00__w00__ad8aa14aa913275a537b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig3_HTML__p00__w03__1ceebe832b42f7f216df",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig3_HTML__p00__w04__093945a9878d56c26ff6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig3_HTML__p00__w05__bb45275479a46fb2c3ee",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig6_HTML__c00__0df970cd6dd9ab1f86a0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig6_HTML__c01__a00efef6543362809d77",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig6_HTML__p01__w01__0be27dc73eb093084b79",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig6_HTML__p01__w02__54225395d84c958a9f3e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Fig6_HTML__p01__w03__f7a0f6dbecb3b0808f1d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Figa_HTML__p00__w00__d00__e0c435b788395ef0ef40",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Figa_HTML__p00__w00__d02__88078f2f136e9f39e2a1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Figa_HTML__p00__w00__d03__d15a181c9d2738b307d2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Figa_HTML__p00__w01__8add174c2cd955bebd89",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6135_Figa_HTML__p00__w04__ac1da8fd2b3023e84954",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6187_Fig2_HTML__p01__w00__18d58d44010f8be5afa6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6187_Fig2_HTML__p01__w03__9e6cdfa2a5ba7b44a747",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6187_Fig2_HTML__p01__w04__278c144f978c6b43e317",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6187_Fig2_HTML__p01__w05__795b3cba7ee036fedc43",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6187_Fig3_HTML__p02__164ec1__d00__5760453d042048e91bcb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig2_HTML__p00__w00__9d2c36366a14a664cb5b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig5_HTML__p00__w03__f1c8351a804444d0e718",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig5_HTML__p00__w04__0b8c7a921d608779a452",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig5_HTML__p00__w05__a0420cdb2602d299192c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig5_HTML__p00__w06__4e75cc81c623f25252aa",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig5_HTML__p00__w07__c9da8ec2d13a1fc84c85",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig5_HTML__p00__w08__d337b750bcf5286a90f6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6195_Fig5_HTML__p00__w09__f0556f4451ab2fbfdd20",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6207_Fig5_HTML__p04__d964b9__d00__3449f328876e8f0abfb3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6207_Fig5_HTML__p04__d964b9__d01__2fd77e6aecdd13eb5397",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6207_Fig5_HTML__p06__7e2280__d00__02f82158ae6357ea3edb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6207_Fig5_HTML__p06__7e2280__d01__48763a8cb082c2632d59",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6207_Fig5_HTML__p06__w00__2ee799737eab68de3298",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6259_Fig2_HTML__p00__18572e__d00__83caa8a882419200e530",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6259_Fig2_HTML__p00__18572e__d02__e1ebfe3448e0c0dbc34e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6259_Fig2_HTML__p00__w01__600e8eafbeb3c11cede4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6259_Fig3_HTML__p00__w01__0f70c71926b643b0d366",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6259_Fig3_HTML__p00__w03__aa78a461ae012df04914",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6477_Fig3_HTML__p03__w00__98cd5966be76876d1d3c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6584_Fig1_HTML__p03__w00__f6b55a44cb6b0d9fc6f5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2024_6584_Fig1_HTML__p03__w01__3e418b3ab0e064d91292",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6695_Fig4_HTML__p01__d0bb0d__d00__771035ddc4c6da5fb76f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_Fig2_HTML__c02__55475d5161f5c967bd07",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_Fig2_HTML__p01__w00__0c1a0cec83aeeb4a2283",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_Fig2_HTML__p01__w02__df78f3b58675b6059838",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_Fig2_HTML__p01__w03__e310d2798b8df330ab66",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_Figa_HTML__c01__efd85e900426c1e06316",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_Figa_HTML__p06__w00__004cef38b479d45b8362",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_MOESM2_ESM__p01__0f6edd__d01__40e4dca1aa5b4dca1ea1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6766_MOESM2_ESM__p01__0f6edd__d02__198c32be99388d59c738",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__028d28__d02__9b39696e6fc7012d9921",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__028d28__d03__691d09b8c4b517e39494",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__w01__c054b0df128814afad81",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__w02__076de3565a9ff57c5c9e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6799_Fig4_HTML__p01__w03__760ed244d9e8869cabea",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6966_Fig2_HTML__p01__9e8fcd__d00__5bad520617ee22d60194",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_6966_Fig2_HTML__p01__w00__5efc898344b9d8081bbd",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Fig2_HTML__p00__w03__d1ad6e69e3af7e0ccefc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Fig3_HTML__p02__w03__e1456e463d82ec9e845f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Fig4_HTML__p02__w00__e1aaf62fd7d5f3105a66",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Figa_HTML__p01__w00__269bd04f7d69d99302b9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Figa_HTML__p01__w01__66703ac114d933a8e567",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Figa_HTML__p01__w03__293317b0b1fdc0935383",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Figa_HTML__p03__w02__76b2a268bd7f025533ee",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7054_Figa_HTML__p03__w03__3d02c86f04b754ddb777",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7139_Fig4_HTML__p00__w04__75d73f4647413f866f01",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2025_7139_Fig4_HTML__p00__w05__405f4c44c8a1520ac766",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2026_7274_Fig2_HTML__p00__w02__4eaf7ed0c87c14ded423",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13071_2026_7274_Fig2_HTML__p00__w03__4c0f7e37e4d9e8835a92",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13567_2023_1252_Fig1_HTML__p00__w01__01f0e02158ee15b22497",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13567_2023_1252_Fig1_HTML__p00__w02__d773a3e1cc0867cc43f5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13567_2023_1261_Fig6_HTML__p00__w00__e383f3426c2998692110",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13567_2023_1261_MOESM5_ESM__c01__d00__9eed2592d8ea43071101",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13567_2023_1261_MOESM5_ESM__p01__8e1c4a__d00__642a8a44a604d4438bf1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "13567_2023_1261_MOESM5_ESM__p02__5cd3d5__d00__7cf4f0ff5bdab6220920",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1361fig5__p02__w01__6647b14dc3519d369c3e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1361fig5__p02__w03__a9cc9d17371266360722",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1361fig5__p02__w05__2de0da27fd516ad7b1c9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1361fig5__p02__w07__3d78faf1e21b53044705",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1361fig5__p02__w08__86e48133528bd861c07f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1361fig5__p02__w09__dadb92c16df01c5325e0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1974fig8__p00__134fc8__d00__8138c7e5c304955377c6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "1974fig8__p01__2b79ca__d00__ec38973922c867bedf41",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "40249_2023_1109_Fig2_HTML__p00__w00__8428778d9f7e1e596ab8",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "40249_2023_1109_Fig2_HTML__p01__w01__7980f1dea42ef5860417",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "411fig6__p00__f720b5__d00__36223dfcaa3a99b46fe0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "411fig6__p00__f720b5__d01__13ab0441c67a10780eda",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2017_2341_Fig2_HTML__p00__w00__60e6ed752880a2cd9ca8",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2017_2341_Fig2_HTML__p00__w03__61915b1af0c407ba4981",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2017_2341_Fig4_HTML__p02__w00__ed5c896616bfc03cb54e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2017_2341_Fig4_HTML__p02__w01__e2217a51d4ccaa6dfe48",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2017_2341_Fig4_HTML__p02__w02__6e5eefa08f18c7305fca",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2017_2341_Fig4_HTML__p02__w03__5df251a843dcd8d865b3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_24083_Fig5_HTML__p00__w01__31ae2a1eaf5c69d54a25",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_24083_Fig5_HTML__p00__w02__5bfc23be1d5f9cf7fee9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_24083_Fig5_HTML__p00__w03__9cced487363ead00157b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_24083_Fig5_HTML__p00__w04__1d2eeac46acb8cca7d1c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_24083_Fig5_HTML__p00__w05__dc546fe4489babcdc256",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_24083_Fig5_HTML__p00__w06__1f596a2b9f7d4acb2c34",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_24083_Fig5_HTML__p00__w07__2600fd8054989b98ac25",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2021_26061_Fig5_HTML__p05__460c5b__d01__812d94a93520673399bc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w01__f0c850eb6c3c2fa41b98",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w05__3369d94a438e1216d854",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w06__d99b1e3dc7eac309ddfd",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w07__2192a5931490250fe119",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w08__cb29859141fde70e2129",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w09__cf53134b0543c83b1507",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w10__87f78328b15d6bd5f183",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_32151_Fig6_HTML__p00__w11__3ef14853487af0855103",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_35267_Fig2_HTML__p00__w00__785a5c683212987bc970",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_35267_Fig2_HTML__p00__w01__6be0c661ab5170ea21b8",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2022_35267_Fig4_HTML__p00__985340__d01__24a36b517fa248ca9f4f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2023_36084_Fig4_HTML__p01__w01__802abc2a3467b22be746",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2023_36084_Fig4_HTML__p01__w04__372b14295bdcf685a69b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2023_36084_Fig4_HTML__p01__w05__cf5333ff7c3fb5ac6185",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2023_36084_Fig4_HTML__p01__w07__46d9a4d7561fe33571fa",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig1_HTML__p00__w00__afe86dce47f1ccb488d4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig1_HTML__p00__w03__406f10f12d3bb45ca501",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig1_HTML__p00__w04__353c3fba7c6733204c52",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig4_HTML__p01__w00__0074b5b3804dabfc1029",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig4_HTML__p01__w01__9ca042e3348f0a52f810",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig4_HTML__p01__w04__36ab1bf85c00638f04c7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig4_HTML__p01__w05__4e73d2acb40568dd1e5c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig4_HTML__p01__w06__0aa1c3968e8e0fa9a01c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig4_HTML__p01__w08__4cb809426e0c8ae9ee0a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_44967_Fig4_HTML__p01__w09__b496fb0b6a6ad8e239bc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_48685_Fig2_HTML__p00__w00__997e50fd8396f191ef3c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_48685_Fig2_HTML__p00__w01__1a59fb61c1ff97d1178f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_48685_Fig4_HTML__p00__w00__3b5a0b63d0ba62ff645f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_48685_Fig4_HTML__p00__w01__76e7e386626097c1afd3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_48685_Fig4_HTML__p00__w02__4abf650471e33a0793f9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p02__w00__b9662105e80a810e8565",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p02__w01__50f5e695cfe9807ae8dc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p02__w02__884380681a60e7887c2d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p02__w03__e4d2abab0ac6bef5fc93",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p02__w05__16ab3f292bbe6cab090d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p02__w09__99efaf30a450657809c7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p03__w00__4b5253ad3c698feabb51",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p03__w01__3cf8bab11f55b8842bfb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2024_55033_Fig1_HTML__p03__w03__0b8f23c65ebe64ec6fa8",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig1_HTML__p02__w00__55a32b45af0760da095b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig1_HTML__p02__w01__9b4cb1b27aaffeba4351",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig1_HTML__p02__w03__aa8dec2e55589e6c73a6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w00__a016d5bf996b1389dbae",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w01__9d9127bb0e7619fe7453",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w02__186cd525c66c6476b273",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w03__ec127881cb16265b4416",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w04__b0df2975a79d2202d131",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w08__2e3e47e84ed9d1bb79ad",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w09__6a23806c3861f7cb0890",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w11__2d48f7735d67ce206e4f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w12__de97a86ae58c3a5e7192",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w14__1282aba111f8a9388b71",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w16__de80066a879726019c2b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig2_HTML__p01__w17__04e7698c4ff1d88ed586",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig3_HTML__p00__w00__7a78e9932a9eccf1c0ff",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig3_HTML__p00__w07__b922e8fa7f42f7dd007c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig3_HTML__p00__w09__aa011c32aef50429bfd3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig3_HTML__p00__w10__9ef843fd38f7945c83e1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64701_Fig3_HTML__p00__w11__03276a78bc645a6b2abc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64751_Fig1_HTML__p03__w00__60498f694c30cf264e6f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64751_Fig1_HTML__p03__w01__3ba98870cfe62d6f1875",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64751_Fig1_HTML__p03__w02__95f4173c02813bf927fc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64751_Fig1_HTML__p03__w03__2750f79af02fc270eb30",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64751_Fig1_HTML__p03__w04__d17fbda30393551a1fad",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_64751_Fig1_HTML__p03__w05__88f557efbf977c5e6275",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_66137_Fig5_HTML__p00__w03__a477525f8c0c927f9dc3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41467_2025_66137_Fig5_HTML__p00__w06__1ca007de1d62fa9c25c9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "41541_2024_996_Fig2_HTML__p00__w00__869b910c877500704d59",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "42003_2023_4664_Fig2_HTML__p02__w02__5a8ded354edbc3d1decc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "42003_2024_6310_Fig4_HTML__p03__20b313__d01__fe8306cfaddd14008e5f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "42003_2024_6310_Fig4_HTML__p03__20b313__d03__678a94b6c4b75780b583",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "42003_2024_6310_Fig4_HTML__p03__w01__783500971859043baa8d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "42003_2024_6310_Fig4_HTML__p03__w02__9c95a41f2d47913af09f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "42003_2024_6310_Fig8_HTML__p01__w04__5e611ef5ee95bb845988",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "42003_2025_8058_Fig5_HTML__p03__w03__48ffd54200ff3f138a42",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "EMS196775-f003__c03__69977749465efc38d0bd",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2427844_F0003_OC__p00__d756b3__d02__aa405f152461e45d5282",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2427844_F0003_PB__p00__f631a7__d02__b6a419c613a39e7aa45e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2427844_F0003_PB__p00__w00__b05f1b858a82c162215b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2427844_F0003_PB__p00__w01__4545b0f1498f036fabff",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2432681_F0002_OC__p00__w02__e61545bcd09e4b1ec78d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2432681_F0002_PB__p00__w03__ed74006dd500af10f029",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2432681_F0002_PB__p00__w05__e43f75ae3194ec60be0a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "KVIR_A_2432681_F0002_PB__p00__w06__b72edd27110a0dd52e61",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "LSA-2019-00402_Fig4__p02__w01__438f48c9f73cc1bcd997",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "LSA-2019-00402_Fig4__p02__w02__50a9fead2078fc752aff",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "MBT2-17-e14455-g003__p03__w00__52bb848680a73ae7e4be",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10012559__13071_2023_5698_Fig2_HTML.jpg__p06__w01__f16f47644a6b44eab601",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10198655__fnmol-16-1163087-g004.jpg__p05__w01__bd128079e8b5da0f3ba0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10266960__40249_2023_1109_Fig2_HTML.jpg__p01__w00__b9e7b09750fafd74ddcf",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10266960__40249_2023_1109_Fig2_HTML.jpg__p01__w01__37463a6fc572249acdc3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10269777__spectrum.00104-23-f003.jpg__p04__w00__8796ced020c4062ac6fc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10269777__spectrum.00104-23-f003.jpg__p08__w01__3c9a126d70296e6803e0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10385653__viruses-15-01410-g003.jpg__p02__w00__cf040bad2b218a615342",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10385653__viruses-15-01410-g003.jpg__p02__w01__5397d9c6959bee342eb4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10450435__pnas.2309043120fig02.jpg__p00__w01__f3962b4eb5ee4fc1c620",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10569561__ppat.1011707.g002.jpg__p05__w00__d4bd09dea0c7b5464e52",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10653836__mbio.01769-23.f001.jpg__p08__w01__1a9765e6e5a3bc5e22ec",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10730954__gr1.jpg__p05__w01__88f4b8bb45e17b1226cd",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10730954__gr1.jpg__p05__w02__0d1f3e2ee4aa3ed92615",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10795397__13567_2023_1261_MOESM5_ESM__8d440ef18724a03d8283",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10795397__13567_2023_1261_MOESM5_ESM__p01__c00__c25c9ddb85a7624bbae3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10838242__401_2023_2678_Fig7_HTML.jpg__p00__w02__65d9bb18022de24d48dc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10910794__13071_2024_6207_Fig5_HTML.jpg__p15__w00__0799a9137d1a160956f5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10921786__13071_2024_6195_Fig5_HTML.jpg__p02__w00__4cdb992c178a9ae8cc6b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10921786__13071_2024_6195_Fig5_HTML.jpg__p02__w03__1dd570cb0e6de958d5fa",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10921786__13071_2024_6195_Fig5_HTML.jpg__p04__w00__c17587367ddfff66302a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10921786__13071_2024_6195_Fig5_HTML.jpg__p04__w01__57bdf438a999195cced9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10949797__13071_2024_6135_Fig6_HTML__p01__w03__b70e13d659966469c2b3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10962585__KVIR_A_2329566_F0001_OC.jpg__p14__w00__0b3e2036c524a739e676",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC10962585__tmprqe6uhpy_p-000__963bdaf58881865834ed",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC10996207__13071_2024_6259_Fig2_HTML.jpg__p00__w00__729d9909fa12741eec63",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11087979__gr5.jpg__p00__w00__93ae244a7518a0b70a1e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11101121__pbio.3002634.g005.jpg__p06__w01__c35ab884bd86c72d623d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11101121__pbio.3002634.g006.jpg__p08__w03__df90d73fe9e59ddb0bbf",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11102469__42003_2024_6310_Fig8_HTML.jpg__p11__w01__0345453935c84ab7b38f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11102469__42003_2024_6310_Fig8_HTML.jpg__p11__w02__db6fff05b13e358134ba",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11102469__42003_2024_6310_Fig8_HTML.jpg__p11__w03__c39392223876efe4be04",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11102469__42003_2024_6310_Fig8_HTML.jpg__p11__w05__72f5a47e69eaa2899ef4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11102469__42003_2024_6310_Fig8_HTML.jpg__p11__w07__f0fa5e51a5252550cb04",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11102469__tmpgn_yem2__p-002__6aa7ff88fb5e249ff608",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11102469__tmpgn_yem2__p-002__d00__8a32accb78e39a0d0b6c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11102469__tmpgn_yem2__p-002__d02__c676cdb633ba897cee59",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11122372__ijms-25-05527-g002__p01__w06__9abe07234eafa73314ab",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11122372__ijms-25-05527-g002__p01__w07__c97fca9e7a3758209ce4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11122372__ijms-25-05527-g002__p01__w08__3816e3027a05f3d1b508",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11122372__ijms-25-05527-g002__p01__w10__3e6a50963116a2e69a42",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11122372__ijms-25-05527-g002__p01__w11__095447ee0abee8e83fd0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11166882__EMS196775-f003__p00__c00__8d0cc3a6027f4dabf028",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11166882__EMS196775-f003__p00__c03__a2c7ae4a594e56d7f26f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11166882__EMS196775-f003__p00__w00__adcd8a7d01533a6f507c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11218972__ppat.1011979.g002.jpg__p01__w00__0cda09e3c28aa9070b2a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11218972__ppat.1011979.g002.jpg__p01__w01__e2dee30fca250c80e421",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11218972__ppat.1011979.g004__p00__c01__52b4c6a22cda620d28e8",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11284705__gr3.jpg__p02__w03__b59cd9612efb75b3ff08",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11291246__fphar-15-1412245-g002.jpg__p04__w00__784c84918105ea81099f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11343613__pbio.3002745.g001.jpg__p03__w03__03f02c81a114a7720d56",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11343613__pbio.3002745.g001.jpg__p03__w14__0e6a695505452700757d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11367938__12967_2024_5451_Fig12_HTML.jpg__p01__w00__b6f29f54057367d56439",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11367938__12967_2024_5451_Fig12_HTML.jpg__p01__w03__8e7e78d283a735fa9ac2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11367938__12967_2024_5451_Fig12_HTML.jpg__p01__w04__dd8f15be03d87d484322",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11367938__12967_2024_5451_Fig12_HTML.jpg__p01__w05__ef9925a124480625fa13",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11367938__12967_2024_5451_Fig12_HTML.jpg__p01__w06__dccd628997413880524a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11377541__44318_2024_171_MOESM17_ESM__iKD-PP2A-A2_-ATc__463a83ec6a9fabc2bfcb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11389393__mbio.02051-24.f003.jpg__p10__w02__6a1f77e46e7a66a267aa",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11390460__fimmu-15-1452828-g001.jpg__p00__w00__1dbc19643b9f2d68b0aa",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11390460__fimmu-15-1452828-g001.jpg__p00__w01__20907bc1fe15467b69a5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11390460__fimmu-15-1452828-g001.jpg__p00__w02__fe488e04677a78949668",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11390460__fimmu-15-1452828-g001.jpg__p00__w03__d66e61d83b5f8c43fa03",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11390460__fimmu-15-1452828-g001.jpg__p06__w00__9fb133ee42745d5aa137",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11390460__fimmu-15-1452828-g001.jpg__p06__w01__4f0c21f4c3dc8dbbcb87",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11580469__msphere.00779-24-s0004__p01__w00__f9fe181e952ff2eff858",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11610562__KVIR_A_2427844_F0003_OC.jpg__p00__w01__2acc10b41d4fc103a9b2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11630813__tmpp219d7nz_p-003__411848fc54d7cbbe749a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11652630__41467_2024_55033_Fig1_HTML.jpg__p06__w02__02eba2e9fa4f4945f939",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f002__p01__w00__470f7503d22f7394f895",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f002__p01__w02__8a4a34acc0e424ef5669",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f002__p01__w05__2d13b7047c9e1f41e931",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p00__w02__69f3f92ff5507ae55817",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p01__w01__b60601256c7655632cb3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p02__w01__e7b9b92b274c9446dcfd",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p08__w00__eee7ca96b9582e8f3353",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p09__w00__481a894dd6391a470a0a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p10__w00__42c5f95fd67fce599b14",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p14__w00__b67b14e3f80981f5035f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11656774__msphere.00265-24.f003__p16__w00__78fdecec65ed96d7dc8e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11708027__mbio.03036-24.f001.jpg__p01__w00__981d9611dfa923440bd7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11708027__mbio.03036-24.f001.jpg__p01__w01__a62b64faffd4aeb356e7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11742118__mbc-36-ar7-g006.jpg__p09__w00__981a9a5efd3704c98eaa",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11838916__pbio.3003028.s006__d0131b09db72381aaf8e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11838916__pbio.3003028.s007__c40ef1e35b870dd2d184",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11838916__pbio.3003028.s010__0fe914d10b519fe95b7a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC11894989__gr3__p01__w01__26ec1e5f7be8f47a7846",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11922314__nihms-2060928-f0002__p01__w06__9b4da36d8dce4a72d6c6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11934330__msphere.00829-24.f003.jpg__p04__w00__dd969d61e498e0981af2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11951701__13071_2025_6766_Fig2_HTML__p01__c01__a7bd674bf41c47bcf016",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC11974962__mbc-36-ar32-g004__p00__c00__79f490b7a6a2943549ca",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12039231__msphere.00111-25.f003__p02__w05__d00__6943331e98cbf6f95005",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12065787__42003_2025_8149_Fig4_HTML.jpg__p00__w00__87f67dfef40dde941474",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12065787__tmpcyudj8l0_p-002__57193cd32df374a09f01",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC12075863__42003_2025_8173_Fig1_HTML.jpg__p12__w02__8451f1439086c0d40a81",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12090600__13071_2025_6799_Fig4_HTML.jpg__p02__w00__6d5a9165b1cf751e410b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12090600__13071_2025_6799_Fig4_HTML.jpg__p02__w01__8e3f8a3f64a64a1fe6f0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12090600__13071_2025_6799_Fig4_HTML__p01__w09__116cab35a0364b1a7e18",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12234471__fcimb-15-1542122-g003.jpg__p03__w03__29b10390817e59985b62",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12421850__mbio.01389-25.f008.jpg__p01__w00__10e314b9794740497b4f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12425318__ppat.1013475.g007.jpg__p01__w04__c10ad8d96193cabb1f72",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12482187__tmpfn6n7_bm_p-004__86b048e71a4b3b6a9f8f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC12521416__fcimb-15-1602743-g004__p00__w00__5f4d32fd0a1980f477a4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12589562__41467_2025_64701_Fig2_HTML.jpg__p15__w02__323ef7d6909003c340cb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12750888__13071_2025_7139_Fig4_HTML.jpg__p02__w02__24e1cf1d672a2e896309",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12846369__vetsci-13-00042-g003__p01__w02__d44212c5d5155aa3b569",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12846369__vetsci-13-00042-g003__p01__w03__b6ebc990685f584f3ccc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12846513__viruses-18-00062-g002__p00__w08__506557019b337091c951",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12853542__jitc-14-1-g002__p00__w10__796c88696c869a22ca53",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12924492__12964_2026_2705_Fig5_HTML__p01__w06__57b56ab9695564c137db",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC12935302__pntd.0014035.g007.jpg__p01__w00__e6cb6acec36b382f82ab",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC13119604__polymers-18-00994-g003.jpg__p01__w01__fc58f1e1cc7c7e345547",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC13119604__polymers-18-00994-g003.jpg__p01__w02__d366a918ba29ebd9a0c1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC13211447__viruses-18-00514-g008__p00__w00__16bfac7c57342968975a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC13211447__viruses-18-00514-g008__p00__w01__aeaeccd592c308fe7589",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC13215948__gr1__p02__w01__46f331e0bac38c87c742",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC13215948__gr1__p02__w02__cf01fbce346a17492ffe",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC2440811__pone.0002628.g001.jpg__p02__w00__0d55da218cf6f1e82109",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC2440811__pone.0002628.g001.jpg__p03__w00__b31ba8842bc5c702edd0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC2440811__pone.0002628.g001.jpg__p03__w01__c1a206e1f924f66ea372",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC2728562__mv-v15-1611-f1.jpg__p00__w03__5062a3ee99e11dd7b2be",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC2728562__mv-v15-1611-f1.jpg__p00__w04__735828efcc746ca96c27",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC3164638__ppat.1002201.g006.jpg__p01__w00__70e23417fc5a3c4348f4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC3164638__ppat.1002201.g006.jpg__p01__w02__4a85a2d8ff269503c92c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC3164638__ppat.1002201.g006.jpg__p01__w03__8be92390ed42a967d337",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC3567180__ppat.1003162.g007__p01__c01__24666b9235226facf527",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC3567180__ppat.1003162.g007__p01__w01__1815aaff9292ef99fb18",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC3567180__ppat.1003162.g007__p01__w03__7191a477ae5bd52b7b52",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC3567180__ppat.1003162.g007__p01__w09__3404cfa6956682806a55",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC3879359__ppat.1003830.g004.jpg__p01__w01__402a82c022052a9ccbda",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC4751604__549fig9.jpg__p03__w00__bbd979e323f2f3ceaf21",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC4915968__nihms776829f1.jpg__p02__w00__4458ea3db57051dc9e40",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC4917082__pone.0157873.g001.jpg__p01__w02__1f03216214139483dead",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC5242020__12915_2016_343_Fig8_HTML.jpg__p02__w00__4d79672c5db5fba9f769",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC5256095__srep40780-f1.jpg__p00__w01__b6aa1de4a27105aabb25",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC5256095__srep40780-f1.jpg__p01__w00__39e0d9ce14aef632f8ea",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC5322881__pntd.0005363.g010.jpg__p00__w05__4766289376bf28b98d2a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC5341725__411fig7.jpg__p00__w00__6883ec46605c550d35fb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC5414004__mbo0021732950006.jpg__p05__w03__a141c54b620c2a7e898c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC5426850__1361fig5.jpg__p02__w11__eca8b00fe4da0a74c2e1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC5444831__ppat.1006378.g008.jpg__p00__w00__1c1680f717e1c5bcbf23",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC5444831__ppat.1006378.g008.jpg__p00__w01__1bf20e1137b54938c11b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC5874296__fcimb-08-00083-g0007.jpg__p08__w01__af91e74569510c880893",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC5874906__mbo0021837960003.jpg__p03__w01__93a7dcd6b24bf96a6b49",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6109170__41598_2018_31149_Fig4_HTML.jpg__p00__w01__89b5918f16aab36bbce3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC6121064__fcimb-08-00300-g0002.jpg__p00__w01__054ec1877b73f0d108f1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6121064__fcimb-08-00300-g0002.jpg__p00__w02__50019d96ab73f3b3e249",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6121064__fcimb-08-00300-g0002.jpg__p01__w01__0cfebc8ba9a26a397423",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6121064__fcimb-08-00300-g0002.jpg__p02__w01__be3d2c7f468ba83e3650",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6121064__fcimb-08-00300-g0002.jpg__p02__w02__fcad493138d0e655232a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6121064__fcimb-08-00300-g0002.jpg__p03__w01__2b8356f7f4ef94597894",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6121064__fcimb-08-00300-g0002.jpg__p03__w02__b534580936a46d65ccba",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6152992__pbio.2005642.g004.jpg__p00__w01__46800a054726f1776c17",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC6178135__fimmu-09-02151-g0006.jpg__p11__w01__7e01ac12992771f77688",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC6178135__fimmu-09-02151-g0006.jpg__p11__w02__edd1793a09c193e26353",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC6199492__mbo0051841180006__p02__w07__cb22958817d1d7572a7d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6386423__ppat.1007577.s005__p39__w07__d18774172a00771efd8d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC6750612__ppat.1008049.g003.jpg__p04__w00__91d1fea1ce5518234213",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC6750612__ppat.1008049.g003.jpg__p05__w00__2c6929629ce4c22e150a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC6750612__ppat.1008049.g003.jpg__p06__w00__ceca81fcdcc2fa8fa897",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC6750612__ppat.1008049.g003.jpg__p07__w00__358bffc10704a925000f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC7158316__f013-079-9780323357753.jpg__p00__w00__8ca85015d7385953ad74",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC7186848__f010-044-9780323357753.jpg__p00__w02__22dd68bfae48e62fe44d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC7228768__elife-56635-fig1.jpg__p14__w01__08ad788395ee49f3bbef",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC7720076__gr7.jpg__p04__w02__bc78605d3e8d7835f87a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC7841047__fvets-07-614759-g0003.jpg__p02__w00__3ff3fe40906cdc766def",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC7895636__f001v003-006-9780702053191.jpg__p00__w00__971604629155ddd4452f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC7918358__pathogens-10-00201-g002.jpg__p00__w01__c47ef2fe507ddef82bc1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8012254__nihms-1654624-f0007.jpg__p01__w00__fb7978c36c7168689b8f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC8092286__mBio.03305-20-f0002__p00__c02__4b8b2dc62ef680ab85ae",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8092286__mBio.03305-20-f0002__p00__c07__d7823352db6bc30737e6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8092286__mBio.03305-20-f0002__p00__w03__c764c2379e720ad07522",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC8092286__mBio.03305-20-f0002__p00__w08__382a472f61514dc3b008",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC8157420__13071_2021_4791_Fig7_HTML.jpg__p00__w00__50cb4b68420a52a739e7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8216390__fmicb-12-670705-g006.jpg__p03__w00__9fd496b9b9983135d845",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8265663__msphere.00444-21-f004.jpg__p00__w01__35ea2a7a059a26b0d07b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8265663__msphere.00444-21-f004.jpg__p00__w02__7f2493bf82cbd92c4eb2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8593671__mbio.01591-21-f008.jpg__p06__w00__14ae9a094e036b00d001",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC8593671__mbio.01591-21-f008.jpg__p06__w01__b9acc7ee0cf7f2ba28b4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC8785970__fcell-09-738794-g004.jpg__p12__w01__a8f25161ba91c117a96a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8941121__42003_2022_3205_Fig6_HTML.jpg__p04__w06__9f9d3e9fc0f0395b6b40",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8943915__gr2.jpg__p01__w01__0f591123f30d0ce79583",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC8998710__ijms-23-03843-g001.jpg__p06__w00__3099a8b1f7aa5e4b8036",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8998710__ijms-23-03843-g001.jpg__p07__w00__973d9472e164386d621a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC8998710__ijms-23-03843-g006.jpg__p03__w00__959c91f892a7119a843a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9167752__nihms-1788563-f0004.jpg__p06__w04__05a793911f7711ab0630",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9218915__fmicb-13-899243-g007__p00__w01__c3ce97e3cb133ee27c51",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC9241511__msphere.00052-22-f004__p01__w04__88348146e9ad69df378f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC9386495__gr7.jpg__p25__w00__3535820eaa51b1ac3746",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9386495__gr7.jpg__p26__w00__6d549ba1326b686dcae9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9619220__gr5.jpg__p06__w00__213e17af446b7621e201",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9653380__41541_2022_571_Fig6_HTML.jpg__p00__w01__4f761bc7b8303cb5f517",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC9801091__gr2.jpg__p00__w01__b7a210ff5e23c1f41fc0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "PMC9815656__pbio.3001937.g003.jpg__p00__w05__1100aacb27c73b86c4eb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9815656__pbio.3001937.g003.jpg__p00__w06__ac19959b16cd6d2c5bb6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9880002__41467_2023_36084_Fig4_HTML.jpg__p01__w02__b4ed8d69127809d78f4e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9880002__41467_2023_36084_Fig4_HTML.jpg__p01__w03__7a71b2f0e0055a9004b6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9927372__spectrum.03078-22-f004.jpg__p12__w00__e7b2c76779d3da83552f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9927372__spectrum.03078-22-f004.jpg__p15__w00__7b6b9c5919f766c9aa7d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "PMC9965244__micromachines-14-00282-g006.jpg__p00__w04__faf1f46c9a61d1f0fb00",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "ZhongNanDaXueXueBaoYiXueBan-49-8-1200-g003__p01__d19340__d00__4eab4521119a69a88c1a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "animals-16-00653-g002__p00__w00__6707707091dba43949d3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "bing__29da106ceb47__w06__9336a4d464a14175111d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "bing__5c74cab66058__w27__efec80f4203de3eec57f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "bing__8fbf62c587fa__w05__07b7dba5f1f344ef3b72",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "bing__f11eece3397c__w06__6cf47c66d7d2a113b866",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "biomolecules-15-00202-g003__p02__eecc70__d00__40527f7b294805204e9c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "elife-10809-fig4__p00__w02__b3a64b2084c9a872bd0b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "elife-42669-fig4__p02__w03__e909b4214f9b2a4ce6c6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "elife-42669-fig5-figsupp2__p01__w00__6da7082f6f46eb99868b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fcimb-08-00300-g0002__p00__w03__d10cf54112b3107397c5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fcimb-08-00300-g0002__p02__w01__358016b78d8b5e9e2488",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fcimb-09-00418-g0003__p01__w01__02b27b35bf4ec592ce38",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fcimb-12-1002817-g002__p02__w02__be88ec764c10a1de131c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fcimb-12-947039-g003__p00__w01__d1a1939a1b4c7f4e1d92",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "fcimb-15-1542122-g005__p01__e404db__d01__389eac8d8256150c211a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "figs3__c15__0e9b394a67cc566c1e58",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fmicb-08-02210-g005__p01__w00__5b5a184273573687e462",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fmicb-11-536044-g003__p00__w07__79120b5a7aa4f358608b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fmicb-13-899243-g004__p01__w00__5154a052c9b1815ea3f4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fmicb-13-899243-g007__c08__b2f23d0dbbda0c2eef76",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fmicb-13-899243-g007__p02__w01__edba3f4826fd9c7b2a2f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fmicb-13-899243-g007__p02__w02__5622d193e53e77dac12d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fmicb-14-1302512-g004__p00__w00__a44db28014fe94b90976",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "fvets-07-562730-g0003__p00__w00__a9f964378d0d8c5e8d66",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "gr6__c05__c872bc265d8519780613",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ijms-22-11946-g004__p02__w01__b593998ea5f1e21bbb1a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ijms-23-03843-g006__p03__w01__f4b9793df217e5222e4c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ijms-23-10298-g005__p00__w02__509b145fdb69f6d7353e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ijms-25-06947-g002__p01__w01__8e69d7af9783696f8035",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mBio.00898-19-sf005__p03__w04__57f31f1d58487921bb01",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mBio.03305-20-f0002__c07__96cd5dda9ded1598c8c7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mSphere.00086-19-f0004__p00__w00__77d3458d3a34eef39dc9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbc-36-ar32-g004__c00__f1510ba0831e9e24c159",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbc-36-ar32-g004__c06__863453d35563b21cb8b3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbc-36-ar32-g004__p00__w02__238e47d0af362b542700",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbio.00052-25.f002__c00__467bf78c2b28da3a0b6f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbio.01769-23-s0005__p11__580074__d03__37fbf059377676ee41a0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbio.01965-22-s0004__p04__w02__e7747b91db38b6b02118",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbio.02297-22-f003__p04__w08__2b0b21902df421a87fa8",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbio.02297-22-s0002__p01__516bda__d06__f203beb08e9ff3893ce9",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbio.03622-20-f0003__c11__5071c11f1ad0af6901cb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbio.03642-21-f007__p01__w01__4e90bd098b0a15d62b82",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbo0021837960003__p02__1b4df0__d00__49a59fd9a9e1a40cff6a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbo0051841240007__p01__w01__7565ea45b885703cf59f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbo0051841240007__p01__w03__2613bc2a3a19a82dd85f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "mbo0051841240007__p01__w05__18c308ef1692b4c7e687",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "microorganisms-10-01156-g003__p01__c272f0__d03__568de59536512147a3fe",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "msphere.00137-26-s0005__p00__w01__1fe54ed40fef7db184e2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "msphere.00779-24-s0004__p01__w00__c9d6667f75c2d4ad1866",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "msphere.00779-24-s0004__p02__w00__4135eea5a879583fbbd2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "msphere.00829-24.f003__p03__w02__ca88f5ca4a655c17608a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "msphere.01011-24-s0003__p00__w00__49d09f3fe902f39fdc2c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pbio.3001937.s013__p26__w00__47acc61fbc49896408d5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pbio.3003028.g002__p01__69b5fa__d02__f9b2c434278e42b1a8e7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pbio.3003028.s006__p03__5a6314__d03__9ced2900ecc128cae838",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pbio.3003028.s006__p03__w01__09f51a769bca1db0549e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pbio.3003028.s007__p02__6b9559__d01__513aa78a1eebf408d7be",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pbio.3003028.s010__p02__6ac54f__d02__9feb440810e2fa852d49",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pntd.0014035.g007__p00__w00__111738a40416d4279787",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pntd.0014035.g007__p00__w01__1ef1c2d94e7b2d8d308e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0100450.g004__p00__w00__53f734123c1b65a2605e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0157873.g003__p00__b68018__d01__2bacb9d5c2061d387d61",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0157873.g003__p00__w01__a2aca5916d2424a4ed4e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w00__a25ceec3b98bc845016d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w01__59afd61595a733c0f8a1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w02__8a28ff2a695c1125dad6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w03__r03__fe71344c71cf5804c4e3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w04__98e4049975a3161e456b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w05__03b5d0d7faccd8f81d8e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w06__cd9ec88f52da0bbb23c7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w11__4df1ea5c0d21d4f0dc3f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w12__fbc30d1a3b1c2f70d5ee",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w13__218066a95d9e7e5ee0f5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w15__cd967ed08e7a868f997b",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w16__4524f14e299423a82536",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w17__fc7da9ac3b0104364bcb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w18__ea54ff332305192ec377",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w19__474217d3d42019052dbb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w20__02b84a6b38f887c200d4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "skip"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w23__725c9723195bf59879bf",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pone.0300764.s001__p13__w27__87dcbaec9b1c7d16be4e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1002280.g003__p05__6bc06e__d00__c16a4a84e881aae8fb57",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1003162.g007__p01__w01__08bc1ab6085d391a242c",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1003162.s007__p10__w01__d042b113c0ebe0f0864a",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1003162.s007__p12__w01__7880e23b223a045719cb",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1004025.g003__p01__f6b987__d04__20eb3431b0af07291899",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1004025.g003__p01__w00__027e3b73350bd30555b5",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1004025.g005__p03__w00__e809c6cf71d90b12d659",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1007577.g003__p02__w01__6fd494c05f52de8c82ac",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1007577.g003__p06__9c4989__d01__84d46bec25faa0a768a7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1007577.g003__p06__9c4989__d03__3e649a6cc9991664175f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1009335.g004__p00__478e28__d01__56939566dd8536a45eba",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1010293.s005__p00__w02__74f0f7756d03c2cd7a15",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1010665.g007__p01__w02__19b73044a412f78a22aa",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1010665.s002__p01__w00__09e7ae03b96b936ee2dc",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1010665.s002__p01__w01__fcf141b4e01643b6084d",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1010776.g004__p01__w01__36e2cf22a5c52f0ab38e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1011124.s002__p01__17bacc__d04__4083c6d166e58116830f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1011124.s002__p01__w04__939f0612809d78890c24",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1011831.g005__p01__w00__8df1f49628d62241054f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1011831.g005__p03__w00__16c75df5bbeb1efe56c0",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1011831.g005__p04__w00__154dac2bc7a529b2ba82",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1011831.s003__p00__w04__3f5d37dac7bbc2056e36",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1011979.g004__p02__w02__8dd474f91fdd2436bfa2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1012810.g008__p00__w02__fee52a6cd9e20f4d4053",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1012810.s001__p12__w00__ce31cb0c452354f04361",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "ppat.1013475.g007__p01__w03__47596ad64f2966e81992",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "pt5c00681_0004__c59__f42cb29cf8631aac2ae7",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "sciadv.aea2136-f3__p02__w07__02e183a59a0547125ade",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.00104-23-f007__p02__537863__d01__f26a4e38aa8fa4ef8117",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.01229-24.f003__p01__w03__f7b93e65d6b231da8ac2",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.01363-22-f002__p05__w02__565efa840536113429ac",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.02186-22-f004__p00__25e112__d04__a2254b787e6ee78674b3",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.02186-22-f004__p00__w04__a5dc60c8a3d8f5c5045f",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.03078-22-f004__p00__w03__2d4a980dfebab10c44a4",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.03078-22-f006__p01__w03__1d625fd6edecf40827f1",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "spectrum.03078-22-f006__p01__w06__1dc295d3ce724e3d8328",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "vetsci-09-00166-g002__c00__6947c90fc17708162a95",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "vetsci-09-00166-g002__p00__0bf2ce__d01__c508dee4285621de6014",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "vetsci-09-00166-g002__p00__0bf2ce__d03__7e9bf5967e3f8919e291",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "vetsci-09-00166-g002__p00__w00__e0b96e1679031acee62e",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "vetsci-09-00166-g003__p00__b064c8__d02__1fccab63d9e3949f80c6",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    },
+    {
+      "stem": "vetsci-09-00166-g003__p00__w02__6fa1643fa209a54ddb96",
+      "build_manifest_state": "pending",
+      "current_resume_state": "done"
+    }
+  ],
+  "qualification": "Build manifest is historical build provenance; state differences alone are not conflicting user decisions. Independent Keep/Discard and Done/Skip actions cannot be merged or equated. No new-yesterday label total can be established without a prior bound verdict snapshot. Saved-file evidence cannot prove absence of unsaved GUI edits."
+}

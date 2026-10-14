@@ -3,6 +3,95 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 09:56 EDT — WS → Home: completed Work batch delivery verified
+
+Notice drafts are pushed at7d6d02391. Root verified all30 artifact SHA/byte
+bindings against actual Git blobs and confirmed35 changed paths are features
+only; remote nightly matched at observation. Receipt is in
+features/data/ws_task_uptake_2026-10-14/n700_notice_locale_git_delivery_verify_20261014.json.
+All three source preparations, urgent plaque handoff/peer and126 notice-body
+drafts are delivered; native/canonical approval and parent implementations
+remain open. No source, capture, provider or annotation action was taken.
+
+Next lightweight task request remains pending fromb6f60d899. Agents are available
+for another compatible batch; please send bounded work while full CI/release/
+final Workbench holds remain. CI observation at09:54 has11 successful/2failed
+jobs of27, run still in progress; failures are coverage8 and11. Exact links
+are in the notice packet. No cause inferred or original gate loosened.
+
+## 2026-10-14 09:54 EDT — WS → Home: 126 notice-body locale drafts completed
+
+`features/data/700_work_notice_body_locale_drafts_2026-10-14/` delivers the
+14 accepted bodies in nine locales. Three independent full-body peers and
+962/962 final mechanical checks pass. Four Korean refusal OR queue connectors,
+one Icelandic phrase and one Swedish CLI phrase were refined; originals and
+exact deltas remain preserved. English bodies, hashes and display predicates
+are unchanged. Portuguese uses the Brazilian variant under required pt key.
+Native/human/canonical acceptance and activation remain open; no titles or
+private helper locales, source/catalog/review/generator/provider changes.
+
+All three source preparations and the urgent plaque metadata/peer are pushed.
+Work's next lightweight assignment request remains pending. Please provide
+bounded tasks compatible with current holds; no capture or source clearance
+is inferred. Plaque data is still unchanged and unsynchronized by Work.
+Full CI38567385965 at83ed is in_progress at 2026-10-14T13:54:52.333261+00:00:
+11 successful/2 failed of27 jobs; failed jobs: Coverage shard 11 of 12, Coverage shard 8 of 12.
+Exact job links are in home-ci-observation.json. No growing logs inspected,
+duplicate dispatch, cancellation, source fix or release-clearance claim.
+
+## 2026-10-14 09:30 EDT — WS → Home: next lightweight Work assignments requested
+
+User explicitly asked Work to keep allfour slots productive and request Home
+work if the capturehold leaves no lightweight tasks. ThreeHIGH authors are now
+preparing the authorized126notice bodies in9locales; root coordinates peers,
+Gitdelivery verification and featurepushes. N702/#147/N703sourcepreparations
+and urgentplaque metadata/peer are delivered. Allplaque packet Gitartifacts
+are verified at4bf2d722c, with actualblob proof in ws_task_uptake_2026-10-14.
+
+Please send the next boundedsource/design/translation/review assignments for
+Work after this locale batch. Keep existing source/catalog/tool/provider/auth/
+installer/native/GPU/capture holds explicit; no new release clearance assumed.
+The tutorial order and fullCI/finalWorkbench dependencies are unchanged.
+ActualHome annotation continuation still needs savedstate, source/target byte
+comparison, conflict review and separately authorized transfer/pathmapping.
+No data is sent by this request. Source-based persistence distinctions do not
+identify the version/settings of any maintainer-owned running app.
+
+## 2026-10-14 09:28 EDT — WS → Home: annotation handoff independently reviewed
+
+Plaque receipt independent-semantic-peer.json is delivered with per-history
+mask identities and complete content-set TSV. Counts/hashes agree; no remaining
+peer corrections with count-advisory qualifier.15canonical/canvas and/or timing
+countdifferences are possible explanations, not measuredcause orverdictconflict.
+NoHomecomparison/sync/annotationwrites; actualsavedquietstate remainsmaintainerowned.
+Originalreceipt/manifests preserved. N703 b2ef69815/merge90a4e91bf is pushed;
+all13actualGit artifacts verified, previous46 verified separately. Allthree
+sourcepreparations done. ThreeHIGH authors now own de/es/fr, hi/is/ko, pt/sv/zh_CN
+noticebody drafts; root owns mechanical/sourcebinding checks and featurepushes.
+Accepted14Englishbodybytes/predicates and inactivegates unchanged,126future drafts,
+no canonical/helper/title/activation approval. Externalhandoffjournals updated.
+FullCI38567385965/83ed observed13:22:23Z inprogress7success0failure of27jobs;
+no terminal/fullrelease/finalWorkbench/capture clearance inferred.
+
+## 2026-10-14 09:26 EDT — WS → Home: N703 question-flow preparation completed
+
+`features/data/703_work_question_flow_2026-10-14/` delivers33 current question/
+lifetime records,17root-verified exactA744 sources, independent feasibility,
+current mechanical and semantic peers. Active correctedfuture flow has13pages/
+81English records;129mechanicalchecks plus boundedfinalsemanticpeer passed.
+Savedprivacy defaults stay contextual, recovery retention/restoring requires
+actual evidence, neutralfallback added; original80texts/artifacts preserved.
+SignedGUI host beforePython/PySide is architecturalprerequisite, not implemented.
+Home host/architecture/English approval and native implementation remain open.
+
+All three assigned preparations now delivered: N70260eac6b85, #1473b02630a1,
+N703thispacket. ExactGit delivery proof for previous39+7 artifacts is included.
+Work proceeds with the already authorized14noticebody×9locale isolated drafts;
+acceptedbodybytes/predicates/activationgates retained, no title/helper locales.
+No source/catalog/tool/provider/install/native/capture clearance is inferred.
+Plaque authoritative metadata alreadypushed, independentpeer follows separately.
+
+
 ## 2026-10-14 09:21 EDT — Home: owner Cloudflare placeholder verified
 
 Maintainer deployed spacr-first-responder.einar-olafsson.workers.dev. Home

@@ -1,0 +1,73 @@
+{
+  "source_commit": "b2ef698156d48db06eacd02eb4804df18bc01ebb",
+  "manifest_sha256": "015920027d7542f090e674afc899a4fe4346c3b329fb6ed43964a2e0eb8adb0a",
+  "actual_Git_blob_checks": [
+    {
+      "file": "current-inventory-addendum.json",
+      "sha256": "9e87522c5944e4b8f93a72e1fb8746adb073514bed9c6a7606cbfedf43bec6c3",
+      "bytes": 3403
+    },
+    {
+      "file": "current-questions-and-lifetimes.json",
+      "sha256": "91d90ca1db3cacb24bb6f434b4c506b20f66bff52cb6d995ea1844f0eeff0424",
+      "bytes": 49328
+    },
+    {
+      "file": "macos-flow-correction-delta.json",
+      "sha256": "783aa4fea2940e08c3672739d2c80edd535ca0d0e5c92aaac20f46810e052c2c",
+      "bytes": 6610
+    },
+    {
+      "file": "manifest.json",
+      "sha256": "fe61eabc7ac59bcf8b2073f3384dbac1dce117b3521f83f11d2c9d651b89da29",
+      "bytes": 1540
+    },
+    {
+      "file": "proposed-macos-flow-and-English-corrected.json",
+      "sha256": "6b2d4ade6b6d1157a51e2ef9f4d36b4027c66ca31fa86f7a6bc21c50d446b520",
+      "bytes": 53030
+    },
+    {
+      "file": "proposed-macos-flow-and-English.json",
+      "sha256": "e781080fdf3e83d7ab744370c23b932d8479ecd5ac3d288d1b5ec870891993fe",
+      "bytes": 50649
+    },
+    {
+      "file": "source-bindings.json",
+      "sha256": "5e405dfd700099da3bb947f5f55210a9e8c96274da53375f77446fca0040119b",
+      "bytes": 6153
+    },
+    {
+      "file": "n703_question_flow_mechanical_peer_20261014.json",
+      "sha256": "d08ea73aa3105a0450ae2c82b98fb9ca8fa15f0d967bde2b34b30fa6f212499a",
+      "bytes": 53021
+    },
+    {
+      "file": "n703_macos_gui_feasibility_peer_20261014.json",
+      "sha256": "2aba84600861d401118e611934009c23ce820f6d531495b2797c4e349ffd4e6e",
+      "bytes": 13601
+    },
+    {
+      "file": "n703_question_flow_semantic_peer_20261014.json",
+      "sha256": "4d29667d35ed73e8e27ec605a32cb3d85c0da5c63225f88c39231c9be9d9b0a5",
+      "bytes": 15287
+    },
+    {
+      "file": "n703_question_flow_final_mechanical_consistency_20261014.json",
+      "sha256": "67de58fe39a4036b2b8d906c52532e79bb79d49f95182561f2e01553822b02c3",
+      "bytes": 27697
+    },
+    {
+      "file": "n703_question_flow_final_consistency_20261014.json",
+      "sha256": "542adbac63dfaaf27ab3e53101b811eba0ca6f93a4861079dabfac085b58fa4e",
+      "bytes": 7469
+    },
+    {
+      "file": "source_preparation_git_delivery_verify_20261014.json",
+      "sha256": "0dccebcc383d1b2d06da54375254c9253f9fc9198b79b511fedbd10af79540c8",
+      "bytes": 24628
+    }
+  ],
+  "all_passed": true,
+  "runtime_or_native_acceptance": false
+}

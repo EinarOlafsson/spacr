@@ -1,0 +1,100 @@
+{
+  "accepted_at_utc": "2026-10-14T05:13:55.996043+00:00",
+  "approval_owner": "Home root",
+  "source_commit": "cfb10b89e0ceafa8fd766973919e55e237cc52f8",
+  "proposal_path": "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_corrected_final_20261013.json",
+  "proposal_sha256": "cd8851c2ee3f4fb1853829bb8c34a8aa1451204717be47e9e5ea7a041d431cbb",
+  "preparatory_design_english_accepted": true,
+  "exact_notices": [
+    {
+      "id": "ZC01",
+      "text": "This managed reporting and hosted AI route is available only while its current zero-cost configuration remains verified. It must not purchase credits, upgrade a plan or use a paid fallback. Free limits can make requests unavailable; free access is not unlimited or guaranteed indefinitely.",
+      "text_sha256": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+      "required_display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification."
+    },
+    {
+      "id": "ZC02",
+      "text": "The verified managed route can file a limited technical summary on the public spaCR GitHub repository without your own GitHub account. Public issues can be indexed and copied and cannot be reliably unpublished. The route must remain zero-cost to the maintainer; when free capacity is unavailable, the request is refused or, only if the disclosed storage and retry policy permits it, queued.",
+      "text_sha256": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+      "required_display_predicate": "Strict typed summary actually excludes raw logs/settings/paths/personal text; owner zero-cost gate and independent report quotas implemented. Queue only if explicitly permitted by bounded storage/retry policy. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request."
+    },
+    {
+      "id": "ZC03",
+      "text": "The verified hosted route sends a limited technical summary to the cloud AI service without requiring your own AI account. Its answer is generated advice, not a verified diagnosis, and no command is run automatically. The route must remain zero-cost to the maintainer. When free capacity is unavailable, the request is refused or, only if the disclosed storage and retry policy permits it, queued. Public issue filing is a separate action with its own limits.",
+      "text_sha256": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+      "required_display_predicate": "Hosted selection/actual new request; typed input/privacy disclosure and opt-out; verified free model allowlist, atomic quota enforcement and no paid fallback. Reused advice does not imply a new transfer. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request."
+    },
+    {
+      "id": "ZC04",
+      "text": "Hosted chat sends the question and the conversation context you explicitly include to the cloud service. That text may contain personal or confidential information; review it before sending. Prior CLI conversations, raw logs and settings are not transferred automatically. The hosted route must remain zero-cost to the maintainer and refuses requests when free capacity is exhausted or queues them only if the disclosed storage and retry policy permits it.",
+      "text_sha256": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+      "required_display_predicate": "Hosted mode selected, explicit context preview/consent and transfer boundary implemented, zero-cost verified, no arbitrary-text anonymity claim or automatic raw CLI history import. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request."
+    },
+    {
+      "id": "ZC05",
+      "text": "The hosted AI service has reached its free limit. This request was refused and no new answer is available. The managed route must not buy credits, upgrade a plan or select paid inference. You can try again when free capacity is available. Public reporting remains separate and may still be available within its own limits.",
+      "text_sha256": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+      "required_display_predicate": "Confirmed quota refusal without successful inference; no successful queued request promised; independent report route status actually checked. Do not assert all transport was cancelled."
+    },
+    {
+      "id": "ZC06",
+      "text": "Free AI capacity is currently unavailable. Your request is queued under the stated storage and retry policy; it has not completed. No paid fallback or plan upgrade will be used. You can remove the queued request before another attempt starts; removing it cannot undo data already sent in an earlier attempt.",
+      "text_sha256": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+      "required_display_predicate": "Actual permitted bounded queue exists with disclosed content/location/retention/deletion and retry limits; consent valid; server/client request identity reconciled. Never imply raw inputs or CLI history automatically saved."
+    },
+    {
+      "id": "ZC07",
+      "text": "The managed reporting service has reached its free limit and did not accept this report for filing. No paid fallback or plan upgrade will be used. You can retry later. Hosted AI has separate limits and does not establish that a public issue was filed.",
+      "text_sha256": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+      "required_display_predicate": "Explicit authoritative quota rejection proves no accepted filing for this attempt. Network timeout/unknown result must use ZC09 instead."
+    },
+    {
+      "id": "ZC08",
+      "text": "The report is queued under the stated storage and retry policy because free reporting capacity is unavailable. It has not been filed by this queued attempt. No paid fallback or plan upgrade will be used. You can remove it before another filing attempt starts; removal cannot retract an issue already published by an earlier attempt.",
+      "text_sha256": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+      "required_display_predicate": "Actual permitted bounded summary queue; no submission yet for queued attempt; prior attempts reconciled/deduplicated. Queue retention and cancellation disclosed and implemented."
+    },
+    {
+      "id": "ZC09",
+      "text": "We could not confirm whether the reporting service accepted this request. Do not treat this as a filed issue or as proof that nothing was sent. spaCR must check the request identity before retrying; it will not switch to a paid service or upgrade a plan.",
+      "text_sha256": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+      "required_display_predicate": "Actual indeterminate transport/outcome; reconciliation mechanism implemented. Do not claim complete anonymity, cancellation or guaranteed future filing."
+    },
+    {
+      "id": "ZC10",
+      "text": "Managed public reporting and hosted AI are unavailable because the service’s zero-cost configuration has not been verified. The route stays disabled. It must not select a paid replacement or upgrade a plan. Existing CLI providers are separate options with their own account requirements and terms.",
+      "text_sha256": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+      "required_display_predicate": "Owner configuration verification absent/stale/failed; application actually keeps managed route disabled. No deployment/free-plan certification implied."
+    },
+    {
+      "id": "ZC11",
+      "text": "The managed service is unavailable because its current configuration cannot satisfy the zero-cost requirement. The route stays disabled instead of buying credits, upgrading a plan or using paid inference. This does not change your separately configured CLI provider.",
+      "text_sha256": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+      "required_display_predicate": "Actual plan/model/limit check establishes incompatibility; preserve unrelated user configuration and do not silently alter other services."
+    },
+    {
+      "id": "ZC12",
+      "text": "The managed route is available only while its current zero-cost configuration is verified. When free capacity is exhausted, it refuses work or queues it only if the disclosed storage and retry policy permits queuing. It must not buy credits, upgrade plans, purchase hosting or domains, or invoke a paid fallback. Existing CLI providers use their own accounts and terms and are not part of this managed-route commitment.",
+      "text_sha256": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+      "required_display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification. Managed route refuses incompatible paid configuration regardless of user-facing confirmation; no paid resources/credits/domain/GPU rental/fallback/plan upgrades. Do not forbid explicit user choice of separately configured CLI, and do not claim guarantee for arbitrary user accounts. Queue only under implemented disclosed bounded purpose-specific content/location/retention/deletion/retry policy, valid consent and atomic request identity; otherwise refuse."
+    },
+    {
+      "id": "ZC13",
+      "text": "This option uses your selected user-owned CLI provider and its account or subscription settings. Its deployment, transport and billing terms are separate from spaCR’s managed zero-cost route. spaCR does not switch to it automatically when hosted free capacity is exhausted. Review what error text or conversation context will be handed to the selected CLI.",
+      "text_sha256": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+      "required_display_predicate": "Existing CLI selected explicitly, correct provider account/terms disclosure; no claim every CLI remote/account-free/no-charge and no automatic quota fallback."
+    },
+    {
+      "id": "ZC14",
+      "text": "Public reporting and cloud AI have separate settings and data disclosures. Choosing a cloud diagnosis or chat does not by itself authorize public filing. Approving a public report does not by itself authorize a cloud AI request. You can turn each off independently.",
+      "text_sha256": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2",
+      "required_display_predicate": "Actual separate settings/disclosures/consent and no network when each purpose disabled; valid new hosted request or explicit reuse distinction; account-free technical diagnosis and sensitive freeform chat remain separate payloads. State UI cancellation/timeout limits truthfully."
+    }
+  ],
+  "isolated_nine_locale_proposal_drafts_authorized": true,
+  "canonical_source_catalog_review_generator_edits_authorized": false,
+  "deployment_or_ui_activation_approved": false,
+  "current_zero_cost_resources_verified": false,
+  "scope": "Draft-only future text acceptance. Preserve historical activation gates: actual client/relay implementation and acceptance, current owner plan/model/resource verification and each notice predicate remain required. No paid resources, credits, upgrades or fallback even with consent. No original flags/texts are rewritten.",
+  "home_independent_current_byte_bindings": 30
+}

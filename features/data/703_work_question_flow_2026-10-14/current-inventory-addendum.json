@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T13:03:04.550855+00:00",
+  "source_candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "source_binding": {
+    "artifact": "source-bindings.json",
+    "sha256": "5e405dfd700099da3bb947f5f55210a9e8c96274da53375f77446fca0040119b",
+    "bytes": 6153
+  },
+  "review_provenance": {
+    "author": "Codex AI technical review",
+    "human_native_review": false,
+    "source_catalog_applied": false,
+    "Home_approved": false
+  },
+  "status": "additive_precision_corrections_preserve_originals",
+  "original_current_inventory": {
+    "artifact": "current-questions-and-lifetimes.json",
+    "sha256": "91d90ca1db3cacb24bb6f434b4c506b20f66bff52cb6d995ea1844f0eeff0424",
+    "bytes": 49328
+  },
+  "corrections": [
+    {
+      "record_ids": [
+        "UNIX_TTY_DIAGNOSTICS",
+        "UNIX_TTY_PUBLIC_ISSUES",
+        "UNIX_TTY_ACCOUNTS"
+      ],
+      "field": "source_default",
+      "replacement": "Initial states are0. With initial flag0, blank/EOF/no leaves it off. Only y/yes turns the corresponding flag1. If a CLI flag already set it1, a negative/blank answer does not reset it; use pre-collected explicit answers to avoid contradictory prompting.",
+      "source": "packaging/online/install_spacr_unix.sh:48-51,130-145,232-254"
+    },
+    {
+      "record_id": "OPT_IN_PURGE",
+      "field": "source_default",
+      "replacement": "Confirmation is whitespace-trimmed and case-normalized exact word purge; otherwise no deletion. NonTTY refuses without --yes. This is opt-in broad purge, not optional folder GUI cleanup.",
+      "source": "spacr/install_cleanup.py:1338-1346"
+    },
+    {
+      "field": "platform_matrix",
+      "append_row": {
+        "route": "Windows_online_NSIS_uninstall",
+        "questions": [
+          "WIN_ONLINE_UNINSTALL",
+          "OPT_IN_PURGE"
+        ],
+        "lifetime": "Separate MUI uninstaller confirmation+instfiles lifetime. /PURGE additionally invokes Python console exact-word confirmation; normal uninstall does not ask per-folder cache choices.",
+        "default_scope": "No /PURGE by default; no optional folder-content/size GUI."
+      }
+    },
+    {
+      "field": "current_update_modal_call_inventory",
+      "handler": "_poll_frozen_update",
+      "line": 5188,
+      "kind": "warning",
+      "replacement_classification": "acknowledgment_error_or_status_not_new_selection",
+      "reason": "Only actual information call5167 has OK|Cancel shutdown choice."
+    },
+    {
+      "record_ids": [
+        "WIN_ONLINE_PUBLIC_ISSUES",
+        "UNIX_TTY_PUBLIC_ISSUES",
+        "APP_FIRST_PUBLIC_ISSUES",
+        "APP_ACCOUNT_GUIDANCE"
+      ],
+      "field": "answer_effect_or_limit",
+      "qualification": "A checkbox saves reporting/setup preferences, not particular-action/provider authorization. Current installer privacy text is quoted source wording, not an endorsed per-report preview invariant: install_consent.apply_choices sets auto_file_issues; pre-existing automatic-report modes can have different routing. Future wording and guards must separate manual Send from separately scoped automatic-report consent.",
+      "source": [
+        "spacr/qt/install_consent.py:126-138",
+        "independent N700 scoped peer finding R10; no new report route execution here"
+      ]
+    }
+  ],
+  "authority": "Technical source refinements and peer coverage fixes only, not implementation/native acceptance."
+}

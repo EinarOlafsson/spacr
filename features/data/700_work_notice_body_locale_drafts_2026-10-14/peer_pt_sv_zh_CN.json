@@ -1,0 +1,417 @@
+{
+  "review_kind": "Independent root full-body semantic and UI wording review; AI technical draft only",
+  "status": "42 meanings preserved; one bounded Swedish clarity recommendation",
+  "accepted_source_sha256": "9e2f2511745a8e692cb8172c18eebc79c6755468a2798bd0e60336a33850b72a",
+  "corrected_obligations_sha256": "36b29301ea33a917dfeb4f4bc25312f15e1214f8e115fcd84ce10c02296e0166",
+  "bindings": [
+    {
+      "file": "pt.json",
+      "sha256": "ba392b2e6392c0a2eb51a5992d0ef4971ec9c0f4228db9ce17e6537c81a23005",
+      "bytes": 23056
+    },
+    {
+      "file": "sv.json",
+      "sha256": "d32afa2fef852df019a6810cfa8fa28d1fb5e6bd2afcf63c914237524fd376cc",
+      "bytes": 22714
+    },
+    {
+      "file": "zh_CN.json",
+      "sha256": "165e3f82d154b933bb1e22691025d8dcb2ae3783a1810a9f03843e12cf242289",
+      "bytes": 21273
+    }
+  ],
+  "per_record_findings": [
+    {
+      "locale": "pt",
+      "id": "ZC01",
+      "source_sha256_utf8": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+      "translated_sha256_utf8": "4f6d0a606bf9dcf8ba37c7d710e4764bac1254f320e2bec8c2b9d5b34285f3ba",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC02",
+      "source_sha256_utf8": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+      "translated_sha256_utf8": "2c403ab5a67b754e73d01d10de2c98b228ce9464c03d0bc58aff19cd4e181fcf",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC03",
+      "source_sha256_utf8": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+      "translated_sha256_utf8": "fccdc408fb1c4f658f7e9e3b8befcb1771054e1d2dbc9a4e0d905acf49ce19cb",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC04",
+      "source_sha256_utf8": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+      "translated_sha256_utf8": "500635ba3b83219b371d0a7d7a49eb12e4f0e27a6c35caafc7f120597e55ee73",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC05",
+      "source_sha256_utf8": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+      "translated_sha256_utf8": "2a70855dac09a8b11f04b4d89a87e250e2669c65dddac7c9caeeee77bf4b1fda",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC06",
+      "source_sha256_utf8": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+      "translated_sha256_utf8": "e9e1f723b5115243e2cfb02f24094edea1e69a64943cd8a5c0622eecf48ded9f",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC07",
+      "source_sha256_utf8": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+      "translated_sha256_utf8": "066078977d33a1ffdb415ba3a849a5487f4e8717793b6cb845d89538a7db73f3",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC08",
+      "source_sha256_utf8": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+      "translated_sha256_utf8": "a999b848e1fda5c55d37d5a07d7880f3452581cca6c183acf57028285b757c06",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC09",
+      "source_sha256_utf8": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+      "translated_sha256_utf8": "c7fa8b20fbdc30f3c94c7711c31e776b84502d837120ff11a9e1f664023639da",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC10",
+      "source_sha256_utf8": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+      "translated_sha256_utf8": "53b752f1613e6fbf576b3fe8966f44a503805c6ee33ad1f21a1079cfe192cbfa",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC11",
+      "source_sha256_utf8": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+      "translated_sha256_utf8": "7cd7fa52f73c4a22464ba62780b34acced453dcd06cdcd182ab6c66f58cbd5c4",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC12",
+      "source_sha256_utf8": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+      "translated_sha256_utf8": "d67615075d45ca787fe8045741d857d3f7b8ff2d74c737baa5e2cc18767db937",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC13",
+      "source_sha256_utf8": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+      "translated_sha256_utf8": "64ac0f5d1d9f666949d778de7f26c4faef120de730c5a121fc544b32e4dec28b",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "pt",
+      "id": "ZC14",
+      "source_sha256_utf8": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2",
+      "translated_sha256_utf8": "509d7bb5bc0087a3faf36c69f74d3b152bb2bd9e4faeb1b83c7efb642f3dd992",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC01",
+      "source_sha256_utf8": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+      "translated_sha256_utf8": "a7c21a0abf871c5c7ac1641e7d320a641997746e07fa4faadbcea5e654ee48b6",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC02",
+      "source_sha256_utf8": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+      "translated_sha256_utf8": "325b7f2eff123ce42f8e16c6b85339efd75b2f522649d2e12c1bcecab49e5be4",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC03",
+      "source_sha256_utf8": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+      "translated_sha256_utf8": "38684f113e32cda792d22dcbd980ac36503673b1696fbc049d6fad253d2db17d",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC04",
+      "source_sha256_utf8": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+      "translated_sha256_utf8": "b4383b21d121843034c086437c9038691c5733121aa7dd77bdd840e420c84e04",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC05",
+      "source_sha256_utf8": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+      "translated_sha256_utf8": "4fd43dfb5dc5b8b2418bad9866cea53dc615295aafff85eafefe379335da3255",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC06",
+      "source_sha256_utf8": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+      "translated_sha256_utf8": "d824268fb16c371da0046579044b933cc157e9fccec8b79d55d2f9a5db3c3097",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC07",
+      "source_sha256_utf8": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+      "translated_sha256_utf8": "dfc660e51dc9cadfde8bcc6b615f6c1f7274341d65415d07592282887a300cde",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC08",
+      "source_sha256_utf8": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+      "translated_sha256_utf8": "011b75e5fd11e1c70576190279e8f6790c40400c23371998b6ab0d646f62aefb",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC09",
+      "source_sha256_utf8": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+      "translated_sha256_utf8": "5c50d75baabff66f6a8ecfd98863417f0a2c81161078c7251516a49132335d81",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC10",
+      "source_sha256_utf8": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+      "translated_sha256_utf8": "8bd9feec5db49e960d7805b9e35e9b6ba440c741485baf823c1aa2476ec745ff",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC11",
+      "source_sha256_utf8": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+      "translated_sha256_utf8": "71be2a117721b9162bf0e33759ba95a9f2b615bf0f8ee0f35f6d5c24239626e6",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC12",
+      "source_sha256_utf8": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+      "translated_sha256_utf8": "3cfd71ecdb101af57fc6170a55311a349ff92e83a9969bd5b5258683e0752188",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC13",
+      "source_sha256_utf8": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+      "translated_sha256_utf8": "c0d564db470facf4ed291cf0f0d8ead1a362fc01dbd690fa0a4d2dd1edae76bc",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "sv",
+      "id": "ZC14",
+      "source_sha256_utf8": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2",
+      "translated_sha256_utf8": "5e29b921138ca42bda0520cc18364990a461ab67640014fdd364b29ad255578d",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC01",
+      "source_sha256_utf8": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+      "translated_sha256_utf8": "9710b61c1df7e405b91093af69b109c761c08d75cd07bc033a1a0d2cd1cffdd0",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC02",
+      "source_sha256_utf8": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+      "translated_sha256_utf8": "6a178b24352f17ee5b96fb9923c14cddafdf42f92b48aa094a0485378b6dc957",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC03",
+      "source_sha256_utf8": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+      "translated_sha256_utf8": "e4560d4eb650a07fcf8469a7fc8bd6dff8fc1748c21009622ae9f4bf3b7ce16c",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC04",
+      "source_sha256_utf8": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+      "translated_sha256_utf8": "c29eb4b78e5f2502ae735ed761f2e0d458357f6f4587005eaafa5dac8df7da26",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC05",
+      "source_sha256_utf8": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+      "translated_sha256_utf8": "5c069538fc998647d3bdfe36196fed7ccd280cb3abd0b9fd521eee7ae479adee",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC06",
+      "source_sha256_utf8": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+      "translated_sha256_utf8": "e3448d4011bf2442f5f80c113e92e86a3c06da69c9e15bf915ea6f2121ce56f5",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC07",
+      "source_sha256_utf8": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+      "translated_sha256_utf8": "5833c44433346dc6e406b0d9737ad484a3666965e617228a1e897e534c0d6568",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC08",
+      "source_sha256_utf8": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+      "translated_sha256_utf8": "719b5d1c6e81ffab664393eef71c55d950bd3086af4c1fb500534fe9807e5230",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC09",
+      "source_sha256_utf8": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+      "translated_sha256_utf8": "c57e9a77e0891dc45080f60dd80a567e02feb96604a0fb3f4204cb8751364f22",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC10",
+      "source_sha256_utf8": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+      "translated_sha256_utf8": "cdb35d1a7f9e3c8535a2c20d94d35ac17114a689f406ee84d86ffe8b87228b6e",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC11",
+      "source_sha256_utf8": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+      "translated_sha256_utf8": "10bb695870e90add87eba45cad5a9b8910356b7110b47a00b1588ab6ee1d774f",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC12",
+      "source_sha256_utf8": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+      "translated_sha256_utf8": "aa2d413b9c5fa20b61c079c6953bf2f41e8b79a2f72ee31c3730bbc6b8a3aa6d",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC13",
+      "source_sha256_utf8": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+      "translated_sha256_utf8": "ccb9053b7026fc62d23b573c296c0648194ecc058638e0b176d1a76139454d36",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    },
+    {
+      "locale": "zh_CN",
+      "id": "ZC14",
+      "source_sha256_utf8": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2",
+      "translated_sha256_utf8": "bfdab5a743f6f800340433ae5eeb7401b2ba48c6342dafc27c5b0d430ded816b",
+      "full_translated_body_read": true,
+      "semantics": "Accepted body meaning, modal and outcome scope preserved. Conditional queues are distinct from actual queued attempts; earlier transfers/publication cannot be undone; zero cost and selected user CLI terms/consents remain separate.",
+      "required_semantic_replacement": false
+    }
+  ],
+  "recommendations": [
+    {
+      "locale": "sv",
+      "id": "ZC13",
+      "kind": "clarify user-owned CLI versus ownership of provider company",
+      "before": "Det här alternativet använder den användarägda CLI-leverantör du har valt och dess konto- eller abonnemangsinställningar. Dess villkor för driftsättning, överföring och fakturering är separata från spaCR:s hanterade kostnadsfria väg. spaCR byter inte automatiskt till den när gratis hostad kapacitet är slut. Granska vilken feltext eller samtalskontext som lämnas till den valda CLI:n.",
+      "replacement_text": "Det här alternativet använder den leverantör du har valt för din egen CLI och dess konto- eller abonnemangsinställningar. Dess villkor för driftsättning, överföring och fakturering är separata från spaCR:s hanterade kostnadsfria väg. spaCR byter inte automatiskt till den när gratis hostad kapacitet är slut. Granska vilken feltext eller samtalskontext som lämnas till den valda CLI:n.",
+      "English_hash_predicate_and_obligations_unchanged": true
+    }
+  ],
+  "regional_variant": "pt uses Brazilian Portuguese under required pt key; regional variant is not encoded",
+  "native_human_canonical_or_activation_acceptance": false,
+  "current_zero_cost_resources_verified": false,
+  "runtime_provider_source_catalog_changes": false
+}

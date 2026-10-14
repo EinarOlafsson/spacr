@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "locale": "is",
+  "status": "AI technical draft; not native/canonical acceptance",
+  "records": [
+    {
+      "id": "ZC01",
+      "source_english": "This managed reporting and hosted AI route is available only while its current zero-cost configuration remains verified. It must not purchase credits, upgrade a plan or use a paid fallback. Free limits can make requests unavailable; free access is not unlimited or guaranteed indefinitely.",
+      "source_sha256_utf8": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+      "display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification.",
+      "translated_body": "Þessi stýrða leið fyrir tilkynningar og hýsta gervigreind er aðeins tiltæk meðan núverandi kostnaðarlaus uppsetning hennar er enn staðfest. Hún má ekki kaupa inneign, færa þjónustuleið í hærri flokk eða nota greidda varaleið. Mörk ókeypis notkunar geta gert beiðnir ótiltækar; ókeypis aðgangur er hvorki ótakmarkaður né tryggður um ókomna tíð.",
+      "translated_sha256_utf8": "4c5e1dc272ccbe4c199588e84a6b4808a2d7edb984990a3ca68d479ec5f1d3ea",
+      "semantic_obligations_preserved": [
+        "Availability only while current zero-cost configuration remains verified",
+        "No credits, upgrade or paid fallback",
+        "Free capacity neither unlimited nor guaranteed indefinitely"
+      ]
+    },
+    {
+      "id": "ZC02",
+      "source_english": "The verified managed route can file a limited technical summary on the public spaCR GitHub repository without your own GitHub account. Public issues can be indexed and copied and cannot be reliably unpublished. The route must remain zero-cost to the maintainer; when free capacity is unavailable, the request is refused or, only if the disclosed storage and retry policy permits it, queued.",
+      "source_sha256_utf8": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+      "display_predicate": "Strict typed summary actually excludes raw logs/settings/paths/personal text; owner zero-cost gate and independent report quotas implemented. Queue only if explicitly permitted by bounded storage/retry policy. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "translated_body": "Staðfesta stýrða leiðin getur skráð takmarkaða tæknilega samantekt í opinbera spaCR GitHub-safnið án þess að þú hafir eigin GitHub-reikning. Opinber mál geta verið skráð í leitarvísitölur og afrituð, og ekki er hægt að tryggja að hægt verði að taka þau aftur úr opinberri birtingu. Leiðin verður að vera án kostnaðar fyrir umsjónaraðilann; þegar ókeypis afkastageta er ekki tiltæk er beiðninni hafnað eða hún sett í biðröð aðeins ef upplýst stefna um geymslu og endurtilraunir leyfir það.",
+      "translated_sha256_utf8": "e2a49f407445be187a4342bb7ec1d62739a1177fdbef08284ed21b89df012365",
+      "semantic_obligations_preserved": [
+        "Limited summary to public spaCR GitHub without user account",
+        "Public issues can be indexed and copied and cannot reliably be unpublished.",
+        "Zero cost mandatory; refusal unless disclosed storage/retry policy permits queue"
+      ]
+    },
+    {
+      "id": "ZC03",
+      "source_english": "The verified hosted route sends a limited technical summary to the cloud AI service without requiring your own AI account. Its answer is generated advice, not a verified diagnosis, and no command is run automatically. The route must remain zero-cost to the maintainer. When free capacity is unavailable, the request is refused or, only if the disclosed storage and retry policy permits it, queued. Public issue filing is a separate action with its own limits.",
+      "source_sha256_utf8": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+      "display_predicate": "Hosted selection/actual new request; typed input/privacy disclosure and opt-out; verified free model allowlist, atomic quota enforcement and no paid fallback. Reused advice does not imply a new transfer. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "translated_body": "Staðfesta hýsta leiðin sendir takmarkaða tæknilega samantekt til gervigreindarþjónustu í skýinu án þess að þú þurfir eigin gervigreindarreikning. Svarið er ráðgjöf sem gervigreind hefur búið til, ekki staðfest greining, og engin skipun er keyrð sjálfkrafa. Leiðin verður að vera án kostnaðar fyrir umsjónaraðilann. Þegar ókeypis afkastageta er ekki tiltæk er beiðninni hafnað eða hún sett í biðröð aðeins ef upplýst stefna um geymslu og endurtilraunir leyfir það. Skráning opinbers máls er aðskilin aðgerð með eigin mörkum.",
+      "translated_sha256_utf8": "38704bebaab201c1b989c55b558af0742f2bf6bb8ba4f311a72fde8d575a1e7f",
+      "semantic_obligations_preserved": [
+        "Limited technical summary sent to cloud AI without user account",
+        "Generated advice, not verified diagnosis; no automatic command execution",
+        "Public filing separate; zero cost and conditional queue/refusal"
+      ]
+    },
+    {
+      "id": "ZC04",
+      "source_english": "Hosted chat sends the question and the conversation context you explicitly include to the cloud service. That text may contain personal or confidential information; review it before sending. Prior CLI conversations, raw logs and settings are not transferred automatically. The hosted route must remain zero-cost to the maintainer and refuses requests when free capacity is exhausted or queues them only if the disclosed storage and retry policy permits it.",
+      "source_sha256_utf8": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+      "display_predicate": "Hosted mode selected, explicit context preview/consent and transfer boundary implemented, zero-cost verified, no arbitrary-text anonymity claim or automatic raw CLI history import. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "translated_body": "Hýst spjall sendir spurninguna og það samhengi samtalsins sem þú tekur sérstaklega með til skýjaþjónustunnar. Textinn getur innihaldið persónulegar eða trúnaðarupplýsingar; yfirfarðu hann áður en þú sendir hann. Fyrri CLI-samtöl, hráir annálar og stillingar eru ekki flutt sjálfkrafa. Hýsta leiðin verður að vera án kostnaðar fyrir umsjónaraðilann og hafnar beiðnum þegar ókeypis afkastageta er uppurin, eða setur þær í biðröð aðeins ef upplýst stefna um geymslu og endurtilraunir leyfir það.",
+      "translated_sha256_utf8": "08dc19007cd7120604e4723c34458bfd6338036cc00ab4acf0e61108e717343d",
+      "semantic_obligations_preserved": [
+        "Hosted chat sends the question and the conversation context the user explicitly includes; that text may contain personal or confidential information. This content-selection obligation does not promise anonymous or metadata-free transport.",
+        "Review before sending; no automatic prior CLI conversation/log/settings transfer",
+        "Zero-cost requirement and refusal or explicitly permitted queue"
+      ]
+    },
+    {
+      "id": "ZC05",
+      "source_english": "The hosted AI service has reached its free limit. This request was refused and no new answer is available. The managed route must not buy credits, upgrade a plan or select paid inference. You can try again when free capacity is available. Public reporting remains separate and may still be available within its own limits.",
+      "source_sha256_utf8": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+      "display_predicate": "Confirmed quota refusal without successful inference; no successful queued request promised; independent report route status actually checked. Do not assert all transport was cancelled.",
+      "translated_body": "Hýsta gervigreindarþjónustan hefur náð mörkum ókeypis notkunar. Þessari beiðni var hafnað og ekkert nýtt svar er tiltækt. Stýrða leiðin má ekki kaupa inneign, færa þjónustuleið í hærri flokk eða velja gjaldskylda ályktunarvinnslu. Þú getur reynt aftur þegar ókeypis afkastageta er tiltæk. Opinberar tilkynningar eru aðskildar og kunna enn að vera tiltækar innan eigin marka.",
+      "translated_sha256_utf8": "1776261122c42b3a58c2512eb03ba2c96750f9d83022c1da6905938b9a161cd8",
+      "semantic_obligations_preserved": [
+        "Actual refusal and no new answer, not cancellation or queue",
+        "No credits, upgrade or paid inference",
+        "Later free capacity conditional; independent public route may remain available within own limits"
+      ]
+    },
+    {
+      "id": "ZC06",
+      "source_english": "Free AI capacity is currently unavailable. Your request is queued under the stated storage and retry policy; it has not completed. No paid fallback or plan upgrade will be used. You can remove the queued request before another attempt starts; removing it cannot undo data already sent in an earlier attempt.",
+      "source_sha256_utf8": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+      "display_predicate": "Actual permitted bounded queue exists with disclosed content/location/retention/deletion and retry limits; consent valid; server/client request identity reconciled. Never imply raw inputs or CLI history automatically saved.",
+      "translated_body": "Ókeypis afkastageta gervigreindar er ekki tiltæk eins og er. Beiðnin þín er í biðröð samkvæmt tilgreindri stefnu um geymslu og endurtilraunir; hún hefur ekki verið afgreidd. Engin greidd varaleið verður notuð og þjónustuleið verður ekki færð í hærri flokk. Þú getur fjarlægt beiðnina úr biðröð áður en næsta tilraun hefst; það getur ekki afturkallað gögn sem þegar voru send í fyrri tilraun.",
+      "translated_sha256_utf8": "6e37fdc30652cfd1e1ee00072b9127d5a2a134ba4c51da7bf778ad20b3298273",
+      "semantic_obligations_preserved": [
+        "Actually queued under stated policy; not completed",
+        "No paid fallback or plan upgrade",
+        "Remove before next attempt; cannot undo earlier sent data"
+      ]
+    },
+    {
+      "id": "ZC07",
+      "source_english": "The managed reporting service has reached its free limit and did not accept this report for filing. No paid fallback or plan upgrade will be used. You can retry later. Hosted AI has separate limits and does not establish that a public issue was filed.",
+      "source_sha256_utf8": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+      "display_predicate": "Explicit authoritative quota rejection proves no accepted filing for this attempt. Network timeout/unknown result must use ZC09 instead.",
+      "translated_body": "Stýrða tilkynningaþjónustan hefur náð mörkum ókeypis notkunar og tók ekki við þessari tilkynningu til skráningar. Engin greidd varaleið verður notuð og þjónustuleið verður ekki færð í hærri flokk. Þú getur reynt aftur síðar. Hýst gervigreind hefur aðskilin mörk og staðfestir ekki að opinbert mál hafi verið skráð.",
+      "translated_sha256_utf8": "82e7204438a1e1267da0cd80172cdf2c4e054de409111c00d095ebe90d816ac1",
+      "semantic_obligations_preserved": [
+        "Authoritative nonacceptance for filing, not unknown transport outcome",
+        "No paid fallback or upgrade; retry later",
+        "AI limits separate and AI does not prove public filing"
+      ]
+    },
+    {
+      "id": "ZC08",
+      "source_english": "The report is queued under the stated storage and retry policy because free reporting capacity is unavailable. It has not been filed by this queued attempt. No paid fallback or plan upgrade will be used. You can remove it before another filing attempt starts; removal cannot retract an issue already published by an earlier attempt.",
+      "source_sha256_utf8": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+      "display_predicate": "Actual permitted bounded summary queue; no submission yet for queued attempt; prior attempts reconciled/deduplicated. Queue retention and cancellation disclosed and implemented.",
+      "translated_body": "Tilkynningin er í biðröð samkvæmt tilgreindri stefnu um geymslu og endurtilraunir vegna þess að ókeypis afkastageta tilkynningaþjónustunnar er ekki tiltæk. Hún hefur ekki verið skráð með þessari tilraun sem er í biðröð. Engin greidd varaleið verður notuð og þjónustuleið verður ekki færð í hærri flokk. Þú getur fjarlægt hana áður en önnur skráningartilraun hefst; það getur ekki dregið til baka mál sem þegar var birt í fyrri tilraun.",
+      "translated_sha256_utf8": "3570f855768ba6709a0472f4def42ca68ecb609b1924d7e3bb7bafa8d5366700",
+      "semantic_obligations_preserved": [
+        "Actually queued; not filed by this queued attempt",
+        "No paid fallback or upgrade",
+        "Remove before next attempt; cannot retract prior published issue"
+      ]
+    },
+    {
+      "id": "ZC09",
+      "source_english": "We could not confirm whether the reporting service accepted this request. Do not treat this as a filed issue or as proof that nothing was sent. spaCR must check the request identity before retrying; it will not switch to a paid service or upgrade a plan.",
+      "source_sha256_utf8": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+      "display_predicate": "Actual indeterminate transport/outcome; reconciliation mechanism implemented. Do not claim complete anonymity, cancellation or guaranteed future filing.",
+      "translated_body": "Við gátum ekki staðfest hvort tilkynningaþjónustan tók við þessari beiðni. Ekki túlka þetta sem skráð mál eða sem sönnun þess að ekkert hafi verið sent. spaCR verður að kanna auðkenni beiðninnar áður en reynt er aftur; það mun ekki skipta yfir í gjaldskylda þjónustu eða færa þjónustuleið í hærri flokk.",
+      "translated_sha256_utf8": "bf194da50ed6b603c3c9aea5772315ddf204ec8fb781c3ced634c9e8c5702524",
+      "semantic_obligations_preserved": [
+        "Unknown acceptance proves neither that an issue was filed nor that nothing was sent; both remain unconfirmed until request identity is reconciled.",
+        "Reconcile request identity before retry",
+        "No paid service switch or upgrade"
+      ]
+    },
+    {
+      "id": "ZC10",
+      "source_english": "Managed public reporting and hosted AI are unavailable because the service’s zero-cost configuration has not been verified. The route stays disabled. It must not select a paid replacement or upgrade a plan. Existing CLI providers are separate options with their own account requirements and terms.",
+      "source_sha256_utf8": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+      "display_predicate": "Owner configuration verification absent/stale/failed; application actually keeps managed route disabled. No deployment/free-plan certification implied.",
+      "translated_body": "Stýrðar opinberar tilkynningar og hýst gervigreind eru ekki tiltækar vegna þess að kostnaðarlaus uppsetning þjónustunnar hefur ekki verið staðfest. Leiðin er áfram óvirk. Hún má ekki velja greiddan staðgengil eða færa þjónustuleið í hærri flokk. Núverandi CLI-þjónustuveitendur eru aðskildir valkostir með eigin reikningskröfum og skilmálum.",
+      "translated_sha256_utf8": "0f3a21a1256775751767dcd096b3ff6e94e4969fc0941c1e60d661cf81cf7f93",
+      "semantic_obligations_preserved": [
+        "Current zero-cost configuration unverified, so routes unavailable and disabled",
+        "No paid replacement or upgrade",
+        "CLI providers separate with own accounts/terms"
+      ]
+    },
+    {
+      "id": "ZC11",
+      "source_english": "The managed service is unavailable because its current configuration cannot satisfy the zero-cost requirement. The route stays disabled instead of buying credits, upgrading a plan or using paid inference. This does not change your separately configured CLI provider.",
+      "source_sha256_utf8": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+      "display_predicate": "Actual plan/model/limit check establishes incompatibility; preserve unrelated user configuration and do not silently alter other services.",
+      "translated_body": "Stýrða þjónustan er ekki tiltæk vegna þess að núverandi uppsetning hennar getur ekki uppfyllt kröfuna um engan kostnað. Leiðin er áfram óvirk í stað þess að kaupa inneign, færa þjónustuleið í hærri flokk eða nota gjaldskylda ályktunarvinnslu. Þetta breytir ekki CLI-þjónustuveitandanum sem þú hefur stillt sérstaklega.",
+      "translated_sha256_utf8": "09d4cfd9ef0cc083b8918c2007d9e3314ddedcb670502458e91f0230b086fe7e",
+      "semantic_obligations_preserved": [
+        "Current configuration incompatible with zero cost; route disabled",
+        "No credits, upgrade or paid inference",
+        "Separate configured CLI unaffected"
+      ]
+    },
+    {
+      "id": "ZC12",
+      "source_english": "The managed route is available only while its current zero-cost configuration is verified. When free capacity is exhausted, it refuses work or queues it only if the disclosed storage and retry policy permits queuing. It must not buy credits, upgrade plans, purchase hosting or domains, or invoke a paid fallback. Existing CLI providers use their own accounts and terms and are not part of this managed-route commitment.",
+      "source_sha256_utf8": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+      "display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification. Managed route refuses incompatible paid configuration regardless of user-facing confirmation; no paid resources/credits/domain/GPU rental/fallback/plan upgrades. Do not forbid explicit user choice of separately configured CLI, and do not claim guarantee for arbitrary user accounts. Queue only under implemented disclosed bounded purpose-specific content/location/retention/deletion/retry policy, valid consent and atomic request identity; otherwise refuse.",
+      "translated_body": "Stýrða leiðin er aðeins tiltæk meðan núverandi kostnaðarlaus uppsetning hennar er staðfest. Þegar ókeypis afkastageta er uppurin hafnar hún vinnu eða setur hana í biðröð aðeins ef upplýst stefna um geymslu og endurtilraunir leyfir biðröð. Hún má ekki kaupa inneign, færa þjónustuleiðir í hærri flokk, kaupa hýsingu eða lén né nota greidda varaleið. Núverandi CLI-þjónustuveitendur nota eigin reikninga og skilmála og falla ekki undir þessa skuldbindingu stýrðu leiðarinnar.",
+      "translated_sha256_utf8": "75d3fe787455ff43929b883acb17d6e5f78ad6a0f7742ef0f1d42b9978444f69",
+      "semantic_obligations_preserved": [
+        "Availability only while current zero-cost verification valid",
+        "Exhaustion refuses unless disclosed bounded policy permits queue",
+        "No credits, upgrades, purchased hosting/domains or paid fallback",
+        "Separate CLI accounts and terms outside managed commitment"
+      ]
+    },
+    {
+      "id": "ZC13",
+      "source_english": "This option uses your selected user-owned CLI provider and its account or subscription settings. Its deployment, transport and billing terms are separate from spaCR’s managed zero-cost route. spaCR does not switch to it automatically when hosted free capacity is exhausted. Review what error text or conversation context will be handed to the selected CLI.",
+      "source_sha256_utf8": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+      "display_predicate": "Existing CLI selected explicitly, correct provider account/terms disclosure; no claim every CLI remote/account-free/no-charge and no automatic quota fallback.",
+      "translated_body": "Þessi valkostur notar CLI-þjónustuveitandann sem þú hefur sjálfur valið og stillt, ásamt reiknings- eða áskriftarstillingum hans. Skilmálar hans um uppsetningu, gagnaflutning og greiðslur eru aðskildir frá stýrðu kostnaðarlausu leið spaCR. spaCR skiptir ekki sjálfkrafa yfir í hann þegar ókeypis afkastageta hýstu þjónustunnar er uppurin. Yfirfarðu hvaða villutexti eða samhengi samtals verður afhent valda CLI-forritinu.",
+      "translated_sha256_utf8": "4fc90a6512cc852b68d0bfbbed731673bd24801ccef6d6f427228e51f955bc2d",
+      "semantic_obligations_preserved": [
+        "Explicit user-owned CLI and its account/subscription settings",
+        "Deployment, transport, billing separate; no blanket zero-cost claim",
+        "No automatic fallback when free hosted capacity exhausted; review transferred text/context"
+      ]
+    },
+    {
+      "id": "ZC14",
+      "source_english": "Public reporting and cloud AI have separate settings and data disclosures. Choosing a cloud diagnosis or chat does not by itself authorize public filing. Approving a public report does not by itself authorize a cloud AI request. You can turn each off independently.",
+      "source_sha256_utf8": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2",
+      "display_predicate": "Actual separate settings/disclosures/consent and no network when each purpose disabled; valid new hosted request or explicit reuse distinction; account-free technical diagnosis and sensitive freeform chat remain separate payloads. State UI cancellation/timeout limits truthfully.",
+      "translated_body": "Opinberar tilkynningar og gervigreind í skýinu hafa aðskildar stillingar og upplýsingar um meðferð gagna. Að velja greiningu með gervigreind í skýinu eða spjall heimilar ekki eitt og sér opinbera skráningu. Að samþykkja opinbera tilkynningu heimilar ekki eitt og sér beiðni til gervigreindar í skýinu. Þú getur slökkt á hvorri þjónustu fyrir sig.",
+      "translated_sha256_utf8": "d1b34bc1bdd631c9c588fc8fb128f61d0e9b8caced5a049e7b607a619d01c9e7",
+      "semantic_obligations_preserved": [
+        "Independent public and cloud settings/disclosures",
+        "Cloud choice does not authorize public filing and vice versa",
+        "Each can be turned off independently"
+      ]
+    }
+  ]
+}

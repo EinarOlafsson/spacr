@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T12:36:00.013583+00:00",
+  "source_candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "report_worktree_HEAD_observed": "054787203ba602a586c3a3ad46ac698cfe52af66",
+  "scope": "Read-only exact candidate file binding. Context features/handoff are separately bound current bytes; original Home audit evidence is preserved. No current/native installer acceptance.",
+  "candidate_source_files": {
+    "packaging/online/install_spacr_unix.sh": {
+      "sha256": "03b019943891c5b454cdd8f789772dc6dc53836883ae15815b544109bb184c03",
+      "bytes": 22963,
+      "line_count": 626,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/online/install_spacr_windows.ps1": {
+      "sha256": "8df7e128fe4f39d033537324b64f344a972829203a5315befa7fdbd6ae2abdaa",
+      "bytes": 14386,
+      "line_count": 333,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/online/spacr_online_installer.nsi": {
+      "sha256": "db3ffc4f3ca27063259c7cbfba72813d28e3853a780ddaee4611d88f84e8eccd",
+      "bytes": 7716,
+      "line_count": 192,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/online/macos_launcher.c": {
+      "sha256": "7a8e4f3b057a2a200762cd19e01e034f3bed25ccf477645e60b3204fa7e33d6e",
+      "bytes": 1632,
+      "line_count": 48,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/online/build_macos_online.sh": {
+      "sha256": "1061d157560ceb19d5b18e1ce7078b09273cc775811cd3ce6d83ebea1298aa3e",
+      "bytes": 5106,
+      "line_count": 156,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/build_windows.ps1": {
+      "sha256": "dafcb000078d4801229797609445b2f0f56198e03c66750e877b5cf5f54d3d3b",
+      "bytes": 4082,
+      "line_count": 97,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/build_macos.sh": {
+      "sha256": "d9b0fd965afb549b9dab97b01819aff705566b53c3021d5d2a1ce19535069765",
+      "bytes": 3339,
+      "line_count": 99,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/build_debian.sh": {
+      "sha256": "1f533b97a97a9b761aeee6e62f9d69da0ff81eb844321deae6f988f2f73bba7f",
+      "bytes": 3650,
+      "line_count": 72,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/i18n/en.json": {
+      "sha256": "2da2263d4878be0c7fb36ff2b1bcc6f42d5be0c690eee47a99a7ffa661e26175",
+      "bytes": 4437,
+      "line_count": 67,
+      "matches_exact_candidate_blob": true
+    },
+    "packaging/i18n/render.py": {
+      "sha256": "2945c46b7f1b51fb9699247ecc3087517e4c3f46695e675c300381db1ac279f5",
+      "bytes": 9958,
+      "line_count": 254,
+      "matches_exact_candidate_blob": true
+    },
+    "spacr/install_cleanup.py": {
+      "sha256": "8b4c8426dbd3a77d27d1a74f7004d1be48afc3e7ea29f796baf23c0d47762c0a",
+      "bytes": 148199,
+      "line_count": 3312,
+      "matches_exact_candidate_blob": true
+    },
+    "spacr/updater.py": {
+      "sha256": "238a0693ab2501dbef3052a0600f5088a3ef0ca982095a0bb1392447e6ddeafc",
+      "bytes": 44727,
+      "line_count": 1160,
+      "matches_exact_candidate_blob": true
+    },
+    "spacr/qt/app.py": {
+      "sha256": "3e475f8af1694f10e187081ecb3f9c4dcbc1fd187a6d17f7021ff536d74f9cbd",
+      "bytes": 348780,
+      "line_count": 8054,
+      "matches_exact_candidate_blob": true
+    },
+    "spacr/qt/preferences.py": {
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "bytes": 552446,
+      "line_count": 12957,
+      "matches_exact_candidate_blob": true
+    },
+    "spacr/qt/install_consent.py": {
+      "sha256": "c902a246c80b1be5be72c175fed0d6d7049f847d4b0627217be2f034daa0db6b",
+      "bytes": 6001,
+      "line_count": 180,
+      "matches_exact_candidate_blob": true
+    },
+    "spacr/qt/widgets/ai_chat_panel.py": {
+      "sha256": "2048c010239e21244b77704d4e48a4ebb608f5277334078f9cb5a9f0749f6a29",
+      "bytes": 33621,
+      "line_count": 854,
+      "matches_exact_candidate_blob": true
+    },
+    "spacr/install_profile.py": {
+      "sha256": "cfccb16d80bd6feda2b15b5f036439793e7adaaccda4212e487cbdc45f146601",
+      "bytes": 7617,
+      "line_count": 209,
+      "matches_exact_candidate_blob": true
+    }
+  },
+  "instruction_and_original_audit_context": {
+    "AGENTS.md": {
+      "sha256": "9489ee1e0275262fbd2664689e13f94c8480713601bea1271df0becd3fad0636",
+      "bytes": 2504,
+      "context_only_not_claimed_candidate_source": true
+    },
+    "features/HANDOFF.md": {
+      "sha256": "b448abde0a0ae4247c1ee504254f960398d011031facaf0d02b1cc22d03042b2",
+      "bytes": 733427,
+      "context_only_not_claimed_candidate_source": true
+    },
+    "features/HANDOFF_2026-10-13_claude_home_to_codex.md": {
+      "sha256": "f3a22d45e959e43777701b2707c2fab3f055126c2e4527667d171fbf9132143d",
+      "bytes": 9116,
+      "context_only_not_claimed_candidate_source": true
+    },
+    "features/new/703_updates_replace_old_application_versions_and_keep_user_data.txt": {
+      "sha256": "02ad4d6bda3a674626deee94223f75816d419de45f87d2f9011167b7085508d0",
+      "bytes": 5533,
+      "context_only_not_claimed_candidate_source": true
+    },
+    "features/data/703_installer_source_audit_2026-10-13/macos-linux.md": {
+      "sha256": "ffcfc6b1b7b927b369d4dc7c5075329bf9f7a952e42ec223035ad18fd35a67d0",
+      "bytes": 16881,
+      "context_only_not_claimed_candidate_source": true
+    },
+    "features/data/703_installer_source_audit_2026-10-13/macos-linux-source-bindings.json": {
+      "sha256": "74b434e7b6da227a38d22b75013aa4aa0817edd412019f73385def8b4f1feb59",
+      "bytes": 5329,
+      "context_only_not_claimed_candidate_source": true
+    },
+    "features/data/703_installer_source_audit_2026-10-13/updater-windows.json": {
+      "sha256": "9750569e766ebb4d620439f5d63b05dcb54482d070aa02dc5ec05a2c2d366eeb",
+      "bytes": 49397,
+      "context_only_not_claimed_candidate_source": true
+    }
+  },
+  "original_audit_qualification": "Original macos-linux prose refers to generic source-bindings.json/source copies; actual original published manifest is macos-linux-source-bindings.json. This packet relies on direct candidate-byte binding, not that archival claim.",
+  "no_execution_or_changes": true
+}
