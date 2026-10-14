@@ -9,7 +9,7 @@ fcf4055999a6b5a40fd1875496189bc03709389a, 215 selected tests with passing eviden
 original ten non-opening clips replayed and conditional English sentence plan.
 CH 29552 and ready f7 remain frozen; no WS jobs or leases remain.
 
-The next recording cannot proceed under Home's explicit 20:15 source freeze,
+The next recording cannot proceed under the Home source freeze recorded at 20:15,
 and the separate Workbench repair is still unpublished. This condition persists
 across three consecutive goal turns after the available preparation finished.
 WS will mark the full 84-route goal blocked pending the external source change.
