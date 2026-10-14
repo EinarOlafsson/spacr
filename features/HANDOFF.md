@@ -12098,3 +12098,24 @@ failed combined-site assembly at1,025,244,603bytes. The prepared three-file
 main-only migration directly addresses this actual size failure. Main-only
 assembly under900MB and hosted redirects still require publication. No full
 CI dispatch or push by Home-B. User is away; no questions requested.
+
+## 2026-10-14 15:46 EDT — Home-B Linux reader acceptance delivered
+
+N655 external-tree receipt9348a5e1ff and native Orca output receiptcf84e99ecb
+are reviewed and integrated as e40f39540b and c4219fa117. Independent AT-SPI
+client traversed1397 real spaCR nodes and exercised the visible High contrast
+control. Actual Orca46.1 produced its name/checkbox/state/help, then checked
+on activation. All241 process-time source hashes match the coordinator.
+Old empty-root finding was a probe-selection error: GTK and Qt register
+separate roots with the same PID. Exact failures and bounded replays retained.
+Private X/DBus/settings only; audio/braille disabled, no user desktop changes.
+No app source change. Audible/human usability, macOS/Windows and Work's
+Appearance tutorial remain open; no full N655 completion claim.
+
+All Home-B workers and validation jobs have finished. The local STATUS.md
+and TO_HOME.txt mailbox provide current ready coordinator and separate site-src
+heads, plus exact main documentation/README promotion candidates. Original
+Home remains publisher; no Home-B push, deploy, full CI or paid service use.
+N699 notice acknowledged: no edits to remote_execution.py/distributed_jobs.py.
+Latest Work tutorial report still10:59EDT in visible handoff; no newer publication
+invented. Claude700 and original Home N654 publications observed in nightly.

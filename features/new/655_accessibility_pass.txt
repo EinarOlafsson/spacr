@@ -2,8 +2,8 @@
 ACCESSIBILITY PASS
 ================================================================================
 
-Status:    PARTIAL — accessibility controls and keyboard repairs implemented;
-           caption/API debt reconciled. Native screen-reader/platform review
+Status:    PARTIAL — controls/keyboard repairs and Linux AT-SPI/Orca output
+           verified; caption/API debt reconciled. Native usability, macOS/Windows
            and the Appearance tutorial refresh remain open. Not alpha.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
