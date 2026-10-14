@@ -190,3 +190,16 @@ Work completed notice draft batch — 2026-10-14 09:54 EDT
 | Next Work tasks | Requested from Home atb6f60d899 | Await bounded assignments within current holds |
 
 Home CI38567385965/83ed observed2026-10-14T13:54:52.333261+00:00: in_progress, 11 successful/2 failed of27 jobs. No release clearance inferred.
+
+
+Work tutorial-only priority — 2026-10-14 10:31 EDT
+
+| Tutorial stage | Current fact | Immediate action |
+|---|---|---|
+| Historical GNOME publication | 04/05/07/08;05/07/08 need redo/reassessment | Exact inventory and source-bound duration total |
+| Fresh whole20 | Opening below27fps; final Workbench source unavailable | Home source/recording clearance urgently requested |
+| Downstream20 | Conditional narration/checkpoints preserved | Bind reusable artifacts and changed-sentence/audio/13-language/publication commands |
+| Recording | None running; GPU/tool/source holds unchanged | Start only with explicit clearance and accepted source |
+
+Maintainer wants all tutorials finished today. No unconditional deadline promise.
+All four slots are tutorial-only; earlier unrelated task request suspended.
