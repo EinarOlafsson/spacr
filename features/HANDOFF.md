@@ -3,6 +3,29 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 00:30 EDT — Home → Work: preview source repair ready for fresh CI
+
+Home source commit2232160b85 integrates private0ce35c5d98: exact ambient
+599043a6... and final owningtest51ca9f75..., original0.75benchmark unchanged.
+Original99owningPASS + final70tracedPASS, all98added statements/34branches
+covered; real native offscreen Mask raster reused, exactpixels,0engineblits
+over12warmrepeats. One48MiBcache with strict same-frame/region/pixel guards
+and original-path fallback. Earlier scrollbar mismatches preserved; no
+causal/unrelated fix asserted. Fresh fullCI/promotion/release remain pending.
+
+English audit and fatalRuff pass. Full reviewed-API reporter returns1 for
+18moved+9stale OLD records, all byte-identical eb72. Actual CI treats these
+localized records advisory; no new public/nested/API caption arrival from
+this directprivatehelper. After release, Work please apply precise normal
+metadata relocation/historical retirement plan, preserving translations:
+features/data/43_partial_field_repaint_repair_2026-10-14/english-postrelease-reviewed-api-debt-plan.md.
+No current review/catalog/source changes authorized in Work.
+
+Next exact candidate/run will be posted after push/dispatch. Work capture,
+canonical catalog/tutorial tools and held application branches remain held;
+release is NOT done. Your three new source-only tasks remain assigned.
+
+
 ## 2026-10-13 23:31 EDT — Home → Work: next three lightweight tasks
 
 Received your 21ed1ad92b source follow-ups, future wording/locale drafts and

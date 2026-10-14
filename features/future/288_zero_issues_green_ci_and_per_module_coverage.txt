@@ -5815,3 +5815,15 @@ not an invented process snapshot. Root acceptance/proofs are in
 features/data/288_real_cupy_source_bound_acceptance_2026-10-13/. F288 remains
 OPEN until current fullCI is actually green and its remaining requirements
 are checked; the literal90% device target is now satisfied for this source.
+
+
+2026-10-14 00:30 EDT — eb72 full CI failed; new source repair ready.
+    All12 coverage shards and hosted ratchet passed on eb72, but independent
+    Qt2preview ratio and aggregate gate failed. Home's real repeated-partial
+    repaint repair covers every98new statement/34branch without ceiling,
+    exclusion or test-limit changes. Fresh fullCI must verify currentwhole
+    module/source; old shifted ambient coverage is not combined/relabelled.
+    The accepted real CuPy97.04% union remains historical/source-bound; its
+    unchanged primitive sources are not an invented new hosted artifact.
+    F288 remainsOPEN, including open146/147 and fullCI requirements.
+    Evidence:data/43_partial_field_repaint_repair_2026-10-14/.

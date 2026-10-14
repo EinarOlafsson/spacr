@@ -1,10 +1,10 @@
-Home/Work progress — 2026-10-13 23:04 EDT
+Home/Work progress — 2026-10-14 00:30 EDT
 
 — means no defensible completion percentage or elapsed-time estimate. ✅ marks verified achievements in the last 12 hours; remaining gates stay explicit.
 
 | item | percent done | time left | owner | detailed description |
 |---|---|---|---|---|
-| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | Exact eb72 fullCI terminal:28PASS/2FAIL, sole independent Qt2preview-cache failure plus dependent gate. Private genuine paint-cost repair now ready for validation; original0.75 preserved. No promotion/release. |
+| Release 1.5.1.5 | — | CI-dependent; promotion authorized | Home | New real partial-repaint repair integrated;99owning+70traced pass with original0.75unchanged. Fresh fullCI dispatch next; mainpromotion/releaseheld. Old eb72terminal28PASS/2FAIL. |
 | CI repair implementation | ✅ | Done; fullCIpending | Home Codex team | Published at9af7f3dc12: cached painting palette, safe import fallback, walkthrough-aware navigation test, exact sparse colour crossfade and real source-default coverage. Localchecks74+106+185+48PASS;9existinglocale findingsreport-only. |
 | CI N701 layout compatibility | ✅ | Published; full CI pending | Home Qt agent | Private 1a9a138c76 adds the shipped Hide judged fields button to the full order contract. 38 tests pass; exit 0 and JUnit verified. |
 | CI Model Zoo backend coverage | ✅ | Published; full CI pending | Home Qt agent | 11 tests pass; real model-row regression checks missing-backend Install action and ready-backend state. Both branch outcomes verified; no source or ratchet edits. |
@@ -14,7 +14,7 @@ Home/Work progress — 2026-10-13 23:04 EDT
 | Lesson 20 telemetry correction | — | Validated; held for release | Work | Private 6dfed0613: 15 new plus 11 gate tests pass; corrected replay still rejects both opening captures at unchanged 26.96/26.92 fps. |
 | Lesson 20 staging contract | — | Validated; held for release | Work | Private 67dbbd20b checks exact scientific, clip and gate evidence with video/native/receipt hash bindings; 63 owning cases pass. |
 | Tutorial queue preflight | — | Validated; held for release | Work | Private 6487de73a/facc4b16a detect capture placeholders and missing paths before jobs are emitted; 12 cases pass. Dispatcher remains inactive. |
-| N43 | — | CI-dependent | Home | Qt0/Qt1 pass; sole Qt2failure reproduced locally9PASS/1FAIL. Visible cache works; common backdrop dominates. Prepare bounded repeated-partial optimization with exact parity/lifecycle; fresh fullCI required. |
+| N43 | — | CI-dependent | Home | Sole eb72Qt2failure repaired by actual bounded same-frame/region rasterreuse. All98newstatements/34branches executed; source/tests frozen. Fresh fullhostedCI stillrequired. |
 | F288 | — | CI + issue acceptance | Home + Work | Hosted gate passes; real CuPy3pass/0skip and local97.04% accepted, all664 above90% without baseline changes. FullCI repair and open issue146/147 requirements remain. |
 | Make Masks lesson 14 performance | — | After release | Home | All54 preflight bindings verified; preserve N701 folder state and proven legacy i8hash before brush integration. Original held2dirtyfiles unchanged; finish lifecycle/performance/ledger acceptance after release. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |
@@ -38,7 +38,7 @@ Home/Work progress — 2026-10-13 23:04 EDT
 | Remaining tutorial remakes | — | Not estimated | Work | Four of 84 routes published; 80 not yet remade, plus 05 recapture and 07/08 quality reassessment. Work source inventory is verified. |
 | Held tutorial tooling | — | After release | Work | Work held integration fcf4055999 with pinned eb72 source has 215 selected checks passing. Goal source-blocked; no recording or upload until release and final app repair. |
 | Shutdown exit verification | ✅ | Done | Work | Measure Templates/shortcuts capture r25-08-templates-b on d0c99e841 includes a540d62b5 and exited rc 0; Work recorded provenance in b394f90407. |
-| N615 | — | Ongoing | Work | Keep API, runtime, guides and tutorial records source-current; close outstanding catalogue arrivals. |
+| N615 | — | Ongoing | Work | Keep catalogs/docs current after hold; exact27 existing advisory API reviewrecords need18labelrelocations+9historicalretirements, preservingtranslations. Plan source-bound; no metadataedited. |
 | Dynamic animation wording | — | Docs queue | Work | Exact truthful tooltip and whole stop-docstring drafts accepted for after release;9 locale drafts may prepare. Source/catalogs unchanged; helper wording also needs correction. |
 | N678 | — | Remaining review | Home + Work | Reconcile remaining factual language across app, API, docs and narration. |
 | N670 | — | Desktop check | Home + maintainer | Verify revised close-wave shape and 100–200% intensity after published software fixes. |
@@ -82,3 +82,4 @@ Home/Work progress — 2026-10-13 23:04 EDT
 | Release-note factual review | ✅ | Done; publication pending | Home Qt agent + Home | All 36 draft bullets source-bound and independently reviewed. Corrected SIF optionality, no-stalls overclaim,Box mode scope and other precision points; no release published. |
 | Real CuPy parity and coverage | ✅ | Done; full CI pending | Work + Home Qt/colour agents | Three genuine forced-CuPy passes; all proof/source hashes verified. Mixed7.15/7.16 local union:97.04%,144/147 statements,53/56 branches,all664 above90%. No Home GPU or source edits. |
 | GitHub #147 approval UI | 0% | After release; native reproduction needed | Home + Work | Work source triage identifies missing chat approval protocol/PTY; macOS/provider failure remains unreproduced. Preserve approval semantics, cancellation and privacy; implement real prompt handling. |
+| CI preview repaint repair | ✅ | Published candidate next; fullCIpending | Home colour + Qt + CI agents | Real bounded rasterreuse with exact nativepixels/lifecycle; original99PASS, traced70PASS, all98addedlines/34branchescovered. Original0.75benchmark unchanged; earlier scrollbar state failures retained. |

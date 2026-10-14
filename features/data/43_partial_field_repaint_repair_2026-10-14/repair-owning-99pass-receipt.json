@@ -1,0 +1,186 @@
+{
+  "schema": "spacr-preview-cache-p1-source-bound-owning-validation-v1",
+  "checked_at_utc": "2026-10-14T03:55:16.741918+00:00",
+  "worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-ci701-popup-contract-20261013",
+  "private_head": "3ff7f096534cafcbbdd5e48139b2abf42cf353cd",
+  "source": {
+    "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-ci701-popup-contract-20261013/spacr/qt/widgets/ambient.py",
+    "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+    "bytes": 587528
+  },
+  "new_owning_tests": {
+    "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-ci701-popup-contract-20261013/tests/qt/test_partial_field_presentation_cache_20261014.py",
+    "sha256": "d300dfeeb4eb06fd13fe874be8e1dac7d4d15b5513e7b28bc32afc2d3a46dce3",
+    "bytes": 17220
+  },
+  "source_hash_before_after_identical": true,
+  "test_hash_before_after_identical": true,
+  "original_timers": {
+    "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-ci701-popup-contract-20261013/tests/qt/test_module_screen_timers_do_not_stall_20261012.py",
+    "sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e",
+    "bytes": 18118
+  },
+  "original_timers_byte_identical_to_eb72": true,
+  "original_performance_bound": 0.75,
+  "actual_exit": 0,
+  "passed": 99,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_seconds": 60.5,
+  "JUnit_seconds": 60.381,
+  "owning_timings_node": {
+    "status": "PASS",
+    "name": "test_the_mask_preview_pictures_are_cached_at_the_size_shown",
+    "duration_seconds": 3.063,
+    "exact_numeric_ratio_not_logged_by_unchanged_passing_test": true
+  },
+  "native_correctness": {
+    "cache_actual_QImage": true,
+    "warmup_engine_blits": 2,
+    "engine_blits_during_12_repeats": 0,
+    "exact_original_native_pixel_parity": [
+      true
+    ],
+    "window_size": [
+      2560,
+      1440
+    ],
+    "viewports": [
+      [
+        1221,
+        586
+      ],
+      [
+        1221,
+        586
+      ]
+    ],
+    "actual_target_type": "QImage",
+    "actual_target_format": "Format.Format_RGB32",
+    "DPR": 1.0,
+    "actual_device_transform": [
+      1.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      33.0
+    ],
+    "native_system_clip_equals_mapped_QPaintEvent_region": true,
+    "source_region": {
+      "bounds": [
+        66,
+        523,
+        2448,
+        586
+      ],
+      "rectangles": 2
+    },
+    "system_clip": {
+      "bounds": [
+        66,
+        556,
+        2448,
+        586
+      ],
+      "rectangles": 2
+    },
+    "not_intrusive_performance_clock_instrumentation": true,
+    "metadata_does_not_retain_backingstore_device": true
+  },
+  "behavior_coverage": [
+    "First partial retains original blit; second builds one raster; repeats reuse it.",
+    "Full/fresh paint selects exact new frame and drops old raster.",
+    "Frame identity/content,engine,mode,base,size,DPR and exact region key changes.",
+    "Equal-bounds different regions cannot reuse cached pixels.",
+    "Direct raster and actual QWidget paint redirection exact pixels at DPR1/1.25/1.5/2 and offsets; unsupported fractional/transformed paths preserve original pixels.",
+    "Wallpaper,corners,alpha base,cards,nonbuffered/no producer/null frame,high-depth RGB30/RGBA64,oversize noallocation,allocation/null failure and lifecycle fallback/retirement.",
+    "Original timers,ambient paint edges/opaque painter cleanup,preview zoom/pan andruler owning cases."
+  ],
+  "prior_failures_preserved": [
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline.log",
+      "sha256": "81cdbb77dac805c26638fcb1a4826b6d8f9531a6b593cbc29e05f7e5034fadad",
+      "bytes": 6003
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline.xml",
+      "sha256": "9881199b3f090c81904f18ef5528cf816fafe702c56ee949609b322d0e8b2907",
+      "bytes": 5234
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/repair-cohort.log",
+      "sha256": "490b29f9bd7bb6de55774a27411440db544d3e38bd659ab5d3b1810aa7df00c4",
+      "bytes": 106225
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/repair-cohort.xml",
+      "sha256": "b932786d4214fde00d2eb7e1b030be546879f796310a65ea2844940dad6b2c30",
+      "bytes": 114870
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/repair-cohort.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/cache-cases.log",
+      "sha256": "32774a84cdb2eecdef0c47acc429bdaa23a794851287e3f44dccd10d6e4d7632",
+      "bytes": 28570
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/cache-cases.xml",
+      "sha256": "f52d855ddf48281b4c17aecbdceeb068304ebd5cecc00697ea7a019f42f3579f",
+      "bytes": 32531
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/cache-cases.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/cache-parity-failures.json",
+      "sha256": "282852b71ff4f7a2b0998cd7669073724dc3b836ffd588f27b88c434d929e5cc",
+      "bytes": 6638
+    }
+  ],
+  "accepted_run_artifacts": [
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/repair-cohort-v2-launch.json",
+      "sha256": "540ce85133392e6cc362cdc88fc89e815a15decfd732dabebbece2267d34af6e",
+      "bytes": 631
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/repair-cohort-v2.log",
+      "sha256": "f5ea92843872239f801b6b87660585805aec105b69875da0111e09e1f21cc6bd",
+      "bytes": 15269
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/repair-cohort-v2.xml",
+      "sha256": "fd00a1cf00b54b6993344c992807b92825373575f92b027ab6c55927311cd0e2",
+      "bytes": 16479
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/repair-cohort-v2.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/native-cache-observation-v2.json",
+      "sha256": "c70ec9fe2e4d79adc6cf7c2c7179208f7c4af97689a9d663abe625b5da30dc32",
+      "bytes": 14643
+    }
+  ],
+  "limits": [
+    "This is CPU/offscreen Qt source-bound owning acceptance, not new hosted fullCI or real Windows/macOS/HDR/GPU acceptance.",
+    "FractionalDPR,nonidentity/unproven transforms,unknown/high-depth target formats and unsupported clips keep original path.",
+    "Wholemodule ambient ratchet requires a separately traced source-current run and fresh fullCI; old shifted ambient DBs must not be relabeled/combined as this new source.",
+    "No original performance threshold, skips, retries or ratchet ceilings were changed. Source/tests remain frozen pending root/staticquality/branch review."
+  ]
+}

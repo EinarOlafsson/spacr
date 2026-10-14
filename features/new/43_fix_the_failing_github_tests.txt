@@ -3757,3 +3757,21 @@ because N673 is editing make_masks.py. Item 43 stays OPEN until hosted green.
     zero regressions; ratchet unchanged. This is not hosted acceptance.
     Receipt: data/43_home_ci_followup_2026-10-13/receipt.json. Parent stays OPEN
     until the coherent new candidate passes full hosted CI.
+
+
+2026-10-14 00:30 EDT — Home preview repaint repair validated, fresh full CI required
+    Exact eb72 full run38488240863 ended28PASS/2FAIL: one independent Qt2
+    cached-preview ratio plus dependent gate. Original unchanged local node
+    reproduced0.894915; native stock-item caches already hit and pixels match.
+    Genuine repair reuses one bounded48MiB presentation raster only for the
+    same held frame and exact supported partial clip; fractional/high-depth/
+    unproven devices retain the original path. No timing threshold change.
+    Source599043a6...: original owning99PASS, final traced70PASS; all98added
+    statements and34branches executed, zero exclusions/misses. Real visible
+    Mask backingstore cache warmup2blits then0over12repeats, exact pixels.
+    English audit/Ruff pass;27 localized review records are unchanged
+    pre-existing advisory debt (N615), not new helper arrivals. Earlier
+    scrollbar-state mismatches remain preserved; cause unproved, final18
+    comparisons stable/pass with genuine cache reuse. No unrelated fix made.
+    Evidence:data/43_partial_field_repaint_repair_2026-10-14/. ParentOPEN;
+    candidate must pass a fresh full hosted run before promotion/release.
