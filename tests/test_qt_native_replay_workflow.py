@@ -311,6 +311,31 @@ def _sidecar(name):
     return module
 
 
+def test_safe_start_job_defers_runner_paths_until_runtime(tmp_path):
+    """Job env cannot evaluate runner context; steps publish its actual paths."""
+    job = _workflow()['jobs']['safe-start']
+    assert all('${{ runner.' not in value for value in job['env'].values())
+    assert 'NUMBA_CACHE_DIR' not in job['env']
+    assert 'SPACR_QT_NATIVE_EVIDENCE_DIR' not in job['env']
+    steps = job['steps']
+    names = [step.get('name') for step in steps]
+    index = names.index('Establish private diagnostic paths at runtime')
+    assert index < names.index('Checkout reviewed diagnostics only')
+    step = steps[index]
+    assert step['working-directory'] == '${{ github.workspace }}'
+    runtime_temp = tmp_path / 'runner temp'
+    environment_file = tmp_path / 'github env'
+    environment_file.touch()
+    result = subprocess.run(['bash', '-eu', '-c', step['run']], cwd=tmp_path,
+                            env={**os.environ, 'RUNNER_TEMP': str(runtime_temp),
+                                 'GITHUB_ENV': str(environment_file)},
+                            capture_output=True, text=True, timeout=5)
+    assert result.returncode == 0, result.stderr
+    assert environment_file.read_text().splitlines() == [
+        f'NUMBA_CACHE_DIR={runtime_temp}/spacr-safe-start-numba',
+        f'SPACR_QT_NATIVE_EVIDENCE_DIR={runtime_temp}/spacr-safe-start-native']
+
+
 @pytest.mark.parametrize('outcome', ['completed', 'timeout'])
 @pytest.mark.parametrize('failure', ['prepare', 'stdout', 'result', 'integrity-channel'])
 def test_child_capture_failure_preserves_original_call_and_outcome(

@@ -361,8 +361,6 @@ jobs:
       SPACR_TEST_MEMORY_GB: "6"
       SPACR_HF_E2E_STUB: "0"
       PYTHONFAULTHANDLER: "1"
-      NUMBA_CACHE_DIR: ${{ runner.temp }}/spacr-safe-start-numba
-      SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ runner.temp }}/spacr-safe-start-native
     defaults:
       run:
         shell: bash
@@ -374,6 +372,12 @@ jobs:
           PIXEL_SELECTED: ${{ inputs.pixel_context_a744 }}
         run: |
           test "$PIXEL_SELECTED" != "true"
+      - name: Establish private diagnostic paths at runtime
+        working-directory: ${{ github.workspace }}
+        run: |
+          printf 'NUMBA_CACHE_DIR=%s\nSPACR_QT_NATIVE_EVIDENCE_DIR=%s\n' \
+            "$RUNNER_TEMP/spacr-safe-start-numba" \
+            "$RUNNER_TEMP/spacr-safe-start-native" >> "$GITHUB_ENV"
       - name: Checkout reviewed diagnostics only
         uses: actions/checkout@v7
         with:
