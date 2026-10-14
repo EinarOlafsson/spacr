@@ -1304,6 +1304,7 @@ class _MaskCanvas(QLabel):
         #: None while the mouse is off the image.
         self.readout: Optional[engine.PixelReadout] = None
         self._lookup: Optional[engine.ObjectLookup] = None
+        self._lookup_preserve_ids = False
         self._lookup_mask: Optional[np.ndarray] = None
         self._lookup_image: Optional[np.ndarray] = None
         self._lookup_dirty = True
@@ -1475,6 +1476,11 @@ class _MaskCanvas(QLabel):
         :param image: uint16 grayscale section, the shape of the last one.
         :param mask: its labels.
         """
+        self._end_wand_wait()
+        self._lookup_asked = None
+        for worker in (self._wand_worker, self._lookup_worker):
+            if worker is not None:
+                worker.drop_waiting()
         self.image = image
         self.mask = mask
         self._inverted = self._inverted_of = None
@@ -1495,6 +1501,11 @@ class _MaskCanvas(QLabel):
         :param image: uint16 grayscale array to display underneath.
         :param mask: uint8/uint16 label array painted on top.
         """
+        self._end_wand_wait()
+        self._lookup_asked = None
+        for worker in (self._wand_worker, self._lookup_worker):
+            if worker is not None:
+                worker.drop_waiting()
         self.image = image
         self.mask = mask
         self.boxes = []
@@ -2407,10 +2418,11 @@ class _MaskCanvas(QLabel):
         if self.mask is None or self.image is None:
             return None
         lookup = self._lookup
-        if lookup is not None and self._lookup_image is self.image and (
+        if (lookup is not None and self._lookup_image is self.image
+                and self._lookup_preserve_ids == bool(self.retain_label_ids()) and (
                 not self._lookup_dirty
                 or (self._lookup_mask.shape == self.mask.shape
-                    and np.array_equal(self._lookup_mask, self.mask))):
+                    and np.array_equal(self._lookup_mask, self.mask)))):
             self._lookup_dirty = False
             return lookup
         if int(self.mask.size) >= _LOOKUP_THREAD_PIXELS:
@@ -2423,6 +2435,7 @@ class _MaskCanvas(QLabel):
             LOG.debug("the readout could not measure the mask", exc_info=True)
             return None
         self._lookup = lookup
+        self._lookup_preserve_ids = bool(self.retain_label_ids())
         self._lookup_mask = np.array(self.mask, copy=True)
         self._lookup_image = self.image
         self._lookup_dirty = False
@@ -2436,12 +2449,15 @@ class _MaskCanvas(QLabel):
         """
         asked = self._lookup_asked
         if (asked is not None and asked.image is self.image
+                and asked.preserve_ids == bool(self.retain_label_ids())
                 and asked.mask.shape == self.mask.shape
                 and np.array_equal(asked.mask, self.mask)):
             return
         if self._lookup_worker is None:
             self._lookup_worker = _NewestRequestWorker(
                 _lookup_for, self._lookup_done, name="spacr-readout-objects")
+            worker = self._lookup_worker
+            self.destroyed.connect(lambda *_args: worker.close(timeout=0))
         request = _LookupRequest(key=object(), mask=np.array(self.mask, copy=True),
                                  image=self.image,
                                  preserve_ids=bool(self.retain_label_ids()))
@@ -2466,10 +2482,12 @@ class _MaskCanvas(QLabel):
             LOG.debug("the readout could not measure the mask", exc_info=error)
             return
         if (lookup is None or self.mask is None or self.image is not request.image
+                or request.preserve_ids != bool(self.retain_label_ids())
                 or request.mask.shape != self.mask.shape
                 or not np.array_equal(request.mask, self.mask)):
             return
         self._lookup = lookup
+        self._lookup_preserve_ids = request.preserve_ids
         self._lookup_mask = request.mask
         self._lookup_image = request.image
         self._lookup_dirty = False
@@ -3121,6 +3139,8 @@ class _MaskCanvas(QLabel):
         if self._wand_worker is None:
             self._wand_worker = _NewestRequestWorker(
                 _wand_for, self._wand_done, name="spacr-wand")
+            worker = self._wand_worker
+            self.destroyed.connect(lambda *_args: worker.close(timeout=0))
         request = request._replace(snapshot=np.array(self.mask, copy=True))
         self._wand_request = request
         self._wand_cursor = self.cursor()
@@ -13982,8 +14002,8 @@ class MakeMasksScreen(QWidget):
 
         values = np.asarray(mask)
         digest = hashlib.sha256(str(values.shape).encode())
-        flat = np.ascontiguousarray(values).reshape(-1)
-        for start in range(0, flat.size, 65536):
+        flat = values.reshape(-1) if values.flags.c_contiguous else values.flat
+        for start in range(0, values.size, 65536):
             digest.update(np.ascontiguousarray(flat[start:start + 65536], dtype='<i8'))
         return digest.hexdigest()
 

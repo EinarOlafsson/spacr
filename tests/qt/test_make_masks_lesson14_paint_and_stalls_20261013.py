@@ -672,3 +672,160 @@ def test_no_painter_is_still_active_once_a_paint_returns(qtbot, qt_theme_applied
     canvas.grab()
     assert len(made) >= 3 and not any(p.isActive() for p in made), (
         "a canvas paint left a painter active")
+
+
+def test_manual_identity_hashes_keep_every_legacy_byte_in_bounded_chunks(monkeypatch):
+    """Persisted identities survive width, layout, endianness and wide labels."""
+    import hashlib
+
+    base = np.arange(101 * 653, dtype=np.int64).reshape(101, 653) % 177
+    cases = []
+    for dtype in ('bool', 'uint8', 'uint16', '>u2', 'uint32', '>u4',
+                  'uint64', '>u8', 'int8', 'int16', '>i2', 'int32',
+                  '>i4', 'int64', '>i8'):
+        values = base.astype(dtype)
+        cases.extend((values, np.asfortranarray(values), values.T,
+                      values[::-1, ::-1], values[::2, 1::3], values[:0],
+                      values.reshape(101, 653, 1), values[0, 0],
+                      values.reshape(-1)[:65537]))
+    cases.extend((np.array([-7, -1, 0, 1], dtype=np.int64),
+                  np.array([0, 65535, 65536, 70000, 2**40], dtype=np.int64),
+                  np.array([0, 2**63, 2**64 - 1], dtype=np.uint64)))
+    converted = []
+    contiguous = np.ascontiguousarray
+
+    def bounded(values, *args, **kwargs):
+        result = contiguous(values, *args, **kwargs)
+        converted.append(result.nbytes)
+        assert result.nbytes <= 65536 * 8
+        return result
+
+    monkeypatch.setattr(np, 'ascontiguousarray', bounded)
+    for values in cases:
+        values = np.asarray(values)
+        expected = hashlib.sha256(str(values.shape).encode()
+                                  + np.asarray(values, dtype='<i8').tobytes()).hexdigest()
+        assert mm.MakeMasksScreen._manual_mask_key(values) == expected
+    assert len(cases) == 138 and max(converted) == 65536 * 8
+
+
+@pytest.mark.parametrize('change_field', ['set_image_and_mask', 'show_section'])
+def test_switching_fields_retires_the_wand_and_restores_its_cursor(
+        qtbot, qt_theme_applied, monkeypatch, change_field):
+    import threading
+
+    started, release = threading.Event(), threading.Event()
+    work = mm._wand_for
+
+    def delayed(request):
+        started.set()
+        assert release.wait(5)
+        return work(request)
+
+    monkeypatch.setattr(mm, '_wand_for', delayed)
+    canvas = mm._MaskCanvas()
+    qtbot.addWidget(canvas)
+    image = np.arange(32 * 32, dtype=np.uint16).reshape(32, 32)
+    canvas.set_image_and_mask(image, np.zeros_like(image))
+    canvas.wand_threaded = True
+    cursor = canvas.cursor().shape()
+    canvas._wand_edit_at((5, 5), action='add')
+    worker = canvas._wand_worker
+    try:
+        qtbot.waitUntil(started.is_set)
+        assert canvas._wand_busy() and canvas.cursor().shape() == Qt.BusyCursor
+        current = np.zeros_like(image)
+        getattr(canvas, change_field)(image.copy(), current)
+        assert not canvas._wand_busy() and canvas.cursor().shape() == cursor
+        release.set()
+        qtbot.waitUntil(worker.idle)
+        qtbot.wait(10)
+        assert canvas.mask is current and not current.any()
+        assert canvas.last_edit is None
+    finally:
+        release.set()
+        canvas.close_wand()
+
+
+def test_readout_requests_and_cached_results_follow_the_manual_identity_policy(
+        qtbot, qt_theme_applied, monkeypatch):
+    import threading
+
+    started, release = threading.Event(), threading.Event()
+    work = mm._lookup_for
+
+    def delayed(request):
+        started.set()
+        assert release.wait(5)
+        return work(request)
+
+    monkeypatch.setattr(mm, '_LOOKUP_THREAD_PIXELS', 1)
+    monkeypatch.setattr(mm, '_lookup_for', delayed)
+    canvas = mm._MaskCanvas()
+    qtbot.addWidget(canvas)
+    image = np.ones((20, 20), dtype=np.uint16)
+    mask = np.zeros_like(image)
+    mask[2:4, 2:4] = mask[14:16, 14:16] = 7
+    canvas.set_image_and_mask(image, mask)
+    try:
+        canvas._object_lookup()
+        qtbot.waitUntil(started.is_set)
+        ordinary = canvas._lookup_asked
+        canvas.manual_ids = True
+        canvas._object_lookup()
+        exact = canvas._lookup_asked
+        assert exact is not ordinary and exact.preserve_ids
+        canvas._take_lookup((ordinary, work(ordinary), None))
+        assert canvas._lookup is None and canvas._lookup_asked is exact
+        release.set()
+        qtbot.waitUntil(lambda: canvas._lookup is not None)
+        np.testing.assert_array_equal(canvas._lookup.labels, mask)
+        kept = canvas._lookup
+        assert canvas._object_lookup() is kept
+        canvas.manual_ids = False
+        assert canvas._object_lookup() is None
+        qtbot.waitUntil(lambda: not canvas._lookup_preserve_ids)
+        assert set(np.unique(canvas._lookup.labels)) == {0, 1, 2}
+    finally:
+        release.set()
+        canvas.close_lookup()
+
+
+@pytest.mark.parametrize('task', ['wand', 'lookup'])
+def test_destroying_the_canvas_retires_its_active_worker(
+        qtbot, qt_theme_applied, monkeypatch, task):
+    import threading
+    from PySide6.QtCore import QCoreApplication
+    from shiboken6 import isValid
+
+    started, release = threading.Event(), threading.Event()
+    function = '_wand_for' if task == 'wand' else '_lookup_for'
+    work = getattr(mm, function)
+
+    def delayed(request):
+        started.set()
+        assert release.wait(5)
+        return work(request)
+
+    monkeypatch.setattr(mm, function, delayed)
+    monkeypatch.setattr(mm, '_LOOKUP_THREAD_PIXELS', 1)
+    canvas = mm._MaskCanvas()
+    qtbot.addWidget(canvas)
+    image = np.ones((20, 20), dtype=np.uint16)
+    canvas.set_image_and_mask(image, np.zeros_like(image))
+    if task == 'wand':
+        canvas.wand_threaded = True
+        canvas._wand_edit_at((5, 5), action='add')
+    else:
+        canvas._object_lookup()
+    worker = getattr(canvas, '_' + task + '_worker')
+    try:
+        qtbot.waitUntil(started.is_set)
+        canvas.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(canvas) and worker._closed
+        release.set()
+        qtbot.waitUntil(worker.idle)
+    finally:
+        release.set()
+        worker.close(timeout=0)
