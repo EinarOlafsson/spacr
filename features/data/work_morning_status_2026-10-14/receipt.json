@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "scope": "Read-only published Work evidence for morning table; no private Work progress inferred; parent features not completed",
+  "root_source": "a5ccf378ec37e2aefcba8ce32efc271c23d7f7c5",
+  "live_remote_readonly_nightly": "a5ccf378ec37e2aefcba8ce32efc271c23d7f7c5",
+  "latest_identifiable_Work_delivery": {
+    "commit": "21ed1ad92b",
+    "author_timestamp": "2026-10-13T23:07:14-04:00",
+    "handoff": "features/HANDOFF.md:229",
+    "description": "Q1refresh/Q2cache/Q3opacity sourcefollowups+27/27consistency+16sources+terminalCI record",
+    "acknowledged_by_Home": "63034a99e1 at23:20; explicit23:31handoff"
+  },
+  "distinct23_31_assignments_published_response_pending": [
+    "N703: exact question/default and GUI/Terminal lifetime inventory plus refined GUI-only flow",
+    "N702: exact settings CSV/JSON reference schema, reader compatibility and static examples",
+    "GitHub #147: provider/version approval request/response and cancellation protocol matrix"
+  ],
+  "published_lesson_context": {
+    "existing_remakes": [
+      "04",
+      "05",
+      "07",
+      "08"
+    ],
+    "count": 4,
+    "routes": 84,
+    "remaining": 80,
+    "status": "Existing publication receipts retained; not newovernightremakes.05/07/08 require repair/reassessment, fresh20 next."
+  },
+  "rows": [
+    {
+      "item": "Work: genuine CuPy parity proof",
+      "percent_done": "\u2705",
+      "time_left": "0h for this proof",
+      "owner": "Work",
+      "detailed_description": "Three original forced-CuPy cases passed, zero skips/failures/errors, on real RTX 3090 Ti; original SQLite retained. Full CI and release remain separate.",
+      "sources": [
+        "features/data/288_work_real_cupy_proof_2026-10-13/terminal-receipt.json"
+      ],
+      "published_overnight": true
+    },
+    {
+      "item": "Work: held tutorial integration validation",
+      "percent_done": "\u2705",
+      "time_left": "0h validation; integration held",
+      "owner": "Work",
+      "detailed_description": "215 unique selected cases have passing evidence: 165 capture, 49 publication and one supplemental Node check. Original skip preserved. Local fcf405 integration is held for release and final Workbench source.",
+      "sources": [
+        "features/data/n676_capture_integration_2026-10-13/README.md"
+      ],
+      "published_overnight": true
+    },
+    {
+      "item": "Work: lesson20 references/replay/staging/queue preparation",
+      "percent_done": "100% preparation; HELD",
+      "time_left": "After release/finalWorkbench source; fresh recording required",
+      "owner": "Work",
+      "detailed_description": "Earlier three saved masks and three figure-array references; 63 staging and 12 queue cases. Ten non-opening clips replay at 28.64\u201329.77 fps; opening/retry fail at 26.96/26.92 fps. Seven changed narration sentences proposed. No new audio, translations or publication; fresh whole-lesson recording required.",
+      "sources": [
+        "features/data/n676_lesson20_replay_narration_2026-10-13/README.md",
+        "features/data/n676_remake_preflight_2026-10-13/README.md"
+      ],
+      "published_overnight": "Mixed: latest replay overnight, reference/staging/queue earlier."
+    },
+    {
+      "item": "Work: N703 source peer and rollback receipt proposal",
+      "percent_done": "\u2705",
+      "time_left": "0h for audit; implementation held",
+      "owner": "Work",
+      "detailed_description": "Eight platform flows, 41 source/test bindings and 38 proposed English candidates (15 existing, 23 new). Typed native identity, preservation and rollback receipt proposal remains inactive. The distinct 23:31 question/default/lifetime assignment has no published response yet.",
+      "sources": [
+        "features/data/703_work_installer_peer_review_2026-10-13/owner-review.json",
+        "features/data/703_work_installer_peer_review_2026-10-13/receipt-contract/final-consistency.json"
+      ],
+      "published_overnight": true
+    },
+    {
+      "item": "Work: issue147 source triage",
+      "percent_done": "\u2705",
+      "time_left": "0h triage; newprotocolproposal pending",
+      "owner": "Work",
+      "detailed_description": "Six qualified findings and eight future acceptance families. Missing chat approval channel is source-supported; reported native cause is unreproduced. New 23:31 provider/version approval and cancellation protocol matrix is pending publication.",
+      "sources": [
+        "features/data/147_work_approval_source_triage_2026-10-13/audit.json"
+      ],
+      "published_overnight": true
+    },
+    {
+      "item": "Work: future animation nine-locale drafts",
+      "percent_done": "\u2705",
+      "time_left": "0h draftpacket; canonicalapplication held",
+      "owner": "Work",
+      "detailed_description": "18 technical AI draft records: two accepted future English blocks in nine locales. Mechanical checks pass 145/145 and 46/46. Five tooltip refinements retained. No native/human or whole-locale approval, canonical application or tutorial translations.",
+      "sources": [
+        "features/data/n615_future_locale_drafts_2026-10-13/n615_future_locale_drafts_final_delta_mechanical_review_20261013.json"
+      ],
+      "published_overnight": true
+    },
+    {
+      "item": "Work: N700 fourteen future zero-cost notices",
+      "percent_done": "\u2705",
+      "time_left": "0h Englishprep; client/relay/accountvalidation outstanding",
+      "owner": "Work",
+      "detailed_description": "14 corrected future English notices with scoped peers: strict $0, no paid fallback, continuing verification, bounded queues and separate public/cloud controls. Home accepted preparatory English at 01:18. Nine-locale drafts for these 14 notices have not been delivered; no routes deployed.",
+      "sources": [
+        "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_final_consistency_20261013.json"
+      ],
+      "published_overnight": true
+    },
+    {
+      "item": "Work: API/runtime debt audit and priority batches",
+      "percent_done": "\u2705",
+      "time_left": "0h audit; remediation held",
+      "owner": "Work",
+      "detailed_description": "10,455 runtime entries per locale are metadata-fresh; 20 missing plus 20 stale API symbols per locale and 27 review blocks inventoried. Five priority batches and 45 target hashes checked. Canonical source/catalog/review/generator remediation remains held.",
+      "sources": [
+        "features/HANDOFF.md",
+        "features/data/n615_translation_priority_batches_2026-10-13/README.md"
+      ],
+      "published_overnight": true
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": "features/HANDOFF.md",
+      "bytes": 728886,
+      "sha256": "085bcca742113f767798e91bc0495ab5b8831b7658738183bd5303c601f4386f"
+    },
+    {
+      "path": "features/data/n676_capture_integration_2026-10-13/README.md",
+      "bytes": 2598,
+      "sha256": "72d849cbeb28dc99967264f4033c32158c6c920435e3239daed97ac51fdb3ec0"
+    },
+    {
+      "path": "features/data/n676_lesson20_replay_narration_2026-10-13/README.md",
+      "bytes": 2633,
+      "sha256": "f01585f9908263ff6e7691b41c64fcce48fa9af41243d2eebeff36178c1a9244"
+    },
+    {
+      "path": "features/data/n676_remake_preflight_2026-10-13/README.md",
+      "bytes": 2780,
+      "sha256": "3fa12dbea2f2e72769bd44ecb222361c979d204440ace00d45e82c7ac7f2ae7b"
+    },
+    {
+      "path": "features/data/703_work_installer_peer_review_2026-10-13/owner-review.json",
+      "bytes": 74533,
+      "sha256": "8d4ab52577e77a6783333502b65cee20d0762a03fb97e899f0fc399cf3a7233e"
+    },
+    {
+      "path": "features/data/703_work_installer_peer_review_2026-10-13/receipt-contract/final-consistency.json",
+      "bytes": 2987,
+      "sha256": "9caaf4d445d6e404d528e03833c28d93f52eef0905373f4c48e2e54a112883de"
+    },
+    {
+      "path": "features/data/147_work_approval_source_triage_2026-10-13/audit.json",
+      "bytes": 19593,
+      "sha256": "ebfcd8c6907e9f6159ed717badcf9f3f01e6da6fa7cbbf29fcdf3f1c1d741ffc"
+    },
+    {
+      "path": "features/data/n615_future_locale_drafts_2026-10-13/n615_future_locale_drafts_final_delta_mechanical_review_20261013.json",
+      "bytes": 20613,
+      "sha256": "3c4905c6eb7795a3c82a1d9f41f6c088574b801a66bbee9ba7735cba7e68482c"
+    },
+    {
+      "path": "features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_final_consistency_20261013.json",
+      "bytes": 4009,
+      "sha256": "584e9fa7d4f74167c40dfe8e141aa123af5c00c62e6fadc5884717bc9f155699"
+    },
+    {
+      "path": "features/data/n615_translation_priority_batches_2026-10-13/README.md",
+      "bytes": 1341,
+      "sha256": "5e6ae101462af88dde24b719d10d260651a8a0f69b7a87bcb4e57c1e209f42f9"
+    },
+    {
+      "path": "features/data/288_work_real_cupy_proof_2026-10-13/terminal-receipt.json",
+      "bytes": 3342,
+      "sha256": "b6bc004fcd93042942e38dc9394c8322afb27d7028302768d2af72402288f765"
+    },
+    {
+      "path": "features/data/qt2_work_source_followups_2026-10-13/README.md",
+      "bytes": 1807,
+      "sha256": "bdac954adce0f9545b14c5686e3cc1215cdc572c2c391b457ad13445a7007060"
+    }
+  ],
+  "other_known_Work_progress_copies_read": [
+    "features/data/ws_continuation_state_2026-10-13/overall-continuation-update.md",
+    "features/data/qt2_work_source_followups_2026-10-13/capture-section19.md"
+  ],
+  "limits": [
+    "Live remote ls-remote is read-only; no fetch or shared Git mutation.",
+    "Published receipt/owner claims retained; no new runtime, scientific, provider, install or native proof produced.",
+    "No inference of morning Work activity after 23:07. The three later tasks await published responses; private progress is unknown."
+  ]
+}

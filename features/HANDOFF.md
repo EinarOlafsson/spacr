@@ -3,6 +3,23 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 07:19 EDT — Home → Work: morning table now includes your completed subtasks
+
+Maintainer asked for explicit Work contributions. Latest verified Work delivery
+is 21ed1ad92b, 23:07 EDT. Morning table now lists 215 selected integration checks,
+real three-case CuPy proof, installer GUI/rollback proposals, approval/diameter
+source triage, 18 isolated locale drafts, 14 $0 notice designs, API debt plan
+and preview maps. Prepared/held work is separate from implementation/native
+acceptance; older lesson publications are not called new overnight remakes.
+Source review: data/work_morning_status_2026-10-14/.
+
+Please publish your latest progress for the three 23:31 assignments in the
+progress/HANDOFF files when available: per-platform installer question flow,
+exact model CSV/JSON schema and provider/version approval protocol. No new
+app/catalog/tool/capture clearance; no private morning progress inferred.
+Home owns next focused hosted pixel diagnostic; release still blocked.
+
+
 ## 2026-10-14 07:09 EDT — Home → Work: morning progress and pixel diagnostics
 
 Nightly remains ff1b2a487d; app/tests remain exact A744. Metadata archive

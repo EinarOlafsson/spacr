@@ -1,6 +1,6 @@
-Home/Work progress — 2026-10-14 07:09 EDT
+Home/Work progress — 2026-10-14 07:19 EDT
 
-✅ marks verified achievements in the last 12 hours (since 2026-10-13 19:09 EDT); 100% marks earlier completed items. — means completion percentage or duration cannot yet be estimated reliably. A completed audit or diagnostic does not mark its parent feature or release complete.
+✅ marks verified achievements during the last 12 hours (since 2026-10-13 19:19 EDT); 100% marks earlier completed items. — means completion percentage or duration cannot yet be estimated reliably. A completed audit or diagnostic does not mark its parent feature or release complete. Work latest published delivery: 2026-10-13 23:07 EDT; later private progress is unverified.
 
 | item | percent done | time left | owner | detailed description |
 |---|---|---|---|---|
@@ -88,3 +88,11 @@ Home/Work progress — 2026-10-14 07:09 EDT
 | Model scorecard state reconciliation | ✅ | Audit done; F370 remains partial | Home + colour agent | Pinned nine public model revisions and 25 small artifact hashes checked against 55 source bindings. Historical/no-publication notes reconciled; remaining catalogue/API/dataset surfaces recorded. |
 | Annotation source/state audit | ✅ | Audit done; labels/training remain open | Home + Qt agent | Verified current source and preserved parent/sample metadata. Existing PV judgments, transfer omission, required scientific inputs and historical plaque counts recorded. No DB/image/label changes or training. |
 | Qt 6.12 same-worker diagnostic | ✅ | Diagnostic done; pixel failure open | Home Qt + CI + colour | Built isolated matching Qt/pytest runtime; 9 module tests and 104 exact hosted-worker cases pass with unchanged source/assertions and no pre-failure paint probe. This does not resolve hosted failure. |
+| Work tutorial-tool integration validation | ✅ | Validation done; publication held | Work | 215 unique checks pass: 165 capture, 49 publication and one supplemental Node check. Integration fcf4055999 remains private/held; no new recording or upload. |
+| Work installer GUI/rollback proposal | ✅ | Review done; N703 implementation open | Work | Reviewed eight native acceptance flows, 41 source/test bindings and 38 English candidates (15 existing, 23 new); proposed macOS GUI flow and typed runtime/preservation/rollback receipts. Not executed natively. |
+| Work approval/diameter source triage | ✅ | Audit done; fixes remain open | Work | Identified six qualified approval findings and diameter-zero validation gaps. Provider protocol and native macOS symptom remain unimplemented/unreproduced; no provider or CLI calls. |
+| Work animation wording/locale drafts | ✅ | Drafts done; canonical changes held | Work | Prepared 18 isolated drafts: two public wording blocks in nine locales; 145 plus 46 mechanical checks pass. Private helper English also proposed; no canonical or human/native translation acceptance. |
+| Work reporting privacy and notice review | ✅ | Design done; N700 implementation open | Work | Reviewed redaction/cancellation/provider gaps and 14 exact future $0 notices. Home accepted preparatory English; services and notice locale packet remain unimplemented. |
+| Work API/runtime translation debt plan | ✅ | Audit done; five batches held | Work | Inventoried 20 missing and 20 stale API records per locale plus 27 reviewed-block issues; prioritized five source-bound batches. Runtime metadata freshness is separate from translation quality. |
+| Work preview-cache source investigation | ✅ | Audit done; runtime ownership Home | Work | Delivered refresh, cache-ownership and opacity/shape maps on pinned eb72: 27/27 consistency checks and 16 source bindings. No claimed cache-hit, speedup or pixel-fix acceptance. |
+| Work next source-only preparations | — | Published response pending | Work | Detailed installer question lifetimes, CSV/JSON model-reference schema and provider/version approval protocol assigned at 23:31. Latest published Work delivery is 23:07; private progress is unverified. |
