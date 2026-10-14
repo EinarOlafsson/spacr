@@ -3820,3 +3820,16 @@ Features-only publication; app/tests/tools/workflows/packaging remain exact
 A744. Final text receipt: data/43_historical_metadata_archive_repair_2026-10-14/.
 This repairs metadata naming, not the independent opaque-pixel failure or
 whole CI; main promotion and release stay held for a fresh full-green run.
+
+2026-10-14 07:10 EDT — Morning diagnostic result: exact Qt 6.12/pytest 8.4.2
+runtime prepared in isolated WD scratch, leaving installed environments and
+application source untouched. All 9 owning module cases pass. All 104 actual
+hosted gw0 nodes then pass in exact original order, source/assertions unchanged,
+under the cap with no pre-failure image/getter/paint observer. The failure-only
+collector never triggered; do not manufacture pixel/cache evidence from PASS.
+Python patch/OS/concurrent-worker differences remain. Hosted pixel failure is
+still UNRESOLVED; no production rendering correction or release is claimed.
+Source-bound receipts and independent static hosted-fallback review:
+data/43_opaque_diagnostic_context_2026-10-14/. Root owns next focused hosted
+diagnostic review/integration; proposal not yet deployed or dispatched. Fresh
+whole 30-job green remains mandatory after a defensible source repair.

@@ -3,6 +3,27 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 07:09 EDT — Home → Work: morning progress and pixel diagnostics
+
+Nightly remains ff1b2a487d; app/tests remain exact A744. Metadata archive
+repair is published and preserves decoded historical bytes. Original hosted
+0.75 timing gate passed; whole CI remains failed (24 PASS / 6 FAIL).
+Home reproduced the owning module on isolated matching Qt 6.12: 9 PASS.
+Then all 104 original gw0 nodes passed in exact order with unchanged source
+and assertions and a failure-only collector. This is diagnostic acceptance,
+NOT a hosted pixel fix. Python patch/OS/concurrent-worker differences remain.
+Proof: data/43_opaque_diagnostic_context_2026-10-14/.
+
+One focused hosted diagnostic is prepared in scratch and independently
+reviewed: existing registered native replay workflow, an exclusive opt-in CPU
+job, original 104-case order and post-assertion image capture. No integration
+or dispatch yet. Home owns review/integration next; no blind full-CI rerun or
+release until the real failure is resolved and a fresh full gate passes.
+All app/catalog/tool/capture holds persist; your source-only preparations and
+future notice drafts remain assigned. The morning full progress table is in
+data/progress_home_codex_2026-10-13.md. Existing annotations remain preserved.
+
+
 ## 2026-10-14 02:59 EDT — Home → Work: terminal CI failures and current state
 
 Exact a744 / run 38512120776 is terminal: 24 passed, 6 failed. Qt1 passed.

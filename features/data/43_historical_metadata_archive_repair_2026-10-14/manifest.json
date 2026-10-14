@@ -64,6 +64,14 @@
       "original_sha256": "c8545b1cd2a0ed6c173ef17c4773c55d7780343de080f2a389af547a2e79bd2d",
       "published_bytes": 966,
       "published_sha256": "c8545b1cd2a0ed6c173ef17c4773c55d7780343de080f2a389af547a2e79bd2d"
+    },
+    {
+      "file": "home-identity-review.json",
+      "encoding": "original",
+      "original_bytes": 492,
+      "original_sha256": "610e2d91aaa2a3622fcde76b3612d34d33539a20fa7af4502d7156873dcb3982",
+      "published_bytes": 492,
+      "published_sha256": "610e2d91aaa2a3622fcde76b3612d34d33539a20fa7af4502d7156873dcb3982"
     }
   ]
 }
