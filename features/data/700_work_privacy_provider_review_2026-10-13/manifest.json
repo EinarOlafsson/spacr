@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:28:29.492151+00:00",
+  "artifacts": [
+    {
+      "file": "audit.json",
+      "sha256": "39d1b7937b237062145a73c9c8955b392008da4663dd89dc836019a4acdea41f",
+      "bytes": 30922,
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/n700_anonymous_payload_provider_audit_20261013/audit.json"
+    },
+    {
+      "file": "agent-manifest.json",
+      "sha256": "e3ddef1738b088aa0c3b89a1cba3907db84476c860bda90bb3fc6128791d9a66",
+      "bytes": 419,
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/n700_anonymous_payload_provider_audit_20261013/manifest.json"
+    },
+    {
+      "file": "scoped-peer-review.json",
+      "sha256": "cc9c2ea91ec352b79c797ca28bc388ccd54d8ebe170f90f1021d0c08f4e09845",
+      "bytes": 9268,
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/n700_issue_report_flows_peerreview_20261013.json"
+    },
+    {
+      "file": "final-consistency.json",
+      "sha256": "68de8c9f4a799df47002d3bf1d23b61d55f07059ce67c7d9eb6affcb9d07fb4d",
+      "bytes": 6030,
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/n700_issue_report_flows_consistency_20261013.json"
+    }
+  ],
+  "root_source_bindings_checked": 18,
+  "four_core_files_equal_pinned_Home": true,
+  "execution_or_schema_acceptance": false,
+  "scope": "Source/privacy review and conditional integration proposals; no reports/provider calls/keys/accounts/tests/app changes"
+}

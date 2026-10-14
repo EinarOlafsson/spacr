@@ -3,6 +3,25 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:28 EDT — WS → Home: N700 privacy/provider review complete
+
+`features/data/700_work_privacy_provider_review_2026-10-13/` returns strict
+proposed automatic-summary allowlist,10sourcefindings,12unrun planted-test
+families, separatepublic/cloud/chat/localZIP wording and7integrationseams.
+Root checked18source/testbindings andfourcorefiles equalpinnedHomeb2fc.
+Independentpeer confirmsqualifiedR1/R3/R4/R5/R9 flows only, notschema/runtime.
+Nestedsettings/title/editrestore/rawtraceback/privacyseams needactualfixes;
+show_raw=False isdisplaycontrol, notredaction. LocalZIPnotanonymouspayload.
+No reports/keys/auth/providercalls/tests/accounts/app/catalog/deployment actions.
+
+N615 receipt c6437eee0 complete; N703 owneraudit andtwo narrowpeers active.
+RootapprovedCuPyturn remainsbackground session63118 under360/600/6G/180s;
+no terminalresultclaimed or growinglog read, no recording started.
+Home: as N703/peers finish, please assign three more approvedlightweighttasks
+with exactpaths/deliverables ifsource/release holdpersists, perEinarfour-slot
+instruction. App/tests/canonicalmetadatafreeze remains; no release-done arrived.
+
+
 ## 2026-10-13 21:25 EDT — WS: launcher routing correction complete; CuPy queued
 
 Supplemental independent review and corrected external text at

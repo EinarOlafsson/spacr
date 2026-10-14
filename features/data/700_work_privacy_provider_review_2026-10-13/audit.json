@@ -1,0 +1,478 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:22:52.331522+00:00",
+  "review_kind": "Codex AI read-only technical source/privacy audit; proposals notimplementation orlegal/nativeapproval",
+  "Home_assignment_commit": "b2fc91a6e605d149affee2df35b94b37ae052e8d",
+  "Home_assignment_handoff_sha256": "3c63f166a5f8c50a819c14cf39f92696e86f226634deac3f9fec08315c52c1de",
+  "owner_guide_sha256": "8e1c5753d3e602e0c4bdf7bda22fca6505062a18d13546009af673f625305c0b",
+  "worktree": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013",
+  "source_bindings": {
+    "spacr/qt/ai/issue_report.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_report.py",
+      "bytes": 31642,
+      "sha256": "5489cc833ef9e26ddb9a6221cecab2fddf60e8d1f8fc99e76870b351a1155b06",
+      "same_as_pinned_Home": true,
+      "lines": 805
+    },
+    "spacr/qt/ai/issue_preview.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "bytes": 11698,
+      "sha256": "bb07744b8595346bd92c07aec463aaec75f2ff3f40fc08097706b89c18d21bed",
+      "same_as_pinned_Home": true,
+      "lines": 279
+    },
+    "spacr/qt/ai/providers.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/providers.py",
+      "bytes": 32016,
+      "sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "same_as_pinned_Home": true,
+      "lines": 818
+    },
+    "spacr/crashreport.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/crashreport.py",
+      "bytes": 35758,
+      "sha256": "7e5361743a67f5478cd163e8773441bb640085e239c8a5fcdb3dfa9dc6f15fd7",
+      "same_as_pinned_Home": true,
+      "lines": 857
+    },
+    "spacr/qt/ai/github_auth.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/github_auth.py",
+      "bytes": 10967,
+      "sha256": "68dd4d1595ab61d405ba87505dcdacdb800b3dfdb6d7eb6a0675478ffd07c1f0"
+    },
+    "spacr/qt/ai/prompts.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/prompts.py",
+      "bytes": 3612,
+      "sha256": "8950ac9969aca575e8f7a91604231e07365c70835e5983599889b83a5163f5b6"
+    },
+    "spacr/qt/ai/settings.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/settings.py",
+      "bytes": 8804,
+      "sha256": "858107ff2d7bbc64bdd5391563f875b064dfb163b690115fc81a2098cb88c189"
+    },
+    "spacr/qt/ai/worker.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/worker.py",
+      "bytes": 7522,
+      "sha256": "a7bd58589d1c7458504f898ec20d866b138ca81190335d959b56a143c4754cd2"
+    },
+    "spacr/qt/ai/__init__.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/__init__.py",
+      "bytes": 1613,
+      "sha256": "ecd8d0b264b43f78c68a19de2b875cd28d84d7b6e05cfd6b76470c3dec4257a8"
+    },
+    "spacr/qt/widgets/console_panel.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/console_panel.py",
+      "bytes": 96307,
+      "sha256": "46e4b66be978b3e202bebe71422c9ed7a533ceba0b33cd74be77c40ad5fb1bcd"
+    },
+    "spacr/qt/screens/app_screen.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/screens/app_screen.py",
+      "bytes": 590758,
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7"
+    },
+    "spacr/qt/preferences.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "bytes": 552446,
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe"
+    },
+    "tests/qt/test_ai_issue_report_offline.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_ai_issue_report_offline.py",
+      "bytes": 23560,
+      "sha256": "e71561b1ce0a377a86e07b7f825a12a9a1c920c773051e277193fe4e15cba6c3",
+      "executed": false
+    },
+    "tests/qt/test_issue_preview.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_issue_preview.py",
+      "bytes": 1478,
+      "sha256": "ebcfe8e2f60456a2542c01edaaa45d6e482fd1d3152f3493d151f62e2b06cd0c",
+      "executed": false
+    },
+    "tests/qt/test_the_issue_preview_can_diagnose.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_the_issue_preview_can_diagnose.py",
+      "bytes": 11478,
+      "sha256": "407f7dc2da3387023482497cb3fb58e9b7bf13833dfd82cbaf2cb8f187ba29a8",
+      "executed": false
+    },
+    "tests/qt/test_issue_dedupe_and_write_guard.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_issue_dedupe_and_write_guard.py",
+      "bytes": 8453,
+      "sha256": "d0aec1d310ebd1d4d5b98d81c7ccde0b089e30500e8b7cd759d31255b56eefde",
+      "executed": false
+    },
+    "tests/qt/test_a_report_survives_an_unreadable_machine_identity.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_a_report_survives_an_unreadable_machine_identity.py",
+      "bytes": 3622,
+      "sha256": "8f83f99edf0704405265358b37081b92ff9110a65d9063e8fd7df6896819e05b",
+      "executed": false
+    },
+    "tests/test_crash_report.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/test_crash_report.py",
+      "bytes": 23026,
+      "sha256": "5885f15a37691e509ce921b35775d95c3a78e10c4bb33ebf0778291652c913c7",
+      "executed": false
+    }
+  },
+  "core_source_lines_read": 2759,
+  "current_versus_proposed": "Currentapp usesauthenticatedpublicGitHub/CLIproviders/localrawbundles. Account-freeautomaticrelay+hostedprovider+schema remainunimplemented.",
+  "strict_anonymous_allowlist": {
+    "status": "PROPOSED strict automatic-diagnostic/public-summary schema, not implemented or tested",
+    "scope": "Unidentified payload by construction; not a promise of anonymous network connection or zero provider retention",
+    "schema_version": 1,
+    "top_level_unknown_keys": "reject; never echo unknown values into errors/logs",
+    "wire_limits_proposed": {
+      "UTF8_request_bytes": 16384,
+      "response_bytes": 8192,
+      "max_stack_frames": 24,
+      "max_dependency_entries": 9,
+      "nesting_depth": 4,
+      "duplicate_JSON_keys": "reject",
+      "NaN_Infinity_nonUTF8": "reject",
+      "compressed_or_multipart_uploads": "not allowed"
+    },
+    "allowed_fields": {
+      "schema_version": {
+        "type": "integer",
+        "const": 1
+      },
+      "app": {
+        "type": "enum",
+        "values": [
+          "mask",
+          "measure",
+          "annotate",
+          "classify_cv",
+          "classify_ml",
+          "regression",
+          "other",
+          "unknown"
+        ],
+        "rule": "Map known shipped appkeys locally; arbitrary labels/custom modules map other. Home may extend only from reviewed released registry."
+      },
+      "phase": {
+        "type": "enum",
+        "values": [
+          "startup",
+          "configuration",
+          "import",
+          "run",
+          "preview",
+          "export",
+          "unknown"
+        ]
+      },
+      "error": {
+        "type": "object",
+        "keys": {
+          "category": {
+            "type": "enum",
+            "values": [
+              "MemoryError",
+              "ModuleNotFoundError",
+              "ImportError",
+              "ValueError",
+              "TypeError",
+              "FileNotFoundError",
+              "PermissionError",
+              "OSError",
+              "RuntimeError",
+              "AssertionError",
+              "TimeoutError",
+              "OtherError"
+            ],
+            "rule": "Map locally, never send custom/raw exceptionclassname ormessage."
+          },
+          "frames": {
+            "type": "array",
+            "maxItems": 24,
+            "items": {
+              "module_id": "IntegerID from reviewed bundledpublicsource inventory, noarbitraryidentifier",
+              "function_id": "IntegerID in thatmodule inventory, noarbitraryidentifier",
+              "line": "Integer1..200000 oromitted; knownshippedmoduleonly"
+            },
+            "rule": "Inventoryversion determined by releasedspacr version; unknown/user/plugin frames omitted."
+          }
+        },
+        "forbidden": "No exception message, sourcecode line, filename/path, locals, repr, raw traceback or arbitrary class/functionname."
+      },
+      "versions": {
+        "type": "object",
+        "keys": {
+          "spacr": "Released numeric version or unknown; no private/local build label",
+          "python": "Numeric major.minor.patch",
+          "dependencies": "Only numpy,scipy,pandas,torch,cellpose,PySide6,matplotlib,opencv-python,coverage: numeric public version core or missing/unknown; discard localversion suffixes and exception texts"
+        }
+      },
+      "platform": {
+        "type": "object",
+        "keys": {
+          "os": "linux|macos|windows|other",
+          "os_major": "Bounded nonnegativeinteger or omitted",
+          "arch": "x86_64|arm64|other"
+        },
+        "forbidden": "No platform.platform/uname fullstring, hostname/login/domain/locale/timezone/executable/cwd/environmentdump."
+      },
+      "execution": {
+        "type": "object",
+        "keys": {
+          "requested_backend": "cpu|gpu|auto|unknown",
+          "worker_completed": "boolean",
+          "artifacts_complete": "boolean|unknown"
+        },
+        "forbidden": "No dataset/sample/plate names, paths, runIDs, model/checkpointnames, scientific measurements/results or device UUID/serial."
+      }
+    },
+    "explicitly_forbidden_fields": [
+      "title/body/description/note strings",
+      "raw traceback/error message/sourcecode/locals",
+      "settings dicts or raw values",
+      "log tails/run JSONL/ZIP attachments",
+      "AI-generated advice in automatic public report",
+      "arbitrary chat history/custom system prompt",
+      "absolute/relative paths and basenames",
+      "names/emails/phone/IP/hostnames/URLs",
+      "credentials/cookies/headers/private keys",
+      "stable installation IDs/device UUIDs/hashes of personal identifiers in public payload",
+      "caller repository/model/relay URL or access tokens"
+    ],
+    "construction_and_relay_rules": [
+      "Construct from typed enums and known public technical inventory, not regex-cleaned arbitrary dictionaries. Reject unknown serverfields; client drops nonallowlisted input before serialization.",
+      "Relay derives full SHA256 dedup signature from canonical public technical fields; never accepts raw-message/path-derived or sixhexclient fingerprint as authoritative. Unknownframe buckets need explicit coalescing policy rather than claiming samebug.",
+      "Render title and Markdown server-side from fixed templates; no arbitrary clientMarkdown/HTML/externalimages/links and no client-selected repository.",
+      "Same extraction feeds automatic issue and diagnostic summary; purpose routed separately. Public filing never required for cloud diagnosis.",
+      "Local crash ZIP, full settings, manual notes and freeform AIchat remain different sensitive-data flows and must not be silently converted to this anonymous schema.",
+      "HTTP transport/fairness metadata (IP, request timing, optional nonpublic pseudonymous challenge/install hints) is separate; do not publish it or claim transport anonymity. Guide already says hints are forgeable, not authentication.",
+      "All numeric/model/size limits are proposals for Home, not measured currentimplementation."
+    ]
+  },
+  "concrete_source_gaps": [
+    {
+      "id": "N700-R1",
+      "priority": "high",
+      "source": "issue_report.py:sanitize_settings219-240;build_report594-604",
+      "fact": "Only top-level sensitivekey values and strings/liststrings are sanitized. Nested dicts, list-of-dicts, tuples/objects and their repr are retained then printed into body; public_report strips paths only.",
+      "planted_input": {
+        "pipeline": {
+          "password": "N700_SYNTHETIC_SECRET_A",
+          "note": "PATIENT_N700_FAKE_042"
+        },
+        "steps": [
+          {
+            "access_key": "N700_SYNTHETIC_SECRET_B"
+          }
+        ]
+      },
+      "impact": "Nested secrets/identifiers can reach public automatic report.",
+      "future_acceptance": "Strict allowlist drops arbitrary settings; any optional reviewedsettings flow recursivelysanitizes bothkeys/values and refusesunknownobjects."
+    },
+    {
+      "id": "N700-R2",
+      "priority": "high",
+      "source": "issue_report.py:redact_secrets76-94;_SECRET_KEY_RE;strip_report_paths292-330",
+      "fact": "Known-prefix/bearer/assignmentregexes are not a privacy guarantee. Credentialnames cookie/session/auth/signature/access_key/private_key are not all in publicsetting-key regex; short assignmenttokens, BasicAuth, nakedopaque/JWT tokens, URLuserinfo, multilinePEM and generic names/data labels are not comprehensively covered. Relativepaths/basenames and lowercase unquoted finalpath fragments can survive strictpath stripping.",
+      "future_acceptance": "Omit arbitrary strings from auto schema; plantedtests for every credential/path/identity shape, not only current vendorprefixes. Redaction failure must fail closed, not send original text."
+    },
+    {
+      "id": "N700-R3",
+      "priority": "high",
+      "source": "issue_preview.py:__init__title_edit83-84,_refresh_body118-128,approved_report273-279;app_screen.py10025-10034",
+      "fact": "Default strictpath toggle applies tobody only. AppScreen passes ordinary build_report topreview; title can retain nonhome paths. approved_report returns editedtitle/body unchanged, and submit_report doesnot apply finalsanitizer.",
+      "future_acceptance": "Automaticpayload stays typed. Manualpublicflow performs finalsanitation/validation and displays exactfinaltitle/body beforeSend; never silently senddifferentbytes than reviewedpreview."
+    },
+    {
+      "id": "N700-R4",
+      "priority": "high",
+      "source": "issue_preview.py:_show_diagnosis237-262,_refresh_body118-128",
+      "fact": "For a newly appended nonempty diagnosis, _show_diagnosis appends to original _source_body then replacesbody_edit rather than currentediteddraft; userremoved identifiers/edits can reappear. Empty/duplicate analysis returnswithoutrebuilding. Path toggles also rebuildfrom_source_body.",
+      "future_acceptance": "Planted test removesidentifier fromeditor, completesdiagnosis/togglespaths, and verifiesidentifier neverreintroduced. Preserve editeddraft; sanitization changes invalidate oldapproval."
+    },
+    {
+      "id": "N700-R5",
+      "priority": "high",
+      "source": "console_panel.py:open_error_flow2308-2346,_console_context_for_question1984-2039;providers.py:_format_conversation667-686,CLIstreammethods690-788",
+      "fact": "show_raw=False changesdisplayonly; rawtraceback ishanded toselectedprovider through wrappedprompt. Error/freeformquestions accumulate _ai_messages; the three registeredCLI implementations flattenfullhistory into argv andinherit os.environ/cwd. This codeaudit observes theprovider seam, notanactualnetworktransfer oraguarantee that everyexternallyconfiguredCLI usesaremotemodel.",
+      "future_acceptance": "Hostederror route receives onlynew typedsummary; hostedchat is a separate explicitcloudtext flow. No automatic transfer of priorCLIhistory/rawconsole/customprompt on fallback; do not claim hiddenerror isredacted."
+    },
+    {
+      "id": "N700-R6",
+      "priority": "high",
+      "source": "crashreport.py:collect596-692,_collect216-246,_settings_section507-533,_redacted_environment275-291",
+      "fact": "Local ZIP intentionally retains rawtraceback/notes/settings/rawlogs/doctorrows/argv/cwd/executable/runIDs/absolute paths. Environment redaction isby keyname only; innocuouslynamedvariables canholdsecrets. Collectorerrors include exception text and traceback. Nothingsecret docstring istoo broad.",
+      "future_acceptance": "Never automatically upload ZIP. Label it sensitive/local; review before manuallysharing. Newanonymous extraction is separate and never callscollect aspayloadbuilder."
+    },
+    {
+      "id": "N700-R7",
+      "priority": "medium",
+      "source": "issue_report.py:build_report529-628,_env_lines487-499,log_tail412-439,_post_report693-718",
+      "fact": "App label and environment/platform/version strings are insertedwithout wholepayload secret/identity pass; traceback/settings-body sizes are not bounded byAI4000char or browserURL7500limits. log_tail reads entirelog before slicing lines. Duplicatecomment adds entirebody; sixhexdedup keys and search/create are not atomic.",
+      "future_acceptance": "Enums/numericversions and hardclient/serverbyte/depth/fieldlimits; bounded tailread forlocal only; atomicserverdedup and boundedrepeatcounter/comment. Never attach repeatedrawdiagnostics."
+    },
+    {
+      "id": "N700-R8",
+      "priority": "medium",
+      "source": "issue_report.py:_post_report/submit_report/file_without_review;providers.py:_PROVIDERS793-797;github_auth.py",
+      "fact": "Current automatic reporting stillneeds userGitHubauthentication; signedout returnswithoutfiling. Ask path mayopen browserform withencodedreport. Currentproviders areClaude/Codex/GeminiCLI only. Noaccount-free relay/provider/schema/cloudresourceactivation exists in source.",
+      "future_acceptance": "Maintainexplicitcurrentversusproposedstatus. RelayAppcredentials stayserver-side; ordinaryreportroute mustwork whenAIquotaexhausted. BrowserURLquery itself conveysdata and mustnot be treatedoffline."
+    },
+    {
+      "id": "N700-R9",
+      "priority": "medium",
+      "source": "issue_preview.py:_on_diagnose135-198;worker.py:cancel/run;providers.py:ChatProvider.cancel_stream,_stream_process",
+      "fact": "A freshDiagnose request canstart theselectedprovider beforepublicSend; anexistingresult maybereusedwithoutanewrequest. Its explicitbutton intentionallybypasses thevolunteerAI toggle. Cancel callsdialog.reject and timeout/_end_diagnosing stopsdialogpolling only; neither cancelsconsole/providertransport. Noactualprovider/cloudexecution occurred inthisaudit.",
+      "future_acceptance": "Separatecloud disclosure/optout and actualnetworkcancellation/deadlines; failed/quota/cancelledpartialmodeloutput neveraccepted asdiagnosis or auto-filed."
+    },
+    {
+      "id": "N700-R10",
+      "priority": "medium",
+      "source": "providers.py:moduleintroduction;spacr/qt/ai/__init__.py:moduleintroduction;preferences.py:DEFAULT_SHARE_DIAGNOSTIC_LOGScomments",
+      "fact": "Adjacent descriptions stillclaimkeyring/APIkey-basedproviderconfiguration or everyreportrequiresSend, while implementedregistryusesCLI andalways-modeautofileswhen authenticated. Subscription/no-separate-billing statement isnot an enforcedbillingguarantee; CLIcredentials/configuration own that behavior.",
+      "future_acceptance": "Sourcebound UI/docs distinguishCLIcredentials/billing, hostedaccount-freequota, automaticpublicreports and reviewedmanualreports. Do not reuse oldshared consenttext verbatim."
+    }
+  ],
+  "planted_data_test_plan": {
+    "executed": false,
+    "future_offline_first": "UsecurrentHTTP/browser/provider seams withhardfailure onrealnetwork; onlyHomeapprovedrelayintegration laterposts syntheticissues. Noexistingtest results asserted.",
+    "cases": [
+      {
+        "case": "nestedcontainerdata",
+        "plant": "Nested dictionaries/listdicts/tuples/customrepr containing SYNTHETIC_SECRET andPATIENT_N700_FAKE_042, includingsecret-lookingkeysand innocent note keys",
+        "expected": "Typedautosummary containsnone of these values/keynames; reject unknown containers beforetransport; optionalmanualrecursive sanitizer proven."
+      },
+      {
+        "case": "credentials",
+        "plant": "Clearlysynthetic Basic/Bearer(short/long), nakedJWT/opaque token, cookie/session/access_key/private_key/signature fields, quoted/multilinePEM andURLuserinfo/query",
+        "expected": "No plantedcredential bytes in request/publictitle/body/AIecho/exceptionlogs; backenderrors nevershowrequest/body/token."
+      },
+      {
+        "case": "identitiespaths",
+        "plant": "Syntheticemails/phone/IP/domain/hostname,short/genericloginnames,POSIX/Windows/UNC/space-lowercasepaths,relativepaths/basenames,s3URLs,plate/sample identifiers outsidepaths",
+        "expected": "Autoallowlist dropsallunstructuredvalues; publicmanualmode verifies exactfinaltitle/body; no pathlessPII assumption."
+      },
+      {
+        "case": "previeweditstability",
+        "plant": "DeletePATIENT_N700_FAKE_042 frombody; edit title;finishdiagnosis;togglestrip twice",
+        "expected": "Edits persist; deletedtextnotrestored; anynewfinalsanitization reflected inreview, approvalbound to exactbytes."
+      },
+      {
+        "case": "payloadboundary",
+        "plant": "Unknownkeys,duplicateJSONkeys,deepnesting,hugeUTF8,NaN/Infinity,NUL/control chars,Markdownexternalimage/link,objectswithsecret repr",
+        "expected": "Client/server reject oromitbeforelogging/inference/GitHub; no rawrejectionecho; enforce16KiB/8KiB proposedcaps."
+      },
+      {
+        "case": "cloudpublicseparation",
+        "plant": "Cloudon/publicoff; cloudoff/publicon; bothoff; disablewhilequeued;firstlaunchunacknowledgeddisclosure",
+        "expected": "Onlyauthorizeddestination receivesexactsummary; bothoff/disable suppressnetwork andpendingretries; firstdisclosure occurs beforefirstautomatictransfer. No implicitpublicfilingonDiagnose."
+      },
+      {
+        "case": "fallbackhistory",
+        "plant": "PriorCLIchatcontainsSYNTHETIC_SECRET; currenterrorrawsettingssampledata;usercustomsystemprompt",
+        "expected": "Hosteddiagnosis receivesonlycurrentallowlistedsummary; fallbackdoesnottransferpriorhistory/context/customprompt. Generalchat requires itsownexplicitconsented boundedtext route."
+      },
+      {
+        "case": "providertransport",
+        "plant": "Stub200/400/401/429/500/offline/TLSwronghost/redirect/oversizedSSE chunks/timeout/cancellation",
+        "expected": "Boundedworkersandresponse, pinnedHTTPSrelayhost, noambientcredentialsheaders orunsafe redirect, cancellationstopsreads; failures/quota neverdiagnosistext, noautomaticcommandexecution."
+      },
+      {
+        "case": "serverquotadedup",
+        "plant": "Concurrentduplicate/newsignatures and quotareservations; forgedinstallIDs; hostilepublicrepository/model overrides",
+        "expected": "Atomic fixedrepo/model quota/dedup/fairness; noembeddedsecret orauthenticationclaim forinstallID. Issuefiling stillworks subject toreportlimits whenAIquotaexhausted."
+      },
+      {
+        "case": "noZIPupload",
+        "plant": "FakeZIPwithpaths/rawlogs/settings/traceback/note/manifestargv",
+        "expected": "No automaticuploadcodepath, nofile-read attachment whenonlyreport/diagnose requested. Localbundle remainsexplicitmanual sensitiveflow."
+      },
+      {
+        "case": "analysisuntrusted",
+        "plant": "ModeloutputechoesplantedPII/credential orsuggestscommands/externaltrackingimages",
+        "expected": "Advicebounded/localplainview, not autoexecuted orincludedinanonymouspublicpayload; anymanualcopygetsreview/redactionagain."
+      },
+      {
+        "case": "dedupidentity",
+        "plant": "Sameapprovedstackdifferentpath/user/lineoffset vsdifferenttechnicalexception; pureunknownerror",
+        "expected": "Deriveapprovedtechnical SHA256 only; nopIIhashedintoidentifier. Unknownbucketpolicyexplicit; no6hexclientfingerprinttrust."
+      }
+    ],
+    "owning_existing_tests": [
+      "tests/qt/test_ai_issue_report_offline.py",
+      "tests/qt/test_issue_preview.py",
+      "tests/qt/test_the_issue_preview_can_diagnose.py",
+      "tests/qt/test_issue_dedupe_and_write_guard.py",
+      "tests/qt/test_a_report_survives_an_unreadable_machine_identity.py",
+      "tests/test_crash_report.py"
+    ]
+  },
+  "separate_privacy_wording": {
+    "status": "Draft destinationscope wording only; finalrelay/clientbehaviorandretention mustbe approved beforetranslation",
+    "public_automatic": "Automatic public reports send a limited technical error summary to the spaCR reporting service. It can create or update an issue on the public spaCR GitHub repository. The summary excludes raw logs, settings, file paths and personal text. Public issues can be indexed and copied and cannot be reliably unpublished. You can turn automatic reports off in Preferences.",
+    "public_manual": "Review the exact issue title and body before sending. Anything you add may be public, including personal information or secrets. Review again after edits or diagnosis changes. Cancelling prevents this public submission; it does not undo an earlier cloud diagnosis request.",
+    "cloud_error": "Cloud diagnosis sends a limited technical error summary through the spaCR service to its cloud AI provider. It does not require a public GitHub issue or your own AI account. Network services receive connection metadata. The answer is generated advice; it is not a verified diagnosis and no command is run automatically. You can disable cloud diagnosis separately.",
+    "cloud_chat": "Using hosted chat sends the question and any conversation context explicitly included for this request to the cloud service. That text may contain personal or confidential information. Review what is sent. Prior CLI conversations, raw logs and settings are not transferred automatically.",
+    "local_bundle": "A local crash-report ZIP can contain absolute paths, raw logs, settings, run identifiers and exception details. It is not an anonymous report. Inspect it before attaching or sharing it; it is not uploaded automatically.",
+    "retention_scope": "Guide citesCloudflare statedno-trainingwithoutconsent policy; this reviewdoesnotindependentlyverifycurrentvendorpolicy orclaimzerooperationalretention. Finalnotice mustidentifyactualprovider/relay, applicablepolicy, localqueue/servercounter/IP retention anddeletewindow actuallyimplemented. Do nottranslatefuturecaps/modelquality/freequota asmeasureddeployedfacts.",
+    "fairness_ids": "If needed, keep optionalpseudonymousinstall/challenge/IPquota data separatefrompublictechnicalpayload, discloseitsuse, boundretention, neverclaimanonymousauthentication orpublishit."
+  },
+  "CLI_to_hosted_integration_map": [
+    {
+      "seam": "Registry/settings/UI",
+      "current": "providers._PROVIDERS lists3CLIproviders; CommandLineTool.is_installed usesPATH andChatProvider.is_logged_in assumesinstalledunlessoverridden; existingproviderargs mapCLI modelflags.",
+      "future": "Addexplicitmanagedhostedprovider capability overridingCLIinstall/login/keyrequirements andCLI-onlymodelargs. ConfigurefixedHTTPSrelayURL, separatecloud/publicsettings/disclosures andquota/offlinestate; nofakeCLI binary/userapikey. Do notsilentlyfallbacktoservicewithoutauthorizedcloudscope."
+    },
+    {
+      "seam": "Console errorinput",
+      "current": "open_error_flow/wrap_error_for_prompt sendsrawtraceback; _ai_messages retainsfullconversation; consoleaware addsoutput/traceback.",
+      "future": "Buildversionedtypedtechnicalsummary beforeproviderdispatch; hostederror pathdoesnotuseexistingrawprompt/fullhistory. Generalhostedchat musthaveexplicitboundedcontextpreview/consent andownschema."
+    },
+    {
+      "seam": "StreamWorker/provider",
+      "current": "Genericstream_chat(messages,system,model) yieldsstrings; cancellation callsprovider.cancel_stream, designedforkillingCLIproc; failures false/partialnotanswer.",
+      "future": "Hostedadapter boundedHTTP/SSE withrealcancel/deadline/quotafault types; preservefinished(False) semantics, nosecret-returnederrorbody, boundaggregateoutput. Serverownsapprovedsystem/model; clientcannotsetGitHubrepo/providerkeys."
+    },
+    {
+      "seam": "Publicsubmission",
+      "current": "AppScreen public_report(build_report) -> file_without_review->_post_report->github_auth token; askpreview -> submit_report mayopenissueURL.",
+      "future": "Managedrelay report endpoint consumesstrictschema; AppApp JWT/installationtoken stayserveronly. Publicoptout andcloudoptoutindependent; manualexpandedreport notcalledanonymous. Atomicdedup byfullapprovedtechnicalsignature; fixedrepoIssuesonly."
+    },
+    {
+      "seam": "Preview/diagnosis",
+      "current": "Diagnose startsproviderbeforepublicSend; body/titleeditflow hasgaps; 180s polltimeoutnottransportcancel.",
+      "future": "Showcloud versuspublicactions clearly; preserveediteddrafts/exactapprovals; terminalcancelstopscloudrequest, noautoaddAIadvice tostrictpublicpayload."
+    },
+    {
+      "seam": "Localbundle/CLIcrashreport",
+      "current": "spacr-crashreport produceslocalrawZIP; noaccount-freecloudintegration.",
+      "future": "KeeplocalZIPmanual. Ifheadlessanonymouserror endpointaddedlater, useidenticalallowlistextractor+explicitscope/optout andboundedtransport, notcollect()/ZIPupload."
+    },
+    {
+      "seam": "Serverimplementation",
+      "current": "Guideownerresourceinstructions only;relay/provider/schema unimplemented, noaccounts/issues/deployment done inthisaudit.",
+      "future": "HomeownsWorker/D1/Appsignup integration, atomicaccountwidequota andseparateissuelimits, abusechallengeifneeded, no rawbodylogs; actualnon-secretresource IDs areownerinput, neverinvented."
+    }
+  ],
+  "priority_order": [
+    "Agree typedanonymousschema/destinationconsent beforetransport",
+    "Close nestedsettings/previewtitle/editrestore/rawhistory gaps withofflineplantedtests",
+    "ImplementHostedprovider cancellation/status+relaystrictvalidation/quotadedup",
+    "Actualrelayprivacy/resourcepolicy reviewandnon-secretownerinputs",
+    "Source/translationupdates onlyafterapprovedfinalbehavior;noearlyN700translations"
+  ],
+  "no_execution": {
+    "network_reports_or_keys": false,
+    "CLI_provider_or_auth_calls": false,
+    "models_GUI_GPU_tests": false,
+    "app_catalog_review_source_changes": false,
+    "accounts_issues_service_deployment": false,
+    "push_orpublication": false
+  },
+  "limits": [
+    "Gaps are inferredfromexactcode; no plantedtest orruntimeexperiment was executed.",
+    "Regexsafety doesnotconstituteanonymity certification; proposedschema deliberatelyexcludesarbitrarytext.",
+    "Officialvendor links/policy claims areinboundguide only; no independentnetworkresearchperformedhere.",
+    "TransportIP/fairness/operationalretention cannotbe guaranteedanonymousby clientpayloadredaction."
+  ],
+  "independent_scoped_peer_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_issue_report_flows_peerreview_20261013.json",
+    "sha256": "cc9c2ea91ec352b79c797ca28bc388ccd54d8ebe170f90f1021d0c08f4e09845",
+    "scope": "R1/R3/R4/R5/R9 sourceflows; confirms qualifiedclaims only, noexecutedtest orremoteevidence"
+  }
+}
