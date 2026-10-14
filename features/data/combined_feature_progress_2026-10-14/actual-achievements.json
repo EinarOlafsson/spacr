@@ -21,7 +21,7 @@
   },
   {
     "achievement": "Splitter wrapper-state paint repair",
-    "state": "Private tested source, notyetintegrated",
+    "state": "Integrated for nightly publication; fresh fullCI pending",
     "evidence": "b69cba05ee; baseline2FAIL sameexception ->74PASS owningcohort"
   },
   {
@@ -58,5 +58,10 @@
     "achievement": "Definitive1.5.1.5 scope/index",
     "state": "Requirement recorded; notfeatureimplementation",
     "evidence": "All689required; owningindex12PASS,actualexit0"
+  },
+  {
+    "achievement": "Workbench closed settings and hidden preview construction",
+    "state": "Integrated for nightly publication; native capture pending",
+    "evidence": "bf027 current-owning156PASS actual0; unchangedAPI/captions; historicalcold720→458ms separate"
   }
 ]
