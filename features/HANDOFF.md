@@ -12010,3 +12010,12 @@ and source-bound language closure; installers lane switches to N699 SSH/MFA.
 Home-B exclusive655/704/686–689 and Claude700 ownership remain unchanged.
 User is away: no questions; implement, validate, commit and push completed
 scopes, report all today's completions newestfirst with green ticks.
+
+### N699 implementation file notice for Home-B
+
+Original Home installer agent now implements N699 in existing
+spacr/remote_execution.py and spacr/qt/screens/distributed_jobs.py.
+Home-B N655 accessibility work may share these files: keep independent
+branches and narrow changes; send exact commits to root for normalmerge.
+No Home-B SSH/MFA implementation and no Home N655 accessibility edits.
+N699 tests use fake transports; no user SSH/config/credentials/network.
