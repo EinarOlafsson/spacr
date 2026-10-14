@@ -95,3 +95,12 @@ DELIBERATELY NOT DONE
   "unknown"). Switch to branch/main after the first push to main uploads.
 - Left for WS: add the same badge to the 9 localized READMEs and regenerate
   them with their tool.
+
+2026-10-14 — Home-B current-source acceptance follow-up.
+All nine localized READMEs already contain the Coverage badge and Codecov
+repository target; the earlier translation follow-up is no longer outstanding.
+Current nightly Codecov badge reports98%; main still reports unknown. Current
+workflow retains nonblocking upload, branch flags and token/OIDC authentication;
+the per-module ratchet remains unchanged. No new implementation was needed for
+these already-landed parts. First main upload and any subsequent branch/main
+badge switch remain tied to original Home's approved main promotion/release.

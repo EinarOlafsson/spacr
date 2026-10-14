@@ -521,3 +521,15 @@ has no live_cell, cellposeTIME or TimePose text.
   behind the Actions incident) succeeded at 20:21 UTC. Live build.json
   built 19:39:23Z with a parascape key; curls show 8 rows, 8 card
   fronts and backs, the new example images, and no former-name text.
+
+2026-10-14 — Home-B repaired release synchronization (private site-src).
+Source commit d9624b5b5adebfea242a5cffde6e659acacb32d2 detects release-asset
+changes when a release tag stays the same, including installers uploaded later.
+A new deployment requires matching PyPI/GitHub versions and all three desktop
+installers; incomplete releases preserve the previous site. Eleven deterministic
+Node cases pass, exercising the actual hourly workflow and build refusal. Full
+123-file encrypted build passes with all nine locales complete and Windows,
+macOS and Linux links verified in all ten spaCR pages. No paid service, public
+deploy or model-score changes. Original Home owns deployment; live receipt and
+idle-host mobile Lighthouse acceptance remain OPEN. Evidence:
+data/687_release_asset_sync_2026-10-14/receipt.json.
