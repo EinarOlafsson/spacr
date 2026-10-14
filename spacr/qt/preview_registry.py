@@ -98,6 +98,7 @@ PREVIEWS: Dict[str, PreviewSpec] = {
         title="Track preview", owned_by_screen=True),
     "cellpose_masks": PreviewSpec(
         builder="spacr.qt.screens.app_screen:_build_live_preview_card",
+        fill="spacr.qt.screens.app_screen:_fill_live_preview_card",
         tooltip="Segment one sampled field with these settings before "
                 "committing the plate.",
         propagation={
@@ -404,11 +405,11 @@ def _attach(screen: QWidget, app_key: str,
     except Exception:
         LOG.debug("preview builder failed for %r", app_key, exc_info=True)
         return None
+    card.setVisible(False)
     if not _insert_above_console(screen, card):
         card.setParent(None)
         card.deleteLater()
         return None
-    card.setVisible(False)
     adopt = getattr(screen, "adopt_runtime_pane", None)
     if callable(adopt):
         try:

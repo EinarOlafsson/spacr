@@ -10419,8 +10419,15 @@ class MakeMasksScreen(QWidget):
         same page its tile opened.
         """
         if key == "train_cellpose":
+            from .. import screens as screens_package
             from .train_cellpose import CellposeWorkbenchScreen
-            return CellposeWorkbenchScreen()
+
+            waiting = screens_package._categories_wait_to_be_opened
+            screens_package._categories_wait_to_be_opened = True
+            try:
+                return CellposeWorkbenchScreen()
+            finally:
+                screens_package._categories_wait_to_be_opened = waiting
         if key == "model_compare":
             from .model_compare import ModelCompareScreen
             return ModelCompareScreen()
