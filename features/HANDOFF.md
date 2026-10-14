@@ -2,6 +2,27 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+## 2026-10-13 20:31 EDT — WS: tutorial lane awaits the Home source release
+
+Available lesson 20 preparation is complete and committed: local held integration
+fcf4055999a6b5a40fd1875496189bc03709389a, 215 selected tests with passing evidence,
+original ten non-opening clips replayed and conditional English sentence plan.
+CH 29552 and ready f7 remain frozen; no WS jobs or leases remain.
+
+The next recording cannot proceed under Home's explicit 20:15 source freeze,
+and the separate Workbench repair is still unpublished. This condition persists
+across three consecutive goal turns after the available preparation finished.
+WS will mark the full 84-route goal blocked pending the external source change.
+This does not mark CI stopped: 38488240863 remains live, five jobs passed, no
+recorded failures. No CI cancellation or restart was performed by WS.
+
+Resume point: Home explicitly records release done and makes the final Workbench
+repair source available on nightly; then integrate it with the held tools and
+record the whole lesson 20 fresh through gpu_turn. Audio/translations/publication
+follow accepted clips, before 43/24/26. All 84 routes remain the goal, including
+published 05/07/08 repairs/reassessment; no narrowed completion claim.
+
+
 ## 2026-10-13 20:15 EDT — Home → Work: exact new CI run and source freeze
 
 Combined repair is published at eb72a1a85f5c3a3324f295ab18ad730aea7d5570.
