@@ -24,6 +24,7 @@ def installation(tmp_path):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('#!/bin/sh\nexit 0\n')
         path.chmod(0o755)
+    (root / 'venv/pyvenv.cfg').write_text('include-system-site-packages = false\n')
     kept = root / 'settings-to-preserve.json'
     kept.write_text('{"retained": true}')
     record = ic.InstallRecord(kind='installer', layout='macos-runtime', platform='macos',
@@ -84,7 +85,7 @@ def test_upgrade_waits_verifies_then_relaunches_once(tmp_path, installation, mon
     events = []
 
     def run(argv):
-        events.append(('verify' if '-c' in argv else 'upgrade', argv))
+        events.append(('verify' if '-c' in argv else ('check' if argv[1:3] == ['pip', 'check'] else 'upgrade'), argv))
         return (0, _identity('1.5.1.1')) if '-c' in argv else (0, 'Updated')
 
     def wait(pid):
@@ -95,7 +96,7 @@ def test_upgrade_waits_verifies_then_relaunches_once(tmp_path, installation, mon
     assert ic._run_plan(str(path), wait=wait, run=run, remove=no_cleanup,
                         fetch=no_cleanup, system=machine,
                         spawn=lambda *args: events.append(('relaunch', args))) == 0
-    assert [event[0] for event in events] == ['wait', 'upgrade', 'verify', 'relaunch']
+    assert [event[0] for event in events] == ['wait', 'upgrade', 'check', 'verify', 'verify', 'verify', 'verify', 'relaunch']
     assert kept.exists()
     assert 'Verified spaCR 1.5.1.1' in Path(plan['log']).read_text()
 
@@ -237,7 +238,8 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
     def quote(path):
         return shlex.quote(str(path))
     uv = Path(record.root) / 'bootstrap/uv'
-    uv.write_text('#!/bin/sh\n'
+    uv.write_text('#!/bin/sh\nif [ \"$2\" = \"check\" ]; then\n'
+                  + f'printf \"check\\n\" >> {quote(journal)}\nexit 0\nfi\n'
                   + f'printf "upgrade\\n" >> {quote(journal)}\n'
                   + f'printf "%s\\n" "$@" > {quote(argv_log)}\n'
                   + f'printf "%s\\n" {shlex.quote(_identity("1.5.2"))} > {quote(state)}\n')
@@ -256,7 +258,10 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
     deadline = time.monotonic() + 3
     while 'relaunch' not in journal.read_text() and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert journal.read_text().splitlines() == ['wait', 'upgrade', 'verify', 'relaunch']
-    assert argv_log.read_text().splitlines() == ['pip', 'install', '--upgrade', '--python', record.python, 'spacr']
+    assert journal.read_text().splitlines() == ['wait', 'upgrade', 'check', 'verify', 'verify', 'verify', 'verify', 'relaunch']
+    installed_args = argv_log.read_text().splitlines()
+    assert installed_args[:4] == ['pip', 'install', '--upgrade', '--python']
+    assert installed_args[-1] == 'spacr' and installed_args[4] != record.python
+    assert Path(installed_args[4]).parent.parent.parent.name.startswith('.spacr-runtime-update-')
     assert json.loads(state.read_text())['version'] == '1.5.2'
     assert kept.read_text() == '{"retained": true}'

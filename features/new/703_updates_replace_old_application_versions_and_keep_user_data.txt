@@ -166,3 +166,49 @@ Those native acceptance gates remain open, as do transactional in-place pip/macO
 package rollback, optional per-folder GUI cleanup and the other native platform
 acceptance requirements. N703 remains partial; neither private component is a
 whole-item completion or full CI/release acceptance.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE MACOS ONLINE RUNTIME TRANSACTION
+--------------------------------------------------------------------------------
+
+The supported macOS private-uv in-app adapter no longer runs its package command
+against the working runtime. After its existing authorized shutdown handshake,
+it copies the dedicated venv into private sibling staging, updates only that
+staged interpreter, checks package dependencies and the Qt package import, and
+verifies actual code/distribution/version/prefix identity. It refuses staged
+versions below either the offer or the previously recorded version.
+
+A supported atomic directory-exchange operation activates the verified runtime
+without an interval in which the desktop prefix is missing. Final identity/import
+checks and restart refusal restore the original runtime through the same atomic
+exchange. Successful updates retain the original runtime with a transaction
+journal as a rollback copy; data, caches and bootstrap files are not retired.
+A restoration failure keeps both the original bytes and journal/lock for explicit
+recovery, instead of deleting them or claiming success. The staged install rewrites
+its POSIX entrypoint headers to the final prefix, including pip's long-path shell
+trampolines. The approved private interpreter and existing uv bootstrap remain
+required; there is no in-place fallback.
+
+The owning evidence closes 205 distinct cases: 192 initial PASS, followed by a
+14-case PASS/actual exit 0 closure covering two corrected historical phase-list
+fixtures, eleven added branch cases and one already-passed success case extended
+with internal-link preservation. All 149 added helper statements were executed;
+the remaining two uncovered arcs are the benign-pth continuation and a redundant
+transaction-present condition after a successful exchange. Original raw coverage
+was retained; the local closure appended only to a copy with identical production
+source. No hosted CI/baseline/ceiling claim is made.
+
+Real offline fake wheels and private temporary venvs exercised Linux kernel
+atomic exchange, successful final console launch, byte-identical rollback after
+installation/dependency/import/final-identity/restart failure, unsupported shared
+or editable layouts, and preservation after deliberately refused restoration.
+Darwin binding/flags were unit-checked only; actual Darwin filesystem exchange,
+large dependency cloning, signed desktop restart and interruption/cancellation
+still require native macOS acceptance. No real user environment was copied,
+installed into, replaced or deleted; no network/model/GPU operation ran.
+
+Shared/system/Conda pip environments and Windows in-app activation remain open:
+they need an explicit deferred handoff/ownership contract, script relocation and
+native DLL/other-process validation. Their existing in-place API must not be
+advertised as transactional. Optional per-folder cleanup and remaining native
+installer acceptance are also still required. N703 remains partial.
