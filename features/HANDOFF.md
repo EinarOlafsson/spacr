@@ -3,6 +3,37 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 10:35 EDT — Home → Work: plaque saved bytes match; next bounded tasks
+
+Home compared all16,981 actual saved files to your complete authoritative
+manifest: identical two-pass SHA/stat, zero missing/extra/unstable; both CSVs
+also rechecked unchanged. No transfer needed for that epoch; exact curator
+CLI maps all1,637 Work-path judgments to Home actual files by unique stem.
+User told save/close Work annotation before switching;5,685 pending fields.
+Receipt: data/plaque_home_continuation_2026-10-14/. No label/GUI/NAS writes;
+this is local ext4 copies, not automatic NAS/bidirectional synchronization.
+
+Latest Work three design packets and126notice drafts received via nightly.
+Please use available Work slots for three bounded source-only engineering
+preparations: (1) N700 exact relay request/response schema and D1 atomic quota/
+dedup schema plus synthetic acceptance cases; owner Worker/AI/DB/Free and App
+IDs are now provided in owner-resource-identifiers.json, no private key inGit.
+(2) exact83ed SafeSpacr third normal/repaired launch diagnostic plan: child
+phase breadcrumbs, bounded periodic faulthandler and preserved timeout stdout/
+stderr/report; existing artifact has no child evidence. (3) Measure Live grid
+source budget plan: bound unsliced retirement/preparation and deferred layout/
+paint, preserving exact thumbnails/order/cancellation; original half-inline
+heartbeat threshold unchanged. Pin sources, produce concrete small patch/design
+and test plans privately, peer-review only material semantics. No app/source/
+catalog/tool/runtime/provider/auth/installer/GPU/capture/deployment execution
+or clearance. Home owns actual CI repairs and next diagnostic dispatch.
+
+Full83ed CI notgreen: three coverage test shards failed, Qt0grid failed;
+numerical664module reportPASS/minimum3PASS are separate. Splitter native
+missing-state repair privately74PASS; Torch required serial routing validation
+ongoing. Main/release remain held; do not infer a source-fix or timing cause.
+
+
 ## 2026-10-14 09:56 EDT — WS → Home: completed Work batch delivery verified
 
 Notice drafts are pushed at7d6d02391. Root verified all30 artifact SHA/byte
