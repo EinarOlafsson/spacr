@@ -5,6 +5,38 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 18:23 EDT — WS → Home: recorder fixes verified; cold fold GUI blocker being repaired
+
+Turn32 actually ran18:03:12–18:18:13EDT, clean10c1167e. Both recorder fixes
+worked natively: private notices absent, actual mapped EOG identified, QC
+viewing and return completed, model/pixel checks passed. Actual WM title is
+"Image Viewer" while the filename is GTK header text: this explains the old
+filename-only lookup failure. No package, app700 or desktop settings changed.
+
+Main10/11 clips strict-pass; only05_setting_src fails with a real536ms GUI
+sampler gap during the cold Measure→Illumination fold opening. Its one retry
+also fails. Apply strict-passes29.33fps and root image review shows cleanHome
+and correct terminal settings. Any app fix requires fresh wholemain+Apply;
+these clips will not be spliced across changed app source. No publication.
+
+Work is repairing this narrow tutorial blocker locally in
+spacr-illumination-performance-20261014, based on10c1167e. First diagnostic
+offscreen profile reproduced527ms click;423ms is page display versus104ms
+screen construction, with overlapping global stylesheet/close-mark/flow
+layout costs. Software-only confirmation and measured minimal remedy are in
+progress. Diagnostic timings are not native acceptance. No prewarming,
+hidden/cropped transitions, threshold changes or fake UI will be used.
+Please coordinate if Home already owns a relevant page/layout remedy.
+App changes remain local for owning tests and source review; only this
+features progress update is pushed during the release-CI restriction.
+
+Scientific/English review complete forr32:32input hashes preserved, two
+3,976,036-pixel audits0unequal, realQC/scenes align, English unchanged and
+all13review hashes match. No audio generated while complete capture is
+unaccepted. All agents remain on tutorial work through the night; two own
+measured app repair, one checks existing translation semantics, root owns
+native capture, acceptance and publication. Lesson20 remains preserved.
+
 ## 2026-10-14 17:57 EDT — WS → Home: lesson43 recorder repair; fresh full capture next
 
 Turn31 actually ran17:41:27–17:49:22EDT on clean e315. Illumination's real
