@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""Source-pinned GNOME bootstrap; no default checkout or final-source assumption."""
+import sys
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import subprocess
+
+
+def require(condition, message):
+    if not condition:
+        raise RuntimeError(message)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--repo', type=Path, required=True)
+    parser.add_argument('--revision', required=True)
+    parser.add_argument('--stage', type=Path, required=True)
+    parser.add_argument('capture_args', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    require(args.repo.is_absolute(), 'Supply an absolute isolated final worktree')
+    root = args.repo.resolve()
+    require(root != Path('/home/carruthers/Documents/repo/spacr').resolve(),
+            'Shared checkout is forbidden')
+    require(re.fullmatch(r'[0-9a-f]{40}', args.revision) is not None,
+            'An exact full final commit is required; branch names are forbidden')
+    require(os.environ.get('DISPLAY') not in (':0', ':0.0'),
+            'Remove desktop DISPLAY from this private-host invocation')
+    require(not os.environ.get('SPACR_CAPTURE_HOST'), 'Launcher must begin outside a capture host')
+    stage = args.stage.resolve()
+    require(not stage.exists() and not stage.is_relative_to(root),
+            'Capture stage must be a fresh external destination')
+    capture = args.capture_args[1:] if args.capture_args[:1] == ['--'] else args.capture_args
+    require('--' in capture, 'Expected run_native options followed by -- and capture arguments')
+    native = capture[:capture.index('--')]
+    def reject_routing_options(arguments, protected, segment):
+        # Both recorder parsers allow argparse's unique long-option prefixes.
+        # Stop at a positional separator, matching where options are parsed.
+        for argument in arguments:
+            if argument == '--':
+                break
+            option = argument.split('=', 1)[0]
+            if option.startswith('--') and any(flag.startswith(option) for flag in protected):
+                raise RuntimeError(f'{segment}: caller cannot override routing with {option}')
+
+    reject_routing_options(native,
+                           {'--host', '--stage', '--host-stage', '--child', '--in-host'},
+                           'run_native')
+    # capture_refresh receives the injected neutral stage before caller flags.
+    # Reject its full --stage spelling and abbreviations, which would win later.
+    reject_routing_options(capture[capture.index('--') + 1:], {'--stage'}, 'capture')
+    def source_state():
+        actual = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+        dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True)
+        require(actual == args.revision and not dirty, 'Final worktree revision differs or is dirty')
+        return actual
+    actual = source_state()
+    # Only stdlib imports precede this bootstrap; third-party/app imports use root first.
+    sys.path[:0] = [str(root), str(root / 'tools/tutorials')]
+    sys.meta_path[:] = [finder for finder in sys.meta_path
+                       if '__editable__' not in (getattr(finder, '__module__', '')
+                                                 or type(finder).__module__)]
+    require(sys.path[0] == str(root), 'Final worktree is not first on sys.path')
+    os.chdir(root)
+    holder = Path.home() / '.spacr/gpu/holder'
+    fields = dict(piece.split('=', 1) for piece in holder.read_text().strip().split())
+    require(fields.get('checkout') == str(root) and fields.get('label') and fields.get('pid'),
+            'Root must invoke this launcher inside its final-source GPU turn')
+    os.kill(int(fields['pid']), 0)
+    import spacr
+    require(Path(spacr.__file__).resolve().parent == root / 'spacr',
+            'Actual spaCR import is outside the final worktree')
+    print(json.dumps({'scope': 'Launcher preflight, not GNOME/capture acceptance',
+                      'final_repo': str(root), 'exact_clean_revision': actual,
+                      'actual_spacr_import': str(Path(spacr.__file__).resolve()),
+                      'python': sys.executable, 'stage': str(stage),
+                      'GPU_turn_holder': fields}), flush=True)
+    script = root / 'tools/tutorials/run_native_capture.py'
+    require(script.is_file(), 'Final source lacks the private GNOME capture driver')
+    sys.argv = [str(script), '--host', 'gnome', '--stage', str(stage), *capture]
+    try:
+        runpy.run_path(str(script), run_name='__main__')
+    finally:
+        source_state()
+
+
+if __name__ == '__main__':
+    main()

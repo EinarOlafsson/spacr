@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:30:10.145927+00:00",
+  "review_kind": "Codex AI narrow read-only independent N703 source/test-contract peer review",
+  "scope": [
+    "CACHE01",
+    "CACHE02",
+    "ROLL01"
+  ],
+  "audited_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "bound_sources_and_tests_match_Home": true,
+  "checks": [
+    {
+      "id": "CACHE01",
+      "verdict": "supported with conditional scope",
+      "observed_source": "remove_install validates each top-level installer path with _refusal, then _delete removes the complete allowed root. With no keep descendant, it uses rmtree. With explicit keep paths, it recursively removes siblings without calling _refusal again for each child. Windows passes only the current install log, icon and NSIS status file to --keep before staging.",
+      "qualification": "This is not deletion of every arbitrary directory: shared/user-data/running/source-checkout and ownership guards still apply. It describes an allowed discovered installer root. Existing root/cache and root/test_data are not default keep entries unless another existing guard or explicit keep protects them.",
+      "test_contract": "test_install_cleanup windows_online builds cache/wheels/w.whl; test_every_released_layout_is_found_and_removed_down_to_user_data expects only separate Box.user_files after removal. test_the_log_of_the_new_install_is_kept_while_the_old_copy_goes demonstrates explicit keep sparing the log, not preserving all runtime-root caches.",
+      "native_observed_failure": false
+    },
+    {
+      "id": "CACHE02",
+      "verdict": "supported; known-path overlap qualification required",
+      "observed_source": "Normal _user_data includes standard ~/.spacr, XDG spaCR data/cache/config/state and HF_HOME or its fallback. It does not enumerate custom SPACR_HOME, CELLPOSE_LOCAL_MODELS_PATH, SPACR_BACKENDS_DIR or _relocated_caches. Some of those appear in separate opt-in _purge_targets, which does not make them normal preservation entries.",
+      "qualification": "For a known protected _user_data location, _refusal checks overlap both ways. A known protected folder nested inside an installer root refuses the whole root before recursive deletion; the same folder is not silently deleted merely because child recursion omits _refusal. The gap concerns configured/relocated locations absent from the normal protected list or explicit keep. An external configured folder outside the deleted root is not deleted by this path.",
+      "future_test_scope": "Place each configured persistent directory inside and outside an otherwise allowed root, plus known HF/XDG protected descendant controls and explicit nested keep. Assert byte preservation and accurately reported refusal/remaining runtime. Symlink/junction/native filesystem behavior needs separate platform tests, not assumed from lexical _inside.",
+      "native_observed_failure": false
+    },
+    {
+      "id": "ROLL01",
+      "verdict": "supported as source-visible failure path",
+      "observed_source": "PowerShell obtains its temporary bootstrap/Python first, then invokes cleanup remove before creating/installing/validating StageVenv. pip check and isolated imports occur later. Only after those checks does it move any surviving VenvDir to .venv-previous, activate StageVenv and immediately delete .venv-previous. Catch cleans StageVenv/StageProfile and rethrows; it does not restore a removed old root or move a surviving previous environment back.",
+      "qualification": "An earlier bootstrap/download failure leaves cleanup unexecuted. A root refused by known data guards may retain its old runtime until later activation. When cleanup actually removed the allowed old root and later dependency/staging validation fails, .venv-previous cannot recover that already deleted environment. This is not a reproduced Windows failure or proof that every failed upgrade destroys the old runtime.",
+      "test_contract": "test_install_is_validated_before_the_previous_environment_is_replaced is static text ordering: pip check/import before the first venv-previous occurrence. It does not compare those checks with the earlier CleanupModule remove call. test_the_update_finds_then_deletes_then_installs explicitly asserts delete before install; failure helper test checks no relaunch after installer error but does not prove old-runtime preservation/rollback.",
+      "future_test_scope": "Inject failure after cleanup, dependency installation, pip check/import, activation move and first GUI launch. Require old verified runtime plus cache/user data to remain available until new runtime and actual GUI acceptance succeed, and prove rollback restores owned links/runtime without deleting persistent data.",
+      "native_observed_failure": false
+    }
+  ],
+  "acceptance_boundaries": [
+    "Reading source and assertions confirms current policy and test limits; no fresh tests passed in this peer review.",
+    "Windows native installer execution, failure recovery, junctions/locked files, shortcut registration and actual GUI version/import identity remain unverified here.",
+    "Staged import validation and installer exit zero are not native GUI acceptance.",
+    "No broad N703 source sweep or other owner claims were re-audited."
+  ],
+  "future_policy_direction": "Stage and verify a new owned runtime before retiring the old owned runtime; keep persistent cache/data and unknown user files by default. Retain rollback material until actual new-GUI acceptance. This is proposed repair scope, not an implemented guarantee.",
+  "source_sha256": {
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/703_installer_source_audit_2026-10-13/updater-windows.json": "9750569e766ebb4d620439f5d63b05dcb54482d070aa02dc5ec05a2c2d366eeb",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/install_cleanup.py": "8b4c8426dbd3a77d27d1a74f7004d1be48afc3e7ea29f796baf23c0d47762c0a",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/install_spacr_windows.ps1": "8df7e128fe4f39d033537324b64f344a972829203a5315befa7fdbd6ae2abdaa",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/test_install_cleanup.py": "831843d651c318949ca5eaf7f4824794038e494c2e4fe4270b4755c1b81a8667",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/test_online_installers.py": "ad547e30c570b6919882ad2bc9084288ba8f8f44f54f5c391e6010f3793a8052"
+  },
+  "no_execution": {
+    "tests": false,
+    "installers_updates_uninstalls_deletion": false,
+    "packages_environment_changes": false,
+    "GUI_GPU_network": false,
+    "app_tests_canonical_source_edits": false,
+    "push": false
+  }
+}

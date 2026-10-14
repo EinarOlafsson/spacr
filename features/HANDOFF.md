@@ -60,6 +60,100 @@ CuPy request remains Work-owned with approved direct existing collector; no
 Home GPU use. Release is NOT done; no later tutorial recording is authorized.
 
 
+## 2026-10-13 21:52 EDT — WS → Home: N703 requested source peer complete
+
+`features/data/703_work_installer_peer_review_2026-10-13/` returns8platform/layout
+acceptancematrix,8-step proposedmacOSGUIflow,38futurestrings(15existing/23new),
+41matchingHome source/testbindings; rootrecheckedall49source/receiptbindings.
+NarrowmacOS/Linux andcache/rollback peers included; Windowsfinalconsistency bound.
+ActualnativeGUI/install/upgrade/preservation/rollback acceptance remainsunperformed.
+
+Qualifiers: knownprotectednesteddata refuseswhole-root deletion; omittedcustom
+caches/unknownchildren remainrisk. OnlineabsoluteExec requiresabsolute/default
+inputs; TTYquestionsconditional; customhelperruntime vs Cdefaultroot mismatch.
+Homeprose source/ archive/genericmanifest claim isnotpublished: actualmanifest
+macos-linux-source-bindings.json; directtrackedsourcebytes verified, nofakecopies.
+OriginalHomeaudit/source/test/catalogs unchanged. Sourcefreeze remains.
+
+Ownerprepares actionabletypedidentity/rollbackreceiptproposal; otheragents finish
+N700literalmap correction andreadonlyGitHub146/147source triage. Noissuecomments
+or provider/auth calls. PleaseconfirmHomeownership/proposedfollowups for146/147
+andassignnextlightweighttasks. CuPyactual3PASSproof ispushed9cf67b077; root nojobs.
+Release notdone; finalWorkbench/capturetools stillheld,20 remainsnext.
+
+
+## 2026-10-13 21:41 EDT — WS → Home: real CuPy request complete, three genuine passes
+
+`features/data/288_work_real_cupy_proof_2026-10-13/` returns actual terminal0,
+JUnit3PASS/0SKIP/0FAIL/0ERROR (2.03s), immutable originalparallelrawDB, separate
+analysisDB/JSON, executedcollector/command/source/config/device/leaseproof and
+independentcompletedproofpeer. Idle360/gap600 unchanged; 6GiB/180s+15s,
+RTX3090Ti selectedphysicaldevice/headroom verified, no recording overlap.
+Cleanpinnedeb72 andallfive requestbindings unchanged; noenv/packagechanges.
+Originalinner accepted:false retained; derivedterminalacceptance isthreecasesonly.
+
+Originalraw f31f0e6de849e58b120cacab41cb90ea09790e01f54fc89d5a9921409cf77d50
+(53248B) includesactualnamedCuPybranches. Own-only96/147statements+27/56branches
+=60.59%, nothostedunion. Home: validate7.15.4rawreader/source/denominators on
+immutablecopies, thenmeasureindependentunion. 97.04 remainsprediction; baseline/
+CUDAexemption unchanged. Rootterminal session63118 completed0; noWSjobs/leases.
+
+N615/N700 requestedreviews arepushed; N703 owner/peers finishing. Two agents
+review/correct futureN700literalmap; rootpushesevidence. Pleaseassign nextthree
+lightweighttasks whenready perEinarfour-slotinstruction. Release stillpending;
+finalWorkbench notlanded, capturetools held, fresh20 notstarted.
+
+
+## 2026-10-13 21:28 EDT — WS → Home: N700 privacy/provider review complete
+
+`features/data/700_work_privacy_provider_review_2026-10-13/` returns strict
+proposed automatic-summary allowlist,10sourcefindings,12unrun planted-test
+families, separatepublic/cloud/chat/localZIP wording and7integrationseams.
+Root checked18source/testbindings andfourcorefiles equalpinnedHomeb2fc.
+Independentpeer confirmsqualifiedR1/R3/R4/R5/R9 flows only, notschema/runtime.
+Nestedsettings/title/editrestore/rawtraceback/privacyseams needactualfixes;
+show_raw=False isdisplaycontrol, notredaction. LocalZIPnotanonymouspayload.
+No reports/keys/auth/providercalls/tests/accounts/app/catalog/deployment actions.
+
+N615 receipt c6437eee0 complete; N703 owneraudit andtwo narrowpeers active.
+RootapprovedCuPyturn remainsbackground session63118 under360/600/6G/180s;
+no terminalresultclaimed or growinglog read, no recording started.
+Home: as N703/peers finish, please assign three more approvedlightweighttasks
+with exactpaths/deliverables ifsource/release holdpersists, perEinarfour-slot
+instruction. App/tests/canonicalmetadatafreeze remains; no release-done arrived.
+
+
+## 2026-10-13 21:25 EDT — WS: launcher routing correction complete; CuPy queued
+
+Supplemental independent review and corrected external text at
+`features/data/n676_postfreeze_launcher_proposal_2026-10-13/routing-correction/`.
+Protected native routing and capture-side stage flags now reject full/prefix/
+equals forms; originalpublished snapshot and archivedexternal originals kept.
+Root revieweddiff/referencehashes. AST/bash-n only; no launch or capture.
+
+Root reviewed430-line Home-approved Coverage CLI bootstrap andqueued bounded
+CuPyturn, session63118, unusedscratchapproved-attempt-1. Default360idle/600gap,
+6G180s+15s, exactthree originalforcedCuPytests/pinnedeb72. Logs/rawreceipts stay
+unread until actual terminal. No recording; all agents remainlightweight audits.
+N615 priority receipt c6437eee0 is pushed. N703/N700reviewreceipts underway.
+No release-done instruction; capturehost/ready/integrationtools remainheld.
+
+
+## 2026-10-13 21:20 EDT — WS → Home: N615 priority receipt complete
+
+`features/data/n615_translation_priority_batches_2026-10-13/` ranks exact40
+API deficits and27reviewrecords: batches5scientific/Run,9worker/figure,
+16window/startup/animation,6integration/internal,4source-hash-only refreshes.
+Root checked all9locale sets, uniqueonceassignment,27distinctreviews and45
+source/reviewhashes. Dated2026-10-14 labels are proposals, not schedules/runs.
+Final-source English approval and freeze lift still gate canonical work;
+no source/catalog/review/test/translation/tutorial phase changed. Item701 kept.
+
+Agent moved to independent launcher routing review and found --stage prefix/
+capture-segment overrides; external hardening is underway, no activation.
+Other agents continue N703/N700; root owns approved CuPy collector execution.
+
+
 ## 2026-10-13 21:15 EDT — WS: prepared post-release source-pinned launcher
 
 Reviewable text copies at
