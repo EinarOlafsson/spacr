@@ -1,0 +1,19 @@
+{
+  "src": "/laptop/data/plate1",
+  "pathogen_model_name": "/laptop/.spacr/models/cpsam_v2_toxo_r7",
+  "segmentation_backend": "cellpose",
+  "model_metadata": {
+    "schema_version": 1,
+    "settings": {
+      "pathogen_model_name": {
+        "requested_value": "/laptop/.spacr/models/cpsam_v2_toxo_r7",
+        "key": "example_synthetic_opaque_release",
+        "version": 1,
+        "version_status": "declared",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "kind": "cellpose",
+        "filename": "synthetic_weights.bin"
+      }
+    }
+  }
+}

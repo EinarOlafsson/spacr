@@ -1,0 +1,110 @@
+[
+  {
+    "file": "fixtures/valid_missing_builtin_unspecified_version.json",
+    "expected": "accept_pin",
+    "scope": "structural_and_binding",
+    "reason": "Current built-in has exact key/name/kind/hash and no declared version; no real weights are present in this evidence."
+  },
+  {
+    "file": "fixtures/valid_synthetic_declared_opaque_version.json",
+    "expected": "accept_structure_and_binding",
+    "scope": "structural_and_binding",
+    "reason": "Synthetic trusted-catalogue example only, not a real downloadable model; version 01 is not version 1 and the all-digit hash must remain text."
+  },
+  {
+    "file": "fixtures/valid_windows_request.json",
+    "expected": "accept_pin",
+    "scope": "structural_and_binding",
+    "reason": "Exact request binding survives lexical Windows path preservation; native mapping is unproved."
+  },
+  {
+    "file": "fixtures/valid_legacy_without_metadata.json",
+    "expected": "legacy_unpinned",
+    "scope": "structural_and_binding",
+    "reason": "No historical identity claimed; exact-basename selection remains conditional on unique trusted current catalogue."
+  },
+  {
+    "file": "fixtures/invalid_ambiguous_normalized_version.json",
+    "expected": "reject",
+    "scope": "structural_and_binding",
+    "reason": "Recorded normalized version 1 lacks declaration/default provenance; do not infer a publisher release."
+  },
+  {
+    "file": "fixtures/invalid_numeric_version.json",
+    "expected": "reject",
+    "scope": "structural_and_binding",
+    "reason": "Versions must remain opaque declared strings."
+  },
+  {
+    "file": "fixtures/invalid_unspecified_nonnull_version.json",
+    "expected": "reject",
+    "scope": "structural_and_binding",
+    "reason": "Unspecified version requires null."
+  },
+  {
+    "file": "fixtures/invalid_unknown_schema.json",
+    "expected": "reject",
+    "scope": "structural_and_binding",
+    "reason": "Unknown metadata schemas fail explicitly."
+  },
+  {
+    "file": "fixtures/invalid_malformed_hash.json",
+    "expected": "reject",
+    "scope": "structural_and_binding",
+    "reason": "Hash must be 64 lowercase hex characters."
+  },
+  {
+    "file": "fixtures/invalid_stale_requested_value.json",
+    "expected": "reject",
+    "scope": "relational",
+    "reason": "Metadata cannot stay bound to a former model after a file edit."
+  },
+  {
+    "file": "fixtures/invalid_wrong_consumer_kind.json",
+    "expected": "reject",
+    "scope": "relational",
+    "reason": "Structurally valid metadata is semantically incompatible with the active Cellpose consumer."
+  },
+  {
+    "file": "fixtures/invalid_conflicting_builtin_hash.json",
+    "expected": "reject",
+    "scope": "relational",
+    "reason": "Structurally valid pin contradicts the pinned trusted built-in row."
+  },
+  {
+    "file": "fixtures/invalid_cache_suffix_as_published_name.json",
+    "expected": "reject",
+    "scope": "relational",
+    "reason": "A collision suffix is not the published catalogue name or a release version."
+  },
+  {
+    "file": "fixtures/valid_missing_builtin_unspecified_version.csv",
+    "expected": "literal_csv_matches_sibling_metadata",
+    "scope": "stdlib_syntax_only",
+    "reason": "CSV quoting and literal structure were checked; production parsers were not run."
+  },
+  {
+    "file": "fixtures/valid_synthetic_declared_opaque_version.csv",
+    "expected": "literal_csv_matches_sibling_metadata",
+    "scope": "stdlib_syntax_only",
+    "reason": "CSV quoting and literal structure were checked; production parsers were not run."
+  },
+  {
+    "file": "fixtures/valid_windows_request.csv",
+    "expected": "literal_csv_matches_sibling_metadata",
+    "scope": "stdlib_syntax_only",
+    "reason": "CSV quoting and literal structure were checked; production parsers were not run."
+  },
+  {
+    "file": "fixtures/valid_synthetic_declared_001.json",
+    "expected": "accept_structure_and_binding",
+    "scope": "structural_and_binding",
+    "reason": "Requested static version 001 and all-digit hash witness; synthetic, no real model."
+  },
+  {
+    "file": "fixtures/valid_synthetic_declared_001.csv",
+    "expected": "literal_csv_matches_sibling_metadata",
+    "scope": "stdlib_syntax_only",
+    "reason": "Version 001 and 64-digit SHA256 remain strings inside already-parsed nested dictionaries."
+  }
+]

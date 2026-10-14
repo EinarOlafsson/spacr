@@ -124,3 +124,23 @@ Work review progress — 2026-10-14 08:23 EDT
 Bound progress: features/data/ws_task_uptake_2026-10-14/review-progress.json.
 No production parser/provider/installer/native acceptance, app/catalog/capture
 clearance or parent feature completion is claimed.
+
+
+Work completed preparation — 2026-10-14 08:42 EDT
+
+| Preparation | Status | Evidence and remaining boundaries |
+|---|---|---|
+| N702 model-reference schema | Completed and reviewed preparation | 25 A744 sources, 51 excerpts, 18 static fixtures, 151 mechanical checks; corrected design and peers delivered. Home policy, implementation and native acceptance remain open. |
+
+Evidence: features/data/702_work_model_reference_schema_2026-10-14/. Original
+parent N702 completion percentage is unchanged; no app or canonical change.
+
+
+Work completed preparation — 2026-10-14 08:47 EDT
+
+| Preparation | Status | Evidence and remaining boundaries |
+|---|---|---|
+| GitHub #147 provider protocol | Completed and reviewed preparation | Six rows, ten A744 source/test bindings, official references, original/corrected packets and two peer receipts. Supported executable versions, GUI adapters, macOS reproduction and native cancellation acceptance remain open. |
+
+Evidence: features/data/147_work_provider_approval_protocol_2026-10-14/.
+Parent #147 implementation is unchanged; no provider/auth session or grant.

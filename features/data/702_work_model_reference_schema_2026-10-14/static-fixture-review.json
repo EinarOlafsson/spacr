@@ -1,0 +1,111 @@
+{
+  "scope": "stdlib_artifact_check_only_not_app_tests",
+  "full_json_schema_implementation_used": false,
+  "keywords_checked": [
+    "type",
+    "required",
+    "properties",
+    "additionalProperties",
+    "propertyNames",
+    "const",
+    "enum",
+    "minLength",
+    "pattern",
+    "oneOf",
+    "$ref"
+  ],
+  "all_expected_structural_results_match": true,
+  "checks": [
+    {
+      "file": "fixtures/valid_missing_builtin_unspecified_version.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/valid_synthetic_declared_opaque_version.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/valid_windows_request.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/valid_legacy_without_metadata.json",
+      "legacy_metadata_absent": true
+    },
+    {
+      "file": "fixtures/invalid_ambiguous_normalized_version.json",
+      "structural_conformance": false,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_numeric_version.json",
+      "structural_conformance": false,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_unspecified_nonnull_version.json",
+      "structural_conformance": false,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_unknown_schema.json",
+      "structural_conformance": false,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_malformed_hash.json",
+      "structural_conformance": false,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_stale_requested_value.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_wrong_consumer_kind.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_conflicting_builtin_hash.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/invalid_cache_suffix_as_published_name.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/valid_missing_builtin_unspecified_version.csv",
+      "static_csv_json_metadata_equal": true,
+      "production_parser_executed": false
+    },
+    {
+      "file": "fixtures/valid_synthetic_declared_opaque_version.csv",
+      "static_csv_json_metadata_equal": true,
+      "production_parser_executed": false
+    },
+    {
+      "file": "fixtures/valid_windows_request.csv",
+      "static_csv_json_metadata_equal": true,
+      "production_parser_executed": false
+    },
+    {
+      "file": "fixtures/valid_synthetic_declared_001.json",
+      "structural_conformance": true,
+      "relational_acceptance_executed": false
+    },
+    {
+      "file": "fixtures/valid_synthetic_declared_001.csv",
+      "static_csv_json_metadata_equal": true,
+      "production_parser_executed": false
+    }
+  ],
+  "relational_cases_remain_future_acceptance_proposals": true,
+  "app_imports_or_source_execution": false
+}

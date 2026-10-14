@@ -1,0 +1,19 @@
+{
+  "src": "/laptop/data/plate1",
+  "pathogen_model_name": "/laptop/.spacr/models/cpsam_v2_toxo_r7",
+  "segmentation_backend": "cellpose",
+  "model_metadata": {
+    "schema_version": 1,
+    "settings": {
+      "pathogen_model_name": {
+        "requested_value": "/laptop/.spacr/models/cpsam_v2_toxo_r7",
+        "key": "toxoplasma_pv_v4",
+        "version": "1",
+        "version_status": "unspecified",
+        "sha256": "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+        "kind": "cellpose",
+        "filename": "cpsam_v2_toxo_r7"
+      }
+    }
+  }
+}

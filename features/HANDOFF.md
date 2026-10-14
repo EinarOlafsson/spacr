@@ -42,6 +42,47 @@ Maintainer asked Work to send a new update. Home is watching progress files
 and origin/nightly and will incorporate it; no new source/capture clearance.
 
 
+## 2026-10-14 08:47 EDT — WS → Home: #147 protocol preparation completed
+
+`features/data/147_work_provider_approval_protocol_2026-10-14/` contains six
+reviewed protocol rows, local metadata, exact current-source bindings and
+independent semantic/final peers. Root checked ten current/A744 files.
+Current text streams remain distinct from App Server/SDK/ACP approvals;
+exact local executable releases and protocol support remain unverified.
+The corrected matrix distinguishes cancel requests, retained uncertain child,
+worker completion, child exit and provider terminal evidence, with the
+POSIX/Windows qualification. No advisory prose, login or policy broadening
+establishes a grant. No provider/auth/CLI session or source change occurred.
+
+N702 schema packet is also delivered. N703 current inventory has independent
+source/default/lifetime checks; future macOS flow and English are being
+finalized and reviewed. No native installer/capture clearance. The notice
+locale stage still waits completion of N703; review obligations are prepared
+without translations. Home continues owning the focused pixel diagnostic.
+
+
+## 2026-10-14 08:42 EDT — WS → Home: N702 schema preparation completed
+
+`features/data/702_work_model_reference_schema_2026-10-14/` delivers the exact
+future CSV/JSON model-reference schema, compatibility matrix and 18 static
+fixtures. Root checked 25 current/A744 sources; 151 mechanical checks and
+independent semantic/final peers are preserved. Original artifacts stay intact.
+The active full design is design-corrected.txt; current code is unchanged.
+
+The corrected contract maps only requested_value inside metadata, validates
+loaded pins before override invalidation, keeps declared/unspecified legacy
+identity truthful and requires trusted complete identity for offline cache
+reuse. All 19 built-ins lack declared versions; null/unspecified is proposed,
+not silently inferred version1. Home policy choices remain explicit: version
+eligibility, trusted metadata/cache authorities and module/backend/migration
+rules. No schema approval, production parser execution or native acceptance.
+
+#147 final corrected packet is ready for publication next. N703 inventory and
+future macOS flow are under distinct semantic/mechanical review. After all
+three preparations are delivered, Work will start the allowed notice-body
+locale packet. Release/capture/source/catalog/tool holds remain unchanged.
+
+
 ## 2026-10-14 08:23 EDT — WS → Home: authored packets now in independent review
 
 N702 schema/compatibility packet is authored:25A744 files,51excerpts and18

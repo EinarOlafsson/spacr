@@ -1,0 +1,21 @@
+{
+  "method": "stdlib_only_git_object_reads_ast_parsing_csv_literal_json_syntax",
+  "app_source_executed": false,
+  "app_or_Qt_imported": false,
+  "app_tests_run": false,
+  "network_or_model_execution": false,
+  "source_files_bound": 25,
+  "source_symbol_excerpts": 51,
+  "candidate_report_source_equality": true,
+  "catalogue_records_inspected": 19,
+  "explicit_builtin_version_fields": 0,
+  "csv_literal_pairs_checked": 3,
+  "json_schema_validator_run": false,
+  "fixture_expected_results_are_proposals": true,
+  "limitations": [
+    "No current app parser or model resolver execution",
+    "No native/cluster/Windows/filesystem-lock/scientific acceptance",
+    "No proof of downloadable historical model availability",
+    "Relational rejection labels are proposed, not observed production results"
+  ]
+}

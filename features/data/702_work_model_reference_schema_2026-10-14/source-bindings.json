@@ -1,0 +1,283 @@
+{
+  "state": "source_only_preparatory",
+  "candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "initial_report_head": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+  "source_bindings": [
+    {
+      "path": "spacr/cli.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "2e1152bc617993ea614411c748c5f1b332f7356f",
+      "sha256": "1c582d8d550ed053c3a798c2b63909dbd0e1fe6bfa872568b90f4ef49fa11969",
+      "bytes": 95368,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/tabular.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "e0e25a87c0f9a380ff18c989394047ef0c351838",
+      "sha256": "bef3e21199bf49dc54b140103549bbb25bcda6b6ca6909d2f2a9a0af3d82836a",
+      "bytes": 54215,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/utils.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "4bb2eb9ff3683971b0180aef3d2b2dd88e28a068",
+      "sha256": "d4a8cb44069c7e1ab9cc98d55b948fa1f84b0a015e0c77b3a1139524d715af5d",
+      "bytes": 467263,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "bytes": 590758,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/qt/screens/settings_model.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "6a5f82a594e45722e294ab5385d422d2068910fe",
+      "sha256": "2ab88fa13e51e564672ce6c2e746301d94d62ef93d5b31d66f03d98e0957ea4c",
+      "bytes": 570330,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/qt/screens/distributed_jobs.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "6c3c8b2e85400aa7c8c7d55aab56390036560a3b",
+      "sha256": "5166e1120b441b88505eaa570c33a0710fe88c1b8728bbf669f4d9def7bd2463",
+      "bytes": 45480,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/validate.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "2e9697bf48e43404c3bd71e10d3d60110ac47691",
+      "sha256": "a606ce2ce2bad7f0fb332cf84072075b83fa6c9d9f4dcf217ec68383e4789710",
+      "bytes": 109170,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "1e5ad076d89b692edb27b75f064846f7b61e5782",
+      "sha256": "37604c621694769fdad5c8f41dd98054b3f2c90f45ebbfd9cbdfe71015425456",
+      "bytes": 57445,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/batch.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "5e186fa3361f47d25bf331c93741ce26c994940c",
+      "sha256": "e862d2b9a27003529158036f709aef115017616753709f5f7890c9ed2e246350",
+      "bytes": 74963,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "6cae5241914579ab1ab0f08a3d2ae5ecb5d7db5f",
+      "sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55",
+      "bytes": 229147,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/submodules.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "4e3140e73857b5de7ba41a129e57e6a67f94e657",
+      "sha256": "d4984f92427dee45029790ba251e439bba5f219d9b96cfd4365e2d7b6d012799",
+      "bytes": 280408,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/torch_artifacts.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "5f7aad2f7ae8db78bd715ab0ef76ca2679ffa357",
+      "sha256": "fbcc9c0ecd231182a38980f1d7a81eef00b1d0250775495d7eb4738f4dfde38a",
+      "bytes": 14589,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/object_classifier.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "278003ea2038e2f18eeeea0b7b6325a33d30df78",
+      "sha256": "395dd6339b7259359727cecdc5fa31fd5d6f1be0357670f11a2d5d3c376275c8",
+      "bytes": 35530,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/plaque_papers.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "cb440ee14100578111c034d39d79c35de1ff4af9",
+      "sha256": "7b7832c48ee13564c07a3dbc259c80985b181617879ded4d24489dc5abd05663",
+      "bytes": 144811,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/run_journal.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "23157834af77863c6e071708377ce821db3e8e8a",
+      "sha256": "7a3423a70335c04efa4872159742c67a17ac890027607af86e3330a70451377d",
+      "bytes": 169921,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/settings.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "03e1a29040052c3fbdfa62234bd895be1e287aee",
+      "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+      "bytes": 648601,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/object.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "4c48b4df563aaa8c373958c7b91defa8b1bd755e",
+      "sha256": "f81c4c8aa9db97912b2236799eec91ff0e6d02948ffc26e6683e28fd40fbf4ca",
+      "bytes": 141957,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/deep_spacr.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "c96f9db05cea28ea544143926442934a69064411",
+      "sha256": "1df4fef8644e35356f0586bff6e746e505af50c88104754b16065000237c0f79",
+      "bytes": 210628,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/_segmentation_backends.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "63fb9f0af318b8582704bd27d768e2acbd5797c1",
+      "sha256": "a040c8cbf832ab08097c7e7e3325bcc36fd6b06ce00ff363299097c19b678a21",
+      "bytes": 282134,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "docs/source/distributed_execution.rst",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "0bb6dbd8c14aacb3921605e736a62c2fce618922",
+      "sha256": "1970234da032bbcef03590c3c9c8f43065da7a8531b06c18a16b791f3d0653f0",
+      "bytes": 6353,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "tests/test_n693_write_settings_file.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "1be515c4814bacefb714b999e5959fa5e86c2588",
+      "sha256": "e60668efbfc287f7e9d269e14edbbcdf49e621471d573858b7d4993329936bd0",
+      "bytes": 2640,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "tests/qt/test_n693_export_settings_from_every_form.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "ca5a4298b8aedbffa132dee36518c7e14fceec80",
+      "sha256": "765055712eae9da364be52a38ee8979857f5147a79a89bed422b6edee975a869",
+      "bytes": 14201,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "tests/qt/test_n693_distributed_jobs_saves_the_snapshot.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "f213fbbfddbc4d9f6cf4185a6a9647fdf383e91e",
+      "sha256": "adce680ef68e42ede63f602108d91bb28ce8cc4ba08d0bedd0d9fd9a8ef015a4",
+      "bytes": 3775,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "tests/test_missing_model_downloads.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "f4b71fcdbae44117b3f2746098550b155f894624",
+      "sha256": "04d448e9337ea79aba204f5238481958191143160780357663119da77e4da2d3",
+      "bytes": 7838,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "tests/test_model_zoo_shared_catalogue.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "0a41a0c3638b1729d7216669d0c481400e15a7a7",
+      "sha256": "a395425806aa520010d6beca5b1d167826fb674eaa85cc0ccf34b2f652b30ea6",
+      "bytes": 10561,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    }
+  ],
+  "instruction_prior_audit_bindings": [
+    {
+      "path": "AGENTS.md",
+      "revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "git_blob": "224c5abf7c2c3c5294e5cdf36f143298525c3416",
+      "sha256": "9489ee1e0275262fbd2664689e13f94c8480713601bea1271df0becd3fad0636",
+      "bytes": 2504
+    },
+    {
+      "path": "features/HANDOFF.md",
+      "revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "git_blob": "a687ccd1b5dbef475d2413e797bb0bf533b7536d",
+      "sha256": "b80936a81aa5903fe2ef58c0d9f49d972f88184beeae519fb6c7d4fdb3eed74e",
+      "bytes": 729882
+    },
+    {
+      "path": "features/HANDOFF_2026-10-13_claude_home_to_codex.md",
+      "revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "git_blob": "1503cd98d87397849c400b1a2dcab0d4e44a62ab",
+      "sha256": "f3a22d45e959e43777701b2707c2fab3f055126c2e4527667d171fbf9132143d",
+      "bytes": 9116
+    },
+    {
+      "path": "features/new/702_cluster_runs_download_a_missing_zoo_model_automatically.txt",
+      "revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "git_blob": "5bf78a3b4d1ca08dc813ad4b500dd8a36eb6bdf8",
+      "sha256": "0b034610b68b403a26ddba985a32fa65f46383c268c67df4de03ec6897f63841",
+      "bytes": 5647
+    },
+    {
+      "path": "features/new/693_export_settings_from_every_form.txt",
+      "revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "git_blob": "438f9cb684c3701fd50bef2568d43d09360abf78",
+      "sha256": "96c5923f15d2dc9c3116b3d4d884682cc0998bc8cffb5f6bcfd83528d6b2096e",
+      "bytes": 4001
+    },
+    {
+      "path": "features/data/702_missing_model_source_audit_2026-10-13/audit.json",
+      "revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "git_blob": "6dcde850c816f9ed604f13b4937cf024f78f6887",
+      "sha256": "059942c492ef598e40c066fb498b80d00479e453951175ad80296a9e88cd067e",
+      "bytes": 50641
+    },
+    {
+      "path": "features/data/702_missing_model_source_audit_2026-10-13/root-source-binding-check.json",
+      "revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "git_blob": "d769655809e2beb88d95ba037b90479decfe2643",
+      "sha256": "e9a759f870ace785834f7940c7f029f58682e39a8964d6e7dd63532214131bd0",
+      "bytes": 89
+    }
+  ]
+}
