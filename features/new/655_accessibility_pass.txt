@@ -147,3 +147,19 @@ WHAT IS LEFT
   switch defects; native screen-reader speech, macOS/Windows acceptance and
   the Work-owned Appearance tutorial refresh remain separate open scope.
   Proof: data/655_toggle_focus_motion_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B model-card keyboard access repaired
+  The Qt model-card viewer's Previous/Next buttons now participate in native
+  Tab order and activate with Space. Return, numeric Enter and Space enlarge
+  the current page when the viewer itself owns focus; modifier combinations
+  and events from its child buttons do not open an unintended dialog. Existing
+  empty-card and enlarged-viewer guards prevent empty or recursive dialogs.
+  Keyboard focus has a visible frame border, and QAccessible receives the
+  current model display name, updated on selection and cleared with the card.
+  Existing translated captions and API docstrings/signatures are unchanged.
+  Ten new owning cases:6FAIL4PASS before, all10PASS after. Full scoped model-card
+  cohort46PASS12.87s on Qt6.12/Python3.12.13, Linux/offscreen/6G/CUDA hidden;
+  the whole changed module reached204/204statements and34/34branch arcs.
+  This closes these concrete viewer access gaps, not native reader speech,
+  macOS/Windows acceptance or the Work-owned tutorial refresh.
+  Proof: data/655_model_card_keyboard_2026-10-14/receipt.json.
