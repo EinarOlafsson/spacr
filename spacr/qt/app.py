@@ -3045,7 +3045,8 @@ class MainWindow(QMainWindow):
             from PySide6.QtCore import QTimer
 
             from .first_run import maybe_show_tour
-            from .install_consent import maybe_show_installer_consent
+            from .install_consent import (maybe_show_anonymous_report_notice,
+                                          maybe_show_installer_consent)
             from .preferences import in_safe_mode
             self._tour_timer = QTimer(self)
             self._tour_timer.setSingleShot(True)
@@ -3056,9 +3057,18 @@ class MainWindow(QMainWindow):
             self._consent_timer.setSingleShot(True)
 
             def _finish_installer_onboarding():
-                """Show the installer consent, then start the tour after it closes."""
+                """Show the installer consent and the report notice, then the tour.
+
+                The anonymised-report notice is not modal, so the tour waits
+                for it to close rather than opening over it.
+                """
                 maybe_show_installer_consent(self)
-                self._tour_timer.start(500)
+                notice = maybe_show_anonymous_report_notice(self)
+                if notice is None:
+                    self._tour_timer.start(500)
+                else:
+                    notice.finished.connect(
+                        lambda _result: self._tour_timer.start(500))
 
             self._consent_timer.timeout.connect(
                 lambda: self._after_the_startup_sequence(

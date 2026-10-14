@@ -1,9 +1,14 @@
-"""Apply privacy and account choices collected by desktop installation."""
+"""Apply privacy and account choices collected by desktop installation.
+
+Also the one-time notice that anonymised error reports are on by default
+(:func:`maybe_show_anonymous_report_notice`) and the example of what such a
+report holds (:class:`AnonymousReportExampleDialog`).
+"""
 from __future__ import annotations
 
 from typing import Any, Mapping, Optional
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -178,3 +183,166 @@ def maybe_show_installer_consent(parent) -> bool:
     if sign_in:
         _open_account_setup(parent)
     return True
+
+
+class AnonymousReportExampleDialog(QDialog):
+    """Show exactly what an anonymised error report holds, with an example.
+
+    The example is built by :func:`spacr.crashreport.example_public_summary`
+    from a made-up error whose message names a file under the home folder,
+    an e-mail address and a token, so the dialog shows each one removed.
+
+    :param parent: parent widget.
+    """
+
+    def __init__(self, parent=None):
+        """Build the explanation, the example and a Close button.
+
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        import json
+
+        from PySide6.QtWidgets import QPlainTextEdit
+
+        from .. import crashreport
+        from .preferences import scaled_px
+
+        self.setObjectName("AnonymousReportExample")
+        self.setWindowTitle(tr("What an anonymised error report holds"))
+        self.setMinimumWidth(scaled_px(560))
+        layout = QVBoxLayout(self)
+        explanation = QLabel(tr(
+            "Each report is a public GitHub issue on EinarOlafsson/spacr, "
+            "filed by spaCR's relay, so you need no GitHub account. It holds "
+            "only the fields below. The message is scrubbed of paths, file "
+            "names, user and host names, e-mail and IP addresses and tokens, "
+            "and the call stack names files without their folders. Logs, "
+            "settings, environment variables and images are never sent. The "
+            "random install id is not derived from this computer; it only "
+            "lets the relay share its free allowance fairly. Below is the "
+            "report spaCR would send for a made-up error."
+        ))
+        explanation.setWordWrap(True)
+        explanation.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        layout.addWidget(explanation)
+        try:
+            example = json.dumps(crashreport.example_public_summary(),
+                                 indent=2, ensure_ascii=False)
+        except Exception as exc:
+            example = f"{type(exc).__name__}: {exc}"
+        self.example = QPlainTextEdit(example)
+        self.example.setObjectName("AnonymousReportExampleText")
+        self.example.setReadOnly(True)
+        self.example.setMinimumHeight(scaled_px(260))
+        layout.addWidget(self.example)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(self.reject)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(buttons)
+
+
+class AnonymousReportNotice(QDialog):
+    """The one-time notice that anonymised error reports are on by default.
+
+    Not modal: it never stands between the user and the window. Closing it
+    saves the switch as it is then.
+
+    :param parent: parent widget.
+    """
+
+    def __init__(self, parent=None):
+        """Build the notice, its switch and its two buttons.
+
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        from .. import crashreport
+        from .preferences import scaled_px
+
+        self.setObjectName("AnonymousReportNotice")
+        self.setWindowTitle(tr("Anonymised error reports"))
+        self.setMinimumWidth(scaled_px(520))
+        self.setModal(False)
+        layout = QVBoxLayout(self)
+        explanation = QLabel(tr(
+            "spaCR sends an anonymised summary when a run fails or spaCR "
+            "crashes, so problems get fixed without you having to report "
+            "them. This is on by default. The summary holds versions, the "
+            "operating system, the GPU type, the module, the error type, a "
+            "scrubbed message and the call stack without paths. It goes "
+            "through spaCR's relay to a public GitHub issue on "
+            "EinarOlafsson/spacr, up to {reports} reports a day. Each report "
+            "includes an AI-written summary of the likely cause, made with "
+            "your own AI when one is connected. You can turn it off here or "
+            "at any time in Preferences.\n\n"
+            "spaCR AI is free with no account: {best} questions a day on the "
+            "best model, then {light} more on a light model. Connect your own "
+            "Claude, Codex or Gemini CLI for unlimited use.",
+            reports=crashreport.REPORTS_PER_DAY,
+            best=crashreport.AI_BEST_PER_DAY,
+            light=crashreport.AI_LIGHT_PER_DAY,
+        ))
+        explanation.setWordWrap(True)
+        explanation.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        layout.addWidget(explanation)
+        self.send_reports = Toggle(tr("Send anonymised error reports"))
+        self.send_reports.setObjectName("AnonymousReportsNoticeToggle")
+        self.send_reports.setChecked(crashreport.anonymous_reports_enabled())
+        layout.addWidget(self.send_reports)
+        buttons = QDialogButtonBox()
+        what = buttons.addButton(tr("What is sent…"),
+                                 QDialogButtonBox.HelpRole)
+        done = buttons.addButton(tr("OK"), QDialogButtonBox.AcceptRole)
+        what.clicked.connect(
+            lambda: AnonymousReportExampleDialog(self).exec())
+        done.clicked.connect(self.accept)
+        layout.addWidget(buttons)
+        self.finished.connect(self._save_choice)
+
+    def _save_choice(self, _result: int = 0) -> None:
+        """Save the switch as it stands when the notice closes.
+
+        :param _result: the dialog result; the switch decides, not the
+            button.
+        """
+        from .. import crashreport
+
+        try:
+            crashreport.set_anonymous_reports_enabled(
+                self.send_reports.isChecked())
+        except OSError:
+            pass
+
+
+def maybe_show_anonymous_report_notice(parent) -> Optional[QDialog]:
+    """Show the anonymised-report notice once per profile, without blocking.
+
+    Nothing is shown while the network is forbidden
+    (:func:`spacr.crashreport.network_allowed`), since no report could be
+    sent; the notice then waits for a start that allows it. Waiting reports
+    are also given another try, on a background thread.
+
+    :param parent: the window that parents the notice.
+    :returns: the notice, already showing, or ``None`` when it was not due.
+    """
+    import threading
+
+    from .. import crashreport
+
+    try:
+        if not crashreport.network_allowed():
+            return None
+        if crashreport.anonymous_reports_enabled() and \
+                crashreport.queued_summaries():
+            threading.Thread(target=crashreport.flush_report_queue,
+                             name="spacr-report-queue", daemon=True).start()
+        if not crashreport.anonymous_report_notice_due():
+            return None
+        crashreport.mark_anonymous_report_notice_shown()
+    except OSError:
+        return None
+    notice = AnonymousReportNotice(parent)
+    notice.setAttribute(Qt.WA_DeleteOnClose, True)
+    notice.show()
+    return notice

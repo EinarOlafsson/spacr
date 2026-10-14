@@ -1182,6 +1182,12 @@ class ConsolePanel(QWidget):
         row.addWidget(self._input, 1)
         self._split.addWidget(input_row)
 
+        self._hosted_allowance = QLabel()
+        self._hosted_allowance.setObjectName("HostedAiAllowance")
+        self._hosted_allowance.setWordWrap(True)
+        self._hosted_allowance.setVisible(False)
+        box_lay.addWidget(self._hosted_allowance)
+
         self._split.setStretchFactor(0, 1)
         self._split.setStretchFactor(1, 0)
         self._apply_default_split()
@@ -1894,6 +1900,70 @@ class ConsolePanel(QWidget):
         :param provider_name: the provider's name, or None to unset it.
         """
         self._current_provider_name = provider_name
+        self.refresh_hosted_allowance()
+
+    def _hosted_is_current(self) -> bool:
+        """Whether the selected provider is spaCR's hosted one."""
+        from ..ai.providers import HOSTED_PROVIDER_NAME
+
+        return self._current_provider_name == HOSTED_PROVIDER_NAME
+
+    def refresh_hosted_allowance(self) -> None:
+        """Ask the relay, off the GUI thread, how many free questions are left.
+
+        Only while the hosted provider is selected; otherwise the allowance
+        line is hidden. The request runs on a plain thread that touches no
+        Qt object; a single-shot timer tied to this panel collects the answer
+        on the GUI thread and passes it to :meth:`_show_hosted_allowance`, so a
+        panel closed meanwhile simply never hears back.
+        """
+        if not self._hosted_is_current():
+            self._hosted_allowance.setVisible(False)
+            return
+        import threading
+
+        from PySide6.QtCore import QTimer
+
+        from ... import crashreport
+
+        box: dict = {}
+
+        def _fetch() -> None:
+            """Fetch the allowance into ``box``; touches no Qt object."""
+            try:
+                box["allowance"] = crashreport.fetch_allowance()
+            except Exception:
+                box["allowance"] = None
+
+        fetcher = threading.Thread(target=_fetch,
+                                   name="spacr-hosted-allowance", daemon=True)
+
+        def _collect() -> None:
+            """On the GUI thread: show the allowance once it has arrived."""
+            if "allowance" not in box and fetcher.is_alive():
+                QTimer.singleShot(100, self, _collect)
+                return
+            self._show_hosted_allowance(box.get("allowance"))
+
+        fetcher.start()
+        QTimer.singleShot(100, self, _collect)
+
+    def _show_hosted_allowance(self, allowance: object) -> None:
+        """Show the free hosted-AI allowance, and the own-CLI hint, above the chat.
+
+        :param allowance: what :func:`spacr.crashreport.fetch_allowance`
+            returned, or ``None`` when the relay did not say.
+        """
+        from ..ai.providers import hosted_allowance_text, hosted_cli_hint
+
+        if not self._hosted_is_current():
+            self._hosted_allowance.setVisible(False)
+            return
+        line = hosted_allowance_text(allowance if isinstance(allowance, dict)
+                                     else None)
+        hint = hosted_cli_hint()
+        self._hosted_allowance.setText(f"{line}\n{hint}" if line else hint)
+        self._hosted_allowance.setVisible(True)
 
     def _current_provider(self) -> Optional[ChatProvider]:
         """Resolve the selected AI provider.
@@ -2276,9 +2346,18 @@ class ConsolePanel(QWidget):
                 self.append_notice(
                     "(empty response — try again or switch provider)\n"
                 )
+            if self._hosted_is_current():
+                provider = self._current_provider()
+                allowance = getattr(provider, "last_allowance", None)
+                if allowance:
+                    self._show_hosted_allowance(allowance)
+                else:
+                    self.refresh_hosted_allowance()
         else:
             self.append_notice(
                 "[AI error] {detail}\n", detail=final_text)
+            if self._hosted_is_current():
+                self.refresh_hosted_allowance()
         if self._current_stdout is not None:
             self._current_stdout.append("\n")
         self._ai_buf = []

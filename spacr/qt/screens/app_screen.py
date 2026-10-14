@@ -9343,6 +9343,11 @@ class AppScreen(QWidget):
                 tb, self._settings_snapshot()):
             always = False
             self._report_is_a_settings_path = True
+        try:
+            self._anonymous_report_due = not self._is_a_settings_path_error(
+                tb, self._settings_snapshot())
+        except Exception:                                    # noqa: BLE001
+            self._anonymous_report_due = False
         agreed = always and self._the_terms_allow_automatic_filing()
         self._report_files_itself = agreed
         self._report_awaits_the_terms = always and not agreed
@@ -9475,6 +9480,10 @@ class AppScreen(QWidget):
 
         :param failed: whether the run that just ended failed.
         """
+        anonymous_due = getattr(self, "_anonymous_report_due", False)
+        self._anonymous_report_due = False
+        if failed and anonymous_due:
+            self._send_the_anonymous_report()
         files_itself = getattr(self, "_report_files_itself", False)
         awaits_the_terms = getattr(self, "_report_awaits_the_terms", False)
         self._report_files_itself = False
@@ -9500,6 +9509,123 @@ class AppScreen(QWidget):
                 "again…). To send this report now, press File as issue.\n")
             return
         self._say_the_report_was_not_sent(failed=failed)
+
+    def _send_the_anonymous_report(self) -> None:
+        """Send the failed run's anonymised summary, off the GUI thread.
+
+        Runs when "Send anonymised error reports" is on
+        (:func:`spacr.crashreport.anonymous_reports_enabled`) and the network
+        is allowed. Only :func:`spacr.crashreport.public_summary` of the
+        traceback leaves the computer, through spaCR's relay, so no GitHub
+        sign-in is needed; the GitHub report and its preview are unchanged
+        and still offered. A settings path error is not sent. The outcome is
+        one line in the console (:meth:`_on_anonymous_report_sent`).
+        """
+        from ... import crashreport
+
+        tb = getattr(self, "_last_error_text", "") or ""
+        if not tb:
+            return
+        try:
+            if not (crashreport.anonymous_reports_enabled()
+                    and crashreport.network_allowed()):
+                return
+        except Exception:                                    # noqa: BLE001
+            return
+        app_key = str(self.app_key or "")
+        provider = self._report_summary_provider()
+
+        def _send() -> dict:
+            """Build, summarise, queue and post the report. Off the GUI thread."""
+            from ..ai.providers import HOSTED_PROVIDER_NAME, with_ai_summary
+
+            wanted = ""
+            if provider is not None:
+                wanted = ("relay" if provider.name == HOSTED_PROVIDER_NAME
+                          else "client")
+            try:
+                summary = crashreport.public_summary(traceback_text=tb,
+                                                     module=app_key)
+                try:
+                    summary = with_ai_summary(summary, provider)
+                except Exception:         # noqa: BLE001 - the report goes anyway
+                    LOG.debug("no AI summary for the report", exc_info=True)
+                outcome = crashreport.submit_public_summary(summary)
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                outcome = {"status": crashreport.REPORT_QUEUED,
+                           "detail": f"{type(exc).__name__}: {exc}"}
+            outcome["ai_summary_wanted"] = wanted
+            return outcome
+
+        self._jobs.submit(_send, self._on_anonymous_report_sent)
+
+    def _report_summary_provider(self):
+        """The provider that writes a report's AI summary: the one in use.
+
+        The console's provider when one is selected, else the one
+        Preferences names (spaCR AI (free) by default). Read on the GUI
+        thread.
+
+        :returns: the provider, or ``None`` when no AI can answer.
+        """
+        try:
+            from ..ai.providers import default_provider
+            from ..preferences import get_preferred_provider
+
+            current = self._console._current_provider()
+            if current is not None:
+                return current
+            return default_provider(get_preferred_provider())
+        except Exception:                                    # noqa: BLE001
+            return None
+
+    def _on_anonymous_report_sent(self, outcome: dict) -> None:
+        """Say in one console line what became of the anonymised report.
+
+        :param outcome: what :func:`spacr.crashreport.submit_public_summary`
+            returned.
+        """
+        from ... import crashreport
+
+        outcome = dict(outcome or {})
+        status = outcome.get("status")
+        if status == crashreport.REPORT_SENT:
+            number = outcome.get("issue_number") or "?"
+            url = str(outcome.get("issue_url", "") or "")
+            if outcome.get("deduplicated"):
+                self._console.append_notice(
+                    "[report] Reported anonymously: this error already has "
+                    "issue #{number}, which now counts it again. {url}\n",
+                    number=number, url=url)
+            elif outcome.get("ai_summary_source") in ("client", "relay"):
+                self._console.append_notice(
+                    "[report] Reported as issue #{number} (with AI summary). "
+                    "{url}\n", number=number, url=url)
+            elif outcome.get("ai_summary_wanted") == "relay":
+                self._console.append_notice(
+                    "[report] Reported as issue #{number} (without AI "
+                    "summary: daily AI allowance used). {url}\n",
+                    number=number, url=url)
+            elif outcome.get("ai_summary_wanted") == "client":
+                self._console.append_notice(
+                    "[report] Reported as issue #{number} (without AI "
+                    "summary). {url}\n", number=number, url=url)
+            else:
+                self._console.append_notice(
+                    "[report] Reported anonymously as issue #{number}. "
+                    "{url}\n", number=number, url=url)
+        elif status == crashreport.REPORT_QUEUED and outcome.get("quota"):
+            self._console.append_notice(
+                "[report] Will report after the daily limit resets.\n")
+        elif status == crashreport.REPORT_QUEUED:
+            self._console.append_notice(
+                "[report] The anonymised report could not be sent now. "
+                "spaCR will retry later.\n")
+        elif status == crashreport.REPORT_DROPPED:
+            self._console.append_notice(
+                "[report] spaCR's relay did not accept the anonymised "
+                "report: {detail}\n",
+                detail=str(outcome.get("detail", "") or "unknown"))
 
     def _settings_snapshot(self) -> dict:
         """The settings form's current values, for a report.

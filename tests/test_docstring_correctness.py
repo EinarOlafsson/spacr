@@ -2555,6 +2555,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "mask_live_filter_debounce_api_arrivals_2026-10-13.json",
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
+                     "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json"):
@@ -4102,6 +4103,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in quit_additions} == quit_additions
     assert not quit_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **quit_additions}
+    # 2026-10-14: Item 700 client: anonymised error reports through spaCR's relay, the first-run notice and the hosted AI provider; one named contract.
+    client700_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text())
+    assert len(client700_additions) == 47
+    assert {key: docs[key] for key in client700_additions} == client700_additions
+    assert not client700_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **client700_additions}
     # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
     thread_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts" / "thread_retire_api_arrivals_2026-10-13.json").read_text())
@@ -4504,6 +4513,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "mask_live_filter_debounce_api_arrivals_2026-10-13.json",
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
+                     "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json"):
@@ -4546,6 +4556,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "mask_live_filter_debounce_api_arrivals_2026-10-13.json",
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
+                     "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json"):
