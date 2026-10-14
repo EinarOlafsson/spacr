@@ -1,0 +1,24 @@
+{
+  "queue_images": 8350,
+  "queue_image_bytes": 2165896859,
+  "queue_masks": 8351,
+  "queue_mask_bytes": 112045418,
+  "image_stem_collisions": 0,
+  "mask_stem_collisions": 0,
+  "counts": {
+    "exact_queue_image_path_present": 1637,
+    "exact_queue_mask_path_present": 1637,
+    "verdict_stems_present_current_images": 1637,
+    "verdict_stems_absent_current_images": 0,
+    "status_stems_present_current_images": 1295,
+    "status_stems_absent_current_images": 0,
+    "status_verdict_stem_intersection": 267,
+    "sidecar_count": 267
+  },
+  "verdict_image_path_parent_counts": {
+    "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup": 1637
+  },
+  "outside_queue_paths_are_lexical_only_not_filesystem_reads": true,
+  "full_file_hashing_pending": true,
+  "counts_are_independent_not_new_yesterday_totals": true
+}

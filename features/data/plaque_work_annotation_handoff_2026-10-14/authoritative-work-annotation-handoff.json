@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-14T13:15:06.040490+00:00",
+  "state": "authoritative_Work_saved_queue_identified_read_only_Home_transfer_not_performed",
+  "requested_and_actual_queue": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup",
+  "resolved_queue": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup",
+  "storage_context": {
+    "root_reported_mount": "local EXT4 /dev/nvme2n1 mounted at /media/carruthers/mnt1; not a mounted NAS source",
+    "independent_agent_mount_probe_performed": false,
+    "root_mount_artifact_bindings": [],
+    "NAS_or_Home_copy_identity_not_established": true
+  },
+  "authoritative_saved_ledgers": [
+    {
+      "role": "Keep/Discard expert verdicts keyed exact image path",
+      "path": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup/csv/keep_discard.csv",
+      "columns": [
+        "image path",
+        "mask path",
+        "object count",
+        "keep"
+      ],
+      "rows": 1637,
+      "unique_image_paths": 1637,
+      "keep_true": 437,
+      "keep_false": 1200,
+      "sha256": "cd14b2bdbf16417bf7223fcbfff1710650147d2315f80f4dd631ed0a847d6501",
+      "bytes": 577686,
+      "mtime_utc": "2026-10-13T20:56:40.086895+00:00",
+      "mtime_ns": 1791925000086895088
+    },
+    {
+      "role": "Independent queue resume state keyed stem",
+      "path": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup/curate_status.csv",
+      "columns": [
+        "stem",
+        "state",
+        "n_objects",
+        "updated"
+      ],
+      "rows": 1295,
+      "unique_stems": 1295,
+      "done": 1152,
+      "skip": 143,
+      "sha256": "d6354518b6fdd30b7ca30dcf8839378820f8d5093c262da97d3baf6d0087e88f",
+      "bytes": 112810,
+      "mtime_utc": "2026-10-13T20:56:40.048894+00:00",
+      "mtime_ns": 1791925000048894242
+    }
+  ],
+  "queue_identity": {
+    "current_images": 8350,
+    "mask_TIFFs": 8351,
+    "curation_JSON_sidecars": 267,
+    "withdrawn_images": 1,
+    "metadata_files": 12,
+    "all_current_images_have_mask_stems": true,
+    "all_verdict_image_and_mask_paths_current_and_exist": true,
+    "all_status_stems_current_and_exist": true,
+    "manifest_stems_exactly_match_current_images": true,
+    "sidecars_are_exact_status_verdict_intersection": true,
+    "content_set_sha256": "b48bb00dfe46d9433b2dafc15229fd322e971885e67d8230876e9682941f8d52",
+    "content_set_file": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/queue-content-set-identity.tsv",
+    "content_set_format": "UTF-8 sorted relative-path<TAB>file_sha256<LF>; all16981files; excludes filesystemmtime for cross-host byte comparison",
+    "file_byte_hashes_not_decoded_pixel_hashes": true
+  },
+  "saved_edits": {
+    "sidecars_with_nonempty_edits": 267,
+    "sidecar_schema_version": 1,
+    "total_recorded_edit_entries": 2812,
+    "includes_undo_history_so_not_net_edit_or_quality_count": true,
+    "mask_and_whole_sidecar_snapshots_preserved_together": true,
+    "current_mask_bytes_not_reconstructable_from_log_alone": true,
+    "private_snapshot_root": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/saved-file-snapshots"
+  },
+  "stability": {
+    "hashing_window_started_utc": "2026-10-14T13:09:25.620695+00:00",
+    "hashing_window_finished_utc": "2026-10-14T13:09:33.231359+00:00",
+    "saved_files_hashed_twice": 16981,
+    "stable_files": 16981,
+    "observed_added_removed_stat_changed_paths": 0,
+    "final_ledger_checks": [
+      {
+        "relative_path": "curate_status.csv",
+        "sha256": "d6354518b6fdd30b7ca30dcf8839378820f8d5093c262da97d3baf6d0087e88f",
+        "bytes": 112810,
+        "mtime_ns": 1791925000048894242,
+        "unchanged_since_initial_snapshot": true,
+        "stable_two_final_reads": true
+      },
+      {
+        "relative_path": "csv/keep_discard.csv",
+        "sha256": "cd14b2bdbf16417bf7223fcbfff1710650147d2315f80f4dd631ed0a847d6501",
+        "bytes": 577686,
+        "mtime_ns": 1791925000086895088,
+        "unchanged_since_initial_snapshot": true,
+        "stable_two_final_reads": true
+      }
+    ],
+    "global_quiescence_not_proved": true,
+    "unsaved_GUI_buffer_state_not_observed": true
+  },
+  "historical_vs_current": {
+    "README_and_build_summary_decided_1026_are_build_time_only": true,
+    "manifest_state_counts_697_done_49_skip_7604_pending_are_build_time_only": true,
+    "neither_is_current_verdict_ledger": true,
+    "new_yesterday_annotation_total_unproved_without_prior_bound_verdict_snapshot": true,
+    "old_Home_counts_or_same_path_not_used_to_infer_identity": true
+  },
+  "conflict_and_metadata_review": {
+    "duplicate_exact_image_path_verdict_keys": 0,
+    "identical_encoded_image_byte_groups": 0,
+    "keep_discard_conflicts_between_identical_encoded_image_files": 0,
+    "verdict_resume_state_are_different_actions_do_not_merge": true,
+    "saved_status_vs_screen_verdict_object_count_differences": 15,
+    "object_count_differences_are_advisory_source_lifetimes_not_verdict_conflicts": true,
+    "one_extra_mask_shares_stem_with_withdrawn_image_role_unproved": true,
+    "Home_or_NAS_expert_verdict_conflicts_not_compared": true
+  },
+  "safe_continuation_prerequisites_not_executed": [
+    "Keep Home annotation writes paused until source and target queue identities are independently verified. This saved snapshot alone cannot certify Home readiness.",
+    "The Work annotation owner must explicitly save any intended mask edits/judgments and close or pause the annotator; read-only evidence cannot inspect or flush dirty GUI buffers. Take a new bounded snapshot afterwards if saved bytes change; preserve this one.",
+    "Root/Home identify actual destination storage and existing queue/ledgers first, preserving every existing expert decision. Do not overwrite, blindly union ledgers or treat equal paths/mtime as equal content.",
+    "After explicit transfer authorization, stage a separate complete queue copy containing all images, masks, whole curation sidecars, both ledgers, withdrawn file and build provenance. Verify per-file content hashes and ledger hashes against the chosen saved source epoch before switching the active folder.",
+    "If destination paths differ, prepare a separate reviewed exact image/mask path mapping for the path-keyed verdict ledger; retain original ledger unchanged. Rebinding requires matching actual image and mask byte identities, preserving verdict and counts. Do not reconstruct pixels, infer labels from status or guess a merge.",
+    "Compare existing Home verdicts only on proven same image/mask version; report genuine differing judgments to the maintainer. Advisory object-count timing differences are preserved for review, not auto-corrected.",
+    "Only after byte verification, conflict handling and explicit source/destination selection should Home open the intended queue and continue. No transfer, rebasing, merge, deletion, annotation or runtime execution occurred in this handoff."
+  ],
+  "evidence_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/home-urgent-instruction.txt",
+      "sha256": "d8847dadd2ee183cc88d44faebc38dafa73f57a0322cf3af4d8d80d72233e695",
+      "bytes": 1179
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/root-folder-observation.json",
+      "sha256": "748e1b71a83499d3a2a52f53124ac0b3e10cc635e3100435e864a7d8f905926f",
+      "bytes": 2508
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/initial-ledger-snapshot.json",
+      "sha256": "459c601317b6962d717bd56ab26cafa8356e825112cddc5618dfba1ecd002e76",
+      "bytes": 11269
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/keep-discard-ledger-snapshot.json",
+      "sha256": "65d3854ca0a95ee89ee01679c3096bdf58246f920e563bf40c9b1ade987cf2ba",
+      "bytes": 974
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/ledger-filesystem-reconciliation-initial.json",
+      "sha256": "63a7d54431a07b5db13497c660b6a947e9a12c9983f7900658670150762be7bc",
+      "bytes": 867
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/ledger-semantic-cross-counts.json",
+      "sha256": "b46da29ec27f4bbe3673581b3c4cc21f52c9c087a161d376831e252c41096df8",
+      "bytes": 94028
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/saved-file-fingerprints.jsonl",
+      "sha256": "6ea62283a7a153da4e4eef5233ac6ab10885ea2cf8594681af2722cff0f779a7",
+      "bytes": 12404072
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/saved-files-stability-summary.json",
+      "sha256": "ffbe99ce6c01b198f1f1dbbc8ba5eb89f7e65b82efbff10f52730bad7c9eafb8",
+      "bytes": 2292
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/saved-sidecar-summary.json",
+      "sha256": "056d25151aaac33e318f4552eb411c0e3f1db422191c7f10d7d0f53212f3276e",
+      "bytes": 108396
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/identity-conflict-review.json",
+      "sha256": "16a0c56f9861d7f341e0b67736bac3e1a2fc04c466734e43b29b5d253d724484",
+      "bytes": 5613
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/queue-content-set-identity.tsv",
+      "sha256": "b48bb00dfe46d9433b2dafc15229fd322e971885e67d8230876e9682941f8d52",
+      "bytes": 2260578
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/plaque_annotation_handoff_20261014/source-ledger-semantics.json",
+      "sha256": "7aeca003c745298170114293eb8ee32b642548af31460df3503319e64b38c27d",
+      "bytes": 12105
+    }
+  ],
+  "actions": {
+    "queue_ledger_mask_image_writes": false,
+    "synchronization_or_merge": false,
+    "training_inference_GPU_or_display": false,
+    "application_source_or_shared_checkout_access": false,
+    "image_content_display_or_disclosure": false,
+    "read_only_filesystem_and_private_scratch_snapshots": true
+  }
+}

@@ -144,3 +144,17 @@ Work completed preparation — 2026-10-14 08:47 EDT
 
 Evidence: features/data/147_work_provider_approval_protocol_2026-10-14/.
 Parent #147 implementation is unchanged; no provider/auth session or grant.
+
+
+Work urgent annotation handoff — 2026-10-14 09:17 EDT
+
+| Work stream | Verified progress | Remaining |
+|---|---|---|
+| Plaque continuation | Saved Work queue identified on local NVMe;1,637 verdicts,1,295 resume entries;16,981 file identities delivered | Home comparison, saved quiet state, conflict/mapping checks and separately authorized synchronization |
+| N702 / #147 preparation | Reviewed packets pushed:60eac6b85 /3b02630a1 | Home policy/implementation/native acceptance |
+| N703 preparation | Inventory +13page future flow; two scoped corrections applied, final peers active | Final review and feature receipt push |
+| Tutorial remakes | Existing4/84;no new capture | Full release/final Workbench clearance, then20→43→24→26 |
+
+Evidence: features/data/plaque_work_annotation_handoff_2026-10-14/.
+Current counts are independent;none is a proved yesterday-only annotation total.
+Focused104-case CI success is not fullCI/release clearance.

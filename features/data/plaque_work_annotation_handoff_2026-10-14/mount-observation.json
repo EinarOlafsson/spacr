@@ -1,0 +1,22 @@
+{
+  "observed_utc": "2026-10-14T13:17:42.783039+00:00",
+  "queue_path": "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup",
+  "command": [
+    "findmnt",
+    "--json",
+    "--target",
+    "/media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup"
+  ],
+  "result": {
+    "filesystems": [
+      {
+        "target": "/media/carruthers/mnt1",
+        "source": "/dev/nvme2n1",
+        "fstype": "ext4",
+        "options": "rw,nosuid,nodev,relatime,errors=remount-ro"
+      }
+    ]
+  },
+  "local_device_not_NAS": true,
+  "read_only_observation": true
+}
