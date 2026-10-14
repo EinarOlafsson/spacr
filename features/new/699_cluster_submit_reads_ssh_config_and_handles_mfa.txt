@@ -73,3 +73,36 @@ Implementation batches include Windows/static Include precedence, brokered
 challenge/cancellation, capability-tested session reuse and staged Test
 connection. Actual Great Lakes acceptance needs maintainer-owned access/MFA.
 Implementation and acceptance remain OPEN after CI/release.
+
+2026-10-14 — Home implementation (private source; acceptance remains partial)
+Implemented explicit read-only SSH discovery from user/system config, bounded
+Includes, wildcard/default precedence, Windows USERPROFILE paths and public
+known-host suggestions. Discovery never invokes ssh -G or evaluates Match exec.
+The profile editor now imports editable host/user/port/key-path/jump metadata,
+provides a folder chooser, and tests hostname before Slurm sinfo in a worker.
+The opt-in persistent Paramiko transport verifies known host keys before any
+authentication, supports agent/private keys plus keyboard-interactive/password
+challenges and proxy/jump channels, and reuses authentication for job operations.
+MFA responses stay ephemeral; command JSON uses a distinct session channel.
+Denied authentication, cancelled prompts and command timeouts do not retry a
+submission automatically. Existing external-OpenSSH profiles retain their route.
+
+Validation: the finite owning cohort passed 118 cases (40.25 s). A subsequent
+39-case closure passed after adding key-plus-MFA partial-authentication handling
+and the normal runtime extractor contract. Four additional assignment-spacing
+cases passed after fixing optional whitespace around OpenSSH assignments.
+There are 124 distinct validated nodes across these finite runs. All SSH/transport/account behavior was
+injected: no Home SSH connection, private-key read or actual account login was
+performed. Native Windows/macOS and real cluster acceptance are still required;
+this entry does not claim that provider-specific authentication was exercised.
+New runtime text has 43 complete nine-locale AI technical review rows; the new
+API blocks also have exact-source AI reviews, not human/native-speaker signoff.
+Normal source-bound catalog/API generation and arrival contracts accompany the
+source delivery; unrelated owner text must not be silently retranslated.
+
+Normal generation closure: English API/runtime audits and all nine locale
+writers passed. The normal caption-arrival refresh passed with the immutable
+9,833 baseline unchanged (800 added, 24 changed, 137 retired source identities).
+The existing shared "Choose folder…" targets were retained in every language
+rather than overriding another caption review. Current hosted coverage and real
+SSH/native acceptance remain pending; historical raw coverage was not relabelled.

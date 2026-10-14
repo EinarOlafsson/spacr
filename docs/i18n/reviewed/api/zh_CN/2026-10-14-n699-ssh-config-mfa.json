@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.remote_execution.ExecutionProfile#17",
+      "source": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+      "source_sha256": "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+      "context": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+      "translation": "不含秘密信息的 SSH 配置覆盖值，例如用户、端口、身份文件路径和跳板主机；禁止包含密码或一次性验证码（OTP）。",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves non-secret metadata, forbidden password/OTP persistence, verified persistent transport, GUI keyboard-interactive prompts and hostname-before-Slurm worker ordering. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.remote_execution.ExecutionProfile#18",
+      "source": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+      "source_sha256": "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa",
+      "context": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+      "translation": "使用已验证的持久 SSH 会话，通过图形界面（GUI）显示键盘交互提示，而不是调用外部 OpenSSH 命令。",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves non-secret metadata, forbidden password/OTP persistence, verified persistent transport, GUI keyboard-interactive prompts and hostname-before-Slurm worker ordering. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation#0",
+      "source": "Check the remote hostname before querying Slurm on the worker thread.",
+      "source_sha256": "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c",
+      "context": "Check the remote hostname before querying Slurm on the background execution unit.",
+      "translation": "在工作线程查询 Slurm 之前，先检查远程主机名。",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves non-secret metadata, forbidden password/OTP persistence, verified persistent transport, GUI keyboard-interactive prompts and hostname-before-Slurm worker ordering. No human/native-speaker signoff."
+    }
+  ]
+}

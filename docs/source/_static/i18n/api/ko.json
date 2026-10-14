@@ -101068,6 +101068,16 @@
         "5abf6222730d5ef2064852e4237f3c3a4df3f6e5be986773e1bbe61dc05d1281"
       ]
     },
+    "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+      "source_blocks_sha256": [
+        "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c"
+      ],
+      "source_sha256": "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c",
+      "text": "작업 스레드에서 Slurm을 조회하기 전에 원격 호스트 이름을 확인합니다.",
+      "translation_source_blocks_sha256": [
+        "37f614e6dce3acd3fc1cf1e40e6bf1177a0c111ef875c618dc8200f70f092ea5"
+      ]
+    },
     "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog.profile": {
       "source_blocks_sha256": [
         "9a4a08fa9349aef36a14f5c50f539a26b4a88027da9c8e4201de9a849786cf42"
@@ -181928,10 +181938,12 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ],
-      "source_sha256": "f5545f77f4952c853239d68997a3d7bc2968cfd865933c87064616550eb55d78",
-      "text": "연결 및 한 실행 목표에 대한 일정 설정.\n\n``local_root`` 및 ``remote_root``은 동일한 공유 또는 거울 데이터 세트를 설명합니다. 설정에 삽입 된 모든 절대 끈은 ``local_root`` 아래에있는 경우 다시 작성됩니다. 이미지 데이터 세트는 의도적으로 복사되지 않습니다 : 다중 테라바이트 플레이트의 우연한 재발 전송은 명백한 사전 비행 오류보다 더 나쁘다.\n\n``command`` 프로필의 경우 명령 줄은 :func:`shlex.split`로 표시되며 ``{job_id}``, ``{module}``, ``{settings}`` 및 ``{external_id}`` 위치를 지원합니다.\n\n:param name: 이 목표를 선택하는 데 사용되는 쉽게 읽을 수 있는 프로필 이름.\n:param backend: 실행 메커니즘, :data:`BACKENDS`의 하나입니다.\n:param host: OpenSSH 목표는 SSH 및 원격 Slurm; 흰색은 Slurm 일정이 현지 호스트에서 실행되도록 허용합니다.\n:param workdir: 절대 실행 디렉토리 ``spacr-jobs`` 문자가 생성되는 곳.\n:param local_root: 현지 데이터 세트 사전은 ``remote_root``로 조정되어 절대 경로 재구성에 적용됩니다.\n:param remote_root: 동등한 데이터 세트 사전은 대상 호스트에서 볼 수 있습니다.\n:param runner: SSH 및 Slurm 후반 엔드에 의해 ``runner module --settings path``로 호출되는 헤드없는 실행 가능.\n:param scheduler_options: 추가 셰일 무료 논쟁은 ``sbatch``로 전환되었습니다.\n:param submit_command: ``{settings}``을 포함하고 작업 식별자를 인쇄하는 사용자 지정 뒷모습 논쟁 템플릿.\n:param status_command: ``{external_id}``을 포함하고 spaCR 상태를 반환하는 사용자 지정 상태 템플릿이 정상화 될 수 있습니다.\n:param cancel_command: ``{external_id}``을 포함하는 사용자 지정 취소 템플릿.\n:param log_command: 선택적 인 사용자 지정 템플릿은 일자리 수출을 얻을 수 있습니다.\n:param job_id_pattern: ``id``, 첫 번째 캡처 또는 제출 출력에서 완전한 일치를 추출하는 선택적 정규 표현.\n:param poll_seconds: 추천 클라이언트 쿼리 간격, 2 ~ 3600 초.",
+      "source_sha256": "5d65a5569a1ae58501f07ee22effe38c1c2a2664f178eceda6a7ca57b31ce6f3",
+      "text": "연결 및 한 실행 목표에 대한 일정 설정.\n\n``local_root`` 및 ``remote_root``은 동일한 공유 또는 거울 데이터 세트를 설명합니다. 설정에 삽입 된 모든 절대 끈은 ``local_root`` 아래에있는 경우 다시 작성됩니다. 이미지 데이터 세트는 의도적으로 복사되지 않습니다 : 다중 테라바이트 플레이트의 우연한 재발 전송은 명백한 사전 비행 오류보다 더 나쁘다.\n\n``command`` 프로필의 경우 명령 줄은 :func:`shlex.split`로 표시되며 ``{job_id}``, ``{module}``, ``{settings}`` 및 ``{external_id}`` 위치를 지원합니다.\n\n:param name: 이 목표를 선택하는 데 사용되는 쉽게 읽을 수 있는 프로필 이름.\n:param backend: 실행 메커니즘, :data:`BACKENDS`의 하나입니다.\n:param host: OpenSSH 목표는 SSH 및 원격 Slurm; 흰색은 Slurm 일정이 현지 호스트에서 실행되도록 허용합니다.\n:param workdir: 절대 실행 디렉토리 ``spacr-jobs`` 문자가 생성되는 곳.\n:param local_root: 현지 데이터 세트 사전은 ``remote_root``로 조정되어 절대 경로 재구성에 적용됩니다.\n:param remote_root: 동등한 데이터 세트 사전은 대상 호스트에서 볼 수 있습니다.\n:param runner: SSH 및 Slurm 후반 엔드에 의해 ``runner module --settings path``로 호출되는 헤드없는 실행 가능.\n:param scheduler_options: 추가 셰일 무료 논쟁은 ``sbatch``로 전환되었습니다.\n:param submit_command: ``{settings}``을 포함하고 작업 식별자를 인쇄하는 사용자 지정 뒷모습 논쟁 템플릿.\n:param status_command: ``{external_id}``을 포함하고 spaCR 상태를 반환하는 사용자 지정 상태 템플릿이 정상화 될 수 있습니다.\n:param cancel_command: ``{external_id}``을 포함하는 사용자 지정 취소 템플릿.\n:param log_command: 선택적 인 사용자 지정 템플릿은 일자리 수출을 얻을 수 있습니다.\n:param job_id_pattern: ``id``, 첫 번째 캡처 또는 제출 출력에서 완전한 일치를 추출하는 선택적 정규 표현.\n:param poll_seconds: 추천 클라이언트 쿼리 간격, 2 ~ 3600 초.\n:param ssh_options: 사용자, 포트, 식별 키 파일 경로와 점프 호스트 등 비밀 정보 없는 SSH 설정 재정의 값입니다. 암호와 일회용 코드(OTP)는 금지됩니다.\n:param ssh_interactive: 외부 OpenSSH 명령 대신 GUI의 키보드 대화식 인증 요청을 사용하는 검증된 영속 SSH 세션을 사용합니다.",
       "translation_source_blocks_sha256": [
         "7e87357ae7d65908808f1150f13667f616c7b568d8f6df8bebf835672068670b",
         "c571f05ef429b38270e7662cdfd67586bc67acee2ad3230c930a19d3d1e1126f",
@@ -181949,7 +181961,9 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ]
     },
     "spacr.remote_execution.ExecutionProfile.from_dict": {
