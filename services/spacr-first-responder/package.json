@@ -1,6 +1,6 @@
 {
   "name": "spacr-first-responder",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "description": "Cloudflare Worker relay for anonymised spaCR error reports and hosted diagnosis",

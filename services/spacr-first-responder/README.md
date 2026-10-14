@@ -18,7 +18,7 @@ Every response is JSON. `GET /` answers like `/health`.
 | --- | --- | --- |
 | `GET /health` | none | `{ok, version, routes}` |
 | `GET /allowance?install_id=<uuid>` | none; consumes nothing | the allowance object below |
-| `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize`, `kind` | `{issue_number, issue_url, deduplicated, commented?, ai_summary_source, allowance}` |
+| `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize`, `kind` | `{issue_number, issue_url, deduplicated, commented?, recurred_from?, ai_summary_source, allowance}` |
 | `POST /report` with `dry_run: true` | same | `{dry_run: true, title, body, signature, ai_summary_source, allowance}` |
 | `POST /diagnose` | report JSON plus optional `question` | `{advice, model, tier: "best"\|"light", allowance}` |
 
@@ -104,7 +104,14 @@ must scrub before sending; the relay only double-checks.
   - A known signature adds a `+1` comment with the version/OS line, at most one
     comment per signature per UTC day; further repeats only increase the stored
     count.
-  - If the issue was deleted, a new one is opened.
+  - Before a comment would be posted (so at most once per signature per UTC day),
+    the relay reads the issue's state. If it is open, the `+1` comment is added as
+    above. If it is closed, no comment is added: a new issue titled
+    `[recurred] <title>` is opened with the normal body plus
+    `Seen again after #N was closed.`, the signature is re-pointed to it (count,
+    last comment day and summary flag reset) and the response has
+    `deduplicated: false` and `recurred_from: N`.
+  - If the issue was deleted (404/410), a new one is opened.
 - **Storage.** Counters and signatures live in D1 (`schema.sql`); raw reports are
   never stored, and IP addresses are only used as a daily salted hash.
 

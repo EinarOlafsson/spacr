@@ -139,7 +139,7 @@ test("signature ignores line numbers but not the top frames", async () => {
 
 test("a deleted issue is replaced by a new one", async () => {
   await post("/report", sampleReport());
-  gh.commentStatus = 410;
+  gh.stateStatus = 404;
   const r = await post("/report", sampleReport());
   assert.equal(r.body.deduplicated, false);
   assert.equal(r.body.issue_number, 102);
@@ -263,4 +263,44 @@ test("frames[].code is rendered under its frame line in the traceback", async ()
   const r = await post("/report", { ...report, dry_run: true });
   assert.equal(r.status, 200);
   assert.match(r.body.body, /measure\.py:233 in _measure_intensity\n {6}mean = np\.mean\(image\[mask > 0\]\)/);
+});
+
+test("a closed issue is not +1'd: a [recurred] issue is opened and the signature re-pointed", async () => {
+  await post("/report", sampleReport());
+  gh.issueState = "closed";
+  const r = await post("/report", sampleReport());
+  assert.equal(r.body.deduplicated, false);
+  assert.equal(r.body.recurred_from, 101);
+  assert.equal(r.body.issue_number, 102);
+  assert.equal(gh.count(/\/comments$/), 0);
+  const create = gh.calls.filter((c) => c.method === "POST" && /\/issues$/.test(c.url))[1];
+  assert.match(create.body.title, /^\[recurred\] \[user-report\]/);
+  assert.match(create.body.body, /Seen again after #101 was closed\./);
+  const sig = await signatureOf(sampleReport());
+  const row = env.DB.signatures.get(sig);
+  assert.equal(row.issue_number, 102);
+  assert.equal(row.count, 1);
+  assert.equal(row.last_comment_day, null);
+  assert.equal(row.has_summary, 0);
+});
+
+test("an open issue gets the comment after one state check", async () => {
+  await post("/report", sampleReport());
+  const r = await post("/report", sampleReport());
+  assert.equal(r.body.commented, true);
+  assert.equal(r.body.recurred_from, undefined);
+  assert.equal(gh.count(/\/issues\/101$/), 1);
+  assert.equal(gh.count(/\/comments$/), 1);
+});
+
+test("the state is not read when the daily comment cap blocks the comment", async () => {
+  await post("/report", sampleReport());
+  await post("/report", sampleReport());
+  const checks = gh.count(/\/issues\/101$/);
+  gh.issueState = "closed";
+  const third = await post("/report", sampleReport());
+  assert.equal(third.body.commented, false);
+  assert.equal(third.body.deduplicated, true);
+  assert.equal(gh.count(/\/issues\/101$/), checks);
+  assert.equal(gh.count(/\/issues$/), 1);
 });

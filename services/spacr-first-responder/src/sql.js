@@ -18,6 +18,8 @@ export const SQL = Object.freeze({
     "INSERT INTO issue_signatures (signature, issue_number, count, first_seen, last_seen, last_comment_day) " +
     "VALUES (?1, 0, 1, ?2, ?2, NULL) ON CONFLICT (signature) DO NOTHING RETURNING signature",
   setIssueNumber: "UPDATE issue_signatures SET issue_number = ?2, has_summary = ?3 WHERE signature = ?1",
+  resetSignature:
+    "UPDATE issue_signatures SET issue_number = ?2, count = 1, last_comment_day = NULL, has_summary = ?3 WHERE signature = ?1",
   claimSummary:
     "UPDATE issue_signatures SET has_summary = 1 WHERE signature = ?1 AND has_summary = 0 RETURNING signature",
   unclaimSummary: "UPDATE issue_signatures SET has_summary = 0 WHERE signature = ?1",

@@ -148,3 +148,14 @@ export async function createComment(env, number, body) {
   }
   return { gone: false };
 }
+
+export async function issueState(env, number) {
+  const res = await githubRequest(env, "GET", `/issues/${number}`);
+  if (res.status === 404 || res.status === 410) return "gone";
+  if (!res.ok) {
+    console.log(`github: issue lookup failed with status ${res.status}`);
+    throw new HttpError(502, "GitHub is unavailable; try again later");
+  }
+  const data = await res.json();
+  return data.state === "closed" ? "closed" : "open";
+}

@@ -1,5 +1,5 @@
 import { SQL } from "./sql.js";
-import { createComment, createIssue } from "./github.js";
+import { createComment, createIssue, issueState } from "./github.js";
 import { sha256Hex } from "./util.js";
 
 export const ISSUE_LABEL = "user-report";
@@ -168,6 +168,21 @@ async function openNewIssue(env, r, signature, now, getSummary) {
   };
 }
 
+async function reopenAsRecurred(env, r, signature, closedNumber, getSummary) {
+  const summary = await obtainSummary(r, getSummary);
+  const title = `[recurred] ${issueTitle(r)}`;
+  const body = `${issueBody(r, signature, summary)}\n\nSeen again after #${closedNumber} was closed.`;
+  const issue = await createIssue(env, title, body, issueLabels(r));
+  await env.DB.prepare(SQL.resetSignature).bind(signature, issue.number, summary ? 1 : 0).run();
+  return {
+    issue_number: issue.number,
+    issue_url: issue.url,
+    deduplicated: false,
+    recurred_from: closedNumber,
+    ai_summary_source: sourceOf(summary),
+  };
+}
+
 async function commentSummary(env, r, signature, claim, getSummary) {
   if (claim.has_summary) return null;
   if (!clientSummary(r) && !r.summarize) return null;
@@ -199,6 +214,12 @@ export async function fileReport(env, r, { day, now, getSummary }) {
         commented: false,
         ai_summary_source: "none",
       };
+    }
+    const state = await issueState(env, claim.issue_number);
+    if (state === "closed") return reopenAsRecurred(env, r, signature, claim.issue_number, getSummary);
+    if (state === "gone") {
+      await env.DB.prepare(SQL.dropSignature).bind(signature).run();
+      continue;
     }
     const summary = await commentSummary(env, r, signature, claim, getSummary);
     let result;

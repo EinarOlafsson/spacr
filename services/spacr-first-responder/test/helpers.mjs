@@ -103,6 +103,16 @@ export class FakeD1 {
         }
         return [];
       }
+      case SQL.resetSignature: {
+        const row = this.signatures.get(a[0]);
+        if (row) {
+          row.issue_number = a[1];
+          row.count = 1;
+          row.last_comment_day = null;
+          row.has_summary = a[2];
+        }
+        return [];
+      }
       case SQL.claimSummary: {
         const row = this.signatures.get(a[0]);
         if (!row || row.has_summary) return [];
@@ -186,6 +196,8 @@ export class FakeGitHub {
     this.nextIssue = 101;
     this.commentStatus = 201;
     this.issueStatus = 201;
+    this.issueState = "open";
+    this.stateStatus = 200;
   }
 
   install() {
@@ -210,6 +222,10 @@ export class FakeGitHub {
       if (this.issueStatus >= 300) return reply(this.issueStatus, { message: "fail" });
       const number = this.nextIssue++;
       return reply(201, { number, html_url: `https://github.com/EinarOlafsson/spacr/issues/${number}` });
+    }
+    if (/\/issues\/\d+$/.test(url) && init.method === "GET") {
+      if (this.stateStatus >= 300) return reply(this.stateStatus, { message: "fail" });
+      return reply(200, { state: this.issueState });
     }
     if (/\/issues\/\d+\/comments$/.test(url)) {
       return reply(this.commentStatus, { id: 1 });
