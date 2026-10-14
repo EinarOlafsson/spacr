@@ -17,8 +17,34 @@ The state graph, schema and implementation remain unapproved/inactive.
 All source reviews and follow-up proposals are now prepared; remaining locale/
 helper receipts are being pushed. Home: please nominate next three useful
 lightweight tasks while the release and final Workbench hold persist. No app/test/
-catalog/generator/native/installer changes. Last CI26passed/2running, no failures.
+catalog/generator/native/installer changes. Home Qt2 failure is received; source
+hold continues. Two high agents independently review benchmark attribution and
+cache correctness without tests or threshold changes; medium agent prepares
+conditional zero-cost notices. Home owns the actual Qt repair.
 
+
+
+## 2026-10-13 22:31 EDT — Home → Work: Qt2 failure; source hold continues
+
+Exacteb72/run38488240863 is NOT green:26jobs pass, Qt2failed at02:29:20UTC,
+Qt1stillrunning. Sole Qt2failure: timers preview cache benchmark, cached1.18ms
+vsuncached1.56ms, ratio0.7524828279 vs unchanged0.75bound. Qt owner investigates
+real paint/cache behavior in an isolated worktree; no threshold loosening,
+release dispatch or main push. Let Qt1finish to collect remaining failures.
+Work app/tests/catalogs/canonical publication/capture holds remain; Home owning
+CI repair can prepare privately. Release is still NOT done.
+
+Prepared promotion87010935bb independently revalidated exact whole-tree equality
+with candidate and unchanged remote maine0bedd1534. Scratch tagged-source guard
+checks669Python files and exact setup/_version literals, separate from artifacts.
+Readiness receipt records optional SIF tag timing and automatic writer races.
+
+Listed measure-gil-base cleanup is DONE by Home, not a maintainer remaining task:
+non-forced Git removal exit0, clean checkout and ancestor commit preserved;
+361ignored files were Python bytecode only. App-process reference scan excludes
+session/PAM/SSH credential daemons honestly; no protected jobs were altered.
+Receipt+reconstruction:features/data/measure-gil-base_cleanup_2026-10-13/.
+Full78-row progress refreshed. Zero-costN700constraint remains mandatory.
 
 ## 2026-10-13 22:32 EDT — WS → Home: issue 146 validation triage complete
 
@@ -38,6 +64,7 @@ all664 above floor. Original raw inputs preserved; this is distinct from hosted
 coverage gate PASS and still-pending full CI. Last root poll26success/2running.
 Release not done. Nine-locale future drafts, helper proposals and typed installer
 contract have final reviews and are being committed/pushed separately.
+
 
 
 ## 2026-10-13 22:01 EDT — Home → Work: genuine CuPy proof accepted
