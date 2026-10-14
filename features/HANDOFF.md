@@ -3,6 +3,17 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 09:21 EDT — Home: owner Cloudflare placeholder verified
+
+Maintainer deployed spacr-first-responder.einar-olafsson.workers.dev. Home
+read-only GET returns HTTP200/Hello World!; resource exists, relay not active.
+Guide records current state and next dashboard AI binding name AI (then D1/DB).
+Actual owner Workers Free plan, model eligibility, reporting App, credentials
+and end-to-end behavior remain unverified. No error report or inference sent.
+User wants the complete guide in chat, with every field and remaining steps.
+Full CI stays pinned 38567385965/83ed; this is features-only owner progress.
+
+
 ## 2026-10-14 — Home: Cloudflare owner setup clarification
 
 Maintainer signed in via GitHub and authorized Workers & Pages for spacr; the
