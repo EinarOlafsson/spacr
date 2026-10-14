@@ -297,10 +297,11 @@ def _write_json(key: str, document: Mapping[str, Any]) -> bool:
         store = _store()
         store.setValue(key, json.dumps(_jsonable(document), default=str))
         store.sync()
+        status = store.status()
+        return getattr(status, "value", status) == 0
     except Exception as exc:                              # noqa: BLE001
         LOG.warning("could not store %s: %s", key, exc)
         return False
-    return True
 
 
 def _read_json(key: str) -> Optional[Dict[str, Any]]:
@@ -386,10 +387,11 @@ def _clear_drafts() -> bool:
         store = _store()
         store.remove(_DRAFTS_KEY)
         store.sync()
+        status = store.status()
+        return getattr(status, "value", status) == 0
     except Exception as exc:                              # noqa: BLE001
         LOG.warning("could not clear the settings drafts: %s", exc)
         return False
-    return True
 
 
 def command() -> List[str]:

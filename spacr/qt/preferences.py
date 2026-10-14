@@ -721,6 +721,10 @@ class _DefaultsForReadingRealForWriting:
         """Flush the real store."""
         self._real.sync()
 
+    def status(self):
+        """Return the write status of the real store."""
+        return self._real.status()
+
 
 def _fill_safe_overrides() -> None:
     """Populate :data:`_SAFE_OVERRIDES` once the key names exist."""

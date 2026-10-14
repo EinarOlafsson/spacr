@@ -38,3 +38,20 @@ DONE 2026-10-04
   Scope:reported False results from the existing persistence helpers. Native
   QSettings errors reported only through status(), and new Windows/macOS/native
   crash acceptance, are not established by this fix; those remain separate.
+
+2026-10-14 — Native Qt store-error handling and retry closure completed.
+  Session/draft writes and draft clearing now inspect QSettings.status()
+  after sync; AccessError or FormatError is not reported as a saved record.
+  Safe mode's existing write-through preference facade forwards the real
+  status. Eight real temporary-INI regressions failed before this repair:
+  a file blocked the INI parent directory, producing native AccessError.
+  They now pass for ordinary and safe-mode writes/clearing, and the same
+  path saves both JSON records after the directory becomes writable.
+  Owning covered cohort:65PASS, no skips/failures/errors. The two writers and
+  status forwarder have19/19 statements covered. The existing seven captions
+  are current in all nine runtime catalogs with matching source hashes and
+  placeholders; the old catalog-rebuild note is superseded. No UI strings,
+  existing API signatures or storage paths changed. Normal index check passes.
+  Proof:features/data/648_native_store_status_2026-10-14/receipt.json.
+  This is actual Linux/offscreen Qt6.12/temporary-INI acceptance. It does not
+  claim new Windows/macOS-native, screen-reader or hard-power-loss testing.
