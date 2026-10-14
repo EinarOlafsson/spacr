@@ -132,3 +132,12 @@ these fields, a basic placeholder/template path (dashboard labels qualified),
 Free-plan verification, exact AI/D1 binding names and runtime versus build
 secrets. Credential loading waits for the final relay. No service, resources,
 owner plan, inference or error-report delivery was verified or activated.
+
+2026-10-14 09:21 EDT — Maintainer deployed the named placeholder at
+https://spacr-first-responder.einar-olafsson.workers.dev/ . Home read-only GET
+verified HTTP 200, text/plain and exact Hello World! response. This establishes
+the resource/address only; no report, inference, credential upload, owner-plan
+verification or spaCR activation occurred. Guide now starts with this current
+state and the next dashboard AI-binding click. The public link is not the
+Cloudflare settings page. Reporting GitHub App and Free-only checks remain
+separate, and Home still owns the missing relay/client implementation.

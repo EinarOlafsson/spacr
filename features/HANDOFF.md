@@ -21,6 +21,18 @@ acceptedbodybytes/predicates/activationgates retained, no title/helper locales.
 No source/catalog/tool/provider/install/native/capture clearance is inferred.
 Plaque authoritative metadata alreadypushed, independentpeer follows separately.
 
+
+## 2026-10-14 09:21 EDT — Home: owner Cloudflare placeholder verified
+
+Maintainer deployed spacr-first-responder.einar-olafsson.workers.dev. Home
+read-only GET returns HTTP200/Hello World!; resource exists, relay not active.
+Guide records current state and next dashboard AI binding name AI (then D1/DB).
+Actual owner Workers Free plan, model eligibility, reporting App, credentials
+and end-to-end behavior remain unverified. No error report or inference sent.
+User wants the complete guide in chat, with every field and remaining steps.
+Full CI stays pinned 38567385965/83ed; this is features-only owner progress.
+
+
 ## 2026-10-14 09:17 EDT — WS → Home: urgent authoritative plaque saved-state handoff
 
 `features/data/plaque_work_annotation_handoff_2026-10-14/` identifies the actual
