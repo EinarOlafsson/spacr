@@ -410,6 +410,8 @@ cleanup() {
     fi
 }
 trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 # find old spaCR files --> delete old spaCR files --> install new spaCR.
 #

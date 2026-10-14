@@ -63,5 +63,18 @@
   "old_install_kept": "Henni er haldið. Umhverfið er endurnýjað hvort sem er; skyndiminni og stillingar haldast.",
   "old_install_noninteractive": "Ekki skjáhermir, svo ekkert var spurt. Umhverfið er endurnýjað; skyndiminni og stillingar haldast.",
   "old_install_same": "Það er sama útgáfa og þetta uppsetningarforrit ber.",
-  "old_copy_not_removed": "Uppsetning stöðvuð: ekki tókst að fjarlægja eldri spaCR (sjá ofar). Lokaðu öllum spaCR sem eru í gangi og keyrðu uppsetningarforritið aftur."
+  "old_copy_not_removed": "Uppsetning stöðvuð: ekki tókst að fjarlægja eldri spaCR (sjá ofar). Lokaðu öllum spaCR sem eru í gangi og keyrðu uppsetningarforritið aftur.",
+  "gui_explanation": "Setja upp einkarekna Python-umhverfið og spaCR-háð pakka í þessum glugga. Þetta notandaumhverfi krefst hvorki svara í Terminal né lykilorðs stjórnanda.",
+  "gui_public_reports": "Villuskýrslur eru opinberar og ekki er hægt að tryggja að birting þeirra sé afturkölluð. Viðkvæmar upplýsingar eru fjarlægðar og skýrslan forskoðuð fyrir hverja sendingu. Valin eru valfrjáls og má breyta síðar í stillingum.",
+  "gui_share_diagnostics": "Hafa greiningarannála án viðkvæmra upplýsinga með í forskoðun skýrslna",
+  "gui_report_issues": "Virkja opinbera villutilkynningu á GitHub",
+  "gui_account_setup": "Opna uppsetningu reikninga við fyrstu ræsingu",
+  "gui_preserve": "Núverandi gögn, líkön, skyndiminni og stillingar eru varðveitt. Engin valfrjáls hreinsun er valin.",
+  "gui_close": "Loka",
+  "gui_install": "Setja upp",
+  "gui_cancel": "Hætta við uppsetningu",
+  "gui_retry": "Reyna aftur",
+  "gui_cancelled": "Hætt var við uppsetningu. Skoðaðu annálinn áður en þú reynir aftur.",
+  "gui_failed": "Uppsetning eða ræsing mistókst. Skoðaðu annálinn og reyndu aftur í þessum glugga.",
+  "gui_stopping": "Stöðva uppsetningu og endurheimta fyrra keyrsluumhverfið…"
 }

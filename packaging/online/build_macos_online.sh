@@ -47,10 +47,17 @@ cp packaging/online/generated/installer_messages.sh \
     "$SUPPORT/installer_messages.sh"
 
 xcrun clang -Wall -Wextra -Werror -O2 -arch arm64 -arch x86_64 \
-    -mmacosx-version-min=11.0 packaging/online/macos_launcher.c \
+    -mmacosx-version-min=11.0 "-DSPACR_PACKAGE_VERSION=\"$VERSION\"" packaging/online/macos_launcher.c \
     -o "$APP/Contents/MacOS/spaCR"
 lipo "$APP/Contents/MacOS/spaCR" -verify_arch arm64 x86_64
 chmod 755 "$APP/Contents/MacOS/spaCR"
+xcrun clang -Wall -Wextra -Werror -O2 -fobjc-arc -arch arm64 -arch x86_64 \
+    -mmacosx-version-min=11.0 -framework Cocoa packaging/online/macos_installer.m \
+    packaging/online/macos_gui_process.c -o "$APP/Contents/MacOS/install-spacr-gui"
+lipo "$APP/Contents/MacOS/install-spacr-gui" -verify_arch arm64 x86_64
+mkdir -p "$APP/Contents/Resources/installer-i18n"
+cp packaging/i18n/*.json "$APP/Contents/Resources/installer-i18n/"
+
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -99,38 +106,8 @@ spacr_say removed
 EOF
 chmod 755 "$SUPPORT/uninstall-spacr.sh"
 
-cat > "$SUPPORT/install-for-user.sh" <<'EOF'
-#!/bin/sh
-set -eu
-
-. "/Library/Application Support/spaCR/installer_messages.sh"
-
-RUNTIME_ROOT="${SPACR_USER_INSTALL_ROOT:-$HOME/Library/Application Support/spaCR}"
-INSTALLER="/Library/Application Support/spaCR/install-online.sh"
-LOCK_DIR="$RUNTIME_ROOT/.installing"
-
-mkdir -p "$RUNTIME_ROOT"
-if ! mkdir "$LOCK_DIR" 2>/dev/null; then
-    spacr_say already_running
-    exit 0
-fi
-cleanup() {
-    rmdir "$LOCK_DIR" 2>/dev/null || true
-}
-trap cleanup EXIT INT TERM
-
-"$INSTALLER" \
-  --platform macos \
-  --install-root "$RUNTIME_ROOT" \
-  --no-command-launcher \
-  --no-launch
-
-echo
-spacr_say ready_opening
-if [ "${SPACR_NO_RELAUNCH:-0}" != "1" ]; then
-    open -a "/Applications/spaCR.app"
-fi
-EOF
+cp spacr/install_cleanup.py "$SUPPORT/verify_runtime.py"
+cp packaging/online/install_for_macos_user.sh "$SUPPORT/install-for-user.sh"
 chmod 755 "$SUPPORT/install-for-user.sh"
 
 cat > "$SCRIPTS/postinstall" <<EOF
