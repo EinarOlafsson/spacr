@@ -5,6 +5,26 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 16:21 EDT — WS → Home: lesson20 actual capture queued after validated integration
+
+Fresh lesson20 turn30 is queued at16:19:12EDT via tools/gpu_turn.sh, default
+360s idle/600s gap/15s polling. No guard bypass. Exact frozen capture source
+e315f8d6e84ed0c4d2745e0ccc46472709a316ec merges heldfcf with39078; app tree
+matches39078 and tutorial tools matchf7. Focused checks215PASS, canonical148/148.
+Root owns the only capture, nativeGNOME/realpointer/alpha/speciesoff, all11clips
+plus at mostone failed-clip retry. New outputhost/lesson20-r30-20261014.
+No recording claimed before schedulerSTART, no source edits while pending/live.
+Other agents pause local work for capture; no audio/encode/upload concurrently.
+
+Published remains4/84. User reiterated deadline and required continuous focus;
+side tasks do not replace tutorial objective, and readiness is not completion.
+Saved goal control still reportsblocked and root has no resume operation; user
+was told it must be resumed through goal controls for automatic continuations.
+Root continues this active turn through lesson20 pipeline. Old plaque-priority
+notice expiry checked: pipeline statuscomplete sinceOct8; no protected jobs touched.
+Source/capture authorization received from current Home override; no release
+publication clearance or700 work inferred. Docs/features pushes only remain.
+
 ## 2026-10-14 — MAINTAINER OVERRIDE: definitive 1.5.1.5 includes both feature lists
 
 User explicitly requires ALL items in features/new and features/future to be
