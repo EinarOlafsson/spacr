@@ -1,0 +1,168 @@
+{
+  "source_head": "b00b678c878b538f65b08d63970907e8843cd0e4",
+  "scope": "Read-only source audit; snapshots are evidence only and must never execute. No native installer/runtime acceptance performed.",
+  "files": [
+    {
+      "path": "packaging/online/install_spacr_unix.sh",
+      "sha256": "03b019943891c5b454cdd8f789772dc6dc53836883ae15815b544109bb184c03",
+      "bytes": 22963,
+      "lines": 626
+    },
+    {
+      "path": "packaging/online/build_macos_online.sh",
+      "sha256": "1061d157560ceb19d5b18e1ce7078b09273cc775811cd3ce6d83ebea1298aa3e",
+      "bytes": 5106,
+      "lines": 156
+    },
+    {
+      "path": "packaging/online/macos_launcher.c",
+      "sha256": "7a8e4f3b057a2a200762cd19e01e034f3bed25ccf477645e60b3204fa7e33d6e",
+      "bytes": 1632,
+      "lines": 48
+    },
+    {
+      "path": "packaging/online/build_linux_online.sh",
+      "sha256": "9b085a212c714fabd7c1e03a035d5a8ea4e9e14e70564223c3b25bcc12857fb2",
+      "bytes": 687,
+      "lines": 18
+    },
+    {
+      "path": "packaging/build_macos.sh",
+      "sha256": "d9b0fd965afb549b9dab97b01819aff705566b53c3021d5d2a1ce19535069765",
+      "bytes": 3339,
+      "lines": 99
+    },
+    {
+      "path": "packaging/build_debian.sh",
+      "sha256": "1f533b97a97a9b761aeee6e62f9d69da0ff81eb844321deae6f988f2f73bba7f",
+      "bytes": 3650,
+      "lines": 72
+    },
+    {
+      "path": "packaging/linux/io.github.olafssonlab.spacr.desktop",
+      "sha256": "550756257c9b39f09b71145465ebc42110c7f348f4d9145243fb31ba431d6327",
+      "bytes": 226,
+      "lines": 10
+    },
+    {
+      "path": "packaging/online/macos_signing.py",
+      "sha256": "93c31e9650dccd9f45582a9cde619eb76eb4f2a32aacb709738eba94c42353a8",
+      "bytes": 10194,
+      "lines": 223
+    },
+    {
+      "path": "packaging/online/smoke_installed.py",
+      "sha256": "cfde55c562533d50bf0892988724f0e392b7f68933403f62388632b9fa115a32",
+      "bytes": 3071,
+      "lines": 81
+    },
+    {
+      "path": "packaging/i18n/render.py",
+      "sha256": "2945c46b7f1b51fb9699247ecc3087517e4c3f46695e675c300381db1ac279f5",
+      "bytes": 9958,
+      "lines": 254
+    },
+    {
+      "path": "packaging/README.md",
+      "sha256": "2a1e33ddbc6ab0babefc4974e45f40965b9c92e16fd21cc49137bdb2a0ba78e9",
+      "bytes": 20976,
+      "lines": 385
+    },
+    {
+      "path": "packaging/spacr.spec",
+      "sha256": "7a2b9b0d2eb350339b11c11d6056abc6efcadcddb313679fe9a339ab0e683340",
+      "bytes": 8191,
+      "lines": 222
+    },
+    {
+      "path": "spacr/install_cleanup.py",
+      "sha256": "8b4c8426dbd3a77d27d1a74f7004d1be48afc3e7ea29f796baf23c0d47762c0a",
+      "bytes": 148199,
+      "lines": 3312
+    },
+    {
+      "path": "spacr/updater.py",
+      "sha256": "238a0693ab2501dbef3052a0600f5088a3ef0ca982095a0bb1392447e6ddeafc",
+      "bytes": 44727,
+      "lines": 1160
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "sha256": "f8ce2569367db37ab4b9479d63271487607b3afa22b1bb70b7f11262257c03f6",
+      "bytes": 24659,
+      "lines": 598
+    },
+    {
+      "path": ".github/workflows/online-installers.yml",
+      "sha256": "e5ca0060ad6f5e4687ab0bd639faf0f471d7fc3c8e71480c48257d52a7c96e26",
+      "bytes": 17314,
+      "lines": 370
+    },
+    {
+      "path": ".github/workflows/frozen-installers.yml",
+      "sha256": "bda5f7df4f9e6eff183831891ac575b4d4409c5cf3e1c330015c388a41a8fe23",
+      "bytes": 36928,
+      "lines": 656
+    },
+    {
+      "path": ".github/workflows/native-stall-and-upgrade.yml",
+      "sha256": "6e6e9c68c9a21b4e23020920c0cafb4a3a443977e8e266ed751095f35d6e9117",
+      "bytes": 4727,
+      "lines": 147
+    },
+    {
+      "path": "tests/test_online_installers.py",
+      "sha256": "ad547e30c570b6919882ad2bc9084288ba8f8f44f54f5c391e6010f3793a8052",
+      "bytes": 40879,
+      "lines": 1082
+    },
+    {
+      "path": "tests/test_install_cleanup.py",
+      "sha256": "831843d651c318949ca5eaf7f4824794038e494c2e4fe4270b4755c1b81a8667",
+      "bytes": 96739,
+      "lines": 2342
+    },
+    {
+      "path": "tests/test_macos_online_update_n627.py",
+      "sha256": "6389211e8c13d62c80cdc91353c2cdef3d77863d9a78c6c5ea5236c794e78492",
+      "bytes": 11808,
+      "lines": 258
+    },
+    {
+      "path": "tests/test_frozen_macos_update.py",
+      "sha256": "8a7b55e78bc8eacbe187dc06be617fb8d53fa638b4bb95d807908daf66a48d95",
+      "bytes": 42053,
+      "lines": 897
+    },
+    {
+      "path": "tests/test_frozen_debian_update_acceptance.py",
+      "sha256": "6bacb7e9bb564a48d7aec41972ba9ff95ca2ff123cf93833b638489e47e2da03",
+      "bytes": 5281,
+      "lines": 112
+    },
+    {
+      "path": "tests/test_native_installer_workflow.py",
+      "sha256": "ce63ae1d3193fd4ca3c0cb85d0b326beca6b4aba10ad8eb84590662bca933da4",
+      "bytes": 2957,
+      "lines": 57
+    },
+    {
+      "path": "tests/test_no_test_runs_a_real_installer.py",
+      "sha256": "a7bf907a5859d0e88eda20a87552bbd4e12d81a3c68526a51bd0a88902cb0dcf",
+      "bytes": 1049,
+      "lines": 29
+    },
+    {
+      "path": "tests/test_installed_import_path.py",
+      "sha256": "92cabad0e58911869fd070bf7e9494f1f803bfe7da0f48ef8db3471f5138132b",
+      "bytes": 4476,
+      "lines": 149
+    },
+    {
+      "path": "tests/test_the_import_roles_and_installed_version.py",
+      "sha256": "6c8ba63a4351775568121974773f414b32730a79bc00d41c396b2b90b71f4508",
+      "bytes": 5320,
+      "lines": 149
+    }
+  ]
+}

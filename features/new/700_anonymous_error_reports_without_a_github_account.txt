@@ -11,7 +11,7 @@ Requested: maintainer, 2026-10-13: "instead of having the user need to login
            stating send anonymized error reports. all user metadata would have
            to be removed, but i think spacr already does that in the current
            setup."
-Owner:     Home (build, relay); maintainer (create the bot account and token,
+Owner:     Home (build, relay); maintainer (create/install the GitHub App,
            approve the privacy wording)
 Related:   spacr/crashreport.py (existing redaction), the report-filing flow
            (tests test_the_report_files_itself, test_a_failed_run_offers_the_
@@ -25,11 +25,13 @@ A GitHub token must NOT ship inside spaCR: anything in the installed package
 can be extracted, and a leaked token would let anyone open or spam issues as
 the bot (or more, depending on scope). So:
 
-- The maintainer creates the bot account (e.g. spacr-first-responder; GitHub
-  usernames cannot contain "_") and a fine-grained token limited to
-  "Issues: write" on EinarOlafsson/spacr only.
-- The token lives only in a small relay (a Hugging Face Space or a
-  Cloudflare Worker/serverless function) as a secret.
+- The repository owner creates a private GitHub App (for example
+  spacr-first-responder), with Issues: read/write and automatic Metadata: read,
+  installed only on EinarOlafsson/spacr. A separate bot account's fine-grained
+  PAT cannot write to another personal owner's repository, even as collaborator.
+- The App private key lives only in a relay's secret store. The relay signs
+  a JWT and obtains a short-lived, repository-scoped installation access token;
+  neither key nor token reaches spaCR. Cloudflare Worker is the proposed host.
 - spaCR posts the redacted report to the relay over HTTPS; the relay
   validates the payload (schema, size cap), rate-limits per install id and
   globally, de-duplicates by error signature (adds a +1 comment to an
@@ -64,3 +66,34 @@ ACCEPTANCE
 - No token or secret appears anywhere in the spaCR package or repo.
 - The setting defaults to on, is disclosed on first run, and off sends
   nothing (verified with a network-blocking test).
+
+--------------------------------------------------------------------------------
+2026-10-13 21:00 EDT — OWNER SETUP AND ACCOUNT-FREE CLOUD AI REQUEST
+--------------------------------------------------------------------------------
+
+Maintainer confirmed automatic error reports/issues, not coding-agent prompts,
+and requested a linked step-by-step guide plus hosted AI error diagnosis for
+users with no Claude/Codex/Gemini account. Source research corrects the earlier
+separate-bot fine-grained PAT recipe to the repository-owner GitHub App above.
+Official evidence and setup guide: features/data/700_cloud_routes_setup_2026-10-13/.
+
+Proposed fallback uses the same maintainer-owned Cloudflare Worker with an AI
+binding. Users need no provider account or shared embedded credential. Start
+with a free-access catalog model, evaluating Qwen3 30B and Qwen2.5 Coder 32B
+on real redacted spaCR errors; do not promise Claude/Codex quality or autonomous
+coding/tool access. A custom spaCR system prompt is separate from custom weights.
+
+Stay on Workers Free: AI's shared 10,000-neuron daily quota fails when exhausted;
+do not enable a paid model, paid fallback or prepaid credits. Enforce bounded
+input/output, atomic global budget, per-install/IP fairness and durable issue
+deduplication. Random install IDs are forgeable and not authentication.
+Cloud diagnosis and public issue posting are separate actions/settings; explain
+each destination. Send only the strictly sanitized allowlisted report, never
+the existing crashreport ZIP that deliberately retains absolute paths/logs.
+Reuse and strengthen the existing public-report sanitizers with planted-data
+tests; verify opt-out produces zero network calls.
+
+Current spaCR AI registers three CLI providers only. Hosted provider, relay,
+database schema, consent UI, redaction tests, quota handling and native/client
+acceptance are not implemented or deployed. Owner account/App/binding setup
+can proceed while CI remains frozen; application changes wait for release.

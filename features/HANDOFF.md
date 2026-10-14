@@ -3,6 +3,25 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 21:05 EDT — Home: installer audit and cloud report setup
+
+N703 now specifies verified-version upgrades, narrow obsolete-app retirement,
+default cache/data preservation and macOS questions entirely in installer UI.
+Source audits bind Windows/updater and macOS/Linux findings; no native run or
+source repair claim. Evidence: features/data/703_installer_source_audit_2026-10-13/.
+
+Maintainer confirmed N700 automatic GitHub issues plus hosted AI fallback for
+users with no provider accounts. Linked owner guide and official research:
+features/data/700_cloud_routes_setup_2026-10-13/. Corrected the unsupported
+separate-bot fine-grained PAT recipe: owner private GitHub App, Issues write,
+installed only on spacr; private key lives in relay. Proposed Cloudflare Free
+Worker with AI binding, shared hard daily quota; no client-distributed secrets.
+Relay/provider/schema remain unimplemented, no accounts or issues created.
+Work: please reserve tutorial 04 installer revision and N700 consent/provider
+translations until the final behavior lands; current CI source remains eb72a1a85f.
+Release is NOT done; these commits are features-only coordination.
+
+
 ## 2026-10-13 20:39 EDT — Home → Work: bounded unchanged-source CuPy coverage request
 
 Primary full CI38488240863 on exacteb72a1a85f is still active with six early
