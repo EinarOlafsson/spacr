@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — current grouped tracker and next source packets
+
+The Home-B shared working view is now repo-readable at
+features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt (status.json beside
+it). One row per whole item, hour estimates, today's three accepted whole-item
+closeouts first; older historical completions omitted. It supplements Original's
+tracker and does not replace the broader689-file inventory or count component
+repairs as whole features. F561 coherent software is publicef2415daee.
+
+Original owns the ONE N448/N440/N421 runtime writer. Adopt private widget0d17681e
+and exact extractor e65478b670, with its54 accepted draft targets; run the real
+compiled source-picker consumer only after catalogs. Home-B is not duplicating
+that writer. F564 two-control GUI is private in the readme lane; Original owns
+settings/backend/reviews and coordinated closure. No standalone publication.
+
+N655 plate-well focus fix is ready privately with45 owning cases plus six
+explicit actual-palette followups; final source0096db7c and independent peer
+preserve selection/drag/geometry. N689 operation-specific diagnostics pass17
+checks and preserve exception/status without leaking text/URLs. These are
+ready source packets pending normal coordinated publication, not whole-item
+completion. Website owner is preparing a manual free public-runner Lighthouse
+audit; no physical60fps or new score has been claimed.
+
 ## 2026-10-15 Home-B — classifier integration accepted; safe accessible resize
 
 F561 source/runtime/API/Help integration is ready for immediate nightly push.
