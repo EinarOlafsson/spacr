@@ -110,3 +110,14 @@ source extraction and nine-locale paragraph review remain with the shared
 API lane. This does not complete N678 or claim review of every paragraph in
 these files. Source-bound before/after/retained ledger:
 features/data/678_loading_preferences_theme_2026-10-15/receipt.json.
+
+2026-10-15 — Bounded shortcuts prose review, separate from N197 captions.
+Read all 1,739 pre-change shortcuts.py lines and actual screen/window callers.
+Of 72 docstrings, 15 had factual scope/default/action corrections and 57 were
+retained: window versus screen context, registry-index navigation, undo
+grouping, saved key handling, overlay discovery/dismissal and fallback help.
+The executable AST is identical to the separate N197 caption-only delivery.
+This is owned source preparation; normal English API refresh and nine-locale
+paragraph review remain pending with the shared writer. It does not complete
+N678's final broad pass or claim native-platform acceptance. Source-bound
+ledger: features/data/678_shortcuts_prose_2026-10-15/receipt.json.
