@@ -195,3 +195,13 @@ Source-only Space launch preparation (no deployment has occurred):
    browser exports/postprocessing, complete localization/style/accessibility,
    exercise hosted cache cleanup/cancellation, and compare actual model outputs
    against desktop results under the original IoU/object-count criterion.
+
+`detector.run_well_download` runs the actual desktop `detect_wells` path with
+verified operator weights, retaining the desktop's RGB→BGR handling, confidence,
+reading order and axis-ratio refusal. Choose one grayscale or three RGB input
+channels. It produces a detection ZIP containing input/selected TIFF, actual
+boxes/confidences, canonical CSV, README and manifest. Bounding-box area/centre
+are explicitly rectangle measurements, not segmented well area/centroids;
+physical calibration is not assumed. Masks, vectors and per-pixel cell scores
+are explicitly unavailable and never synthesized. Backend integration into the
+public service/UI remains separate work; no hosted detector is claimed here.

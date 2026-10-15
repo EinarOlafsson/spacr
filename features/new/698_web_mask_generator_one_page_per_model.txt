@@ -265,3 +265,21 @@ or server launched. Original32PASS/1stale negative-index wording failure retaine
 then expectation corrected to the new strict validation wording. Source UI is
 still partialN698; no hosted/parity/fullfeature acceptance inferred. Receipt:
 features/data/698_explicit_rest_indices_2026-10-14/.
+
+2026-10-14 — Original Home: actual desktop well-detector backend implemented.
+Verified local checkpoint bytes reach spacr.plaque.detect_wells, preserving
+its RGB/BGR conversion, confidence/default image size, reading order and well
+axis-ratio filter. One grey or three RGB channels are accepted; other channel
+counts refuse. The result contains actual boxes/confidences/desktopWellgeometry,
+rectangle-labelled CSV measurements, original upload/selected TIFF and provenance
+hashes. Masks/flowvectors/per-pixel probabilities are explicitly unavailable,
+never synthesized; rectangular geometry is not presented as segmented wellarea
+or physical calibration. Segmentation and detection share the same atomic ZIP
+publisher; original segmentation payload semantics remain unchanged.
+Validation24detector cases+35segmentation-package regressions PASS, actualexit0,
+3.00s; detector80/80statements32/32arcs, sharedresults125/125statements62/62arcs.
+The actual desktop detect_wells body executes; predictor construction/output are
+injected CPU fakes, so no actualweights/GPU/scientific detector parity accepted.
+Malformed output geometry/provenance, badsettings, checksum failure, CSV/rename/
+predictor failures preserve prior outputs. Service/UI detector enablement remains
+open, and parentN698 partial. Receipt:features/data/698_well_detector_2026-10-14/.
