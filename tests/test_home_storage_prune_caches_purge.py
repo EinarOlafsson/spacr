@@ -260,11 +260,18 @@ def test_the_purge_command_line_is_opt_in(home, capsys, monkeypatch):
 def test_the_uninstallers_offer_purge():
     root = Path(__file__).resolve().parents[1] / "packaging" / "online"
     unix = (root / "install_spacr_unix.sh").read_text(encoding="utf-8")
-    assert "spacr.install_cleanup purge" in unix
-    assert unix.index("spacr.install_cleanup purge") < unix.index('rm -rf "$INSTALL_ROOT"')
+    generated = unix.split('cat > "$uninstall_path" <<EOF\n', 1)[1].split('\nEOF', 1)[0]
+    purge = generated.index("spacr.install_cleanup purge")
+    targeted = generated.index('spacr.install_cleanup remove --only-root "$INSTALL_ROOT"')
+    assert '"--purge"' in generated and purge < targeted
+    assert 'rm -rf "$INSTALL_ROOT"' not in generated
     nsis = (root / "spacr_online_installer.nsi").read_text(encoding="utf-8")
     uninstall = nsis[nsis.index('Section "Uninstall"'):]
-    assert '"/PURGE"' in uninstall and "install_cleanup purge" in uninstall
+    assert '${GetOptions} $R0 "/PURGE" $R1' in uninstall
+    purge = uninstall.index("spacr.install_cleanup purge")
+    targeted = uninstall.index('uninstall_spacr_windows.ps1')
+    assert uninstall.index('${IfNot} ${Errors}') < purge < targeted
+    assert 'RMDir /r "$INSTDIR"' not in uninstall
     mac = (root / "build_macos_online.sh").read_text(encoding="utf-8")
     assert "spacr.install_cleanup purge" in mac
 
