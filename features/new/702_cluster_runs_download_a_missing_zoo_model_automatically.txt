@@ -641,3 +641,19 @@ data/702_claim_reservation_rollback_2026-10-15/receipt.json.
     PRIVATE pending exact owner/nine reviewed targets/normal generation and
     actual localized refusal closure. No whole702/nativecluster/fullCI claim.
     Evidence:data/702_stock_offline_constructor_guard_2026-10-15/receipt.json.
+
+2026-10-15 — verified coherent model refusal components
+    Unknown explicit Cellpose requests now refuse stock substitution, retaining
+    exact file/catalogue priority and existing default/legacy/sam identities.
+    _choose_model additionally refuses uncached installed stock when automatic
+    downloads are disabled; cached/native local files and online behavior pass.
+    Owning25 and18 checks remain source-bound; no replay. Normal three-source
+    runtime closure passed all9 languages and actual27 callbacks6.67s (18 for
+    these two diagnostics). All10,873 unrelated current rows/locale preserved;
+    fresh original source/hash checks and normal arrival refresh passed.
+    Swedish protected product-name inflection was refused before writes and
+    corrected through independent review; failed attempt retained. Existence-
+    only _choose_model boundary, not checksum/cross-process safety or coverage
+    of direct object/training constructors; that follow-up is separately held.
+    No whole702/nativecluster/model/fullCI/release acceptance. Evidence:
+    data/702_698_runtime_closure_2026-10-15/receipt.json.

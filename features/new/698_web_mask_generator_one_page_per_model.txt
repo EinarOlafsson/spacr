@@ -544,3 +544,15 @@ is outside the normal public API source root. Nine target reviews and normal
 runtime/arrival generation remain required before coherent publication. Actual
 ZeroGPU placement/host resource and scientific acceptance remain explicit.
 Evidence: features/data/698_configured_startup_preload_2026-10-15/.
+
+2026-10-15 — verified configured startup warm-up
+    Startup warms actually provisioned registry families instead of always
+    requiring plaquev4; an unprovisioned default is not silently constructed.
+    Unknown supplied registry keys refuse before model load. Exact source
+    owning22PASS2.20s is retained, not replayed. Coalesced normal9-language
+    runtime closure and27 actual localized callbacks6.67s passed (9 invoke
+    actual startup refusal); all10,873 unrelated current rows/locale preserved.
+    Source-current/original collector pins and normal arrivals verified.
+    No actual hosted endpoint, model inference, scientific accuracy, whole698
+    or fullCI/release acceptance. Evidence:
+    data/702_698_runtime_closure_2026-10-15/receipt.json.

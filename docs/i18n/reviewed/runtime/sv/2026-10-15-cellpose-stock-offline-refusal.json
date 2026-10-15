@@ -9,7 +9,7 @@
       "key": "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
       "source": "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
       "source_sha256": "3223dd3f18a2b1363d0f8e6e559f9dad501be5cf6eeedd447a17dd6424beb4b1",
-      "translation": "Automatiska modellnedladdningar är avstängda via SPACR_MODEL_DOWNLOAD. Cellposes standardmodell {model} finns inte i cachen på {path}. Ange dess befintliga kontrollpunkt eller ladda ned den innan du kör offline."
+      "translation": "Automatiska modellnedladdningar är avstängda via SPACR_MODEL_DOWNLOAD. Standardmodellen {model} för Cellpose finns inte i cachen på {path}. Ange dess befintliga kontrollpunkt eller ladda ned den innan du kör offline."
     }
   ]
 }
