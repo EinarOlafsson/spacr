@@ -1,0 +1,303 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "reviewed_commit": "fec368766e60eec308e0b774b35507e2f2dfe9d4",
+  "source_commit": "c1be6383a7c601f473a27419bd8692dfbf49edc7",
+  "source_files_sha256": {
+    "spacr/qt/widgets/figure_settings.py": "d8ecdf8776240f08480b5d55ffc47107b755d06defd7addeec70ce2bfb55bba8",
+    "spacr/qt/widgets/save_figure_dialog.py": "d1452fffc76caf09dfc4041bc3d876233201c7eee92d227a92b4d001c8bc977b"
+  },
+  "source_snapshot_sha256": "b5fccba1a61e1a8c5a81cee5ba07e588ebee8522ededad099dccc0ece4d12957",
+  "review_files_sha256": {
+    "docs/i18n/reviewed/api/de/2026-10-15-figure-export-prose.json": "611c5f2db097df5c24f711cf34c6bb9230b5b355aa6fbcbc03ffd9c0346bb903",
+    "docs/i18n/reviewed/api/es/2026-10-15-figure-export-prose.json": "2e59f375fc10cd273a6b81be13853f6c85e1f7d2f0ab0e7611362252b2595852",
+    "docs/i18n/reviewed/api/fr/2026-10-15-figure-export-prose.json": "19c50cc5a01209a9ba0b11f08c4fc5642423dbfee2bff8303856d2d6eed691ab",
+    "docs/i18n/reviewed/api/hi/2026-10-15-figure-export-prose.json": "b22d6dcdf98284373cb981779f8b909a77486e73c13823303a1df820a8467a96",
+    "docs/i18n/reviewed/api/is/2026-10-15-figure-export-prose.json": "e6ccffa8df9690af4a25888520a604ce7559001a4534da6f126a4955a1c699e3",
+    "docs/i18n/reviewed/api/ko/2026-10-15-figure-export-prose.json": "29fb388bcd74f744ad2306415ba0f5a1cc92d75bb6e4bd9ec9b398d0914933bf",
+    "docs/i18n/reviewed/api/pt/2026-10-15-figure-export-prose.json": "f3c144e28838ceb2960208021bdf380958e48248d7cde9bf18c195964af5644a",
+    "docs/i18n/reviewed/api/sv/2026-10-15-figure-export-prose.json": "3f8e3af8be7cd009693784fb8c05abaf14c879b695a10560f2001802e88f2062",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-figure-export-prose.json": "321a2747b4f927c80cc3e20d19b48502db9b0a6c56c77e8a641fd4f32ce70998"
+  },
+  "reviewer": "Home-B website_686_687; authored the factual English correction, did not author these API translations",
+  "review_kind": "Independent AI technical semantic review; no human or native-speaker signoff",
+  "scope": "54 target records, six changed rendered blocks/symbols, nine locales",
+  "decision": "PASS all 54; no target corrections requested",
+  "coverage": [
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog#7",
+      "source_sha256": "a690fcdcf7947d314d31a8684b92a0a07e49d8015511619c85db10b408ed4089",
+      "context_sha256": "f8446aed75bc86a0ed7e8df0b6a806290b3e3200b3ca7c23053b92f9efaa74cc",
+      "semantic_review": "Propagation receives Image UMAP values only; other figure-style edits excluded, missing Image UMAP controls yield an empty dictionary, and None disables Propagate with an explanation.",
+      "targets": {
+        "de": {
+          "decision": "PASS",
+          "translation_sha256": "f4a1656de35193c78bdd55c3d114e78c07beb728fb211eb23d05df70c50b6d7e"
+        },
+        "es": {
+          "decision": "PASS",
+          "translation_sha256": "3431b69e73c903999b51da2154d687aa219ab1dda378cad27c73fd1e3743d4a5"
+        },
+        "fr": {
+          "decision": "PASS",
+          "translation_sha256": "c80039222946feb0b81d1008f0e157179210ff517bc9fe7a2cc6b925410537a7"
+        },
+        "hi": {
+          "decision": "PASS",
+          "translation_sha256": "f09b551ec030c7f5bcc7c04b3286393f77082e2dcb4db7cc7141661025baa319"
+        },
+        "is": {
+          "decision": "PASS",
+          "translation_sha256": "e15b0e70e6c1046f7848f5870f4ecb98e1f3f8f3e2651956e4d14db99006217e"
+        },
+        "ko": {
+          "decision": "PASS",
+          "translation_sha256": "7287a717a89df420bad8be71dba90132033334658f5bdc4e056d68b1dfacad85"
+        },
+        "pt": {
+          "decision": "PASS",
+          "translation_sha256": "1a9f1b68a2408461a3d6922a5ab9d721afe7386584e9061d18b1215af4868375"
+        },
+        "sv": {
+          "decision": "PASS",
+          "translation_sha256": "42750b52550d00f02471cafa7e5d8938d5ad4f82ecd817c8eb439431ddb73a05"
+        },
+        "zh_CN": {
+          "decision": "PASS",
+          "translation_sha256": "40c0efa0f6de77b684add57f4569feabf33f3e9e66000b2b6eb45c1ab2445ab5"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.graph_style_as_dict#4",
+      "source_sha256": "a3209f6e0fbcc206acc8634456d0444048dac5c41ffbc852a4f83c1215a59392",
+      "context_sha256": "207f42b87ebea7fa422b8c735546eeae6777e550f3a8fcc2e219b96bcdad18c8",
+      "semantic_review": "Result is dict style data with exact spacr_style_kind/general/per_graph keys; per-graph values that are not dictionaries are omitted, not generalized to arbitrary mappings.",
+      "targets": {
+        "de": {
+          "decision": "PASS",
+          "translation_sha256": "ab8480cdf68c03cd95b760b02a542f31361482c6fd4cdd17b38056557ec5d037"
+        },
+        "es": {
+          "decision": "PASS",
+          "translation_sha256": "1ca0cc015ed480e28fdbcbbb32152059439350893efeea7d051c57b83550bc5c"
+        },
+        "fr": {
+          "decision": "PASS",
+          "translation_sha256": "b05c39cca8ddda1c1cc17495bf14cc8fed4eda05832ecf25bc4b2befa759e3f9"
+        },
+        "hi": {
+          "decision": "PASS",
+          "translation_sha256": "323d4d1892a3c57c5820c81e7bb29e818b1ceae49c102d72deb86d0d91b4fe57"
+        },
+        "is": {
+          "decision": "PASS",
+          "translation_sha256": "40d4ee87bd26b699a0bd653446b59b491140dbb164f1ce61f6d8091ea36c6e3e"
+        },
+        "ko": {
+          "decision": "PASS",
+          "translation_sha256": "26f33159b56c0033952c93bf36bfae05de66c93c5763547da8f64f2d568efcfd"
+        },
+        "pt": {
+          "decision": "PASS",
+          "translation_sha256": "2b36e7803c47f38c2c0135b4755053c348ec87de6b7ce0ef25166062d304a00b"
+        },
+        "sv": {
+          "decision": "PASS",
+          "translation_sha256": "e696de5418abb58e14e61bfcb6efb45ff8fb73b653befa33dba25cd191eff020"
+        },
+        "zh_CN": {
+          "decision": "PASS",
+          "translation_sha256": "8b93ffc21843f370ae57b4e90c8b6155e5ce756ae3955b328053a79ea8c8fda3"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.apply_graph_style#2",
+      "source_sha256": "e21f374fa116635a4ee0b040b4d86172013b5ca121cf66555cb0ac9fb9e03cbf",
+      "context_sha256": "0caa3175edb59d3cec9df8b4476b047a4742aee8def0ab098c88edc5bc4deb12",
+      "semantic_review": "General overrides and graph-type-keyed per_graph overrides remain separate; non-dictionary per-graph values omitted.",
+      "targets": {
+        "de": {
+          "decision": "PASS",
+          "translation_sha256": "23657e4e581b64f4714b8677020897376cdcad39dd4a7523a0648e0ec0109f5a"
+        },
+        "es": {
+          "decision": "PASS",
+          "translation_sha256": "a1cd90d07f7acdfff340dd2994f3c6fed194a5847347818e561695f279ece59c"
+        },
+        "fr": {
+          "decision": "PASS",
+          "translation_sha256": "fdeeaeb98f17352a679a036c04620c50c1cba56b31ff7248aba359bfdefe4062"
+        },
+        "hi": {
+          "decision": "PASS",
+          "translation_sha256": "0d3b1dd6d295219d2d21cf70bd5e32f03b9b7dbaee01127f6152861b886d6d06"
+        },
+        "is": {
+          "decision": "PASS",
+          "translation_sha256": "4e69276a243301aea594b33d7e8dd6eb1ff49308700f65707d138831cf9b39ad"
+        },
+        "ko": {
+          "decision": "PASS",
+          "translation_sha256": "5e168ca80e41cdd0923da852a45f13a449af5df3584dc7c36185128233301b84"
+        },
+        "pt": {
+          "decision": "PASS",
+          "translation_sha256": "b9bd81e095b37ea04d716f4debd6e786b6bf10ecfa8873c9f00746c120e84432"
+        },
+        "sv": {
+          "decision": "PASS",
+          "translation_sha256": "54a872752d02737608b198382773fb24f825aa11eceb7d77cbc519e1ecc2eaca"
+        },
+        "zh_CN": {
+          "decision": "PASS",
+          "translation_sha256": "89431edbf48844477d3c08869edfab2d4e6bc589a30fa80093cb235c8afb35ac"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.save_figure_dialog#2",
+      "source_sha256": "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65",
+      "context_sha256": "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65",
+      "semantic_review": "File settings distinguished from plot context-menu settings; Matplotlib also has live figure settings, while resized detached export copy receives additional export-only text scaling.",
+      "targets": {
+        "de": {
+          "decision": "PASS",
+          "translation_sha256": "472dc8850339ba9b8db0d35a0ac2e289d7c57ca3975e1185099521d9959a2014"
+        },
+        "es": {
+          "decision": "PASS",
+          "translation_sha256": "d5bfce1aa0ba587a931b1965e1ae3a755f035322c60260773f811d9bf8920883"
+        },
+        "fr": {
+          "decision": "PASS",
+          "translation_sha256": "bdd7b1b6d7a24a16cf06403fa1bad7b75bd1627fb8cbd57fbcd7f9a54732e542"
+        },
+        "hi": {
+          "decision": "PASS",
+          "translation_sha256": "abc78e489996c93853f99577503d2b1d8cf7b1b67e86bef21d8f363e783caa13"
+        },
+        "is": {
+          "decision": "PASS",
+          "translation_sha256": "5877f020584240db77ce593421f7bfb8ab44b80044db91b4daedb6b68c15132f"
+        },
+        "ko": {
+          "decision": "PASS",
+          "translation_sha256": "3564c44a3f643db621c76063cd035dd95cb121c0b2458215cbaa8b8a082ee36d"
+        },
+        "pt": {
+          "decision": "PASS",
+          "translation_sha256": "6b7883244f64d903a3e88629f1ab113666e21c75812466257d867a73651c0e9d"
+        },
+        "sv": {
+          "decision": "PASS",
+          "translation_sha256": "75725bfb877e96a2db1cae2798fd887d7c3dfb77227f496e12f019322fc03a20"
+        },
+        "zh_CN": {
+          "decision": "PASS",
+          "translation_sha256": "ac7597bcea692a8451cf5cd7bfdcc6a3442d6d90ca45b1e359f2de7fe47aeb7e"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.save_figure_dialog.style_for_file#2",
+      "source_sha256": "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
+      "context_sha256": "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
+      "semantic_review": "Colour targets retain axes titles/labels/ticks, legend entries, axes text, spines and tick marks; figure-level text, legend titles and plotted data lines excluded. text_colour/line_colour override ink only in their own scopes; empty background makes both backgrounds transparent. Grid True/False/None remains draw/disable/preserve. Dimensions in inches change only when BOTH positive; DPI zero and font scale <=0 preserve existing values.",
+      "targets": {
+        "de": {
+          "decision": "PASS",
+          "translation_sha256": "8d72f9f8f931ee2fab5092d6f6dc59068eae268070f58d18d22cadf6f33b337c"
+        },
+        "es": {
+          "decision": "PASS",
+          "translation_sha256": "fe1f9e0588a7650609bf314431beb959f9f40a6208b6eb8f796c32bbdda4ff0e"
+        },
+        "fr": {
+          "decision": "PASS",
+          "translation_sha256": "9b57e70fb63d0ac8026fe37308905d3429ac837fc93ecde516670b8cabdf56c6"
+        },
+        "hi": {
+          "decision": "PASS",
+          "translation_sha256": "8cb70402c74fda296b4b332b8b1e631fa39c3493681177398a4957d19d780c60"
+        },
+        "is": {
+          "decision": "PASS",
+          "translation_sha256": "76d4db96de56eac04ffb01ccf90150612436bda571b9115d6e7cee6d9fc9598f"
+        },
+        "ko": {
+          "decision": "PASS",
+          "translation_sha256": "e70ce2c81a240d65823f41716e2ff822d499358e0dbb9c7ef9d4b28c308e66d4"
+        },
+        "pt": {
+          "decision": "PASS",
+          "translation_sha256": "03dd2fd62548bfa3899ac548f6a1afb8805ca322930bf52a042345c6709c6b08"
+        },
+        "sv": {
+          "decision": "PASS",
+          "translation_sha256": "5d3d60f628c5297fb9e8b7b824eedbf938394bc46312cae371a978750798bc1f"
+        },
+        "zh_CN": {
+          "decision": "PASS",
+          "translation_sha256": "260f84ee586d5ece83ccd321b964a738ce14c63a8f0e9098382ea2637193ca61"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.save_figure_dialog.SaveFigureDialog#5",
+      "source_sha256": "3d1b3e9da7e7fbd0ee38c27637c904702a5cdc1ae40a90bb47ff1365d56290db",
+      "context_sha256": "f59a87e16e91e8874f0746e46226284413e43acec08cf1bb74dd22d2d96ee9d7",
+      "semantic_review": "Fast-plot file controls and format/resolution/page size retained; live Matplotlib figure menu exists and export dialog adds text scale for its copy, without claiming live edits are absent.",
+      "targets": {
+        "de": {
+          "decision": "PASS",
+          "translation_sha256": "f51d05846dce420128de2cac310dbf104bbf9b6d66a5d37c8d5daff687a9bfa4"
+        },
+        "es": {
+          "decision": "PASS",
+          "translation_sha256": "dfa88481475007228f60a20e98e14c1c8a2c9a0752564690d35561baacbd3c6c"
+        },
+        "fr": {
+          "decision": "PASS",
+          "translation_sha256": "3676f497fe36b3f26cd13ead2dc76720ca97fe6a6f475db95aa0473d45849f6f"
+        },
+        "hi": {
+          "decision": "PASS",
+          "translation_sha256": "73cb2d6b81663efdd813bb752a4eebf02e3f003242d6d8a0ba8be671658e70d2"
+        },
+        "is": {
+          "decision": "PASS",
+          "translation_sha256": "4bdafef74356a75fdf3c50bed961eb3f7470cfbf7932f2c524f29b2bd626ce41"
+        },
+        "ko": {
+          "decision": "PASS",
+          "translation_sha256": "b216703897488d976f748fa275d577d949068cfc1c332cb6a7569e31de100713"
+        },
+        "pt": {
+          "decision": "PASS",
+          "translation_sha256": "0bd9cd5532df62622e3599b436a97e1163c45076ac51f2d1ed0533ed302415d8"
+        },
+        "sv": {
+          "decision": "PASS",
+          "translation_sha256": "702e984e8f4079f06da50684695e61f5a984a70abca1faf3fa10ebf441572d48"
+        },
+        "zh_CN": {
+          "decision": "PASS",
+          "translation_sha256": "f118f65509754054c5190299bf2a85dc12aa13830361a972219ae8deecb51765"
+        }
+      }
+    }
+  ],
+  "validation": {
+    "semantic": "All 54 source/target pairs read and compared directly; source-specific preserved distinctions listed per block.",
+    "binding": "Six blocks match actual pinned AST docstrings; six snapshot document hashes match author receipt; all 54 source/context/hash identities and protected RST names match.",
+    "normal_gates": "Author reports normal source/context gates already passed; not rerun or replaced by this review receipt.",
+    "generation": "API owner handles normal generation separately; no writer/model/global collector or duplicate tests run here."
+  },
+  "limitations": [
+    "Technical semantic approval only; no native-speaker fluency claim.",
+    "No hosted/rendered documentation, runtime, scientific or hardware acceptance performed.",
+    "The six changed blocks are the complete scope of this receipt, not the full N678 item or all prose in these modules."
+  ]
+}
