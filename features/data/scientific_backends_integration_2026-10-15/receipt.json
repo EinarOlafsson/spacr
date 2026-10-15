@@ -50,5 +50,13 @@
     "raw_log": "full-runtime-audit.log.gz",
     "raw_log_sha256": "3fe6e142cb481435323d4ecd972c11591b3594ee08c55273d1473535b3239e57",
     "policy": "Nightly implementation publication authorized by root with exact foreign failures; not global CI/release acceptance. No N700 source/targets changed and no gate waived."
+  },
+  "caption_arrival_refresh": {
+    "executed_in_this_tree": true,
+    "exit": 1,
+    "failure": "caption arrival lacks explicit reviewed record: sv/('UI', 'AI Error report')",
+    "raw_log": "caption-arrivals-refresh.log.gz",
+    "raw_log_sha256": "7df545cd257faa471a6cbd6cb31ba233f90df61a58e0a29066471fb9b4f407bb",
+    "contract_waived": false
   }
 }

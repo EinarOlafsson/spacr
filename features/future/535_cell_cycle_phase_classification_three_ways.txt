@@ -236,3 +236,6 @@ Normal full nine-locale runtime audit exit 1: 37 existing foreign N700
 error-report captions remain exact English (sv4/de3/es7/zh_CN7/pt7/hi3/ko3/is2/fr1).
 Raw failure is retained in the integration receipt. Nightly implementation
 publication does not claim green global CI/release or waive this owner gap.
+Actual normal caption-arrival refresh also refuses missing explicit
+sv/UI/AI Error report review (exit 1); its raw failure is retained. No
+caption contract, foreign review or source baseline was modified to pass.
