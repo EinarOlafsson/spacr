@@ -108230,10 +108230,10 @@
       "source_blocks_sha256": [
         "bc3b3f790771c3ac5febee6db66a8bea14cd1d1087fe073b3a6f003280b46a4c",
         "5ffe31d50c50026a60679aed48f0590e27b00d22db0d6ab50cc14f14e8b0755c",
-        "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c"
+        "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343"
       ],
-      "source_sha256": "3b12859878d36eccfdbfea157c85ab7fbde617a91f9505506ec36950f7b9fcb2",
-      "text": "Put a saved :meth:`plot_state` back. Returns whether it applied.\n\nOne redraw, not one per setting. Every public setter here redraws,\nso restoring nine of them through nine setters would draw the panel\nnine times on every run switch -- and the intermediate frames are of\ncombinations the user never chose.\n\n:param state: dict as :meth:`plot_state` returns it; keys it lacks\n    keep their current value. Nothing applies when it is not a dict or\n    no table is loaded."
+      "source_sha256": "1b651f58a50e5eff99149c5c8ee0b7457907b99cc47be1690a559d883dd7de7a",
+      "text": "Put a saved :meth:`plot_state` back. Returns whether it applied.\n\nOne redraw, not one per setting. Every public setter here redraws,\nso restoring nine of them through nine setters would draw the panel\nnine times on every run switch -- and the intermediate frames are of\ncombinations the user never chose.\n\n:param state: dict as :meth:`plot_state` returns it; keys it lacks\n    keep their current value. Nothing applies when it is not a dict or\n    no table is loaded. An explicit ``None`` colour disables colouring.\n    Older states containing only ``selected_key`` remain supported."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state": {
       "source_blocks_sha256": [
@@ -108432,10 +108432,11 @@
       "source_blocks_sha256": [
         "d16a8a97e6ad7b9ba2a827ebe3e37812d6a8074428e84bcc4123ee5828290a6f",
         "a2c610687c28676b1a215fd06bc26f7a327d4601cb56f04f9346ef0bb717a698",
-        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08"
+        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08",
+        "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7"
       ],
-      "source_sha256": "6656ac222b7b87c29545d47a8d44200dcc2e3f673cff048768dae906f8741bf7",
-      "text": "What the user has built on the plot, as data.\n\nEach regression run keeps its own plot state. The screen has one\nvolcano that every run uses, so without this, opening run B would\ndiscard the level, the colouring, the axis limits, the effect cut and\nthe selection chosen on run A.\n\nEverything here belongs to the run, not to the widget. The colour\ncolumn is stored by name rather than by index, because the combo box\nis rebuilt from each table's own columns and index 3 is a different\ncolumn in the next run."
+      "source_sha256": "fe485e4258701db737818d6b6a10e4e963bdb4520c428f1cb27d5123a85e3f8e",
+      "text": "What the user has built on the plot, as data.\n\nEach regression run keeps its own plot state. The screen has one\nvolcano that every run uses, so without this, opening run B would\ndiscard the level, the colouring, the axis limits, the effect cut and\nthe selection chosen on run A.\n\nEverything here belongs to the run, not to the widget. The colour\ncolumn is stored by name rather than by index, because the combo box\nis rebuilt from each table's own columns and index 3 is a different\ncolumn in the next run.\n\n``selected_keys`` carries the complete table selection; the legacy\n``selected_key`` also retains the active key used by linked plots.\n``symbol_by`` and ``opacity_by`` independently record the chosen\nmarker-shape and opacity columns, including ``None`` for an unused\nchannel, so an empty shape channel does not change opacity's role."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.ranking": {
       "source_blocks_sha256": [

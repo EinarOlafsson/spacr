@@ -170666,14 +170666,14 @@
       "source_blocks_sha256": [
         "bc3b3f790771c3ac5febee6db66a8bea14cd1d1087fe073b3a6f003280b46a4c",
         "5ffe31d50c50026a60679aed48f0590e27b00d22db0d6ab50cc14f14e8b0755c",
-        "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c"
+        "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343"
       ],
-      "source_sha256": "3b12859878d36eccfdbfea157c85ab7fbde617a91f9505506ec36950f7b9fcb2",
-      "text": "Remettre une sauvegarde :meth:`plot_state`. Renvoie si elle s'est appliquée.\n\nChaque setter public redessine ici, donc la restauration de neuf d'entre eux à travers neuf setters dessinerait le panneau neuf fois sur chaque commutateur de session de traitement -- et les cadres intermédiaires sont des combinaisons que l'utilisateur n'a jamais choisies.\n\n:param state: dictionnaire tel que le renvoie :meth:`plot_state` ; les clés absentes conservent leur valeur actuelle. Rien n’est appliqué si ce n’est pas un dictionnaire ou si aucune table n’est chargée.",
+      "source_sha256": "1b651f58a50e5eff99149c5c8ee0b7457907b99cc47be1690a559d883dd7de7a",
+      "text": "Remettre une sauvegarde :meth:`plot_state`. Renvoie si elle s'est appliquée.\n\nChaque setter public redessine ici, donc la restauration de neuf d'entre eux à travers neuf setters dessinerait le panneau neuf fois sur chaque commutateur de session de traitement -- et les cadres intermédiaires sont des combinaisons que l'utilisateur n'a jamais choisies.\n\n:param state: dict renvoyé par :meth:`plot_state` ; les clés absentes conservent leur valeur actuelle. Rien n’est appliqué si la valeur n’est pas un dict ou si aucun tableau n’est chargé. Un ``None`` explicite pour la couleur désactive la coloration. Les anciens états ne contenant que ``selected_key`` restent pris en charge.",
       "translation_source_blocks_sha256": [
         "bc3b3f790771c3ac5febee6db66a8bea14cd1d1087fe073b3a6f003280b46a4c",
         "d37a5a50f27f13134a33683ecb17875494e84b1bc31269a90abfb953e0117f07",
-        "4dc2a6986b1d1351de09411f04856f44bf6bb9d389720880bf30ac0845686db6"
+        "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state": {
@@ -170978,14 +170978,16 @@
       "source_blocks_sha256": [
         "d16a8a97e6ad7b9ba2a827ebe3e37812d6a8074428e84bcc4123ee5828290a6f",
         "a2c610687c28676b1a215fd06bc26f7a327d4601cb56f04f9346ef0bb717a698",
-        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08"
+        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08",
+        "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7"
       ],
-      "source_sha256": "6656ac222b7b87c29545d47a8d44200dcc2e3f673cff048768dae906f8741bf7",
-      "text": "Ce que l'utilisateur a construit sur le graphique, comme données.\n\nChaque course de régression conserve son propre état de tracé. L'expérience de dépistage a un volcan que chaque course utilise, donc sans cela, l'ouverture de la course B rejetterait le niveau, la coloration, les limites de l'axe, la coupe d'effet et la sélection choisie sur la course A.\n\nTout ici appartient à l'exécution, pas au widget. La colonne de couleur est stockée par nom plutôt que par index, parce que la boîte combo est reconstruite à partir des colonnes propres de chaque table et l'index 3 est une colonne différente dans la prochaine exécution.",
+      "source_sha256": "fe485e4258701db737818d6b6a10e4e963bdb4520c428f1cb27d5123a85e3f8e",
+      "text": "Ce que l'utilisateur a construit sur le graphique, comme données.\n\nChaque course de régression conserve son propre état de tracé. L'expérience de dépistage a un volcan que chaque course utilise, donc sans cela, l'ouverture de la course B rejetterait le niveau, la coloration, les limites de l'axe, la coupe d'effet et la sélection choisie sur la course A.\n\nTout ici appartient à l'exécution, pas au widget. La colonne de couleur est stockée par nom plutôt que par index, parce que la boîte combo est reconstruite à partir des colonnes propres de chaque table et l'index 3 est une colonne différente dans la prochaine exécution.\n\n``selected_keys`` contient toute la sélection du tableau ; l’ancien ``selected_key`` conserve aussi la clé active utilisée par les graphiques liés. ``symbol_by`` et ``opacity_by`` enregistrent indépendamment les colonnes choisies pour la forme des marqueurs et l’opacité, avec ``None`` pour un canal inutilisé, afin qu’un canal de forme vide ne change pas le rôle de l’opacité.",
       "translation_source_blocks_sha256": [
         "d16a8a97e6ad7b9ba2a827ebe3e37812d6a8074428e84bcc4123ee5828290a6f",
         "d8ef6e7982637cd45d2012b88ec266aa0d6bcc3a1c3a4c1901980f4c30b21678",
-        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08"
+        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08",
+        "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.ranking": {

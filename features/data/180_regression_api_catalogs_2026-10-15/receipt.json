@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "source_head": "3920b274c58947656201e473b8d0bb966671bbcf",
+  "source_commits": [
+    "2b5ba2553db",
+    "d2c599c04fb",
+    "1cd00114b27014354fad8a9b2c80fe60a6cc1cb1"
+  ],
+  "published_base": "ba0a0a894",
+  "scope": "Normal scoped API generation for two existing regression Figures workspace-state methods across nine locales; exact prior public English plus only owned normal AST-rendered replacements, no global current-source claim.",
+  "owned_source_files": {
+    "spacr/qt/widgets/regression_results.py": "5a6d4bd10d4325e8952ea33bf96c2f72935b8548384443603ecad2808dac8c4a"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-n180-regression-state.json": "0c4f8ae79dfcf5fea876a985f95cc0541444fa27a92a6e6417598e28a78478d0",
+    "docs/i18n/reviewed/api/de/2026-10-15-n180-regression-state.json": "50d78a3c8eb56e8cb6a82bbefa2ff5e13f3fd387ea67dfad6b73823a69f21b81",
+    "docs/i18n/reviewed/api/es/2026-10-15-n180-regression-state.json": "2e9e4b7afdce3f110278954f643c72811fb1fa8dffde74b9f1d2e1c16127e7da",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-n180-regression-state.json": "0a9c2e19beb3f00e14714bc999f02553e9040047b4c2ca26b7ea07aa67f16e6d",
+    "docs/i18n/reviewed/api/pt/2026-10-15-n180-regression-state.json": "154d4907b695d02de6d2a1313637c05bf28852db82155414480a85dc32c4a22f",
+    "docs/i18n/reviewed/api/hi/2026-10-15-n180-regression-state.json": "aa9bd2e6184e540cf1c9f6bbec065adb4275f9661831a5a5f58a4b2ece59f7ef",
+    "docs/i18n/reviewed/api/ko/2026-10-15-n180-regression-state.json": "0899c333e2b521304d0f9f307104c73cf173ed11fa0e0762f0bb050306c864f6",
+    "docs/i18n/reviewed/api/is/2026-10-15-n180-regression-state.json": "7bcbb6b61fece84f6e882b0ef1b928696e4b5b512813d453748c6a1085c7f2d4",
+    "docs/i18n/reviewed/api/fr/2026-10-15-n180-regression-state.json": "f88ea3440490f0a8279b56b23c64077367db61265f7f83e21b26e7222fd1525f"
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "4757ae2698102012d48a3739afb6a85aae3ae04467e4166fe9320809e674b48c",
+      "unrelated_after_sha256": "4757ae2698102012d48a3739afb6a85aae3ae04467e4166fe9320809e674b48c",
+      "catalog_sha256": "51dc5c2d0488459b5800118fbd697d75c55489d86cca6658ab816378f632f07c"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "56c3612b920094b1a55e2dc84d1f580b90548bc17b2d83b255e9e6bbb7dc660f",
+      "unrelated_after_sha256": "56c3612b920094b1a55e2dc84d1f580b90548bc17b2d83b255e9e6bbb7dc660f",
+      "catalog_sha256": "ca3f48abf2e33a00561ca1edc859defcbb015ec3ab8a3444926ebd8c70e7607e"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "08498e95c5403cb40b53c1d7d3a863456b394c41d5cf9481a776f374c89af27b",
+      "unrelated_after_sha256": "08498e95c5403cb40b53c1d7d3a863456b394c41d5cf9481a776f374c89af27b",
+      "catalog_sha256": "a2be46bfb48f8295b4df9194b228127d3b202e5146f16fda2c4b84b00d965240"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "79e2f87283d7e4e345be755265e850711439b4fbd6c12c935962ecb9a633813a",
+      "unrelated_after_sha256": "79e2f87283d7e4e345be755265e850711439b4fbd6c12c935962ecb9a633813a",
+      "catalog_sha256": "b65b345b9046253296bc4b5e862ff1afddc7de27004b6887bd4c75125909653c"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "caa44c672c71a76cefb26211ab44e5c1c80de16f397771b0ffeb95e0c02eb5df",
+      "unrelated_after_sha256": "caa44c672c71a76cefb26211ab44e5c1c80de16f397771b0ffeb95e0c02eb5df",
+      "catalog_sha256": "cd73bbea897cf1f751ac7831616360f952cd4b4268575af6538d3d0633c065df"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "535f94f36bf7a8e7707c87703638a9a9853d90f3bf2fad114356e9525bc4e6a5",
+      "unrelated_after_sha256": "535f94f36bf7a8e7707c87703638a9a9853d90f3bf2fad114356e9525bc4e6a5",
+      "catalog_sha256": "4fbffa03734540d242bf1b7d6af218cd96ca5d97ac6799bc40b546f9c6f8b6c0"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "ba193fceb7968a151fb44515409408f28bbff0cd55bb3f445f39567f285bd42c",
+      "unrelated_after_sha256": "ba193fceb7968a151fb44515409408f28bbff0cd55bb3f445f39567f285bd42c",
+      "catalog_sha256": "d2fd2c2f65b886f9d3c792a484a7abafa1987ce5c65dea0c3ab1a69ba5fa3f25"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "b8b19d89f62701146bf55c9ab1bf9cba6cbe5dd48face86c0e41d4af58a75f3c",
+      "unrelated_after_sha256": "b8b19d89f62701146bf55c9ab1bf9cba6cbe5dd48face86c0e41d4af58a75f3c",
+      "catalog_sha256": "7af8fe4712793a11e1b35f90a39454cb0cfb79d7d832e4fd97589895b5718fc0"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "reviewed_blocks_exact": 2,
+      "unchanged_blocks_preserved": 5,
+      "unrelated_records_preserved": 13408,
+      "unrelated_before_sha256": "fb6d1be6033f923f13106f9b4f1c92a6cdffa9eadd1860ba0bd5feef6ad958fe",
+      "unrelated_after_sha256": "fb6d1be6033f923f13106f9b4f1c92a6cdffa9eadd1860ba0bd5feef6ad958fe",
+      "catalog_sha256": "b8d4cb36b741fdaf00daf93e37ed06ed6d5722c55fc3f79a6c17e114ea520961"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+  ],
+  "unrelated_english_records_preserved": 13482,
+  "normal_functions": [
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "runtime_collection_policy": "Light mode refuses before any full canonical collection. Heavy mode lazily freezes one real canonical_sources result only if requested, then re-collects and compares; all normal review/candidate validators unchanged.",
+  "new_symbols": [],
+  "new_symbol_provenance": "No new public symbol; only existing regression workspace-state methods changed.",
+  "normal_api_collector_run": false,
+  "model_decoder_requests": 0,
+  "stats": {
+    "mode": "light",
+    "runtime_canonical_requests": 0,
+    "actual_runtime_collections": 0,
+    "runtime_collection_seconds": [],
+    "model_decode_requests": 0,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "written_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "status": "pass",
+    "elapsed_seconds": 17.762619571993127
+  },
+  "limitations": [
+    "AI technical review; no native-speaker claim.",
+    "No Sphinx, runtime/global arrivals, native-platform or external publication claim."
+  ],
+  "source_history": {
+    "removed_unreferenced_hashes": [],
+    "all_other_records_exact": true,
+    "checked_all10_catalog_source_references": true,
+    "sha256": "2aab31f50c3ef94d40b7d25ebf594a64e8bbcde22a2fc62f9a221883a5b8b263"
+  },
+  "total_reviewed_targets_exact": 18
+}
