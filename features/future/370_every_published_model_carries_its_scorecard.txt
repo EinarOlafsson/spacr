@@ -1497,3 +1497,16 @@ model. Complete source-bound consistency/export/generation/native batches
 after release, preserving accepted curation, immutable old measurements and
 unchanged default model choices. No uploads, scoring, training, GPU, source
 implementation or annotation changes were made by this reconciliation.
+
+2026-10-15 — DETECTOR-ONLY TOOLTIP SCORECARDS (bounded software repair)
+The scorecard renderer already supports mAP50 and mAP50_95, but its early
+presence guard considered only segmentation/training fields. A detector
+with only these valid measured metrics therefore showed no table. The
+unchanged detector-row discovery now precedes that guard. Zero-valued,
+scalar and finetuned/stock detector metrics remain visible; metadata-only
+entries still do not invent a scorecard. Three baseline failures repaired;
+nine targeted checks pass (0.68 s), capped2G/CPU under the shared lock.
+No metric values, scoring, curation, model defaults, API prose or runtime
+captions changed. Evidence: data/370_detector_only_scorecards_2026-10-15/.
+The broader consistency/export/publication and scientific gates above remain
+open; this is not acceptance of every published model or scorecard.

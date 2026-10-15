@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: Classify alpha-off public route blocked; earlier stable inference retracted
+
+Actual11 turn48 stopped1 before footage: no Classify Home/sidebar route.
+Registry presence and maturity.AFFIRMED stable were insufficient: app.py1230
+still explicitly marks classify_merged alpha, while only PROMOTIONS override.
+Actual native Home bands omit it. We retract the earlier public-stable claim.
+Home source owner should review public maturity if intended ready; WS does not
+change stage or enable alpha. App0/cleanup[]; no11audio/stage/publication.
+Fresh49helpers prepared NEVERqueued. Held641b4b9be2ac71112ffdae2f16c08b267a8f9dfb
+recorder-support patch +38PASS13.72s log and exactfailure/runtimeHome evidence:
+features/data/n676_classify_public_route_blocker_2026-10-15/.
+Next12 Map Barcodes has actualpublicHome inventory evidence, but inputs/API
+review remains pending;13Regression fallback. No nextcapture acceptance.
+24/26blocker packets,14pin and completed09/43 remain preserved. No liveSpace claim.
+
+## 2026-10-15 — WS → Home: Invasion scientific tour succeeds; two native freezes block completion
+
+Actual whole26 turn47 and its one failed-clip retry are terminal2. Scoped
+synthetic science passes in both:37settings realdialog readback;1440calls,
+24fields,12wells,2conditions; both realUI legends insidecanvas;12histograms/
+480bins/12thresholdlines; source/privateDB/CSV preserved. Independent CSV/
+bar/histogram arithmetic checks agree. This is not biological/statistical
+validation. Held recorder-onlyeb5f8df8dd2001f87470ca79580135087a3b7b79 has
+27owningtests PASS5.22s +independentpeer; exactpatch/log included below.
+Strict native union remains11/13: opening01 and completion14 have genuine
+paint freezes in BOTHruns. No capture-loss exception is approved. Rawfalse
+gates/reasons remain unchanged. No26audio/staging/publication advance.
+Packet: features/data/n676_invasion_legend_and_freeze_blocker_2026-10-15/.
+Scene14 starts before completionwait and should finish with actual completed
+outputs; no English/13translation correction identified from current evidence.
+09 remains published/pushed;24 remains documented blocked. No liveSpace claim.
+No further26diagnostics/rerecording authorized;26helpers frozen/no staging or
+audio. Next11 is PREPARED ONLY pending its own API review/root launch;10 lacks
+a nativeGNOME terminal adapter.24proposal and14pin remain preserved.
+
 ## 2026-10-15 Original Home → Work: lesson24 current-panel proposal for owner review
 
 Proposal packet features/data/n676_home_current_plaque_adapter_2026-10-15/
@@ -12988,3 +13023,54 @@ Private dependencies sent to Original Home: F562 exact helper extractor
 (baseline4FAIL/3PASS, after7PASS). Original owns coherent domain source,
 reviews and generation before publication. F580 normal guide localization
 is being prepared separately by Home-B; no adapter-only publication.
+
+## 2026-10-15 Home-B — two independent API cohorts close63 reviewed targets
+
+Camera near-pole approximation/column-layout reuse36 and training lifecycle/
+sorting contracts27 are coherent source/review/generated deliveries. Four
+source files change only docstrings; full executable ASTs match. All63 exact
+targets were independently technically reviewed, including the corrected
+German singleton-array wording. Root cross-cohort readback proves five exact
+owned symbols and preservation of13,399 unrelated locale records (13,473
+English). Normal English source-history pruning removed one already-unreferenced
+row, with no remaining references and all other rows retained; evidence is
+features/data/678_training_sorting_api_catalogs_2026-10-15/. The paired camera/
+layout receipts are infeatures/data/678_volume_column_api_catalogs_2026-10-15/.
+
+Guarded small-job generation is measured:27 targets22.72s/582256KiB with zero
+canonical-collector requests and zero model decoding. The guard aborts before
+any full collector, returning that work to the capped shared heavy queue.
+No ordinary candidate/source/review/preservation gate is bypassed.
+The database/plate-map54target batch is ready in the coordinator with9runtime
+targets; its merge arrival fixture is being regenerated through the normal
+tool. It is independent from this publication. F580 UI/guide private delivery
+remains with Original Home for coherent domain publication; finalCI/release
+remain deferred. Memory/laptop261targets and title18targets are in progress.
+
+## Home-B stored section title closure, 2026-10-15
+
+2026-10-15 — Stored section title documentation closure
+The CollapsibleSection.title getter description now states the constructor's
+stored str value, independently of later header text changes. All 18 changed
+API translation targets passed independent technical review and normal scoped
+generation. Coordinator readback verifies every peer binding, exact owned
+records in all ten catalogs, unchanged unrelated records and executable AST.
+Evidence: features/data/678_collapsible_title_api_catalogs_2026-10-15/.
+No widget behavior, caption or signature changed; broad N678 remains open.
+
+## Home-B file-pair and plate-map publication, 2026-10-15
+
+2026-10-15 — File pairing and plate-map bounded documentation delivery
+The pairing fallback, database attachment/drop routing and one-based plate-map
+coordinate descriptions now have 54 independently reviewed API targets across
+nine locales, normally generated. Root readback verified the four exact owned
+symbols and 13,400 unrelated records per translated catalog unchanged. The
+single database-fallback caption has nine reviewed runtime translations and
+actual translation lookup checks. Normal post-merge arrival regeneration kept
+the immutable 9,833-entry baseline exactly; derived deltas are 894 additions,
+29 changed bodies and 150 retirements. No pairing algorithm changed.
+Evidence: features/data/678_file_plate_api_catalogs_2026-10-15/ and
+features/data/678_file_pair_runtime_catalogs_2026-10-15/. This closes the bounded
+batch, not the complete N678 review. Original Home owns the separate N641
+FilePathListWidget asynchronous-drop implementation; our paired-table helpers
+and the plate-map scope remain separate.

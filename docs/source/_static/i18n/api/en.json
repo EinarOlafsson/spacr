@@ -81138,12 +81138,11 @@
     },
     "spacr.qt.widgets.collapsible_section.CollapsibleSection.title": {
       "source_blocks_sha256": [
-        "9494e6657eaeca144cba17b1d12dd8209f5ab85b9b1c8f167868c04f16d83ad2",
-        "cf07f01591fdd20844821e9ede21fc4a43d725986129a596603904bba3498a1d",
-        "37e574be560d96919185ec77c38ae19db625b7c3fc20961837c0a1d64b5a7e4f"
+        "c1c72df8068cdbbc0e191475e25f7617baa8eac2ade3f8d027b665e2cbb4c708",
+        "a4e8495ff87c99b9d090c6bde8fff42700a6100524dd93fa6a1e357cdf56caa4"
       ],
-      "source_sha256": "a1349207febf679a00836c1730b544db77409f938d75845f448b224a2596b409",
-      "text": "The section's caption, as written rather than as displayed.\n\nThe header uppercases it and may append a maturity badge; this is\nthe string a catalog or a settings file is keyed on.\n\n:returns: the title."
+      "source_sha256": "970faf0b2c10cd931e18ea3e963660f381746381d143fd4c650cb94da49102d8",
+      "text": "Return the title passed to the constructor, converted to ``str``.\n\n:returns: the stored title; changing the header button's text does\n    not change this value."
     },
     "spacr.qt.widgets.collapsible_splitter": {
       "source_blocks_sha256": [
@@ -81674,15 +81673,15 @@
     "spacr.qt.widgets.column_aligned_row.align_row_to_columns": {
       "source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ],
-      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
-      "text": "Re-lay ``strip``'s widgets out over ``header``'s sections.\n\nIdempotent: a strip that is already following this header is returned\nunchanged, so a repeated show costs nothing and cannot stack two layouts.\n\n:param strip: the widget holding the buttons. Its existing layout is\n    emptied and destroyed -- the widgets survive, reparented on ``strip``.\n:param header: the ``QHeaderView`` whose columns are followed.\n:param columns: ``(widget, column index or None)`` in the order the\n    un-aligned ones should trail in.\n:param on_invalidate: passed to the layout; called when a managed\n    widget's size hint changes, so the header's owner can re-fit the\n    column to a caption that has since been translated.\n:returns: the installed layout, or ``None`` when there was nothing to do."
+      "source_sha256": "0722ce2688299ab6c18c7c0d9d5cc4bd500decc63cf288e05cfcbb007aa0af94",
+      "text": "Re-lay ``strip``'s widgets out over ``header``'s sections.\n\nAn existing ``ColumnAlignedRow`` on the strip is returned unchanged.\nIts header, widget-column assignments and invalidation callback are not\ncompared with or replaced by the new arguments.\n\n:param strip: the widget holding the buttons. Its existing layout is\n    emptied and destroyed -- the widgets survive, reparented on ``strip``.\n:param header: the ``QHeaderView`` whose columns are followed.\n:param columns: ``(widget, column index or None)`` in the order the\n    un-aligned ones should trail in.\n:param on_invalidate: passed to the layout; called when a managed\n    widget's size hint changes, so the header's owner can re-fit the\n    column to a caption that has since been translated.\n:returns: the existing or newly installed layout, including an empty\n    layout when ``columns`` is empty. Returns ``None`` when the strip or\n    header is missing or its Qt object has been deleted."
     },
     "spacr.qt.widgets.column_picker": {
       "source_blocks_sha256": [
@@ -90254,12 +90253,12 @@
       "source_blocks_sha256": [
         "22e4f32547c7d75e221c68b8faff32eeed58a0d87cd190ca74472bf5abe722a0",
         "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
-        "91df4ebf297c9ff16c4646769cefc835b5c607e5302c6b67b4917841b655753b",
+        "cd0fdc773ef0448abed8cde10a3a7bb6026ba11332018bbb221f32a3f4d57348",
         "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5",
         "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5"
       ],
-      "source_sha256": "85c8887cf440665cf6664e9bd0898bd5a96439c409104cc567e34c7fbd2c2472",
-      "text": "Attach a measurements database to one plate row, and say which.\n\n``row`` is the row the user aimed the drop at -- an EXPLICIT\nassignment, which is remembered and survives the re-proposal that the\nnext dropped CSV triggers.\n\nWith no row, the database is offered to the token pairing first, so\n``plate2/measurements/measurements.db`` finds plate 2 wherever that\nrow happens to be. Only when nothing in its path names a plate does\nit fall back to the first row that has no database -- and the\nreturned sentence, also shown under the table, NAMES that row. A\ndatabase attached to row 0 in silence is a plate's measurements\nquietly credited to another plate.\n\nReturns the sentence, so a caller with a console logs the same words\nthe user is reading.\n\n:param path: path to the measurements database, as a string or\n    path-like object; an empty path raises :class:`ValueError`."
+      "source_sha256": "3b0cfae063958ccf29f1532da1c032deae567d0202dc16401cef1cd008375735",
+      "text": "Attach a measurements database to one plate row, and say which.\n\n``row`` is the row the user aimed the drop at -- an EXPLICIT\nassignment, which is remembered and survives the re-proposal that the\nnext dropped CSV triggers.\n\nWith no row, the database is offered to the token pairing first, so\n``plate2/measurements/measurements.db`` finds plate 2 wherever that\nrow happens to be when its tokens match uniquely. If pairing leaves\nthe database on its own row, it is attached to the first row without\na database, if one exists. This fallback also applies when the path\ncontains a plate name that did not produce a unique match. The\nreturned sentence, also shown under the table, names the chosen row.\n\nReturns the sentence, so a caller with a console logs the same words\nthe user is reading.\n\n:param path: path to the measurements database, as a string or\n    path-like object; an empty path raises :class:`ValueError`."
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.dragEnterEvent": {
       "source_blocks_sha256": [
@@ -90281,11 +90280,11 @@
       "source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
         "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
-        "81805f4ab609a4d715318f26225994f96892b3bb1d9fdb431e161d598dbb467f",
+        "ac4a388a506cd73c944d1483f245d85faf4e6ea88c375bbd896f960c6d676670",
         "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda"
       ],
-      "source_sha256": "99c938a4bc562aa448434d3fad7471475cf93dfa87e1fbf96d240e7ecd337b9c",
-      "text": "Route each dropped file to the column, and row, it belongs in.\n\nA drop over the score or count column goes there regardless of what\nthe file looks like -- the user aimed it. A drop anywhere else is\nsorted by header, so dropping the whole set at once still fills both\ncolumns correctly.\n\nA DATABASE is decided by its extension and never by aim: a ``.db``\ndropped on the score column is a mis-aim, not a request to fit the\nregression on a sqlite file, and a CSV dropped on the database column\nis likewise still a CSV. What aim adds for a database is the ROW --\ndropping it on a plate's row attaches it to THAT plate, which is the\none thing the token pairing cannot know when the file is called\n``measurements.db`` like everybody else's.\n\n:param event: the drop event; its local file URLs and drop position\n    are read, and it is ignored when it carries no usable paths."
+      "source_sha256": "59dd0d457c462f99721a48136a5c4c1c45c5948bd8ccc01079f081103a78285b",
+      "text": "Route each dropped file to the column, and row, it belongs in.\n\nA drop over the score or count column goes there regardless of what\nthe file looks like -- the user aimed it. A drop anywhere else is\nsorted by header, so dropping the whole set at once still fills both\ncolumns correctly.\n\nA DATABASE is decided by its extension and never by aim: a ``.db``\ndropped on the score column is a mis-aim, not a request to fit the\nregression on a sqlite file, and a CSV dropped on the database column\nis likewise still a CSV. A database dropped in the database column\non an existing row is explicitly attached to that row. A drop over\nanother column or outside an existing row uses automatic attachment,\nincluding the fallback described by :meth:`attach_database`.\n\n:param event: the drop event; its local file URLs and drop position\n    are read, and it is ignored when it carries no usable paths."
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.get_value": {
       "source_blocks_sha256": [
@@ -90345,13 +90344,13 @@
     "spacr.qt.widgets.file_list.suggest_file_pairs": {
       "source_blocks_sha256": [
         "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
         "762b38dac4aa9ab6ffc69213de58bd67cbf9cd39bcef3f4e5f8b3f64171fde17",
         "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
-        "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+        "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc"
       ],
-      "source_sha256": "8e75346ccd85b3235784262ba25ea2f9c53ff155c21b5d94d0f07b0f692e5493",
-      "text": "Propose visible score/count/database rows by filename tokens.\n\nA proposal is never authoritative: the editable table is the contract the\nuser confirms. Unique best matches are used; ties remain unpaired.\n\n``databases`` is keyword-only and defaults to nothing, so the two-argument\ncall every existing caller makes still means what it did. A database is\nmatched against BOTH cells of a row it may join -- a plate is named by its\nscore CSV as often as by its count CSV -- and one that matches nothing is\nlisted on its own row rather than being dropped or guessed onto row 0.\n\n:param scores: score CSV paths; each starts a row, in the order given.\n:param counts: count CSV paths; each is paired with the score whose\n    filename tokens it uniquely matches best, unmatched ones fill score\n    rows still missing a count, and any left over get rows of their own."
+      "source_sha256": "5eb745f9845f5672270485cdf78ce93e52056f02c5d706f6685ab7c62cae615d",
+      "text": "Propose visible score/count/database rows by filename tokens.\n\nA proposal is never authoritative: the editable table is the contract the\nuser confirms. Each score first takes its unique best match among unused\ncount paths. Remaining count paths then fill score rows without a count,\nin input order, including rows whose token matches were tied or absent.\nDatabase matches require a unique best match without an input-order\nfallback; any databases left unmatched receive separate rows.\n\n``databases`` is keyword-only and defaults to nothing, so the two-argument\ncall every existing caller makes still means what it did. A database is\nmatched against BOTH cells of a row it may join -- a plate is named by its\nscore CSV as often as by its count CSV -- and one that matches nothing is\nlisted on its own row rather than being dropped or guessed onto row 0.\n\n:param scores: score CSV paths; each starts a row, in the order given.\n:param counts: count CSV paths, in fallback pairing order. Score rows\n    select unique best filename-token matches first; remaining paths fill\n    score rows still missing a count, and any left over get their own rows."
     },
     "spacr.qt.widgets.flash": {
       "source_blocks_sha256": [
@@ -106344,12 +106343,12 @@
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": {
       "source_blocks_sha256": [
         "c6f7963877fb1381ea3337639c4e9b6ce67631f626eccbb93b6cd95d4e96e41d",
-        "e77dde0f8aed11c914cc799894cc28abd622f411c9680d52e0c96249c8cfb546",
-        "7f8295d65558a9a4fe8de5a7dd5ce33ea6f1965c35961b735f694512d5e4269c",
+        "48c509ac62ad8f95597b50c9212732bd70cdaf6d3cae6584f086ecfffd9397cd",
+        "18cfd53dba60fff2bac3946587aa4857635d24a2608cbee9dc2f859544a19717",
         "34c54415494582b6ede3722c54dcb41554683f1d7649246d5a3307593d787f71"
       ],
-      "source_sha256": "a4747e1f4b18314c3c3a4f89bb22233464bef5f464569e7744eb340da65eeb86",
-      "text": "Anchor a drag on one well.\n\n:param row: zero-based plate row of the pressed well.\n:param column: zero-based plate column of the pressed well.\n:param modifiers: the keyboard state at the press. With Ctrl the\n    rectangle adds to what is already chosen; without it the drag\n    replaces the selection, which is what every other grid in this\n    application does."
+      "source_sha256": "c3d17d37e529f731cad6d9f594bda1e7943efb63412743a639a12dcf6fc95d3a",
+      "text": "Anchor a drag on one well.\n\n:param row: one-based plate row of the pressed well.\n:param column: one-based plate column of the pressed well.\n:param modifiers: the keyboard state at the press. With Ctrl the\n    rectangle adds to what is already chosen; without it the drag\n    replaces the selection, which is what every other grid in this\n    application does."
     },
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.drag_to": {
       "source_blocks_sha256": [
@@ -110197,20 +110196,20 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "Install three-state semantic sorting on ``view`` and return it.\n\nAccepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A\n``QTableView`` is wrapped in :class:`SortableProxyModel`; call this\nfunction immediately after ``setModel`` and obtain the view's selection\nmodel afterwards.\n\n:param view: the view to make sortable; a view with no header is\n    returned untouched, and one already installed only has its initial\n    order re-stamped."
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "Install three-state semantic sorting on ``view`` and return it.\n\nAccepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A\n``QTableView`` with a non-proxy model is wrapped in\n:class:`SortableProxyModel`. An existing ``QSortFilterProxyModel`` is\npreserved with its own comparison behavior; a view without a model is\nnot wrapped. Call this function immediately after ``setModel`` and\nobtain the view's selection model afterwards.\n\n:param view: the view to make sortable; a view with no header is\n    returned untouched, and one already installed only has its initial\n    order re-stamped."
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. Array-like values are not treated as individual missing cells.\n\n:param value: a cell value of any type."
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. After the ``None`` and string checks, the result of\n``pandas.isna`` is converted to ``bool``. A single-element array containing\na missing value can therefore return ``True``; ambiguous multi-element\nresults return ``False``.\n\n:param value: a cell value of any type."
     },
     "spacr.qt.widgets.sortable_table.numeric_value": {
       "source_blocks_sha256": [
@@ -111631,12 +111630,12 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "Display training metrics as incrementally updated curves.\n\n``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed\n``\"loss\"``, ``\"accuracy\"`` and ``\"per_class\"``. ``curves`` holds the\n:class:`pyqtgraph.PlotDataItem` for each metric, created when that\nmetric first appears and reused for every epoch after it.\n\nBoth are populated as epochs arrive and neither is replaced, so a\nreference taken once stays valid for the life of the panel.\nBuild the panel that follows a training run's losses and metrics.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent widget, or ``None``."
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "Display training metrics as incrementally updated curves.\n\n``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed\n``\"loss\"``, ``\"accuracy\"`` and ``\"per_class\"``. ``curves`` holds the\n:class:`pyqtgraph.PlotDataItem` for each metric, created when that\nmetric first appears and reused for every epoch after it.\n\nThe plot widgets are created in the constructor; curves are added when\ntheir metrics first appear. :meth:`clear` removes curves and stored points\nfor a new run while retaining the plot widgets and both dictionaries.\nBuild the panel that follows a training run's losses and metrics.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent widget, or ``None``."
     },
     "spacr.qt.widgets.training_monitor.TrainingMonitor.append": {
       "source_blocks_sha256": [
@@ -113068,13 +113067,13 @@
     },
     "spacr.qt.widgets.volume_view.angles_from_axes": {
       "source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ],
-      "source_sha256": "ac06b42f4c9804397a8f2e18f0b0e6fc091789b769026df49a8a3c9c5db055b6",
-      "text": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.\n\n``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the\nroll then carries whatever turn about the line of sight the frame has.\nLooking straight down (or up) the azimuth is free, so it is chosen to\nmake the roll zero.\n\n:param u: the screen's right-pointing axis.\n:param w: the axis pointing out of the screen."
+      "source_sha256": "5f1609b1291db5475f47f6c54cf52403943a7e25e88338ae2e0a126a5b855f58",
+      "text": "Return ``(elev, azim, roll)`` in degrees for the supplied screen axes.\n\n``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the\nroll then carries whatever turn about the line of sight the frame has.\nNear either pole, where ``abs(w[2]) > 1.0 - 1e-9`` after normalization,\nthe returned elevation is ``89.9999`` or ``-89.9999`` degrees. The azimuth\nis chosen from ``u`` and roll is zero. This branch deliberately\napproximates the supplied frame instead of returning an exact pole.\n\n:param u: the screen's right-pointing axis.\n:param w: the axis pointing out of the screen."
     },
     "spacr.qt.widgets.volume_view.rotate_about_world": {
       "source_blocks_sha256": [

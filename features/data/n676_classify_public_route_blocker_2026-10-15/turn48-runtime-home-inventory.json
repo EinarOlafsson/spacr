@@ -1,0 +1,113 @@
+{
+  "scope": "Exact runtime Home bands selected without registry/catalog inference",
+  "source": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson11-r48/runtime_inventory.json",
+    "sha256": "77a4efa8d4e76406bdb28a8bf1dae55c1b72aec4d1ce59829a1676f22bfc8f4b",
+    "bytes": 21109
+  },
+  "commit": "641b4b9be2ac71112ffdae2f16c08b267a8f9dfb",
+  "home_bands": [
+    [
+      "Core",
+      [
+        [
+          "mask",
+          "Mask",
+          "Generate segmentation masks for cells, nuclei, pathogens and organelles from microscopy images using Cellpose and supported alternatives",
+          "Core"
+        ],
+        [
+          "measure",
+          "Measure",
+          "Quantify per-object intensity and morphology features",
+          "Core"
+        ],
+        [
+          "annotate",
+          "Annotate",
+          "Assign annotations to single-object images and store them in the project database",
+          "Core"
+        ],
+        [
+          "map_barcodes",
+          "Map Barcodes",
+          "Map sequencing barcodes to screen data",
+          "Core"
+        ],
+        [
+          "regression",
+          "Regression",
+          "Regression analysis of screen scores",
+          "Core"
+        ]
+      ]
+    ],
+    [
+      "Data",
+      [
+        [
+          "foreign",
+          "Import",
+          "Bring images, masks and measurement tables into a spaCR project -- converting microscope formats, mapping source columns, or adopting masks made elsewhere",
+          "Data"
+        ],
+        [
+          "run_compare",
+          "Run Compare",
+          "Compare settings, object counts, and ranked hits between runs",
+          "Data"
+        ],
+        [
+          "power",
+          "Power / Design",
+          "Estimate the cells and wells required to detect a specified effect size",
+          "Data"
+        ]
+      ]
+    ],
+    [
+      "Tools",
+      [
+        [
+          "make_masks",
+          "Make Masks",
+          "Edit segmentation masks with brush, flood-fill, relabel, fill and small-object removal tools",
+          "Tools"
+        ],
+        [
+          "align",
+          "Align & Stitch",
+          "Register and stitch image tiles into an incrementally written mosaic with bounded memory use",
+          "Tools"
+        ],
+        [
+          "umap",
+          "Image UMAP",
+          "Visualize UMAP embeddings with image glyphs",
+          "Tools"
+        ],
+        [
+          "graph_builder",
+          "Graph Builder",
+          "Create plots by assigning variables to axes, colour, size, and facets",
+          "Tools"
+        ]
+      ]
+    ],
+    [
+      "Organism",
+      [
+        [
+          "toxoplasma",
+          "Toxoplasma",
+          "Image-analysis assays for Toxoplasma gondii",
+          "Organism"
+        ]
+      ]
+    ]
+  ],
+  "classify_registered": true,
+  "classify_in_home_bands": false,
+  "map_barcodes_in_home_bands": true,
+  "regression_in_home_bands": true
+}

@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-15",
+  "scope": "F562 exact embeddings._mil_bags literal runtime caption extraction",
+  "source_commit": "d2826a4ae762c775c068b91a436849a57f15d80e",
+  "source_sha256": "2e3bbad8aeddd755b3b049083f0df5cbf8e9c9f4b2db5fb4547fe27da4c7f821",
+  "owner_request_sha256": "0e584d8c98d1fc9a704763bbe099ada75ad4a713418f29aae3677f21319f94d7",
+  "caption": "Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.",
+  "caption_sha256": "a8de758fcd97a226e16b4a3217a2ba5def09232e960cc46428990d6d8be50ea5",
+  "implementation": "Add only _mil_bags to existing top-level embeddings function allowlist; encoder_entry and _mil_frame_from_db retained.",
+  "before": {
+    "exit_code": 1,
+    "failed": 1,
+    "passed": 4,
+    "deselected": 18,
+    "seconds": 1.06,
+    "selection": "mil_bag_identity or new_backend_owners"
+  },
+  "after": {
+    "exit_code": 0,
+    "passed": 23,
+    "failed": 0,
+    "seconds": 1.13,
+    "module": "tests/test_runtime_backend_caption_owners.py"
+  },
+  "exclusion_coverage": [
+    "module-level tr literals",
+    "unrelated function tr literals",
+    "class methods sharing exact owner name",
+    "untranslated owner diagnostics"
+  ],
+  "resources": {
+    "memory_cap": "2G",
+    "threads": 1,
+    "cuda_visible_devices": "",
+    "qt_qpa_platform": "offscreen",
+    "gpu_used": false
+  },
+  "delivery": "Cherry-pick this commit alone. Its parent N698 commits are held for their owner translation batch; this diff does not include N698.",
+  "limitations": [
+    "No embeddings implementation change or backend/scientific acceptance.",
+    "No catalog or translation target edits; source owner supplies normal generation/reviews.",
+    "No broad module extraction, changed candidate gate or claimed whole-feature completion."
+  ]
+}

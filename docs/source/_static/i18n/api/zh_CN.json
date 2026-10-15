@@ -128297,16 +128297,14 @@
     },
     "spacr.qt.widgets.collapsible_section.CollapsibleSection.title": {
       "source_blocks_sha256": [
-        "9494e6657eaeca144cba17b1d12dd8209f5ab85b9b1c8f167868c04f16d83ad2",
-        "cf07f01591fdd20844821e9ede21fc4a43d725986129a596603904bba3498a1d",
-        "37e574be560d96919185ec77c38ae19db625b7c3fc20961837c0a1d64b5a7e4f"
+        "c1c72df8068cdbbc0e191475e25f7617baa8eac2ade3f8d027b665e2cbb4c708",
+        "a4e8495ff87c99b9d090c6bde8fff42700a6100524dd93fa6a1e357cdf56caa4"
       ],
-      "source_sha256": "a1349207febf679a00836c1730b544db77409f938d75845f448b224a2596b409",
-      "text": "部分的标签,如写而不是如显示。\n\n标题上传它,并可能附上成熟标志;这是链条一个目录或设置文件被键入。\n\n:returns: 这个标题。",
+      "source_sha256": "970faf0b2c10cd931e18ea3e963660f381746381d143fd4c650cb94da49102d8",
+      "text": "返回传入构造函数并转换为 ``str`` 的标题。\n\n:returns: 存储的标题；更改标题栏按钮的文本不会改变此值。",
       "translation_source_blocks_sha256": [
-        "9494e6657eaeca144cba17b1d12dd8209f5ab85b9b1c8f167868c04f16d83ad2",
-        "cf07f01591fdd20844821e9ede21fc4a43d725986129a596603904bba3498a1d",
-        "37e574be560d96919185ec77c38ae19db625b7c3fc20961837c0a1d64b5a7e4f"
+        "c1c72df8068cdbbc0e191475e25f7617baa8eac2ade3f8d027b665e2cbb4c708",
+        "a4e8495ff87c99b9d090c6bde8fff42700a6100524dd93fa6a1e357cdf56caa4"
       ]
     },
     "spacr.qt.widgets.collapsible_splitter": {
@@ -129152,23 +129150,23 @@
     "spacr.qt.widgets.column_aligned_row.align_row_to_columns": {
       "source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ],
-      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
-      "text": "重新插入 ``strip`` 的 widgets 超越 ``header`` 的部分。\n\nIdempotent:已经跟随这个标题的条纹被返回不变,所以重复的显示不花费任何代价,不能插入两个布局。\n\n:param strip: 它的现有布局被打破和破坏 - 维吉特生存,修复在 ``strip``。\n:param header: ``QHeaderView`` 随之而来的列。\n:param columns: ``(widget, column index or None)`` 在顺序中,不合并的应引进。\n:param on_invalidate: 转移到布局;当一个管理的 widget 的尺寸指示变化时,呼叫,所以标题的所有者可以重新调整列到从那时起翻译的标题。\n:returns: 安装的布局,或 ``None`` 当没有什么可做的。",
+      "source_sha256": "0722ce2688299ab6c18c7c0d9d5cc4bd500decc63cf288e05cfcbb007aa0af94",
+      "text": "重新插入 ``strip`` 的 widgets 超越 ``header`` 的部分。\n\n如果条带上已有 ``ColumnAlignedRow``，则原样返回。其表头、控件与列的对应关系以及失效回调不会与新参数比较，也不会被新参数替换。\n\n:param strip: 它的现有布局被打破和破坏 - 维吉特生存,修复在 ``strip``。\n:param header: ``QHeaderView`` 随之而来的列。\n:param columns: ``(widget, column index or None)`` 在顺序中,不合并的应引进。\n:param on_invalidate: 转移到布局;当一个管理的 widget 的尺寸指示变化时,呼叫,所以标题的所有者可以重新调整列到从那时起翻译的标题。\n:returns: 已有或新安装的布局；当 ``columns`` 为空时，也包括空布局。如果条带或表头缺失，或者其 Qt 对象已被删除，则返回 ``None``。",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ]
     },
     "spacr.qt.widgets.column_picker": {
@@ -142565,16 +142563,16 @@
       "source_blocks_sha256": [
         "22e4f32547c7d75e221c68b8faff32eeed58a0d87cd190ca74472bf5abe722a0",
         "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
-        "91df4ebf297c9ff16c4646769cefc835b5c607e5302c6b67b4917841b655753b",
+        "cd0fdc773ef0448abed8cde10a3a7bb6026ba11332018bbb221f32a3f4d57348",
         "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5",
         "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5"
       ],
-      "source_sha256": "85c8887cf440665cf6664e9bd0898bd5a96439c409104cc567e34c7fbd2c2472",
-      "text": "将测量数据库粘贴到一个实验室微板序列,然后说哪个。\n\n``row`` 是用户针对下跌的序列 - 一个 EXPLICIT 任务,它被记住并生存了下一个下跌 CSV 引发的重新提议。\n\n没有序列,数据库被提供给标志相结合的第一,所以 ``plate2/measurements/measurements.db`` 发现实验室微板2 随时随地发生。 只有当没有什么在其轨道上命名实验室小板,它会落到没有数据库的第一行 - 并返回的句子,也显示在表下,名称,这个序列。\n\n返回句子,以便使用控制台的呼叫器记录用户正在阅读的相同词语。\n\n:param path: 测量数据库的路径，可以是字符串或类路径对象；空路径会抛出 :class:`ValueError`。",
+      "source_sha256": "3b0cfae063958ccf29f1532da1c032deae567d0202dc16401cef1cd008375735",
+      "text": "将测量数据库粘贴到一个实验室微板序列,然后说哪个。\n\n``row`` 是用户针对下跌的序列 - 一个 EXPLICIT 任务,它被记住并生存了下一个下跌 CSV 引发的重新提议。\n\n未指定行时，数据库先参与词元配对，因此当词元产生唯一匹配时，``plate2/measurements/measurements.db`` 会找到第 2 块微孔板，无论其所在行的位置如何。若配对后数据库仍独占一行，就将其附加到第一个没有数据库的行（如果存在）。即使路径中包含微孔板名称，只要未产生唯一匹配，也会采用此后备方式。返回的句子会指出选中的行，并显示在表格下方。\n\n返回句子,以便使用控制台的呼叫器记录用户正在阅读的相同词语。\n\n:param path: 测量数据库的路径，可以是字符串或类路径对象；空路径会抛出 :class:`ValueError`。",
       "translation_source_blocks_sha256": [
         "2ff902a844690522a7c0cdc0611ef074c344024d57ff695edafe428f0992da12",
         "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
-        "77a2f7477ac5c8558ce62af20d7671bc09184e4ad0dd4c4f6d0d55fda1e7d813",
+        "67c9cbdcdbf492d4b6b2f8b8a5abcd78262726d9f434038126f95c039e334a8f",
         "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5",
         "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5"
       ]
@@ -142607,15 +142605,15 @@
       "source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
         "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
-        "81805f4ab609a4d715318f26225994f96892b3bb1d9fdb431e161d598dbb467f",
+        "ac4a388a506cd73c944d1483f245d85faf4e6ea88c375bbd896f960c6d676670",
         "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda"
       ],
-      "source_sha256": "99c938a4bc562aa448434d3fad7471475cf93dfa87e1fbf96d240e7ecd337b9c",
-      "text": "路由每个落下文件到列,并顺序,它属于。\n\n一滴超越分数或计算列,无论文件是什么样子 - 用户瞄准它. 一滴在其他地方是由标题分类,所以下载整个集同时仍然填补两个列正确。\n\n数据库是由其扩展决定,从来不是由目标:一个 ``.db`` 落在分数列是错误的,不是一个请求,以适应一个 sqlite 文件的逆转,而一个 CSV 落到数据库列也是仍然是一个 CSV. 数据库的目标是ROW - 将其扔在实验室微板的序列上将其连接到该实验室小板,这是一个东西,标志组合不能知道当文件被称为``measurements.db``像其他任何人一样。\n\n:param event: 拖放事件；会读取其本地文件 URL 和拖放位置，当它不携带任何可用路径时会被忽略。",
+      "source_sha256": "59dd0d457c462f99721a48136a5c4c1c45c5948bd8ccc01079f081103a78285b",
+      "text": "路由每个落下文件到列,并顺序,它属于。\n\n一滴超越分数或计算列,无论文件是什么样子 - 用户瞄准它. 一滴在其他地方是由标题分类,所以下载整个集同时仍然填补两个列正确。\n\n数据库由扩展名识别，而不由放置位置决定：将 ``.db`` 放入评分列属于放错位置，并不表示要求对 sqlite 文件拟合回归；同样，放入数据库列的 CSV 仍是 CSV。将数据库放入已有行的数据库列，会明确附加到该行。放在其他列上或已有行之外时，使用自动附加方式，包括 :meth:`attach_database` 所述的后备方式。\n\n:param event: 拖放事件；会读取其本地文件 URL 和拖放位置，当它不携带任何可用路径时会被忽略。",
       "translation_source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
         "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
-        "a84453f45d1bbce92b4a3e640dae1a4f2ad746d36bdbea8a70c6582d15db2ad1",
+        "3b7c0eb9fbeb7ec2c25d8219c66271184e9fb665e46f69f244af48e26ac90422",
         "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda"
       ]
     },
@@ -142708,19 +142706,19 @@
     "spacr.qt.widgets.file_list.suggest_file_pairs": {
       "source_blocks_sha256": [
         "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
         "762b38dac4aa9ab6ffc69213de58bd67cbf9cd39bcef3f4e5f8b3f64171fde17",
         "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
-        "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+        "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc"
       ],
-      "source_sha256": "8e75346ccd85b3235784262ba25ea2f9c53ff155c21b5d94d0f07b0f692e5493",
-      "text": "通过文件名标志提供可见的分数/计算/数据库行。\n\n一个提议永远不会有权威:可编辑的表是用户确认的合同。\n\n``databases``是单一的关键词和默认的任何东西,所以两个论点呼叫每个现有呼叫器仍然意味着它做了什么。 一个数据库是对BOTH细胞的序列,它可以加入 - 一个实验室微板被命名为它的分数 CSV 如其计算 CSV - 而一个匹配什么都没有列出自己的序列而不是落下或猜测到序列0。\n\n:param scores: 评分 CSV 路径；每个路径开始一行，按给定顺序排列。\n:param counts: 计数 CSV 路径；每个路径会与其文件名标记唯一最佳匹配的评分配对，未匹配的路径会填入尚缺计数的评分行，剩余的各自单独成行。",
+      "source_sha256": "5eb745f9845f5672270485cdf78ce93e52056f02c5d706f6685ab7c62cae615d",
+      "text": "通过文件名标志提供可见的分数/计算/数据库行。\n\n建议从不具有最终决定权：用户确认的是可编辑表格。每个评分文件先从尚未使用的计数文件路径中选择唯一最佳匹配。剩余计数路径随后按输入顺序填入尚无计数文件的评分行，包括词元匹配并列或没有匹配的行。数据库必须有唯一最佳匹配，不会按输入顺序进行后备配对；未匹配的数据库各占一行。\n\n``databases``是单一的关键词和默认的任何东西,所以两个论点呼叫每个现有呼叫器仍然意味着它做了什么。 一个数据库是对BOTH细胞的序列,它可以加入 - 一个实验室微板被命名为它的分数 CSV 如其计算 CSV - 而一个匹配什么都没有列出自己的序列而不是落下或猜测到序列0。\n\n:param scores: 评分 CSV 路径；每个路径开始一行，按给定顺序排列。\n:param counts: 计数 CSV 文件路径，按后备配对顺序排列。评分行先选择文件名词元的唯一最佳匹配；剩余路径填入仍缺少计数文件的评分行，多余路径各占一行。",
       "translation_source_blocks_sha256": [
         "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
         "f49a22d7e121f9948739e673d39e61a4ebb7db4a5a91783abf673cfe5f5e1ddd",
         "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
-        "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+        "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc"
       ]
     },
     "spacr.qt.widgets.flash": {
@@ -167646,16 +167644,16 @@
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": {
       "source_blocks_sha256": [
         "c6f7963877fb1381ea3337639c4e9b6ce67631f626eccbb93b6cd95d4e96e41d",
-        "e77dde0f8aed11c914cc799894cc28abd622f411c9680d52e0c96249c8cfb546",
-        "7f8295d65558a9a4fe8de5a7dd5ce33ea6f1965c35961b735f694512d5e4269c",
+        "48c509ac62ad8f95597b50c9212732bd70cdaf6d3cae6584f086ecfffd9397cd",
+        "18cfd53dba60fff2bac3946587aa4857635d24a2608cbee9dc2f859544a19717",
         "34c54415494582b6ede3722c54dcb41554683f1d7649246d5a3307593d787f71"
       ],
-      "source_sha256": "a4747e1f4b18314c3c3a4f89bb22233464bef5f464569e7744eb340da65eeb86",
-      "text": "Anchor 一个拖在一个微板样本位置。\n\n:param row: 基于零的实验室微板序列压缩微板样本位置。\n:param column: 以零为基础的实验室微板列的压缩微板样本位置。\n:param modifiers: Ctrl 将直角添加到已选择的东西;没有它,拖取取代选项,这就是该应用程序中的每个其他网络所做的事情。",
+      "source_sha256": "c3d17d37e529f731cad6d9f594bda1e7943efb63412743a639a12dcf6fc95d3a",
+      "text": "Anchor 一个拖在一个微板样本位置。\n\n:param row: 所按下孔位在微孔板中的行号，从一开始编号。\n:param column: 所按下孔位在微孔板中的列号，从一开始编号。\n:param modifiers: Ctrl 将直角添加到已选择的东西;没有它,拖取取代选项,这就是该应用程序中的每个其他网络所做的事情。",
       "translation_source_blocks_sha256": [
         "8af3b3fdefec12e6ea6c98e764adc14cdd1d5270f534cf55030bcf17a6b8dfb4",
-        "6e801f249d1c0cce18b7477acf66655bb80815a13c2122c9a13770e8010c04e8",
-        "7c6d28be25a678184dc0313a996cddc860ac6762e320008c93a75a3fd1bad24e",
+        "82966fb3fdd9d21e8b24ca13990788b2a13d0c14f0a63a6f4d4a87fcd1f15e56",
+        "20a77c38a13ca3fba66479cf91c16cf4abe6837edc6f1a91af39d00da9c4f7a3",
         "34c54415494582b6ede3722c54dcb41554683f1d7649246d5a3307593d787f71"
       ]
     },
@@ -173728,28 +173726,28 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "在 ``view`` 上安装三位数序列,然后返回。\n\n接受 ``QTableWidget``、 ``QTreeWidget`` 或 ``QTableView``. ``QTableView`` 被插入 :class:`SortableProxyModel`; 立即在 ``setModel`` 之后呼叫此函数,然后获得视图的选择模型。\n\n:param view: 要使其可排序的视图；没有表头的视图原样返回，已经安装过的视图只会重新记录其初始顺序。",
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "在 ``view`` 上安装三位数序列,然后返回。\n\n接受 ``QTableWidget``、``QTreeWidget`` 或 ``QTableView``。对于模型不是代理的 ``QTableView``，会使用 :class:`SortableProxyModel` 包装。已有的 ``QSortFilterProxyModel`` 会保留其自身的比较行为；没有模型的视图不会被包装。请在 ``setModel`` 之后立即调用此函数，然后再获取视图的选择模型。\n\n:param view: 要使其可排序的视图；没有表头的视图原样返回，已经安装过的视图只会重新记录其初始顺序。",
       "translation_source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ]
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "返回是否 ``value`` 是空的或已被认可失踪的终端。\n\n其中包括 ``None``、白色线条、 ``NaN``、pandas ``NA`` 和 ``NaT``. 类似序列的值不被视为单个失踪细胞。\n\n:param value: 任意类型的单元格值。",
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "返回是否 ``value`` 是空的或已被认可失踪的终端。\n\n这包括 ``None``、空白字符串、``NaN``、pandas 的 ``NA`` 和 ``NaT``。完成 ``None`` 和字符串检查后，会将 ``pandas.isna`` 的结果转换为 ``bool``。因此，包含缺失值的单元素数组可以返回 ``True``；包含多个元素且真值不明确的结果返回 ``False``。\n\n:param value: 任意类型的单元格值。",
       "translation_source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ]
     },
@@ -175975,16 +175973,16 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "显示训练尺寸作为不断更新曲线。\n\n``plots`` 持有 1 :class:`pyqtgraph.PlotWidget` 每板,键为 ``\"loss\"``, ``\"accuracy\"`` 和 ``\"per_class\"``. ``curves`` 保有 :class:`pyqtgraph.PlotDataItem` 为每个尺寸,创建当该尺寸首次出现并重新使用为每个后期。\n\n两者都被人口化,随着时代的到来,也没有被取代,所以一旦采取的参考仍然有效的面板的寿命. 构建面板,跟踪训练处理会议的损失和测量。\n\n参数\n----------\n父母: QWidget,可选 父母 widget,或 ``None``。",
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "显示训练尺寸作为不断更新曲线。\n\n``plots`` 持有 1 :class:`pyqtgraph.PlotWidget` 每板,键为 ``\"loss\"``, ``\"accuracy\"`` 和 ``\"per_class\"``. ``curves`` 保有 :class:`pyqtgraph.PlotDataItem` 为每个尺寸,创建当该尺寸首次出现并重新使用为每个后期。\n\n绘图控件在构造函数中创建；各项指标首次出现时才添加相应曲线。:meth:`clear` 为新一轮运行移除曲线和已保存的数据点，同时保留绘图控件及两个字典。构建用于跟踪训练运行的损失和指标的面板。\n\n参数\n----------\n父母: QWidget,可选 父母 widget,或 ``None``。",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "3f7f9fdd0ada67a1d79e56c0718189a24e7ccbe8ee93dfd1cf531137c49833e3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]
@@ -178223,16 +178221,16 @@
     },
     "spacr.qt.widgets.volume_view.angles_from_axes": {
       "source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ],
-      "source_sha256": "ac06b42f4c9804397a8f2e18f0b0e6fc091789b769026df49a8a3c9c5db055b6",
-      "text": "使 matplotlib 绘制出此坐标系的 ``(elev, azim, roll)``。\n\n``elev`` 被限制在 ``[-90, 90]`` 内，使竖直方向永不翻转；滚转角则承载该坐标系绕视线方向的任何转动。当垂直向下（或向上）看时，方位角可以任意取值，因此会选择使滚转角为零的方位角。\n\n:param u: 屏幕上指向右方的轴。\n:param w: 指向屏幕外的轴。",
+      "source_sha256": "5f1609b1291db5475f47f6c54cf52403943a7e25e88338ae2e0a126a5b855f58",
+      "text": "返回给定屏幕坐标轴对应的 ``(elev, azim, roll)``，单位为度。\n\n``elev`` 保持在 ``[-90, 90]`` 内，因此竖直方向不会翻转；滚转角随后表示该坐标框架绕视线的旋转。在任一极点附近，即归一化后满足 ``abs(w[2]) > 1.0 - 1e-9`` 时，返回的仰角为 ``89.9999`` 或 ``-89.9999`` 度。方位角根据 ``u`` 选取，滚转角为零。此分支有意近似给定的坐标框架，而不返回精确的极点。\n\n:param u: 屏幕上指向右方的轴。\n:param w: 指向屏幕外的轴。",
       "translation_source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ]

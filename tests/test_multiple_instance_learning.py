@@ -270,3 +270,110 @@ def test_mil_explicit_metadata_remains_authoritative(tmp_path):
         connection.execute("UPDATE png_list SET plateID='explicit_plate', fieldID='f9'")
     frame = _mil_frame_from_db(db)
     assert frame.plateID.eq('explicit_plate').all() and frame.fieldID.eq('f9').all()
+
+
+def _direct_mil_identity_table(well_column='well'):
+    records = []
+    for plate in ('plate_1', 'plate_2'):
+        for well in range(4):
+            for field in range(2):
+                for cell in range(2):
+                    records.append({
+                        'plateID': plate, 'rowID': 'r1', 'columnID': f'c{well + 1}',
+                        'fieldID': f'f{field + 1}', well_column: f'A{well + 1}',
+                        'well_label': int(well < 2), 'emb_0': float(well + cell),
+                        'emb_1': float(field)})
+    return pd.DataFrame(records)
+
+
+@pytest.mark.parametrize('column', ['plateID', 'rowID', 'columnID'])
+@pytest.mark.parametrize('well_column', ['well', 'wellID', 'custom_well'])
+def test_direct_mil_refuses_one_identifier_with_conflicting_acquisition_metadata(column, well_column):
+    frame = _direct_mil_identity_table(well_column)
+    second = frame.plateID.eq('plate_2')
+    if column != 'plateID':
+        frame.loc[:, 'plateID'] = 'plate_1'
+        frame.loc[second, column] = 'another_identity'
+    original = frame.copy(deep=True)
+    kwargs = {'well_column': well_column} if well_column == 'custom_well' else {}
+    with pytest.raises(ValueError, match='spans different acquisition wells'):
+        _mil_bags(frame, **kwargs)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize('layout', ['mixed_blanks', 'partial_metadata'])
+def test_direct_mil_known_cross_plate_conflict_survives_incomplete_metadata(layout):
+    frame = _direct_mil_identity_table()
+    if layout == 'mixed_blanks':
+        frame.loc[frame.index[::4], 'plateID'] = None
+        frame.loc[frame.index[1::4], 'plateID'] = '   '
+    else:
+        frame = frame.drop(columns=['rowID', 'columnID'])
+    original = frame.copy(deep=True)
+    with pytest.raises(ValueError, match='spans different acquisition wells'):
+        _mil_bags(frame)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize('well_column', ['well', 'wellID', 'custom_well'])
+def test_direct_mil_complete_unique_identifiers_keep_independent_wells_and_fields(well_column):
+    frame = _direct_mil_identity_table(well_column)
+    frame[well_column] = frame.plateID + '_' + frame[well_column]
+    original = frame.copy(deep=True)
+    kwargs = {'well_column': well_column} if well_column == 'custom_well' else {}
+    bags, labels, wells, positions, kept = _mil_bags(frame, **kwargs)
+    assert len(bags) == len(wells) == 8 and labels.sum() == 4
+    assert [bag.shape for bag in bags] == [(4, 2)] * 8
+    assert all(kept.iloc[index].plateID.nunique() == 1 for index in positions)
+    assert all(kept.iloc[index].fieldID.nunique() == 2 for index in positions)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize('layout', ['absent', 'blank', 'known_and_blank'])
+def test_direct_mil_unknown_metadata_does_not_invent_identity_or_change_legacy_input(layout):
+    frame = _direct_mil_identity_table()
+    if layout == 'absent':
+        frame = frame.drop(columns=['plateID', 'rowID', 'columnID'])
+    elif layout == 'blank':
+        frame.loc[:, ['plateID', 'rowID', 'columnID']] = None
+    else:
+        frame.loc[:, 'plateID'] = 'one_known_plate'
+        frame.loc[frame.index[::2], ['plateID', 'rowID', 'columnID']] = ' '
+    original = frame.copy(deep=True)
+    bags, labels, wells, positions, kept = _mil_bags(frame)
+    assert len(bags) == 4 and labels.sum() == 2
+    assert all(len(bag) == 8 for bag in bags)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def test_direct_mil_only_participating_rows_can_contradict_well_identity():
+    frame = _direct_mil_identity_table()
+    frame.well = frame.plateID + '_' + frame.well
+    excluded = frame.iloc[[0]].copy()
+    excluded.plateID = 'another_plate'
+    excluded.emb_0 = np.nan
+    frame = pd.concat([frame, excluded], ignore_index=True)
+    original = frame.copy(deep=True)
+    bags, labels, wells, positions, kept = _mil_bags(frame)
+    assert len(bags) == 8 and len(kept) == len(frame) - 1
+    pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
+def test_direct_mil_conflict_uses_actual_reviewed_locale_callback(language, monkeypatch):
+    import hashlib
+    import json
+
+    monkeypatch.setenv('SPACR_LANGUAGE', language)
+    source = 'Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.'
+    reviews = (Path(__file__).resolve().parents[1] / 'docs/i18n/reviewed/runtime'
+               / language / '2026-10-15-mil-direct-well-identity.json')
+    row = next(record for record in json.loads(reviews.read_text())['records']
+               if record['source'] == source)
+    assert row['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
+    frame = _direct_mil_identity_table()
+    original = frame.copy(deep=True)
+    with pytest.raises(ValueError) as error:
+        _mil_bags(frame)
+    assert str(error.value) == row['translation'].format(well='A1')
+    pd.testing.assert_frame_equal(frame, original)

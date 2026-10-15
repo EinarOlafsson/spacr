@@ -1,0 +1,7 @@
+[
+  {
+    "domain": "measure_live",
+    "msgid": "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name.",
+    "msgstr": "Com **Mostrar recursos alfa** ativado, a calibração de intensidade aceita uma placa de referência opcional indicada pelo nome em ``intensity_calibration_reference_plate``; deixe o campo em branco para usar a primeira placa por ordem de nome."
+  }
+]

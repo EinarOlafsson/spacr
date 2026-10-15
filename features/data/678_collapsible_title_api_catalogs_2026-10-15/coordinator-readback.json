@@ -1,0 +1,48 @@
+{
+  "baseline": "7b6abe591ff",
+  "expected_artifact": "a10eb69e06e",
+  "all_peer_bindings_verified": true,
+  "executable_ast_unchanged": true,
+  "locales": {
+    "en": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13477
+    },
+    "sv": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "de": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "es": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "fr": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "pt": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "is": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "hi": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "ko": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    },
+    "zh_CN": {
+      "owned_symbol_exact": true,
+      "unrelated_records_preserved": 13403
+    }
+  }
+}

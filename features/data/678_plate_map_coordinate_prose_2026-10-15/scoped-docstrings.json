@@ -1,0 +1,3 @@
+{
+  "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": "Anchor a drag on one well.\n\n:param row: one-based plate row of the pressed well.\n:param column: one-based plate column of the pressed well.\n:param modifiers: the keyboard state at the press. With Ctrl the\n    rectangle adds to what is already chosen; without it the drag\n    replaces the selection, which is what every other grid in this\n    application does."
+}

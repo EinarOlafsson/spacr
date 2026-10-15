@@ -1,0 +1,23 @@
+	Command being timed: "/home/olafsson/anaconda3/envs/spacr/bin/python features/data/678_file_pair_runtime_catalogs_2026-10-15/generate.py --root . --manifest features/data/678_file_pair_runtime_catalogs_2026-10-15/manifest.json --receipt features/data/678_file_pair_runtime_catalogs_2026-10-15/generation-receipt.json"
+	User time (seconds): 86.45
+	System time (seconds): 1.01
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:31.51
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 498048
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 400
+	Minor (reclaiming a frame) page faults: 268910
+	Voluntary context switches: 6683
+	Involuntary context switches: 2874
+	Swaps: 0
+	File system inputs: 236072
+	File system outputs: 157560
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

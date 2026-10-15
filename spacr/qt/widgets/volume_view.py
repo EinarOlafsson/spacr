@@ -77,12 +77,14 @@ def view_axes(elev: float, azim: float, roll: float = 0.0):
 
 
 def angles_from_axes(u, w) -> Angles:
-    """The ``(elev, azim, roll)`` that make matplotlib draw this frame.
+    """Return ``(elev, azim, roll)`` in degrees for the supplied screen axes.
 
     ``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the
     roll then carries whatever turn about the line of sight the frame has.
-    Looking straight down (or up) the azimuth is free, so it is chosen to
-    make the roll zero.
+    Near either pole, where ``abs(w[2]) > 1.0 - 1e-9`` after normalization,
+    the returned elevation is ``89.9999`` or ``-89.9999`` degrees. The azimuth
+    is chosen from ``u`` and roll is zero. This branch deliberately
+    approximates the supplied frame instead of returning an exact pole.
 
     :param u: the screen's right-pointing axis.
     :param w: the axis pointing out of the screen.
