@@ -185,6 +185,18 @@ def test_export_then_import_gives_back_the_same_form(
     """Non-default values of every type survive Export, a reset and Import."""
     expected, imported, path, defaults = _export_round_trip(
         qtbot, monkeypatch, tmp_path, key)
+    if "model_metadata" in imported and "model_metadata" not in expected:
+        from spacr.model_zoo import BUNDLED_REMOTE_MODELS
+
+        assert key == "analyze_plaques"
+        records = imported["model_metadata"]["settings"]
+        assert records
+        for name, record in records.items():
+            assert record["requested_value"] == expected[name]
+            published = next(row for row in BUNDLED_REMOTE_MODELS if row["key"] == expected[name])
+            assert record["sha256"] == published["sha256"]
+            assert record["filename"] == published["name"]
+        expected = dict(expected, model_metadata=imported["model_metadata"])
     changed = {type(value).__name__ for name, value in expected.items()
                if defaults.get(name) != value}
     plain = {type(value).__name__ for value in defaults.values()

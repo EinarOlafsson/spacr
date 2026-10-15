@@ -300,6 +300,19 @@ def test_nightly_site_uploads_atomically_and_deletes_removed_pages(tmp_path, mon
     assert all(op[1]['path_or_fileobj'].is_file() for op in operations if op[0] == 'add')
 
 
+def test_nightly_space_license_matches_the_project_declaration(tmp_path):
+    import re
+    root = Path(__file__).resolve().parents[1]
+    project = re.search(r'^license = "([^"]+)"$',
+                        (root / 'pyproject.toml').read_text(), re.M)[1]
+    assert project == 'BSD-3-Clause'
+    assert (root / 'LICENSE').read_text().startswith('BSD 3-Clause License\n')
+    output = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), output)
+    metadata = (output / 'README.md').read_text().split('---')[1]
+    assert re.search(r'^license: (.+)$', metadata, re.M)[1] == project.lower()
+
+
 def test_failed_nightly_commit_is_not_retried_in_smaller_batches(tmp_path, monkeypatch):
     import types
     import publish_docs_channels as publisher
@@ -372,7 +385,58 @@ def test_nightly_verification_waits_for_matching_publication(tmp_path, monkeypat
     monkeypatch.setattr(publisher.time, 'sleep', sleeps.append)
     assert publisher.verify_nightly(space, attempts=2, interval=1) == 'nightly-sha'
     assert sleeps == [1]
-    assert len(calls) == 3
+    assert len(calls) == 4
+
+
+@pytest.mark.parametrize('homepage_state', ['stale', 'missing'])
+def test_matching_receipts_cannot_verify_a_stale_or_missing_homepage(
+        tmp_path, monkeypatch, homepage_state):
+    import io
+    from urllib.error import HTTPError
+    import publish_docs_channels as publisher
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    requests = []
+
+    def fetch(request, timeout):
+        name = request.full_url.split('/')[-1].split('?')[0]
+        requests.append(name)
+        if name == 'index.html':
+            if homepage_state == 'missing':
+                raise HTTPError(request.full_url, 404, 'Not found', {}, None)
+            return io.BytesIO(b'<body>Previous documentation</body>')
+        return io.BytesIO((space / name).read_bytes())
+
+    monkeypatch.setattr(publisher, 'urlopen', fetch)
+    with pytest.raises(RuntimeError, match='Nightly deployment unverified'):
+        publisher.verify_nightly(space, attempts=2, interval=0)
+    assert requests == ['publication.json', 'channels.json', 'index.html'] * 2
+
+
+def test_nightly_verification_waits_for_the_actual_homepage_bytes(tmp_path, monkeypatch):
+    import io
+    import publish_docs_channels as publisher
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    index = (space / 'index.html').read_bytes()
+    homepage_reads = []
+    sleeps = []
+
+    def fetch(request, timeout):
+        name = request.full_url.split('/')[-1].split('?')[0]
+        assert timeout == 15
+        assert request.get_header('Cache-control') == 'no-cache'
+        if name == 'index.html':
+            homepage_reads.append(request.full_url)
+            if len(homepage_reads) == 1:
+                return io.BytesIO(index + b' stale trailing bytes')
+        return io.BytesIO((space / name).read_bytes())
+
+    monkeypatch.setattr(publisher, 'urlopen', fetch)
+    monkeypatch.setattr(publisher.time, 'sleep', sleeps.append)
+    assert publisher.verify_nightly(space, attempts=2, interval=1) == 'nightly-sha'
+    assert len(homepage_reads) == 2
+    assert sleeps == [1]
 
 
 def test_incompatible_catalog_is_registered_and_english_is_publishable(tmp_path):
@@ -399,6 +463,58 @@ def test_report_names_every_missing_stale_and_obsolete_symbol():
     assert api_issues(english, translated) == [
         {'kind': 'stale', 'symbol': 'a', 'field': 'source_sha256'},
         {'kind': 'missing', 'symbol': 'b'}, {'kind': 'obsolete', 'symbol': 'c'}]
+
+
+@pytest.mark.parametrize('text', [None, False, True, 0, 1.25, [], ['Translation'],
+                                  {}, {'text': 'Translation'}, '', ' \n\t'])
+def test_api_report_rejects_non_string_and_empty_text_even_with_current_hashes(text):
+    source = {'source_sha256': 'current', 'source_blocks_sha256': ['block']}
+    translated = {**source, 'text': text,
+                  'translation_source_blocks_sha256': ['block']}
+    assert api_issues({'symbols': {'current': source}},
+                      {'schema': 2, 'symbols': {'current': translated}}) == [
+        {'kind': 'empty_or_malformed', 'symbol': 'current'}]
+
+
+@pytest.mark.parametrize('text', ['Translation', ' 日本語の説明。\n'])
+def test_api_report_keeps_nonempty_string_text_compatible(text):
+    source = {'source_sha256': 'current', 'source_blocks_sha256': ['block']}
+    translated = {**source, 'text': text,
+                  'translation_source_blocks_sha256': ['block']}
+    assert api_issues({'symbols': {'current': source}},
+                      {'schema': 2, 'symbols': {'current': translated}}) == []
+
+
+def test_cli_reports_null_api_text_as_incompatible_without_blocking_english(
+        tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    import report_translation_compatibility as reporter
+
+    source = {'source_sha256': 'current', 'source_blocks_sha256': ['block']}
+    api_dir = tmp_path / 'docs/source/_static/i18n/api'
+    api_dir.mkdir(parents=True)
+    for language, text in (('en', 'Current'), ('es', None)):
+        record = {**source, 'text': text,
+                  'translation_source_blocks_sha256': ['block']}
+        (api_dir / f'{language}.json').write_text(json.dumps(
+            {'schema': 2, 'symbols': {'current': record}}))
+    sources = {name: {} for name in ('setting_labels', 'setting_tooltips',
+                                     'categories', 'ui', 'module_summaries')}
+    docs = SimpleNamespace(MODEL_SPECS={'es': None}, public_docstrings=lambda: {},
+                           audit=lambda *_: 0)
+    runtime = SimpleNamespace(MODEL_SPECS={}, canonical_sources=lambda: sources,
+                              audit=lambda *_: 0, _source_hashes=lambda _: {})
+    monkeypatch.setattr(reporter.importlib, 'import_module',
+                        lambda name: docs if name == 'build_documentation_i18n' else runtime)
+    report = tmp_path / 'report.json'
+    assert reporter.main(['--root', str(tmp_path), '--output', str(report),
+                          '--english-required']) == 0
+    data = json.loads(report.read_text())
+    assert data['api']['es'] == {
+        'source_compatible': False,
+        'issues': [{'kind': 'empty_or_malformed', 'symbol': 'current'}]}
+    assert data['english']['api']['status'] == 'compatible'
+    assert data['policy'] == 'translation incompatibilities are report-only'
 
 
 def test_runtime_report_registers_missing_rows_and_changed_placeholders():

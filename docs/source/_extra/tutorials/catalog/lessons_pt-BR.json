@@ -1654,7 +1654,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em quatro poços, e Next os salva.",
+          "narration": "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em três poços, e Next os salva.",
           "focus": [
             360,
             380,
@@ -1663,11 +1663,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em quatro poços, e Next os salva."
+          "speech_text": "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em três poços, e Next os salva."
         },
         {
           "visual": "20_suggestions",
-          "narration": "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e cada recorte da página passa a ter um ponto de interrogação. A barra acima da grade conta quantas sugestões faltam julgar.",
+          "narration": "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e os recortes sem rótulo da página passam a ter pontos de interrogação. A barra acima da grade conta quantas sugestões faltam julgar.",
           "focus": [
             350,
             250,
@@ -1675,11 +1675,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e cada recorte da página passa a ter um ponto de interrogação. A barra acima da grade conta quantas sugestões faltam julgar."
+          "speech_text": "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e os recortes sem rótulo da página passam a ter pontos de interrogação. A barra acima da grade conta quantas sugestões faltam julgar."
         },
         {
           "visual": "21_judged",
-          "narration": "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas são registradas, as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir.",
+          "narration": "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas ficam pendentes até Next salvá-las; as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir.",
           "focus": [
             350,
             250,
@@ -1687,7 +1687,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas são registradas, as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir."
+          "speech_text": "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas ficam pendentes até Next salvá-las; as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir."
         },
         {
           "visual": "17_generate_database_entry",
@@ -1714,7 +1714,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

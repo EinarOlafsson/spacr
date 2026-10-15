@@ -37882,19 +37882,19 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
         "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "9c073fe0e4c8861a2609fcc5b092122cbb386bb97418f6f9be6768d9e67c443d",
-      "text": "Hitta spaCR-installationer och kör lämplig uppdaterings- eller borttagningsprocedur.\n\nOnline-installationsprogrammen förbereder och validerar den nya körmiljön innan gamla programkopior tas bort. De behåller den befintliga installationen under förberedelsen och återställer dess tidigare körmiljö om ersättningen inte klarar verifieringen. Uppdateringshjälpen verifierar skrivbordsstartens tolk och det importerade programmet innan andra kopior tas bort eller en omstart begärs. :func:`run_update_sequence` är fortfarande den lågnivåprocedur för borttagning som används av uttryckliga rensningskommandon.\n\nUppdateringar inifrån appen använder en annan procedur för macOS-installationer som stöds. En onlineinstallation uppgraderar spaCR i dess befintliga Python-miljö med hjälp av dess medföljande ``uv``-körbara fil. Den behåller miljön, startfilerna, programstartaren och installerade paket som inte behöver uppdateras. Den verifierar den installerade spaCR-versionen innan programmet startas om.\n\nEtt macOS-program av fryst typ som stöds använder en verifierad DMG-ersättning och behåller hela sitt tidigare programpaket. De här macOS-uppdateringsvägarna kör inte standardproceduren för borttagning. Andra familjer av frysta program kräver en ersättningsadapter som stöds innan en uppdatering kan starta.\n\nBorttagningen kör aldrig en gammal versions eget avinstallationsprogram, så en kopia vars ``Uninstall.exe`` eller ``uninstall-spacr.sh`` saknas eller är trasig tas bort ändå. Inställningar och användardata behålls: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, cachen för Hugging Face och inställningarna för ``spacr``/``qt`` (``~/.config/spacr``, inställningsfilen i macOS och registernyckeln ``Software\\spacr`` i Windows).\n\nEn pip- eller conda-miljö som användaren har skapat listas men tas aldrig bort; spaCR-paketet avinstalleras från den bara när anroparen anger att den har markerats. En redigerbar källkodsutcheckning rapporteras och lämnas orörd.\n\nModulen använder bara standardbiblioteket och importerar ingenting från spaCR, så ett installationsprogram kan köra den med den Python som det självt har installerat innan någon spaCR finns, och en hjälpprocess kan köra en kopia av den efter att den körande spaCR har stängts::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` är den uttryckligen valda fullständiga avinstallationen: den raderar även spaCR:s cacher, backendmiljöer och användardata efter att ha listat dem och frågat. Den körs aldrig av sig själv; ``remove --purge`` kör den efter att borttagningen lyckats.",
+      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
+      "text": "Hitta spaCR-installationer och kör lämplig uppdaterings- eller borttagningsprocedur.\n\nOnline-installationsprogrammen förbereder och validerar den nya körmiljön innan gamla programkopior tas bort. De behåller den befintliga installationen under förberedelsen och återställer dess tidigare körmiljö om ersättningen inte klarar verifieringen. Uppdateringshjälpen verifierar skrivbordsstartens tolk och det importerade programmet innan andra kopior tas bort eller en omstart begärs. :func:`run_update_sequence` är fortfarande den lågnivåprocedur för borttagning som används av uttryckliga rensningskommandon.\n\nStödda macOS-onlineinstallationer och dedikerade POSIX-miljöer med pip använder sitt befintliga paketverktyg efter godkänd avstängning för att förbereda, verifiera och atomärt aktivera ett uppdaterat syskon till körmiljön. Bootstrap-filer, startprogram, oförändrade paket och den tidigare körmiljön behålls. Delade miljöer, Conda-miljöer och Python-miljöer på Windows kräver en egen ersättningsadapter.\n\nEtt macOS-program av fryst typ som stöds använder en verifierad DMG-ersättning och behåller hela sitt tidigare programpaket. De här macOS-uppdateringsvägarna kör inte standardproceduren för borttagning. Andra familjer av frysta program kräver en ersättningsadapter som stöds innan en uppdatering kan starta.\n\nBorttagningen kör aldrig en gammal versions eget avinstallationsprogram, så en kopia vars ``Uninstall.exe`` eller ``uninstall-spacr.sh`` saknas eller är trasig tas bort ändå. Inställningar och användardata behålls: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, cachen för Hugging Face och inställningarna för ``spacr``/``qt`` (``~/.config/spacr``, inställningsfilen i macOS och registernyckeln ``Software\\spacr`` i Windows).\n\nEn pip- eller conda-miljö som användaren har skapat listas men tas aldrig bort; spaCR-paketet avinstalleras från den bara när anroparen anger att den har markerats. En redigerbar källkodsutcheckning rapporteras och lämnas orörd.\n\nModulen använder bara standardbiblioteket och importerar ingenting från spaCR, så ett installationsprogram kan köra den med den Python som det självt har installerat innan någon spaCR finns, och en hjälpprocess kan köra en kopia av den efter att den körande spaCR har stängts::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` är den uttryckligen valda fullständiga avinstallationen: den raderar även spaCR:s cacher, backendmiljöer och användardata efter att ha listat dem och frågat. Den körs aldrig av sig själv; ``remove --purge`` kör den efter att borttagningen lyckats.",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
         "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
         "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
@@ -38131,7 +38131,7 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
+        "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -38144,11 +38144,11 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "acf28538d5426fdbb8177d87a8669f0039215e6009dba523e47bdcca83085040",
-      "text": "Kör en installationsuppdatering i en process som överlever spaCR.\n\nDen körande spaCR måste vara en kopia som skapats av installationsprogrammet. Hjälpprocessen väntar på att den här processen avslutas innan den ändrar installationen.\n\nFör en macOS-onlineinstallation som stöds används den befintliga medföljande ``uv`` och privata Python för att uppgradera spaCR i samma miljö. Bevara miljökatalogen, startfilerna, programstartaren och installerade paket som inte behöver uppdateras. Starta om först efter att ha verifierat att den installerade versionen är minst ``version`` och nyare än den tidigare versionen, när den tidigare versionen är känd. En misslyckad uppgradering eller versionskontroll utlöser varken borttagning eller ett ersättande installationsprogram.\n\nDen vanliga ersättningsproceduren laddar ned och kör det nya installationsprogrammet, som förbereder installationen, verifierar dess faktiska tolk och importerade program och tar sedan bort andra kopior och startar programmet. Om installationen eller verifieringen misslyckas tas den tidigare fungerande kopian inte bort. Misslyckad borttagning av andra kopior loggas utan att programmet startas igen.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.\n\nEtt fryst macOS-apppaket på en plats som användaren kan skriva till använder sin verifierade DMG-ersättningsadapter och behåller hela det tidigare apppaketet. Övriga familjer av frysta program returnerar ett fel innan något tas bort; hjälpprogrammet aktiverar ingen reservväg via ett onlineinstallationsprogram för dessa program.",
+      "source_sha256": "a18ebf8a69b327222983c810c7e7eb9b77b248afa7b0bc14756717fa52ce4f58",
+      "text": "Kör en installationsuppdatering i en process som överlever spaCR.\n\nKopior skapade av installationsprogrammet och stödda dedikerade POSIX-miljöer med pip kan använda denna hjälpprocess. Den väntar tills den körande processen har avslutats innan installationen ändras; pip-adaptern kräver också autentiserat godkännande av avstängningen.\n\nFör en macOS-onlineinstallation som stöds används den befintliga medföljande ``uv`` och privata Python för att uppgradera spaCR i samma miljö. Bevara miljökatalogen, startfilerna, programstartaren och installerade paket som inte behöver uppdateras. Starta om först efter att ha verifierat att den installerade versionen är minst ``version`` och nyare än den tidigare versionen, när den tidigare versionen är känd. En misslyckad uppgradering eller versionskontroll utlöser varken borttagning eller ett ersättande installationsprogram.\n\nDen vanliga ersättningsproceduren laddar ned och kör det nya installationsprogrammet, som förbereder installationen, verifierar dess faktiska tolk och importerade program och tar sedan bort andra kopior och startar programmet. Om installationen eller verifieringen misslyckas tas den tidigare fungerande kopian inte bort. Misslyckad borttagning av andra kopior loggas utan att programmet startas igen.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.\n\nEtt fryst macOS-apppaket på en plats som användaren kan skriva till använder sin verifierade DMG-ersättningsadapter och behåller hela det tidigare apppaketet. Övriga familjer av frysta program returnerar ett fel innan något tas bort; hjälpprogrammet aktiverar ingen reservväg via ett onlineinstallationsprogram för dessa program.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "4c1bc9ce66511a2d59f01410c51bb95dfe3a12f6d4b18589cc806b297b430b54",
+        "fe55c4b9b1588b8c1e9ed7a73edcfc3e971b90623c4dd9493b792d1331653332",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -100944,14 +100944,14 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "Ladda en ögonblicksbild av en appScreen för att kunna ändra inställningar.\n\n:param module: den ``spacr.cli.MODULES``-nyckel som ska väljas i modulrutan; en okänd nyckel lämnar valet oförändrat.\n:param settings: inställningarna som ska skickas in; en ytlig kopia sparas och används i stället för en inställningsfil tills sökvägsfältet redigeras.",
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "Ladda en ögonblicksbild av en appScreen för att kunna ändra inställningar.\n\n:param module: den ``spacr.cli.MODULES``-nyckel som ska väljas i modulrutan; en okänd nyckel lämnar valet oförändrat.\n:param settings: inställningarna som ska skickas. En djup kopia med exakta modellidentiteter behålls tills sökvägen till inställningarna redigeras.",
       "translation_source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
@@ -113954,17 +113954,17 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "Uppdatera en känd kör inställning vars widget inte är på detta formulär.\n\nDetta inkluderar dedikerade kontroller utanför formuläret och objektrader som utelämnas av den nuvarande formen.\n\nDolda betyder inte frånvarande: importerade värden lever i ``_defaults`` och når fortfarande ``collect()``.\n\nEn slot ovanför den nuvarande räkningen accepteras endast när denna app äger räkningen och det strukturerade datanamnet är en deklarerad inställning; utländska app strukturerade-data namn fortfarande avvisas.\n\n:param key: inställningsnyckel; den måste redan vara en körningsinställning, eller en nyckel för en organellplats deklarerad i ``expected_types`` när det här formuläret äger antalet organeller, annars returneras ``False``.\n:param value: nytt värde, omvandlat till inställningens förväntade typ innan det lagras.",
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "Uppdatera en känd kör inställning vars widget inte är på detta formulär.\n\nDetta inkluderar dedikerade kontroller utanför formuläret och objektrader som utelämnas av den nuvarande formen.\n\nDolda betyder inte frånvarande: importerade värden lever i ``_defaults`` och når fortfarande ``collect()``.\n\nEn slot ovanför den nuvarande räkningen accepteras endast när denna app äger räkningen och det strukturerade datanamnet är en deklarerad inställning; utländska app strukturerade-data namn fortfarande avvisas.\n\n:param key: en känd körningsinställning, en deklarerad organellplatsnyckel när formuläret styr antalet, eller den reserverade nyckeln ``model_metadata``. Andra nycklar returnerar ``False``.\n:param value: nytt värde, omvandlat till inställningens förväntade typ innan det lagras.",
       "translation_source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87",
-        "b52f9e99da6ca843f89e930355aa5a97211ea15d69e6c6f7f395fe1834a7d4d1",
+        "4c9fb1a2a489d2fae6cdcaec81aad97bfe82d3b38c7db8b4ccf46ed8a46336c7",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ]
     },
@@ -154927,14 +154927,12 @@
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent": {
       "source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ],
-      "source_sha256": "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff",
-      "text": "Starta om timern när markören lämnar POPUP själv.\n\nKortare än ankarets tid med flit: att lämna popupen är en avsiktlig handling, där att lämna etiketten kan bara vara resan mot den.\n\n:param event: utträdeshändelsen; skickas till basklassen och läses annars inte.",
+      "source_sha256": "7db8e214bd14ad48f49a4a7b8fa1dabeae786451c1d9524d551ff397a17daab6",
+      "text": "Starta om timern när markören lämnar POPUP själv.\n\n:param event: utträdeshändelsen; skickas till basklassen och läses annars inte.",
       "translation_source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ]
     },
@@ -167115,16 +167113,16 @@
     "spacr.qt.widgets.plaque_preview.resolve_detector": {
       "source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
+        "ea5d7c2116bd8c61066388dd9de100238555e29e7be23c7620cafd8ba6ad9c83",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"
       ],
-      "source_sha256": "9b72b1cacb61582e226d497e44137d9f05f08373394cce96fad8bdb9ac9e5aad",
-      "text": "Detektorkontrollpunkten som en nyckel namnger, hittad utan nedladdning.\n\nLetar där körningen letar: själva sökvägen, zoo-postens egen sökväg, ``~/.spacr/models`` och körningens modellcache under ``<src>/plaque_figures/models``.\n\n:param key: en zoo-nyckel eller en sökväg till en kontrollpunkt.\n:param src: figurmappen.\n:returns: ``(path, note, entry)``; ``path`` är ``''`` när den inte finns här, och ``entry`` är det som en nedladdning skulle hämta.",
+      "source_sha256": "00ee734565c88ae0ba5ebd15e6d200f5ede624f2b9e05cb1cc56986afd17d122",
+      "text": "Detektorkontrollpunkten som en nyckel namnger, hittad utan nedladdning.\n\nLetar där körningen letar: själva sökvägen, zoo-postens egen sökväg, den aktiva gemensamma modellcachen och körningens modellcache under ``<src>/plaque_figures/models``.\n\n:param key: en zoo-nyckel eller en sökväg till en kontrollpunkt.\n:param src: figurmappen.\n:returns: ``(path, note, entry)``; ``path`` är ``''`` när den inte finns här, och ``entry`` är det som en nedladdning skulle hämta.",
       "translation_source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "85ff7cbdc41dd86009e190b5764b2710ddae39df19a6506890b89362aa05f0a3",
+        "da8cefc4390eb4b3b16450da0eb09287ca64e3ead26b99a073b9850239faa6c0",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"

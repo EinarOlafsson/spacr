@@ -23702,15 +23702,15 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
         "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "9c073fe0e4c8861a2609fcc5b092122cbb386bb97418f6f9be6768d9e67c443d",
-      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe online installers stage and validate the new runtime before retiring old\napplication copies. They preserve the current installation during staging and\nrestore its previous runtime if the replacement fails verification. The update\nhelper verifies the desktop interpreter and imported application before retiring\nother copies or requesting a restart. :func:`run_update_sequence` remains the\nlow-level removal procedure used by explicit cleanup commands.\n\nIn-app updates use a different procedure for supported macOS installations.\nAn online installation upgrades spaCR in its existing Python environment\nusing its bundled ``uv`` executable. It keeps the environment, bootstrap\nfiles, application launcher, and installed packages that need no update.\nIt verifies the installed spaCR version before restarting the application.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
+      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
+      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe online installers stage and validate the new runtime before retiring old\napplication copies. They preserve the current installation during staging and\nrestore its previous runtime if the replacement fails verification. The update\nhelper verifies the desktop interpreter and imported application before retiring\nother copies or requesting a restart. :func:`run_update_sequence` remains the\nlow-level removal procedure used by explicit cleanup commands.\n\nSupported macOS online installations and dedicated POSIX pip environments\nuse their existing package tool after approved shutdown to stage, verify and\natomically activate an updated sibling runtime. Bootstrap files, launchers,\nunchanged packages and the previous runtime are retained. Shared, Conda and\nWindows Python environments require their own replacement adapter.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
     },
     "spacr.install_cleanup.InstallRecord": {
       "source_blocks_sha256": [
@@ -23854,7 +23854,7 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
+        "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -23867,8 +23867,8 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "acf28538d5426fdbb8177d87a8669f0039215e6009dba523e47bdcca83085040",
-      "text": "Run an installation update in a process that outlives spaCR.\n\nThe running spaCR must be an installer-made copy. The helper waits for\nthis process to exit before changing the installation.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to upgrade spaCR in the same environment.\nPreserve the environment directory, bootstrap files, application launcher,\nand installed packages that need no update. Restart only after verifying\nthat the installed version is at least ``version`` and newer than the\nprevious version, when that previous version is known. A failed upgrade\nor version check does not trigger removal or a replacement installer.\n\nThe standard replacement path downloads and runs the new staged installer,\nverifies its actual interpreter and imported application, then retires other\ncopies and starts it. Failed installation or verification does not remove\nthe previous working copy. A failed retirement is logged without relaunch.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
+      "source_sha256": "a18ebf8a69b327222983c810c7e7eb9b77b248afa7b0bc14756717fa52ce4f58",
+      "text": "Run an installation update in a process that outlives spaCR.\n\nInstaller-made copies and supported dedicated POSIX pip environments can\nuse this helper. It waits for the running process to exit before changing\nthe installation; the pip adapter also requires authenticated shutdown\napproval.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to upgrade spaCR in the same environment.\nPreserve the environment directory, bootstrap files, application launcher,\nand installed packages that need no update. Restart only after verifying\nthat the installed version is at least ``version`` and newer than the\nprevious version, when that previous version is known. A failed upgrade\nor version check does not trigger removal or a replacement installer.\n\nThe standard replacement path downloads and runs the new staged installer,\nverifies its actual interpreter and imported application, then retires other\ncopies and starts it. Failed installation or verification does not remove\nthe previous working copy. A failed retirement is logged without relaunch.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
     },
     "spacr.install_profile": {
       "source_blocks_sha256": [
@@ -63562,10 +63562,10 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "Preload an immutable settings snapshot handed off by an AppScreen.\n\n:param module: the ``spacr.cli.MODULES`` key to select in the module\n    box; an unknown key leaves the selection unchanged.\n:param settings: the settings to submit; a shallow copy is kept and\n    used instead of a settings file until the path field is edited."
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "Preload an immutable settings snapshot handed off by an AppScreen.\n\n:param module: the ``spacr.cli.MODULES`` key to select in the module\n    box; an unknown key leaves the selection unchanged.\n:param settings: settings to submit. A deep copy with exact model\n    identities is retained until the settings path is edited."
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
       "source_blocks_sha256": [
@@ -71989,11 +71989,11 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape.\n\nHidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``.\n\nA slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected.\n\n:param key: setting key; it must already be a run setting, or an\n    organelle-slot key declared in ``expected_types`` when this form\n    owns the organelle count, otherwise ``False`` is returned.\n:param value: new value, coerced to the setting's expected type before\n    it is stored."
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape.\n\nHidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``.\n\nA slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected.\n\n:param key: a known run setting, a declared organelle-slot key when\n    this form owns the count, or reserved ``model_metadata``.\n    Other keys return ``False``.\n:param value: new value, coerced to the setting's expected type before\n    it is stored."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
       "source_blocks_sha256": [
@@ -106018,13 +106018,13 @@
     "spacr.qt.widgets.plaque_preview.resolve_detector": {
       "source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
+        "ea5d7c2116bd8c61066388dd9de100238555e29e7be23c7620cafd8ba6ad9c83",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"
       ],
-      "source_sha256": "9b72b1cacb61582e226d497e44137d9f05f08373394cce96fad8bdb9ac9e5aad",
-      "text": "The detector checkpoint a key names, found without a download.\n\nLooks where the run looks: the path itself, the zoo entry's own path,\n``~/.spacr/models`` and the run's model cache under\n``<src>/plaque_figures/models``.\n\n:param key: a zoo key or a checkpoint path.\n:param src: the figure folder.\n:returns: ``(path, note, entry)``; ``path`` is ``''`` when it is not\n    here, and ``entry`` is what a download would fetch."
+      "source_sha256": "00ee734565c88ae0ba5ebd15e6d200f5ede624f2b9e05cb1cc56986afd17d122",
+      "text": "The detector checkpoint a key names, found without a download.\n\nLooks where the run looks: the path itself, the zoo entry's own path,\nthe active shared model cache and the run's model cache under\n``<src>/plaque_figures/models``.\n\n:param key: a zoo key or a checkpoint path.\n:param src: the figure folder.\n:returns: ``(path, note, entry)``; ``path`` is ``''`` when it is not\n    here, and ``entry`` is what a download would fetch."
     },
     "spacr.qt.widgets.plaque_preview.resolve_plaque_model": {
       "source_blocks_sha256": [

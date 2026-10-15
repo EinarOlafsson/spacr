@@ -302,7 +302,7 @@ colorFrom: blue
 colorTo: indigo
 sdk: static
 pinned: false
-license: mit
+license: bsd-3-clause
 short_description: Nightly preview of the spaCR documentation
 ---
 
@@ -357,10 +357,11 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
 
 def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
                    interval: float = 10) -> str:
-    """Wait for the public site to serve this build's source and size receipt."""
+    """Wait for matching public receipts and this build's exact homepage bytes."""
     if attempts < 1 or interval < 0:
         raise ValueError("Expected at least one attempt and a nonnegative interval")
     expected = json.loads((site / "channels.json").read_text())
+    expected_index = (site / "index.html").read_bytes()
     record = expected["channels"]["nightly"]
     last_error = "public receipt does not match the assembled site"
     for attempt in range(attempts):
@@ -372,10 +373,17 @@ def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
                 with urlopen(request, timeout=15) as response:
                     received[name] = json.load(response)
             if received["publication.json"] == record and received["channels.json"] == expected:
-                return record["commit"]
-            last_error = "public receipt does not match the assembled site"
+                name = "index.html"
+                request = Request(url.rstrip("/") + "/" + name + "?source=" + record["commit"],
+                                  headers={"Cache-Control": "no-cache"})
+                with urlopen(request, timeout=15) as response:
+                    if response.read(len(expected_index) + 1) == expected_index:
+                        return record["commit"]
+                last_error = "public index.html does not match the assembled site"
+            else:
+                last_error = "public receipt does not match the assembled site"
         except (URLError, TimeoutError, ValueError) as error:
-            last_error = type(error).__name__
+            last_error = f"{name}: {type(error).__name__}"
         if attempt + 1 < attempts:
             time.sleep(interval)
     raise RuntimeError(f"Nightly deployment unverified for {record['commit']}: {last_error}")

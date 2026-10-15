@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="0.612" timestamp="2026-10-14T23:34:14.494314-04:00" hostname="olafsson"><testcase classname="tests.test_the_hardware_table_matches_the_resolver" name="test_detected_but_unusable_gpu_never_claims_gpu_acceleration[mps-mps]" time="0.268" /><testcase classname="tests.test_the_hardware_table_matches_the_resolver" name="test_detected_but_unusable_gpu_never_claims_gpu_acceleration[cuda-cuda]" time="0.001"><failure message="assert True is False">generator = &lt;module '_readme_visuals' from '/mnt/wd4tb/spacr-worktrees/codex-home-b-readme-20261014/packaging/generate_readme_visuals.py'&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x77641855dd90&gt;
+kind = 'cuda', device = 'cuda'
+
+    @pytest.mark.parametrize("kind,device", [("mps", "mps"), ("cuda", "cuda")])
+    def test_detected_but_unusable_gpu_never_claims_gpu_acceleration(generator, monkeypatch, kind, device):
+        from spacr import accelerator
+    
+        kwargs = dict(kind=kind, device=device, label="Detected GPU", detected=True, usable=False)
+        found = accelerator.Accelerator(**kwargs)
+        assert found.is_cuda is (kind == "cuda")
+        assert found.is_gpu is False
+        monkeypatch.setattr(accelerator, "_opengl_likely", lambda: False)
+        capabilities = {task: (accelerated, detail)
+                        for task, accelerated, detail in accelerator.capabilities(found)}
+        accelerated, detail = capabilities["UMAP / t-SNE / clustering"]
+&gt;       assert accelerated is False
+E       assert True is False
+
+tests/test_the_hardware_table_matches_the_resolver.py:171: AssertionError</failure></testcase></testsuite></testsuites>

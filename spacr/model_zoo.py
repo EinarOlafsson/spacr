@@ -2000,6 +2000,12 @@ def _runs_under(root: Path) -> Dict[str, Any]:
 
 
 
+def _model_cache_root() -> Path:
+    """Return spaCR's shared checkpoint cache, including an explicit relocation."""
+    configured = os.environ.get("SPACR_MODEL_CACHE", "").strip()
+    return Path(configured).expanduser() if configured else _spacr_home() / "models"
+
+
 def package_model_root() -> Path:
     """``<spacr>/resources/models`` — where the bundled pack lives.
 
@@ -2018,7 +2024,7 @@ def default_local_roots() -> List[Path]:
     roots = [
         package_model_root(),
         Path.home() / ".cellpose" / "models",
-        _spacr_home() / "models",
+        _model_cache_root(),
     ]
     return [r for r in roots if r.is_dir()]
 
@@ -2302,6 +2308,9 @@ def shared_catalogue(uri: Optional[str] = None, *,
     """
     import time
 
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+            "0", "off", "false", "no"):
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
     target = uri or REMOTE_CATALOGUE_URI
     now = time.time()
     if (not force and float(_SHARED_CATALOGUE_CACHE["fetched_at"]) > 0
@@ -3603,6 +3612,233 @@ def resolve(key_or_path: Any,
 
 
 
+def _model_input_kinds(module, settings):
+    """Describe file-model consumers without loading a model or inspecting paths."""
+    key = getattr(module, "key", str(module))
+    result = {}
+    if key in {"mask", "timelapse", "make_masks"}:
+        from .object_roles import SEGMENTED_ROLES
+        from ._segmentation_backends import (_backend_name, _cellpose3_choice,
+                                             _cellpose_dino_choice, _prefixed_backend)
+
+        for name in [*(f"{role}_model_name" for role in SEGMENTED_ROLES), "pathogen_model"]:
+            if name not in settings:
+                continue
+            value = settings.get(name)
+            backend = (_prefixed_backend(value)
+                       or ("cellpose3" if _cellpose3_choice(value) is not None else None)
+                       or ("cellpose_dino" if _cellpose_dino_choice(value) is not None else None)
+                       or _backend_name(settings.get("segmentation_backend")))
+            result[name] = (backend,) if backend in KINDS else ()
+    elif key == "train_cellpose":
+        result = {"base_model": ("cellpose",)}
+    elif key == "cellpose_masks":
+        result = {"model_name": ("cellpose",), "custom_model": ("cellpose",)}
+    elif key == "analyze_plaques":
+        result = {"plaque_model": ("cellpose",), "well_detection": ("detector",),
+                  "figure_detector": ("detector",)}
+    elif key in {"classify", "classify_merged", "train_only", "activation"}:
+        if key == "classify_merged":
+            from .classify import resolve_family
+
+            if resolve_family(settings) != "cv":
+                return {}
+        result = {name: ("classifier",) for name in
+                  ("model_path", "custom_model_path", "resume_checkpoint")}
+    elif key == "ops":
+        result = {"cellpose_model": ("cellpose",)}
+    elif key == "spatial_masks":
+        result = {"spatial_cellpose_model": ("cellpose",)}
+    return {name: kinds for name, kinds in result.items() if name in settings}
+
+
+def _capture_model_metadata(module, settings):
+    """Pin explicit trusted catalogue selections without file or network I/O."""
+    from copy import deepcopy
+
+    kinds = _model_input_kinds(module, settings)
+    metadata = _validate_model_metadata(settings, model_kinds=kinds)
+    result = deepcopy(settings)
+    records = metadata["settings"] if metadata is not None else {}
+    for name, accepted in kinds.items():
+        requested = settings[name]
+        if name in records or not isinstance(requested, str) or not requested.strip():
+            continue
+        if "/" in requested or "\\" in requested or requested.startswith("~"):
+            continue
+        matches = []
+        for raw in BUNDLED_REMOTE_MODELS:
+            if requested != raw.get("key") or raw.get("kind", "cellpose") not in accepted:
+                continue
+            pin = _model_reference_from_record(requested, raw)
+            if pin not in matches:
+                matches.append(pin)
+        if len(matches) > 1:
+            _bad_model_metadata(name, "one exact catalogue identity")
+        if matches:
+            records[name] = matches[0]
+    if records or metadata is not None:
+        result["model_metadata"] = {"schema_version": 1, "settings": records}
+    return result
+
+
+def _bad_model_metadata(field, expected):
+    from .qt.i18n import tr
+
+    raise ModelZooError(tr("Bad settings") + f": {field} ({expected})")
+
+
+def _validate_model_metadata_structure(settings, *, model_kinds=None):
+    """Validate recorded identities against their exact original setting values."""
+    from copy import deepcopy
+
+    if not isinstance(settings, Mapping):
+        _bad_model_metadata("settings", "mapping")
+    if "model_metadata" not in settings:
+        return None
+    metadata = settings["model_metadata"]
+    if not isinstance(metadata, dict) or set(metadata) != {"schema_version", "settings"}:
+        _bad_model_metadata("model_metadata", "schema_version, settings")
+    if type(metadata["schema_version"]) is not int or metadata["schema_version"] != 1:
+        _bad_model_metadata("model_metadata.schema_version", "1")
+    records = metadata["settings"]
+    if not isinstance(records, dict):
+        _bad_model_metadata("model_metadata.settings", "mapping")
+    required = {"requested_value", "key", "version", "version_status", "sha256", "kind", "filename"}
+    for name, record in records.items():
+        field = f"model_metadata.settings[{name!r}]"
+        if not isinstance(name, str) or not name.strip():
+            _bad_model_metadata(field, "setting key")
+        if not isinstance(record, dict) or set(record) != required:
+            _bad_model_metadata(field, ", ".join(sorted(required)))
+        for key in required - {"version"}:
+            if not isinstance(record[key], str) or not record[key].strip():
+                _bad_model_metadata(f"{field}.{key}", "string")
+        if not isinstance(settings.get(name), str) or settings[name] != record["requested_value"]:
+            _bad_model_metadata(f"{field}.requested_value", f"settings[{name!r}]")
+        if not re.fullmatch(r"[0-9a-f]{64}", record["sha256"]):
+            _bad_model_metadata(f"{field}.sha256", "[0-9a-f]{64}")
+        if record["version_status"] == "declared":
+            if not isinstance(record["version"], str) or not record["version"].strip():
+                _bad_model_metadata(f"{field}.version", "string")
+        elif record["version_status"] != "unspecified" or record["version"] is not None:
+            _bad_model_metadata(f"{field}.version_status/version", "declared/string | unspecified/null")
+        filename = record["filename"]
+        if ("\x00" in filename or re.split(r"[/\\]", filename)[-1] in {"", "."}
+                or filename.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", filename)
+                or "://" in filename or ".." in re.split(r"[/\\]", filename)):
+            _bad_model_metadata(f"{field}.filename", "relative catalogue filename")
+        if record["kind"] not in KINDS:
+            _bad_model_metadata(f"{field}.kind", " | ".join(KINDS))
+        if model_kinds is not None:
+            accepted = model_kinds.get(name, ())
+            if isinstance(accepted, str):
+                accepted = (accepted,)
+            if record["kind"] not in accepted:
+                _bad_model_metadata(f"{field}.kind", f"{name}: {tuple(accepted)}")
+    return deepcopy(metadata)
+
+
+def _validate_model_metadata(settings, *, model_kinds=None):
+    """Check bindings and reject contradictions with the bundled trusted index."""
+    metadata = _validate_model_metadata_structure(settings, model_kinds=model_kinds)
+    if metadata is not None:
+        known = {row.get("key") or row.get("name") for row in BUNDLED_REMOTE_MODELS}
+        for record in metadata["settings"].values():
+            if record["key"] in known:
+                _match_model_reference(record)
+    return metadata
+
+
+def _invalidate_model_metadata(settings, keys):
+    """Remove valid pins for explicit edits without changing the input payload."""
+    from copy import deepcopy
+
+    metadata = _validate_model_metadata(settings)
+    result = deepcopy(settings)
+    if metadata is not None:
+        for key in keys:
+            metadata["settings"].pop(key, None)
+        result["model_metadata"] = metadata
+    return result
+
+
+def _model_reference_from_record(requested, record):
+    """Build a pin from a trusted raw catalogue row without inferring a version."""
+    if not isinstance(record, Mapping):
+        _bad_model_metadata("catalogue", "mapping")
+    declared = record.get("version")
+    if declared is not None and not isinstance(declared, str):
+        _bad_model_metadata("catalogue.version", "string | null")
+    version = declared if declared and declared.strip() else None
+    result = {"requested_value": requested, "key": record.get("key") or record.get("name"),
+              "version": version, "version_status": "declared" if version is not None else "unspecified",
+              "sha256": record.get("sha256"), "kind": record.get("kind", "cellpose"),
+              "filename": record.get("name")}
+    _validate_model_metadata_structure({"model": requested, "model_metadata": {
+        "schema_version": 1, "settings": {"model": result}}})
+    return result
+
+
+def _match_model_reference(record, catalogue_records=None):
+    """Select a conjunction of raw trusted identity fields without first-match fallback."""
+    if not isinstance(record, Mapping):
+        _bad_model_metadata("model_metadata", "mapping")
+    _validate_model_metadata_structure({"model": record.get("requested_value"), "model_metadata": {
+        "schema_version": 1, "settings": {"model": record}}})
+    matches = []
+    rows = BUNDLED_REMOTE_MODELS if catalogue_records is None else catalogue_records
+    for candidate in rows:
+        if candidate.get("key", candidate.get("name")) != record["key"]:
+            continue
+        pin = _model_reference_from_record(record["requested_value"], candidate)
+        if pin == record and pin not in matches:
+            matches.append(pin)
+        elif pin != record:
+            _bad_model_metadata(f"model_metadata[{record['key']!r}]", "catalogue identity")
+    if len(matches) != 1:
+        _bad_model_metadata(f"model_metadata[{record['key']!r}]", "one exact catalogue identity")
+    return matches[0]
+
+
+def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
+    """Verify recorded local bytes or acquire the exact trusted recorded identity."""
+    metadata = _validate_model_metadata(settings)
+    if metadata is None or name not in metadata["settings"]:
+        return None
+    record = metadata["settings"][name]
+    if kinds and record["kind"] not in kinds:
+        _bad_model_metadata(f"model_metadata.settings[{name!r}].kind", ", ".join(kinds))
+    requested = Path(record["requested_value"]).expanduser()
+    if requested.is_file():
+        actual = sha256_file(requested)
+        if actual != record["sha256"]:
+            _bad_model_metadata(str(requested), f"sha256={record['sha256']}; actual={actual}")
+        return requested
+    _match_model_reference(record)
+    raw = next(row for row in BUNDLED_REMOTE_MODELS
+               if row.get("key", row.get("name")) == record["key"]
+               and _model_reference_from_record(record["requested_value"], row) == record)
+    resolved = _ensure_catalogue_model_file(_entry_from_mapping(raw), download=download)
+    if resolved is None:
+        _bad_model_metadata(name, f"{record['key']} sha256={record['sha256']}")
+    resolved = Path(resolved)
+    if resolved.is_file():
+        actual = sha256_file(resolved)
+        if actual != record["sha256"]:
+            if not download:
+                return versioned_path(resolved.parent, resolved.name)
+            _bad_model_metadata(str(resolved), f"sha256={record['sha256']}; actual={actual}")
+    elif download:
+        _bad_model_metadata(str(resolved), f"sha256={record['sha256']}")
+    return resolved
+
+
+def _planning_model_entries():
+    """Bounded trusted declarations for planning without providers or network."""
+    return [_entry_from_mapping(record) for record in BUNDLED_REMOTE_MODELS]
+
+
 def _ensure_model_file(requested, *, kinds=(), download=True):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
@@ -3617,21 +3853,39 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
     local = Path(text).expanduser()
     if local.is_file():
         return local
-    if os.sep in text or text.startswith("~"):
+    if "://" in text:
         return None
-    entry = next((item for item in catalogue(remote=True)
-                  if item.key == text or item.name == text), None)
-    if entry is None:
+    path_like = "/" in text or "\\" in text or text.startswith("~")
+    identifier = Path(text.replace("\\", "/")).name if path_like else text
+    entries = catalogue(remote=True) if download else _planning_model_entries()
+    matches = [item for item in entries
+               if item.key == identifier or item.name == identifier
+               or (path_like and Path(item.name).name == identifier)]
+    if len(matches) > 1:
+        from .qt.i18n import tr
+
+        choices = "\n".join(
+            f"{item.key}@{item.version} [sha256={item.sha256}]" for item in matches)
+        raise ModelZooError(
+            tr("{name} · {n} matches", name=repr(text), n=len(matches))
+            + ":\n" + choices)
+    if not matches:
         return None
+    entry = matches[0]
     if kinds and entry.kind not in kinds:
         raise ModelZooError(
             f"{text!r} is a {entry.kind} model; this operation requires "
             f"one of {', '.join(kinds)}")
+    return _ensure_catalogue_model_file(entry, download=download)
+
+
+def _ensure_catalogue_model_file(entry, *, download=True):
+    """Acquire one already selected identity with shared cache and lock policy."""
     if entry.path and Path(entry.path).is_file():
         return Path(entry.path)
     if not entry.uri:
         return None
-    destination = _spacr_home() / "models"
+    destination = _model_cache_root()
     cached = destination / Path(entry.name).name
     if cached.is_file():
         if entry.sha256 and sha256_file(cached) == entry.sha256.lower():
@@ -3643,12 +3897,42 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
                 return version
     if not download:
         return cached
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+            "0", "off", "false", "no"):
+        from .qt.i18n import tr
+
+        raise ModelUnreadable(tr(
+            "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
+            "Copy verified model {model} (sha256 {sha256}) to {path}.",
+            model=entry.key, sha256=entry.sha256, path=str(cached)))
     if _on_the_qt_gui_thread():
         raise ModelUnreadable(
-            f"{text!r} is not cached. Download it in Model Zoo, or run "
+            f"{entry.key!r} is not cached. Download it in Model Zoo, or run "
             f"the operation through spacr-run or Python without a GUI.")
-    LOG.info("Downloading requested model %s into %s", entry.key, destination)
-    return fetch(entry, destination)
+    import errno
+    from PySide6.QtCore import QLockFile
+
+    destination.mkdir(parents=True, exist_ok=True)
+    identity = hashlib.sha256(
+        f"{cached.name}\0{str(entry.sha256 or '').lower()}".encode("utf-8")).hexdigest()
+    lock_path = destination / f".model-{identity}.lock"
+    lock = QLockFile(str(lock_path))
+    lock.setStaleLockTime(0)
+    if not lock.lock():
+        code = errno.EACCES if lock.error() == QLockFile.PermissionError else errno.EBUSY
+        raise OSError(code, os.strerror(code), str(lock_path))
+    try:
+        if cached.is_file() and entry.sha256 and sha256_file(cached) == entry.sha256.lower():
+            return cached
+        if entry.sha256:
+            for version in sorted(destination.glob(
+                    f"{cached.stem}_v*{cached.suffix}")):
+                if version.is_file() and sha256_file(version) == entry.sha256.lower():
+                    return version
+        LOG.info("Downloading requested model %s into %s", entry.key, destination)
+        return fetch(entry, destination)
+    finally:
+        lock.unlock()
 
 
 def versioned_path(dest: Any, filename: str) -> Path:
@@ -4762,8 +5046,7 @@ def mitonet_weights(dest: Any = None, download: bool = True,
         published ones.
     """
     entry = _entry_from_mapping(_mitonet_record())
-    folder = Path(dest).expanduser() if dest is not None else (
-        _spacr_home() / "models")
+    folder = Path(dest).expanduser() if dest is not None else _model_cache_root()
     cached = folder / entry.name
     candidates = [cached]
     if folder.is_dir():

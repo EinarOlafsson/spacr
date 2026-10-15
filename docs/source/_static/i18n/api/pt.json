@@ -37882,19 +37882,19 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
         "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "9c073fe0e4c8861a2609fcc5b092122cbb386bb97418f6f9be6768d9e67c443d",
-      "text": "Encontra instalações do spaCR e executa o procedimento de atualização ou remoção adequado.\n\nOs instaladores online preparam e validam o novo ambiente de execução antes de remover cópias antigas da aplicação. Preservam a instalação atual durante a preparação e restauram o ambiente de execução anterior se a substituição falhar na verificação. O assistente de atualização verifica o interpretador usado para iniciar a aplicação no ambiente de trabalho e a aplicação importada antes de remover outras cópias ou solicitar um reinício. :func:`run_update_sequence` continua a ser o procedimento de remoção de baixo nível usado pelos comandos explícitos de limpeza.\n\nAs atualizações dentro do aplicativo usam outro procedimento para instalações de macOS suportadas. Uma instalação online atualiza o spaCR no seu ambiente Python existente usando o executável ``uv`` incluído. Ela mantém o ambiente, os arquivos de inicialização, o lançador do aplicativo e os pacotes instalados que não precisam de atualização. Verifica a versão do spaCR instalada antes de reiniciar o aplicativo.\n\nUm aplicativo congelado de macOS suportado usa uma substituição DMG verificada e mantém seu pacote de aplicativo anterior completo. Esses caminhos de atualização do macOS não executam o procedimento de exclusão padrão. Outras famílias de aplicativos congelados exigem um adaptador de substituição suportado antes que uma atualização possa começar.\n\nA remoção nunca executa o desinstalador próprio de uma versão antiga, então uma cópia cujo ``Uninstall.exe`` ou ``uninstall-spacr.sh`` está ausente ou quebrado é removida mesmo assim. As preferências e os dados do usuário são mantidos: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, o cache do Hugging Face e as configurações ``spacr``/``qt`` (``~/.config/spacr``, o arquivo de preferências do macOS e a chave de registro ``Software\\spacr`` no Windows).\n\nUm ambiente pip ou conda criado pelo usuário é listado, mas nunca excluído; o pacote spaCR só é desinstalado dele quando quem chama informa que ele foi marcado. Um checkout editável do código-fonte é relatado e deixado como está.\n\nO módulo usa apenas a biblioteca padrão e não importa nada do spaCR, então um instalador pode executá-lo com o Python que ele mesmo instalou antes que exista qualquer spaCR, e um processo auxiliar pode executar uma cópia dele depois que o spaCR em execução tiver sido fechado::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` é a desinstalação completa escolhida explicitamente: também elimina as caches de spaCR, os ambientes dos motores e os dados do utilizador, depois de os listar e pedir confirmação. Nunca se executa sozinha; ``remove --purge`` executa-a após a remoção bem-sucedida.",
+      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
+      "text": "Encontra instalações do spaCR e executa o procedimento de atualização ou remoção adequado.\n\nOs instaladores online preparam e validam o novo ambiente de execução antes de remover cópias antigas da aplicação. Preservam a instalação atual durante a preparação e restauram o ambiente de execução anterior se a substituição falhar na verificação. O assistente de atualização verifica o interpretador usado para iniciar a aplicação no ambiente de trabalho e a aplicação importada antes de remover outras cópias ou solicitar um reinício. :func:`run_update_sequence` continua a ser o procedimento de remoção de baixo nível usado pelos comandos explícitos de limpeza.\n\nAs instalações online do macOS suportadas e os ambientes POSIX dedicados com pip usam a ferramenta de pacotes existente, após encerramento aprovado, para preparar, verificar e ativar atomicamente um ambiente de execução atualizado num diretório irmão. Os ficheiros de arranque, os lançadores, os pacotes inalterados e o ambiente de execução anterior são preservados. Ambientes partilhados, Conda e ambientes Python no Windows requerem o seu próprio adaptador de substituição.\n\nUm aplicativo congelado de macOS suportado usa uma substituição DMG verificada e mantém seu pacote de aplicativo anterior completo. Esses caminhos de atualização do macOS não executam o procedimento de exclusão padrão. Outras famílias de aplicativos congelados exigem um adaptador de substituição suportado antes que uma atualização possa começar.\n\nA remoção nunca executa o desinstalador próprio de uma versão antiga, então uma cópia cujo ``Uninstall.exe`` ou ``uninstall-spacr.sh`` está ausente ou quebrado é removida mesmo assim. As preferências e os dados do usuário são mantidos: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, o cache do Hugging Face e as configurações ``spacr``/``qt`` (``~/.config/spacr``, o arquivo de preferências do macOS e a chave de registro ``Software\\spacr`` no Windows).\n\nUm ambiente pip ou conda criado pelo usuário é listado, mas nunca excluído; o pacote spaCR só é desinstalado dele quando quem chama informa que ele foi marcado. Um checkout editável do código-fonte é relatado e deixado como está.\n\nO módulo usa apenas a biblioteca padrão e não importa nada do spaCR, então um instalador pode executá-lo com o Python que ele mesmo instalou antes que exista qualquer spaCR, e um processo auxiliar pode executar uma cópia dele depois que o spaCR em execução tiver sido fechado::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` é a desinstalação completa escolhida explicitamente: também elimina as caches de spaCR, os ambientes dos motores e os dados do utilizador, depois de os listar e pedir confirmação. Nunca se executa sozinha; ``remove --purge`` executa-a após a remoção bem-sucedida.",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
         "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
         "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
@@ -38131,7 +38131,7 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
+        "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -38144,11 +38144,11 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "acf28538d5426fdbb8177d87a8669f0039215e6009dba523e47bdcca83085040",
-      "text": "Executa uma atualização da instalação em um processo que sobrevive ao spaCR.\n\nO spaCR em execução deve ser uma cópia criada pelo instalador. O auxiliar espera este processo terminar antes de alterar a instalação.\n\nPara uma instalação online de macOS suportada, usa o ``uv`` incluído existente e o Python privado para atualizar o spaCR no mesmo ambiente. Preserva o diretório do ambiente, os arquivos de inicialização, o lançador do aplicativo e os pacotes instalados que não precisam de atualização. Reinicia somente depois de verificar que a versão instalada é pelo menos ``version`` e mais nova que a versão anterior, quando essa versão anterior é conhecida. Uma atualização ou verificação de versão com falha não aciona remoção nem um instalador de substituição.\n\nO procedimento normal de substituição descarrega e executa o novo instalador que prepara a instalação, verifica o seu interpretador real e a aplicação importada e, em seguida, remove outras cópias e inicia a aplicação. Uma falha na instalação ou na verificação não remove a cópia anterior que funcionava. Uma falha ao remover outras cópias é registada sem voltar a iniciar a aplicação.\n\n:param records: instalações vindas de :func:`find_old_installs`.\n:param version: a versão a instalar.\n:param ticked: raízes dos ambientes que o usuário marcou.\n:param pid: o processo pelo qual esperar; este processo quando o valor é ``None``.\n:param workdir: a pasta do processo auxiliar; uma nova pasta temporária quando o valor é ``None``.\n:param system: o computador; ``None`` significa este computador.\n:param spawn: substitui o iniciador do processo desanexado.\n:returns: o plano como foi gravado em ``plan.json``. ``plan[\"command\"]`` é o comando do processo auxiliar, ou ``None``, caso em que ``plan[\"error\"]`` diz por que nada foi iniciado.\n\nUm pacote de aplicativo macOS congelado em um local no qual o usuário pode gravar usa seu adaptador de substituição por DMG verificado e mantém o pacote anterior completo. As outras famílias de aplicativos congelados retornam um erro antes de remover qualquer coisa; o programa auxiliar não habilita uma alternativa por instalador on-line para esses aplicativos.",
+      "source_sha256": "a18ebf8a69b327222983c810c7e7eb9b77b248afa7b0bc14756717fa52ce4f58",
+      "text": "Executa uma atualização da instalação em um processo que sobrevive ao spaCR.\n\nAs cópias criadas pelo instalador e os ambientes POSIX dedicados com pip suportados podem usar este assistente. Este espera que o processo em execução termine antes de alterar a instalação; o adaptador pip também exige uma aprovação autenticada do encerramento.\n\nPara uma instalação online de macOS suportada, usa o ``uv`` incluído existente e o Python privado para atualizar o spaCR no mesmo ambiente. Preserva o diretório do ambiente, os arquivos de inicialização, o lançador do aplicativo e os pacotes instalados que não precisam de atualização. Reinicia somente depois de verificar que a versão instalada é pelo menos ``version`` e mais nova que a versão anterior, quando essa versão anterior é conhecida. Uma atualização ou verificação de versão com falha não aciona remoção nem um instalador de substituição.\n\nO procedimento normal de substituição descarrega e executa o novo instalador que prepara a instalação, verifica o seu interpretador real e a aplicação importada e, em seguida, remove outras cópias e inicia a aplicação. Uma falha na instalação ou na verificação não remove a cópia anterior que funcionava. Uma falha ao remover outras cópias é registada sem voltar a iniciar a aplicação.\n\n:param records: instalações vindas de :func:`find_old_installs`.\n:param version: a versão a instalar.\n:param ticked: raízes dos ambientes que o usuário marcou.\n:param pid: o processo pelo qual esperar; este processo quando o valor é ``None``.\n:param workdir: a pasta do processo auxiliar; uma nova pasta temporária quando o valor é ``None``.\n:param system: o computador; ``None`` significa este computador.\n:param spawn: substitui o iniciador do processo desanexado.\n:returns: o plano como foi gravado em ``plan.json``. ``plan[\"command\"]`` é o comando do processo auxiliar, ou ``None``, caso em que ``plan[\"error\"]`` diz por que nada foi iniciado.\n\nUm pacote de aplicativo macOS congelado em um local no qual o usuário pode gravar usa seu adaptador de substituição por DMG verificado e mantém o pacote anterior completo. As outras famílias de aplicativos congelados retornam um erro antes de remover qualquer coisa; o programa auxiliar não habilita uma alternativa por instalador on-line para esses aplicativos.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "4c1bc9ce66511a2d59f01410c51bb95dfe3a12f6d4b18589cc806b297b430b54",
+        "fe55c4b9b1588b8c1e9ed7a73edcfc3e971b90623c4dd9493b792d1331653332",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -100944,14 +100944,14 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "Precarregue um instantâneo de configurações imutáveis transmitido por uma AppScreen.\n\n:param module: a chave de ``spacr.cli.MODULES`` a selecionar na caixa de módulos; uma chave desconhecida deixa a seleção como está.\n:param settings: as configurações a enviar; uma cópia rasa é guardada e usada em vez de um arquivo de configurações até que o campo de caminho seja editado.",
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "Precarregue um instantâneo de configurações imutáveis transmitido por uma AppScreen.\n\n:param module: a chave de ``spacr.cli.MODULES`` a selecionar na caixa de módulos; uma chave desconhecida deixa a seleção como está.\n:param settings: as configurações a enviar. Uma cópia profunda com as identidades exatas dos modelos é mantida até que o caminho das configurações seja editado.",
       "translation_source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
@@ -113954,17 +113954,17 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "Atualize uma configuração de execução conhecida cujo widget não está neste formulário.\n\nIsso inclui controles dedicados fora do formulário e linhas de objetos omitidas pela forma atual.\n\nEscondido não significa ausente: os valores importados vivem em ``_defaults`` e ainda atingem  ``collect()``.\n\nUm slot acima da contagem atual é aceito somente quando este aplicativo possui a contagem e o nome de dados estruturados é uma configuração declarada; nomes de dados estruturadas de aplicativos estrangeiros permanecem rejeitados.\n\n:param key: chave de configuração; precisa já ser uma configuração de execução, ou uma chave de slot de organela declarada em ``expected_types`` quando este formulário controla a contagem de organelas; caso contrário, ``False`` é retornado.\n:param value: novo valor, convertido para o tipo esperado da configuração antes de ser armazenado.",
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "Atualize uma configuração de execução conhecida cujo widget não está neste formulário.\n\nIsso inclui controles dedicados fora do formulário e linhas de objetos omitidas pela forma atual.\n\nEscondido não significa ausente: os valores importados vivem em ``_defaults`` e ainda atingem  ``collect()``.\n\nUm slot acima da contagem atual é aceito somente quando este aplicativo possui a contagem e o nome de dados estruturados é uma configuração declarada; nomes de dados estruturadas de aplicativos estrangeiros permanecem rejeitados.\n\n:param key: uma configuração de execução conhecida, uma chave declarada de posição de organela quando este formulário controla a quantidade, ou a chave reservada ``model_metadata``. Outras chaves retornam ``False``.\n:param value: novo valor, convertido para o tipo esperado da configuração antes de ser armazenado.",
       "translation_source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87",
-        "b52f9e99da6ca843f89e930355aa5a97211ea15d69e6c6f7f395fe1834a7d4d1",
+        "4c9fb1a2a489d2fae6cdcaec81aad97bfe82d3b38c7db8b4ccf46ed8a46336c7",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ]
     },
@@ -154927,14 +154927,12 @@
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent": {
       "source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ],
-      "source_sha256": "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff",
-      "text": "Reinicie o temporizador de ocultação quando o cursor sair do próprio POPUP.\n\nMais curto do que o período de graça da âncora de propósito: deixar o popup é um ato deliberado, onde deixar o rótulo pode ser apenas a jornada em direção a ele.\n\n:param event: o evento de saída; repassado à classe base e não lido de outra forma.",
+      "source_sha256": "7db8e214bd14ad48f49a4a7b8fa1dabeae786451c1d9524d551ff397a17daab6",
+      "text": "Reinicie o temporizador de ocultação quando o cursor sair do próprio POPUP.\n\n:param event: o evento de saída; repassado à classe base e não lido de outra forma.",
       "translation_source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ]
     },
@@ -167115,16 +167113,16 @@
     "spacr.qt.widgets.plaque_preview.resolve_detector": {
       "source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
+        "ea5d7c2116bd8c61066388dd9de100238555e29e7be23c7620cafd8ba6ad9c83",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"
       ],
-      "source_sha256": "9b72b1cacb61582e226d497e44137d9f05f08373394cce96fad8bdb9ac9e5aad",
-      "text": "O checkpoint do detector que uma chave nomeia, encontrado sem download.\n\nProcura onde a execução procura: o próprio caminho, o caminho próprio da entrada do zoo, ``~/.spacr/models`` e o cache de modelos da execução em ``<src>/plaque_figures/models``.\n\n:param key: uma chave do zoo de modelos ou um caminho de checkpoint.\n:param src: a pasta de figuras.\n:returns: ``(path, note, entry)``; ``path`` é ``''`` quando o modelo não está aqui, e ``entry`` é o que um download buscaria.",
+      "source_sha256": "00ee734565c88ae0ba5ebd15e6d200f5ede624f2b9e05cb1cc56986afd17d122",
+      "text": "O checkpoint do detector que uma chave nomeia, encontrado sem download.\n\nProcura onde a execução procura: o próprio caminho, o caminho próprio da entrada do zoo, o cache compartilhado de modelos ativo e o cache de modelos da execução em ``<src>/plaque_figures/models``.\n\n:param key: uma chave do zoo de modelos ou um caminho de checkpoint.\n:param src: a pasta de figuras.\n:returns: ``(path, note, entry)``; ``path`` é ``''`` quando o modelo não está aqui, e ``entry`` é o que um download buscaria.",
       "translation_source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "85ff7cbdc41dd86009e190b5764b2710ddae39df19a6506890b89362aa05f0a3",
+        "da8cefc4390eb4b3b16450da0eb09287ca64e3ead26b99a073b9850239faa6c0",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"

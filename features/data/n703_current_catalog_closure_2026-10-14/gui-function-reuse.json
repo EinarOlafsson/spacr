@@ -1,0 +1,14 @@
+{
+  "_on_old_installs_found": {
+    "identical": true,
+    "ast_sha256": "4c799c2385e64561170953e39deaac1516dd908e60c4fe615c42111c6015fe7b"
+  },
+  "_poll_frozen_update": {
+    "identical": true,
+    "ast_sha256": "8cee78eef1c203d840455a5a00ed1cda3c97c0905eef1e7ddf439f236d78c778"
+  },
+  "_save_pip_update_restart": {
+    "identical": true,
+    "ast_sha256": "c5430e7b4ea913f6fadc4ef6831a7c220ef950354eb6a655b5d3f3040f99a27b"
+  }
+}

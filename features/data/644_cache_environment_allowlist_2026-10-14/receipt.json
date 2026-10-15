@@ -1,0 +1,37 @@
+{
+  "scope": "N644 relocated-cache metadata configures only registered cache environment variables",
+  "baseline": {
+    "failed": 2,
+    "seconds": 0.78,
+    "exit": 1
+  },
+  "owning": {
+    "passed": 62,
+    "seconds": 2.1,
+    "exit": 0,
+    "new_cases": 8
+  },
+  "claims": [
+    "Opaque unrelated/future metadata keys never become process environment variables",
+    "All five supported cache variables still apply",
+    "Existing outside environment values retain precedence and repeated application remains idempotent",
+    "Metadata file bytes remain unchanged; no unknown row deletion"
+  ],
+  "checks": [
+    "Fatal Ruff passed",
+    "Generated feature index check passed",
+    "git diff --check passed"
+  ],
+  "limits": [
+    "Native private metadata/environment fixtures only; no live cache/data/GPU/full CI",
+    "Existing precedence fixture now uses actual supported TORCH_HOME/HF_HOME names instead arbitrary CI variable names"
+  ],
+  "sha256": {
+    "spacr/run_journal.py": "9ac8b2b0bd893f54ee0f9f4dffc2c4ab89fb3e2b4ecff41ba786f3bca18ba381",
+    "tests/test_n644_cache_location_environment_scope.py": "d3613095e5cc16b30f616cb07a6387ee864a64a98181205dd46db713be435790",
+    "tests/test_cov_ci_run_journal_storage_edges.py": "1b91dee18826e12b467654b4551028a4acabfc89841df33f6e59aab0bb26d12e",
+    "/mnt/wd4tb/scratch/n644-cache-env-scope-20261014/baseline.log": "235e7e72a6d0f7145bb918bd4f2c91aab037c41aef13e88066f1ebe991508e86",
+    "/mnt/wd4tb/scratch/n644-cache-env-scope-20261014/owning.log": "9ea83a16c3c03b3d8844793e70ba69666ea85b0801109b12371bccc45b85334e",
+    "/mnt/wd4tb/scratch/n644-cache-env-scope-20261014/owning.xml": "fd5f9717ec964551989b65d490809ac04dba088fcdf97d86d6dedc4e09fd406a"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "scope": "N702 CLI/batch immutable imported pin integrity and explicit override invalidation",
+  "dependency": "9ba83a97326 core helper cherry-picked as32126e11000",
+  "baseline": {
+    "failed": 10,
+    "passed": 1,
+    "exit": 1
+  },
+  "owning": {
+    "passed": 407,
+    "seconds": 8.9,
+    "exit": 0,
+    "warnings": 1
+  },
+  "claims": [
+    "Original schema/provenance and exact value binding validated before overrides/migration",
+    "Only proven one-to-one model key migrations retain pin identity",
+    "Explicit model edits invalidate only their pin even after return-to-original overrides",
+    "Reserved metadata overrides rejected; failed pinned edits leave caller payload intact",
+    "CSV/JSON serializer rejects malformed pins before touching existing outputs",
+    "Actual CLI force/no-preflight cannot bypass malformed imports"
+  ],
+  "limits": [
+    "Module/backend-kind enforcement follows in separate dependent component",
+    "GUI edit lifecycle and automatic pin enrichment remain separate",
+    "No network/model inference/GPU/full CI"
+  ],
+  "sha256": {
+    "spacr/cli.py": "daa831e5b8f487b877e534749abee695d8ebc0f44ed31e7b66205f74c0857e9f",
+    "spacr/batch.py": "b0ef2b480595464dee9fedd3d5fea009646c7d6f60e3568a9039932614706433",
+    "tests/test_n702_cli_and_batch_pin_integrity.py": "ea96d852c1cca7d0e29062d71b5420465815f46b1bf27c8db69002ab25aaf610",
+    "tests/test_n702_recorded_model_identity.py": "5bd9ff44cba390f2a11fd0d3a2596dd7033075ca6d2ff063d3b6bf658eebfc5c",
+    "/mnt/wd4tb/scratch/n702-cli-pins-20261014/owning.log": "9beef2d1753bf0d98489208555a6ee8eea4ce45ace0307a81830ec3486af912e",
+    "/mnt/wd4tb/scratch/n702-cli-pins-20261014/owning.xml": "5ec19516d375fbadf9df0d42ccc84537ffc17affcf04f827662bce4dfad62bac"
+  }
+}

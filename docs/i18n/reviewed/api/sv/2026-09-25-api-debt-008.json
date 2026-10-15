@@ -1006,7 +1006,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "setting key; it must already be a run setting, or an organelle-slot key declared in ``expected_types`` when this form owns the organelle count, otherwise ``False`` is returned.",
       "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
-      "translation": "inställningsnyckel; den måste redan vara en körningsinställning, eller en nyckel för en organellplats deklarerad i ``expected_types`` när det här formuläret äger antalet organeller, annars returneras ``False``."
+      "translation": "inställningsnyckel; den måste redan vara en körningsinställning, eller en nyckel för en organellplats deklarerad i ``expected_types`` när det här formuläret äger antalet organeller, annars returneras ``False``.",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "context": "new value, coerced to the setting's expected type before it is stored.",
@@ -1742,7 +1744,7 @@
     },
     {
       "context": "the leave event; passed to the base class and otherwise not read.",
-      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#2",
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#1",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the leave event; passed to the base class and otherwise not read.",
       "source_sha256": "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56",

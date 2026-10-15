@@ -31,7 +31,8 @@ def home(tmp_path, monkeypatch, qt_theme_applied):
     monkeypatch.setenv("SPACR_PORTABLE", "0")
     monkeypatch.setenv("SPACR_LOG_DIR", str(root / ".spacr" / "logs"))
     for name in ("CELLPOSE_LOCAL_MODELS_PATH", "HF_HOME", "TORCH_HOME",
-                 "SPACR_BACKENDS_DIR", "SPACR_NEWS_CACHE", "SPACR_HOME", "SPACR_RUN_ID"):
+                 "SPACR_BACKENDS_DIR", "SPACR_NEWS_CACHE", "SPACR_MODEL_CACHE",
+                 "SPACR_HOME", "SPACR_RUN_ID"):
         monkeypatch.setenv(name, "")
         monkeypatch.delenv(name)
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
@@ -170,7 +171,70 @@ def test_move_relocates_after_yes(page, home, tmp_path, qtbot):
     )
     assert (tmp_path / "bigdisk" / "spacr-news" / "releases.json").exists()
     page.table.selectRow([r["key"] for r in page._rows].index("models"))
-    assert not page.move_button.isEnabled()
+    assert page.move_button.isEnabled()
+
+
+@pytest.mark.parametrize('remember_custom', [False, True])
+def test_two_model_moves_update_new_widgets_and_preserve_custom_destinations(
+        page, home, tmp_path, qtbot, monkeypatch, remember_custom):
+    from pathlib import Path
+
+    from spacr import model_zoo, run_journal
+    from spacr.qt import preferences as prefs
+    from spacr.qt.screens.model_zoo import ModelZooScreen
+    from spacr.qt.widgets import model_zoo_picker
+
+    store = QSettings(str(tmp_path / 'model-picker.ini'), QSettings.IniFormat)
+    monkeypatch.setattr(model_zoo_picker, '_store', lambda: store)
+    monkeypatch.setattr(model_zoo, 'catalogue', lambda *args, **kwargs: [])
+    monkeypatch.setattr(model_zoo, 'community_entries', lambda: [])
+    monkeypatch.setattr(model_zoo, 'fetch',
+                        lambda *args, **kwargs: pytest.fail('cache move must not download'))
+    monkeypatch.setattr(model_zoo_picker.ModelZooPicker, '_warm_the_community_catalogue',
+                        lambda self: None)
+    original = home / '.spacr' / 'models'
+    original.mkdir(parents=True)
+    (original / 'fixture.pt').write_bytes(b'private checkpoint fixture')
+    custom = tmp_path / 'explicit custom models'
+    custom.mkdir()
+    (custom / 'keep.pt').write_bytes(b'explicit model')
+    remembered = custom if remember_custom else original
+    store.setValue(model_zoo_picker._DIR_SETTING, str(remembered))
+    first_picker = model_zoo_picker.ModelZooPicker()
+    qtbot.addWidget(first_picker)
+    assert first_picker.folder_edit.text() == str(remembered)
+    page.answer = True
+    source = original
+
+    for destination in (tmp_path / 'first drive', tmp_path / 'second drive'):
+        row = [entry['key'] for entry in page._rows].index('models')
+        assert Path(page._rows[row]['path']) == source
+        page.table.selectRow(row)
+        assert page.move_button.isEnabled()
+        messages = len(page.told)
+        page.relocate(str(destination))
+        qtbot.waitUntil(lambda: len(page.told) > messages, timeout=10000)
+        qtbot.waitUntil(
+            lambda: prefs._DISK_RUNNER is not None
+            and prefs._DISK_RUNNER.pending_jobs() == 0
+            and prefs._DISK_RUNNER.active_jobs() == 0
+            and page.measure_button.isEnabled(), timeout=10000)
+        target = destination / 'spacr-models'
+        assert model_zoo._model_cache_root() == target
+        assert run_journal._cache_folder('models') == target
+        assert (target / 'fixture.pt').read_bytes() == b'private checkpoint fixture'
+        assert not source.exists()
+        expected = custom if remember_custom else target
+        assert model_zoo_picker.remembered_model_dir() == str(expected)
+        picker = model_zoo_picker.ModelZooPicker()
+        screen = ModelZooScreen(threaded=False)
+        qtbot.addWidget(picker)
+        qtbot.addWidget(screen)
+        assert picker.folder_edit.text() == str(expected)
+        assert screen._dest_edit.text() == str(target)
+        assert first_picker.folder_edit.text() == str(remembered)
+        assert (custom / 'keep.pt').read_bytes() == b'explicit model'
+        source = target
 
 
 def test_failed_cache_move_reports_the_reason_and_keeps_the_source(

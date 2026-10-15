@@ -46,8 +46,162 @@ planes to 25 million pixels and PDFs to 256 pages. TIFF currently decodes a
 whole selected series, so its preflight uses that series' complete decoded
 size, even if only one T/Z plane is requested. Selection and size refusals
 occur before TIFF decode or PDF render. Unsupported palette/multiframe ordinary
-images and vendor formats are refused explicitly; CZI/ND2 adapters remain open.
+images and unsupported vendor reader versions are refused explicitly.
 
 Python dependencies are the existing spaCR NumPy, pandas, tifffile,
-scikit-image and Pillow packages, with `pypdfium2` required only for PDF input.
+scikit-image and Pillow packages, with `pypdfium2` required only for PDF input, scene-aware `czifile` for CZI,
+and `nd2reader` for supported ND2 versions.
 No dependency is installed automatically by these components.
+
+
+Optional microscopy adapters retain explicit scene/position, T/Z and channel
+choices. Current scene-aware czifile reads CZI scenes without blending them.
+ND2Reader reads the selected position/time/Z/channel frames; reader-decoded
+pixel values/dtypes are preserved. The decoded-byte preflight remains
+conservative against the described whole series. Unsupported ND2 metadata
+without declared X/Y dimensions is refused, and legacy czifile APIs without
+scene metadata are refused rather than guessing scene identity. CPU acceptance
+uses repository CZI fixtures and an already-cached public OME ND2 fixture;
+CI skips the latter if unavailable, and never downloads it implicitly.
+
+`plaque.run_plaque_download` wires the readers and packager to the actual
+existing desktop plaque loader and `spacr.plaque.segment_plaque_image`.
+An operator must provide a trusted local checkpoint, its expected SHA-256,
+model identity/version, and already-resolved effective `diameter`,
+`flow_threshold` and `CP_prob`. Weight bytes are verified before loading; no
+weight download or alternate default selection is implemented. `diameter=None`
+explicitly selects native scale; the caller must resolve the N696
+magnification/Auto choice before invoking this adapter.
+
+The existing desktop path performs inference once; the adapter captures its
+actual raw vector field and cell-score logits from that same return value for
+the ZIP. It does not substitute the RGB flow visualization for vectors, create
+missing outputs, or alter labels. Input-selection/effective-setting provenance
+is included. A future HTTP/Gradio layer must select trusted operator-controlled
+checkpoints and enforce server limits itself; do not accept visitor filesystem
+paths or forward arbitrary request dictionaries as loader/limit settings.
+
+CPU adapter tests inject model construction/evaluation and exercise the real
+desktop segmentation helper and ZIP path. They prove call/format/integration
+contracts only. Actual trusted checkpoint availability, hosted GPU behavior,
+scientific segmentation accuracy and desktop/browser IoU parity remain
+unverified and required for N698 acceptance.
+
+Run the backend locally as an operator (no service is started):
+
+```bash
+python -m tools.web_mask_generator.run uploaded.ome.tif --describe
+python -m tools.web_mask_generator.run uploaded.ome.tif \
+  --output result.zip --checkpoint /trusted/models/cpsam_plaque_r6 \
+  --sha256 744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f \
+  --model-id toxoplasma_plaque_v4 --model-version v4 \
+  --diameter 52 --index T=0 --index Z=1 --channel 0
+```
+
+The hash above is the existing bundled model catalogue's plaque-v4 entry, not
+a claim that the checkpoint is installed or was run here. Choose the diameter
+from the effective desktop settings for the image; `52` is only a command
+example. Use `--native-scale` only when deliberately requesting native scale.
+Duplicate axis choices, missing model provenance and implicit diameter defaults
+are rejected. Zero-based `--series`, `--index AXIS=N`, ordered `--channel`, and
+PDF `--page`/`--pdf-dpi` mirror the Python reader. The command prints the final
+ZIP path only after successful publication. Deployments need a separate web
+service/UI and both required GPU paths; this CLI does not provide those.
+
+`registry.model_families()` exposes the eight current non-alpha web model
+classes and all of their published versions. It reuses the existing model-card
+family/default rules and current rescored card metrics, including alternatives,
+rather than ranking historical raw catalogue numbers. Detector classes advertise
+boxes; segmentation classes advertise labels. `inference_adapter` is currently
+`"plaque"` only for the plaque family and `null` for the remaining families.
+Metadata exposure is not a claim that weights or inference are available.
+
+`registry.resolve_trusted_model(family, provisioned_paths, model_key=...)`
+resolves only operator-provisioned model keys and verifies exact published
+weight bytes. Public metadata contains no filesystem paths. Selecting an
+unavailable default refuses rather than silently using an older installed
+model. The operator mapping is private service configuration, never a visitor
+request field. Existing alpha models remain excluded, and published dataset
+repository types/URLs retain their actual type.
+
+`service.PlaqueService` keeps the operator checkpoint mapping read-only and
+allows only explicit visitor model/settings/selection/consent fields. Client
+paths, output folders and resource-limit overrides are refused. The `job`
+context copies bounded upload bytes into a private mode-700 folder and removes
+that folder after delivery, inference failure or a transfer/consumer exception.
+A web framework must serve the yielded ZIP during the context or copy it into
+its own disclosed download cache before context exit. This component does not
+claim that a future framework's upload/download caches are already configured.
+
+`preload_default()` is an explicit operator startup action, not an import side
+effect. It verifies the current default's exact published weight bytes and
+warms a two-entry digest-keyed desktop model cache, supporting the documented
+ZeroGPU startup-placement pattern. Replacing a path with different weight bytes
+cannot reuse the old cached model under the new digest. Plaque requests with
+more than three selected channels are refused before loading, preventing
+Cellpose from silently ignoring additional channels.
+
+`app.build_app(...)` constructs a real Gradio interface and named `models` /
+`segment_plaque` API routes without starting a server or loading weights.
+It has all eight model-family/version/provenance tabs; only the implemented
+plaque adapter is executable. Users grant consent before the file picker is
+enabled, choose actual channels/series/T/Z/PDF page, explicitly resolve diameter,
+and receive the result ZIP plus a display-only mask-boundary preview. The queue
+has one model worker and eight pending slots. Cancel addresses pending work;
+it does not claim to interrupt an already-running CUDA kernel immediately.
+
+`delete_cache=(300, 3600)` configures Gradio to reap registered upload/download
+cache files older than an hour on its five-minute cleanup interval. Original
+private job staging is removed immediately after the result is copied into
+that cache. No input is sent to GitHub, training datasets or a model provider
+by these handlers. Hosted processing necessarily transfers uploads to the
+Space; the ZIP intentionally includes those bytes. Browser WebGPU remains a
+separate unimplemented route, explicitly disclosed in this source UI.
+
+Source-only Space launch preparation (no deployment has occurred):
+
+1. Use an eligible **free** personal ZeroGPU Space. Verify the email/account-age
+   requirements in [HF's official ZeroGPU guide](https://huggingface.co/docs/hub/spaces-zerogpu).
+   Do not upgrade to paid hardware, PRO or an organization plan for this setup.
+   If free ZeroGPU is unavailable, stop deployment and retain these sources;
+   that eligibility gap is not solved by selecting paid hardware.
+2. Supply a reviewed spaCR source checkout as the Space repository and install
+   that checkout's project requirements. The additional UI requirements are
+   `tools/web_mask_generator/requirements-space.txt`. They were checked with
+   Gradio 6.30.0 / spaces 0.51.3 in a private local environment; the actual HF
+   build, CUDA/checkpoint compatibility and scientific acceptance remain open.
+3. The Space's root README metadata should use `sdk: gradio`,
+   `sdk_version: 6.30.0`, `python_version: 3.12`, and
+   `app_file: tools/web_mask_generator/space_app.py`. The supplied wrapper adds
+   the source root for imports; ordinary direct execution of the relative-import
+   library file is not the Space entry point.
+4. Provision the approved checkpoint on the service from its actual published
+   repository, respecting repository type. Set the operator-only environment
+   variable `SPACR_WEB_MODELS_JSON` to a JSON mapping of approved keys to trusted
+   local checkpoint paths. No visitor may choose these paths. Runtime verifies
+   bytes against the current bundled catalogue; no default download occurs.
+5. With free ZeroGPU actually selected in the Space settings, set
+   `SPACR_WEB_ZERO_GPU=1`. This requests startup verification/preload, then a
+   `spaces.GPU(duration=120)` call for execution. Basic consent/header/diameter
+   checks happen before entering the decorated function. Startup model placement
+   follows the linked official guidance. Quota/queue/execution availability is
+   not guaranteed and must be tested on the actual account.
+6. Launch only after the source/configuration review. `main()` keeps public
+   Gradio sharing off, hides backend tracebacks, disables run history, retains
+   strict CORS, and limits uploads. No server was launched while implementing
+   or testing this source. The generic spaCR site must wait for an acknowledged
+   Home-B interface and a real configured endpoint, rather than inventing a URL.
+7. Before whole N698 acceptance, implement the remaining class adapters and
+   browser exports/postprocessing, complete localization/style/accessibility,
+   exercise hosted cache cleanup/cancellation, and compare actual model outputs
+   against desktop results under the original IoU/object-count criterion.
+
+`detector.run_well_download` runs the actual desktop `detect_wells` path with
+verified operator weights, retaining the desktop's RGB→BGR handling, confidence,
+reading order and axis-ratio refusal. Choose one grayscale or three RGB input
+channels. It produces a detection ZIP containing input/selected TIFF, actual
+boxes/confidences, canonical CSV, README and manifest. Bounding-box area/centre
+are explicitly rectangle measurements, not segmented well area/centroids;
+physical calibration is not assumed. Masks, vectors and per-pixel cell scores
+are explicitly unavailable and never synthesized. Backend integration into the
+public service/UI remains separate work; no hosted detector is claimed here.

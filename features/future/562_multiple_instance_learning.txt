@@ -136,3 +136,59 @@ WHAT IS LEFT
     Left: nothing in code. Note: no GUI step writes crop_embedding yet
     (only spacr.active_learning._store_crop_embeddings); new captions await
     the catalog lane (_AWAITING_CATALOG_REBUILD). GPU runs optional.
+
+2026-10-14 — Original Home: well-label identity/read-only join repaired (alpha).
+The stored-embedding MIL reader now resolves each full/short/compact well key
+individually, so mixed legitimate spellings no longer silently lose labels.
+Conflicting duplicate or alias assignments refuse; a short key matching the
+same row/column on multiple plates refuses and requests the full identifier.
+Agreeing aliases remain valid, absent labels stay absent, unrelated table wells
+are ignored, and label input frames remain untouched. Both embedding and crop
+SQLite reads explicitly disable migration and use read-only connections; source
+bytes remain unchanged on successful and refused joins, and a missing database
+is not created. Existing encoder/UMAP/render/schema/widget source is untouched.
+Validation15 owning MIL cases PASS/actualexit0/5.47s, including actual temporary
+SQLite joins, two-plate identity, conflicts, mixed spellings and original
+planted-responder MIL checks. First9PASS/5test path-type failures are retained;
+after correcting string-path byte checks,5real migration mutations were exposed
+and fixed by read-only reads, with original failures retained. No biological
+accuracy, real-screen or GPU acceptance inferred from these synthetic cases.
+Two new exact diagnostics have18 source-hash-bound AI technical translations in
+all9locales; normal contextualization/candidate gates pass all18, actualexit0.
+Parent independent review, Home-B one-function extractor scope and normal
+runtime generation remain pending. No generated catalog rows inserted here.
+Existing ALPHA_FEATURES[562] and literal widget gates remain unchanged; whole
+F562 scientific/publication acceptance is not newly claimed by this repair.
+Receipt:features/data/562_well_label_identity_2026-10-14/.
+
+2026-10-14 — Canonical metadata fallback for the same read-only MIL join.
+Missing/null/blank acquisition columns now recover through the existing
+schema.parse_prcfo right-to-left parser, retaining full underscored plate names
+and canonical row/column/field identity. Explicit populated metadata remains
+authoritative; unparseable fallback keys refuse rather than inventing a well.
+Only _mil_frame_from_db changes; schema and encoder/UMAP source are untouched.
+Validation20 owning MIL cases PASS/actualexit0/10.58s, including actual SQLite
+absent/null/blank columns, underscored plate IDs, explicit metadata, malformed
+keys and byte-preserving refusal. The one new diagnostic brings this function
+to4tr callsites/3unique sources; all27 review targets across9locales pass normal
+contextualization/candidate gates, actualexit0. Owner extraction/generation and
+independent translation review remain pending; no scientific/GPU acceptance.
+Receipt:features/data/562_well_label_identity_2026-10-14/canonical-identity.json.
+
+2026-10-15 — Current-source backend integration and actual runtime lookup:
+The F564 reference preservation, F562 read-only identity join and F535 grouped
+tabular holdout components were integrated together with Home-B exact scoped
+extractor ownership. Normal writers emit ten reviewed diagnostics in each of
+nine locales, preserving all 10,491 unrelated source-current targets per
+locale. Actual lookup and finite owning cohort: 179 PASS, exit 0, 87.95 s.
+Root independently reviewed exact code diffs and found no blocking code issue;
+this is limited source review, not scientific/native/translation signoff.
+Receipt: features/data/scientific_backends_integration_2026-10-15/. Parent
+scientific, native and whole-feature acceptance limits remain as recorded.
+Normal full nine-locale runtime audit exit 1: 37 existing foreign N700
+error-report captions remain exact English (sv4/de3/es7/zh_CN7/pt7/hi3/ko3/is2/fr1).
+Raw failure is retained in the integration receipt. Nightly implementation
+publication does not claim green global CI/release or waive this owner gap.
+Actual normal caption-arrival refresh also refuses missing explicit
+sv/UI/AI Error report review (exit 1); its raw failure is retained. No
+caption contract, foreign review or source baseline was modified to pass.

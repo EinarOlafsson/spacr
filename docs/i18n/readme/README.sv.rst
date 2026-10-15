@@ -125,6 +125,10 @@
 
 .. raw:: html
 
+   <div><a href="../../readme_text/sv/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/hardware-support-2.desktop.svg"><img src="../../readme_images/sv/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
+
+.. raw:: html
+
    <div><a href="../../readme_text/sv/install-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-spacr.desktop.svg"><img src="../../readme_images/sv/install-spacr.svg" alt="Installera spaCR. Välj en installationsväg: Skrivbordsprogram: ett installationsprogram för Linux, macOS eller Windows med egen Python. pip: python -m pip install spacr i en Conda-miljö. conda-forge: conda install conda-forge::spacr i en Conda-miljö. Docker: kommandoradens bearbetningsflöden i en Linux-container, från CPU-avbildningen eller avbildningen för NVIDIA-GPU:er:"></picture></a></div>
 
 .. code-block:: bash

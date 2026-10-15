@@ -118,7 +118,6 @@ from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
                             reference_line, resolve_ink, rotate_ticks,
                             theme_target)
 from .plot import save_figure
-from .logging_util import _spacr_home
 
 #: The categorical vocabulary for a plot whose categories genuinely ARE the
 #: data -- one line per measured column, one bar per class. Taken from the
@@ -476,7 +475,11 @@ def train_cellpose(settings):
     model_save_path = os.path.expanduser(settings['save_path'] or os.path.join(settings['src'], 'models', 'cellpose_model'))
     os.makedirs(model_save_path, exist_ok=True)
     save_settings(settings, name=model_name)
-    base = _resolve_training_base(settings['base_model'])
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned_base = _resolve_pinned_model_file(settings, 'base_model', kinds=('cellpose',))
+    base = (str(pinned_base) if pinned_base is not None
+            else _resolve_training_base(settings['base_model']))
     print(f'Training starts from {base}')
     model = cp_models.CellposeModel(gpu=_cellpose_use_gpu(), pretrained_model=base)
     try:
@@ -1336,6 +1339,11 @@ def _resolve_well_detector(settings):
     ``well_detection`` may be ``False`` (off), a path, or a
     :mod:`spacr.model_zoo` key -- ``True`` means the default detector.
     """
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned = _resolve_pinned_model_file(settings, 'well_detection', kinds=('detector',))
+    if pinned is not None:
+        return str(pinned)
     requested = settings.get('well_detection', False)
     if not requested:
         return None
@@ -1356,15 +1364,15 @@ def _resolve_detector_weights(requested, setting):
     if os.path.isfile(requested):
         return requested
     from . import model_zoo
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == requested), None)
-    if entry is None:
-        raise ValueError(
-            f"{setting}={requested!r} is neither a file nor a model_zoo "
-            f"key")
-    dest = os.path.join(str(_spacr_home()), 'models')
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+
+    resolved = model_zoo._ensure_model_file(requested, kinds=('detector',))
+    if resolved is not None:
+        return str(resolved)
+    if '/' in requested or '\\' in requested or requested.startswith('~'):
+        raise ModelZooMissing(requested)
+    raise ValueError(
+        f"{setting}={requested!r} is neither a file nor a model_zoo "
+        f"key")
 
 
 class ModelZooMissing(FileNotFoundError):
@@ -1387,18 +1395,13 @@ def _resolve_training_base(requested):
     if os.path.isfile(name):
         return name
     from . import model_zoo
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == name), None)
-    if entry is None:
-        return name
-    local = str(getattr(entry, 'path', '') or '')
-    if local and os.path.isfile(local):
-        return local
-    if not getattr(entry, 'uri', None):
-        return name
-    dest = os.path.join(str(_spacr_home()), 'models')
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+
+    resolved = model_zoo._ensure_model_file(name, kinds=('cellpose',))
+    if resolved is not None:
+        return str(resolved)
+    if '/' in name or '\\' in name or name.startswith('~'):
+        raise ModelZooMissing(name)
+    return name
 
 
 #: The plaque model a run segments with when none is named: the cpsam_v2
@@ -1541,6 +1544,13 @@ def _resolve_plaque_model(settings, fetch=True):
     """
     from .utils import download_models
 
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned = _resolve_pinned_model_file(settings, 'plaque_model', kinds=('cellpose',), download=fetch)
+    if pinned is not None:
+        if os.path.isfile(pinned):
+            return str(pinned)
+        raise ModelZooMissing(str(pinned))
     requested = _requested_plaque_model(settings)
 
     if os.path.isfile(requested):
@@ -1563,25 +1573,20 @@ def _resolve_plaque_model(settings, fetch=True):
             "a model_zoo key such as 'toxoplasma_plaque_v1' instead.")
 
     from . import model_zoo
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == requested), None)
-    if entry is None:
-        raise ValueError(
-            f"plaque_model={requested!r} is neither a file that exists, the "
-            f"string 'bundled', nor a model_zoo key. Known keys: "
-            f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
-    dest = os.path.join(str(_spacr_home()), 'models')
-    if not fetch:
-        for candidate in (str(getattr(entry, 'path', '') or ''),
-                          os.path.join(dest, str(getattr(entry, 'name', '')
-                                                 or ''))):
-            if candidate and os.path.isfile(candidate):
-                return candidate
-        raise ModelZooMissing(
-            f"plaque_model={requested!r} is not on this machine yet (looked "
-            f"in {dest}); running the plaque analysis downloads it.")
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+
+    resolved = model_zoo._ensure_model_file(requested, kinds=('cellpose',), download=fetch)
+    if resolved is not None:
+        if fetch or os.path.isfile(resolved):
+            return str(resolved)
+        raise ModelZooMissing(str(resolved))
+    if '/' in requested or '\\' in requested or requested.startswith('~'):
+        raise ModelZooMissing(requested)
+    entries = (model_zoo.catalogue(remote=True) if fetch
+               else model_zoo._planning_model_entries())
+    raise ValueError(
+        f"plaque_model={requested!r} is neither a file that exists, the "
+        f"string 'bundled', nor a model_zoo key. Known keys: "
+        f"{sorted(e.key for e in entries)}")
 
 
 def analyze_plaques(settings):
@@ -1984,6 +1989,11 @@ def _analyze_plaque_figures(settings, model_path):
         returns.
     """
     from . import plaque_papers
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned_detector = _resolve_pinned_model_file(settings, 'figure_detector', kinds=('detector',))
+    detector = (str(pinned_detector) if pinned_detector is not None
+                else str(settings.get('figure_detector') or plaque_papers.DEFAULT_DETECTOR))
 
     sizes = tuple(int(float(part)) for part in
                   str(settings.get('figure_imgsz') or '640').split(',')
@@ -1994,8 +2004,7 @@ def _analyze_plaque_figures(settings, model_path):
     for folder in plaque_papers.figure_folders(settings['src']):
         part = plaque_papers.measure_figure_folder(
             folder, os.path.join(settings['src'], 'plaque_figures'),
-            detector=str(settings.get('figure_detector')
-                         or plaque_papers.DEFAULT_DETECTOR),
+            detector=detector,
             segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
             confidence=float(settings.get('figure_confidence', 0.25)),
             confirm_each=bool(settings.get('confirm_annotations', False)),

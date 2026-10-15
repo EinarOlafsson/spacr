@@ -1,0 +1,44 @@
+{
+  "item": 698,
+  "component": "trusted public model-family/default/version metadata and private checkpoint resolution",
+  "status": "implemented and CPU tested; parent partial",
+  "base": "2edc84bfb1b19cf64fcda0fe31bf655b78c70553",
+  "source_sha256": {
+    "tools/web_mask_generator/registry.py": "75a07d5565015d01919e5bcbbb1aaac5a60d8ffc33ff96d7913bbe47f509c21e",
+    "tools/web_mask_generator/README.md": "375df98ec74cfcd01558adf13fd33f8806e354e2dbab244ac6b0160bf35b1c9d",
+    "tests/test_web_model_registry_n698.py": "de5ccfb2add660f3dc1a6663425381d2045d1a237e7f1302e094d620b6b605e9",
+    "tools/build_model_cards.py": "f9fb2caa234690c915defbd004ec1513cad775a5370097ef4ed8591c418e5691",
+    "tools/build_score_cards.py": "66db0224f6a1e04620cd5661de49b288133772ac746e3618a8b50a19bd4922b3",
+    "spacr/model_zoo.py": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55",
+    "spacr/settings.py": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa"
+  },
+  "checks": {
+    "actual_exit": 0,
+    "registry_passed": 10,
+    "earlier_component_regression_passed": 112,
+    "duration_seconds": 12.8,
+    "coverage": {
+      "covered_lines": 32,
+      "num_statements": 32,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 12,
+      "num_partial_branches": 0,
+      "covered_branches": 12,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "evidence": "/mnt/wd4tb/scratch/n698-results-20261014/registry*"
+  },
+  "limits": [
+    "Metadata/default rules reused from existing model cards, not a new scientific benchmark.",
+    "Fake controlled bytes exercise checksum identity; no actual checkpoint downloaded/loaded/accepted.",
+    "Only plaque currently advertises an inference adapter; other class routing remains open.",
+    "No website changes, hosted service, GPU/browser or full CI acceptance."
+  ]
+}

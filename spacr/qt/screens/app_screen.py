@@ -12334,7 +12334,10 @@ class AppScreen(QWidget):
         cluster and run with ``spacr-run <module> --settings <file>``.
         """
         try:
-            settings = dict(self._settings_model.collect())
+            from ...model_zoo import _capture_model_metadata
+
+            settings = _capture_model_metadata(
+                self.app_key, dict(self._settings_model.collect()))
         except Exception as e:
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
@@ -12709,6 +12712,14 @@ class AppScreen(QWidget):
         :param settings: setting key to value mapping; legacy key names are
             translated first, and it is merged over the current values.
         """
+        if "model_metadata" in settings:
+            from copy import deepcopy
+            from ...cli import _under_todays_names
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            _validate_model_metadata(settings)
+            settings = _under_todays_names(deepcopy(settings))
+            _validate_model_metadata(settings, model_kinds=_model_input_kinds(self.app_key, settings))
         settings = _translate_legacy_setting_keys(settings)
         settings = self._migrate_control_wells(settings)
         model = getattr(self, "_settings_model", None)
@@ -12718,7 +12729,15 @@ class AppScreen(QWidget):
         except Exception:                                   # noqa: BLE001
             current = {}
         target = dict(current)
+        if "model_metadata" in current and "model_metadata" not in settings:
+            from ...model_zoo import _invalidate_model_metadata
+
+            target = _invalidate_model_metadata(current, settings)
         target.update(settings)
+        if "model_metadata" in target:
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            _validate_model_metadata(target, model_kinds=_model_input_kinds(self.app_key, target))
 
         if (self._bulk_apply_changes_form_shape(settings, current)
                 and not getattr(self, "_built_for_this_bulk_apply", False)):
@@ -12746,7 +12765,11 @@ class AppScreen(QWidget):
         if model is not None:
             model._applying_settings = True
         try:
-            applied = self._apply_each_setting(settings)
+            values = {key: value for key, value in settings.items() if key != "model_metadata"}
+            applied = self._apply_each_setting(values)
+            if model is not None and "model_metadata" in target:
+                model._model_metadata = None
+                model.set_hidden_value("model_metadata", target["model_metadata"])
         finally:
             if model is not None:
                 model._applying_settings = False

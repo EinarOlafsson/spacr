@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="3.753" timestamp="2026-10-14T22:43:31.129953-04:00" hostname="olafsson"><testcase classname="tests.qt.test_toxoplasma_guide_after_registration" name="test_normal_registration_keeps_reference_guide_on_real_home" time="2.403"><failure message="AssertionError: assert 'alpha' == 'stable'&#10;  &#10;  - stable&#10;  + alpha">qtbot = &lt;pytestqt.qtbot.QtBot object at 0x7cadb01a8920&gt;
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3011/test_normal_registration_keeps0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cadb2558950&gt;
+
+    def test_normal_registration_keeps_reference_guide_on_real_home(qtbot, tmp_path, monkeypatch):
+        from spacr.qt import preferences
+    
+        monkeypatch.setattr(preferences, '_settings',
+                            lambda: QSettings(str(tmp_path / 'private.ini'), QSettings.IniFormat))
+        preferences.set_show_alpha(False)
+        preferences._set_show_alpha_features(False)
+        preferences._set_show_alpha_species(False)
+        monkeypatch.setattr(app, 'APP_STAGE', dict(app.APP_STAGE))
+        register_self_registering_modules()
+        home = app.make_home_page()
+        qtbot.addWidget(home)
+        tiles = {tile.property('moduleAppKey') for tile in home.findChildren(AppTile)}
+&gt;       assert app.app_stage('toxoplasma') == app.STAGE_STABLE
+E       AssertionError: assert 'alpha' == 'stable'
+E         
+E         - stable
+E         + alpha
+
+tests/qt/test_toxoplasma_guide_after_registration.py:21: AssertionError</failure></testcase></testsuite></testsuites>

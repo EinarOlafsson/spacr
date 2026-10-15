@@ -1,0 +1,38 @@
+{
+  "scope": "N643 active run journals protected across worker threads in current process",
+  "baseline": {
+    "failed": 2,
+    "exit": 1
+  },
+  "initial_owning": {
+    "passed": 54,
+    "seconds": 3.99,
+    "exit": 0
+  },
+  "native_closure": {
+    "passed": 6,
+    "seconds": 0.76,
+    "exit": 0
+  },
+  "final_owning": {
+    "passed": 56,
+    "seconds": 4.95,
+    "exit": 0
+  },
+  "cohorts_overlap_not_summed": true,
+  "sha256": {
+    "spacr/run_journal.py": "8c5cbc4bd6c442abca3f93049fe26ef3d3e7ff1fe21a5af821a9df561e0b6702",
+    "tests/test_n643_active_worker_run_cannot_be_pruned.py": "3f159f1bd226bda59ae73d83955e1173ae59372c5ae7bd998d90440d9b056a73",
+    "/mnt/wd4tb/scratch/n643-worker-run-20261014/baseline.log": "fec9e164f40728e15cee14b7aad8adb784e669cb727caf9b1943008583d7aa94",
+    "/mnt/wd4tb/scratch/n643-worker-run-20261014/owning.log": "c3e3ff22362ab235a5a41fec3e1d886a6fe5607b65f880129b01b5efbbb317a3",
+    "/mnt/wd4tb/scratch/n643-worker-run-20261014/closure.log": "8376ef02acfa48250c25e5152d7ff55efc7f5e6be5efa304618f7a0356865bb0",
+    "/mnt/wd4tb/scratch/n643-worker-run-20261014/final-owning.log": "8e9cef22eca21273a6e30e35892f33ff2946c4fce31fae154d35e61f766cc1a2",
+    "/mnt/wd4tb/scratch/n643-worker-run-20261014/final-owning.xml": "b8abf77e4b3d5217622e80c71ca9800db8403128f97d10425168d759d20112e0"
+  },
+  "limits": [
+    "Private native temporary folders and threads; expensive provenance/providers stubbed",
+    "No separate-process/remote-host protection acceptance",
+    "No native fork/other-OS acceptance",
+    "No real jobs/user files/network/GPU/full CI"
+  ]
+}

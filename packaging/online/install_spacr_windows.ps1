@@ -140,6 +140,10 @@ function Invoke-Checked {
     }
 }
 
+$MetadataBackup = Join-Path $WorkDir "previous-metadata"
+$MetadataTouched = $false
+$RetainWorkDir = $false
+$Committed = $false
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
@@ -268,6 +272,14 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw (Get-SpacrInstallerMessage "old_copy_not_removed")
     }
+    $MetadataPaths = @((Join-Path $InstallRoot "runtime-identity.json"),
+        (Join-Path $InstallRoot "install-profile.json"), $Launcher, $CliLauncher)
+    if ($OfflineBundle) {
+        $MetadataPaths += @((Join-Path $InstallRoot "offline_mask_check.py"),
+            (Join-Path $InstallRoot "offline-bundle.json"))
+    }
+    Invoke-Checked -Command $CleanupPython -Arguments (@("-I", $CleanupModule,
+        "installer-metadata", "snapshot", "--folder", $MetadataBackup, "--paths") + $MetadataPaths)
     $OldVenv = Join-Path $InstallRoot (".venv-previous-" + $PID)
     if (Test-Path $VenvDir) {
         Move-Item $VenvDir $OldVenv
@@ -275,13 +287,21 @@ try {
     Move-Item $StageVenv $VenvDir
     $IdentityArgs[[Array]::IndexOf($IdentityArgs, "--python") + 1] = Join-Path $VenvDir "Scripts\python.exe"
     try {
-        Invoke-Checked -Command $CleanupPython -Arguments $IdentityArgs
+        $FinalIdentity = Invoke-Checked -Command $CleanupPython -Arguments $IdentityArgs
+        $Receipt = $FinalIdentity | ConvertFrom-Json
+        if (-not $Receipt.verified) { throw "runtime_identity_unverified" }
+        $StageIdentity = Join-Path $WorkDir "runtime-identity.new.json"
+        [System.IO.File]::WriteAllText($StageIdentity,
+            [string]::Join([Environment]::NewLine, @($FinalIdentity)),
+            [System.Text.UTF8Encoding]::new($false))
     } catch {
         Remove-Item -Recurse -Force $VenvDir
         if (Test-Path $OldVenv) { Move-Item $OldVenv $VenvDir }
         throw
     }
     $InstalledPython = Join-Path $VenvDir "Scripts\python.exe"
+    $MetadataTouched = $true
+    Move-Item -Force $StageIdentity (Join-Path $InstallRoot "runtime-identity.json")
     Move-Item -Force $StageProfile (Join-Path $InstallRoot "install-profile.json")
 
     if ($OfflineBundle) {
@@ -323,21 +343,44 @@ raise SystemExit(run())
     "@echo off`r`n`"$InstalledPython`" -I -m spacr.qt %*`r`n" |
         Set-Content -Encoding ASCII $CliLauncher
 
+    $Committed = $true
+    $MetadataTouched = $false
     if (Test-Path $OldVenv) { Remove-Item -Recurse -Force $OldVenv }
     Write-Host ""
     Write-Host (Get-SpacrInstallerMessage "installed") -ForegroundColor Green
     Write-Host (Get-SpacrInstallerMessage "launcher" @($Launcher))
 } catch {
-    if ($OldVenv -and (Test-Path $OldVenv)) {
-        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $VenvDir
-        Move-Item $OldVenv $VenvDir
+    $OriginalError = $_
+    $RuntimeRestored = $true
+    if (-not $Committed -and $OldVenv -and (Test-Path $OldVenv)) {
+        try {
+            Remove-Item -Recurse -Force -ErrorAction Stop $VenvDir
+            Move-Item $OldVenv $VenvDir
+        } catch {
+            $RuntimeRestored = $false
+            $RetainWorkDir = $true
+            Write-Warning (Get-SpacrInstallerMessage "gui_failed")
+            Write-Host $OldVenv
+        }
+    }
+    if ($MetadataTouched -and $RuntimeRestored) {
+        try {
+            Invoke-Checked -Command $CleanupPython -Arguments @("-I", $CleanupModule,
+                "installer-metadata", "restore", "--folder", $MetadataBackup)
+        } catch {
+            $RetainWorkDir = $true
+            Write-Warning (Get-SpacrInstallerMessage "gui_failed")
+            Write-Host $MetadataBackup
+        }
     }
     if (Test-Path $StageVenv) {
         Remove-Item -Recurse -Force $StageVenv
     }
     Remove-Item -Force -ErrorAction SilentlyContinue $StageProfile
-    throw
+    throw $OriginalError
 } finally {
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $WorkDir
+    if (-not $RetainWorkDir) {
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $WorkDir
+    }
     Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
 }

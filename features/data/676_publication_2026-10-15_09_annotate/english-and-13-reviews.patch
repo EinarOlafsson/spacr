@@ -1,0 +1,512 @@
+diff --git a/tools/tutorials/lessons/09_annotate.json b/tools/tutorials/lessons/09_annotate.json
+index e11a1ee6c..68e690dc1 100644
+--- a/tools/tutorials/lessons/09_annotate.json
++++ b/tools/tutorials/lessons/09_annotate.json
+@@ -154,7 +154,7 @@
+     },
+     {
+       "visual": "19_labels_for_suggest",
+-      "narration": "Suggest proposes labels for the crops you have not answered yet, so first give it examples of both classes from several wells. Here a few crops of each class are labelled in four wells, then Next saves them.",
++      "narration": "Suggest proposes labels for the crops you have not answered yet, so first give it examples of both classes from several wells. Here a few crops of each class are labelled in three wells, then Next saves them.",
+       "focus": [
+         360,
+         380,
+@@ -166,7 +166,7 @@
+     },
+     {
+       "visual": "20_suggestions",
+-      "narration": "Open Suggest and choose Suggest for the images on this page. The round takes a few seconds, and every crop on the page now wears a question-mark badge. The bar above the grid counts how many suggestions are left to judge.",
++      "narration": "Open Suggest and choose Suggest for the images on this page. The round takes a few seconds, and the unlabelled crops on the page now wear question-mark badges. The bar above the grid counts how many suggestions are left to judge.",
+       "focus": [
+         350,
+         250,
+@@ -177,7 +177,7 @@
+     },
+     {
+       "visual": "21_judged",
+-      "narration": "Click a suggested crop or press Y to confirm it, and right-click it or press N to reject it. Both answers are recorded, rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
++      "narration": "Click a suggested crop or press Y to confirm it, and right-click it or press N to reject it. Both answers remain pending until Next saves them; rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
+       "focus": [
+         350,
+         250,
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.da.json b/tools/tutorials/lessons/reviews/09_annotate.da.json
+index fa541a817..0a6bc8afb 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.da.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.da.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "da",
+   "title": "Annotate: mærk objekter, og gem dine annoteringer",
+@@ -36,9 +37,9 @@
+     "Her er CMY-paletten. Du kan vende tilbage til RGB via de samme indstillinger. Hold visningen ens, mens du sammenligner og mærker objekter.",
+     "Åbn Annotator Agreement fra ikonet øverst til højre for at sammenligne annoteringskolonner. Brug det til at finde objekter, hvor bedømmere har tildelt forskellige labels.",
+     "Når dine labels er klar, åbner du Train. Vælg billeder til en billedklassifikator eller målte egenskaber til en tabelklassifikator. De tilknyttede Classify-lektioner forklarer træningsindstillingerne.",
+-    "Suggest foreslår mærker til de udsnit, du endnu ikke har besvaret, så giv den først eksempler på begge klasser fra flere brønde. Her mærkes nogle få udsnit af hver klasse i fire brønde, og Next gemmer dem.",
+-    "Åbn Suggest, og vælg Suggest for the images on this page. Runden tager nogle sekunder, og hvert udsnit på siden får nu et spørgsmålstegn. Bjælken over gitteret tæller, hvor mange forslag der mangler at blive bedømt.",
+-    "Klik på et foreslået udsnit eller tryk Y for at bekræfte det, og højreklik eller tryk N for at afvise det. Begge svar bliver registreret, afvisninger træner næste runde, og Confirm the rest of the page afgør resten, når du har tjekket dem.",
++    "Suggest foreslår mærker til de udsnit, du endnu ikke har besvaret, så giv den først eksempler på begge klasser fra flere brønde. Her mærkes nogle få udsnit af hver klasse i tre brønde, og Next gemmer dem.",
++    "Åbn Suggest, og vælg Suggest for the images on this page. Runden tager nogle sekunder, og de umærkede udsnit på siden får nu et spørgsmålstegn. Bjælken over gitteret tæller, hvor mange forslag der mangler at blive bedømt.",
++    "Klik på et foreslået udsnit eller tryk Y for at bekræfte det, og højreklik eller tryk N for at afvise det. Begge svar afventer lagring, indtil Next gemmer dem; afvisninger træner næste runde, og Confirm the rest of the page afgør resten, når du har tjekket dem.",
+     "Generate annotation database opretter et sæt udsnit ud fra egnede kildedata. Brug det, når du forbereder et nyt annoteringsprojekt; det hentede eksempel indeholder allerede de udsnit og den database, der skal bruges her.",
+     "Åbn Console for at kontrollere meddelelser om indlæsning af kilden og lagring. Din annoteringskolonne gemmes i projektdatabasen og kan vælges, når du forbereder træningsdata i Classify.",
+     "For hjælp til en indstilling åbner du spaCR AI i Console efter at have konfigureret en udbyder i Preferences. Når du er færdig med mærkningen, fortsætter du til Classify med dit projekt og den valgte annoteringskolonne."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.de.json b/tools/tutorials/lessons/reviews/09_annotate.de.json
+index b59322732..bff2d3578 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.de.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.de.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "de",
+   "title": "Annotate: Objekte beschriften und Annotationen speichern",
+@@ -36,9 +37,9 @@
+     "Das ist die CMY-Palette. Über dieselben Einstellungen gelangen Sie zurück zu RGB. Behalten Sie beim Vergleichen und Beschriften dieselbe Ansicht bei.",
+     "Öffnen Sie Annotator Agreement über das Symbol oben rechts, um Annotationsspalten zu vergleichen. Damit finden Sie Objekte, denen verschiedene Prüfer unterschiedliche Labels gegeben haben.",
+     "Wenn Ihre Labels fertig sind, öffnen Sie Train. Wählen Sie Bilder für einen Bildklassifikator oder gemessene Merkmale für einen tabellarischen Klassifikator. Die verlinkten Classify-Lektionen erklären die Trainingseinstellungen.",
+-    "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben. Geben Sie ihm daher zuerst Beispiele beider Klassen aus mehreren Wells. Hier werden in vier Wells einige Ausschnitte jeder Klasse beschriftet, und Next speichert sie.",
+-    "Öffnen Sie Suggest und wählen Sie Suggest for the images on this page. Die Runde dauert einige Sekunden, danach trägt jeder Ausschnitt der Seite ein Fragezeichen. Die Leiste über dem Raster zählt, wie viele Vorschläge noch zu beurteilen sind.",
+-    "Klicken Sie auf einen vorgeschlagenen Ausschnitt oder drücken Sie Y, um ihn zu bestätigen, und klicken Sie mit der rechten Maustaste oder drücken Sie N, um ihn abzulehnen. Beide Antworten werden festgehalten, Ablehnungen trainieren die nächste Runde, und Confirm the rest of the page erledigt den Rest, sobald Sie ihn geprüft haben.",
++    "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben. Geben Sie ihm daher zuerst Beispiele beider Klassen aus mehreren Wells. Hier werden in drei Wells einige Ausschnitte jeder Klasse beschriftet, und Next speichert sie.",
++    "Öffnen Sie Suggest und wählen Sie Suggest for the images on this page. Die Runde dauert einige Sekunden, danach tragen die unbeschrifteten Ausschnitte der Seite ein Fragezeichen. Die Leiste über dem Raster zählt, wie viele Vorschläge noch zu beurteilen sind.",
++    "Klicken Sie auf einen vorgeschlagenen Ausschnitt oder drücken Sie Y, um ihn zu bestätigen, und klicken Sie mit der rechten Maustaste oder drücken Sie N, um ihn abzulehnen. Beide Antworten bleiben ungespeichert, bis Next sie speichert; Ablehnungen trainieren die nächste Runde, und Confirm the rest of the page erledigt den Rest, sobald Sie ihn geprüft haben.",
+     "Generate annotation database erstellt einen Satz von Ausschnitten aus geeigneten Quelldaten. Verwenden Sie es beim Vorbereiten eines neuen Annotationsprojekts; das heruntergeladene Beispiel enthält die hier benötigten Ausschnitte und die Datenbank bereits.",
+     "Öffnen Sie Console, um Meldungen zum Laden der Quelle und zum Speichern zu prüfen. Ihre Annotationsspalte wird in der Projektdatenbank gespeichert und kann beim Vorbereiten der Trainingsdaten in Classify ausgewählt werden.",
+     "Für Hilfe zu einer Einstellung öffnen Sie spaCR AI in Console, nachdem Sie in Preferences einen Anbieter eingerichtet haben. Wenn Sie mit dem Beschriften fertig sind, fahren Sie mit Classify, Ihrem Projekt und der gewählten Annotationsspalte fort."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.es.json b/tools/tutorials/lessons/reviews/09_annotate.es.json
+index 7021a83b7..d89f9a078 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.es.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.es.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "es",
+   "title": "Annotate: etiquetar objetos y guardar tus anotaciones",
+@@ -36,9 +37,9 @@
+     "Esta es la paleta CMY. Puedes volver a RGB desde los mismos ajustes. Mantén la misma vista mientras comparas y etiquetas objetos.",
+     "Abre Annotator Agreement desde el icono de arriba a la derecha para comparar columnas de anotación. Úsalo para encontrar objetos a los que distintos revisores asignaron etiquetas diferentes.",
+     "Cuando tus etiquetas estén listas, abre Train. Elige imágenes para un clasificador de imágenes o características medidas para un clasificador tabular. Las lecciones de Classify enlazadas explican los ajustes de entrenamiento.",
+-    "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en cuatro pocillos y Next los guarda.",
+-    "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y cada recorte de la página lleva ahora un signo de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar.",
+-    "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas se registran, los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado.",
++    "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en tres pocillos y Next los guarda.",
++    "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y los recortes sin etiquetar de la página llevan ahora signos de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar.",
++    "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas quedan pendientes hasta que Next las guarda; los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado.",
+     "Generate annotation database crea un conjunto de recortes a partir de datos de origen adecuados. Úsalo al preparar un proyecto de anotación nuevo; el ejemplo descargado ya incluye los recortes y la base de datos que se necesitan aquí.",
+     "Abre Console para revisar los mensajes de carga de origen y de guardado. Tu columna de anotación se guarda en la base de datos del proyecto y puedes seleccionarla al preparar los datos de entrenamiento en Classify.",
+     "Si necesitas ayuda con un ajuste, abre spaCR AI en Console después de configurar un proveedor en Preferences. Cuando termines de etiquetar, continúa con Classify usando tu proyecto y la columna de anotación elegida."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.fr.json b/tools/tutorials/lessons/reviews/09_annotate.fr.json
+index 50356bdbb..7357caf39 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.fr.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.fr.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "fr",
+   "title": "Annotate : étiqueter des objets et enregistrer vos annotations",
+@@ -36,9 +37,9 @@
+     "Voici la palette CMY. Vous pouvez revenir à RGB dans les mêmes paramètres. Gardez le même affichage pendant que vous comparez et étiquetez les objets.",
+     "Ouvrez Annotator Agreement depuis l’icône en haut à droite pour comparer des colonnes d’annotation. Utilisez-le pour trouver les objets auxquels des relecteurs ont attribué des étiquettes différentes.",
+     "Quand vos étiquettes sont prêtes, ouvrez Train. Choisissez des images pour un classificateur d’images, ou des caractéristiques mesurées pour un classificateur tabulaire. Les leçons Classify associées expliquent les paramètres d’entraînement.",
+-    "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans quatre puits, puis Next les enregistre.",
+-    "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis chaque découpe de la page porte un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger.",
+-    "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses sont enregistrées, les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié.",
++    "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans trois puits, puis Next les enregistre.",
++    "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis les découpes non étiquetées de la page portent un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger.",
++    "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses restent en attente jusqu’à leur enregistrement par Next ; les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié.",
+     "Generate annotation database crée un ensemble de vignettes à partir de données sources adaptées. Utilisez-le pour préparer un nouveau projet d’annotation ; l’exemple téléchargé contient déjà les vignettes et la base de données nécessaires ici.",
+     "Ouvrez Console pour vérifier les messages de chargement de la source et d’enregistrement. Votre colonne d’annotation est stockée dans la base de données du projet et peut être sélectionnée lorsque vous préparez les données d’entraînement dans Classify.",
+     "Pour obtenir de l’aide sur un paramètre, ouvrez spaCR AI dans Console après avoir configuré un fournisseur dans Preferences. Une fois l’étiquetage terminé, passez à Classify avec votre projet et la colonne d’annotation choisie."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.hi.json b/tools/tutorials/lessons/reviews/09_annotate.hi.json
+index 21719facd..c7ecbd940 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.hi.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.hi.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "hi",
+   "title": "Annotate: वस्तुओं पर लेबल लगाएँ और अपने एनोटेशन सहेजें",
+@@ -36,9 +37,9 @@
+     "यह CMY पैलेट है। आप उन्हीं सेटिंग में RGB पर लौट सकते हैं। वस्तुओं की तुलना करते और लेबल लगाते समय दृश्य एक जैसा रखें।",
+     "एनोटेशन कॉलमों की तुलना करने के लिए ऊपर दाईं ओर के आइकन से Annotator Agreement खोलें। इससे वे वस्तुएँ खोजें जिन पर समीक्षकों ने अलग-अलग लेबल लगाए हैं।",
+     "जब आपके लेबल तैयार हों, तो Train खोलें। इमेज क्लासिफ़ायर के लिए इमेज चुनें, या तालिका आधारित क्लासिफ़ायर के लिए मापी गई विशेषताएँ। जुड़े हुए Classify पाठ प्रशिक्षण सेटिंग समझाते हैं।",
+-    "Suggest उन क्रॉप के लिए लेबल सुझाता है जिनका आपने अभी उत्तर नहीं दिया है, इसलिए पहले उसे कई वेल से दोनों वर्गों के उदाहरण दें। यहाँ चार वेल में हर वर्ग के कुछ क्रॉप लेबल किए गए हैं, और Next उन्हें सहेजता है।",
+-    "Suggest खोलें और Suggest for the images on this page चुनें। यह दौर कुछ सेकंड लेता है, और अब पृष्ठ के हर क्रॉप पर प्रश्नचिह्न का बैज होता है। ग्रिड के ऊपर की पट्टी गिनती दिखाती है कि कितने सुझावों का निर्णय बाकी है।",
+-    "किसी सुझाए गए क्रॉप पर क्लिक करें या पुष्टि के लिए Y दबाएँ, और अस्वीकार करने के लिए राइट-क्लिक करें या N दबाएँ। दोनों उत्तर दर्ज होते हैं, अस्वीकृतियाँ अगले दौर को प्रशिक्षित करती हैं, और जाँच के बाद Confirm the rest of the page बाकी को तय कर देता है।",
++    "Suggest उन क्रॉप के लिए लेबल सुझाता है जिनका आपने अभी उत्तर नहीं दिया है, इसलिए पहले उसे कई वेल से दोनों वर्गों के उदाहरण दें। यहाँ तीन वेल में हर वर्ग के कुछ क्रॉप लेबल किए गए हैं, और Next उन्हें सहेजता है।",
++    "Suggest खोलें और Suggest for the images on this page चुनें। यह दौर कुछ सेकंड लेता है, और अब पृष्ठ के बिना लेबल वाले क्रॉप पर प्रश्नचिह्न के बैज होते हैं। ग्रिड के ऊपर की पट्टी गिनती दिखाती है कि कितने सुझावों का निर्णय बाकी है।",
++    "किसी सुझाए गए क्रॉप पर क्लिक करें या पुष्टि के लिए Y दबाएँ, और अस्वीकार करने के लिए राइट-क्लिक करें या N दबाएँ। दोनों उत्तर Next से सहेजे जाने तक लंबित रहते हैं; अस्वीकृतियाँ अगले दौर को प्रशिक्षित करती हैं, और जाँच के बाद Confirm the rest of the page बाकी को तय कर देता है।",
+     "Generate annotation database उपयुक्त स्रोत डेटा से क्रॉप का एक सेट बनाता है। नया एनोटेशन प्रोजेक्ट तैयार करते समय इसे इस्तेमाल करें; डाउनलोड किए गए उदाहरण में यहाँ ज़रूरी क्रॉप और डेटाबेस पहले से हैं।",
+     "स्रोत लोड होने और सहेजने के संदेश जाँचने के लिए Console खोलें। आपका एनोटेशन कॉलम प्रोजेक्ट डेटाबेस में सहेजा जाता है और Classify में प्रशिक्षण डेटा तैयार करते समय चुना जा सकता है।",
+     "किसी सेटिंग पर मदद के लिए, Preferences में प्रदाता सेट करने के बाद Console में spaCR AI खोलें। लेबल लगाना पूरा होने पर, अपने प्रोजेक्ट और चुने हुए एनोटेशन कॉलम के साथ Classify पर जाएँ।"
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.is.json b/tools/tutorials/lessons/reviews/09_annotate.is.json
+index c731253b1..1b6a4de38 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.is.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.is.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "is",
+   "title": "Annotate: merktu hluti og vistaðu merkingarnar",
+@@ -36,9 +37,9 @@
+     "Hér er CMY-litaspjaldið. Þú getur farið aftur í RGB í sömu stillingum. Haltu sama yfirliti meðan þú berð saman og merkir hluti.",
+     "Opnaðu Annotator Agreement frá tákninu efst til hægri til að bera saman merkingardálka. Notaðu það til að finna hluti þar sem yfirlesarar settu mismunandi merki.",
+     "Þegar merkin eru tilbúin opnarðu Train. Veldu myndir fyrir myndflokkara eða mælda eiginleika fyrir töfluflokkara. Tengdu Classify-kennslustundirnar útskýra þjálfunarstillingarnar.",
+-    "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í fjórum brunnum og Next vistar þær.",
+-    "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú ber hver úrklippa á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
+-    "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
++    "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í þremur brunnum og Next vistar þær.",
++    "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú bera ómerktar úrklippur á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
++    "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin bíða vistunar þar til Next vistar þau; höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
+     "Generate annotation database býr til safn úrklippa úr hentugum upprunagögnum. Notaðu það þegar þú undirbýrð nýtt merkingarverkefni; sótta dæmið inniheldur þegar úrklippin og gagnagrunninn sem þarf hér.",
+     "Opnaðu Console til að athuga skilaboð um innlestur upprunans og vistun. Merkingardálkurinn þinn er geymdur í gagnagrunni verkefnisins og hægt er að velja hann þegar þú undirbýrð þjálfunargögn í Classify.",
+     "Til að fá hjálp með stillingu opnarðu spaCR AI í Console eftir að hafa sett upp þjónustuaðila í Preferences. Þegar þú hefur lokið merkingunni heldurðu áfram í Classify með verkefnið og valda merkingardálkinn."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.it.json b/tools/tutorials/lessons/reviews/09_annotate.it.json
+index 2278e65e9..ed31af724 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.it.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.it.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "it",
+   "title": "Annotate: etichettare gli oggetti e salvare le annotazioni",
+@@ -36,9 +37,9 @@
+     "Ecco la tavolozza CMY. Puoi tornare a RGB dalle stesse impostazioni. Mantieni la stessa vista mentre confronti ed etichetti gli oggetti.",
+     "Apri Annotator Agreement dall’icona in alto a destra per confrontare le colonne di annotazione. Usalo per trovare gli oggetti a cui diversi revisori hanno assegnato etichette diverse.",
+     "Quando le etichette sono pronte, apri Train. Scegli le immagini per un classificatore di immagini, oppure le caratteristiche misurate per un classificatore tabellare. Le lezioni collegate su Classify spiegano le impostazioni di addestramento.",
+-    "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi gli dia prima esempi di entrambe le classi da più pozzetti. Qui alcuni ritagli di ciascuna classe vengono etichettati in quattro pozzetti e Next li salva.",
+-    "Apra Suggest e scelga Suggest for the images on this page. Il turno richiede pochi secondi e ora ogni ritaglio della pagina porta un punto interrogativo. La barra sopra la griglia conta quanti suggerimenti restano da giudicare.",
+-    "Clicchi su un ritaglio suggerito o prema Y per confermarlo, faccia clic destro o prema N per rifiutarlo. Entrambe le risposte vengono registrate, i rifiuti addestrano il turno successivo e Confirm the rest of the page sistema il resto dopo averlo controllato.",
++    "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi gli dia prima esempi di entrambe le classi da più pozzetti. Qui alcuni ritagli di ciascuna classe vengono etichettati in tre pozzetti e Next li salva.",
++    "Apra Suggest e scelga Suggest for the images on this page. Il turno richiede pochi secondi e ora i ritagli senza etichetta della pagina portano un punto interrogativo. La barra sopra la griglia conta quanti suggerimenti restano da giudicare.",
++    "Clicchi su un ritaglio suggerito o prema Y per confermarlo, faccia clic destro o prema N per rifiutarlo. Entrambe le risposte restano in sospeso finché Next non le salva; i rifiuti addestrano il turno successivo e Confirm the rest of the page sistema il resto dopo averlo controllato.",
+     "Generate annotation database crea un insieme di ritagli da dati di origine adatti. Usalo quando prepari un nuovo progetto di annotazione; l’esempio scaricato include già i ritagli e il database necessari qui.",
+     "Apri Console per controllare i messaggi di caricamento dell’origine e di salvataggio. La tua colonna di annotazione è salvata nel database del progetto e si può selezionare quando prepari i dati di addestramento in Classify.",
+     "Per un aiuto su un’impostazione, apri spaCR AI in Console dopo aver configurato un fornitore in Preferences. Quando hai finito di etichettare, prosegui con Classify usando il tuo progetto e la colonna di annotazione scelta."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.ja.json b/tools/tutorials/lessons/reviews/09_annotate.ja.json
+index 97eb8752f..d302e10ee 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.ja.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.ja.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "ja",
+   "title": "Annotate：物体にラベルを付けて注釈を保存する",
+@@ -36,9 +37,9 @@
+     "これがCMYパレットです。同じ設定からRGBに戻せます。物体を比べてラベルを付ける間は、表示をそろえておきます。",
+     "右上のアイコンからAnnotator Agreementを開くと、注釈列を比べられます。評価者によって付けたラベルが異なる物体を見つけるのに使います。",
+     "ラベルの準備ができたら、Trainを開きます。画像分類器には画像を、表形式の分類器には測定した特徴量を選びます。学習の設定は、リンク先のClassifyのレッスンで説明しています。",
+-    "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは4つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。",
+-    "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上のすべての切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。",
+-    "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答も記録され、却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。",
++    "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは3つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。",
++    "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上の未ラベルの切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。",
++    "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答もNextで保存するまでは未保存の変更です。却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。",
+     "Generate annotation databaseは、適切な元データから切り出し画像のセットを作ります。新しい注釈プロジェクトを準備するときに使います。ダウンロードした例には、ここで必要な切り出し画像とデータベースがすでに含まれています。",
+     "Consoleを開いて、データの読み込みと保存のメッセージを確認します。注釈列はプロジェクトのデータベースに保存され、Classifyで学習データを準備するときに選べます。",
+     "設定について助けが必要なときは、Preferencesでプロバイダーを設定した後、ConsoleでspaCR AIを開きます。ラベル付けが終わったら、プロジェクトと選んだ注釈列を使ってClassifyに進みます。"
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.ko.json b/tools/tutorials/lessons/reviews/09_annotate.ko.json
+index f00cabe4f..9699c84ca 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.ko.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.ko.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "ko",
+   "title": "Annotate: 객체에 라벨을 붙이고 주석 저장",
+@@ -36,9 +37,9 @@
+     "이것이 CMY 팔레트입니다. 같은 설정에서 RGB로 되돌릴 수 있습니다. 객체를 비교하고 라벨을 붙이는 동안에는 보기를 일정하게 유지하세요.",
+     "오른쪽 위 아이콘에서 Annotator Agreement를 열어 주석 열을 비교하세요. 검토자마다 다른 라벨을 붙인 객체를 찾는 데 쓰세요.",
+     "라벨이 준비되면 Train을 여세요. 이미지 분류기에는 이미지를, 표 형식 분류기에는 측정된 특징을 고르세요. 연결된 Classify 강의에서 학습 설정을 설명합니다.",
+-    "Suggest는 아직 답하지 않은 크롭에 라벨을 제안하므로, 먼저 여러 웰에서 두 클래스의 예시를 제공하세요. 여기서는 네 개 웰에서 각 클래스의 크롭 몇 개를 라벨링하고 Next로 저장합니다.",
+-    "Suggest를 열고 Suggest for the images on this page를 선택합니다. 라운드는 몇 초면 끝나고, 이제 페이지의 모든 크롭에 물음표 배지가 붙습니다. 그리드 위의 막대는 판정할 제안이 몇 개 남았는지 셉니다.",
+-    "제안된 크롭을 클릭하거나 Y를 눌러 확정하고, 오른쪽 클릭하거나 N을 눌러 거절합니다. 두 답 모두 기록되며 거절은 다음 라운드 학습에 쓰이고, 나머지를 확인한 뒤에는 Confirm the rest of the page로 한 번에 처리합니다.",
++    "Suggest는 아직 답하지 않은 크롭에 라벨을 제안하므로, 먼저 여러 웰에서 두 클래스의 예시를 제공하세요. 여기서는 세 개 웰에서 각 클래스의 크롭 몇 개를 라벨링하고 Next로 저장합니다.",
++    "Suggest를 열고 Suggest for the images on this page를 선택합니다. 라운드는 몇 초면 끝나고, 이제 페이지의 라벨이 없는 크롭에 물음표 배지가 붙습니다. 그리드 위의 막대는 판정할 제안이 몇 개 남았는지 셉니다.",
++    "제안된 크롭을 클릭하거나 Y를 눌러 확정하고, 오른쪽 클릭하거나 N을 눌러 거절합니다. 두 답 모두 Next로 저장하기 전까지는 저장되지 않은 변경 사항으로 남으며 거절은 다음 라운드 학습에 쓰이고, 나머지를 확인한 뒤에는 Confirm the rest of the page로 한 번에 처리합니다.",
+     "Generate annotation database는 알맞은 원본 데이터로 크롭 세트를 만듭니다. 새 주석 프로젝트를 준비할 때 쓰세요. 내려받은 예제에는 여기에 필요한 크롭과 데이터베이스가 이미 들어 있습니다.",
+     "Console을 열어 원본 불러오기와 저장 메시지를 확인하세요. 주석 열은 프로젝트 데이터베이스에 저장되며, Classify에서 학습 데이터를 준비할 때 선택할 수 있습니다.",
+     "설정에 대한 도움이 필요하면 Preferences에서 제공자를 설정한 뒤 Console에서 spaCR AI를 여세요. 라벨 작업을 마쳤다면 프로젝트와 고른 주석 열로 Classify를 계속하세요."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.nb.json b/tools/tutorials/lessons/reviews/09_annotate.nb.json
+index b7b66ff0c..d54b5576a 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.nb.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.nb.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "nb",
+   "title": "Annotate: merk objekter og lagre annoteringene",
+@@ -36,9 +37,9 @@
+     "Her er CMY-paletten. Du kan gå tilbake til RGB via de samme innstillingene. Hold visningen lik mens du sammenligner og merker objekter.",
+     "Åpne Annotator Agreement fra ikonet øverst til høyre for å sammenligne annoteringskolonner. Bruk det til å finne objekter der kontrollører har satt ulike merkelapper.",
+     "Når merkelappene er klare, åpner du Train. Velg bilder for en bildeklassifikator eller målte egenskaper for en tabellklassifikator. De koblede Classify-leksjonene forklarer treningsinnstillingene.",
+-    "Suggest foreslår merker for utsnittene du ikke har besvart ennå, så gi det først eksempler på begge klassene fra flere brønner. Her merkes noen få utsnitt av hver klasse i fire brønner, og Next lagrer dem.",
+-    "Åpne Suggest og velg Suggest for the images on this page. Runden tar noen sekunder, og hvert utsnitt på siden får nå et spørsmålstegn. Linjen over rutenettet teller hvor mange forslag som gjenstår å vurdere.",
+-    "Klikk på et foreslått utsnitt eller trykk Y for å bekrefte det, og høyreklikk eller trykk N for å avvise det. Begge svarene registreres, avvisninger trener neste runde, og Confirm the rest of the page avgjør resten når du har sjekket det.",
++    "Suggest foreslår merker for utsnittene du ikke har besvart ennå, så gi det først eksempler på begge klassene fra flere brønner. Her merkes noen få utsnitt av hver klasse i tre brønner, og Next lagrer dem.",
++    "Åpne Suggest og velg Suggest for the images on this page. Runden tar noen sekunder, og de umerkede utsnittene på siden får nå et spørsmålstegn. Linjen over rutenettet teller hvor mange forslag som gjenstår å vurdere.",
++    "Klikk på et foreslått utsnitt eller trykk Y for å bekrefte det, og høyreklikk eller trykk N for å avvise det. Begge svarene forblir ulagrede til Next lagrer dem; avvisninger trener neste runde, og Confirm the rest of the page avgjør resten når du har sjekket det.",
+     "Generate annotation database lager et sett med utsnitt fra egnede kildedata. Bruk det når du forbereder et nytt annoteringsprosjekt; det nedlastede eksemplet inneholder allerede utsnittene og databasen som trengs her.",
+     "Åpne Console for å kontrollere meldinger om innlasting av kilden og lagring. Annoteringskolonnen din lagres i prosjektdatabasen og kan velges når du forbereder treningsdata i Classify.",
+     "For hjelp med en innstilling åpner du spaCR AI i Console etter å ha satt opp en leverandør i Preferences. Når du er ferdig med merkingen, fortsetter du til Classify med prosjektet og den valgte annoteringskolonnen."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.pt-BR.json b/tools/tutorials/lessons/reviews/09_annotate.pt-BR.json
+index f29079f81..7168700fa 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.pt-BR.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.pt-BR.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "pt-BR",
+   "title": "Annotate: rotular objetos e salvar suas anotações",
+@@ -36,9 +37,9 @@
+     "Esta é a paleta CMY. Você pode voltar para RGB nas mesmas configurações. Mantenha a mesma visualização enquanto compara e rotula objetos.",
+     "Abra o Annotator Agreement pelo ícone no canto superior direito para comparar colunas de anotação. Use-o para encontrar objetos que revisores rotularam de formas diferentes.",
+     "Quando seus rótulos estiverem prontos, abra Train. Escolha imagens para um classificador de imagens ou características medidas para um classificador tabular. As aulas de Classify indicadas explicam as configurações de treinamento.",
+-    "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em quatro poços, e Next os salva.",
+-    "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e cada recorte da página passa a ter um ponto de interrogação. A barra acima da grade conta quantas sugestões faltam julgar.",
+-    "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas são registradas, as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir.",
++    "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em três poços, e Next os salva.",
++    "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e os recortes sem rótulo da página passam a ter pontos de interrogação. A barra acima da grade conta quantas sugestões faltam julgar.",
++    "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas ficam pendentes até Next salvá-las; as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir.",
+     "Generate annotation database cria um conjunto de recortes a partir de dados de origem adequados. Use-o ao preparar um novo projeto de anotação; o exemplo baixado já inclui os recortes e o banco de dados necessários aqui.",
+     "Abra o Console para conferir as mensagens de carregamento da origem e de salvamento. Sua coluna de anotação fica guardada no banco de dados do projeto e pode ser selecionada quando você preparar os dados de treinamento no Classify.",
+     "Para obter ajuda com uma configuração, abra o spaCR AI no Console depois de configurar um provedor em Preferences. Quando terminar de rotular, continue no Classify com seu projeto e a coluna de anotação escolhida."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.sv.json b/tools/tutorials/lessons/reviews/09_annotate.sv.json
+index 86f4bc7a6..a77076833 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.sv.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.sv.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "sv",
+   "title": "Annotate: märk objekt och spara dina annoteringar",
+@@ -36,9 +37,9 @@
+     "Här är CMY-paletten. Du kan gå tillbaka till RGB via samma inställningar. Håll vyn densamma medan du jämför och märker objekt.",
+     "Öppna Annotator Agreement från ikonen uppe till höger för att jämföra annoteringskolumner. Använd det för att hitta objekt där granskare har satt olika etiketter.",
+     "När etiketterna är klara öppnar du Train. Välj bilder för en bildklassificerare eller uppmätta egenskaper för en tabellklassificerare. De länkade Classify-lektionerna förklarar träningsinställningarna.",
+-    "Suggest föreslår etiketter för de utsnitt du ännu inte har besvarat, så ge den först exempel på båda klasserna från flera brunnar. Här märks några utsnitt av varje klass i fyra brunnar, och Next sparar dem.",
+-    "Öppna Suggest och välj Suggest for the images on this page. Omgången tar några sekunder, och varje utsnitt på sidan får nu ett frågetecken. Fältet ovanför rutnätet räknar hur många förslag som återstår att bedöma.",
+-    "Klicka på ett föreslaget utsnitt eller tryck Y för att bekräfta det, och högerklicka eller tryck N för att avvisa det. Båda svaren registreras, avvisningar tränar nästa omgång och Confirm the rest of the page avgör resten när du har kontrollerat det.",
++    "Suggest föreslår etiketter för de utsnitt du ännu inte har besvarat, så ge den först exempel på båda klasserna från flera brunnar. Här märks några utsnitt av varje klass i tre brunnar, och Next sparar dem.",
++    "Öppna Suggest och välj Suggest for the images on this page. Omgången tar några sekunder, och de omärkta utsnitten på sidan får nu ett frågetecken. Fältet ovanför rutnätet räknar hur många förslag som återstår att bedöma.",
++    "Klicka på ett föreslaget utsnitt eller tryck Y för att bekräfta det, och högerklicka eller tryck N för att avvisa det. Båda svaren förblir osparade tills Next sparar dem; avvisningar tränar nästa omgång och Confirm the rest of the page avgör resten när du har kontrollerat det.",
+     "Generate annotation database skapar en uppsättning utsnitt från lämpliga källdata. Använd det när du förbereder ett nytt annoteringsprojekt; det hämtade exemplet innehåller redan de utsnitt och den databas som behövs här.",
+     "Öppna Console för att kontrollera meddelanden om inläsning av källan och sparande. Din annoteringskolumn lagras i projektdatabasen och kan väljas när du förbereder träningsdata i Classify.",
+     "För hjälp med en inställning öppnar du spaCR AI i Console efter att ha konfigurerat en leverantör i Preferences. När du är klar med märkningen fortsätter du till Classify med ditt projekt och den valda annoteringskolumnen."
+diff --git a/tools/tutorials/lessons/reviews/09_annotate.zh-CN.json b/tools/tutorials/lessons/reviews/09_annotate.zh-CN.json
+index 4de7e748a..46cf2c502 100644
+--- a/tools/tutorials/lessons/reviews/09_annotate.zh-CN.json
++++ b/tools/tutorials/lessons/reviews/09_annotate.zh-CN.json
+@@ -1,13 +1,14 @@
+ {
+   "lesson": "09_annotate",
+-  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
++  "english_sha256": "6189294bab7ba288338292ce68ab1c611fad5fb9e5f0c8681f09ffe104eeb49d",
+   "review": {
+-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+-    "date": "2026-09-30",
++    "kind": "AI technical review (Codex), no native-speaker signoff",
++    "translator": "Existing translations retained; three changed sentences translated by Codex (AI)",
++    "date": "2026-10-14",
+     "independent_peer_review": false,
+     "native_speaker_signoff": false,
+-    "listening_review": false
++    "listening_review": false,
++    "scope": "Only scenes 19_labels_for_suggest, 20_suggestions and 21_judged changed to match actual r41 three wells, unlabelled-crop badges and pending answers until Next saves; all other prose retained."
+   },
+   "language": "zh-CN",
+   "title": "Annotate：标注对象并保存标注",
+@@ -36,9 +37,9 @@
+     "这是CMY调色板。可以在同一设置中切换回RGB。在比较和标注对象时，请保持视图一致。",
+     "从右上角的图标打开Annotator Agreement，比较不同的标注列。用它找出不同审阅者给出不同标签的对象。",
+     "标签准备好后，打开Train。为图像分类器选择图像，或为表格分类器选择测得的特征。相关的Classify课程会讲解训练设置。",
+-    "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
+-    "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
+-    "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
++    "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在三个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
++    "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上尚未标注的裁剪图像会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
++    "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答在 Next 保存前都仍是待保存的更改；拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
+     "Generate annotation database会从合适的源数据生成一组裁剪图像。准备新的标注项目时使用它；下载的示例已经包含这里所需的裁剪图像和数据库。",
+     "打开Console，检查源数据加载和保存的消息。您的标注列保存在项目数据库中，在Classify中准备训练数据时可以选择它。",
+     "如需某个设置的帮助，请先在Preferences中配置服务提供商，然后在Console中打开spaCR AI。完成标注后，请带着您的项目和所选的标注列继续使用Classify。"

@@ -55,3 +55,115 @@ failure. No live cache, user dataset, GPU or physical macOS/Windows test.
 This note records an actual implementation repair; it does not independently
 reclassify the historical translation/native acceptance notes above.
 Evidence: features/data/644_cache_relocation_failure_2026-10-14/receipt.json.
+
+2026-10-14 — active worker runs protect cache files and relocation metadata:
+The GUI's earlier busy check could become stale while a confirmation dialog
+was open: core cache clear still deleted files during an actual worker-thread
+run, and relocation with an absent source wrote new location metadata. Both
+native regressions failed before the repair. Mutation entry points now hold
+the process-wide run-registration lock, refuse active runs through finalization
+with the existing shipped busy caption, and check relocation even when its
+source is absent. No recursive lock acquisition occurs. A new run waits to
+register/enter its pipeline until an already-started cache mutation ends; the
+GUI continues to dispatch that operation to its existing storage worker.
+
+Fifteen new native cases include actual worker body/finalization refusal,
+byte/metadata preservation, success after closing, deterministic registration
+ordering under a non-reentrant lock and all nine actual locale error paths.
+The finite owning storage cohort passed69tests in4.92seconds, exit0; fatal
+Ruff, generated index and diff checks pass. No public signatures, new captions,
+GUI/shared-widget changes or artifact edits. This is in-process journal/run
+protection, not cross-process cache ownership or native macOS/Windows proof.
+No live cache/user data/GPU/fullCI operation.
+Evidence: data/644_active_worker_cache_guard_2026-10-14/receipt.json.
+
+2026-10-14 — cache records cannot set unrelated process environment variables:
+Applying cache_locations.json previously copied arbitrary unrelated/forward
+metadata keys into the process environment. Two native regressions reproduced
+that mutation. Application now uses only the cache manager's five registered
+cache variables. Opaque unknown rows stay unchanged in the file; all supported
+cache values still apply, externally supplied environment values still win,
+and repeat application remains idempotent. No caption/signature changes.
+Eight new native cases and finite storage owning tests passed62cases in
+2.10seconds, exit0. The older precedence fixture now uses supported
+TORCH_HOME/HF_HOME names instead of arbitrary CI variables; its precedence
+assertions remain intact. Fatal Ruff/index/diff checks pass. No live cache,
+user data, GPU or fullCI operation.
+Evidence: data/644_cache_environment_allowlist_2026-10-14/receipt.json.
+
+2026-10-14 — model-cache relocation core prepared, UI-owner hold:
+The actual model acquisition/resolver, stock Mitonet cache and image-quality
+classifier share SPACR_MODEL_CACHE, defaulting to the existing home/models.
+Models relocation records the same explicit environment variable used by the
+runtime; an external override remains authoritative. Native private files prove
+relocation then cache reuse with no fetch, new acquisition only at the moved
+root, restart metadata application, repeated moves and metadata failure rollback.
+The finite owning cohort passes64 in10.11seconds, with three additional native
+lifecycle checks passing in0.76seconds. Source remains held until Home-B supplies
+dynamic Model Zoo/picker/preview paths, including remembered old defaults and
+preservation of custom targets. This is not a published Move feature or native
+other-OS acceptance. Evidence: data/644_model_cache_relocation_core_2026-10-14/.
+
+2026-10-15 — malformed cache-location values no longer become environment paths:
+Startup now accepts only nonempty string paths without embedded NUL from
+cache_locations.json. Null/bool/numeric/container values and whitespace-only
+strings remain inert; a valid sibling still applies. Non-mapping JSON stays
+inert and explicit outside environment values remain authoritative. Reader
+and startup application preserve the original metadata bytes. Twelve native
+baseline cases failed before the repair; the focused metadata/environment
+cohort now passes28 in1.64seconds under a2G cap. No UI/caption changes or real
+cache/model/network/GPU/fullCI operations. Evidence:
+data/644_cache_location_path_types_2026-10-15/receipt.json.
+
+2026-10-15 — interrupted cross-drive cache copy is never a final cache:
+Same-device moves retain native rename. Only EXDEV invokes copying, now into
+a private sibling followed by atomic publication after the complete copy.
+The source remains intact until location metadata commits. Failed copy
+cleans staging, preserves source/metadata/environment and permits retry;
+an existing empty target is restored, concurrent private target bytes survive.
+After commit, old-source cleanup failure warns while the new cache stays usable.
+Native baseline1FAIL1.27seconds; finite storage52PASS2.67seconds plus lifecycle
+5PASS0.79seconds, one overlap,56distinct checks. EXDEV is injected at the native
+rename boundary; all bytes/copies are actual temporary files. A metadata write
+failure after full cross-drive publication safely retains both complete copies
+with a warning; it does not silently delete a concurrent target or accept a
+partial cache. No UI/captions, real user data, model/network/GPU/fullCI or
+physical second-drive acceptance. Evidence:
+data/644_atomic_cross_drive_cache_relocation_2026-10-15/receipt.json.
+
+2026-10-15 — model-cache UI validated with the actual relocation core:
+Storage now captures the original cache identity and updates a remembered model
+folder only after a successful move and only when it still matches the old cache.
+New Model Zoo screens/pickers and plaque detector lookup/download use the active
+shared root. Explicit custom folders and already open picker choices are kept.
+The existing storage documentation describes SPACR_MODEL_CACHE defaults, external
+override precedence and saved cache_locations.json startup behavior.
+
+The coherent private integration includes core8d1b8738f75, UIc598753c4d9 and
+public nightlyb820072441a (including environment allowlist and malformed-path
+guards). The37-case Qt/storage cohort passed in13.04seconds, exit0, under a6G
+cap. Two end-to-end cases each move real temporary checkpoint bytes twice through
+the asynchronous Storage UI, then open real widgets after each move; custom
+folder bytes remain unchanged. Plaque resolution uses a temporary checkpoint;
+its download test is stubbed and transfers nothing. No live caches, GPU, real
+models, fullCI or native macOS/Windows execution. Original Home must integrate
+the core and UI together before publication; this receipt records private
+source-bound acceptance, not a published feature or other-OS completion.
+Evidence: data/644_model_cache_ui_2026-10-15/receipt.json.
+
+2026-10-15 Home-B — source-current API followup for coherent model-cache UI
+The public resolve_detector paragraph now describes the active shared cache.
+Normal scoped writers updated English and nine locale entries; nine obsolete
+review sources first failed strict loading, then source-bound technical reviews
+and all nine writer/readback/gate cases passed. All unrelated entries, metadata
+and history are unchanged;36 unaffected translated blocks preserved verbatim.
+Evidence: features/data/644_active_model_cache_api_2026-10-15/. Source integration
+combines original core8d1b8738f75 +ownerUIc598753c4d9 +37-test acceptance3f137038049,
+with public allowlist/path-type guards retained. No native other-OS claim.
+
+2026-10-15 Home-B — current-public cross-drive integration check
+After merging the independently validated cross-drive backend repair, replayed
+only the two actual repeated Storage/UI move cases:2PASS6.73seconds. Ten merged
+API manifests exactly equal incoming N703 normal-writer output plus local N644
+normal-writer target. Both owner notes retained; no generated hand edits.
+Evidence: features/data/644_current_integration_2026-10-15/.

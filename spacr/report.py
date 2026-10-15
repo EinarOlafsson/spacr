@@ -2888,6 +2888,8 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
     """
     import shutil
 
+    from .qt.i18n import tr
+
     import pandas as pd
 
     from .tabular import _write_workbook, write_table
@@ -3208,10 +3210,23 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
         "the images and file_list.tsv to your BioStudies FTP folder, then "
         "submit the .pagetab.tsv.\n"
         "mihcsme/     MIHCSME sheets (and mihcsme.xlsx) for OMERO or IDR.\n"
-        "checksums.md5  MD5 of every file; check with `md5sum -c`.\n"
-        + ("data/        copies of the images.\n" if copy_images else
-           f"The images were not copied; the file list names them relative "
-           f"to {src}.\n"))
+        + tr("checksums.md5  MD5 of the package files and images.\n"
+             "To check the complete package, open a terminal in this package "
+             "folder using the Python environment where spaCR is installed, "
+             "then run:\n")
+        + "python -c \"from spacr.report import _validate_archive_study; "
+        "problems = _validate_archive_study('.'); "
+        "print('\\n'.join(problems) or 'Archive checks passed'); "
+        "raise SystemExit(bool(problems))\"\n"
+        + (tr("data/        copies of the images. With copied images, "
+              "`md5sum -c checksums.md5` also works from this package folder.\n")
+           if copy_images else
+           tr("The images were not copied; the file list names them relative "
+              "to {source}. Keep that source folder available for verification. "
+              "Image checksum paths are relative to the source folder; other "
+              "checksum paths are relative to this package. A single "
+              "`md5sum -c` command cannot resolve both bases; use the Python "
+              "command above.\n", source=src)))
     _archive_write_text(pkg / "README.txt", readme)
     manifest = {"source": str(src), "copy_images": bool(copy_images),
                 "slug": slug, "form": values}

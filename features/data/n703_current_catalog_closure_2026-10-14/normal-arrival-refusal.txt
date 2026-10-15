@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/mnt/wd4tb/spacr-worktrees/codex-n703-current-integration-20261014/tools/i18n_caption_arrivals.py", line 201, in <module>
+    print(json.dumps(refresh_arrival_contract(), sort_keys=True))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/wd4tb/spacr-worktrees/codex-n703-current-integration-20261014/tools/i18n_caption_arrivals.py", line 177, in refresh_arrival_contract
+    updated['added'] = [current_record(key) for key in sorted(actual.keys()-baseline.keys())]
+                        ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/wd4tb/spacr-worktrees/codex-n703-current-integration-20261014/tools/i18n_caption_arrivals.py", line 170, in current_record
+    assert proofs, f'caption arrival lacks explicit reviewed record: {language}/{identity}'
+           ^^^^^^
+AssertionError: caption arrival lacks explicit reviewed record: sv/('UI', 'AI Error report')

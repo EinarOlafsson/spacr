@@ -100,7 +100,7 @@ def test_pypi_keeps_each_readable_panel_destination(metadata):
         f"docs/readme_text/en/{name}.md"
         for name in readme_tool().compose("en", render=False).pages
     }
-    assert len(destinations) == 65
+    assert len(destinations) == 66
     assert destinations <= set(article.links)
     for name in readme_tool().compose("en", render=False).pages:
         image = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/main/"

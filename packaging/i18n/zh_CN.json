@@ -76,5 +76,6 @@
   "gui_retry": "重试",
   "gui_cancelled": "已取消安装。重试前请查看日志。",
   "gui_failed": "安装或启动失败。请查看日志并在此窗口中重试。",
-  "gui_stopping": "正在停止安装并恢复此前的运行环境…"
+  "gui_stopping": "正在停止安装并恢复此前的运行环境…",
+  "nsis_uninstall_failed": "spaCR 无法安全完成卸载。请查看上方详情；您的数据已保留。"
 }

@@ -1030,7 +1030,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
       "source_sha256": "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
-      "translation": "Uppfærslur innan forritsins nota annað ferli fyrir studdar macOS-uppsetningar. Netuppsetning uppfærir spaCR í núverandi Python-umhverfi sínu með meðfylgjandi ``uv``-keyrsluskrá. Hún heldur umhverfinu, ræsiskrám, forritsræsi og uppsettum pökkum sem þurfa ekki uppfærslu. Hún staðfestir uppsettu spaCR-útgáfuna áður en forritið er endurræst."
+      "translation": "Uppfærslur innan forritsins nota annað ferli fyrir studdar macOS-uppsetningar. Netuppsetning uppfærir spaCR í núverandi Python-umhverfi sínu með meðfylgjandi ``uv``-keyrsluskrá. Hún heldur umhverfinu, ræsiskrám, forritsræsi og uppsettum pökkum sem þurfa ekki uppfærslu. Hún staðfestir uppsettu spaCR-útgáfuna áður en forritið er endurræst.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not execute the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
@@ -1062,7 +1064,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The running spaCR must be an installer-made copy. The helper waits for this process to exit before changing the installation.",
       "source_sha256": "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
-      "translation": "spaCR sem er í keyrslu verður að vera eintak sem uppsetningarforrit bjó til. Hjálparforritið bíður eftir að þetta ferli hætti áður en það breytir uppsetningunni."
+      "translation": "spaCR sem er í keyrslu verður að vera eintak sem uppsetningarforrit bjó til. Hjálparforritið bíður eftir að þetta ferli hætti áður en það breytir uppsetningunni.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",

@@ -45,6 +45,19 @@ conversion so this incompatibility cannot pass as an import-only success.
 | macOS 11+, Intel/Apple silicon | `online/build_macos_online.sh` | `spaCR-<ver>-macOS-Universal-Online.pkg` | `/Applications/spaCR.app` plus a per-user private runtime |
 | Linux x86-64 | `online/build_linux_online.sh` | `spaCR-<ver>-Linux-x86_64-Online.run` | `~/.local/share/spacr` |
 
+On Linux desktops, a noninteractive launch with a display uses the Zenity
+installer window; `--gui` requests it explicitly. This path requires Zenity and
+Bash 5.1 or newer. It shows the existing privacy/account choices with all three
+off by default, streams the installation log, and waits for the installer's
+cleanup when its window is cancelled. Its child skips optional system-package
+installation and never asks terminal questions. Logs remain under
+`$XDG_CACHE_HOME/spacr/installer` (or `~/.cache/spacr/installer`).
+`--consent-collected` or `--no-launch` preserves explicit headless operation;
+ordinary invocations without a display retain the CLI path. Missing dialog
+support stops a requested desktop flow before installation. No system dependency
+is installed to supply it. Native desktop availability, launch and cancellation
+acceptance still require validation on the target distribution.
+
 `.github/workflows/online-installers.yml` builds all three on native GitHub
 runners, performs a real CPU installation and import check on every operating
 system, collects the installers under `spacr/application/`, writes SHA-256

@@ -76,5 +76,6 @@
   "gui_retry": "Försök igen",
   "gui_cancelled": "Installationen avbröts. Läs loggen innan du försöker igen.",
   "gui_failed": "Installation eller start misslyckades. Läs loggen och försök igen i det här fönstret.",
-  "gui_stopping": "Stoppar installationen och återställer den tidigare körmiljön…"
+  "gui_stopping": "Stoppar installationen och återställer den tidigare körmiljön…",
+  "nsis_uninstall_failed": "spaCR kunde inte slutföra avinstallationen säkert. Se informationen ovan; dina data har behållits."
 }

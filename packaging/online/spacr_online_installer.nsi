@@ -181,12 +181,17 @@ Section "Uninstall"
   ${IfNot} ${Errors}
     ExecWait '"$INSTDIR\venv\Scripts\python.exe" -m spacr.install_cleanup purge'
   ${EndIf}
-  Delete "$DESKTOP\spaCR.lnk"
-  RMDir /r "$SMPROGRAMS\spaCR"
-  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR"
-  ; Registry names ignore case, so this is also the key the settings live in
-  ; (Software\spacr\qt). Delete only what the installer wrote.
-  DeleteRegValue HKCU "Software\spaCR" "InstallRoot"
-  DeleteRegKey /ifempty HKCU "Software\spaCR"
-  RMDir /r "$INSTDIR"
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  File "uninstall_spacr_windows.ps1"
+  nsExec::ExecToLog 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\uninstall_spacr_windows.ps1" -InstallRoot "$INSTDIR"'
+  Pop $0
+  ${If} $0 != 0
+    MessageBox MB_ICONSTOP "$(SPACR_NSIS_UNINSTALL_FAILED)"
+    SetErrorLevel $0
+    Abort
+  ${EndIf}
+  ; The shared remover handles only matching shortcuts/registrations and keeps
+  ; user/cache/model/unknown folders. Remove the root only when it is empty.
+  RMDir "$INSTDIR"
 SectionEnd

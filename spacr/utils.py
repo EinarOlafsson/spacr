@@ -9802,7 +9802,8 @@ def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
     """Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.
 
     If ``resources/models`` already contains files, nothing is downloaded and
-    its path is returned. Files are saved under their base names.
+    its path is returned. Files are staged under their base names and the
+    complete pack is published only after every stream succeeds.
 
     Args:
         repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').
@@ -9812,6 +9813,8 @@ def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
     Returns:
         str: The local path to the downloaded models.
     """
+    import tempfile
+
     package_dir = os.path.dirname(spacr_path)
     local_dir = os.path.join(package_dir, 'resources', 'models')
 
@@ -9826,27 +9829,49 @@ def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
             files = list_repo_files(repo_id, repo_type="dataset")
             print(f"Files in repository: {files}")
 
-            for file_name in files:
-                for download_attempt in range(retries):
-                    try:
-                        url = f"https://huggingface.co/datasets/{repo_id}/resolve/main/{file_name}?download=true"
-                        print(f"Downloading file from: {url}")
+            names = [os.path.basename(name) for name in files]
+            if len(set(names)) != len(names) or any(name in {"", ".", ".."} for name in names):
+                from .qt.i18n import tr
+                raise ValueError(tr("Bad settings"))
 
-                        response = requests.get(url, stream=True)
-                        print(f"HTTP response status: {response.status_code}")
-                        response.raise_for_status()
+            with tempfile.TemporaryDirectory(prefix=".spacr-model-pack-", dir=os.path.dirname(local_dir)) as staging:
+                staged_dir = os.path.join(staging, "models")
+                os.mkdir(staged_dir)
+                for file_name in files:
+                    for download_attempt in range(retries):
+                        try:
+                            url = f"https://huggingface.co/datasets/{repo_id}/resolve/main/{file_name}?download=true"
+                            print(f"Downloading file from: {url}")
 
-                        local_file_path = os.path.join(local_dir, os.path.basename(file_name))
-                        with open(local_file_path, 'wb') as file:
-                            for chunk in response.iter_content(chunk_size=8192):
-                                file.write(chunk)
-                        print(f"Downloaded model file: {file_name} to {local_file_path}")
-                        break
-                    except (requests.HTTPError, requests.Timeout) as e:
-                        print(f"Error downloading {file_name}: {e}. Retrying in {delay} seconds...")
-                        time.sleep(delay)
-                else:
-                    raise Exception(f"Failed to download {file_name} after multiple attempts.")
+                            response = requests.get(url, stream=True)
+                            try:
+                                print(f"HTTP response status: {response.status_code}")
+                                response.raise_for_status()
+
+                                local_file_path = os.path.join(staged_dir, os.path.basename(file_name))
+                                with open(local_file_path, 'wb') as file:
+                                    for chunk in response.iter_content(chunk_size=8192):
+                                        file.write(chunk)
+                                    file.flush()
+                                    os.fsync(file.fileno())
+                                print(f"Downloaded model file: {file_name} to {local_file_path}")
+                            finally:
+                                close = getattr(response, "close", None)
+                                if callable(close):
+                                    close()
+                            break
+                        except requests.RequestException as e:
+                            print(f"Error downloading {file_name}: {e}. Retrying in {delay} seconds...")
+                            time.sleep(delay)
+                    else:
+                        raise Exception(f"Failed to download {file_name} after multiple attempts.")
+
+                os.rmdir(local_dir)
+                try:
+                    os.replace(staged_dir, local_dir)
+                except BaseException:
+                    os.makedirs(local_dir, exist_ok=True)
+                    raise
 
             return local_dir
 

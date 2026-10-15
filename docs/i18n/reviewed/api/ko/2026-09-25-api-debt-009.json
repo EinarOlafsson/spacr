@@ -2099,7 +2099,9 @@
       "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
       "context": "setting name; it must already be a processing session setting, or an organelle-slot structured-data name declared in ``expected_types`` when this form owns the organelle count, otherwise ``False`` is returned.",
       "translation": "설정 키입니다. 이미 처리 세션 설정이거나, 이 양식이 소기관 수를 소유할 때 ``expected_types`` 에 선언된 소기관 슬롯 키여야 하며, 그렇지 않으면 ``False`` 를 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#5",

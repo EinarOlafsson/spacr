@@ -132,3 +132,12 @@ The run's one-day site artifacts are no longer listed; compatibility reports
 remain. No main promotion, deployment or new hosted CI was dispatched here.
 Original Home has the source-bound three-file migration patch and receipt in
 /mnt/wd4tb/scratch/home-b-coordination-20261014/main-docs-migration.json.
+
+2026-10-14 Home-B — homepage readback correctness repair
+Matching publication/channels receipts alone could falsely verify stale or missing
+homepage content. Verification now additionally requires the intended exact
+index.html bytes, with bounded retry and bounded read retained; trailing stale
+bytes are rejected. Three failures reproduced before; complete owning module
+38PASS/0skip after. No external calls, quota actions or whole-site/media proof
+claimed. Evidence: features/data/689_homepage_readback_2026-10-14/. Historical
+Space quota remains independently unresolved; no final deployment closure.
