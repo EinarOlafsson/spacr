@@ -1,0 +1,20 @@
+{
+  "scope": "Owner-approved normal caption arrival refresh with immutable baseline and exact all-locale review/hash requirements",
+  "owner_approval": "Home-B coordination 2026-10-14, conditional negative tests fulfilled",
+  "checks": {
+    "passed": 37,
+    "seconds": 1.65,
+    "exit_code": 0,
+    "cases": "9 locales x missing review/stale source hash x arrival/changed body, plus actual baseline rewrite refusal",
+    "fixture_bytes": "unchanged on every refusal"
+  },
+  "source_sha256": {
+    "tools/i18n_caption_arrivals.py": "cc58853ad7e1a17944805587dba2e6cd06dcdc08c66faf8501e42f06f4cc1f37",
+    "tests/test_caption_refresh_refuses_unreviewed_writes.py": "0991534ff2f452a42e128d6fee3ceb7c9fcd69af598104fb653586d550c5f7b7"
+  },
+  "limits": [
+    "This publishes the generator, not acceptance of every current caption.",
+    "Known foreign N700 explicit review evidence gap is not waived.",
+    "No ratchet ceiling, historical pin, runtime catalog, full CI or release change."
+  ]
+}
