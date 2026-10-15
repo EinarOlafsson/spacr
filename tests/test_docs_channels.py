@@ -439,6 +439,77 @@ def test_nightly_verification_waits_for_the_actual_homepage_bytes(tmp_path, monk
     assert sleeps == [1]
 
 
+@pytest.mark.parametrize('state', [
+    'host-script', 'wrong-variable', 'extra-variable', 'invalid-id', 'uppercase-id',
+    'duplicate', 'misplaced', 'truncated', 'trailing', 'large-trailing',
+    'other-script', 'changed-prefix', 'changed-body', 'foreign-host', 'lookalike-host',
+])
+def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
+        tmp_path, monkeypatch, state):
+    import io
+    import publish_docs_channels as publisher
+    root = site(tmp_path, 'nightly')
+    (root / 'index.html').write_bytes(
+        b'<!doctype html><html><head><title>Current docs</title></head><body>nightly</body></html>')
+    space = tmp_path / 'space'
+    assemble_nightly(root, space)
+    index = (space / 'index.html').read_bytes()
+    script = (b'<script>window.huggingface={variables:{"SPACE_CREATOR_USER_ID":'
+              b'"651dd0c2e956b4858bd2f10e"}};</script>')
+    assert len(script) == 101
+    hosted = index.replace(b'<head>', b'<head>' + script, 1)
+    url = publisher.NIGHTLY_URL
+    if state == 'wrong-variable':
+        hosted = hosted.replace(b'SPACE_CREATOR_USER_ID', b'SPACE_UNRECOGNIZED_ID')
+    elif state == 'extra-variable':
+        hosted = hosted.replace(b'"}};</script>', b'","OTHER":"value"}};</script>')
+    elif state == 'invalid-id':
+        hosted = hosted.replace(b'651dd0c2e956b4858bd2f10e', b'z51dd0c2e956b4858bd2f10e')
+    elif state == 'uppercase-id':
+        hosted = hosted.replace(b'651dd0c2e956b4858bd2f10e', b'651DD0C2E956B4858BD2F10E')
+    elif state == 'duplicate':
+        hosted = index.replace(b'<head>', b'<head>' + script + script, 1)
+    elif state == 'misplaced':
+        hosted = index.replace(b'</head>', script + b'</head>', 1)
+    elif state == 'truncated':
+        hosted = hosted[:-1]
+    elif state == 'trailing':
+        hosted += b'!'
+    elif state == 'large-trailing':
+        hosted += b'!' * 10_000
+    elif state == 'other-script':
+        hosted = index.replace(b'<head>', b'<head><script>window.unrelated=true;</script>', 1)
+    elif state == 'changed-prefix':
+        hosted = hosted.replace(b'<!doctype html>', b'<!DOCTYPE html>', 1)
+    elif state == 'changed-body':
+        hosted = hosted.replace(b'Current docs', b'Obsolete doc', 1)
+    elif state == 'foreign-host':
+        url = 'https://example.com/'
+    elif state == 'lookalike-host':
+        url = 'https://docs.static.hf.space.example.com/'
+    read_sizes = []
+
+    class Homepage(io.BytesIO):
+        def read(self, size=-1):
+            read_sizes.append(size)
+            assert 0 < size <= len(index) + len(script) + 1
+            return super().read(size)
+
+    def fetch(request, timeout):
+        name = request.full_url.split('/')[-1].split('?')[0]
+        if name == 'index.html':
+            return Homepage(hosted)
+        return io.BytesIO((space / name).read_bytes())
+
+    monkeypatch.setattr(publisher, 'urlopen', fetch)
+    if state == 'host-script':
+        assert publisher.verify_nightly(space, url=url, attempts=1, interval=0) == 'nightly-sha'
+    else:
+        with pytest.raises(RuntimeError, match='public index.html does not match'):
+            publisher.verify_nightly(space, url=url, attempts=1, interval=0)
+    assert len(read_sizes) == 1
+
+
 def test_incompatible_catalog_is_registered_and_english_is_publishable(tmp_path):
     root = site(tmp_path, 'main')
     catalogs = root / '_static/i18n/api'
