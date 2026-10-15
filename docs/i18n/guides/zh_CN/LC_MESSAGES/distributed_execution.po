@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 12:45-0400\n"
+"POT-Creation-Date: 2026-10-15 15:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -88,6 +88,10 @@ msgstr "执行目标上的模型检查点"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames."
 msgstr "导出的设置会保留模型路径，以及已记录的模型库键、发布者版本和 SHA-256。已有的、记录了身份信息的文件必须与该校验和一致。缺失文件只能解析为记录的确切身份；未记录身份时，只能按模型库中的确切键或文件名解析，不进行模糊匹配替换。模型缓存在 spaCR 主目录下（通常为 ``~/.spacr/models``），除非通过 ``SPACR_MODEL_CACHE`` 指定其他目录。各进程共享下载锁，并在下载前验证缓存中的检查点。在离线节点上，运行 ``spacr-run`` 前设置 ``SPACR_MODEL_DOWNLOAD=off``：此时不会下载模型元数据或权重。已有本地文件和通过验证的缓存模型仍可使用；对于未缓存的已知模型，程序会给出校验和及应复制到的缓存路径。未知请求会被明确拒绝。自定义路径不会仅因文件名而获得可信的模型库身份。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Jobs and nodes that share one model cache download a missing model once. The first job holds a lock file in the cache and refreshes it while it downloads; the others wait, then reuse the verified file. A lock that a crashed node left behind is removed after ``SPACR_MODEL_LOCK_STALE_SECONDS`` without a refresh (600 by default). When ``SPACR_MODEL_DOWNLOAD=off`` stops a run, the error ends with a shell command that downloads the checkpoint to the cache path and checks its SHA-256. Run it on a machine with network access that sees the same folder, or run it elsewhere and copy the file to that path."
+msgstr "共享同一模型缓存的作业和节点只会下载一次缺失的模型。第一个作业在缓存中持有一个锁文件，并在下载期间不断刷新它；其他作业等待，然后复用已验证的文件。崩溃节点遗留的锁在 ``SPACR_MODEL_LOCK_STALE_SECONDS`` 内未被刷新时会被移除（默认 600）。当 ``SPACR_MODEL_DOWNLOAD=off`` 使运行停止时，错误信息末尾会给出一条 shell 命令，用于将检查点下载到缓存路径并核对其 SHA-256。请在能访问网络且能看到同一文件夹的机器上运行它，或在别处运行后将文件复制到该路径。"
 
 msgid "Command-line workflow"
 msgstr "命令行工作流程"
@@ -252,6 +256,9 @@ msgstr "非秘密的 SSH 配置覆盖项，例如用户、端口、身份文件�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
 msgstr "使用经过验证的持久 SSH 会话，并通过图形界面提示进行键盘交互式身份验证，而不是使用外部 OpenSSH 命令。"
+
+msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
+msgstr ""
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "根据 JSON 兼容数据构造并验证一个配置文件。"

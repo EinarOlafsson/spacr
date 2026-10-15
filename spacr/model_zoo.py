@@ -4220,6 +4220,117 @@ def _model_resolution_context(requested, *, setting, kinds=()):
         setting=setting, requested=repr(requested), candidates="\n".join(choices) or "[]")
 
 
+_MODEL_LOCK_STALE_ENV = "SPACR_MODEL_LOCK_STALE_SECONDS"
+_MODEL_LOCK_STALE_SECONDS = 600.0
+
+
+def _model_lock_stale_seconds() -> float:
+    """Seconds an unrefreshed download lock lasts before another node reclaims it.
+
+    :returns: ``SPACR_MODEL_LOCK_STALE_SECONDS`` when it is a number of at
+        least one second, otherwise 600.
+    """
+    try:
+        value = float(os.environ.get(_MODEL_LOCK_STALE_ENV, "").strip()
+                      or _MODEL_LOCK_STALE_SECONDS)
+    except ValueError:
+        return _MODEL_LOCK_STALE_SECONDS
+    return value if value >= 1.0 else _MODEL_LOCK_STALE_SECONDS
+
+
+def _refresh_model_download_lock(path, stop, interval) -> None:
+    """Touch a held download lock until ``stop`` is set.
+
+    Waiting jobs on other nodes read the changing modification time as proof
+    that the download is still running.
+
+    :param path: the lock file.
+    :param stop: ``threading.Event`` set when the download ends.
+    :param interval: seconds between touches.
+    """
+    while not stop.wait(interval):
+        try:
+            os.utime(path)
+        except OSError:
+            return
+
+
+def _model_lock_signature(path):
+    """Identity and modification time of a lock file, or None when it is absent."""
+    try:
+        info = os.stat(path)
+    except OSError:
+        return None
+    return info.st_dev, info.st_ino, info.st_mtime_ns, info.st_size
+
+
+def _acquire_model_download_lock(lock, lock_path, label) -> None:
+    """Hold the download lock for one model, waiting for another job or node.
+
+    Qt reclaims a lock left by a dead process on this host. A lock written on
+    another host cannot be checked that way, so its holder refreshes the lock
+    file's modification time while it downloads. A lock that stays unchanged
+    for ``SPACR_MODEL_LOCK_STALE_SECONDS`` (600 by default) of this node's own
+    clock is taken as left by a crashed node and removed. Clocks of different
+    nodes are never compared.
+
+    :param lock: an unlocked ``QLockFile`` for ``lock_path``.
+    :param lock_path: the lock file in the shared model cache.
+    :param label: model key named in the waiting log line.
+    :raises OSError: EACCES when the lock cannot be written, EBUSY for any
+        other lock failure.
+    """
+    import errno
+    from PySide6.QtCore import QLockFile
+
+    stale_after = _model_lock_stale_seconds()
+    poll = max(50, min(1000, int(stale_after * 250)))
+    seen = None
+    since = time.monotonic()
+    announced = False
+    while not lock.tryLock(poll):
+        if lock.error() != QLockFile.LockFailedError:
+            code = errno.EACCES if lock.error() == QLockFile.PermissionError else errno.EBUSY
+            raise OSError(code, os.strerror(code), str(lock_path))
+        if not announced:
+            LOG.info("Waiting for another job to finish downloading model %s (lock %s)",
+                     label, lock_path)
+            announced = True
+        signature = _model_lock_signature(lock_path)
+        if signature != seen:
+            seen, since = signature, time.monotonic()
+        elif signature is not None and time.monotonic() - since >= stale_after:
+            LOG.warning("Removing download lock %s: unchanged for %.0f s, its holder stopped",
+                        lock_path, stale_after)
+            lock.removeStaleLockFile()
+            seen, since = None, time.monotonic()
+
+
+def _manual_model_copy_command(entry, cached) -> str:
+    """Shell command that places one verified checkpoint where an offline node looks.
+
+    Run it on a machine that reaches the model's source and shares the cache
+    folder with the node, or run it elsewhere and copy the file to the same
+    path.
+
+    :param entry: the selected catalogue entry.
+    :param cached: the cache path the node checks.
+    :returns: a one-line POSIX shell command that downloads and checks SHA-256.
+    """
+    import shlex
+
+    target = shlex.quote(str(cached))
+    uri = str(entry.uri or "")
+    if uri.startswith(("http://", "https://")):
+        get = f"curl -fL -o {target} {shlex.quote(uri)}"
+    else:
+        source = uri[len("file://"):] if uri.startswith("file://") else uri
+        get = f"cp {shlex.quote(source)} {target}"
+    check = shlex.quote(f"{str(entry.sha256 or '').lower()}  {cached}")
+    return (f"mkdir -p {shlex.quote(str(Path(cached).parent))} && {get} "
+            f"&& echo {check} | sha256sum -c -")
+
+
 def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requested=None,
                                  publisher_version=Ellipsis):
     """Acquire one identity under the cache lock and report successful contextual downloads.
@@ -4255,12 +4366,12 @@ def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requeste
         raise ModelUnreadable(tr(
             "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
             "Copy verified model {model} (sha256 {sha256}) to {path}.",
-            model=entry.key, sha256=entry.sha256, path=str(cached)))
+            model=entry.key, sha256=entry.sha256, path=str(cached))
+            + "\n" + _manual_model_copy_command(entry, cached))
     if _on_the_qt_gui_thread():
         raise ModelUnreadable(
             f"{entry.key!r} is not cached. Download it in Model Zoo, or run "
             f"the operation through spacr-run or Python without a GUI.")
-    import errno
     from PySide6.QtCore import QLockFile
 
     destination.mkdir(parents=True, exist_ok=True)
@@ -4269,9 +4380,12 @@ def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requeste
     lock_path = destination / f".model-{identity}.lock"
     lock = QLockFile(str(lock_path))
     lock.setStaleLockTime(0)
-    if not lock.lock():
-        code = errno.EACCES if lock.error() == QLockFile.PermissionError else errno.EBUSY
-        raise OSError(code, os.strerror(code), str(lock_path))
+    _acquire_model_download_lock(lock, lock_path, entry.key)
+    stop = threading.Event()
+    heartbeat = threading.Thread(
+        target=_refresh_model_download_lock, name="spacr-model-lock-heartbeat",
+        args=(lock_path, stop, min(30.0, _model_lock_stale_seconds() / 4)), daemon=True)
+    heartbeat.start()
     try:
         if cached.is_file() and entry.sha256 and sha256_file(cached) == entry.sha256.lower():
             return cached
@@ -4301,6 +4415,8 @@ def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requeste
                 version=version, sha256=entry.sha256, path=str(acquired)))
         return acquired
     finally:
+        stop.set()
+        heartbeat.join()
         lock.unlock()
 
 

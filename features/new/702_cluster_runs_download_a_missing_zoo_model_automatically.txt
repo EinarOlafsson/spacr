@@ -1,6 +1,6 @@
 CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
 
-Status:    COMPLETE — all six original resolver/export/offline/log/translation/guide clauses accepted 2026-10-15; release/full CI remain separate.
+Status:    COMPLETE — resolver/pins/log/offline/guide accepted; cross-node shared-cache lock (heartbeat + stale reclaim) and exact offline command BUILT 2026-10-15 (Claude Home); real-cluster check left to maintainer (steps in last note).
 Requested: maintainer, 2026-10-13: "when using run if the like with athe
            cluster, if a user puts in a version of a model thatisnt on the
            cluster it should be automatically downloaded. now it just fails
@@ -763,3 +763,70 @@ It was prepared before takeover and is published with this handover.
 Original has stopped N702 implementation/code/tests/docs work. Broader CI43/288
 and703 continue per the maintainer notice. Final hosted CI/release remain
 separate; no new real-cluster/GPU/scientific gate is invented for this item.
+
+2026-10-15 Claude Home — BUILT: cross-node download coalescing, offline command, HTTP tests.
+    Taken over from Codex per HANDOFF. Builds on the accepted resolver,
+    pins, success log and same-host QLockFile coalescing; nothing reworked.
+    Gap found: QLockFile with stale time 0 can only reclaim a dead holder on
+    the same host. On a shared cache (SPACR_MODEL_CACHE on NFS/Lustre or a
+    shared home), a node that crashed mid-download left a lock that blocked
+    every other node forever, with no log line.
+    - spacr/model_zoo.py: _acquire_model_download_lock polls tryLock, logs
+      "Waiting for another job to finish downloading model <key> (lock ...)"
+      once, and the holder runs a heartbeat thread that touches the lock
+      every min(30 s, stale/4). A lock whose inode/mtime/size stays unchanged
+      for SPACR_MODEL_LOCK_STALE_SECONDS (default 600) of the waiter's own
+      monotonic clock is removed with a warning; node clocks are never
+      compared. The download itself is still staged and os.replace'd
+      atomically and SHA-256 checked, so a lost race costs a second download,
+      never a wrong file.
+    - Offline (SPACR_MODEL_DOWNLOAD=off): the translated refusal now ends with
+      the exact command (_manual_model_copy_command), e.g.
+      mkdir -p <cache> && curl -fL -o <cache>/<name> <uri> && echo '<sha256>  <cache>/<name>' | sha256sum -c -
+      (cp for file:// mirrors). The command is not prose, so no new caption.
+    - docs/source/distributed_execution.rst: one paragraph on shared-cache
+      coalescing, SPACR_MODEL_LOCK_STALE_SECONDS and the offline command;
+      guide catalogs regenerated (extract/update) and the paragraph
+      translated into all nine languages, labelled "AI technical review
+      (Claude Opus 5.5), no native-speaker signoff".
+    - tests/test_n702_cluster_download_http.py (14 cases, local fake HTTP
+      server on 127.0.0.1, no real network): missing laptop path downloads
+      verified bytes and logs the one line; checksum mismatch names setting
+      and leaves no file; offline refusal carries the command and running
+      that command (curl + sha256sum) makes the next resolve succeed offline;
+      file:// command form; pinned identity fetches exactly the recorded
+      version even when the laptop basename names another zoo model; pin
+      refuses with zero GETs when the zoo now declares other bytes; four
+      parallel processes sharing one cache make exactly one GET; a live lock
+      from another host is waited for (no reclaim, no GET); an abandoned
+      foreign lock is reclaimed after the stale time; the holder's heartbeat
+      advances the lock mtime; stale-seconds parsing. Two existing tests
+      adjusted (lock fake gains tryLock/LockFailedError; offline message
+      equality includes the command line).
+    Tests: new file + all tests/test_n702_*.py + caption owners: 570 pass;
+    11 failed identically on clean origin/nightly 4108d3f99d: direct_cellpose_api
+    legacy_stock x2 (fixed upstream by 9fe6a3485d) and
+    unknown_model_refusal_locales x9, a stale test expecting the refusal
+    without the localized setting/candidate context line added later; it now
+    checks the first line exactly and the context line (9 pass). After the
+    rebase all tests/test_n702_*.py, caption owners and guide i18n pass.
+
+    MAINTAINER, on a real cluster (cannot be done here):
+    1. On the login node: export SPACR_MODEL_CACHE=/shared/path/spacr-models
+       (a folder every compute node sees), and make sure no copy of the test
+       model is in it: ls "$SPACR_MODEL_CACHE".
+    2. Export a Mask settings CSV on the laptop with a zoo model picked in
+       the model picker (it records key, version and sha256).
+    3. Submit 4 array tasks at once, e.g. sbatch --array=1-4 --wrap
+       "spacr-run mask --settings settings.csv" with the same
+       SPACR_MODEL_CACHE exported. Expect: exactly one log has
+       "<setting>: ... was not found here; downloaded zoo model ...", the
+       others have "Waiting for another job to finish downloading model",
+       and ls -la "$SPACR_MODEL_CACHE" shows one checkpoint and no .lock left.
+    4. Crash check: start one task, scancel it during the download, then
+       start another with SPACR_MODEL_LOCK_STALE_SECONDS=60. It must log
+       "Removing download lock" after about 60 s and then download.
+    5. Offline check: on a node without internet, SPACR_MODEL_DOWNLOAD=off
+       spacr-run mask --settings settings.csv with an empty cache. Copy the
+       last line of the error, run it on the login node, rerun the job: it
+       must start without downloading.
