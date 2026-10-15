@@ -45,7 +45,7 @@ def test_actual_desktop_segmenter_receives_exact_plane_and_settings(job, monkeyp
     target, arguments = job
     model = Model()
     seen = []
-    monkeypatch.setattr(plaque, "_load_model", lambda path: seen.append(path) or model)
+    monkeypatch.setattr(plaque, "_load_model", lambda path, digest=None: seen.append(path) or model)
     assert plaque.run_plaque_download(target, **arguments) == target
     assert seen == [arguments["checkpoint"]]
     assert len(model.calls) == 1
@@ -66,7 +66,7 @@ def test_actual_desktop_segmenter_receives_exact_plane_and_settings(job, monkeyp
 def test_explicit_native_scale_and_missing_backend_arrays(job, monkeypatch):
     target, arguments = job
     model = Model(arrays=False)
-    monkeypatch.setattr(plaque, "_load_model", lambda path: model)
+    monkeypatch.setattr(plaque, "_load_model", lambda path, digest=None: model)
     arguments["effective_settings"] = {"diameter": None}
     plaque.run_plaque_download(target, **arguments)
     assert model.calls[0][1] == {"channel_axis": -1, "diameter": None, "flow_threshold": 0.4, "cellprob_threshold": 0.0}
@@ -88,7 +88,7 @@ def test_invalid_identity_and_unresolved_settings_never_load_model(job, changes,
     target, arguments = job
     arguments.update(changes)
     target.write_bytes(b"old result")
-    monkeypatch.setattr(plaque, "_load_model", lambda path: pytest.fail("invalid job loaded model"))
+    monkeypatch.setattr(plaque, "_load_model", lambda path, digest=None: pytest.fail("invalid job loaded model"))
     with pytest.raises(ValueError):
         plaque.run_plaque_download(target, **arguments)
     assert target.read_bytes() == b"old result"
@@ -99,10 +99,10 @@ def test_model_failures_preserve_existing_result(job, monkeypatch, failure):
     target, arguments = job
     target.write_bytes(b"old result")
     if failure == "load":
-        def loader(path):
+        def loader(path, digest=None):
             raise RuntimeError("checkpoint unavailable")
     else:
-        loader = lambda path: Model(error=RuntimeError("inference failed"))
+        loader = lambda path, digest=None: Model(error=RuntimeError("inference failed"))
     monkeypatch.setattr(plaque, "_load_model", loader)
     with pytest.raises(RuntimeError):
         plaque.run_plaque_download(target, **arguments)
@@ -114,7 +114,7 @@ def test_grey_input_uses_desktop_two_dimensional_channel_contract(job, monkeypat
     source = arguments["input_file"]
     tifffile.imwrite(source, np.ones((5, 7), dtype=np.uint16), metadata={"axes": "YX"}, photometric="minisblack")
     model = Model()
-    monkeypatch.setattr(plaque, "_load_model", lambda path: model)
+    monkeypatch.setattr(plaque, "_load_model", lambda path, digest=None: model)
     plaque.run_plaque_download(target, **arguments)
     assert model.calls[0][0].shape == (5, 7)
     assert model.calls[0][1]["channel_axis"] is None
@@ -126,7 +126,7 @@ def test_production_loader_delegates_to_the_existing_desktop_loader(monkeypatch)
     from pathlib import Path
     seen = []
     marker = object()
-    monkeypatch.setitem(sys.modules, "spacr.submodules", types.SimpleNamespace(_plaque_cellpose_model=lambda path: seen.append(path) or marker))
+    monkeypatch.setitem(sys.modules, "spacr.submodules", types.SimpleNamespace(_plaque_cellpose_model=lambda path, digest=None: seen.append(path) or marker))
     assert plaque._load_model(Path("/operator/model.CP_model")) is marker
     assert seen == ["/operator/model.CP_model"]
 
@@ -136,8 +136,17 @@ def test_no_tuple_flow_output_does_not_create_placeholder_arrays(job, monkeypatc
     model = Model()
     original = model.eval
     model.eval = lambda *args, **kwargs: (original(*args, **kwargs)[0],)
-    monkeypatch.setattr(plaque, "_load_model", lambda path: model)
+    monkeypatch.setattr(plaque, "_load_model", lambda path, digest=None: model)
     plaque.run_plaque_download(target, **arguments)
     with zipfile.ZipFile(target) as archive:
         assert "flows.npy" not in archive.namelist()
         assert "cell_probability.npy" not in archive.namelist()
+
+
+def test_excess_channels_cannot_be_silently_ignored_by_cellpose(job, monkeypatch):
+    target, arguments = job
+    tifffile.imwrite(arguments["input_file"], np.ones((4, 5, 7), dtype=np.uint16), metadata={"axes": "CYX"}, photometric="minisblack")
+    monkeypatch.setattr(plaque, "_load_model", lambda *a: pytest.fail("excess channels loaded model"))
+    with pytest.raises(ValueError, match="at most three"):
+        plaque.run_plaque_download(target, **arguments)
+    assert not target.exists()

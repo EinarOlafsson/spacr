@@ -1,0 +1,63 @@
+{
+  "item": 698,
+  "component": "private bounded service job lifetime and trusted request boundary",
+  "status": "implemented and CPU contract-tested; parent partial",
+  "base": "1fd0c3025123ea8ca75586a5587b9b72541c4a74",
+  "source_sha256": {
+    "tools/web_mask_generator/service.py": "b0c26052e1c60b3bf0d49771c989d5583c2b3b5c71bf41357a8e8406d85bc5a7",
+    "tools/web_mask_generator/plaque.py": "c8b4d53d519a49a302bb7514ac57a668eb68ef6266b0450e584d630323be7bb9",
+    "tools/web_mask_generator/README.md": "8211a66bc2ba898e1cda1025b4e4863c9a6037d6e8700acbe95914d933eb0a10",
+    "tests/test_web_plaque_service_n698.py": "08a516a01bfaebb073b0fff45d35e2bff649189717c7604dc1d984032a366804",
+    "tests/test_web_plaque_inference_adapter_n698.py": "f1b30224bd2cf11ae2da71713d131efaa5c8865ed446acd47916ba34879e15bb",
+    "features/data/698_site_interface_2026-10-14/coordination.md": "2261766705ce3b5669e5727d9fdf74add92c0eb2bcc82ac8b3a7dfc255f834f7"
+  },
+  "checks": {
+    "actual_exit": 0,
+    "service_passed": 13,
+    "excess_channel_guard_passed": 1,
+    "earlier_component_regression_passed": 122,
+    "duration_seconds": 15.34,
+    "coverage": {
+      "tools/web_mask_generator/plaque.py": {
+        "covered_lines": 62,
+        "num_statements": 62,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 30,
+        "num_partial_branches": 0,
+        "covered_branches": 30,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "tools/web_mask_generator/service.py": {
+        "covered_lines": 57,
+        "num_statements": 57,
+        "percent_covered": 98.63013698630137,
+        "percent_covered_display": "98.63",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 16,
+        "num_partial_branches": 1,
+        "covered_branches": 15,
+        "missing_branches": 1,
+        "percent_branches_covered": 93.75,
+        "percent_branches_covered_display": "93.75"
+      }
+    },
+    "evidence": "/mnt/wd4tb/scratch/n698-results-20261014/service*"
+  },
+  "official_startup_reference": "https://huggingface.co/docs/hub/spaces-zerogpu",
+  "limits": [
+    "Fake model constructor/eval, no actual checkpoint/model inference or HomeGPU use.",
+    "Framework upload/download retention remains its own acceptance requirement.",
+    "Gradio/Space source and website/other model adapters/both complete GPU routes remain open.",
+    "No paid resource or deployment, no final full CI."
+  ]
+}

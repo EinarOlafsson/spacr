@@ -206,3 +206,21 @@ refusal without downloading or loading a real model. No new scientific benchmark
 or checkpoint-availability claim. No shared website/tool/settings file edited;
 registry imports existing owner-maintained model-card APIs. ParentN698 partial.
 Receipt: features/data/698_trusted_registry_2026-10-14/.
+
+2026-10-14 — Original Home: private service job/request boundary implemented.
+PlaqueService keeps the operator model mapping immutable; client paths/output
+folders/limit overrides are refused. Explicit upload consent is checked. Bounded
+stream copy cannot exceed configured bytes even if a source grows. Private
+mode700 input/result staging is removed after success, inference failure or
+consumer/transfer failure; any future framework download cache must disclose and
+manage its own retention. Explicit startup preload plus a digest-keyed desktop
+model cache supports documented ZeroGPU placement without import-time loading.
+More than three selected plaque channels now refuse before model load, avoiding
+silent Cellpose channel loss. No generic/shared website files were edited.
+Owning13service cases+1channel guard+122regressions=136PASS, actualexit0,15.34s.
+Service57/57statements15/16arcs; adapter62/62statements30/30arcs covered. Actualmodel
+construction/eval remain injected; no HomeGPU, checkpoint or scientific parity
+acceptance inferred. N698 site/service interface request for Home-B is committed
+in features/data/698_site_interface_2026-10-14/coordination.md. Parentpartial;
+actual Gradio/Space runtime, remaining model adapters, website and both GPU paths
+still need implementation/acceptance. Receipt:features/data/698_service_jobs_2026-10-14/.

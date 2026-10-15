@@ -123,3 +123,20 @@ unavailable default refuses rather than silently using an older installed
 model. The operator mapping is private service configuration, never a visitor
 request field. Existing alpha models remain excluded, and published dataset
 repository types/URLs retain their actual type.
+
+`service.PlaqueService` keeps the operator checkpoint mapping read-only and
+allows only explicit visitor model/settings/selection/consent fields. Client
+paths, output folders and resource-limit overrides are refused. The `job`
+context copies bounded upload bytes into a private mode-700 folder and removes
+that folder after delivery, inference failure or a transfer/consumer exception.
+A web framework must serve the yielded ZIP during the context or copy it into
+its own disclosed download cache before context exit. This component does not
+claim that a future framework's upload/download caches are already configured.
+
+`preload_default()` is an explicit operator startup action, not an import side
+effect. It verifies the current default's exact published weight bytes and
+warms a two-entry digest-keyed desktop model cache, supporting the documented
+ZeroGPU startup-placement pattern. Replacing a path with different weight bytes
+cannot reuse the old cached model under the new digest. Plaque requests with
+more than three selected channels are refused before loading, preventing
+Cellpose from silently ignoring additional channels.

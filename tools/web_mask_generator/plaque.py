@@ -7,6 +7,7 @@ from an approved registry rather than exposing arbitrary paths to visitors.
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from pathlib import Path
 import re
 
@@ -19,7 +20,8 @@ from .inputs import read_upload_plane
 from .results import _sha256, build_result_zip
 
 
-def _load_model(path):
+@lru_cache(maxsize=2)
+def _load_model(path, weights_sha256=None):
     from spacr.submodules import _plaque_cellpose_model
     return _plaque_cellpose_model(str(path))
 
@@ -45,7 +47,7 @@ def run_plaque_download(
     default, magnification rule, normalization or postprocessing is duplicated
     here. CPU contract tests do not establish real checkpoint/GPU parity.
     """
-    checkpoint = Path(checkpoint)
+    checkpoint = Path(checkpoint).resolve()
     if not checkpoint.is_file() or not isinstance(expected_sha256, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", expected_sha256):
         raise ValueError(tr("Provide a trusted local checkpoint and its published SHA-256."))
     actual_sha256 = _sha256(checkpoint)
@@ -66,8 +68,10 @@ def run_plaque_download(
     plane = read_upload_plane(input_file, **dict(selection or {}))
     image = plane["image"]
     if plane["image_axes"] == "CYX":
+        if image.shape[0] > 3:
+            raise ValueError(tr("Choose at most three channels for the plaque model."))
         image = np.moveaxis(image, 0, -1)
-    model = _CapturedModel(_load_model(checkpoint))
+    model = _CapturedModel(_load_model(checkpoint, actual_sha256))
     masks = segment_plaque_image(model, image, settings)
     flow_list = model.output[1] if isinstance(model.output, (tuple, list)) and len(model.output) > 1 else None
     flows = cell_probability = None
