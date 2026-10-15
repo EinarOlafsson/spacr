@@ -24,6 +24,7 @@ properties tested here are:
 from __future__ import annotations
 
 from spacr.model_zoo import _mask_model_kinds
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
 
 #: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
 #: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
@@ -772,8 +773,14 @@ def test_the_preview_uses_the_diameter_the_run_will_use(panel, monkeypatch,
     calls = []
 
     class _Model:
-        def eval(self, image, **kwargs):
-            calls.append(kwargs["diameter"])
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None, flow3D_smooth=0,
+                 stitch_threshold=0.0, min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            calls.append(diameter)
             return np.zeros(np.asarray(image).shape[:2], np.int32), [None]
 
     monkeypatch.setattr(LP, "preview_cellpose_model", lambda name: _Model())

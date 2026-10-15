@@ -1,5 +1,7 @@
 """Desktop segmentation call contracts; no real checkpoint inference."""
+
 import hashlib
+import inspect
 import io
 import json
 import zipfile
@@ -8,6 +10,7 @@ import numpy as np
 import pytest
 import tifffile
 
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS, _same_as_default, eval_arguments
 from tools.web_mask_generator import plaque
 
 
@@ -30,7 +33,17 @@ class Model:
         self.calls = []
         self.arrays = arrays
         self.error = error
-    def eval(self, image, **kwargs):
+    def eval(self, image, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             rescale=None, diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
+             do_3D=False, anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+             min_size=15, max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+        kwargs = eval_arguments(locals(), image_parameter="image")
+        defaults = inspect.signature(type(self).eval).parameters
+        always = {"channel_axis", "diameter", "flow_threshold", "cellprob_threshold"}
+        kwargs = {name: value for name, value in kwargs.items()
+                  if name in always or not _same_as_default(value, defaults[name].default)}
         self.calls.append((image.copy(), kwargs))
         if self.error:
             raise self.error
