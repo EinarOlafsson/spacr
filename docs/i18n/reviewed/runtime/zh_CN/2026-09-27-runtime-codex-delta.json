@@ -325,13 +325,6 @@
       "translation": "使用基于标注事件训练的小型网络，在轨迹上检测有丝分裂、逸出、侵入和宿主细胞死亡；提供留出数据上的精确率和召回率、根据有丝分裂重建的分裂连接，以及每种条件下到各事件发生的时间。"
     },
     {
-      "key": "robustness_diameter_factors",
-      "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
-      "source_sha256": "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
-      "table": "setting_tooltips",
-      "translation": "稳健性报告逐一尝试的对象直径倍数；直径留空时按 Cellpose 的标称 30 像素处理。默认：[0.75, 1.25]。"
-    },
-    {
       "key": "None (use the backbone)",
       "source": "None (use the backbone)",
       "source_sha256": "77a061f04c2d6925458ab818764ef8a2c5a24af3f2bd787743a230a88356d4ec",

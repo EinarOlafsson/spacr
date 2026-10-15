@@ -36,8 +36,8 @@ from skimage.restoration import rolling_ball
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 
-def _eval_diameter(raw, object_type=""):
-    """The diameter to hand Cellpose's ``eval``, or ``None`` for native scale.
+def _eval_diameter(raw, object_type="", default=None, *, estimates=False):
+    """The diameter to hand Cellpose's ``eval``.
 
     Cellpose tests ``diameter > 0``, so a value that reaches it as a STRING
     raises ``TypeError: '>' not supported between instances of 'str' and
@@ -46,29 +46,61 @@ def _eval_diameter(raw, object_type=""):
     this setting that is not a Python literal produces a string: a number
     typed into the GUI, and any settings CSV.
 
-    ``None`` is PRESERVED rather than replaced with a default. A blank
-    diameter means "let CPSAM work at native scale"; substituting the
-    magnification-derived default from `_get_object_settings` would rescale
-    every image by 30/diameter -- a different segmentation, silently, for
-    every run that left the field empty. That is why this coerces the user's
-    own value instead of reading `object_settings['diameter']`, which always
-    holds that default.
+    One rule for every route (item 696), the one
+    :func:`spacr.object_settings_table._resolved_diameter` states:
+
+    * a number is that number, as a float;
+    * 0 and "auto" (any case) are Cellpose estimating the size: ``0.0``
+      for a model with a size model (``estimates``, Cellpose 3) and
+      ``None`` for Cellpose-SAM, which has none and segments at native
+      scale;
+    * blank is ``default``, the object's magnification diameter. A caller
+      with no default gets ``None`` (native scale).
 
     An unparseable value is reported and treated as blank, which is what
     `_get_object_settings` has always done for this field.
+
+    :param raw: the object's diameter setting.
+    :param object_type: the object, for the message.
+    :param default: the magnification default for a blank diameter.
+    :param estimates: whether the model estimates a size at diameter 0.
+    :returns: a positive float, ``0.0`` or ``None``.
     """
-    if raw is None:
-        return None
-    if isinstance(raw, str):
-        raw = raw.strip()
-        if not raw:
-            return None
+    from .object_settings_table import _diameter_for_eval, _diameter_setting
+
     try:
-        return float(raw)
-    except (TypeError, ValueError):
-        print(f"{object_type}_diameter must be a number, got {raw!r}; "
-              f"segmenting at native scale instead")
-        return None
+        value = _diameter_setting(raw)
+    except ValueError:
+        from .qt.i18n import tr
+
+        print(tr("{setting} must be a positive number, 0 or 'auto', got "
+                 "{value}; using the magnification default instead",
+                 setting=f'{object_type}_diameter', value=repr(raw)))
+        value = None
+    if value is None:
+        return None if default is None else float(default)
+    return _diameter_for_eval(value, estimates=estimates)
+
+
+def _note_the_diameter(settings, object_type, estimate=None):
+    """Tell the run journal which diameter ``object_type`` was segmented with.
+
+    :param settings: the run settings.
+    :param object_type: the object.
+    :param estimate: Cellpose's own estimate in pixels, when it gave one.
+    """
+    try:
+        from .object_settings_table import _diameter_used_by
+        from .run_journal import _record_diameter
+
+        _record_diameter(object_type,
+                         _diameter_used_by(settings, object_type, estimate),
+                         estimate=estimate)
+    except Exception as exc:
+        from .qt.i18n import tr
+
+        print(tr("The diameter for {object_type} was not recorded in the run "
+                 "journal: {error}", object_type=object_type, error=str(exc)))
 
 
 def _cellpose3_eval_settings(settings, object_type, default_diameter):
@@ -86,7 +118,8 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
     diameter 44 took 11.9 s on the CPU and matched 24 of 33 objects, and at
     diameter 0 took 153 s and matched 7. So a blank diameter becomes the
     object's magnification default, and 0 is sent only when
-    ``cellpose3_size_model`` is on.
+    ``cellpose3_size_model`` is on or the user asked for it: a diameter of
+    0 or "auto" is the size model estimating it (item 696).
 
     :param settings: the run's settings, defaults already filled.
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'``, ...
@@ -104,9 +137,9 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
     if settings.get('cellpose3_size_model', False):
         diameter = 0.0
     else:
-        diameter = (_eval_diameter(settings.get(f'{object_type}_diameter'),
-                                   object_type)
-                    or float(default_diameter))
+        diameter = _eval_diameter(settings.get(f'{object_type}_diameter'),
+                                  object_type, default_diameter,
+                                  estimates=True)
     keywords = dict(
         diameter=diameter,
         flow_threshold=settings.get(f'{object_type}_flow_threshold', 0.4),
@@ -172,6 +205,10 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
             shaped.append(image)
     output = model.eval(x=shaped, batch_size=int(batch_size),
                         channel_axis=-1, min_size=min_size, **keywords)
+    estimated = list(getattr(model, 'estimated_diameters', None) or ())
+    if keywords['diameter'] == 0.0 and estimated:
+        _note_the_diameter({**settings, f'{object_type}_diameter': 'auto'},
+                           object_type, float(np.median(estimated)))
     masks, flows, _, probability, _ = parse_cellpose4_output(output)
     if probabilities:
         return list(masks), flows, list(probability)
@@ -186,8 +223,9 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
     The Cellpose-DINO backend answers the very ``eval`` call a Cellpose-SAM
     model takes, so this makes V1's Cellpose-SAM call and nothing else:
     ``normalize=False`` and ``channel_axis=-1`` on the prepared images,
-    the object's own diameter (blank lets the model keep its scale, which
-    is what V1 sends), its flow and cell probability thresholds, and
+    the object's own diameter (blank is the magnification default and 0 or
+    "auto" lets the model keep its scale, as V1 sends them), its flow and
+    cell probability thresholds, and
     ``resample`` as :func:`spacr.settings._get_object_settings` sets it --
     off for a pathogen, on for the rest. A 2-D image is given a channel
     axis of one, so the preview's single planes read as V1's images do.
@@ -197,8 +235,9 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
     :param settings: the run's settings.
     :param object_type: the object being segmented.
     :param min_size: smallest object kept, in pixels.
-    :param default_diameter: taken for the route table's shared signature;
-        V1's Cellpose-SAM call does not read the magnification diameter.
+    :param default_diameter: the object's magnification diameter, which a
+        blank diameter segments at -- on this route as on V1's Cellpose-SAM
+        call (item 696).
     :param batch_size: taken for the same reason; V1 and v2 send
         Cellpose-SAM one batch of all the images, and so does this.
     :param probabilities: also return each image's cell probability, for
@@ -220,7 +259,7 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
         min_size=min_size,
         progress=True,
         diameter=_eval_diameter(settings.get(f'{object_type}_diameter'),
-                                object_type),
+                                object_type, default_diameter),
         flow_threshold=settings.get(f'{object_type}_flow_threshold', 0.4),
         cellprob_threshold=settings.get(
             f'{object_type}_cellprob_threshold', 0.0),
@@ -1464,6 +1503,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                               object_type=object_type)
     channels = _segmentation_input_channels(
         channels, len(channels_to_extract), model)
+    _note_the_diameter(settings, object_type)
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
@@ -1568,7 +1608,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             progress=True,
                             diameter=_eval_diameter(
                                 settings.get(f'{object_type}_diameter'),
-                                object_type),
+                                object_type, object_settings['diameter']),
                             flow_threshold=flow_threshold,
                             cellprob_threshold=cellprob_threshold,
                             resample=object_settings['resample']
@@ -1585,7 +1625,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             progress=True,
                             diameter=_eval_diameter(
                                 settings.get(f'{object_type}_diameter'),
-                                object_type),
+                                object_type, object_settings['diameter']),
                             flow_threshold=flow_threshold,
                             cellprob_threshold=cellprob_threshold,
                             resample=object_settings['resample'],

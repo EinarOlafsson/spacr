@@ -1254,10 +1254,24 @@ def coerce_value(key: str, text: str, current: Any,
     :returns: the coerced value.
     :raises SettingsError: when ``text`` is not a legal value for ``key``.
     """
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS, _diameter_setting
+
     types = _allowed_types(key, current, expected_types, app)
     stripped = text.strip()
     lowered = stripped.lower()
     allow = (lambda t: True) if not types else (lambda t: t in types)
+
+    if key in _OBJECT_DIAMETER_KEYS:
+        if lowered in _NONE_WORDS:
+            return None
+        try:
+            return _diameter_setting(stripped)
+        except ValueError:
+            raise SettingsError(
+                f"--set {key}={text!r} is not a diameter.\n"
+                f"  {key} takes a positive number of pixels, 0 or auto "
+                f"(Cellpose estimates it), or none for the magnification "
+                f"default.") from None
 
     if lowered in _NONE_WORDS and (not types or type(None) in types):
         return None
@@ -1522,6 +1536,8 @@ def resolve_settings(module: Module, settings_path: Optional[str],
     then the ``--set`` overrides. The file is read under today's names first
     -- see :func:`_under_todays_names`, without which a value the file set
     under an old name lost to the default already sitting under the new one.
+    An object diameter of 0 or "auto" comes out as "auto", the one form
+    both are stored in (item 696).
 
     :param module: module being run.
     :param settings_path: path to the settings file, or None for defaults only.
@@ -1538,7 +1554,8 @@ def resolve_settings(module: Module, settings_path: Optional[str],
         resolved.update(
             _under_todays_names(load_settings_file(settings_path), moved))
     apply_overrides(resolved, overrides, module)
-    return resolved
+    from .object_settings_table import _canonical_diameters
+    return _canonical_diameters(resolved)
 
 
 

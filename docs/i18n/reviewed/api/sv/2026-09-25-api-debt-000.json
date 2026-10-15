@@ -870,7 +870,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
       "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
-      "translation": "Skiktas från lägsta till högsta: modulens egna standardvärden, inställningsfilen och sedan åsidosättningarna från ``--set``. Filen läses först under dagens namn -- se :func:`_under_todays_names`, utan vilken ett värde som filen satte under ett gammalt namn förlorade mot standardvärdet som redan låg under det nya."
+      "translation": "Skiktas från lägsta till högsta: modulens egna standardvärden, inställningsfilen och sedan åsidosättningarna från ``--set``. Filen läses först under dagens namn -- se :func:`_under_todays_names`, utan vilken ett värde som filen satte under ett gammalt namn förlorade mot standardvärdet som redan låg under det nya.",
+      "retired": true,
+      "retired_reason": "2026-10-14: canonical paragraph or source context changed during MakeMasks lifecycle/N696 integration. Original review/target retained as historical evidence; new current-source AI technical review is separate."
     },
     {
       "context": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",

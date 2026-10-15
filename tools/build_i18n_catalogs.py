@@ -4127,6 +4127,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
     paths.add(ROOT / "spacr" / "model_compare.py")
     paths.add(ROOT / "spacr" / "embeddings.py")
+    paths.add(ROOT / "spacr" / "settings.py")
+    paths.add(ROOT / "spacr" / "object.py")
     paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
@@ -4143,6 +4145,11 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
             continue
+        if path.parent == source_root and path.name in {"settings.py", "object.py"}:
+            diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in diagnostic_owners]
         if path == source_root / "model_zoo.py":
             # Only the shared acquisition policy owns translated runtime
             # diagnostics; model metadata and other backend prose do not.

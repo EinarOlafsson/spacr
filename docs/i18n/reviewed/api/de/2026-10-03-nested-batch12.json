@@ -647,7 +647,9 @@
       "source_sha256": "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953",
       "context": "The innermost frame, as ``file:line function``.",
       "translation": "Der innerste Frame, als ``file:line function``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-14: canonical paragraph or source context changed during MakeMasks lifecycle/N696 integration. Original review/target retained as historical evidence; new current-source AI technical review is separate."
     },
     {
       "label": "spacr.qt.stall_watch.watch_this_application.tick#0",

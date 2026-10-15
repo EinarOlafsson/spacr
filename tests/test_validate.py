@@ -425,10 +425,15 @@ def test_a_retired_key_with_a_successor_is_migrated(tmp_path):
 # numeric sanity
 # ---------------------------------------------------------------------------
 
-def test_zero_diameter_is_an_error(tmp_path):
+def test_zero_diameter_is_auto_and_a_negative_one_is_an_error(tmp_path):
+    """Item 696: 0 and "auto" mean Cellpose estimates the diameter."""
     src = make_raw_plate(tmp_path, n_channels=3)
     settings = valid_mask_settings(src)
-    settings["cell_diameter"] = 0
+    for accepted in (0, "auto", "Auto", None):
+        settings["cell_diameter"] = accepted
+        assert not settings_named(errors(validate_settings(settings, "mask")),
+                                  "cell_diameter")
+    settings["cell_diameter"] = -5
     assert settings_named(errors(validate_settings(settings, "mask")), "cell_diameter")
 
 

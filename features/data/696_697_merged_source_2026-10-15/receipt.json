@@ -1,0 +1,67 @@
+{
+  "scope": "Merged N696/N697 diameter/brush/export and owner Toggle runtime checks",
+  "validation": {
+    "passed": 235,
+    "seconds": 58.78,
+    "exit_code": 0,
+    "files": [
+      "tests/test_696_magnification_default_and_auto_diameter.py",
+      "tests/qt/test_696_the_diameter_field_takes_auto.py",
+      "tests/qt/test_697_brush_strokes_are_new_objects.py",
+      "tests/qt/test_n693_export_settings_from_every_form.py",
+      "tests/qt/test_toggle_painter_finalization.py"
+    ]
+  },
+  "tested_source": {
+    "make_masks_sha256": "ac18f056a4f1568375cd815d8fbbfe9030d9b4cc3f7fe0af1e71d46ef2eec23f",
+    "widget_owner_hashes": "Exact approved owner hashes independently verified before tests."
+  },
+  "post_test_doc_only": {
+    "make_masks_attribute_doc_blocks": 11,
+    "executable_AST_identical": true,
+    "current_make_masks_sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d"
+  },
+  "limits": [
+    "No native/scientific/tutorial acceptance or final CI.",
+    "Global N700 caption evidence remains a separate release gate."
+  ],
+  "subsequent_closure": {
+    "paint_gate": "Original 1.35 gate passed in current source; see paint-and-recorder-scope.json.",
+    "AUTO_TEXT": "All-nine owner-reviewed API entries normally generated; exact receipt in features/data/696_auto_text_api_generation_2026-10-15/.",
+    "recorder": "Exact public Work recorder source restored; preserved historical patch awaits Work owner."
+  },
+  "paint_worker_module": {
+    "passed": 56,
+    "seconds": 47.51,
+    "exit_code": 0,
+    "log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/paint-module-current.log",
+    "thresholds_unchanged": true
+  },
+  "normal_documentation_generation": {
+    "status": "Actual exit1: enabled published Home-B preferences relocation callback lacks docstring; narrow owner fix requested. API/help writer cannot proceed until owner source repaired.",
+    "raw_log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/final-generated.log"
+  },
+  "exact_owner_approved_widgets": {
+    "spacr/qt/widgets/object_settings_grid.py": "9caa0afca39d68d263907fa52367a944d8067c256a17363b4a54c773ba637305",
+    "spacr/qt/widgets/live_preview.py": "bbf261a1f37eba1bb5294b6991591b825546fc5c89c0e63f83420b4a19a8b364",
+    "spacr/qt/widgets/timelapse_preview.py": "799b19aa4acc1b0616781152f8dfdf6f39303979fd12009bf2c311dc9a636537",
+    "spacr/qt/widgets/object_grid_binding.py": "610c0d19ae563f71698ca51c36dbd6b20b12345ab8af1e28e330a4387efe08f1"
+  },
+  "owner_attribute_docstring_patch_sha256": "a4e9b71c16f13624471633932be977f05076a1ff0b2c493fa1bbb2a6806fce20",
+  "instruction_index_check": "actual exit0: index matches instruction files",
+  "final_caption_refresh": {
+    "exit_code": 1,
+    "reason": "caption arrival lacks explicit reviewed record: sv/('UI', 'AI Error report')",
+    "fixture_unchanged_from_published_baseline": true,
+    "fixture_sha256": "605319c830fb4977395b2b6aaa045d62e86936a2a9dd1deb0a9a16f50b9c295b",
+    "log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/with-ssh-arrivals.log"
+  },
+  "final_english_sources_only": {
+    "exit_code": 0,
+    "settings": 1273,
+    "categories": 242,
+    "ui": 7723,
+    "log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/with-ssh-english.log"
+  },
+  "publication": "Coherent tested Masks app source; global caption/docs/native tutorial/full CI/release acceptance remains open."
+}

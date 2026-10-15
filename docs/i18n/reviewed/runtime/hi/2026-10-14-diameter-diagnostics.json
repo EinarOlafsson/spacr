@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "{setting} must be an integer or float, 0 or \"auto\", got {value}",
+      "source": "{setting} must be an integer or float, 0 or \"auto\", got {value}",
+      "source_sha256": "d0c20ae2b56728e1b3399145a8b4a380a068b560c2db8dfaccea590c71a0701f",
+      "translation": "{setting} पूर्णांक या दशमलव संख्या, 0 या \"auto\" होना चाहिए; मिला {value}"
+    },
+    {
+      "table": "ui",
+      "key": "{setting} must be a positive number, 0 or 'auto', got {value}; using the magnification default instead",
+      "source": "{setting} must be a positive number, 0 or 'auto', got {value}; using the magnification default instead",
+      "source_sha256": "583b2fcc0fae1463dd780eddee3d3006202aeae221a0c147ecb0461b33d6f679",
+      "translation": "{setting} धनात्मक संख्या, 0 या 'auto' होना चाहिए; मिला {value}; इसके बजाय आवर्धन का डिफ़ॉल्ट उपयोग किया जाएगा"
+    },
+    {
+      "table": "ui",
+      "key": "The diameter for {object_type} was not recorded in the run journal: {error}",
+      "source": "The diameter for {object_type} was not recorded in the run journal: {error}",
+      "source_sha256": "041dfc5af0b7749bbca1545ee04e0306b996ab3482c66f979f565197c28fd6ae",
+      "translation": "{object_type} का व्यास रन जर्नल में दर्ज नहीं हुआ: {error}"
+    }
+  ]
+}

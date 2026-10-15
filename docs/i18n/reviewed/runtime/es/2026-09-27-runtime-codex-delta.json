@@ -325,13 +325,6 @@
       "translation": "Mitosis, salida, invasión y muerte de la célula hospedadora detectadas en trayectorias por una red pequeña entrenada con eventos anotados, con precisión y exhaustividad en datos reservados, enlaces de división reconstruidos a partir de mitosis y tiempo hasta cada evento por condición."
     },
     {
-      "key": "robustness_diameter_factors",
-      "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
-      "source_sha256": "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
-      "table": "setting_tooltips",
-      "translation": "Múltiplos del diámetro del objeto que el informe de robustez prueba, uno cada vez; un diámetro en blanco se interpreta como los 30 píxeles nominales de Cellpose. Valor predeterminado: [0.75, 1.25]."
-    },
-    {
       "key": "None (use the backbone)",
       "source": "None (use the backbone)",
       "source_sha256": "77a061f04c2d6925458ab818764ef8a2c5a24af3f2bd787743a230a88356d4ec",
