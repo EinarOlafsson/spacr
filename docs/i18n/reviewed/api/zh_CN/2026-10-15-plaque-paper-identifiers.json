@@ -1,0 +1,29 @@
+{
+  "independent_peer": {
+    "decision": "ACCEPT",
+    "draft_sha256": "f7ebe11652af79bae2d1d2e32f547949f3965ecb850cdb95028ff904cfd6b08c",
+    "receipt_sha256": "d3e65708b3ff3aec5418edb05500d3375bc886b8fc9262a5a1eb2a4855f0b766"
+  },
+  "language": "zh_CN",
+  "note": "Both exact identifier-input API labels retain current correct target bytes; normal source/context-bound review resolves generic acronym copied-phrase false positive without a source/target/gate change.",
+  "records": [
+    {
+      "context": "a DOI, PMID, PMC id or PDF path.",
+      "label": "spacr.qt.widgets.plaque_preview.paper_folder_name#1",
+      "review_basis": "Exact existing translated target technically reviewed: DOI, PMID, PMC ID and PDF are legitimate citation/file-format identifiers; surrounding path/connective prose is translated. Generic copied-phrase heuristic sees acronym sequence, not retained English prose. Preserve current target bytes; no new gate exception and no native/human claim.",
+      "source": "a DOI, PMID, PMC id or PDF path.",
+      "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+      "translation": "DOI、PMID、PMC ID 或 PDF 路径。"
+    },
+    {
+      "context": "a DOI, PMID, PMC id or PDF path.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#2",
+      "review_basis": "Exact existing translated target technically reviewed: DOI, PMID, PMC ID and PDF are legitimate citation/file-format identifiers; surrounding path/connective prose is translated. Generic copied-phrase heuristic sees acronym sequence, not retained English prose. Preserve current target bytes; no new gate exception and no native/human claim.",
+      "source": "a DOI, PMID, PMC id or PDF path.",
+      "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+      "translation": "DOI、PMID、PMC ID 或 PDF 路径。"
+    }
+  ],
+  "review_kind": "AI technical exact-existing-target review and independent root technical peer; no human/native signoff",
+  "schema": 1
+}
