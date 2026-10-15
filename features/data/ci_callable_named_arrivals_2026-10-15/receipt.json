@@ -1,0 +1,64 @@
+{
+  "base_commit": "4108d3f99dbe326837aa45a222a1b023609ca81b",
+  "source_scope": "tests/test_docstring_correctness.py",
+  "final_test_sha256": "882fe84f19e592ed0b82a79e0e785e36581ed27bd3522c28965ca38f3ac70ff3",
+  "final_patch_sha256": "4b887fafaf8972ea46fc98b86912d8027c0f6f7a9d52a8c36a310253a0fca7a2",
+  "outside_two_function_AST_identical": true,
+  "assertions": {
+    "test_public_callable_inventory_is_source_derived_not_docstring_derived": {
+      "original_assertions": 82,
+      "final_assertions": 100,
+      "every_original_assertion_AST_retained": true
+    },
+    "test_callable_boundary_is_cross_checked_with_i18n_extractor": {
+      "original_assertions": 138,
+      "final_assertions": 141,
+      "every_original_assertion_AST_retained": true
+    }
+  },
+  "protected_source_contract_pins_unchanged": {
+    "tools/build_documentation_i18n.py": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "spacr/remote_execution.py": "9bd560fc1d41c4f466d887f446e8a448d4d29b4e6c8859f392c9b707bd9c6733",
+    "spacr/qt/widgets/figure_queue.py": "779188b8b59b1420cc5421ce035f20f8b3f8ab35ba04bad2473fe9f724ba0382",
+    "spacr/embeddings.py": "965148f2ec847f40df8e3d0c8bd79a7cc2d9f7693d184013936c1f1843a9efbf",
+    "spacr/qt/screens/embeddings.py": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+    "tests/data/release_contracts/561_classifier_api_arrivals_2026-10-15.json": "253027dfb255290b7ac10d68f30ace488952b853e52dabc6fb43d7a638663a43",
+    "tests/data/release_contracts/180_session_figure_api_arrivals_2026-10-15.json": "51f344b09e1a6f08a7fe11235e98c56d11ce92b9fcdec481baab58fb1adaf0c3"
+  },
+  "historical_pins_unchanged": [
+    10026,
+    13182,
+    19923,
+    9675,
+    9669,
+    9998
+  ],
+  "stages": [
+    {
+      "run": "final",
+      "result": "1 passed, 1 failed in 59.89s",
+      "meaning": "21 named arrivals correctly reconciled; historical parameter count exposed nine accepted dataclass fields plus weights_only."
+    },
+    {
+      "run": "private-field-delta",
+      "result": "exit0 diagnostic only",
+      "meaning": "Identical source compared with pre-b898 helper enumerates exact nine accepted private fields; not an original test pass."
+    },
+    {
+      "run": "final-private-inverse",
+      "result": "1 passed, 1 failed in 35.42s",
+      "meaning": "All nine source/native projection controls passed; author error compared existing AST default node directly with False. Extractor original passed again."
+    },
+    {
+      "run": "final-private-inverse-corrected",
+      "result": "1 passed in 40.70s; exit0",
+      "meaning": "Only affected first original node rerun after safe ast.literal_eval correction."
+    }
+  ],
+  "final_acceptance": "Both distinct original nodes pass in staged runs; no claim of a final simultaneous two-node green cohort. No skipped assertions, runtime canonical collection, model imports, product changes, or generated artifacts.",
+  "independent_reviews": [
+    "hard-independent-proposal-peer.json",
+    "hard-independent-private-inverse-peer.json"
+  ],
+  "correction_authorization": "Root explicitly approved one-line ast.literal_eval correction; Hard independently accepted exact a2e742 to882fe84 one-assertion change by message; no reviewer rerun."
+}
