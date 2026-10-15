@@ -293,3 +293,18 @@ in this source step; other families remain provenance listings pending their
 next adapter integration. No hosting, weights, GPU or scientific acceptance.
 Full localization/browser WebGPU/whole698 remain open.
 Evidence: data/698_gui_detector_integration_2026-10-14/receipt.json.
+2026-10-14 — Original Home: six remaining segmentation-family backend adapters
+implemented through canonical N696 diameter/settings and existing desktop
+normalization, Cellpose evaluation, mask filtering and field-size restoration.
+Exactly one explicitly chosen input channel; no invented reference channel or
+new scientific algorithm. Blank/magnification, explicit pixels and Auto use the
+same N696 helpers. Original intensities, actual returned vectors/logits and
+post-filter labels reach the result ZIP; desktop filtering can relabel objects.
+Validation: 27 owning CPU cases PASS, actualexit0/10.68s, including all six
+families, native/explicit diameter, role thresholds/resampling, original-intensity
+measurements, border/area filters, exact checkpoint identity and constructor
+cache. Actual desktop helpers execute; model construction/evaluation injected.
+Private validation uses nine owner-provided N696 backend source files, bound in
+receipt; these dependencies are not published by this web lane. Actual approved
+weights, scientific/GPU/browser parity, service/UI enablement and deployment
+remain open; parent N698 partial. Receipt:features/data/698_shared_masks_2026-10-14/.

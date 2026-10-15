@@ -205,3 +205,16 @@ are explicitly rectangle measurements, not segmented well area/centroids;
 physical calibration is not assumed. Masks, vectors and per-pixel cell scores
 are explicitly unavailable and never synthesized. Backend integration into the
 public service/UI remains separate work; no hosted detector is claimed here.
+
+`masks.run_mask_download` implements the other six segmentation family adapters
+through the canonical N696 diameter/settings helpers and desktop normalization,
+Cellpose evaluation, mask filtering and field-size restoration. Choose exactly
+one explicit source channel. Blank diameter uses the desktop magnification rule;
+`auto`/zero requests the model's automatic/native diameter; a positive value is
+an explicit pixel diameter. The original image remains unchanged for intensity
+measurements. Filtering may renumber retained IDs, exactly as on the desktop.
+The ZIP records requested/resolved/evaluated diameter and actual role-specific
+normalization, thresholds and filters, without exposing checkpoint paths.
+This adapter requires the updated N696 backend; CPU tests exercise its actual
+helpers with injected model evaluation and establish no real-model parity.
+Service/UI enablement for these routes remains a separate integration step.
