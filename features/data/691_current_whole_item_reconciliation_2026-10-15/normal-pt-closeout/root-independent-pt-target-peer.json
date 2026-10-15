@@ -1,0 +1,10 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Exact Portuguese mitonet_weights#1 technical translation; no native/human signoff",
+  "input_file_sha256": "5c0ad6f9c25a3c032342f37d681c230f4c8fbca8ee7c2ca0ca1f2ec61716097d",
+  "target_sha256": "07c06759ffb31f373123cd4d2ee704f5a7e7c002fad8a4f81d8b7b0285483e0a",
+  "label": "spacr.model_zoo.mitonet_weights#1",
+  "source_sha256": "ba96b219e2cfe1b2234f4526cbd9f6a9b26601179a84ed67901893dcffc33fc8",
+  "review": "Preserves TorchScript checkpoint, Zenodo6861565, CC-BY-4.0, Conrad/Narayan citation, default verified cache and explicit dest override, published SHA-only reuse, fetch checksum and atomic file write. Borrowed checkpoint/cache/download terms are contextual technical vocabulary, not retained English prose. No generic residue gate changed; ordinary reviewed overlay/writer/audit remain required.",
+  "source_commit": "beba46be31"
+}
