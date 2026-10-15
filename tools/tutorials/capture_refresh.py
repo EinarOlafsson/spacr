@@ -392,14 +392,6 @@ def main() -> int:
         # imported module and emit a traceback with local installation paths.
         import torch  # noqa: F401
     app = QApplication.instance() or QApplication([])
-    # spacr.qt.app.launch collects cyclic garbage on the GUI thread only
-    # (spacr.qt.gc_policy); this driver builds the window without launch,
-    # so it installs the same policy. Without it a collection triggered by
-    # a worker thread runs Qt destructors on that worker mid-paint.
-    from spacr.qt.gc_policy import install as install_gc_policy
-    from spacr.qt.thread_guard import install as install_thread_guard
-    install_thread_guard()
-    install_gc_policy(app)
     if args.spaceout_effects_only:
         from spacr.qt.theme import enable_spaceout
         enable_spaceout()
