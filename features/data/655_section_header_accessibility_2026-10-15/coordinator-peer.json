@@ -1,0 +1,14 @@
+{
+  "reviewer": "Home-B coordinator, independent from author",
+  "source_commit": "c50c472a0927a8282e32ec5faa0c639a24e32cac",
+  "source_sha256": "a85bab36e844a77da141b159f644b7d04a8f946d84993ab8ae15ae6a591f99de",
+  "production_diff_reviewed": true,
+  "outside_private_class_AST_identical": true,
+  "existing_mouse_keyboard_fold_owner_lookup_identical": true,
+  "test_review": "Read all5newcases and reported9existing owning checks. Newcases cover actualQAccessible name after language pass, ordinary focus in3themes, samewidget live strong-focus transitions and no preference read duringpainting.",
+  "log_hashes_verified": true,
+  "baseline": "4failed3.57s",
+  "final": "14passed2.62s",
+  "no_repeated_tests_or_generators": true,
+  "limitations": "Qt offscreen/QAccessible proof only; no native screenreader, human or otherplatform acceptance."
+}

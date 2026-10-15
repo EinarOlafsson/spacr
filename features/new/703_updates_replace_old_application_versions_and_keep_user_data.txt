@@ -776,3 +776,20 @@ Only disposable Linux files and symlinks; no backend executable/install/download
 or real user data touched. Native Windows/macOS, fullCI and wholeN703 remain open.
 Original API prose/signatures/captions are unchanged; no generated artifact work.
 Evidence: features/data/n703_direct_backend_preservation_2026-10-15/.
+
+2026-10-15 — Preserve all six verified direct configured cache roots together.
+Supported SPACR_MODEL_CACHE, SPACR_NEWS_CACHE, SPACR_SPACE_CACHE, SPACR_SOUND_CACHE,
+SPACR_ICON_CACHE and MPLCONFIGDIR were absent from ordinary retirement/staging
+protection. Their actual existing root functions place disposable bytes inside
+the old runtime:48baselineFAIL/2PASS1.51s. Nine added guard lines now retain these
+roots using each consumer's exact strip/raw/home semantics; no consumer change.
+Frozen-source94PASS2.70s/exit0:50new actual-root/retirement/staging/control cases
+plus44existing backend/alias/shared-root/lease/purge checks. Nine unchanged
+translated-refusal cases explicitly deselected. Unconfigured app files retire,
+external shared roots survive and never enter explicit purge by this change.
+Actual Linux temporary files only; exact root function ASTs avoid importing
+Qt/model/native modules. No live caches/models, downloads or installers touched.
+No arbitrary whitelist, purge-policy or global deletion changes. Prose/signatures/
+captions unchanged, so no generated API/runtime work. Native Windows/macOS,
+wholeN703/fullCI/release remain OPEN. Evidence:
+features/data/n703_direct_configured_caches_2026-10-15/.

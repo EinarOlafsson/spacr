@@ -594,3 +594,20 @@ User symlink/readlink target, original nonexistent target and exact landed
 bytes/hash are preserved. Only one predicate changes; no API prose/caption,
 model loading/provider/network/GPU/live data/fullCI or whole702 acceptance.
 Evidence: data/702_dangling_checkpoint_allocation_2026-10-15/receipt.json.
+
+2026-10-15 — rollback owned checkpoint reservation on final rename failure:
+The exclusive destination reservation is now identified from its native file
+descriptor before closing it. A final os.replace failure removes only that
+same lstat/samestat reservation and re-raises the original exception. The
+descriptor closes before replace as before, retaining current Windows ordering.
+Actual offline fetch+SHA baseline leaves a zero-byte installed filename after
+renameEIO. Six-case predecessor4FAIL2PASS0.95seconds covers direct/fetch EIO
+and KeyboardInterrupt plus already-passing foreign replacement controls. Final
+21cases pass1.24seconds, including15 existing version/fetch/dangling/concurrent/
+reservation/checksum/cancel/interruption contracts. Own original stage bytes,
+foreign regular/symlink bytes/identity and original exceptions are retained.
+Final lstat/unlink and inode-reuse races, success-path concurrency and fstat/
+close failures remain outside this narrow rename rollback; no blanket atomic
+concurrency or native Windows acceptance. No API prose/caption, actual model/
+network/GPU/live data/fullCI or whole702 acceptance. Evidence:
+data/702_claim_reservation_rollback_2026-10-15/receipt.json.

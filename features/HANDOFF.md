@@ -13267,3 +13267,14 @@ This closes three specific retained errors; the wider semantic sweep stays open.
 Private extractor dependency2b54f51f4 plus independent peerb36004542 is handed
 to Original Home for coherent F537/F540 source/18-target integration. No
 standalone publication or scientific acceptance claimed by that dependency.
+
+## 2026-10-15 Home-B — figure section keyboard focus and accessible names
+The private section fold heading now exposes its existing run title through
+QAccessible and paints ordinary/strong focus, including live preference changes
+on the already-open heading. Four real baseline failures become14 passing
+focused+existing cases. Independent coordinator source/test/log review confirms
+all outside-class AST and existing key/mouse/fold behavior unchanged. Actual
+public_symbol policy excludes all four private-class event overrides, so there
+is no public API/caption arrival to regenerate. Source/log hashes and limits:
+features/data/655_section_header_accessibility_2026-10-15/. This closes these
+heading defects only; native speech/human/platform/tutorial gates stay open.
