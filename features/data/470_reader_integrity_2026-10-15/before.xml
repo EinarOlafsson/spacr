@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="13" time="2.703" timestamp="2026-10-15T00:22:43.475407-04:00" hostname="olafsson"><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_refuses_conflicts_without_modifying_sources[group]" time="0.358"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_refuses0')
+conflict = 'group'
+
+    @pytest.mark.parametrize('conflict', ['label', 'group'])
+    def test_annotation_reader_refuses_conflicts_without_modifying_sources(tmp_path, conflict):
+        import shutil
+    
+        database = _annotated_db(tmp_path / 'original', np.random.default_rng(472), per_well=3)
+        other = tmp_path / 'other.db'
+        shutil.copyfile(database, other)
+        with sqlite3.connect(other) as db:
+            if conflict == 'label':
+                db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
+            else:
+                db.execute('ALTER TABLE png_list ADD COLUMN dataset_plate TEXT')
+                db.execute("UPDATE png_list SET dataset_plate = 'another_plate'")
+        before = {path: path.read_bytes() for path in (database, other)}
+&gt;       with pytest.raises(ValueError, match='conflicting labels or acquisition identities'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_470_real_object_classifier.py:238: Failed</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint[fractional]" time="0.079"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_refuses1')
+problem = 'fractional'
+
+    @pytest.mark.parametrize('problem', ['pixels', 'digest', 'size', 'fractional', 'partial'])
+    def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_path, problem):
+        database, crop = _sample_fingerprinted_annotation(tmp_path)
+        if problem == 'pixels':
+            crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+        else:
+            with sqlite3.connect(database) as db:
+                statement = {
+                    'digest': "sample_png_sha256 = 'not-a-digest'",
+                    'size': 'sample_png_bytes = -1',
+                    'fractional': 'sample_png_bytes = 2.5',
+                    'partial': 'sample_png_sha256 = NULL',
+                }[problem]
+                db.execute('UPDATE png_list SET ' + statement + ' WHERE rowid = 1')
+        before = database.read_bytes(), crop.read_bytes()
+&gt;       with pytest.raises(ValueError, match='sample-creation fingerprint'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_470_real_object_classifier.py:279: Failed</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_preserves_source_database_bytes" time="0.042"><failure message="AssertionError: assert b'SQLite form...1_1_1.png\x02' == b'SQLite form...1_1_1.png\x02'&#10;  &#10;  At index 27 diff: b'\x03' != b'\x02'&#10;  Use -v to get more diff">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_preserv0')
+
+    def test_annotation_reader_preserves_source_database_bytes(tmp_path):
+        database = _annotated_db(tmp_path, np.random.default_rng(470), per_well=3)
+        before = database.read_bytes()
+        frame = oc._annotated_real_crops([str(database)])
+        assert len(frame) == 15
+&gt;       assert database.read_bytes() == before
+E       AssertionError: assert b'SQLite form...1_1_1.png\x02' == b'SQLite form...1_1_1.png\x02'
+E         
+E         At index 27 diff: b'\x03' != b'\x02'
+E         Use -v to get more diff
+
+tests/test_470_real_object_classifier.py:212: AssertionError</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_does_not_create_missing_databases" time="0.002"><failure message="FileNotFoundError: /mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_does_no0/missing.db">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_does_no0')
+
+    def test_annotation_reader_does_not_create_missing_databases(tmp_path):
+        database = tmp_path / 'missing.db'
+        with pytest.raises(sqlite3.OperationalError):
+&gt;           oc._annotated_real_crops([str(database)])
+
+tests/test_470_real_object_classifier.py:287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+committed_baseline_helper:573: in _annotated_real_crops
+    ???
+spacr/tabular.py:250: in read_table
+    frames = read_database(source, [table], canonicalise=canonicalise,
+spacr/tabular.py:739: in read_database
+    with _connect(db, migrate=migrate, read_only=read_only) as conn:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+spacr/tabular.py:612: in _connect
+    ensure_database_schema(path)
+spacr/database_schema.py:450: in ensure_database_schema
+    report = migrate_database(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db_path = '/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_does_no0/missing.db'
+target_version = 1
+migrations = (Migration(version=1, name='canonicalize measurement column names', apply=&lt;function _rename_legacy_columns at 0x7431e410d580&gt;),)
+timeout = 30.0
+
+    def migrate_database(
+        db_path,
+        *,
+        target_version: int = CURRENT_SCHEMA_VERSION,
+        migrations: Sequence[Migration] = MIGRATIONS,
+        timeout: float = 30.0,
+    ) -&gt; MigrationReport:
+        """Migrate an existing SQLite database path and close it on every path.
+    
+        :param db_path: an existing database file.  It is made absolute but **not**
+            tilde-expanded, so ``~/x.db`` is resolved under the working directory
+            and raises ``FileNotFoundError`` even when the home-relative file
+            exists.  A missing file raises the same and no database is created.
+            The returned report carries the absolute path, not the string given.
+        :param target_version: forwarded to :func:`migrate_connection`, with the
+            same downgrade and upper-bound rules.
+        :param migrations: forwarded to :func:`migrate_connection`, sorted by
+            version and required to be contiguous from 1 through
+            ``target_version``.
+        :param timeout: seconds SQLite waits for a lock, and only that; it does not
+            bound the migration itself.  A negative value is silently clamped to 0,
+            which makes locking non-blocking, while a non-numeric value raises
+            ``ValueError``.
+        :raises FileNotFoundError: ``db_path`` is not an existing file.
+        """
+    
+        given = os.fspath(db_path)
+        path = os.path.abspath(given)
+        if not os.path.isfile(path):
+            if given.startswith("~"):
+                raise FileNotFoundError(
+                    f"{path} (from {given!r}) -- the '~' was never expanded, so "
+                    f"this was looked for under the working directory rather than "
+                    f"your home. The database itself may be fine; the path was "
+                    f"not resolved before it got here.")
+&gt;           raise FileNotFoundError(path)
+E           FileNotFoundError: /mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_does_no0/missing.db
+
+spacr/database_schema.py:395: FileNotFoundError</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_coalesces_repeated_identical_source_rows" time="0.044"><failure message="AssertionError: DataFrame are different&#10;&#10;DataFrame shape mismatch&#10;[left]:  (30, 3)&#10;[right]: (15, 3)">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_coalesc0')
+
+    def test_annotation_reader_coalesces_repeated_identical_source_rows(tmp_path):
+        database = _annotated_db(tmp_path, np.random.default_rng(471), per_well=3)
+        before = database.read_bytes()
+        once = oc._annotated_real_crops([str(database)])
+        repeated = oc._annotated_real_crops([str(database), str(database)])
+&gt;       pd.testing.assert_frame_equal(repeated, once)
+E       AssertionError: DataFrame are different
+E       
+E       DataFrame shape mismatch
+E       [left]:  (30, 3)
+E       [right]: (15, 3)
+
+tests/test_470_real_object_classifier.py:220: AssertionError</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_training_needs_both_calls_and_two_wells" time="1.148" /><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_refuses_conflicts_without_modifying_sources[label]" time="0.059"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_refuses2')
+conflict = 'label'
+
+    @pytest.mark.parametrize('conflict', ['label', 'group'])
+    def test_annotation_reader_refuses_conflicts_without_modifying_sources(tmp_path, conflict):
+        import shutil
+    
+        database = _annotated_db(tmp_path / 'original', np.random.default_rng(472), per_well=3)
+        other = tmp_path / 'other.db'
+        shutil.copyfile(database, other)
+        with sqlite3.connect(other) as db:
+            if conflict == 'label':
+                db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
+            else:
+                db.execute('ALTER TABLE png_list ADD COLUMN dataset_plate TEXT')
+                db.execute("UPDATE png_list SET dataset_plate = 'another_plate'")
+        before = {path: path.read_bytes() for path in (database, other)}
+&gt;       with pytest.raises(ValueError, match='conflicting labels or acquisition identities'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_470_real_object_classifier.py:238: Failed</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint[digest]" time="0.065"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_refuses3')
+problem = 'digest'
+
+    @pytest.mark.parametrize('problem', ['pixels', 'digest', 'size', 'fractional', 'partial'])
+    def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_path, problem):
+        database, crop = _sample_fingerprinted_annotation(tmp_path)
+        if problem == 'pixels':
+            crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+        else:
+            with sqlite3.connect(database) as db:
+                statement = {
+                    'digest': "sample_png_sha256 = 'not-a-digest'",
+                    'size': 'sample_png_bytes = -1',
+                    'fractional': 'sample_png_bytes = 2.5',
+                    'partial': 'sample_png_sha256 = NULL',
+                }[problem]
+                db.execute('UPDATE png_list SET ' + statement + ' WHERE rowid = 1')
+        before = database.read_bytes(), crop.read_bytes()
+&gt;       with pytest.raises(ValueError, match='sample-creation fingerprint'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_470_real_object_classifier.py:279: Failed</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint[pixels]" time="0.059"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_refuses4')
+problem = 'pixels'
+
+    @pytest.mark.parametrize('problem', ['pixels', 'digest', 'size', 'fractional', 'partial'])
+    def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_path, problem):
+        database, crop = _sample_fingerprinted_annotation(tmp_path)
+        if problem == 'pixels':
+            crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+        else:
+            with sqlite3.connect(database) as db:
+                statement = {
+                    'digest': "sample_png_sha256 = 'not-a-digest'",
+                    'size': 'sample_png_bytes = -1',
+                    'fractional': 'sample_png_bytes = 2.5',
+                    'partial': 'sample_png_sha256 = NULL',
+                }[problem]
+                db.execute('UPDATE png_list SET ' + statement + ' WHERE rowid = 1')
+        before = database.read_bytes(), crop.read_bytes()
+&gt;       with pytest.raises(ValueError, match='sample-creation fingerprint'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_470_real_object_classifier.py:279: Failed</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_accepts_matching_sample_creation_fingerprint" time="0.055"><failure message="AssertionError: assert (b'SQLite for...ND\xaeB`\x82') == (b'SQLite for...ND\xaeB`\x82')&#10;  &#10;  At index 0 diff: b'SQLite format 3\x00\x10\x00\x01\x01\x00@  \x00\x00\x00\x06\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00SPCR\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00.\x95\xca\r\x00\x00\x00\x01\x0f`\x00\x0f`\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x...&#10;  &#10;  ...Full output truncated (2 lines hidden), use '-vv' to show">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_accepts0')
+
+    def test_annotation_reader_accepts_matching_sample_creation_fingerprint(tmp_path):
+        database, crop = _sample_fingerprinted_annotation(tmp_path)
+        before = database.read_bytes(), crop.read_bytes()
+        assert len(oc._annotated_real_crops([str(database)])) == 15
+&gt;       assert (database.read_bytes(), crop.read_bytes()) == before
+E       AssertionError: assert (b'SQLite for...ND\xaeB`\x82') == (b'SQLite for...ND\xaeB`\x82')
+E         
+E         At index 0 diff: b'SQLite format 3\x00\x10\x00\x01\x01\x00@  \x00\x00\x00\x06\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00SPCR\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00.\x95\xca\r\x00\x00\x00\x01\x0f`\x00\x0f`\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/test_470_real_object_classifier.py:261: AssertionError</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint[partial]" time="0.065"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_refuses5')
+problem = 'partial'
+
+    @pytest.mark.parametrize('problem', ['pixels', 'digest', 'size', 'fractional', 'partial'])
+    def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_path, problem):
+        database, crop = _sample_fingerprinted_annotation(tmp_path)
+        if problem == 'pixels':
+            crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+        else:
+            with sqlite3.connect(database) as db:
+                statement = {
+                    'digest': "sample_png_sha256 = 'not-a-digest'",
+                    'size': 'sample_png_bytes = -1',
+                    'fractional': 'sample_png_bytes = 2.5',
+                    'partial': 'sample_png_sha256 = NULL',
+                }[problem]
+                db.execute('UPDATE png_list SET ' + statement + ' WHERE rowid = 1')
+        before = database.read_bytes(), crop.read_bytes()
+&gt;       with pytest.raises(ValueError, match='sample-creation fingerprint'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_470_real_object_classifier.py:279: Failed</failure></testcase><testcase classname="tests.test_470_real_object_classifier" name="test_annotations_group_by_plate_and_well" time="0.036" /><testcase classname="tests.test_470_real_object_classifier" name="test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint[size]" time="0.062"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f470-reader-20261015/pytest-of-olafsson/pytest-0/test_annotation_reader_refuses6')
+problem = 'size'
+
+    @pytest.mark.parametrize('problem', ['pixels', 'digest', 'size', 'fractional', 'partial'])
+    def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_path, problem):
+        database, crop = _sample_fingerprinted_annotation(tmp_path)
+        if problem == 'pixels':
+            crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+        else:
+            with sqlite3.connect(database) as db:
+                statement = {
+                    'digest': "sample_png_sha256 = 'not-a-digest'",
+                    'size': 'sample_png_bytes = -1',
+                    'fractional': 'sample_png_bytes = 2.5',
+                    'partial': 'sample_png_sha256 = NULL',
+                }[problem]
+                db.execute('UPDATE png_list SET ' + statement + ' WHERE rowid = 1')
+        before = database.read_bytes(), crop.read_bytes()
+&gt;       with pytest.raises(ValueError, match='sample-creation fingerprint'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_470_real_object_classifier.py:279: Failed</failure></testcase></testsuite></testsuites>

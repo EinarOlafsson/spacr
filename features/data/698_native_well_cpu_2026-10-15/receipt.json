@@ -1,0 +1,68 @@
+{
+  "source_commit": "525c9f1ff3f8f2cabe9b2bc1aebde94914b1acca",
+  "source_sha256": {
+    "spacr/plaque.py": "7ec32f1a3bbafe0efe8a3f095c597b124dff35a14530752b1672ce3c463963c3",
+    "spacr/model_zoo.py": "95094f785ebd18b83c2d7517960fb3b8d96c8f15324d531233b49fe4343a4e29",
+    "tools/web_mask_generator/detector.py": "9b1321aff80e9e8883380bdf22e9b7b02c4bcce9d1740a6140ddecb2f343a6e3",
+    "tools/web_mask_generator/inputs.py": "6429eb33aa772290ccb260330dad94746fec7ec2d376d604ef06eac00767596f",
+    "tools/web_mask_generator/results.py": "02291991b5a1c6d5e01d03e0c8dd656c5f229188a295e5e881daf9249e9466fc"
+  },
+  "checkpoint": {
+    "key": "toxoplasma_well_detector_v2",
+    "explicit_selection": true,
+    "bytes": 5382085,
+    "sha256": "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7"
+  },
+  "runtime": {
+    "ultralytics": "8.4.157",
+    "torch": "2.13.0+cu130",
+    "cuda_available": false,
+    "cuda_initialized": false,
+    "mps_available": false,
+    "threads": 8
+  },
+  "settings": {
+    "confidence": 0.15,
+    "imgsz": 320,
+    "min_axis_ratio": 0.7
+  },
+  "cases": [
+    {
+      "case": "gray",
+      "input_shape": [
+        256,
+        320
+      ],
+      "dtype": "uint8",
+      "input_sha256": "fd7f6396614c5a0a60873a6cd1bc1839a91e5a3a80ca9dc5f5e62fe2f2e25ba3",
+      "actual_desktop_detections": 3,
+      "boxes_equal": true,
+      "desktop_seconds": 1.3340083039947785,
+      "adapter_seconds": 0.2830925610032864,
+      "result_sha256": "2a32caf31eec270c0b340f0343a7a936e71a2d75b7cc3276dda7afcc622356cb"
+    },
+    {
+      "case": "rgb",
+      "input_shape": [
+        256,
+        320,
+        3
+      ],
+      "dtype": "uint8",
+      "input_sha256": "fbda6ecfb331f6618dd4ffadfc1747c17eab4124614959a2c9466a568cb5ae31",
+      "actual_desktop_detections": 3,
+      "boxes_equal": true,
+      "desktop_seconds": 0.12464534299215302,
+      "adapter_seconds": 0.14282269397517666,
+      "result_sha256": "a6e94abce72f898958c7b63b8779b4d73e6039a4d60a430e0c192f83678aef9c"
+    }
+  ],
+  "limits": [
+    "Two declared synthetic inputs; no biological accuracy acceptance",
+    "Explicit installed v2 identity only; no default substitution or other-family parity claim",
+    "CPU only; no native hosted/GPU/browser-service acceptance",
+    "No model/package downloads or protected-data reads"
+  ],
+  "actual_exit": 0,
+  "configuration_observation": "Ultralytics rejected the requested not-yet-created config subdirectory and used temporary /tmp/Ultralytics; raw log retained. No model/package download or checkpoint/input mutation."
+}
