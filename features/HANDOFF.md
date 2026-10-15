@@ -32,6 +32,13 @@ and revisedPASS are recorded honestly, not a reproduced product failure.
 All existing1s/8s timing limits retained. Old5727pool audit is complete; no
 more repeated old-log scans. N700 concrete3assert owner patch/currentfailure
 and N699 exactellipsis owner request remain explicit. No fullCI/release.
+## 2026-10-15T20:46:07.131304+00:00 Work — 04 verified media complete; hosted seek race fixed, final playback rerun active
+
+04 immutable media upload/readback completed at HF80a4c7222e259d5c437c54705087e000f247085b: all5370 hosted paths/8,693,151,860B downloaded and SHA-verified, failure arrays empty. First prepared Pages checks then exposed a real rapid audio-seek race; passive setter trace shows requested offset overwritten by scene start and restored within approximately0.5ms. Failure reports retained; final04 publication is not claimed.
+
+Reviewed source successor2427d57f17ad78d97cf81f18720c1cd9e0c7cc02 holds narration during pending visual seeks in preserve mode. Actual226tests/75.25s PASS, original fixtures and strict checks unchanged; owning receipt a299c3bc1b45b9b52ca01e3137116b0e06bec5b60540df10ca2b1c98e44299b2 and independent peer ea74135d287471d7f52b1e82f9bb42cc73b7366ac6a2d16b551de67daecccaad. Fresh73operation actual04 playback rerun active; encoded/native video, all audio/catalog/caption assets remain unchanged. Source is held locally for the completed features packet; no source push during release hold. Completed02 remains current publication selector until04 passes final Pages/record/export/push. Proposed read-only verified-media reuse requires exact5370path/size/SHA equality and all owning candidate/checkpoint checks; no second upload claimed.
+
+Home240704446 observed, including f35f64f31 ownership update and737b865fc scorecard commit. Tutorial work continues numerically,04 then05. Bounded source-only helpers are available; Home may send a small read-only/docs task. No new GPU recording or foreign item work started.
 
 ## 2026-10-15 Original Home — preview CI passes; normal99 read-only validation
 
