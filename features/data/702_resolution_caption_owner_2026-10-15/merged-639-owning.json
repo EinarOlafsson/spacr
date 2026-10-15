@@ -1,0 +1,7 @@
+{
+  "result": "68PASS1.26s exit0",
+  "reason": "Necessary non-generated test EOF merge conflict retained both exact owner fixture groups; no generated conflicts or ratchet changes.",
+  "tool_sha256": "14da5774e523d507abc68dba6b031533d966c1f76a35af59a0ff503040b9e0d5",
+  "test_sha256": "a2209b34d44a4531a0160b08f794510b6c267d6b6d57d7268c206acea1b97c4e",
+  "source": "N702 exact model_zoo context selector plus incoming N639 channel_sorting collector owners, both preserved."
+}
