@@ -2336,6 +2336,13 @@ def _zoo_path(key: str, cache: Path) -> Tuple[str, str]:
         return str(key), f"{Path(str(key)).name}"
     from . import model_zoo as zoo
 
+    text = str(key)
+    if '/' in text or '\\' in text or text.startswith('~'):
+        resolved = zoo._ensure_model_file(text)
+        if resolved is None:
+            raise zoo.ModelUnreadable(text)
+        return str(resolved), f"{resolved.name} {zoo.sha256_file(resolved)}"
+
     entry = zoo.resolve(key, zoo.catalogue())
     path = entry.path if getattr(entry, "path", None) and Path(entry.path).exists() \
         else zoo.fetch(entry, cache)

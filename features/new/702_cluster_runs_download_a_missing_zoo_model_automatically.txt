@@ -393,3 +393,17 @@ are separate provenance. Planning avoids provider discovery and HTTP. No
 private offline-caption policy was silently adopted. Real weights, scientific
 parity, native cluster acceptance and finalCI remain open; parent702 partial.
 Evidence: data/702_integrated_model_runtime_2026-10-14/receipt.json.
+
+2026-10-14 — legacy training/plaque/detector/figure missing paths resolve exactly:
+Missing POSIX/Windows model paths in legacy training, plaque analysis and
+figure measurement now reuse the exact shared basename resolver, including
+cache verification and cross-process acquisition. Well-detector paths enforce
+the detector kind. Unknown training paths fail before Cellpose could silently
+use stock weights. Plaque preview keeps pure download=False planning and does
+not acquire weights; explicit existing custom files retain priority.
+Eleven new native consumer/private-file-mirror cases and finite owning cohort
+passed41tests in6.78seconds, exit0 (one existing skimage warning). Stock/key
+legacy semantics are unchanged by this bounded repair; direct key-only fetch
+loops and broader figure-key fuzzy behavior remain separate gaps. No real
+models/external network/GPU/fullCI. Parent702 remains partial.
+Evidence: data/702_legacy_consumer_missing_paths_2026-10-14/receipt.json.
