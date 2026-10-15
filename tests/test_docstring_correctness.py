@@ -584,9 +584,9 @@ def _node_parameters(
 
 
 def _local_generated_fields(
-    node: ast.ClassDef, field_names: set[str],
+    node: ast.ClassDef, field_names: set[str], *, include_private: bool = False,
 ) -> dict[str, bool]:
-    """``{field: required}`` for locally generated constructor fields."""
+    """Return local constructor fields, including private dataclass arguments."""
     fields: dict[str, bool] = {}
     for child in node.body:
         if not isinstance(child, ast.AnnAssign):
@@ -596,7 +596,7 @@ def _local_generated_fields(
         name = child.target.id
         annotation = ast.unparse(child.annotation)
         if (
-            name.startswith("_")
+            (name.startswith("_") and not include_private)
             or "ClassVar" in annotation
             or _decorator_name(child.annotation) == "KW_ONLY"
         ):
@@ -647,7 +647,8 @@ def _dataclass_constructor_parameters(
                     or name in base_required
                 )
         inherited.update(possible_base_fields)
-    inherited.update(_local_generated_fields(node, module_info["field_names"]))
+    inherited.update(_local_generated_fields(
+        node, module_info["field_names"], include_private=True))
     return (
         frozenset(inherited),
         frozenset(name for name, required in inherited.items() if required),
@@ -1840,6 +1841,8 @@ class Base:
 @record
 class Child(Base):
     count: int = 0
+    _internal: bool = value_field(default=False, repr=False)
+    _hidden: str = value_field(init=False)
 
 class Failure(Exception):
     def __init__(self, reason: str):
@@ -1875,8 +1878,18 @@ ViaAlias = TupleAlias("ViaAlias", [("value", int)])
     }
     parameters, required = _dataclass_constructor_parameters(
         "spacr.synthetic.Child", classes["Child"], info, class_index)
-    assert parameters == {"name", "count"}
+    assert parameters == {"name", "count", "_internal"}
     assert required == {"name"}
+    namespace = {"__name__": __name__}
+    constructor_tree = ast.Module(
+        body=[tree.body[0], classes["Base"], classes["Child"]], type_ignores=[])
+    exec(compile(constructor_tree, "<dataclass-contract>", "exec", dont_inherit=True),
+         namespace)
+    actual_child = namespace["Child"]
+    assert set(inspect.signature(actual_child).parameters) == parameters
+    assert actual_child(name="accepted", _internal=True)._internal is True
+    with pytest.raises(TypeError):
+        actual_child(name="refused", _hidden="not a constructor argument")
     assert _inherits_exception(
         "spacr.synthetic.SpecificFailure", classes["SpecificFailure"],
         info, class_index,
