@@ -14,9 +14,15 @@
     "Actual git merge-file fixture combines disjoint new captions and matches a freshly generated expected module.",
     "Existing19 exact runtime-caption-owner checks pass unchanged."
   ],
-  "artifact_generation": "Pending combined reviewed runtime generation after in-flight scientific publication; source/test patch only so far.",
+  "artifact_generation": {
+    "commit": "0263267a061",
+    "mode": "Updated normal writer generated English; both category/UI frozensets now have independent entry lines.",
+    "semantic_proof": "features/data/197_678_runtime_batch_2026-10-15/parent_value_review.json",
+    "result": "Every assignment outside exactly8new/6retired owned UI sources is value-identical; hashes unchanged for every unaffected source."
+  },
   "limits": [
     "Formatting cannot guarantee all nearby concurrent edits merge; the measured disjoint-addition case is repaired.",
     "No validator, canonical extraction, historical baseline, source-hash calculation, locale target or ratchet changed."
-  ]
+  ],
+  "artifact_generation_initial": "Pending combined reviewed runtime generation after in-flight scientific publication; source/test patch only so far."
 }
