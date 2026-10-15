@@ -1776,3 +1776,25 @@ This proves the reproduced geometry defect fixed on Linux/offscreen; it is
 not a claim to have run a macOS desktop. Issue 128's local repair is complete.
 
 VERIFIED 2026-10-04: the 34 test files this item names pass on CPU/offscreen.
+
+2026-10-15 — WORKFLOW NODE TITLES FIT THEIR EXISTING BOX
+
+A bounded actual-painter probe found 11 of 16 current long module titles
+clipped across English, German, Icelandic and Portuguese. Their wrapped
+glyph bounds needed 47.14 px inside the fixed 40 px title rectangle. The
+four-locale owning regression failed on the unchanged source.
+
+Only _Node.paint in widgets/workflow_diagram.py changes: measure the full
+translated title using its actual painter and reduce its font only while
+it exceeds the existing title box. No ellipsis or truncation is introduced.
+Node/edge geometry, layout, zoom, routes, details and body rows stay intact;
+short and empty titles retain their original font. No caption or API prose
+changes, and no generated-documentation output is affected.
+
+The final cohort passes 30 cases in 5.52 s under a 2 GB cap: 12 focused
+production-paint cases plus 18 existing workflow cases. New checks cover
+the current four-locale titles in both compact and detailed nodes, exact
+full text, containment, unchanged geometry, and short/empty titles.
+Evidence: data/350_workflow_title_fit_2026-10-15/receipt.json. This repairs
+the measured fixed-box/wrapped-title defect; it is not a replay of the
+historical whole-GUI sweep or a new native-platform acceptance claim.
