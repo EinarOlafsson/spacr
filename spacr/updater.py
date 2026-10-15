@@ -373,7 +373,7 @@ def _network_config_path() -> Path:
     override = os.environ.get(_ENV_NETWORK_CONFIG)
     if override:
         return Path(override)
-    return Path.home() / ".spacr" / "network.json"
+    return _spacr_home() / "network.json"
 
 
 def _read_network_config() -> dict:

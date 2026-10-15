@@ -50,3 +50,17 @@ and existing second-process stale/current lock checks. No captions, public
 signatures or docstrings changed. No user directories were read or changed
 by the new tests, and no native macOS/Windows claim or full CI is made.
 Evidence: data/653_portable_lock_location_2026-10-14/receipt.json.
+
+2026-10-14 — portable proxy/certificate preferences location repaired (Home):
+The updater's network.json resolver likewise bypassed SPACR_HOME and portable
+mode, reading/writing ordinary-home preferences instead. It now uses the
+already imported _spacr_home resolver; SPACR_NETWORK_CONFIG remains the
+highest-priority explicit file override. Both configured-home and launcher-
+marker native temporary-file cases failed before the one-line repair; the
+explicit override guard already passed. The final finite network/preference/
+portable cohort passed 33 tests in 10.27 seconds (actual exit 0). Tests verify
+round-trip settings and zero ordinary-home writes; apply-network is disabled
+in new tests, and existing provider tests use offline stubs. No migration or
+change to existing ordinary-home installations is claimed. Captions, public
+signatures and docstrings are unchanged. No live proxy, user data or GPU.
+Evidence: data/653_portable_network_location_2026-10-14/receipt.json.
