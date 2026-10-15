@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "lesson": "43_illumination",
+  "source_commit": "a5dc7353bc1da39795c565dd4d4dd27f3f2ba5af",
+  "accepted": true,
+  "whole_capture_accepted": true,
+  "accepted_utc": "2026-10-14T23:12:34.745949+00:00",
+  "acceptance_scope": "Fresh same-app-source native main and Apply technical demonstration, unchanged strict gates, scoped science and sampled actual visual/narration review; approved to proceed to English audio",
+  "technical_demonstration": true,
+  "physical_illumination_validated": false,
+  "biological_validation": false,
+  "published": false,
+  "human_listening_review": false,
+  "native_speaker_signoff": false,
+  "english_sha256": "a380bfeb274a80ec874935bc4461859d509c33167c5108715515d6adb9e23917",
+  "raw_stages": [
+    "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014",
+    "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014"
+  ],
+  "independent_reports": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/accepted-science.json",
+      "sha256": "1569aa454c85c1007e6b4f676169cfb45cc53865049c0a5d12a3c17bdf9deee9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/english-visual-review.json",
+      "sha256": "9bc6f626bc5af08470bb6f53a21ea75c9af164064048f90b1dde22918cb2e900"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/gate-source-review.json",
+      "sha256": "05a34a17cfe5fd4d333fc5b1d0f3ab9450d5b0b98edeb891de3b3116a35091d6"
+    }
+  ],
+  "strict_gates": [
+    {
+      "scene": "01_measure_host",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/01_measure_host.gate.json",
+      "sha256": "7c812a57b91ddaf019824759b4b77701d5658af2bf3dac6388b8c0c8fc817a2f"
+    },
+    {
+      "scene": "05_setting_channels",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/05_setting_channels.gate.json",
+      "sha256": "fb259c4f3da0fba592f879a57b521edfd0cd6173b92c1906fd0d687a96218593"
+    },
+    {
+      "scene": "05_setting_src",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/05_setting_src.gate.json",
+      "sha256": "10367563e7ac62663a982258fe8f014bacc73cf699697d0a60f64ad5c5e6fa49"
+    },
+    {
+      "scene": "04_correction_off_finished",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/04_correction_off_finished.gate.json",
+      "sha256": "ad71a0719ecb278d6e0b3565c2790416c1e6fe453d3e21c284734c962391ae71"
+    },
+    {
+      "scene": "05_setting_illumination_degree",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/05_setting_illumination_degree.gate.json",
+      "sha256": "aef1d231ef46d1716ff2c961b680c40efefb639a1af92a0180851dab132ca1f8"
+    },
+    {
+      "scene": "05_setting_illumination_max_fields",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/05_setting_illumination_max_fields.gate.json",
+      "sha256": "98df14f9b15757eaba566b58e54b9e2905e0f83b0b20e5e5265adf0d7f50a41d"
+    },
+    {
+      "scene": "05_setting_illumination_dark",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/05_setting_illumination_dark.gate.json",
+      "sha256": "5734357c2eda80d032b749e54eebca7bb6ebbaf918ea8a93fc461bf24c63585c"
+    },
+    {
+      "scene": "05_setting_illumination_on_missing",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/05_setting_illumination_on_missing.gate.json",
+      "sha256": "c7a6c751ef10a6d5f99c218415970f6440d5df806b2ef0b634a79c80dc0294b8"
+    },
+    {
+      "scene": "06_correction_on_finished",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/06_correction_on_finished.gate.json",
+      "sha256": "1d9eb0b91707c045e0886e43baeb1e6103f170954334928c57b56158efc1aa22"
+    },
+    {
+      "scene": "08_exported_qc_system_viewer",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/08_exported_qc_system_viewer.gate.json",
+      "sha256": "89eb7da32e8c01c5e48e9230e042e6e5143749a6cddc78236324051a464dc010"
+    },
+    {
+      "scene": "09_return_to_illumination",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/09_return_to_illumination.gate.json",
+      "sha256": "b9b1860eeb805f2d151201a4e1ca0c82bf25df734572d56d904954c2109a2762"
+    },
+    {
+      "scene": "10_measure_apply_model",
+      "gate": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/captures/home/10_measure_apply_model.gate.json",
+      "sha256": "6386b593b421e1b6a036d1bd7fa3859cb99372eb1c54a5a1cfa70210d3af2589"
+    }
+  ],
+  "root_sampled_terminal_images_reviewed": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/root-review-images/05_setting_src_terminal.png",
+      "sha256": "20c6b50de66286ce702f4b22d5ebb63848cf9fb0d542e0608fd7190f90a7604d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/root-review-images/08_exported_qc_system_viewer_terminal.png",
+      "sha256": "2e1d6522c9376730f0aea0d3aa95de8200472d26cae0bcf1e57c6ea0cbcc5106"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/root-review-images/09_return_to_illumination_terminal.png",
+      "sha256": "512491f13a5a4b4bd036f9b938d483b40afe237d93b7628b2dc989d55af0442a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/root-review-images/10_measure_apply_model_terminal.png",
+      "sha256": "4d9f9835c77e555782b90af995092b8348e96b4f427b61ebf3f5cbe9554dd8a0"
+    }
+  ],
+  "root_clean_start_posters_reviewed": [
+    "08_exported_qc_system_viewer",
+    "10_measure_apply_model",
+    "05_setting_src"
+  ],
+  "diagnostic_footage_excluded": true,
+  "near_miss_accepted": false,
+  "limitations": [
+    "Apply configures Measure; no Measure analysis run is demonstrated.",
+    "Apply estimates an equivalent model off camera from the identical inputs: field arrays match bitwise; NPZ bytes/provenance differ.",
+    "QC measures the estimation fields, not independent optical or biological validation.",
+    "Strict-passing clips retain recorded capture-loss seconds; no zero-loss claim.",
+    "Root reviewed sampled real starts/terminal images; no human continuous-playback or listening signoff is claimed."
+  ]
+}

@@ -41,3 +41,25 @@ DONE 2026-10-04
   runtime catalogs contain source-bound "Saved to: {path}" and "Rename
   template" captions. The 2026-10-06 Qt receipt retains its Linux/offscreen
   scope; this note does not invent native other-OS recordings.
+
+2026-10-14 — failed template-save byte preservation completed (Home):
+A native JSON serialization failure after opening an existing profile with
+write mode replaced it with incomplete JSON. save_recipe now serializes the
+complete payload before using the existing atomic UTF-8 writer. Normal
+paths, JSON format/options and Recipe.path-on-success semantics remain
+unchanged; Save, Import and Rename use this backend. Its directory override
+is covered, but the separate GUI Share writer is unchanged by this repair.
+
+The native temporary-file baseline had 2 failures and 1 existing destination
+refusal pass. The final finite owning cohort passed all 102 cases in 75.74 s
+(exit 0). Repeated cyclic-value serialization errors leave the old complete
+profile byte-identical/readable; correcting the values then saves normally.
+A real destination-directory replacement error preserves its sentinel bytes
+and prior Recipe.path with no temporary-file orphan. Existing profile/dialog/
+rename/import/shortcut contracts also pass. Fresh coverage executes every
+save_recipe statement and branch exit. Signatures, docstrings and tr() calls
+are unchanged; the normal index check passes without generated delta.
+This is a bounded N657 durable-save repair, not a recount of its old parent
+completion or a native Windows/macOS/full-CI claim. Temporary local profiles
+only; no user data, network, GPU, annotation or provider operation.
+Evidence: features/data/657_failed_profile_save_preservation_2026-10-14/receipt.json.

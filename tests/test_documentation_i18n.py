@@ -3438,6 +3438,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
     assert not client700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **client700_arrivals}
+    # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
+    note_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "install_cleanup_note_api_arrival_2026-10-14.json").read_text())
+    assert len(note_arrivals) == 1
+    assert {key: docs[key] for key in note_arrivals} == note_arrivals
+    assert not note_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **note_arrivals}
     # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
     thread_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "thread_retire_api_arrivals_2026-10-13.json").read_text())

@@ -44,6 +44,7 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QTimer
@@ -68,6 +69,7 @@ from PySide6.QtWidgets import (
 from .widgets.flow import FlowLayout
 from .i18n import tr
 from ..logging_util import _spacr_home
+from ..run_journal import _atomic_write_text
 
 LOG = logging.getLogger("spacr.qt.recipes")
 
@@ -249,9 +251,8 @@ def save_recipe(recipe: Recipe, directory: Optional[str] = None) -> str:
     root = directory or recipes_dir(recipe.app_key)
     os.makedirs(root, exist_ok=True)
     path = os.path.join(root, f"{_slug(recipe.name) or 'recipe'}.json")
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(recipe.to_json(), handle, indent=2, sort_keys=True,
-                  default=str)
+    text = json.dumps(recipe.to_json(), indent=2, sort_keys=True, default=str)
+    _atomic_write_text(Path(path), text)
     recipe.path = path
     return path
 

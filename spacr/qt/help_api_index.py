@@ -2230,6 +2230,7 @@ API_ENTRIES = (
     ('spacr.install_cleanup._macos_tree.refuse_unreadable', 'Propagate a filesystem traversal failure instead of omitting its subtree.'),
     ('spacr.install_cleanup._run_plan._finish', 'Write the update log and return ``code``.'),
     ('spacr.install_cleanup._standalone_helper_command.contains', "Compare canonical paths using the host filesystem's case semantics."),
+    ('spacr.install_cleanup._transactional_runtime_update.note', 'Persist the current update phase in the transaction journal using an atomic file replacement.'),
     ('spacr.install_cleanup.find_old_installs', 'Find every spaCR installation on this computer.'),
     ('spacr.install_cleanup.remove_install', 'Remove one installation, without running its own uninstaller.'),
     ('spacr.install_cleanup.run_update_sequence', 'Remove old installations; install only if every installer-made copy is gone.'),
