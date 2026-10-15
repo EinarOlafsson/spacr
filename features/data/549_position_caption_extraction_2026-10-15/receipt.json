@@ -1,0 +1,15 @@
+{
+  "scope": "Exact core::_microscope_positions tr extraction, excluding unrelated core owners",
+  "before": {
+    "failed": 1,
+    "passed": 18,
+    "seconds": 1.21
+  },
+  "after": {
+    "passed": 19,
+    "seconds": 1.03
+  },
+  "runtime_source_owner": "aa15a81e422607e216ade603fba8beecea475fd3",
+  "catalog_generation": "not performed; source owner reviews supplied separately",
+  "limits": "No whole-feature or physical hardware acceptance claimed"
+}
