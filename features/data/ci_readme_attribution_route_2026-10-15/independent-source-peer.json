@@ -1,0 +1,25 @@
+{
+  "verdict": "APPROVED target-only attribution reachability test correction",
+  "reviewer": "independent AI technical source peer/easy_overnight; no native signoff",
+  "base": "1fc16b0c2406f581b55f81911ef58b70cb70362b",
+  "test_before_sha256": "7c52d8cf70a7bc2615820ff3259f7f980d184c1ccbb9f322e197536d025ac518",
+  "test_after_sha256": "81438d00984568bba0e096ec05237b36aa1858c58535cdbdf2f66d260a9ffda3",
+  "all_outside_target_AST_signatures_decorators_unchanged": true,
+  "proof": [
+    "Existing README-to-languagepicker link assertion retained",
+    "Exact realpicker Markdown attribution link enforced; relative target independently resolved to existing docs/i18n/TRANSLATION_MODELS.md",
+    "All9 languagepicker entries and actual translatedpage file+size>10000 assertions retained",
+    "Obsolete rootREADME literalpath requirement removed; reachability now follows actual published pickerroute",
+    "No README/docs/generated artifacts/HTML gate/sourcepolicy changes"
+  ],
+  "evidence": "Actual1FAIL2.34\u21921PASS2.46s inspected, no rerun",
+  "bound_route_sha256": {
+    "README.rst": "5fa42f845cd836420153df64bac5800b0d6baa5bef83445717ddbf887bcab833",
+    "docs/i18n/readme/README.md": "5afd98d7252da740b0f6d876b1ce78f4be4382761b814d85c16333d5308153f2",
+    "docs/i18n/TRANSLATION_MODELS.md": "6573519a7f515e1d0d92a2b5b5be8e94dd2bcc8f2d05c3a3ee52719c8a2ee4ce"
+  },
+  "limits": [
+    "Localsource reachability proof, not a new GitHub rendering/livehosting acceptance",
+    "No blanketHTML/externaltranslationgate waiver"
+  ]
+}
