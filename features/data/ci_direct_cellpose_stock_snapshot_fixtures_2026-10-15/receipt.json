@@ -1,0 +1,116 @@
+{
+  "date": "2026-10-15",
+  "status": "targeted_fixture_contracts_passed",
+  "source_base": "ca8d24c2593379d67ba58aa7f20cab7689843408",
+  "affected_nodes": [
+    "tests/test_n702_direct_cellpose_api_model_pins.py::test_direct_api_constructor_and_journal_use_effective_bytes_while_snapshots_keep_original[legacy_stock-apply_cellpose_model]",
+    "tests/test_n702_direct_cellpose_api_model_pins.py::test_direct_api_constructor_and_journal_use_effective_bytes_while_snapshots_keep_original[legacy_stock-test_cellpose_model]",
+    "tests/test_cov_submodules_cellpose_train_test.py::test_test_cellpose_model_writes_settings_snapshot"
+  ],
+  "baseline": {
+    "exit": 1,
+    "failed": 3,
+    "seconds": 25.72,
+    "cause": "Production correctly refuses unknowncyto_fake and nonexistent cp.CP_model. Fixtures intended supported stock and existing local snapshot inputs."
+  },
+  "final": {
+    "exit": 0,
+    "passed": 3,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 11.47
+  },
+  "repairs": [
+    "Direct stock cases request actual supported legacycyto2, retain request in snapshots and expect actual normalized cpsam constructor. Disposable native MODEL_DIR/cpsam contains fixture payload with downloadsOFF; MODEL_NAMES, resolver and verifier untouched.",
+    "Snapshot case supplies actual disposable cp.CP_model file, requires its exact path in CSV/settings/fakeconstructor, preserves all original default assertions, and checks checkpoint/input TIFF bytes unchanged."
+  ],
+  "integrity_scope": "Native stock preflight exercises existing regular-file cache existence policy. It does not assert SHA verification for stock names. Existing pinned checkpoint SHA/candidate/kind/offline failure assertions and all non-target source AST remain unchanged.",
+  "validation": {
+    "all8_original_direct_assert_ASTs_preserved": true,
+    "snapshot4original_nonpath_asserts_preserved": true,
+    "snapshot_path_assert_binds_exact_supplied_request": true,
+    "production_byte_identical": true,
+    "outside_two_test_functions_AST_exact": true,
+    "fatal_ruff": "PASS",
+    "full_ruff": "Same4 pre-existing I001 findings, byte-identical baseline/final output.",
+    "diff_check": "PASS",
+    "network_audit": "Zero DNS/internet socket attempts in both runs; AF_UNIX IPC unaffected.",
+    "resources": "Verified4G cap,zeroSwap,one allowed CPU via actual child cgroup/affinity."
+  },
+  "review": "Root approved exact fixture boundaries and3baseline+3final before mutation.",
+  "limits": [
+    "Recording constructors/eval doubles only; no actual model decoding/inference/download/GPU.",
+    "Only three affected nodes executed; invalid-pin tests are source-preserved, not newly rerun.",
+    "No complete CI/release/model performance claim."
+  ],
+  "evidence_files": {
+    "baseline.log": {
+      "sha256": "ec4afc51cf10d78dd206d5f74f3437e5e092f4b379ec1cca01f7d10e7a09d22e",
+      "bytes": 7442
+    },
+    "baseline.xml": {
+      "sha256": "b4e39d24b2c6854ddd9583811a83cf24769375624960f22eb3a269809c175929",
+      "bytes": 8490
+    },
+    "baseline.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "baseline-startup.json": {
+      "sha256": "4fbd585b615b41d7f502884edcfc43d7f8f841d1922caedec28a1c0b0264abcb",
+      "bytes": 237
+    },
+    "baseline-network.json": {
+      "sha256": "bea293cfc33f9615b33b280366108c78eada088d578efcefc4458df0c735d212",
+      "bytes": 31
+    },
+    "final.log": {
+      "sha256": "38ffff7bee5330602bdb3553c7444aca0d02d6e5a5fa5a24e896419bfa585c31",
+      "bytes": 408
+    },
+    "final.xml": {
+      "sha256": "164059ebc4e58344c4ee203b3fcffb6f52b3c44f4b233b39837bf3feda562770",
+      "bytes": 816
+    },
+    "final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "final-startup.json": {
+      "sha256": "fcdfb961f147e86efa75ca8ff5224335eb338910c485daa064eab19676c59311",
+      "bytes": 237
+    },
+    "final-network.json": {
+      "sha256": "bea293cfc33f9615b33b280366108c78eada088d578efcefc4458df0c735d212",
+      "bytes": 31
+    },
+    "ruff.log": {
+      "sha256": "3ae7f1d97b54e9ea58e56179581947b7410f80e873ff55aeec219180dbc4744f",
+      "bytes": 3153
+    },
+    "ruff-baseline.log": {
+      "sha256": "3ae7f1d97b54e9ea58e56179581947b7410f80e873ff55aeec219180dbc4744f",
+      "bytes": 3153
+    },
+    "ruff-fatal.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "source-proof.json": {
+      "sha256": "1011d51a1b54515a08156d8523dfd3d676d9019d18f224d96391ce6993f7cf09",
+      "bytes": 1906
+    },
+    "test-only.patch": {
+      "sha256": "6eecedd09ef4992768dcf8b16d025a8ec83060d00cb0609b37f42c297eda3705",
+      "bytes": 4503
+    },
+    "run.sh": {
+      "sha256": "b6c2a5d1a8fe05f1efa5b42aa017a7b1cee2503a43424b2e43e80f9aee345e86",
+      "bytes": 1008
+    },
+    "pytest-driver.py": {
+      "sha256": "bfdd630b3be7e29e862a5a2593842760b65e1a6adc6681de38f8f2a97dadf62e",
+      "bytes": 1975
+    }
+  }
+}

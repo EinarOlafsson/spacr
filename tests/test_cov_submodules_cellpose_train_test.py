@@ -746,6 +746,8 @@ def test_test_cellpose_model_only_scores_matched_filenames(tmp_path, cp_stub,
 
 def test_test_cellpose_model_writes_settings_snapshot(tmp_path, cp_stub, monkeypatch):
     """The resolved settings are persisted before any inference happens."""
+    from pathlib import Path
+
     from spacr.submodules import test_cellpose_model
 
     labels = [_label_image(32, [(1, (2, 10, 2, 10))])]
@@ -753,15 +755,24 @@ def test_test_cellpose_model_writes_settings_snapshot(tmp_path, cp_stub, monkeyp
     cp_stub["preds"] = _dataset_labels(written["images"], written["masks"], 32)
     monkeypatch.setattr(SUB, "display", lambda df: None)
 
-    settings = {"src": str(tmp_path), "model_path": "cp.CP_model",
+    checkpoint = tmp_path / "cp.CP_model"
+    checkpoint_bytes = b"settings snapshot checkpoint; never decoded"
+    checkpoint.write_bytes(checkpoint_bytes)
+    input_bytes = {Path(path): Path(path).read_bytes()
+                   for path in written["images"] + written["masks"]}
+    settings = {"src": str(tmp_path), "model_path": str(checkpoint),
                 "save": False, "target_size": 32, "batch_size": 10}
     test_cellpose_model(settings)
 
     snapshot = tmp_path / "settings" / "test_cellpose_model.csv"
     assert snapshot.exists()
     values = dict(zip(*pd.read_csv(snapshot)[["Key", "Value"]].values.T))
-    assert values["model_path"] == "cp.CP_model"
+    assert values["model_path"] == str(checkpoint)
     # defaults filled in by get_default_test_cellpose_model_settings
     assert values["FT"] == "0.4"
     assert values["normalize"] == "True"
     assert settings["CP_probability"] == 0
+    assert settings["model_path"] == str(checkpoint)
+    assert cp_stub["models"][0].pretrained_model == str(checkpoint)
+    assert checkpoint.read_bytes() == checkpoint_bytes
+    assert {path: path.read_bytes() for path in input_bytes} == input_bytes
