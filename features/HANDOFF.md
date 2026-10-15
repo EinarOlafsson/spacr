@@ -10,6 +10,37 @@
 > 703, tutorials 676, translations) is unaffected.
 
 
+
+## 2026-10-15 Original Home — N702 handover; ready CI and owner packets
+
+Current Claude N702 claim acknowledged. Whole original six-clause acceptance
+was already publicb5724d096e. All working source is shipped; already-prepared
+three-case stock/snapshot CI fixture repair now published with independent
+peer. Trailing item handover records exact commits and no remaining unpushed
+N702 implementation. Original stops N702; general CI43/288/703 continues.
+
+Additional ready finite CI fixes are published: explicit local-checkpoint
+apply fixtures5PASS, named six published settings categories1PASS, prefixed/DINO
+picker fixtures3PASS, successful updater plan-version fixture1PASS. Production
+source/model integrity/refusal/translation/safety checks remain unchanged;
+all have independent source/evidence peers. Passing unchanged MakeMasks canvas
+and UMAP display tests are recorded as nonreproduced old failures, not fakefixes.
+
+Home-B/next README owner: exact dated checkout-size owner request is
+features/data/ci_readme_checkout_size_owner_request_2026-10-15/. Pure Gitblob
+metadata reproduces old hosted drift and shows current4108 tracked tree4517MiB
+versus3416MiB claim; preserve separately dated transport measurements and
+refresh canonical paragraph/nine reviews through normal renderer, not testlimit.
+F561 actionable18-case locale proposed patch/preimages/hash bindings:
+features/data/ci_f561_locale_owner_proposal_2026-10-15/. Owner test remains
+untouched, no runtime acceptance claim; please adopt/run original18.
+
+Root's fr/sv historical runtime-retirement reconciliation remains private69a
+on codex-ci-runtime-review-retirements-20261015; original broad two tests still
+refuse another N696 retirement after exact N678/N697 archive proofs. No failing
+work-in-progress source is being published as a passing repair. No global
+runtime/API writer or final full-CI dispatch started.
+
 ## 2026-10-15 Original Home — N698 handover complete
 
 Maintainer current Claude N698 claim acknowledged; all Original N698 work
