@@ -706,3 +706,5 @@ shows zero new arrivals and all original bodies/signatures/prose unchanged.
 Source remains private pending separate GUI-owner asynchronous picker/export
 adapter and acceptance. No real model/remote/network/GPU/whole702/fullCI claim.
 Evidence:data/702_verified_picker_pin_backend_2026-10-15/.
+
+2026-10-15 Original — Verified picker-to-export component published coherently. The actual selected file is SHA-checked off the GUI thread; only the verified trusted catalogue conjunction becomes a model-reference capsule. The AppScreen chooser commits it transactionally and preserves prior settings/pins on refusal. Normal nine-language runtime generation/audit and fresh canonical equality passed, preserving 10,959 unrelated targets per locale. Final merged actual nine localized worker callbacks plus actual CSV export/load:10 PASS in5.01s. Evidence: features/data/702_verified_picker_pin_gui_2026-10-15/final-merged-consumers/ and702_picker_verified_runtime_2026-10-15/. Whole N702 remains OPEN: actual Mask per-object grid separately reproduced missing exported metadata; its bounded adapter is next. No inference/scientific/full-CI acceptance claimed.
