@@ -53,6 +53,7 @@ def score_cards():
 
 METRIC_LABELS = {
     "f1": "F1",
+    "boundary_f1_2px": "Boundary F1 (2 px)",
     "precision": "Precision",
     "recall": "Recall",
     "aji": "AJI",
