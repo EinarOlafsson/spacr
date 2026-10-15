@@ -1,0 +1,104 @@
+{
+  "result": "PASS",
+  "scope": "Only publisher homepage verification and its focused tests; permits the observed Hugging Face static-host creator envelope around an otherwise byte-identical assembled index. No application/workflow/source catalog changes.",
+  "baseline_commit": "a59e1f06f08c42cde033dd52f0194c2798e96f28",
+  "source_file": "tools/publish_docs_channels.py",
+  "before_sha256": "6bbaadaa9fe87ba2ecf3f95f3ebd3e4f0eb04268040889b76afc3e008055a359",
+  "after_sha256": "f1a7e7a76dd24acfb012e3008b026a5962627ef3cc6f7e98237250fcade469cf",
+  "test_file": "tests/test_docs_channels.py",
+  "test_sha256": "609b42721c1f777d8bbd3e293e07ddf7a1522083e2d80459278758c0fb37d288",
+  "observed_host_source_commit": "0b94804723836c42274bb13f71f59a95461b562c",
+  "observed_space_revision": "6185b7581aeee978c501e50f07fb61c19e030d33",
+  "actual_saved_response_replay": {
+    "before": "FAIL terminal1: public index.html does not match assembled site, with matching saved receipts",
+    "after": "PASS terminal0 using same saved response bytes",
+    "network_calls": 0,
+    "attempts": 1,
+    "interval": 0
+  },
+  "regressions": {
+    "before": "1 FAIL,14PASS in1.31s; only correctly hosted-envelope case fails",
+    "after_full_owning_module": "67PASS in5.06s, terminal0",
+    "added_cases": 15,
+    "normal_raw_byte_success_preserved": true,
+    "read_bound": "len(expected)+101+1 sentinel",
+    "metadata_checks": "Publication and channels must still exactly match assembled receipts before any homepage acceptance",
+    "accepted_envelope": "HTTPS *.static.hf.space only; one exact fixed window.huggingface.variables.SPACE_CREATOR_USER_ID script with24 lowercasehex ID, immediately after the expected opening<head> tag; exact unchanged prefix and suffix",
+    "rejected": [
+      "wrong variable",
+      "extra variable/schema",
+      "nonhex ID",
+      "uppercase ID",
+      "duplicate insertion",
+      "misplaced insertion",
+      "truncated body",
+      "one trailing byte",
+      "large trailing payload",
+      "unrelated script",
+      "changed prefix",
+      "changed body",
+      "foreign host",
+      "lookalike host"
+    ]
+  },
+  "resources": {
+    "cap": "2G",
+    "thread_limits": 1,
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "known_short_module": "Prior bounded unit-module exception; no model/Qt build/generation/benchmark load."
+  },
+  "artifacts": {
+    "before.log": {
+      "sha256": "80c1862b1d85f34cd80b85ba3d137fc5f986b4a56462afbcbd0374f80454042f",
+      "bytes": 761,
+      "compressed_path": "before.log.gz"
+    },
+    "after.log": {
+      "sha256": "06cbb5277ba4c523683222521925151ae0ddc87117c25252af34720b18c19ae1",
+      "bytes": 257,
+      "compressed_path": "after.log.gz"
+    },
+    "tests-before.log": {
+      "sha256": "45327544972482165903818fab3bd3ee7533a19764429372ac570b33f352e46b",
+      "bytes": 6567,
+      "compressed_path": "tests-before.log.gz"
+    },
+    "tests-after.log": {
+      "sha256": "ec29fe8986034a74d8e6bedb860436f0c3ac39275411dcba2ff59165cd117a1c",
+      "bytes": 99,
+      "compressed_path": "tests-after.log.gz"
+    },
+    "tests-after.time": {
+      "sha256": "f0a4b13fd24fbe79f21bc071aa7897e25924df162367458ddb228bfac11cef38",
+      "bytes": 821,
+      "compressed_path": "tests-after.time.gz"
+    },
+    "replay_live.py": {
+      "sha256": "71111056f96be3ed97bf0d2937d196e204267135c7c3fd8a6fd8b02ecbdc5128",
+      "bytes": 1500,
+      "compressed_path": "replay_live.py.gz"
+    },
+    "hf-index.body": {
+      "sha256": "62b866c6be21214ac487e9f29272425c57d2d7911a0b48bbf9cb43cbc1868c11",
+      "bytes": 238274,
+      "compressed_path": "hf-index.body.gz"
+    },
+    "hf-immutable-index.body": {
+      "sha256": "508425e1d17ea89767af2b6d229c204ad3cc12b68c9efc74cfd1b6a3079c6e8b",
+      "bytes": 238173,
+      "compressed_path": "hf-immutable-index.body.gz"
+    },
+    "hf-publication.body": {
+      "sha256": "bd09ad0f310661d156993983715ad907ec5483daa34bf6cb2672619bba2b0b16",
+      "bytes": 179,
+      "compressed_path": "hf-publication.body.gz"
+    },
+    "hf-channels.body": {
+      "sha256": "78718a4dd99850adddac4a2fbea1736147903635b4aabb2f79aa908c98bd498b",
+      "bytes": 401,
+      "compressed_path": "hf-channels.body.gz"
+    }
+  },
+  "publication": "None. Read-only observation and saved-byte replay only; no hosted retry/build/deploy/CI dispatch or quota action. Independent source peer pending final binding."
+}

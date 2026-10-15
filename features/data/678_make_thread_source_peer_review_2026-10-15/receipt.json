@@ -1,0 +1,25 @@
+{
+  "decision": "PASS",
+  "review_kind": "Independent technical source review; reviewer did not author bridge source/prose.",
+  "source_commit": "5fd8b5fec720a92b9469b183b74a7d5b555bfb73",
+  "source_file": "spacr/qt/bridge.py",
+  "source_sha256": "97b66f8b5201938b93b50c2387af74fe522865f47a98dd09aa030d811e8a3078",
+  "executable_ast_unchanged": true,
+  "comments_unchanged": true,
+  "verified_contracts": [
+    "make_thread creates its QThread, moves the worker, connects started, registers RunHandle and returns the pair without starting the thread.",
+    "RunHandle.retire is connected to thread.finished; it clears worker/thread references and unregisters the handle. A retained registry entry is not proof of current execution.",
+    "PipelineWorker.finished requests thread.quit directly before QThread completion; describing retirement by thread.finished preserves actual ordering.",
+    "The existing user_visible argument is copied to worker then RunHandle and filtered by activity_spinner; the wording deliberately promises filtering only in displays honoring that flag. It does not cancel work.",
+    "RunRegistry.active returns retained handles without querying thread state."
+  ],
+  "owning_source_reads": [
+    "spacr/qt/bridge.py::make_thread",
+    "spacr/qt/bridge.py::RunHandle.__init__",
+    "spacr/qt/bridge.py::RunHandle.retire",
+    "spacr/qt/bridge.py::RunRegistry.register/unregister/active",
+    "spacr/qt/widgets/activity_spinner.py visibility filtering",
+    "tests/qt/test_bridge_registry_isolation.py unstarted registration and running retention cases"
+  ],
+  "validation_limit": "Read-only source/test-body review and independent AST/comment equivalence; no behavior test, generator or collector repeated. Only make_thread revised prose approved, not surrounding historical prose."
+}
