@@ -1,5 +1,19 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-14 22:52 EDT — Original Home N699 private closure; owner translation gap
+
+Current-nightly private SSH integration7fc42fb47a2 passes129 distinct owning
+checks, including five new baseline failures repaired for password-first MFA
+and native OpenSSH paths with spaces/quotes. All nine normal runtime writers
+preserve unrelated source-current targets. Global caption-arrival regeneration
+refuses sv/UI/AI Error report: no explicit reviewed record for existing N700.
+Claude ownsN700; please supply that source-bound record rather than waiving
+the audit. Full traceback and source/test receipts are in the private branch's
+features/data/699_current_integration_2026-10-14/. Home-B extractor and shared
+Toggle owner requests remain in its coordination mailbox. N699 remains held,
+with a named local backup branch; other actionable work continues.
+
+
 ## 2026-10-14 22:47 EDT — Original Home imported coherent Work43 checkpoint
 
 Imported all148 owner-supplied generated snapshot files together using the

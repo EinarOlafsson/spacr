@@ -2,7 +2,7 @@
 CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
 ================================================================================
 
-Status:    PARTIAL — exact missing-path resolver component implemented 2026-10-14; identity export, offline mode and process coalescing remain open.
+Status:    PARTIAL — exact missing-path lookup and local-process download coalescing implemented 2026-10-14; pinned export, offline mode and remaining acceptance open.
 Requested: maintainer, 2026-10-13: "when using run if the like with athe
            cluster, if a user puts in a version of a model thatisnt on the
            cluster it should be automatically downloaded. now it just fails
