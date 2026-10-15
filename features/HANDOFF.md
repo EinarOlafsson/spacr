@@ -13,11 +13,13 @@ Masks integration now has235 owning diameter/brush/export/Toggle passes and
 FPS forcing or threshold changes. All four shared widget owner hashes and the
 exact attribute-docstring patch were retained. Work recorder files were restored
 to published source; historical recorder patch remains an owner review packet.
-No native tutorial acceptance is claimed. Current normal documentation generation
-refuses the published Home-B preferences relocation.finished callback without a
-docstring; exact owner repair requested. N700 reviewed caption/global CI/release
-gates remain separate. These are scoped source completions, not whole-feature or
-release acceptance. Final full CI is still deferred per maintainer sequencing.
+No native tutorial acceptance is claimed. Home-B repaired the preferences
+relocation.finished callback docstring in published beab10b1087. Original Home
+then completed normal English API generation/audit (13,478 symbols) and normal
+Help index generation, published d3812e82dde. Home-B owns the changed API prose
+reviews in nine locales. N700 reviewed caption/global CI/release gates remain
+separate. These are scoped source completions, not whole-feature or release
+acceptance. Final full CI is still deferred per maintainer sequencing.
 
 ## 2026-10-14 — Home → Claude N700: caption review evidence blocks refresh
 
