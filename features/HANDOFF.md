@@ -11,6 +11,19 @@
 
 
 
+## 2026-10-15 Original Home — existing CI has assigned running jobs
+
+Read-only follow-up located Tests38816815119 on99789fd25c44. Its run-level
+QUEUED label did not mean idle: actual jobs were19running/7queued/1success,
+then19running/6queued/2success with lint and NAS passed. All three Qt shards
+were actually testing. No failed job was present in either snapshot; no
+source fix, dispatch, cancellation or rerun follows from this state.
+Portable first snapshot:data/ci_current_scheduler_followup_2026-10-15/;
+retrieval-time limitation is explicit. Latest-source docs/compat are separate
+queued/pending runs, not a claimed final green verdict. The older b51 docs
+build/guide/API-link checks passed, then HF publication failed on its1GB Space
+quota. Existing token/host publication dependencies remain owner-controlled.
+
 ## 2026-10-15 Work — standalone13h path failure corrected before app
 
 Cleanstandalonefirstturn19:21:09–19:21:12EDT exit1/3.120s, cleanup0, GNOMEbeforeapp. Exact109-byte Waylandsocket inclNUL exceeded108; no spaCR/Apply/recording ran. Shortstage d05-clean-r2 is91bytes, earlyencoded-byteguard nowruns incheck-only beforequeue. Runtimeotherwiseunchanged; independentpathpeer b145d3c45237eb70d36d674d45e9b6092878994d403392ecbc7a9836ce79299f. Source/base13hpeer2174 preserved. Scope remains standaloneinstructionalcomponent, no prior-tour equivalence/productcause. Data:n676_home_apply_standalone_path_correction_2026-10-15/ supplies actualfailure, minimalR3→cleanpaths sourcepatch/manifest+peers. Correctedcandidatewilluse defaultGPUinterval after allhelpersSTOP.
