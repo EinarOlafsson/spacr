@@ -11,6 +11,23 @@
 
 
 
+## 2026-10-15 Original Home — strict installed all-screen failures preserved
+
+Unchanged normal startup driver exercised all54 installed candidate screens in
+both cold and warm processes. Both workers completed without construction
+exceptions, but strict exit1 is retained: cold Home5.404s exceeds5s;
+Preferences674/811ms and Mask718/528ms exceed500ms stall limit. Five underlying
+threshold failures are not19 distinct bugs. Artifact and all955 installed
+regular-file identities remain unchanged. Offscreen/oneCPU diagnostics do not
+establish native performance or release acceptance. Portable evidence:
+data/candidate_1514_b51_installed_screen_diagnostic_2026-10-15/.
+
+Existing spans cannot name a function-level cause. One scratch-only focused
+standard cProfile diagnostic is assigned around the ordinary Preferences open
+and Mask build paths, preserving original calls/actions and all timing gates.
+No product edit, native/GPU/model action or timing-result rerun is authorized
+by this diagnostic. No whole item closes and final fullCI/release stays deferred.
+
 ## 2026-10-15 Work — R2 before-capture failure; bounded public click readiness
 
 R2actual18:55:19–18:55:35EDT exit1/15.923s cleanup0, beforefirstspaCRmenubarclick. No popupquery/Apply/recording/clip. It thereforedoesnotestablish popupmapping/Overviewcause; exactpriorfailure/statictrace preserved indata/n676_home_apply_captured_prefix_2026-10-15/actual-r2-before-capture-failure/. R3onlyadds <=2s ordinaryQt readiness polling usingunchanged strictreachable andstablepoint40ms beforerealpointerclick, withsafeclassificationonpersistentfailure. No force/QtEventPump/gate/sourceproductchange. Newstage preservesR1/R2; minimalportableR2→R3sourcepatch/manifest inworker-r3-delta/. Existing Workrecorder300+30scope unchanged; no secondHomeobservational180/20diag. Fullcapturedsourcealreadyprovided; notan exacthistoricalstateclaim.

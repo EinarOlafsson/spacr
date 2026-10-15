@@ -299,7 +299,7 @@
       "percent_done": 90,
       "time_left_hours": "4–8 + platform",
       "owner": "Home / assigned owner",
-      "description": "Fresh source-pinned wheel/sdist pass normal build, current Twine, archive gates,927-file byte verification and installed Home/Measure/CLI functional checks. Wheel offscreen Home6.894s exceeds5s timing budget; real-display/per-module/native acceptance remains.",
+      "description": "Fresh wheel/sdist pass build, Twine, archive/927-file verification and installed functional checks. All54 screens open cold/warm, but strict offscreen diagnostic fails: cold Home5.404s; Preferences674/811ms and Mask718/528ms stalls exceed500ms. Native/platform acceptance remains; focused causal profiling follows.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
