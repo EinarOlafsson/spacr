@@ -1,0 +1,7 @@
+MainPID=0
+ExecMainStatus=0
+CPUQuotaPerSecUSec=infinity
+MemoryMax=infinity
+MemorySwapMax=infinity
+ActiveState=inactive
+SubState=dead
