@@ -167103,16 +167103,16 @@
     "spacr.qt.widgets.plaque_preview.resolve_detector": {
       "source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
+        "ea5d7c2116bd8c61066388dd9de100238555e29e7be23c7620cafd8ba6ad9c83",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"
       ],
-      "source_sha256": "9b72b1cacb61582e226d497e44137d9f05f08373394cce96fad8bdb9ac9e5aad",
-      "text": "Vistunarpunktur skynjarans sem lykill nefnir, fundinn án niðurhals.\n\nLeitar þar sem keyrslan leitar: að slóðinni sjálfri, eigin slóð færslunnar í líkanasafninu, ``~/.spacr/models`` og líkanaskyndiminni keyrslunnar undir ``<src>/plaque_figures/models``.\n\n:param key: lykill í líkanasafninu eða slóð vistunarpunkts.\n:param src: myndamappan.\n:returns: ``(path, note, entry)``; ``path`` er ``''`` þegar hann er ekki hér, og ``entry`` er það sem niðurhal myndi sækja.",
+      "source_sha256": "00ee734565c88ae0ba5ebd15e6d200f5ede624f2b9e05cb1cc56986afd17d122",
+      "text": "Vistunarpunktur skynjarans sem lykill nefnir, fundinn án niðurhals.\n\nLeitar þar sem keyrslan leitar: að slóðinni sjálfri, eigin slóð færslunnar í líkanasafninu, virka sameiginlega líkanaskyndiminninu og líkanaskyndiminni keyrslunnar undir ``<src>/plaque_figures/models``.\n\n:param key: lykill í líkanasafninu eða slóð vistunarpunkts.\n:param src: myndamappan.\n:returns: ``(path, note, entry)``; ``path`` er ``''`` þegar hann er ekki hér, og ``entry`` er það sem niðurhal myndi sækja.",
       "translation_source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "85ff7cbdc41dd86009e190b5764b2710ddae39df19a6506890b89362aa05f0a3",
+        "da8cefc4390eb4b3b16450da0eb09287ca64e3ead26b99a073b9850239faa6c0",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"

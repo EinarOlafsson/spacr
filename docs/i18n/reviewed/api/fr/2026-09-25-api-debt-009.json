@@ -1014,7 +1014,9 @@
       "source_sha256": "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
       "context": "Looks where the processing session looks: the path itself, the zoo entry's own path, ``~/.spacr/models`` and the processing session's model cache under ``<src>/plaque_figures/models``.",
       "translation": "Cherche là où cherche l’exécution : le chemin lui-même, le chemin propre de l’entrée du zoo, ``~/.spacr/models`` et le cache de modèles de l’exécution sous ``<src>/plaque_figures/models``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N644 active shared model cache replaces the fixed ~/.spacr/models path; 2026-10-15 source-bound replacement is recorded separately. Original review and target retained unchanged."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.resolve_detector#2",
