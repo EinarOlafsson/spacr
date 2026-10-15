@@ -1,0 +1,22 @@
+{
+  "source_sha256": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
+  "actual_counterexample": "On immutable3b01915 source: actual resolver truncates fractional request/measured physical IDs; actual viability requested0.5 selects DNA and writes40dead instead of correct PI30live/10dead. Original nucleus table/frame unchanged. Current public prepatch baseline reproduces missing typed-identity refusals. No whole-measure source identity claim across earlier finite-cut publication.",
+  "baseline": "20 FAIL/14 PASS/18 locale deselected4.83s; first main baseline cases not repeated during extended baseline.",
+  "extended_baseline": "Eight additional nonfinite/negative/complex refusal-contract cases FAIL3.21s; some old cases already reject with a different exception/diagnostic, not eight silent wrong-stain observations.",
+  "owning": "47 PASS/18 locale deselected10.03s:42 direct/new boundary/default/actual classifier controls +five existing FUCCI/default/viability/morphology controls; two unchanged plotting deprecation warnings.",
+  "normal_api_eligibility": {
+    "normal_callable": "tools.build_documentation_i18n.public_docstrings() unchanged, actual full canonical API inventory",
+    "source_sha256": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
+    "tool_sha256": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+    "normal_inventory_symbols": 13484,
+    "helper_docstring": "Normalize a physical image-channel identity without truncating it.\n\n:param value: Numeric scalar or integer string/bytes; zero-dimensional\n    arrays are unboxed before checking their scalar value.\n:returns: a nonnegative Python integer with the same identity.\n:raises ValueError: boolean, nonintegral, nonfinite, nonscalar, negative\n    or malformed channel identities.",
+    "normal_visibility_predicate": false,
+    "actual_matching_api_symbols": [],
+    "committed_english_manifest_has_helper": false,
+    "decision": "Proper helper documentation is retained; normal collector excludes ordinary private helpers. No API translation record or API catalog regeneration is created for absent target.",
+    "limits": "API eligibility proof only, no runtime/scientific/CI acceptance."
+  },
+  "source_semantics": "One private documented exact scalar normalizer, resolver preserves measured ordering/empty/duplicate mapping; active DNA/FUCCI/stain/morphology identities resolve before DB access and same positions feed existing consumers. Existing None/default/automatic-threshold semantics preserved; unsupported channel string auto remains unsupported.",
+  "limits": "Invalid-setting errors intentionally precede DB/content errors. No fit/training/calibration/threshold changes; actual existing synthetic measurement algorithms execute, no Torch/XGBoost model training, GPU/native tracker inference or biological acceptance. Alpha registration/UI untouched.",
+  "publication": "Nine runtime target drafts remain private until independent target peer, exact helper owner extraction, ordinary source/target/preservation/writer/full-nine audit/arrival and18 actual localized callback checks close."
+}

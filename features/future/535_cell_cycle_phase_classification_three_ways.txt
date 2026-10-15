@@ -267,3 +267,18 @@ Root reviewed exact runtime diff/test design; no source blocker (source review
 only). Runtime helper AST unchanged from reviewed aad2769b960. Existing caption
 already in English manifest and exact nine targets installed; no new runtime
 target. One-helper extractor ownership followup requested; no globalCI claim.
+
+2026-10-15 — F535 physical measured-channel identity (source component).
+Shared exact scalar normalization now prevents boolean/fractional/nonfinite
+physical IDs silently selecting another stain. Actual prior0.5 viability
+request read DNA rather than PI and called40synthetic nuclei dead instead
+of declared30live/10dead. Active DNA/FUCCI/stain/morphology columns resolve
+before DB access and are reused; original DB bytes/prior outputs/settings
+survive typed-invalid refusal. Legal integral strings/scalars/0D arrays,
+order, empty/duplicate mapping and automatic/default paths remain intact.
+Baseline20FAIL14PASS plus8newrefusal-contractFAIL; final47PASS10.03s.
+Proper private-helper documentation is retained; unchanged actualAPI
+collector13484symbols excludes it and committed English has no target,
+so no orphanAPI reviews are created. No calibration/fit/training math,
+biological efficacy or whole-feature acceptance claim. Nine-language
+runtime closure pending; evidence: features/data/535_540_channel_identity_2026-10-15/.
