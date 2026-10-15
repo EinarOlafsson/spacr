@@ -1,5 +1,12 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Work — tutorial 02 selective video repaired; playback verification active
+
+The scene-7 command-reference replacement is encoded. Root checked actual frames 4419/4420/5111/5112: exact replacement boundaries, complete readable commands, inherited neighboring scenes preserved. Master full decode, all presentation timestamps, poster and normal web rendition passed. All 50 retained audio tracks passed technical QA; independent readback confirms all 100 audio/sidecar hashes match C23. Captions and all 14 catalog objects remain unchanged. The 72-case playback matrix is active with no failure so far; upload, full immutable readback, Pages verification and final publication remain pending.
+
+The two narrow historical generated-voice inventory compatibility fixes are complete in held source 14ecf9d1054e15194bb7b9ff01779af061fae875, with 181 owning tests and independent source peer. Exact three-patch/11-file handoff is prepared for the completed packet; no application source or native timing gates changed. Failed first staging/sampler attempts remain preserved. No completed-02, full watching, hearing or fresh native-capture claim. Ordered review advances to 04 only after 02 publication and push.
+
+
 ## 2026-10-15 Work — tutorial 02 selective repair in progress
 
 Ordered review continues after 01 KEEP. Tutorial 02 needs only scene 7 repaired: the Conda environment-creation command is absent from all 692 frames of its published scene. The replacement command-reference card has been rendered and visually checked; all 50 audio tracks, 50 timing sidecars and 14 catalog objects remain the intended retained components. No new installation or native recording is required.
