@@ -38061,6 +38061,30 @@
         "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
       ]
     },
+    "spacr.install_cleanup.apply_optional_cleanup": {
+      "source_blocks_sha256": [
+        "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+        "3669ef371c87f57f9137ba998cae21396832c7835d1c71f2bfada45d24a2b764",
+        "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+        "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+        "667a22c5b8911720f538d6b4ce360c26e9d7d39c3b8d4d58218c60f89e758217",
+        "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+        "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ],
+      "source_sha256": "e3c1dee12fcee99f588fdaab46a2100eb098f7bbbd09000baec4c082820af651",
+      "text": "在应用程序的实时运行防护下，对所选缓存执行一次新的操作。\n\n只有可信的 Python 上下文管理器工厂才能启用执行。应用程序中的调用方必须持有既有的运行登记锁，并在整个上下文期间拒绝活跃任务。这只是应用程序内部的防护，并不能证明所有其他进程均为空闲状态。单独的辅助程序或已保存的键值映射不能授予这种权限。\n\n修改前会验证每个选中的快照。每个操作标识在本进程中只消耗一次。发生变化、未知或已锁定的分离文件系统条目会保留在私有暂存区中；不会递归删除，也不会进行覆盖式恢复。不能选择模型、数据或其他受保护的根目录。必须支持不跟随链接的目录描述符。\n\n:param preview: :func:`preview_optional_cleanup` 返回的不可变结果。\n:param choices: GUI 返回的当前操作 ID、快照 ID 以及明确选择的已注册缓存键。\n:param system: 用于重新检查的可选隔离机器适配器。\n:param guard: 可信的实时上下文管理器工厂，接收推导出的路径；仅在允许应用程序内部清理期间产生 ``None``。\n:returns: 操作结果，包含拒绝原因，或已移除项的计数及任何保留的私有路径。",
+      "translation_source_blocks_sha256": [
+        "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+        "5d1a3f47cd47d91d83ec484ed6cbc71310e753fb75ef5dd44194333b7ed6cb17",
+        "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+        "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+        "945cc6316209bd04a5ed2f53f56394f32c6b1e568d8d71c00160c1797ff4f1eb",
+        "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+        "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ]
+    },
     "spacr.install_cleanup.find_old_installs": {
       "source_blocks_sha256": [
         "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
@@ -38075,6 +38099,60 @@
         "832ffd69766a0a4fa88579dddd6c0b6f0ef10919f7fe3f97490f47b30a0fa4c8",
         "a58b9ca29358e4e9dbfbfcd8e2d7e2e276fe3d1d2e9a5478cd0a77f33a222ec0",
         "e77e003f82e54621b2c59eb4cbc6524bfe54745a2965ba85106d1a53079d3d19"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup": {
+      "source_blocks_sha256": [
+        "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+        "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+        "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+        "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+        "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+        "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+        "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506"
+      ],
+      "source_sha256": "5b2ac4664ed0f5f19f720f1ea3a22f7da6aadfc0035d710abc71a94be6167bb0",
+      "text": "检查专用缓存，并且仅在活动运行保护机制下提供选择。\n\n仅检查 spaCR 默认主目录下可识别的缓存内容。也可以从已配置的 spaCR 主目录读取大小受限的迁移清单，以显示保留的外部路径。外部、符号链接、未知及受保护的缓存内容仍不可用。检查范围受限，并且从不跟随链接。可信的活动应用程序保护机制可以使候选项可选；已保存的选择不能授权删除。这并不能证明所有其他应用程序实例都处于空闲状态。\n\n:param operation_id: 由当前安装程序或更新协调器提供的新标识，与已保存的隐私偏好设置无关。\n:param system: 用于独立文件系统检查的可选机器适配器。\n:param guard: 可选、可信且活动的上下文管理器工厂，接收推导出的候选路径，并且仅在允许清理期间产出 ``None``。\n:returns: 与操作绑定的不可变预览，包含实际路径、内容大小和快照标识。没有活动保护机制时，删除保持禁用。检查期间不会更改任何文件。\n:raises ValueError: 操作标识为空或无效。",
+      "translation_source_blocks_sha256": [
+        "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+        "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+        "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+        "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+        "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+        "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+        "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup.normalized": {
+      "source_blocks_sha256": [
+        "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+        "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+        "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+        "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100"
+      ],
+      "source_sha256": "c4cbd6b616b3f113ccf27a627f1d0de2f6fa607ba7c3edc0394073e0e6081ad4",
+      "text": "按照写入组件的波浪号规则，返回用于显示的绝对路径。\n\n:param value: 配置的路径文本或默认路径文本。\n:param expand: 此写入组件是否展开路径开头的用户主目录标记。\n:returns: 绝对路径文本，不检查缓存内容。",
+      "translation_source_blocks_sha256": [
+        "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+        "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+        "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+        "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup.retained_path": {
+      "source_blocks_sha256": [
+        "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+        "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+        "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+        "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c"
+      ],
+      "source_sha256": "daedbfdecf79de9dfeca9697b125d07f5d36ec90a342c2ce78d241b5497dafd7",
+      "text": "解析保留缓存的路径，优先采用外部覆盖值。\n\n:param variable: 已登记的缓存环境变量名称。\n:param default: 环境和迁移配置均未提供值时使用的后备值。\n:returns: 用于显示的规范化路径；不会扫描其受保护的内容。",
+      "translation_source_blocks_sha256": [
+        "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+        "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+        "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+        "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c"
       ]
     },
     "spacr.install_cleanup.remove_install": {
@@ -38143,10 +38221,10 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
+        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
       ],
-      "source_sha256": "1b3b99d8445c0b51ada6dd8d22c36032699cbdfd5a9f45ccd466e58bf3ade533",
-      "text": "在一个比 spaCR 存活更久的进程中运行安装更新。\n\n由安装程序创建的副本和受支持的专用 POSIX 或 Windows pip 环境可使用此助手。助手等待正在运行的进程退出后才更改安装；pip 适配器还要求经过身份验证的关闭批准。\n\n对于受支持的 macOS 在线安装，使用现有捆绑的 ``uv`` 和私有 Python 在同一环境中升级 spaCR。保留环境目录、引导文件、应用启动器以及无需更新的已安装包。只有在验证已安装版本至少为 ``version``、并且在已知旧版本时比旧版本更新之后，才重启。升级或版本检查失败不会触发移除，也不会触发替换安装程序。\n\n标准替换过程会下载并运行新的安装程序以准备安装，验证其实际解释器和导入的应用，然后移除其他副本并启动应用。安装或验证失败时，不会移除此前可正常工作的副本。移除其他副本失败时会记录错误，但不会重新启动应用。\n\n:param records: 来自 :func:`find_old_installs` 的安装。\n:param version: 要安装的版本。\n:param ticked: 用户勾选的环境的根目录。\n:param pid: 要等待的进程；为 ``None`` 时为当前进程。\n:param workdir: 辅助进程的文件夹；为 ``None`` 时为新的临时文件夹。\n:param system: 计算机；``None`` 表示本机。\n:param spawn: 替代分离进程的启动器。\n:returns: 写入 ``plan.json`` 的计划。``plan[\"command\"]`` 是辅助进程的命令；若为 ``None``，则由 ``plan[\"error\"]`` 说明为何没有启动任何进程。\n\n位于用户可写位置的冻结式 macOS 应用包使用其经过验证的 DMG 替换适配器，并保留完整的旧应用包。其他冻结式应用类型会在删除任何内容之前返回错误；辅助程序不会为这些应用启用在线安装程序回退方式。",
+      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
+      "text": "在一个比 spaCR 存活更久的进程中运行安装更新。\n\n由安装程序创建的副本和受支持的专用 POSIX 或 Windows pip 环境可使用此助手。助手等待正在运行的进程退出后才更改安装；pip 适配器还要求经过身份验证的关闭批准。\n\n对于受支持的 macOS 在线安装，使用现有捆绑的 ``uv`` 和私有 Python 在同一环境中升级 spaCR。保留环境目录、引导文件、应用启动器以及无需更新的已安装包。只有在验证已安装版本至少为 ``version``、并且在已知旧版本时比旧版本更新之后，才重启。升级或版本检查失败不会触发移除，也不会触发替换安装程序。\n\n标准替换过程会下载并运行新的安装程序以准备安装，验证其实际解释器和导入的应用，然后移除其他副本并启动应用。安装或验证失败时，不会移除此前可正常工作的副本。移除其他副本失败时会记录错误，但不会重新启动应用。\n\n:param records: 来自 :func:`find_old_installs` 的安装。\n:param version: 要安装的版本。\n:param ticked: 用户勾选的环境的根目录。\n:param pid: 要等待的进程；为 ``None`` 时为当前进程。\n:param workdir: 辅助进程的文件夹；为 ``None`` 时为新的临时文件夹。\n:param system: 计算机；``None`` 表示本机。\n:param spawn: 替代分离进程的启动器。\n:returns: 写入 ``plan.json`` 的计划。``plan[\"command\"]`` 是辅助进程的命令；若为 ``None``，则由 ``plan[\"error\"]`` 说明为何没有启动任何进程。\n\n位于用户可写位置的冻结 macOS 应用程序包使用其经过验证的 DMG 替换适配器，并完整保留先前的应用程序包。带有协议标记的 Debian 程序包使用图形化管理员授权，以及位于安装目录之外、归 root 所有的辅助程序。替换软件包和回滚软件包都需要已公布的校验和；重新启动应用程序之前，必须验证软件包和非特权运行环境。不受支持的冻结应用程序系列会在删除任何内容之前返回错误；这些系列未启用通过在线安装器进行回退的路径。",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
         "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
@@ -38160,7 +38238,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
+        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
       ]
     },
     "spacr.install_profile": {
@@ -71531,12 +71609,26 @@
     },
     "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding": {
       "source_blocks_sha256": [
-        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+        "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+        "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca"
       ],
-      "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
-      "text": "显示安装程序同意界面，关闭后再开始导览。",
+      "source_sha256": "ed916d5d9db3eb622a268aeffef15bc3372baccf9ca995e1ed007905563e93ae",
+      "text": "显示安装同意、可选缓存审查、报告通知和导览。\n\n后台缓存检查在打开选项之前完成。导览会等待匿名化报告通知关闭。",
       "translation_source_blocks_sha256": [
-        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+        "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+        "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca"
+      ]
+    },
+    "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply": {
+      "source_blocks_sha256": [
+        "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ],
+      "source_sha256": "47bd517bda8ec00d3ad35ac887a706596f5a06bd8b028dd16dc0406f23d64294",
+      "text": "重新验证，并且仅应用当前对话框中的明确选择。\n\n:returns: 操作结果，包含拒绝原因，或已移除项的计数及任何保留的私有路径。",
+      "translation_source_blocks_sha256": [
+        "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
       ]
     },
     "spacr.qt.app.MainWindow._retry_screen_backdrop.again": {
@@ -71547,6 +71639,32 @@
       "text": "如果视图仍然存在，则再尝试一次背景。",
       "translation_source_blocks_sha256": [
         "90eeefdafa9d6f5df95813d5f41226d1a9bac63bc9e3d9efdafb5012d705bfee"
+      ]
+    },
+    "spacr.qt.app.MainWindow._review_installation_caches.guard": {
+      "source_blocks_sha256": [
+        "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+        "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+        "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7"
+      ],
+      "source_sha256": "99b9424b66f5cb55d88d0303f0362f99fe1eb2feba8e1053a59271513ff48f94",
+      "text": "持有应用程序的运行锁，并在存在已注册的活动任务时拒绝清理。\n\n:param paths: 独立推导出的候选缓存目录。\n:yields: 允许应用程序内部清理时为 ``None``，否则为现有的缓存拒绝结果。这不能证明其他进程处于空闲状态。",
+      "translation_source_blocks_sha256": [
+        "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+        "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+        "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7"
+      ]
+    },
+    "spacr.qt.app.MainWindow._review_installation_caches.prepare": {
+      "source_blocks_sha256": [
+        "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+        "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775"
+      ],
+      "source_sha256": "78cfb20f295d2d23216eda7463e6fd208fdd4d696d53cccb130f2dafae232b3e",
+      "text": "在后台工作线程中检查新操作的缓存。\n\n:returns: 使用应用程序内部的活动运行保护机制准备的不可变预览。",
+      "translation_source_blocks_sha256": [
+        "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+        "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775"
       ]
     },
     "spacr.qt.app.MainWindow._show_about._line": {

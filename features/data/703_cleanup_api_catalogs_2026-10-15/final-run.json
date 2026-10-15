@@ -1,0 +1,29 @@
+{
+  "runtime_canonical_requests": 0,
+  "full_api_collection_requests": 0,
+  "model_decode_requests": 0,
+  "prepared_locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "written_locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "status": "pass",
+  "elapsed_seconds": 18.951874751015566
+}
