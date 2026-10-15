@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — native hover crash and unknown-model fixture
+
+A reproduced native SIGSEGV in the UMAP hover test was an invalid generic Enter
+event sent to a Qt6 handler requiring QEnterEvent. The existing shared hover
+fixture now sends the correctly typed event with actual local/window/global
+coordinates. No assertions, delays, timeout, visibility policy or production
+source changed. The original UMAP case plus an existing button-footer consumer
+pass2/2; independent source/log peer accepted. Single crash baseline retained,
+no crash-retry loop, final core dumps disabled.
+
+The old unknown Cellpose fixture expected silent stock substitution. Current
+N702 correctly refuses unknown models. The fixture now proves the exact
+translated setting/candidate refusal before any model construction/evaluation
+and preserves input bytes; the three known-model branches are unchanged. All
+four parameter cases pass, with independent peer. No real model or network
+transport was run. HF E2E cell-mask emptiness is still under read-only source
+analysis; its nonempty acceptance condition has not been weakened.
+
+
 ## 2026-10-15 Original Home — further targeted CI repair publication
 
 Archive cancellation now tests the actual worker with offline streamed chunks:
