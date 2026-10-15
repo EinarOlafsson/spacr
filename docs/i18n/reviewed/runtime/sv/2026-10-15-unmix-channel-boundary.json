@@ -13,5 +13,7 @@
       "source_sha256": "e1a2cfcf061ba4b6640253b56bb948b91912625d498f108e7008f91a8fab440a",
       "translation": "Spektral separation kräver olika icke-negativa heltalsindex för kanalerna."
     }
-  ]
+  ],
+  "independent_technical_peer": "Original Home root; final scalar-unboxing source and all9targets approved2026-10-15; no native-speaker signoff",
+  "independent_peer_receipt": "features/data/538_channel_boundary_2026-10-15/root-final-peer.json"
 }
