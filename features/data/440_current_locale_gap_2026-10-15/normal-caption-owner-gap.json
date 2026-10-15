@@ -1,0 +1,39 @@
+{
+  "actual_normal_helper": "build_i18n_catalogs.extract_static_ui_sources",
+  "fixture": "Unchanged scoped literal-owner fixture; separate indirectregistry stage omitted as establishedfixture, no fullcanonical audit",
+  "tool_sha256": "59f054abd841ec80f833614416782edb86c2267c8e76749e35ef8d1a0fe4f809",
+  "results": {
+    "tooltip:cellposeSAM": {
+      "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+      "normal_literal_owner": false
+    },
+    "tooltip:spaCR": {
+      "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+      "normal_literal_owner": false
+    },
+    "tooltip:spaCR community": {
+      "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+      "normal_literal_owner": false
+    },
+    "tooltip:bioimage.io": {
+      "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+      "normal_literal_owner": false
+    },
+    "tooltip:cellpose3": {
+      "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+      "normal_literal_owner": false
+    },
+    "heading:spaCR community": {
+      "source": "spaCR community",
+      "normal_literal_owner": false
+    },
+    "warning:0": {
+      "source": "Community uploads are not vetted",
+      "normal_literal_owner": true
+    },
+    "warning:1": {
+      "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "normal_literal_owner": true
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "independent_peer": {
+    "decision": "ACCEPT",
+    "receipt": "/mnt/wd4tb/scratch/n691-current-whole-item-audit-20261015/root-independent-pt-target-peer.json",
+    "receipt_sha256": "5fab40e1a04f9b7a854f896e041027cf49c12c016350349d11a1e1f292d5a40c",
+    "reviewed_input_file_sha256": "5c0ad6f9c25a3c032342f37d681c230f4c8fbca8ee7c2ca0ca1f2ec61716097d"
+  },
+  "language": "pt",
+  "note": "One exact copied-English Portuguese API paragraph repaired; independent technical peer accepted. No source changes; all other paragraphs and unrelated generated API records retained.",
+  "records": [
+    {
+      "context": "The file is the TorchScript checkpoint of Zenodo record 6861565 (CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached in the folder the Model Zoo downloads into, ``~/.spacr/models`` unless ``dest`` names another, and a cached copy is used only when its sha256 is the published one. A download goes through :func:`fetch`, so it is checksummed and written atomically.",
+      "label": "spacr.model_zoo.mitonet_weights#1",
+      "review_basis": "AI technical source-bound translation and self-review of checkpoint identity, Zenodo record/licence/citation, default cache with explicit destination override, checksum-only reuse, verified atomic fetch. Independent root peer pending; no native/human claim.",
+      "source": "The file is the TorchScript checkpoint of Zenodo record 6861565 (CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached in the folder the Model Zoo downloads into, ``~/.spacr/models`` unless ``dest`` names another, and a cached copy is used only when its sha256 is the published one. A download goes through :func:`fetch`, so it is checksummed and written atomically.",
+      "source_sha256": "ba96b219e2cfe1b2234f4526cbd9f6a9b26601179a84ed67901893dcffc33fc8",
+      "translation": "O arquivo é o checkpoint TorchScript do registro 6861565 do Zenodo (CC-BY-4.0; citar Conrad e Narayan, Cell Systems 2023). Ele é armazenado em cache na pasta para a qual o Model Zoo faz os downloads, ``~/.spacr/models``, a menos que ``dest`` indique outra pasta, e uma cópia em cache só é usada quando seu sha256 corresponde ao publicado. O download passa por :func:`fetch`, de modo que a soma de verificação é conferida e o arquivo é gravado atomicamente."
+    }
+  ],
+  "review_kind": "AI technical translation and independent root technical peer; no human/native signoff",
+  "schema": 1
+}

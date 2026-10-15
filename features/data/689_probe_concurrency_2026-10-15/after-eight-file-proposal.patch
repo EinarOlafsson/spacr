@@ -1,0 +1,13 @@
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index f764ecbc15..3dc82efed0 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -26,7 +26,7 @@ permissions:
+ # selected Hugging Face static Space. Runs of one
+ # branch queue so an older build cannot replace a newer published snapshot.
+ concurrency:
+-  group: docs-${{ github.ref }}
++  group: docs-${{ github.ref }}${{ inputs.mode == 'verify-host-access' && '-access' || '' }}
+   cancel-in-progress: false
+ 
+ jobs:

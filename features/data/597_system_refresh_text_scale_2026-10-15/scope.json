@@ -1,0 +1,9 @@
+{
+  "source_sha256": "739bb3595d457cfba8af0a5785f2904dbeac4f7b53a6bf8acdf57e784de61e49",
+  "before_sha256": "15ed2f9dda2a579958b249f92bd43ffb919e0743eb23b32de4e9c82c244ede0d",
+  "exact_only_addition": "self._system._refresh.clicked.connect(self._apply_aside_text)",
+  "whole_source_exact_after_removing_one_connection": true,
+  "all_docstrings_exact": true,
+  "new_definitions_or_captions": 0,
+  "actual_button_order": "SystemPanel connects its existing refresh in construction; Home connects _apply_aside_text afterward on the same GUI-thread clicked signal."
+}

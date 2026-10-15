@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review by Codex; independently reviewed by root against exact sources and targets; no human/native-speaker signoff",
+  "review_basis": "Nine complete message templates only. Count means image fields, merged arrays are pixel arrays, Measure identifies the existing module. Preserve stage order, stopped/no-result distinction, explicit database-location warning, partial versus total drop-read refusal, and every unchanged dynamic count/path/error placeholder. No claims of completed measurement/database existence added.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Writing the merged arrays for {count} field(s)...",
+      "source": "Writing the merged arrays for {count} field(s)...",
+      "source_sha256": "3fbbcbf9f904e31e6ad84a3538b8426746a4327e343808b12433c796b80c945b",
+      "translation": "Skriver de sammanslagna arrayerna för {count} fält..."
+    },
+    {
+      "table": "ui",
+      "key": "Wrote {count} field(s). Measuring them now; this is the Measure module's own run.",
+      "source": "Wrote {count} field(s). Measuring them now; this is the Measure module's own run.",
+      "source_sha256": "e66a2b32799f603ceda766ddd0c6d739e7032dac2750242bdcb1e9c740bc42f6",
+      "translation": "Skrev {count} fält. Mäter dem nu; detta är Measure-modulens egen körning."
+    },
+    {
+      "table": "ui",
+      "key": "The run stopped: {message}",
+      "source": "The run stopped: {message}",
+      "source_sha256": "27335d9681de4433bbc77fc013f459d1f1a7526b23b975b7483e60c28c67a96f",
+      "translation": "Körningen avbröts: {message}"
+    },
+    {
+      "table": "ui",
+      "key": "Measured {count} field(s).",
+      "source": "Measured {count} field(s).",
+      "source_sha256": "3b2d69710a048556b1454e0e242b811142346a24f09d2b0fc3bbd398bd18e5f7",
+      "translation": "Mätte {count} fält."
+    },
+    {
+      "table": "ui",
+      "key": "Database: {path}",
+      "source": "Database: {path}",
+      "source_sha256": "a2e1d3f50f259d35fde309b37d179c4c381cee9613539450de926df035b85fe8",
+      "translation": "Databas: {path}"
+    },
+    {
+      "table": "ui",
+      "key": "The run produced no result.",
+      "source": "The run produced no result.",
+      "source_sha256": "9f3c72b5ebc8f8b8e7c8747b5921378c32d0ff4ad78720b44b594a5f6b41ec9c",
+      "translation": "Körningen gav inget resultat."
+    },
+    {
+      "table": "ui",
+      "key": "WARNING: the database is not where it was expected.",
+      "source": "WARNING: the database is not where it was expected.",
+      "source_sha256": "47580a28695f76f2ac8fc0f5a36a8cfafc4ef669a00d86b40a4e0452a0a19c67",
+      "translation": "VARNING: databasen finns inte på den förväntade platsen."
+    },
+    {
+      "table": "ui",
+      "key": "Some of what was dropped could not be read: {trouble}",
+      "source": "Some of what was dropped could not be read: {trouble}",
+      "source_sha256": "23f8ca7dbef695472f6d35cd82d90376492347466684cb5491a82974a87ce74f",
+      "translation": "En del av det som släpptes kunde inte läsas: {trouble}"
+    },
+    {
+      "table": "ui",
+      "key": "What was dropped could not be read: {message}",
+      "source": "What was dropped could not be read: {message}",
+      "source_sha256": "44ded597cd7e5db4427494249bee4d2b46902a19c1c4e94ed136c1eef25c531a",
+      "translation": "Det som släpptes kunde inte läsas: {message}"
+    }
+  ]
+}

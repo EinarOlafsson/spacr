@@ -545,6 +545,8 @@ to its tested premerge source/counts. No unchanged44/native rerun.
     scientific parity or finalCI completion is inferred from this linkage.
     Evidence: data/698_readme_mask_link_2026-10-15/.
 
+2026-10-15 — Home-B publication/status correction
+    README and generated ten-language readable-panel route delivery is public669ac7395e. Existing2434 artifacts remain exact and six guards pass. Configuration site is live fromf138609 with production/Pages success. Actual accepted free inference endpoint/browser export remains unavailable: whole item is NOT complete.
 2026-10-15 — Configured-family startup warm-up prepared privately.
 The old ZeroGPU startup path always required the plaque default, even for an
 operator configuring only a different supported family. Startup now validates
@@ -573,3 +575,22 @@ Evidence: features/data/698_configured_startup_preload_2026-10-15/.
     No actual hosted endpoint, model inference, scientific accuracy, whole698
     or fullCI/release acceptance. Evidence:
     data/702_698_runtime_closure_2026-10-15/receipt.json.
+
+2026-10-15 — Managed free-ZeroGPU SDK launch compatibility (private acceptance)
+The managed deployment candidate uses README sdk_version6.17.3, Python3.12.12,
+Hub0.36.2 and the supported Torch2.13.0/Torchvision0.28.0 pair. This avoids the
+actual empty intersection between Gradio6.30's Hub>=1.16 and spaCR's Hub<1 bound;
+no project bound or dependency bypass was introduced. Only exact Gradio6.17.3
+omits its unsupported run_history launch argument; every other version retains
+explicit False. Sharing/CORS/errors/upload limits and build options are preserved.
+Real isolated6.17.3 app construction reproduced1FAIL on the original launch;
+the final focused cohort passes16 cases, including all eight tabs/nine APIs,
+24-input inference routes, consent refusal and existing result-cache cleanup.
+No listening server, weights, actual inference, GPU or external Space was used.
+Managed root README/requirements templates are included; local-development
+requirements-space pins are deliberately separate. Exact source/provenance and
+raw baseline/final receipts are in698_managed_gradio_launch_2026-10-15.
+Remaining: actual free service creation/build/runtime, verified weight provisioning,
+real hosted execution and desktop parity, site endpoint integration and the other
+original N698 browser/export/accessibility requirements. This is not whole-item
+completion or native/hosted acceptance.

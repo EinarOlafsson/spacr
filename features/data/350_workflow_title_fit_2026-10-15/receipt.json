@@ -1,0 +1,124 @@
+{
+  "base_commit": "cfcd7f2b39ddb72ac9a31afc190d6b4ad37e79e1",
+  "source_path": "spacr/qt/widgets/workflow_diagram.py",
+  "before_source_sha256": "79184d1beef37657a3607292aa437ccdced3019033fc8545bb1f96afde76cab9",
+  "source_sha256": "dc6c458396fec50198e7e5bacfcc12e6c5da0f8036e51137be3c89a43e8cc41e",
+  "test_path": "tests/qt/test_350_workflow_title_fit.py",
+  "test_sha256": "97ebc3f5515f725c5e5cec380c43a2b9b1b44547d24bf0a0c123afceb526218a",
+  "defect": "Current localized module titles painted in a fixed 232x40 rectangle need 47.140625 pixels of height. Qt bounds extend above/below the clipping rectangle.",
+  "probe": {
+    "session": 2409,
+    "exit": 1,
+    "cases": 16,
+    "failed": 11,
+    "scope": "Actual production QPainter drawText with four real current module titles across en/de/is/pt, noncompact nodes."
+  },
+  "baseline": {
+    "session": 99844,
+    "exit": 1,
+    "result": "4 failed, 8 deselected in 2.16s"
+  },
+  "final": {
+    "session": 83779,
+    "exit": 0,
+    "result": "30 passed in 5.52s",
+    "new_cases": 12,
+    "existing_cases": 18,
+    "cap": "2G",
+    "thread_count": 1,
+    "platform": "offscreen"
+  },
+  "source_scope": {
+    "only_changed_body": "_Node.paint",
+    "all_existing_docstrings_signatures_and_other_AST_exact": true,
+    "new_definitions": 0,
+    "new_captions": 0,
+    "title": "Full unchanged localized text measured with current painter; font decreases only until it fits or reaches Qt minimum positive pixel size. Empty and fitting short titles retain existing size.",
+    "preserved": [
+      "Title rectangle",
+      "Node and edge geometry",
+      "Diagram routes/layout and zoom policy",
+      "Input/output rows and font",
+      "Full details prose and API links",
+      "All captions and public API prose"
+    ]
+  },
+  "acceptance": "Actual drawText containment for current en/de/is/pt titles in compact and noncompact modes; empty/short title unchanged font; node/edge/view geometry unchanged. Existing workflow behavior tests pass.",
+  "limits": [
+    "No new broad all-screen clipping, native/other-OS, tutorial or scientific acceptance.",
+    "No screenshot/generated documentation/artwork dependency: only existing Qt paint body changes; no API prose/runtime-caption arrivals.",
+    "No arbitrary custom-text minimum readability guarantee."
+  ],
+  "artifacts": [
+    {
+      "path": "probe.py",
+      "sha256": "5d15aebe50f209d9394c6cd4f49dff313aa6d9040cee8dd0cd8ee6b048299a5c",
+      "raw_sha256": "5d15aebe50f209d9394c6cd4f49dff313aa6d9040cee8dd0cd8ee6b048299a5c"
+    },
+    {
+      "path": "probe.sh",
+      "sha256": "1829de4101d06c6c619e71af622ca5656f4d362cc6c027f0d34b0ff443c162e2",
+      "raw_sha256": "1829de4101d06c6c619e71af622ca5656f4d362cc6c027f0d34b0ff443c162e2"
+    },
+    {
+      "path": "probe.log.gz",
+      "sha256": "ced995250d2d99991368dd8eefebf6d64d716949a3c3b26cfd7e0133e6892dfd",
+      "raw_sha256": "9c39f87390d1da27a032f44c316383f30479fc05d271429a53b5ae698cf5ebf9"
+    },
+    {
+      "path": "probe.time",
+      "sha256": "9851ffded3f17ee1f5c53f8dd699f90f7cccebdd710832e92e97d9dae7cbec01",
+      "raw_sha256": "9851ffded3f17ee1f5c53f8dd699f90f7cccebdd710832e92e97d9dae7cbec01"
+    },
+    {
+      "path": "probe.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "result.json",
+      "sha256": "afe182630ab11f132660b3078e26957313d05868cb3f0bbe20bdffb450ba3e55",
+      "raw_sha256": "afe182630ab11f132660b3078e26957313d05868cb3f0bbe20bdffb450ba3e55"
+    },
+    {
+      "path": "before.sh",
+      "sha256": "d5d2af68e8f6c2bd53fdcf41cd31916eef1714f17202b9d4fd5201ba59b26d27",
+      "raw_sha256": "d5d2af68e8f6c2bd53fdcf41cd31916eef1714f17202b9d4fd5201ba59b26d27"
+    },
+    {
+      "path": "before.log.gz",
+      "sha256": "8efec7ea18278500b10f2ecd505c714d4067ddcab19b4efc07fd8c67bf1899b5",
+      "raw_sha256": "f391c237687973c1ca2ef046a0d6d0587dd15d7f83f73e4db078a4253ab8fa35"
+    },
+    {
+      "path": "before.time",
+      "sha256": "8e787c1093b2373e62fce06d8c77298c1986b8c7aea8ecd873b2647304ee1c2c",
+      "raw_sha256": "8e787c1093b2373e62fce06d8c77298c1986b8c7aea8ecd873b2647304ee1c2c"
+    },
+    {
+      "path": "before.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "final.sh",
+      "sha256": "5ab409952e0d3fff577817278aaf1612e322bd3a385e117c6c19a3a94007d904",
+      "raw_sha256": "5ab409952e0d3fff577817278aaf1612e322bd3a385e117c6c19a3a94007d904"
+    },
+    {
+      "path": "final.log.gz",
+      "sha256": "a0ff6f75e2f5e01be3b1c9a2ae77070fb9d77b3b5db38501bb7d00c13f1c3ae4",
+      "raw_sha256": "5d593e7109faba40e7a5a72f8ff3f3b048f0aa244d371ad2a2c11b207208cd45"
+    },
+    {
+      "path": "final.time",
+      "sha256": "54923fecb3ee21a6d005f4098c6e4531ccfc3ba6c0465eb6c813623bd8bdb50d",
+      "raw_sha256": "54923fecb3ee21a6d005f4098c6e4531ccfc3ba6c0465eb6c813623bd8bdb50d"
+    },
+    {
+      "path": "final.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  ]
+}

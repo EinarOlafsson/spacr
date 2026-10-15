@@ -27,8 +27,10 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPalette, QPen, QPixmap
+from PySide6.QtGui import (QAccessible, QAccessibleActionInterface, QColor,
+                           QIcon, QImage, QPainter, QPalette, QPen, QPixmap)
 from PySide6.QtWidgets import (
+    QAccessibleWidget,
     QDialog,
     QFrame,
     QHBoxLayout,
@@ -827,6 +829,50 @@ class _ClearFiguresLabel(QLabel):
             self.clicked.emit()
             return
         super().keyPressEvent(event)
+
+
+class _AccessibleClearFigures(QAccessibleWidget):
+    """Expose the existing clear control as an accessible button."""
+
+    def __init__(self, widget):
+        """Keep normal widget navigation with the control's button role."""
+        super().__init__(widget, QAccessible.Button)
+
+    def text(self, kind):
+        """Use an explicit accessible name or the current translated label."""
+        if kind == QAccessible.Name:
+            widget = self.widget()
+            return widget.accessibleName() or widget.text()
+        return super().text(kind)
+
+    def actionNames(self):
+        """Offer Press and normal widget actions only while enabled."""
+        if not self.widget().isEnabled():
+            return []
+        return [QAccessibleActionInterface.pressAction(), *super().actionNames()]
+
+    def doAction(self, action):
+        """Dispatch an enabled Press through the existing flash and click signal."""
+        widget = self.widget()
+        if not widget.isEnabled():
+            return
+        if action == QAccessibleActionInterface.pressAction():
+            widget.flash()
+            widget.clicked.emit()
+            return
+        super().doAction(action)
+
+
+def _clear_figures_accessible_factory(_key, widget):
+    """Wrap only clear labels and retain the Python wrapper for Qt's cache."""
+    if isinstance(widget, _ClearFiguresLabel):
+        interface = _AccessibleClearFigures(widget)
+        widget._accessible_clear = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_clear_figures_accessible_factory)
 
 
 def _close_pyplot_figures(figures) -> None:

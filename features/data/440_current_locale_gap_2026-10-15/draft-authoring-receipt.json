@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-15",
+  "audit_commit": "ecb5da1229b7ac6fad31f426b989a98ed6bf2bdd",
+  "kind": "Private AI technical translation drafts, not native/human signoff",
+  "scope": "Five existing source tooltips and spaCR community display heading; six sources × nine locales",
+  "checks": {
+    "languages": [
+      "sv",
+      "de",
+      "es",
+      "fr",
+      "pt",
+      "is",
+      "hi",
+      "ko",
+      "zh_CN"
+    ],
+    "record_count": 54,
+    "source_hashes": "exact",
+    "protected_model_and_brand_tokens": "exact",
+    "canonical_admission": "not claimed; owner patch pending",
+    "independent_peer": "pending"
+  },
+  "unchanged": "No widget, tool, installed review, runtime catalog, default, source ID, preference, or warning mutation. Existing warning2×9 proof retained.",
+  "next": "Independent technical peer; exact Home-B owner wiring/extraction; ordinary source/context/markup gates and normal generation before acceptance."
+}

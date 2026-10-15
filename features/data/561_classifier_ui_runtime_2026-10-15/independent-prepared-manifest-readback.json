@@ -1,0 +1,116 @@
+{
+  "script_sha256": "fd8b7386cfb816c3d22a5397807e95ab4ec525271542e6e4d192db1c0f4d833b",
+  "manifest_sha256": "0cff966e637f093fc4280fd8644fa2dd91a8f7e1dfb0232bfe195f55c63c9a12",
+  "declared_rows": 54,
+  "unique_identities": 54,
+  "unique_sources": 54,
+  "review_files": {
+    "sv": [
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "59207d1d84ccfb589ab2ed6a61e39bc42e011df04c220dd6384550892b3ccde0"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "b14f326c079f3cd9c7a1f1d51dcb77c43d8fcfa8539e7f9fae28af8d6a0bd8d9"
+      }
+    ],
+    "de": [
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "50adbaa1e0d2e9bef747bdf75652392b93e710073dc826168fe7ce922f204fe6"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "c32a83970d7296b6a72c8d1d153439b9ed8c53ddb7b4510ac2b413d936fc3a79"
+      }
+    ],
+    "es": [
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "52dbce00e1ee698252e63168208bc26eeaf787e72f9ffcf47492d6d7e6810cce"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "4211d8a58e06801c6666ae2dba32630e5bae9efad537f123bb080385d883cf3b"
+      }
+    ],
+    "fr": [
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "02d1cf45fc19dd586376ae54cf3d5e62b86fc5617a403503b87983150212aabf"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "febb971245f0f06dc98a3902051e36739d91b946aa8c0590f18dda2accbbee79"
+      }
+    ],
+    "pt": [
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "a1fdba117b9837235ea3d7c2c9fb0b738f2e6ea26ccbfc8994c1391a67c314a2"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "016030df32258cf2b8eeeab30104624598ff1e9b4467cb762e63008d7e779cc1"
+      }
+    ],
+    "is": [
+      {
+        "path": "docs/i18n/reviewed/runtime/is/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "37c143f1a06dea379aff7656b6d23f9209d400d7866569de73a7ded7bae229d5"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/is/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "633b9734c0451744691a33986ae19ca72875e169a36b4d3614654dadd3fae090"
+      }
+    ],
+    "zh_CN": [
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "432fc8913411d59bdda38750f62e09f6bdf630d7b5dd4d4a52312e0b2ce2a3b9"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "1c853c38e943b7687cb8b8adabe33e26cbfecd76a2f1cc4696c48d2ed3b16d18"
+      }
+    ],
+    "hi": [
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "637f14dfd73efd0ccdbdf71138fb3a5026e69286dd03ac601cde7ade92cdd7b4"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "1c51716e971e3d06a76e5df5b0579dc91f892d2b890c886d9b97dee0b57fa01a"
+      }
+    ],
+    "ko": [
+      {
+        "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-f561-classifier-ui-runtime-home-b.json",
+        "sha256": "424a0a46f71a80233b939a54422c22316ab7207746a5ea87e57de073e302293f"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json",
+        "sha256": "1b59bbdfbc655b9e82db404745d240951c4d0c20f62bfdbb165e4e538243ead2"
+      }
+    ]
+  },
+  "source_pins": {
+    "spacr/qt/screens/embeddings.py": {
+      "expected": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+      "actual": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+      "matches": true
+    },
+    "spacr/embeddings.py": {
+      "expected": "965148f2ec847f40df8e3d0c8bd79a7cc2d9f7693d184013936c1f1843a9efbf",
+      "actual": "965148f2ec847f40df8e3d0c8bd79a7cc2d9f7693d184013936c1f1843a9efbf",
+      "matches": true
+    },
+    "spacr/torch_artifacts.py": {
+      "expected": "34dcae10260adb94af207aca56c884d86d78260e3a8abd1d8c5f7727c666d496",
+      "actual": "34dcae10260adb94af207aca56c884d86d78260e3a8abd1d8c5f7727c666d496",
+      "matches": true
+    }
+  }
+}

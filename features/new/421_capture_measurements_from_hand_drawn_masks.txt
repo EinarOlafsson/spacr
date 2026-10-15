@@ -413,3 +413,31 @@ future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
 
 VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-15 — Retained measurement API/window outputs localized.
+    The later maintainer Organize-for-Measure instruction superseded the old
+    FEATURES route; it is not restored. Nine retained stage/result/database/
+    partial-or-total scan failure messages now use complete tr templates with
+    81 independent source-bound targets. Normal full9runtime audit0, actual
+    fresh source and immutable arrival proof pass;10,930 unrelated targets
+    per locale remain exact. Three real Swedish stage/log/signal tests pass
+    after their original English-output failures, preserving dynamic values,
+    file/table output, result identity and signal order. Algorithms, signatures,
+    docs and all remaining AST are unchanged after inverse string-only proof.
+    No old17/18cohort replay or model measurement/scientific claim. Evidence:
+    data/421_legacy_measurement_output_localization_2026-10-15/ and
+    data/448_440_421_runtime_closure_2026-10-15/. Original whole-contract/API
+    reconciliation is separate from this bounded runtime delivery.
+
+2026-10-15 — COMPLETE, independent current original-contract reconciliation.
+The final nine-language runtime/API debt is closed: normal runtime audit and
+actual localized progress/result/failure callbacks pass; initial scan status
+now also uses its existing nine translations (baseline nine failures, final
+12 owning Qt passes). Two remaining English-copy Swedish/Hindi API paragraphs
+were independently technically reviewed and normally regenerated/audited.
+All other locale records remain preserved. Current add_dropped docstring is
+exact after its one tr wrapper. The later N600b Organize-for-Measure routing
+supersedes the old FEATURES button; it is not restored. Original scenario/
+schema/parenting/grouping acceptance remains source-bound, no new scientific,
+native/full-CI or tutorial claim. Evidence: 421_current_contract_reconciliation_
+2026-10-15 and 421_initial_scan_status_2026-10-15 under features/data/.

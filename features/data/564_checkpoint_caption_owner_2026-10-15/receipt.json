@@ -1,0 +1,11 @@
+{
+  "status": "PASS_READY_FOR_COHERENT_BACKEND_WRITER",
+  "owner": "attribution.py exact top-level _cf_checkpoint_error",
+  "tests": "2 passed,60deselected in1.29s",
+  "excluded": "Same-name nested/class methods, docstrings and unwrapped strings",
+  "source_files_sha256": {
+    "tools/build_i18n_catalogs.py": "e9729ab5fbe53e74f57ee20e75947d9ce55773c9b87c5758e06c772e26772407",
+    "tests/test_runtime_backend_caption_owners.py": "52446c8dbf8f75632d0a433a6e86f42bb575b11a805388c000fc3dcb51f88b8a"
+  },
+  "publication": "No standalone source-only push; Original owns backend06d0/settings1e1 and final45targets/derived closure."
+}

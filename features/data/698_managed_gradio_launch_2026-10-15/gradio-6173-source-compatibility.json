@@ -1,0 +1,157 @@
+{
+  "version": "6.17.3",
+  "method": "Read-only official tagged Python source; parsed AST, never imported/executed. No package artifact downloads/install.",
+  "files": {
+    "gradio/blocks.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/blocks.py",
+      "sha256": "2a6d4dcb7c8a84205a3c89ea39206e853ae23ecedc1f6e34ba9520c2a4a124ae",
+      "bytes": 163543
+    },
+    "gradio/events.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/events.py",
+      "sha256": "1c232dedd4f8b351eb83948f698e4f0a7785f9490f22a5753cb8510e74d431fc",
+      "bytes": 59247
+    },
+    "gradio/processing_utils.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/processing_utils.py",
+      "sha256": "56ed5bcf7830a771403675e35b49a8698f2233bd4426fb405ab628e6f8de089b",
+      "bytes": 41901
+    },
+    "gradio/route_utils.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/route_utils.py",
+      "sha256": "03bbcbcafa7c094867340a2ad71261bc59787a3d6c2c4f818354b79cf8578c37",
+      "bytes": 47359
+    },
+    "gradio/routes.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/routes.py",
+      "sha256": "df6f5c601f4036376d69b96ace81d50e4203f0d9dc07499bcf2c1e2de71a73d8",
+      "bytes": 109353
+    },
+    "gradio/components/dropdown.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/dropdown.py",
+      "sha256": "29fbb5c6d3d48246903c77310f884484352de1397f11fc5e3cdd05b097769ef7",
+      "bytes": 12513
+    },
+    "gradio/components/number.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/number.py",
+      "sha256": "5a65a3db1024b855632fe4c0aa1d67826e063539ec75c5a0bb52e9caca0d7b2b",
+      "bytes": 9526
+    },
+    "gradio/components/file.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/file.py",
+      "sha256": "7c6b09a470252c1ea7cd144ddb3d33f2996c3bac832660caf9ab9d776020d81c",
+      "bytes": 12844
+    },
+    "gradio/components/image.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/image.py",
+      "sha256": "064eb5e3eddfe0806fbf2953930178b4b513ead205aa73bf88b0634e1dec2b1f",
+      "bytes": 14120
+    },
+    "gradio/components/radio.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/radio.py",
+      "sha256": "6f8205ba021ae48e014fcc92a3c70369cdbe842cb4a161c34ed3cace0f8f3980",
+      "bytes": 8707
+    },
+    "gradio/components/textbox.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/textbox.py",
+      "sha256": "4d0558f3840db94cd3ba2016eba7c1d68694c74a357eefc4c57d1dcf919c79ec",
+      "bytes": 12486
+    },
+    "gradio/components/json_component.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/json_component.py",
+      "sha256": "b8c0d7285fc16b74b8532404696b93f43fda45f6a5a9195e17966068667f0c3e",
+      "bytes": 8938
+    },
+    "gradio/components/markdown.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/markdown.py",
+      "sha256": "b4dc2c86028d9341a45c632ade24ae7c0f6a97af7943370c5ff0f996e9f92bb4",
+      "bytes": 9165
+    },
+    "gradio/components/checkbox.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/checkbox.py",
+      "sha256": "3222d26a7739f77d340bb94c17de95b25197571e0260655edca19d432c8933dc",
+      "bytes": 6510
+    },
+    "gradio/components/button.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/components/button.py",
+      "sha256": "0137b24d338348b10989d790ff9b992142e2b4e46c147ddcc96f22a960ac8857",
+      "bytes": 6087
+    },
+    "gradio/layouts/row.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/layouts/row.py",
+      "sha256": "04b8de193ac031cde9a6ec750e71e01a168d2555da9ed6926493bea32265698b",
+      "bytes": 4723
+    },
+    "gradio/layouts/tabs.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/layouts/tabs.py",
+      "sha256": "b8298fbf666c7c129a6cd0ddf64246e1fd3e45e079def33eecd447a6ec649515",
+      "bytes": 7424
+    },
+    "gradio/layouts/accordion.py": {
+      "url": "https://raw.githubusercontent.com/gradio-app/gradio/gradio@6.17.3/gradio/layouts/accordion.py",
+      "sha256": "fed862098522a551bc6065570f984b3e6914d7f22935f737c7cedbb10d3d3109",
+      "bytes": 2578
+    }
+  },
+  "launch_parameters": [
+    "self",
+    "inline",
+    "inbrowser",
+    "share",
+    "debug",
+    "max_threads",
+    "auth",
+    "auth_message",
+    "prevent_thread_lock",
+    "show_error",
+    "server_name",
+    "server_port",
+    "height",
+    "width",
+    "favicon_path",
+    "ssl_keyfile",
+    "ssl_certfile",
+    "ssl_keyfile_password",
+    "ssl_verify",
+    "quiet",
+    "footer_links",
+    "allowed_paths",
+    "blocked_paths",
+    "root_path",
+    "app_kwargs",
+    "state_session_capacity",
+    "share_server_address",
+    "share_server_protocol",
+    "share_server_tls_certificate",
+    "auth_dependency",
+    "max_file_size",
+    "enable_monitoring",
+    "strict_cors",
+    "node_server_name",
+    "node_port",
+    "ssr_mode",
+    "pwa",
+    "mcp_server",
+    "num_workers",
+    "_app",
+    "_frontend",
+    "i18n",
+    "theme",
+    "css",
+    "css_paths",
+    "js",
+    "head",
+    "head_paths"
+  ],
+  "launch_accepts_kwargs": false,
+  "current_app_launch_unsupported": [
+    "run_history"
+  ],
+  "theme_supported": true,
+  "run_history_symbol_in_blocks": false,
+  "event_api_visibility_present": true,
+  "save_file_to_cache_present": true,
+  "api_prefix_literals": [
+    "/gradio_api"
+  ]
+}

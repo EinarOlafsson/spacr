@@ -1,0 +1,119 @@
+{
+  "base": "9263977fc9b977be880ca783d6716d2c6c4aeb6c",
+  "source_hashes": {
+    "tools/web_mask_generator/app.py": "999455d95b02549d7b997a12aa19061cd2a2a841d2382377d7f8eac797454619",
+    "tests/test_web_mask_managed_gradio_n698.py": "6726a9c4738b25298c41b2134a80a102c668672c3ce43c9c5b5bd22ca6c8d732",
+    "tests/test_web_mask_gradio_app_n698.py": "2d22eb3fbdf3d6704be5f445c8e88b0cbd01644038158344af6bcee6952f2405",
+    "tools/web_mask_generator/space/README.md": "23a782a70431610c95eb527e2021ecfe0bc3e77b4a15618a29291698ea994757",
+    "tools/web_mask_generator/space/requirements.txt": "71ddf9e29dce7c509fe0c8fa8bc61ae3740600e93bbab8b3498092134148a8bb",
+    "tools/web_mask_generator/README.md": "1f474a3e84d4b68d5d800345ad9ae36554ccefedcb815a01d525ef0cbfcc65dc"
+  },
+  "production_scope": "Only tools/web_mask_generator/app.py::main. Non-main whole-module AST identical. Existing launch args unchanged; only exact Gradio6.17.3 omits unsupported run_history; others False. No tr literal/API prose additions.",
+  "baseline": {
+    "exit": 1,
+    "tests": 1,
+    "reason": "Actual managed6.17.3 launch signature rejects original run_history keyword",
+    "seconds": 7.4
+  },
+  "final": {
+    "exit": 0,
+    "passed": 16,
+    "skips": 0,
+    "errors": 0,
+    "failures": 0,
+    "seconds": 4.93,
+    "scope": "Exact-version launch safeguards plus real empty-config eight-family/nine-API/24-input constructor and existing consent/cache contracts; actual launch replaced with signature-bound recorder, no server."
+  },
+  "environment": {
+    "python": "3.12.13",
+    "managed_python_proposed": "3.12.12",
+    "gradio": "6.17.3",
+    "gradio_client": "2.5.0",
+    "huggingface_hub": "0.36.2",
+    "torch": "2.13.0",
+    "torchvision": "0.28.0",
+    "venv": "Isolated system-site-packages; only18 small UI packages installed, no project/Torch/CUDA changes."
+  },
+  "resource": "Original CI flock;4GiB cgroup cap/zero swap/one CPU; CUDA blank; unit terminal inactive/MainPID0.",
+  "remaining": [
+    "Actual managed build/ZeroGPU runtime",
+    "Immutable weight provisioning and independent SHA256 byte verification",
+    "Actual hosted inference/desktop parity",
+    "Real endpoint/site integration",
+    "Other original browser/export/accessibility requirements"
+  ],
+  "limits": "Not a resolved complete HF environment, actual ZeroGPU acceptance or whole N698 completion. Security lookup is dated published-advisory metadata, not a security guarantee.",
+  "evidence": {
+    "gradio-6173-source-compatibility.json": {
+      "sha256": "bd27b3b9ddd54bc3f32eca690e212083229093f92f2579584b5d8bc8c63e8aeb",
+      "bytes": 5953
+    },
+    "baseline.log.gz": {
+      "sha256": "58c716ab45b046a50d288de4a4e0d2e69e391575453bfbc9f6300b02cd2e9a6c",
+      "bytes": 2453
+    },
+    "public-weight-metadata.json": {
+      "sha256": "d3a48e8b7fdc1d2e333d01d865cd607f0b6199db0bac716321a1c9752e2a73d2",
+      "bytes": 14170
+    },
+    "gradio-6173-advisory-summary.json": {
+      "sha256": "30b902e916704a0c02fa1d879c71d8f323be06fc6b5852e09c7e0e90a806cd4d",
+      "bytes": 163
+    },
+    "baseline.xml.gz": {
+      "sha256": "2f91e73f1f956c5950bf75b9934fa0375b86554fe064cccd289b71cd3cb990cf",
+      "bytes": 2575
+    },
+    "final.log.gz": {
+      "sha256": "927d19e5fc391d9bcadd4f2f92495cabfe7adab122b104927d870e0f13d11d13",
+      "bytes": 52
+    },
+    "install.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "baseline.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "final.xml.gz": {
+      "sha256": "dcda5de0d6a614f71575e8b01dbc60c777ec12582a85d17f0159ef4c2a6ab1b7",
+      "bytes": 560
+    },
+    "component-api-compatibility.json": {
+      "sha256": "c1dd326104dd155a906deb0a06c4c5fc5010d5ac96a042c345ff9f6de45fb50e",
+      "bytes": 7594
+    },
+    "pip-plan-review.json": {
+      "sha256": "50e4bb3c09a4d820a9749ce176412479215ce4d89b889f5e91f85c805e6c0685",
+      "bytes": 4302
+    },
+    "gradio-six-compatibility-metadata.json": {
+      "sha256": "d796ec090f834a6e7c39d7e3729e28b7c5d19095bf7576151ba5ed026afeba02",
+      "bytes": 10427
+    },
+    "final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    }
+  },
+  "packaging_note": "Initial git add refused evidence outside sparse-checkout; shell continued to private source-only commit bd96f17f37494601edc22edafa1fe462fb3913e5. Nothing was published. Evidence is explicitly added with --sparse/-f and the unpublished commit amended; final packet is checked clean. Raw pytest log/XML whitespace is preserved in deterministic gzip after diff-check correctly refused trailing whitespace; no evidence text was normalized.",
+  "raw_archive_proof": {
+    "baseline.log": {
+      "sha256": "3bf6c600955dd6d9fb851348b5a17886c3565462ddf7c24167bc2a59c08b869f",
+      "compressed_file": "baseline.log.gz"
+    },
+    "baseline.xml": {
+      "sha256": "d15a24171404cbda015ed69f7d65a676fc472e6359ca26339f3c8cd6267deb62",
+      "compressed_file": "baseline.xml.gz"
+    },
+    "final.log": {
+      "sha256": "3399ae007cba3db519bbeb87bcddb47686f5531851572b4bde3adfae232b2a89",
+      "compressed_file": "final.log.gz"
+    },
+    "final.xml": {
+      "sha256": "a6fc8b344104cb4ac6a55b100a72ac944ce39b216f5bab02574b3319470782b8",
+      "compressed_file": "final.xml.gz"
+    }
+  }
+}

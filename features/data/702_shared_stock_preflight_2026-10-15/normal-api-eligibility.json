@@ -1,0 +1,9 @@
+{
+  "new_top_level_helper": "_cellpose_stock_preflight",
+  "actual_normal_visible": false,
+  "new_nested_helpers": 0,
+  "existing_signatures_docstrings_unchanged": true,
+  "api_review_orphan_rows_needed": 0,
+  "tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "scope": "Actual unchanged normal private-function predicate plus exact helper AST; no full source collector/decoder or API writer"
+}

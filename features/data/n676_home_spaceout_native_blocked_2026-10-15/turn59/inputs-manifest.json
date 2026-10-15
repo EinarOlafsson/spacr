@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "status": "Prepared private disposable retention fixture; not scientific results",
+  "inputs": "/media/carruthers/mnt3/claude/capture_host_proto/turn59/inputs",
+  "age_seconds_at_preparation": 604800,
+  "aged_epoch_seconds": 1791466141,
+  "purpose": "Actual run-folder pruning preview must offer a confirmation, then human Cancel; no deletion authorized",
+  "copy_route": "run_native_capture --inputs; verified file bytes and copied directory/file mtimes",
+  "entries": [
+    {
+      "path": ".",
+      "kind": "directory",
+      "mtime_ns": 1791466141000000000
+    },
+    {
+      "path": "app-state",
+      "kind": "directory",
+      "mtime_ns": 1791466141000000000
+    },
+    {
+      "path": "app-state/runs",
+      "kind": "directory",
+      "mtime_ns": 1791466141000000000
+    },
+    {
+      "path": "app-state/runs/retention-example-old",
+      "kind": "directory",
+      "mtime_ns": 1791466141000000000
+    },
+    {
+      "path": "app-state/runs/retention-example-old/README.txt",
+      "kind": "file",
+      "mtime_ns": 1791466141000000000,
+      "bytes": 209,
+      "sha256": "484d14f9b75f26367ae4382f3418e13a73773af1e9d8e7906a951ed0c4a31ab8"
+    }
+  ]
+}

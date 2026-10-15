@@ -188,3 +188,42 @@ def test_actual_workflow_does_not_mask_failed_access_check_behind_tee(tmp_path):
     assert result.returncode == 7
     assert 'PermissionError' in result.stderr
     assert 'private-test-sentinel' not in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("operation", ["metadata", "tree", "readme", "commit", "readback"])
+def test_denied_boundary_preserves_exception_and_reports_only_safe_operation(
+        service, monkeypatch, capsys, operation):
+    from urllib.error import HTTPError
+    api, _, *_ = service
+    failure = HTTPError("https://invalid/?token=sensitive-credential", 403,
+                        "private server message sensitive-credential", {}, None)
+
+    def fail(*args, **kwargs):
+        raise failure
+
+    if operation == "metadata":
+        monkeypatch.setattr(api, "space_info", fail)
+    elif operation == "readme":
+        monkeypatch.setattr(huggingface_hub, "hf_hub_download", fail)
+    elif operation == "commit":
+        monkeypatch.setattr(publisher, "build_opener", lambda *args: SimpleNamespace(open=fail))
+    else:
+        original = api.list_repo_tree
+        def entries(*args, **kwargs):
+            revision = kwargs["revision"]
+            if operation == "tree" or revision == "d" * 40:
+                raise failure
+            yield from original(*args, **kwargs)
+        monkeypatch.setattr(api, "list_repo_tree", entries)
+
+    with pytest.raises(HTTPError) as caught:
+        publisher.verify_space_access("einarolafsson/spacr-docs-nightly-v2")
+    assert caught.value is failure and caught.value.code == 403
+    assert failure.spacr_space_access_operation == operation
+    assert publisher.main(["verify-space-access", "--space",
+                           "einarolafsson/spacr-docs-nightly-v2"]) == 1
+    output = capsys.readouterr()
+    assert not output.out and "sensitive-credential" not in output.err
+    assert json.loads(output.err) == {"space": "einarolafsson/spacr-docs-nightly-v2",
+                                      "error": "HTTPError", "status": 403,
+                                      "operation": operation}

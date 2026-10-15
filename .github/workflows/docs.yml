@@ -26,7 +26,7 @@ permissions:
 # selected Hugging Face static Space. Runs of one
 # branch queue so an older build cannot replace a newer published snapshot.
 concurrency:
-  group: docs-${{ github.ref }}
+  group: docs-${{ github.ref }}${{ inputs.mode == 'verify-host-access' && '-access' || '' }}
   cancel-in-progress: false
 
 jobs:

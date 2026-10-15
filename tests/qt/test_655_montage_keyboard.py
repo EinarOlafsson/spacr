@@ -59,16 +59,20 @@ def test_tab_reaches_both_montage_cells_and_leaves_the_panel(montage, qtbot):
     assert left_panel
 
 
-@pytest.mark.parametrize("key", [Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space])
+@pytest.mark.parametrize("key,modifier", [
+    (Qt.Key_Return, Qt.NoModifier), (Qt.Key_Enter, Qt.NoModifier),
+    (Qt.Key_Space, Qt.NoModifier),
+    pytest.param(Qt.Key_Enter, Qt.KeypadModifier, id="numeric-enter"),
+])
 def test_keyboard_opens_the_actual_cells_provenance_without_editing_data(
-        montage, qtbot, key):
+        montage, qtbot, key, modifier):
     _, tab, _, rows, crops = montage
     original_rows = rows.copy(deep=True)
     original_crops = [crop.copy() for crop in crops]
     thumb = tab.thumbs()[1]
     expected = thumb.toolTip()
     thumb.setFocus(Qt.TabFocusReason)
-    qtbot.keyClick(thumb, key)
+    qtbot.keyClick(thumb, key, modifier)
     assert len(tab._details) == 1
     dialog = tab._details[0]
     assert dialog.isVisible()
@@ -89,13 +93,26 @@ def test_accessibility_names_identify_the_actual_cell(montage, index):
 
 
 @pytest.mark.parametrize("modifier", [Qt.ControlModifier, Qt.AltModifier,
-                                      Qt.ShiftModifier])
+                                      Qt.ShiftModifier, Qt.MetaModifier,
+                                      Qt.KeypadModifier | Qt.ControlModifier,
+                                      Qt.KeypadModifier | Qt.AltModifier,
+                                      Qt.KeypadModifier | Qt.ShiftModifier,
+                                      Qt.KeypadModifier | Qt.MetaModifier])
 def test_modified_activation_does_not_open_cell_details(montage, qtbot, modifier):
     _, tab, _, _, _ = montage
     thumb = tab.thumbs()[0]
     thumb.setFocus(Qt.TabFocusReason)
     for key in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
         qtbot.keyClick(thumb, key, modifier)
+    assert tab._details == []
+
+
+@pytest.mark.parametrize("key", [Qt.Key_Return, Qt.Key_Space])
+def test_keypad_modifier_does_not_expand_other_provenance_keys(montage, qtbot, key):
+    _, tab, _, _, _ = montage
+    thumb = tab.thumbs()[0]
+    thumb.setFocus(Qt.TabFocusReason)
+    qtbot.keyClick(thumb, key, Qt.KeypadModifier)
     assert tab._details == []
 
 

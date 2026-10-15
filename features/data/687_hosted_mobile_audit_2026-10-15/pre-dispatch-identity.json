@@ -1,0 +1,82 @@
+{
+  "checked_at": "2026-10-15T14:32:46.036894+00:00",
+  "source_revision": "f2115f8202b4421bc70922712076bb0b7c416949",
+  "production_run": 38751829473,
+  "public_revision": "a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+  "pages_run": 38751922377,
+  "rows": [
+    {
+      "path": ".github/workflows/website-audit.yml",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/.github/workflows/website-audit.yml",
+      "live_url": null,
+      "status": 200,
+      "bytes": 1097,
+      "sha256": "caa236a889a24f0b8249ad6fb53d357e206da52cb67a8ae8f1c9adadfa07f8ed",
+      "exact": true
+    },
+    {
+      "path": ".github/scripts/website-audit.mjs",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/.github/scripts/website-audit.mjs",
+      "live_url": null,
+      "status": 200,
+      "bytes": 8589,
+      "sha256": "03c87a54618a90d6fcbca6e8c11140438c3a0b2054e0ca7ed156b0c567747757",
+      "exact": true
+    },
+    {
+      "path": "build.json",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/build.json",
+      "live_url": "https://einarolafsson.github.io/build.json?audit_identity=a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+      "status": 200,
+      "bytes": 358,
+      "sha256": "b08dbe6c3710e9f4e1d478a786e889d0d570074dbce0e6d997a6ac42966a881b",
+      "exact": true
+    },
+    {
+      "path": "index.html",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/index.html",
+      "live_url": "https://einarolafsson.github.io/?audit_identity=a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+      "status": 200,
+      "bytes": 9000,
+      "sha256": "8a5e6c63563e6e71d158ad704472e7ae6b753ffc98a676944854eb089dfc77d4",
+      "exact": true
+    },
+    {
+      "path": "projects/spacr/index.html",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/projects/spacr/index.html",
+      "live_url": "https://einarolafsson.github.io/projects/spacr/?audit_identity=a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+      "status": 200,
+      "bytes": 154283,
+      "sha256": "0ed2f8a0a91440cc09a711f422755aeb1d8d96561f0337eabb830c75bfee266a",
+      "exact": true
+    },
+    {
+      "path": "projects/parascape/index.html",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/projects/parascape/index.html",
+      "live_url": "https://einarolafsson.github.io/projects/parascape/?audit_identity=a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+      "status": 200,
+      "bytes": 14027,
+      "sha256": "b70858d7e949257e7682a35b49bfb264e4a03253609ed64d7e2eedb7891566f0",
+      "exact": true
+    },
+    {
+      "path": "projects/timepose/index.html",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/projects/timepose/index.html",
+      "live_url": "https://einarolafsson.github.io/projects/timepose/?audit_identity=a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+      "status": 200,
+      "bytes": 75507,
+      "sha256": "0ca6229e9ee4fe1ef6596e6e65fb095ca7eaf5775f7dd9fd6f7d03f58863dfad",
+      "exact": true
+    },
+    {
+      "path": "projects/cellect/index.html",
+      "immutable_url": "https://raw.githubusercontent.com/EinarOlafsson/EinarOlafsson.github.io/a7aee44e477a7286c42c66e7f25ab2fbe3533722/projects/cellect/index.html",
+      "live_url": "https://einarolafsson.github.io/projects/cellect/?audit_identity=a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+      "status": 200,
+      "bytes": 62163,
+      "sha256": "dadccce6ef1ac964fd8de4babe083ec37a3bf6c31c6a88549aca91c461915292",
+      "exact": true
+    }
+  ],
+  "audit_dispatched": false
+}

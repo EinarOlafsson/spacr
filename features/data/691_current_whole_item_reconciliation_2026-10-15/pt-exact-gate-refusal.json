@@ -1,0 +1,24 @@
+{
+  "symbol": "spacr.model_zoo.mitonet_weights",
+  "index": 1,
+  "source": "The file is the TorchScript checkpoint of Zenodo record 6861565 (CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached in the folder the Model Zoo downloads into, ``~/.spacr/models`` unless ``dest`` names another, and a cached copy is used only when its sha256 is the published one. A download goes through :func:`fetch`, so it is checksummed and written atomically.",
+  "context": "The file is the TorchScript checkpoint of Zenodo record 6861565 (CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached in the folder the Model Zoo downloads into, ``~/.spacr/models`` unless ``dest`` names another, and a cached copy is used only when its sha256 is the published one. A download goes through :func:`fetch`, so it is checksummed and written atomically.",
+  "target": "The file is the TorchScript checkpoint of Zenodo record 6861565 (CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached in the folder the Model Zoo downloads into, ``~/.spacr/models`` unless ``dest`` names another, and a cached copy is used only when its sha256 is the published one. A download goes through :func:`fetch`, so it is checksummed and written atomically.",
+  "source_valid": false,
+  "context_valid": false,
+  "source_syntax": true,
+  "context_syntax": true,
+  "degenerate": false,
+  "source_false_friends": [],
+  "context_false_friends": [],
+  "source_model_artifact": [],
+  "context_model_artifact": [],
+  "source_residue": true,
+  "context_residue": true,
+  "source_copied": [
+    "the file is the torchscript checkpoint of zenodo record cc by cite conrad and narayan cell systems it is cached in the folder the model zoo downloads into unless names another and a cached copy is used only when its sha is the published one a download goes through so it is checksummed and written atomically"
+  ],
+  "context_copied": [
+    "the file is the torchscript checkpoint of zenodo record cc by cite conrad and narayan cell systems it is cached in the folder the model zoo downloads into unless names another and a cached copy is used only when its sha is the published one a download goes through so it is checksummed and written atomically"
+  ]
+}

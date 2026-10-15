@@ -1,0 +1,18 @@
+{
+  "base": "66d2d978d9869b3dc7f8dff043bb6a3c8d3be947",
+  "scope": "Reuse exact offline stock guard in central resolver/direct object and training base consumers",
+  "baseline": "11 failed,9passed10.81s; real robustness+Maskgenerator reached intercepted constructor and central/training helpers failed to refuse",
+  "final": "38 passed7.15s;20new direct/central/training/nativecontrols +18prior stockguardcases unchanged",
+  "production": "Exact root-approved patch: documented private utils._cellpose_stock_preflight extraction; installed/default/legacy/sam resolver returns reuse it; _resolve_training_base unresolved bare names delegate only after existing local/catalogue/path checks",
+  "unchanged": [
+    "All object.py source and segmentation/training algorithms",
+    "Existing source signatures/docstrings",
+    "Exact guard AST and entire utils tr literal multiset",
+    "Legacy/default/explicit local/exact catalogue/native cachedregular/online and missingpath behavior as appropriate"
+  ],
+  "source_proof": "source-proof.json binds exact09d8utils/db140submodules hashes; every outside owning AST unchanged",
+  "normal_api": "Actual normal private-function predicate excludes new helper; no new nested helpers or API rows",
+  "hold": "PRIVATE until first Hard3captionclosure public and Home-B normal exact helperextractor adoption; same2existingcaptionkeys, no new diagnostics/reviews. No catalogue/artifact writer launched here.",
+  "resources": "Capped8G/oneCPU/blankCUDA/offscreen, OriginalCI flock, no realweights/download/network/GPU/training loop",
+  "limits": "Offline existence/cache guard only, no stockcheckpointchecksum guarantee, wholeN702/cluster/realmodel/scientific certification"
+}

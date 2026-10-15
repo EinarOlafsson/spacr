@@ -86,12 +86,27 @@ def _settings(role, overrides, checkpoint):
 
 
 @lru_cache(maxsize=2)
-def _load_mask_model(checkpoint, digest, role):
+def _cached_mask_model(checkpoint, digest, role, context):
+    """Construct one role model for the already resolved web execution context."""
     from spacr.object import _robustness_segmenter
     from spacr.settings import set_default_settings_preprocess_generate_masks
 
     settings = set_default_settings_preprocess_generate_masks({"verbose": False, f"{role}_model_name": str(checkpoint), f"{role}_channel": 0})
     return _robustness_segmenter(settings, role).args[0]
+
+
+def _load_mask_model(checkpoint, digest, role):
+    """Refresh context before reusing the same trusted checkpoint and object role."""
+    from spacr import accelerator
+    resolved = accelerator.resolve(refresh=True)
+    context = (resolved.kind, resolved.device, resolved.is_gpu,
+               resolved.bfloat16 if resolved.is_gpu else False)
+    return _cached_mask_model(checkpoint, digest, role, context)
+
+
+_load_mask_model.cache_clear = _cached_mask_model.cache_clear
+_load_mask_model.cache_info = _cached_mask_model.cache_info
+_load_mask_model.cache_parameters = _cached_mask_model.cache_parameters
 
 
 def run_mask_download(destination, *, family, input_file, checkpoint, expected_sha256,
