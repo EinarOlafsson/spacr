@@ -1,0 +1,21 @@
+{
+  "incoming_pin": "a31da668374311861b22eca638790ba5b21e62a6",
+  "bindings": {
+    "spacr/object.py::_prefixed_masks": {
+      "AST_sha256": "bd49df59996ac597447413483bff2fffa32d9d19e05c64e09adcd176d4d5e6d0",
+      "actual_public_body_identical": true
+    },
+    "spacr/measure.py::_wound_plane": {
+      "AST_sha256": "75d02372da9b990194325c937a580c702376863ceb3e3f09f67db67c2eec1270",
+      "actual_public_body_identical": true
+    },
+    "tests/test_prefixed_backends_run_in_their_own_environment.py": {
+      "sha256": "e094bda8f7d421407d483d0922656beb523ee453b19041d258d3a3cad0dc418f",
+      "actual_public_test_identical": true
+    },
+    "tests/test_wound_closure_at_its_edges.py": {
+      "sha256": "24740913a9dc5fbe1859d976380142011f4402689c06c25a0d871f47c04051da",
+      "actual_public_test_identical": true
+    }
+  }
+}

@@ -12,6 +12,7 @@ import pandas as pd
 import pytest
 
 from spacr import measure as m
+from spacr.qt.i18n import tr
 from tests.test_scratch_wound_closure import _band, _brightfield, _labels
 
 
@@ -91,8 +92,11 @@ def test_wells_and_conditions_of_what_is_not_there():
     assert m._wound_by_well(failed).empty
     curves, conditions = m._wound_by_condition(None, pd.DataFrame())
     assert curves.empty and conditions.empty
-    with pytest.raises(ValueError, match="the wound plane is 3"):
+    with pytest.raises(ValueError) as error:
         m._wound_plane(np.zeros((8, 8, 2)), _settings(wound_channel=3))
+    assert str(error.value) == tr(
+        "Wound-plane index {index} must be a finite, nonnegative whole number smaller than {planes}.",
+        index="3", planes=2)
 
 
 def test_a_folder_with_nothing_to_measure_says_so(tmp_path, capsys):
