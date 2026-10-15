@@ -1,0 +1,65 @@
+[
+  {
+    "language": "sv",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "Åtgärdens resultat med ett skäl till att åtgärden nekades, eller antal borttagna objekt och eventuella bevarade privata sökvägar.",
+    "target_sha256": "b0afa499e416679095bc759a65692897c3982322699d78f7e905765179a5a030"
+  },
+  {
+    "language": "de",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "Ergebnis der Aktion mit einem Ablehnungsgrund oder mit Angaben zur Anzahl entfernter Einträge und gegebenenfalls zurückbehaltenen privaten Pfaden.",
+    "target_sha256": "564ca5d7588971758b9e9f8609d615f27de7c37b3e821d196e4f38da136cdfbe"
+  },
+  {
+    "language": "es",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "Resultado de la acción con un motivo de rechazo o con recuentos de elementos eliminados y las rutas privadas que se hayan conservado.",
+    "target_sha256": "de0c043aa34461bd1a1903aeb52beb4fbf18de177a936883debb783243cf8ea9"
+  },
+  {
+    "language": "fr",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "Résultat de l’action indiquant un motif de refus ou des décomptes des éléments supprimés et les éventuels chemins privés conservés.",
+    "target_sha256": "c5e5e262eb081bfc3ef402f677c1271c7b63d12d56fd8b233ee4d37b4e9b5ead"
+  },
+  {
+    "language": "pt",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "Resultado da ação com um motivo de recusa ou contagens de itens removidos e quaisquer caminhos privados mantidos.",
+    "target_sha256": "f848a5bfbb6e0777531fe4af39dd88f9bd91afd18ad99375f06c36389f27a66a"
+  },
+  {
+    "language": "is",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "Niðurstaða aðgerðar með ástæðu höfnunar eða talningum fjarlægðra atriða og einkaslóðum sem kunna að hafa verið varðveittar.",
+    "target_sha256": "65c999174ac565ab6b425b628f8ceaec4198c3ede69409fcd7bc8aba953abca9"
+  },
+  {
+    "language": "zh_CN",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "操作结果，包含拒绝原因，或已移除项的计数及任何保留的私有路径。",
+    "target_sha256": "c108c6b9cc68d1d0c7a7216ed9f7a4ca9bdd1da5c8fed5b89d2131ad9e924692"
+  },
+  {
+    "language": "hi",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "कार्रवाई का परिणाम: अस्वीकार करने का कारण, या हटाए गए आइटमों की गिनती और बनाए रखे गए निजी पथ, यदि कोई हों।",
+    "target_sha256": "ae31cd1be49415c43b3d358b6ec37aa53486430a7e3d8429143435bd144567b2"
+  },
+  {
+    "language": "ko",
+    "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+    "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+    "target": "거부 사유 또는 제거된 항목 수와 보관된 비공개 경로가 포함된 작업 결과.",
+    "target_sha256": "9597dde5f565060c8cc1e823f46079ae83ef90d1d3c552d9def436fdc01c68b7"
+  }
+]
