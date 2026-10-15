@@ -96,8 +96,8 @@ before mutation, stages privately, reuses the existing atomic journal writer,
 and publishes only complete JSON. Failed serialization, interrupted native
 streams or refused replacement retain the old bytes, or leave a new target
 absent; staging is cleaned and the original never-raises warning remains.
-Existing symlinks still address their targets, existing permissions and normal
-new-file umask modes are retained, read-only targets still refuse, and missing
+Existing symlinks still address their targets, existing permission mode bits
+and normal new-file umask modes are retained, read-only targets still refuse, and missing
 parents are not created. Native baseline6FAIL/2PASS6.74seconds. Initial owning
 writer/export/pin cohort26PASS8.34seconds; final11 native permission/error cases
 PASS5.58seconds after the explicit read-only guard. These overlap:27distinct
@@ -105,3 +105,20 @@ checks,11new cases, under6G/shared lock. CSV remains a separate output, not a
 CSV/JSON transaction. No host power-loss/directory-fsync or concurrent external
 writer guarantee, model/network/GPU/fullCI or native other-OS acceptance.
 Evidence: data/693_atomic_pipeline_json_2026-10-15/receipt.json.
+
+2026-10-15 — interrupted pipeline CSV writes preserve previous snapshots:
+The CSV publication hunk now uses spacr.tabular in a private same-filesystem
+stage, fsyncs complete bytes, retains file mode bits and publishes by native
+replace. Exact CSV format/header, existing symlink target/link, read-only
+refusal, warnings and CSV-before-JSON ordering are retained. A partial native
+stream or refused publication leaves the previous CSV and JSON unchanged,
+or a new CSV absent; staging is cleaned. Baseline4FAIL/3PASS7.11seconds; eight
+new native cases plus existing JSON/pin/export/legacy writer cohorts pass35
+in8.28seconds under6G/shared lock. No two-file transaction is claimed.
+Explicit edge: existing literal directory names containing expandable $VARS
+now refuse safely before table output, because tabular would otherwise
+redirect a staging path outside its private folder. No redirected tree is
+created. Native inode/hard-link/ownership/ACL/xattr semantics beyond mode bits,
+external concurrent writers and power-loss durability remain unverified.
+No model/network/GPU/fullCI or native other-OS acceptance. Evidence:
+data/693_atomic_pipeline_csv_2026-10-15/receipt.json.
