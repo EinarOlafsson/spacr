@@ -1,0 +1,15 @@
+{
+  "api": "spacr.qt.i18n.tr",
+  "exact_target_counts": {
+    "de": 12,
+    "es": 12,
+    "fr": 12,
+    "hi": 12,
+    "is": 12,
+    "ko": 12,
+    "pt": 12,
+    "sv": 12,
+    "zh_CN": 12
+  },
+  "english_preserved": true
+}

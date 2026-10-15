@@ -1,0 +1,45 @@
+{
+  "baseline": "b7e4144d7a2^",
+  "languages": {
+    "en": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "de": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "es": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "fr": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "hi": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "is": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "ko": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "pt": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "sv": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    },
+    "zh_CN": {
+      "owned_caption_targets_exact": 12,
+      "all_unrelated_assignments_exact": true
+    }
+  }
+}

@@ -51621,44 +51621,44 @@
     },
     "spacr.qt.laptop_mode": {
       "source_blocks_sha256": [
-        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
-        "d33c0d4d0045796a3a06aef69c6706e5295870356288fd51137396fca2f7f60e",
-        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
-        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+        "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+        "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+        "c4f4dc6104a1cb2030a0d6288cfce1b03fc25118abcc101dcb223f8e151bb3f9",
+        "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61"
       ],
-      "source_sha256": "b056b4336030223d0fefd11b8fa7a2fb8f8fc3487d7c7fdd35e337422cc50fc0",
-      "text": "Run well on a small machine without becoming a smaller application.\n\nThis is the fallback reached after normal optimisations. It turns down\ndecorative rendering costs instead of removing application features.\n\nNothing here changes what a run computes. Every setting it touches is\nabout how the application is DRAWN.\n\nIt is chosen automatically, it can be overridden either way, and it says\nwhat it turned down -- a mode that quietly makes the application different\nis one nobody can debug."
+      "source_sha256": "9d3f275ab4a63201eb33741855e6b942f2baab8c52c941ef6b213f6858c8c153",
+      "text": "Measure hardware constraints and suppress the ambient backdrop for this process.\n\nHardware-based decisions use the usable CPU count, physical memory and the\n``SPACR_LAPTOP_MODE`` override. GUI startup instead passes an explicit decision\nfrom the selected performance level; its hardware reading is diagnostic.\n\nSuppression affects backdrop rendering. This module does not set worker-thread\nlimits or analysis parameters, and it does not replace stored animation\npreferences.\n\n``apply`` sets ``SPACR_NO_BACKDROP`` when suppression is requested and the\nambient backdrop is enabled. Disabling removes only a suppression created by\nthis module; a pre-existing crash-recovery override is retained."
     },
     "spacr.qt.laptop_mode.apply": {
       "source_blocks_sha256": [
-        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
-        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
-        "39633c9008297a57422460fe23b3a8bea53cb256b6dc42f34f4eac990c2be100",
-        "ff0abfd1859c9289e0136896b93680b63806bb4fe25b1fb5d01c5b8898662f87"
+        "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+        "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+        "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+        "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5"
       ],
-      "source_sha256": "c52d6c858e0a88a825be430f8dd53df41999a52ab654ec46743a5af9f0e51a23",
-      "text": "Turn the mode on or off. Returns what was decided and what changed.\n\n:param on: force the answer; ``None`` measures the machine.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` names each thing\n    actually done, so a caller can say what happened rather than\n    claim it.\n\nNOTHING HERE IS PERSISTED. See :data:`_NO_BACKDROP` for why: this is a\ndecision about one run on one machine, and the user's stored preference\nis not this module's to answer."
+      "source_sha256": "1b10d6900cb0e03a04971ff50236a98fb25f338bcf7cc88f912824a661332785",
+      "text": "Apply process-local backdrop suppression and report the decision and actions.\n\n:param on: explicit decision; ``None`` uses :func:`wanted`, including its\n    hardware reading and environment override.\n:returns: a mapping with ``on``, ``why`` and ``changed``. ``on`` is the\n    decision; ``changed`` lists actions actually performed and may be empty.\n\nSuppression is process-local and does not replace the stored animation\npreference. Disabling clears only suppression created by this module,\nretaining any pre-existing crash-recovery override."
     },
     "spacr.qt.laptop_mode.describe": {
       "source_blocks_sha256": [
-        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+        "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846"
       ],
-      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
-      "text": "The whole decision as one block, for the launch log."
+      "source_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "text": "Format the hardware-based decision and effect descriptions for diagnostic logs."
     },
     "spacr.qt.laptop_mode.measure": {
       "source_blocks_sha256": [
-        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+        "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05"
       ],
-      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
-      "text": "What the decision is made from, so it can be reported and tested."
+      "source_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "text": "Return CPU count, physical memory, threshold flags and the parsed override."
     },
     "spacr.qt.laptop_mode.override": {
       "source_blocks_sha256": [
-        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+        "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88"
       ],
-      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
-      "text": "What the environment says, or None when it says nothing."
+      "source_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "text": "Parse the environment override; return ``None`` if absent or unrecognized."
     },
     "spacr.qt.laptop_mode.total_memory_gib": {
       "source_blocks_sha256": [
@@ -51669,27 +51669,27 @@
     },
     "spacr.qt.laptop_mode.usable_cores": {
       "source_blocks_sha256": [
-        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
-        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+        "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+        "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5"
       ],
-      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
-      "text": "Cores this process may actually use, not cores the machine has.\n\n`os.sched_getaffinity` where it exists: a container or a scheduler can\npin the process to fewer than `cpu_count` reports, and pinning is\nexactly the situation this mode is for."
+      "source_sha256": "e5eb6f66da16d5b3607710a14439c9cad49a88d33e586fa5fa5f2e91455fa804",
+      "text": "Return the CPU affinity count, falling back to ``os.cpu_count``.\n\n``os.sched_getaffinity`` accounts for process pinning when available. If\nit is unavailable or fails, use the reported CPU count instead. The\nresult is at least one; the fallback does not measure affinity limits."
     },
     "spacr.qt.laptop_mode.wanted": {
       "source_blocks_sha256": [
-        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
-        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+        "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+        "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723"
       ],
-      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
-      "text": "Whether to run in laptop mode, and the sentence that says why.\n\n:returns: ``(on, why)``. The reason is always populated, including when\n    the answer is no -- \"spaCR decided not to\" is a thing a user reports\n    and somebody has to be able to check."
+      "source_sha256": "ae2d6184c93bafb4c0366d02d5962ab94168c0853d165d88c50a9878fd18961a",
+      "text": "Return the hardware-based laptop-mode decision and its explanation.\n\n:returns: ``(on, why)``. The reason is always populated, including when\n    the decision is off. An explicit environment override takes\n    precedence over the core-count and physical-memory threshold flags."
     },
     "spacr.qt.laptop_mode.what_it_turns_down": {
       "source_blocks_sha256": [
-        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
-        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+        "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+        "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216"
       ],
-      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
-      "text": "Each thing the mode changes, and what a user loses by it.\n\nONLY DRAWING. Nothing here is read by a pipeline, so a run computes the\nsame answer in either mode -- which is the promise that makes an\nautomatic decision acceptable at all."
+      "source_sha256": "084d16f773c3751933b1872da8d40c9c3e0eda043b7adf28185af4c11f576974",
+      "text": "Return the animation and backdrop-blur descriptions used in diagnostics.\n\nEach pair contains an effect name and its description for UI notes and\nlogs. This function returns text; :func:`apply` performs the process-local\nbackdrop suppression."
     },
     "spacr.qt.layer_viewer": {
       "source_blocks_sha256": [
@@ -54370,29 +54370,29 @@
     },
     "spacr.qt.memory_budget": {
       "source_blocks_sha256": [
-        "7dee1bb5f7c9b5d23474f893c3d14ce8e6ed29158711c2c731d455aa7ab70845",
-        "e8113a41d8118dcd9279bcf26c3df16c9da8bbd10092277d03c2b467d515965f",
-        "990dc5f29bac1f3305b275eaffe47e17b713dde972d5c8c4a6e687edafa9af44"
+        "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+        "c58bbd9144a04712a3e43730f51eb31206fa4de45fc39af9e363370a6b35390a",
+        "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa"
       ],
-      "source_sha256": "d127c85059819ad3412bbebd07a8038482d386d5a8997ffec054d659011a9d9d",
-      "text": "What spaCR is allowed to keep, and when it has to give it back.\n\nThree settings, and the order matters. The HEADROOM FLOOR comes first: it\nsays how much of the machine must stay free for everything else, and the\nother two are meaningless until something says when to apply them. Then the\nIDLE TIMEOUT, which says how long an unused thing may sit before it is\ndropped, and the CACHE CEILING, which says how much may be held at all.\n\nWHAT THESE DO NOT DO IS UNLOAD A LIBRARY, and nothing here is named as\nthough it does. Measured on this machine: importing torch costs 477 MB,\ndeleting every torch entry from `sys.modules` and collecting returns 0 of\nit, and 63 of its shared objects stay mapped. CPython has never supported\nunloading a C extension. What CAN be returned is caches, model weights and\nGPU allocations, so that is what these govern -- and deferring an import\nuntil first use is the honest form of \"load when called\", which is why a\nsession that never opens a deep-learning module never pays the 477 MB."
+      "source_sha256": "c88e4eb03ecde594812d4d30f9fe1a2151ba284cc4cf043ed5314a6d98bf7f63",
+      "text": "Cache eviction policies and host-memory availability measurements.\n\nThe idle timeout and cache ceiling determine the keys selected by\n``what_to_drop``. The separate ``headroom_is_short`` predicate compares\navailable host memory with a configured threshold. Callers apply these\npolicies and perform resource cleanup.\n\nThis module does not unload Python modules or native libraries. Eviction\nplans identify cache entries; callers decide which resources may be\nreleased. The policies do not guarantee a particular reduction in process\nmemory or GPU allocations."
     },
     "spacr.qt.memory_budget.free_megabytes": {
       "source_blocks_sha256": [
-        "335bd8baecef403e0f0429c1114aa3d46d65d84c36989c0af807043ad5d74727",
-        "39138f50b3a0525405ef5dd18f5e1f1c097448add5200fc859576a69a489d00b"
+        "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+        "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb"
       ],
-      "source_sha256": "725ac9fb54575611439b5f6a9176b9c98b9d2e1193880a84890c2608534301ae",
-      "text": "How much memory the machine has free right now.\n\n:returns: megabytes, or ``None`` when it cannot be measured -- in which\n    case the headroom floor cannot be enforced and says so rather than\n    guessing."
+      "source_sha256": "90b4c7ec1305c5821ac72ede14eaf20da4aab17a5b9fddea9ff5e98df245979b",
+      "text": "Return available host memory in mebibytes.\n\n:returns: ``psutil.virtual_memory().available`` divided by ``1024**2``,\n    or ``None`` when the measurement fails."
     },
     "spacr.qt.memory_budget.headroom_is_short": {
       "source_blocks_sha256": [
-        "a0201766d2334e4ed9a927ef5c0efe72b5bb216662973cac624d8c3b5d460c82",
-        "98608cc4fe30c11e66e37def0b64da7ad24b46456b8d8c3e2a15f94f6000d725",
-        "4a56c5e9c0578f16c5dc2093870adb26269f48380b2c7f49897ece632a37c8a9"
+        "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+        "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+        "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027"
       ],
-      "source_sha256": "7c0c7ce6f21e8248b69f8cb394c911e663f5780444a199b4b54fb43d39256858",
-      "text": "Whether free memory has fallen below the floor.\n\n:param floor_mb: the floor; read from preferences when omitted.\n:returns: ``False`` when memory cannot be measured -- a cache that\n    cannot be shown to be a problem is not dropped on suspicion."
+      "source_sha256": "e355f34b6c9814bafb021d8745fcff8303b03b40297c2a1d3e224c9997dd428f",
+      "text": "Test whether available host memory is below the configured threshold.\n\n:param floor_mb: threshold in mebibytes; read from preferences when omitted.\n:returns: ``False`` when memory or the required preference cannot be read;\n    otherwise the result of comparing available memory with the threshold."
     },
     "spacr.qt.memory_budget.recommended_for": {
       "source_blocks_sha256": [
@@ -54405,17 +54405,17 @@
     },
     "spacr.qt.memory_budget.what_to_drop": {
       "source_blocks_sha256": [
-        "42ce74dd9aad550c5b96cebf035510c46639364a8688e1bc1dc6c1f84f47c30f",
+        "31af9ce76aff459d4c3179c000db0bdb43c6503ec8570c3138467fa97fc8d6cf",
         "6c2fb2d25b2ecddad109250e3d7c80810b00c3ac25114877347add35e8e0eb69",
         "7aad11250c3144958b20cc43b94d429df587350d39d938779eeb8c5cad07aca4",
         "0ba4e87629bcae4a11eb3ff5a3f6cb596d8b65b826863b2a077e0c633f7f524b",
         "d64accbbd8381ffc1449b95c53a4735cebae4a9065ad2e68cebd2a5d6db7c539",
-        "a39afc7eacade24ad70fcf24dd569c0d279ec5a768f486c85a54f115f8445479",
-        "cacfbfd07a2f73a883e233de8269be4aa7da60e7306154141f03ad837ca4e0ad",
-        "488dc0c3970d5b8cce09d8716a8f248cf17ac094c437f86166136aa5b7c01efe"
+        "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+        "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+        "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06"
       ],
-      "source_sha256": "8bbe5fb5c2e871179f6cd4317be8e37d3aa6eca8a7f1af28cf5324501dd4e313",
-      "text": "Which cache entries must go, oldest idle first.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: the current epoch time, passed in so a test can choose it.\n:param idle_minutes: the idle timeout; from preferences when omitted.\n:param ceiling_mb: the size ceiling; from preferences when omitted.\n:returns: the keys to drop, in the order to drop them.\n\nTWO REASONS, APPLIED IN ORDER. Anything idle longer than the timeout\ngoes because nothing is using it. Then, if what remains is still over\nthe ceiling, the least recently used go until it fits -- so a cache\nunder pressure gives up what it is least likely to want next rather\nthan whatever it happens to reach first.\n\nAn entry is never dropped for being large alone: size decides the ORDER\nof a trim, and idleness decides whether one happens."
+      "source_sha256": "fbf221dfff9accbb558a9b54980aeb249f59363f7d586c25169188125475d6a5",
+      "text": "Select cache keys by idle timeout and then the remaining total size.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: the current epoch time, passed in so a test can choose it.\n:param idle_minutes: the idle timeout; from preferences when omitted.\n:param ceiling_mb: the size ceiling; from preferences when omitted.\n:returns: string keys to drop, in selection order.\n\nEntries older than the timeout are selected first, in input order. If\nthe remaining total exceeds the ceiling, additional entries are selected\nfrom least to most recently used until that total fits.\n\nSize determines whether further eviction is needed, not the ranking.\nThe ceiling can select entries even when none exceeds the idle timeout.\nThis helper does not check host-memory headroom or whether entries are\nin use; callers must supply entries eligible for eviction."
     },
     "spacr.qt.menus": {
       "source_blocks_sha256": [
@@ -63915,12 +63915,12 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
       "source_blocks_sha256": [
-        "4105b719d131be273bcf078a64a419aebd6f148d5e15e6675266a1daa76128de",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "39d3c72137f96a440437ef8d2b92b8caca64ff021ab21acc5015cf1498eab95c"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ],
-      "source_sha256": "a79ed4bc3c1d83dcbb87f10ef19560cb9edfa3def94828dbd00422a10d58a6b4",
-      "text": "Let the job runner stop its thread before the widget goes.\n\nThe stop flag is set first. ``shutdown`` waits a bounded time and\nthen parks a worker that outlasts it, so a load told to stop between\npages finishes in one page instead of reading the rest of the plate\ninto an array whose screen has gone.\n\n:param event: Qt's close event, passed to the base class unchanged.\n    Never ignored -- a screen that refuses to close because a run is\n    in flight would trap the window, so the run is stopped instead."
+      "source_sha256": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24",
+      "text": "Discard pending results and drain both runners before the widget goes.\n\nThe crop stop flag is set first and further DINO progress is ignored.\nEach ``shutdown`` waits a bounded time, then parks any worker that\noutlasts it. A parked training worker can finish writing its checkpoint\nwithout updating this closed screen; it is not forcibly terminated.\n\n:param event: Qt's close event, passed to the base class unchanged.\n    The close is accepted even if a worker must be parked."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query": {
       "source_blocks_sha256": [
@@ -63968,11 +63968,11 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+        "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ],
-      "source_sha256": "f6b2458f1fcb10a13133dd1ca2d3e76f6530fc040f79538d2500d93837e4a745",
-      "text": "Whether a run is in flight.\n\nA crop load counts. It is the longer of the two jobs by far -- a\nplate of crops off a network mount is minutes -- and a screen that\nreported itself idle through it would let the window close over a\nlive read."
+      "source_sha256": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
+      "text": "Whether a crop load, embedding job or DINO pretraining is in flight.\n\nIncludes the separate DINO runner until its worker has retired,\neven after its final result has reached the screen."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
       "source_blocks_sha256": [
@@ -83416,13 +83416,13 @@
     "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state": {
       "source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "ea206d0b5c521d4ac39fd53efcf417705f55206609c2fecc7c94574bb389d000",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df"
+        "6ad0e08287e2e2b86af8c88dc0a6bbd2c66cf69d509b62ca700d39e67ac2af2d",
+        "b813f69a09a450d3305e51dc59501b009a1482aa3e62d57c42e9785a6d884917",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "7b65ee52d867ca737314df800589032c788e8b134f157bc8b40e4ab1bc18930f"
       ],
-      "source_sha256": "2d5b13f3b8043437be8ed298de2791a74b6e85903d3a27577ad3411f78fcfe20",
-      "text": "Re-attach the set. Returns whether anything was attached.\n\nA source that is no longer there is left out and the rest are still\nattached -- one moved plate does not stop the others attaching. The\nworkspace document names every missing one in its own report, so\nnothing dropped here is dropped silently.\n\nWhether each source still exists is checked off the GUI thread, because\nthe paths of a saved workspace can be on a mount that has since gone to\nsleep. The whole set is attached now and the ones that turn out to be\ngone are dropped when the answer arrives, which costs one redraw\ninstead of a blocking stat.\n\nThe return value answers \"was there anything to attach\", not \"was any\nof it still on disk\". :func:`spacr.workspace.restore_workspace`\ntherefore reports the section as restored either way; the sources that\nturn out to be gone are dropped when the check finishes, and the\nsummary line names every source with no database behind it. Unthreaded\n(in tests) the check has already run by the time this returns.\n\n:param state: dict saved by :meth:`workspace_state`; only its\n    ``sources`` list is read, and anything that is not a dict, or has\n    no sources, returns False."
+      "source_sha256": "e96c22e54bbaef37cfb3f78a8ef62419bc18fce6e2ab561c4106741a6cbb7036",
+      "text": "Re-attach the set. Returns whether anything was attached.\n\nSaved sources retain their order. In folder mode, an explicit matching\n``databases`` list can supply a database restored by the workspace\ncore. If the original database is missing and that file exists, the\nset reads the supplied file while retaining the original source key.\nThis association does not rewrite the source roots returned by\n:meth:`get_value` or reconstruct a project folder for a new pipeline.\n\nFilesystem checks run off the GUI thread. Sources with neither an\nexisting original source nor a usable explicit database are dropped\nwhen the answer arrives. Added sources are preserved; replaced,\nremoved and re-added sources cannot receive stale associations.\n\nThe return value answers \"was there anything to attach\", not \"was any\nof it still on disk\" when the check is asynchronous. The workspace\ncore reports missing or changed files separately. Unthreaded, the\ncheck has already run by the time this returns.\n\n:param state: dict saved by :meth:`workspace_state`; reads ``sources``,\n    ``mode`` and an optional positionally matching ``databases`` list.\n    A non-dict or empty source set returns False. File verification\n    and carried-path remapping belong to the workspace core."
     },
     "spacr.qt.widgets.database_set.DatabaseSetWidget.choose_sources": {
       "source_blocks_sha256": [
@@ -90126,6 +90126,20 @@
       ],
       "source_sha256": "3a5c749a5d1e0c84124b818c704535d4ac3f5a7910fda69692679abd44093939",
       "text": "Refresh the hint once a probe has an answer.\n\nBoth arguments are ignored: the hint is rebuilt from every path\nit shows, so which one answered does not change the work.\n\n:param _path: the path that was probed; unused.\n:param _answer: what the probe found; unused."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.collect": {
+      "source_blocks_sha256": [
+        "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613"
+      ],
+      "source_sha256": "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613",
+      "text": "Resolve folder members on a worker without touching widgets."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.landed": {
+      "source_blocks_sha256": [
+        "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296"
+      ],
+      "source_sha256": "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296",
+      "text": "Append ready drops on the GUI thread unless their contents were replaced."
     },
     "spacr.qt.widgets.file_list.FilePathListWidget.add_paths": {
       "source_blocks_sha256": [

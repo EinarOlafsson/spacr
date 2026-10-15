@@ -1,0 +1,785 @@
+{
+  "input_commit": "80c2aa12f4c8",
+  "source_commit": "efe3784e64a",
+  "source_file": "spacr/qt/screens/embeddings.py",
+  "source_sha256": "9fda21401f1777bf049b0ccbf11015e38f0e22c19fcb9b972ae46e50040d5785",
+  "reviewer": "Home-B coordinator, independent of UI and target author",
+  "review_kind": "AI technical semantic review; no native-speaker signoff",
+  "pairs_read": 108,
+  "decision": "All 108 PASS without corrections",
+  "criteria": [
+    "Checkpoint selection is path-only and next Embed is explicit.",
+    "Total epochs include checkpoint epochs; placeholders and loss precision are retained.",
+    "Progress, starting, stopped and failed states remain distinct.",
+    "Quoted Embed labels preserve existing localized button wording, including historical wording debt."
+  ],
+  "review_files_sha256": {
+    "docs/i18n/reviewed/runtime/de/2026-10-15-own-dino-controls-home-b.json": "d270718a3a0a4c2ec842fd71b99b0904a2d05f6ed34809e6f27c670e4e7d2593",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-own-dino-controls-home-b.json": "c1a2ec766480187d1827ae2dc9932cdf1128e80db135335e56a8535bcf6a5bb9",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-own-dino-controls-home-b.json": "b89ae37883100d26130d4edfd1651397acf92761bfca3c5b967154365be6024a",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-own-dino-controls-home-b.json": "7abe89f92850bd606d0b55c03871050d16d32d6db71402f592eda2d37a79fc0b",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-own-dino-controls-home-b.json": "9481f745b9ae2d744867f284ed7d701d3453f766df31768c9c1c6525b0f9e00b",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-own-dino-controls-home-b.json": "73c095702f6a5c07432f7ce7e05a321998bdcafbb837d17750791a5c62732678",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-own-dino-controls-home-b.json": "069691c9ac0def166c38db8c99f9a4d6b7e8f6d037c70b4735b34c052ca4cf6f",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-own-dino-controls-home-b.json": "f33be73b81e52ed7fa1b1fe739c8cade36d09248633e9d1c77a3873915fcf888",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-own-dino-controls-home-b.json": "6794bee4109456a226a58ac2f995ff744f635f53b413b4b9d5798999c63f55ef"
+  },
+  "pairs": [
+    {
+      "language": "de",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "3eb4869bc2644a60ea8927c0a5799f89a3231565e94cf66e1a001e204951a4dc",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "0816124e271fa68ede679713136b6f14b8822df0c7b152cb5bd31eb22fad4af1",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "8f56d68c888f580341e9805efd8010d33f5f2f79b8f66fc8deae73c0136c8607",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "84cf659206321117a09cb6e3b8906cd8b84d36edecdb4cd350837621a023d834",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "570ce990c2b0821dd4d49ebad2f45cef99eb5ff25478328f77bc863aa014f395",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "4c2272eb9b5fb9731ba1dc3d5d252761e60e72257140c97dfe5fbfac7c610906",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "8095751443c3d3c6f3fae2598fc332c00de5342e3cb4b8ab94b07732ee7505af",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "6ab4941c28e928c5415c5f4614d1464542ca845d84d1684b7afabb19139644f1",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "5307cb2ff536efab881393a7f1f1774177401aefa59838c81f531d41a5ca1d96",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "5a4cb79c4425708586aa4477be45fe3b2d9b95db3e6439c567b2769140976533",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "e72ef37481d15c1097c527d8be61ebfe9a966834d9953e3525eab3073cde5ee7",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "1ce6218aa2df6145a229c1f254e359fa9e91d90dd793f013c729a92afa28d178",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "41250166dab34bcb078569d43d32ede058344aeecc56b2c41d495e112cab7826",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "8e99be89f1b69d37d99ab6fec6d4be9ea4999f4c92a107d7520a2b0dc06e6177",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "951f2614a04cfeb365a734aca2a10805dc39f4e09a64a7621f15d9c9f0de6654",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "399c89f8cae85f0817ff0c2634a79d5a3f926126991fd1e7fa354be5ebc41d55",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "758fb7793d150c2dbbbd684262ba2cdeacb93b01d85e73f33b3b951b3850f7bb",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "5ea485e9c5538b3f98cf35b4b231064577cdbd3bc58dc790e0bc3bd304ab2ad3",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "66e3c626d3e3e961a268bcad59ab75255ab4927a534d544d1312a804a39a8e92",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "a483e8c4d5d1bdfc4d4310cc8528e9a0085003b1ae2657a0d5a6724b9e69281d",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "032f40df91574d559e2927bcf3098bd9a8b752335adf3ca5356aba931468724c",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "2daa4d13b370085c1d33561452c55bba315601435b5f052485c68375d75d67ad",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "99dba228710b7bde2596772c080ca795b9d120122a2cab2861471eccc8190f6c",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "7ac7ced15b61aead2982d669646415372b1be52b18b4f1b54a1c1c2cddd8bf9b",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "dad2917f8aacde422f45660e4fe55332056219f68fb1ba1a0ec5a017bec92ffa",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "2eec6f513f4fa97021f7e00ec072f7d0c55425f3c968cf7eedaeca1db118cabd",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "2f2ceb9673b64e4bf5af489a4b0c714cf45cbdea9f587fbbcd93be70928ac64f",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "dee8e45c2dd2291b774cb0c631589de19d675d2e5277760f5edd52be1620de37",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "70f55cda2af580ece402da6250a8b7c581ba0d37ba0745b10768cd1b19210e2c",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "420a6553a6fef980b3c00cab12ab5f1ca95392db097d29e8d5a7d004d39426ef",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "e690fd0017ca0263ea6259091fcb0e50c65f686573e903879c39cb88e7f26c5d",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "5426e0426e217bb9f518c529c1bb1529efdb4bac5e397d401bad2036d17abd1f",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "fc9991ea4d9bd9af6390d2c9c2299855ce521f9019b1fb295278ce8447b60e98",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "3f4d888564a9cad77aa23de44bc0473020b396a1c26ce5d390b49874def0c452",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "d04f665632a8d52dc6d1af9d065cfbd23dcd5bda7b08e93570995ac8e24351fb",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "ab8722b687fe66413ba176c47c5d89d1de04d787f2d862b8f6f90ac958c3db10",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "840a5b0b88f97ddf1243671051a10a2d11b6ea38d9f0e6d049676cca7c1d8efa",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "24a8d07ac429c89ba74e3ca7b65f4721fa684c4e8645792b0b901414c3826097",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "a2e78d582db5c46e863a624c80523050bd308858111737aec701d0a032f3c633",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "b5332a6e80b8e151dd547293de85ede384240a59fda61bd1f2c5436d1b277064",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "8e82c5e9a6fe10d6d03bf16d5bd0e20b298e9186c0660753ab25106c770efe90",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "cc0e4ed9e9edac870615d8d1b37e4ddfafe9dae741dfdccfb2081b306421e775",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "38320c805bc8f320e9c6ba3e1c5219f0505a5ea70733c5f2a830963667e819ff",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "1530fb0f1735393db3d15bb832a68762b5c15414e345d89580911a6523ad5ab8",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "d42beae1d6df8415c3438c169e44cfb53851283776bbc07ada31caf607211720",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "7d31ba23f75e3290f7147d570b756657739bd3d1c532c4e7ac18eb5999d38381",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "e79988edc04bd7e2b02ed66b1992d8a75b864cfe4993fddef54ae21639edaef7",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "9d21b4d60bb1e78e77e35bf4d700a338c71940e55d94dd17063c8bf9129edf1e",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "dfe755d98bc636518eb6fa365f75d42bfd85e2271e24d5a8de3454a07d9d1291",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "d14ce95030c34063e103cd08c24fbf7679a96ab0f6875813a43eccfad20a2607",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "2a57eb6d6bdec42a360b97b00969313191469efbb500489630c091486c361283",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "6819de820202ac7c3e14e5531162ac8d3cd3fc1c495a6c9a253c482c0cd8f80d",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "5989158263c7a46b366c882b4ba8e18228423059f90fac6de81f721f9f5e90df",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "4761eb2bf0e4c35ae3416e9afeb3d9f0b944830b0f4bef981bc64b8785891046",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "e951721e78cdbbf34f4463f2bdfc63536a405e7fc2924c5261f16c1eac937081",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "53ab06823df86b19bc0c20068f2dbd0bbbd57312bcd795407af68060b64ebb3e",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "78409f2b8b50cdb95ffccc0dd894f60036a6933635d00b4d9579efb14312538a",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "3ac509a6e0a92d1220411845a89ce9f685fece829309ab143231408222ef5122",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "ace798a30473899a457606891f654a556bba6b185f34df30cfc1bfedc4961ef7",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "3723b100a3bfbf5bc8fd509dc4dd8879285323c148ffb3d8cf849f0857ef2be6",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "34cbf9ea9de283a2e0d5c27201cd5a8233fa814062780a879a79395260a13e47",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "42bd229b47ade348d4e298b03927c07d48d43cef99cff75760c63460f467b14c",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "6c882b53d9df657ab5e5cb85a6c7637c4e9767ca0a4da3481d6492f370be7f02",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "2757dc10c551e69268f563fb5d7b232fefd62da17a4357520a69609b0c03ab6d",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "e90ac34f976aea08555be4575a4b40cdbbbe5135aaa7ae9308eb96d76a920118",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "9bc3e09981548479a6d6da73957a451313680fa27ed6fc7d1ac904680074d1be",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "08501399120c554c5a538285a0aaddadb4fff60582cc42389cf3c451b21742b5",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "4ec6400753f29c0a665b727a67cae120a00e76ccec62e1cda78a46a671e4643a",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "847cb9f4df4941b41befdce0a93d12de1450c84f36650d606faf1365ecd3d3a7",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "4247b9022aa4b74de373ea5dd4de36d5696192abacb49c072e5a862ed5830735",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "31fae427a279f0f3d939d6801769e2e1d749841b454560d1a97b341e7c511c79",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "fb996646601ef41cf680aaea3cb86768a6bb1e4849d6db406b9f194c60e29024",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "8da84d1c7538eb49ece47be4ed17a14f97758dd553eac4b7ba532d4c6978a826",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "8e0d8f7e3f80416a0e7e2acf23b6910e463410ec83db2d5ee5253be8a0fe49bd",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "55bd34e3c378a8007b1bb4d64353374cbe297e0e26b07436f907d0c6b5946a2d",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "33fab2d8d15c9bca8cdda43bb0db5bfa996585a24e0688880b9caebb449a9fb4",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "758fb7793d150c2dbbbd684262ba2cdeacb93b01d85e73f33b3b951b3850f7bb",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "5ea485e9c5538b3f98cf35b4b231064577cdbd3bc58dc790e0bc3bd304ab2ad3",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "44babff18a45444c15a443deb2a94773cd91434fe579c9a1e964fd907e4ea532",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "cedc05ad68bdb53b4aa6177d528d813608ed0252ed243e2c8c0fbf6716ca0b90",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "1fb65b7e959d945acc622c803fcaaba797794aab7bc76399255ae2df86698914",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "c194be7c9bbd3a27a5f16aa6b81e8b299d6fae4bb807b5426fa5525ed4807680",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "88cf9140ca4a0190b505f903a02e519dc179aa01393db946a048d648fe1162d0",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "e4cf60a8b2e7f62444ade428bad3510e765c6b19c45f14cbb3a611d9e26a3124",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "d086b0e1b79acd02dbe0faa25cd55a031b6d8c88faa70e9fa5ab9ddeed6b1f97",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "50f7a1dd2acbde4db88549ce5716110e0b694eb7d1ba82215941fabe695d5c5f",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "769168cb3c8aa438aa16805faac19714625f5cd32639e40464e52149df882746",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "e117efd8ccb5fb408c1bf671cee7b47bdde144ce3b5932c00efdb128694491a4",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "124f3c28bea54d8785770023ec78f81eb9afb681acdf01e89de6621e954e8c4c",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "3c5d40a6b8386bf0999d601dd36632175eef41fc2abfac24f306976a5e58b165",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "1af4c99e7c056bd09baff5c2cf9d784f85614b5ea833c461c7233ac914d230e3",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "1eeabaeaf8c90a42e4490d7f31a5ca8e2985f32fa4018f3827783d21f0b03173",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "5bf661ee4ff4b0a3f857f37d85fe1c7dcfd2848124ea4c5743044c7a8599ab52",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "9760318dfdfce56015c7d32edbc86ab89c002e68cd64a17e3e87d7e32ffa7ec4",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "7f8eaaa7ad124eb9f9ed93f45ef8879217770359efcc77dde22b293d76742155",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "8df28d9f44d3e0812ea303f493cc1b0b089bcc94c96e11766b3098c799474cb7",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Checkpoint selected. Press Embed to use it.",
+      "source_sha256": "571e7b528117db0586c423ac800d3acce63c851a365c47dcce76acce6757430e",
+      "translation_sha256": "cadee86d5a43a98193fa714f99d241b59b64e3e7aff958bf901b22373c2c8e29",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Choose a spaCR DINO checkpoint",
+      "source_sha256": "0cec93b109717fed955a46b4ec76f5010a134adc8e609589b12fecb572e7911b",
+      "translation_sha256": "cd1ee14b5e39fc5ad8bfdb6ce40726133ef5ae5f3efb357fdb95fe7f81f748c4",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Choose an existing spaCR DINO checkpoint file.",
+      "source_sha256": "def02aacaef7bbdea5a066ee0a43a85f99ac03de7a8413e3a07e10d1007862a0",
+      "translation_sha256": "27c3e9a4921902132a434c1e26b788614dcef1e3baf024760ffe854f31e7fb85",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Epoch {epoch}/{total} — loss {loss:.3f}",
+      "source_sha256": "1ac47eec516f08f0b797d04ad2b9612acba7a263a6909bfb6ad4642c4b6ae58b",
+      "translation_sha256": "d06f26c5d2d60e50cbef683d45a5de42e27dc7591440e0d841f00ccd345e8857",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Epochs",
+      "source_sha256": "4a972946739bba49b0fe4428228a02b066e26593a8194734a9af55c324eb0dfd",
+      "translation_sha256": "6bcdd2343a5be4ff7d51710b9c690971f5651d0383977afc7965960069c1aa28",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Epochs:",
+      "source_sha256": "54449061939656f8e567c638ea12f564b47856b9a3440697517ed595eea3ca9a",
+      "translation_sha256": "c7278faec8f00f01007afeb80907595752f655da53de6e5337f935dfd5bd22dd",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Pretraining failed.",
+      "source_sha256": "eb2a2a4385915052b623080d95a5162756c39802db3b2acf228346e5d07dfc2a",
+      "translation_sha256": "011b4f2ef1a9035760895d3205ffa8837123ca619ae05ad5bc38935b1d76a331",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Pretraining progress",
+      "source_sha256": "125773a8eb8e58a5131309771a46f2ad587743ec0b259aa7500b23c5f3267c73",
+      "translation_sha256": "e87e310c0ffb6bb1261ccc964b6e5cc345a6408de1dfbfa479e2d28c49e22a87",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Pretraining stopped.",
+      "source_sha256": "7c33565d8b50cff5b17d07a82e21ea1da0d5c2c6ffb3ed46d17c725e3a6a7f5a",
+      "translation_sha256": "f36740c29aa44ae478989a3308513e04e5d536ff3352db9a016011ff7f70eaf8",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Starting pretraining…",
+      "source_sha256": "8db9f00aa0dc6e3de7487fb6270b3dda18068c25d29179e33a8d669203171096",
+      "translation_sha256": "5088081dd8b614e267e14a4c78f5b15593fb3df85986e06d4ea5a02713822711",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+      "source_sha256": "2c4ec727683a1a2e56baa7f3e632c08850a3d38dbf7ce58623f2bdf525a2f22c",
+      "translation_sha256": "a502aa39ef805478897134f37ffc3281278755a02d79c93cb1e1d45e1ad68d88",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Use own DINO checkpoint…",
+      "source_sha256": "7be0c4e3daa6314c1b5abc1cff905cbe7c7cb464629869317b160368bb9ceae1",
+      "translation_sha256": "4bfd26a5f296a1c53d64d458b7b52de173c269c361f43dacee82acc2868828fb",
+      "decision": "PASS"
+    }
+  ]
+}

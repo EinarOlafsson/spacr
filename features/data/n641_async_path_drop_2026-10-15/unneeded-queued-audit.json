@@ -1,0 +1,10 @@
+{
+  "unit": "spacr-n641-current-english-20261015.service",
+  "cancelled_before_python": true,
+  "verified_before": {
+    "970065": "/bin/bash /mnt/wd4tb/scratch/n641-file-list-drop-20261015/run-current-english.sh ",
+    "970068": "flock /mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock /home/olafsson/anaconda3/envs/spacr/bin/python tools/build_documentation_i18n.py --audit-english "
+  },
+  "verified_after": "Both queued wrapper/flock PIDs absent; no Python was launched",
+  "reason": "F580 private helper source is proven excluded by actual normal public collector/English manifest. Other incoming API prose unchanged; prior normal English13480-symbol audit remains applicable. No extra audit pass claimed."
+}

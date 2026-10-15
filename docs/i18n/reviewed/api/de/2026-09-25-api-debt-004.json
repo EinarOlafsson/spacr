@@ -1223,7 +1223,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
       "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205",
-      "translation": "Auch ein Ladevorgang von Bildausschnitten zählt. Er ist bei Weitem der längere der beiden Aufträge -- eine Platte voller Bildausschnitte von einem Netzlaufwerk dauert Minuten --, und eine Ansicht, die sich währenddessen als untätig meldete, würde das Fenster über einem laufenden Lesevorgang schließen lassen."
+      "translation": "Auch ein Ladevorgang von Bildausschnitten zählt. Er ist bei Weitem der längere der beiden Aufträge -- eine Platte voller Bildausschnitte von einem Netzlaufwerk dauert Minuten --, und eine Ansicht, die sich währenddessen als untätig meldete, würde das Fenster über einem laufenden Lesevorgang schließen lassen.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Embedding runner lifecycle documentation corrected in f35b59248ae + efe3784e64a. Replacement exact-source review is2026-10-15-f561-lifecycle-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Plan the selection, then read it a page at a time.",
