@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review; independent source-semantic peer review requested; no native-speaker signoff",
+  "note": "Seventeen changed or new blocks in nine existing symbols from documentation-only source e8d45689ab5 plus35aa6c146f3; executable AST and comments unchanged. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.job_runner#6",
+      "source": "Result delivery and thread retirement are separate. :meth:`cancel` clears pending deliveries immediately; a late completion then emits no ``job_finished`` signal. The finished-thread sweep still releases the thread references independently.",
+      "context": "Result delivery and independent execution path retirement are separate. :meth:`cancel` clears pending deliveries immediately; a late completion then emits no ``job_finished`` signal. The finished-independent execution path sweep still releases the independent execution path references independently.",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "previous_same_source_indexes": [],
+      "translation": "La entrega de resultados y la liberación de referencias a hilos son independientes. :meth:`cancel` borra inmediatamente las entregas pendientes; una finalización tardía ya no emite la señal ``job_finished``. El barrido de hilos terminados sigue liberando sus referencias de forma independiente.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner#7",
+      "source": "Threaded submissions go through ``make_thread``, so they appear in the process-wide :func:`spacr.qt.bridge.registry` and turn the background activity spinner (:mod:`spacr.qt.widgets.activity_spinner`). Inline mode bypasses this registration and does not change the runner's busy state.",
+      "context": "Executed in a worker submissions go through ``make_thread``, so they appear in the process-wide :func:`spacr.qt.bridge.registry` and turn the background activity spinner (:mod:`spacr.qt.widgets.activity_spinner`). Inline mode bypasses this registration and does not change the runner's busy state.",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "previous_same_source_indexes": [],
+      "translation": "Los trabajos con hilos pasan por ``make_thread``, por lo que aparecen en :func:`spacr.qt.bridge.registry`, compartido por todo el proceso, y activan el indicador de actividad en segundo plano (:mod:`spacr.qt.widgets.activity_spinner`). El modo en línea omite este registro y no cambia el estado ocupado del ejecutor.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source": "Cancel live runners; return how many shutdown calls completed normally.",
+      "context": "Cancel live runners; return how many shutdown calls completed normally.",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "previous_same_source_indexes": [],
+      "translation": "Solicitar la cancelación de los ejecutores activos; devolver cuántas llamadas de apagado terminaron normalmente.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source": "Call before Qt starts destroying widgets. Cancellation is requested for all runners before any wait, then they share one ``timeout_ms`` wait deadline. This bounds thread waiting, not the total application exit time. Threads that outlast the budget are parked by :func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown calls are logged, excluded from the return count, and do not stop the remaining runners from being processed.",
+      "context": "Call before Qt starts destroying widgets. Cancellation is requested for all runners before any wait, then they share one ``timeout_ms`` wait deadline. This bounds independent execution path waiting, not the total application exit time. Independent execution paths that outlast the budget are parked by :func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown calls are logged, excluded from the return count, and do not stop the remaining runners from being processed.",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "previous_same_source_indexes": [],
+      "translation": "Llamar antes de que Qt empiece a destruir widgets. Se solicita la cancelación de todos los ejecutores antes de cualquier espera y después comparten un único plazo de espera de ``timeout_ms``. Esto limita la espera de los hilos, no el tiempo total de salida de la aplicación. Los hilos que superan el plazo quedan retenidos por :func:`spacr.qt.bridge.drain_thread`, sin terminación forzada. Las llamadas de apagado fallidas se registran, se excluyen del recuento devuelto y no impiden procesar los demás ejecutores.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source": "``False`` runs work and its handler inline on the calling thread. Failure and completion signals are emitted before return; no worker is registered and busy state does not change.",
+      "context": "``False`` runs work and its handler inline on the calling independent execution path. Failure and completion signals are emitted before return; no worker is registered and busy state does not change.",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "previous_same_source_indexes": [],
+      "translation": "``False`` ejecuta el trabajo y su manejador en línea en el hilo que realiza la llamada. Las señales de error y finalización se emiten antes del retorno; no se registra ningún trabajador y el estado ocupado no cambia.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source": "run jobs on a worker thread. ``False`` runs work and its handler on the calling thread without registering a worker or changing busy state.",
+      "context": "run jobs on a background execution unit. ``False`` runs work and its handler on the calling independent execution path without registering a worker or changing busy state.",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "previous_same_source_indexes": [],
+      "translation": "ejecutar trabajos en un hilo de trabajo. ``False`` ejecuta el trabajo y su manejador en el hilo que realiza la llamada, sin registrar un trabajador ni cambiar el estado ocupado.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source": "Submit ``fn()`` and deliver its successful result to ``on_done``.",
+      "context": "Submit ``fn()`` and deliver its successful result to ``on_done``.",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "previous_same_source_indexes": [],
+      "translation": "Enviar ``fn()`` y entregar su resultado satisfactorio a ``on_done``.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source": "a zero-argument callable. In threaded mode it runs off the GUI thread and must not touch widgets. Inline mode runs it on the calling thread.",
+      "context": "a zero-argument callable. In executed in a worker mode it runs off the main GUI execution path and must not touch widgets. Inline mode runs it on the calling independent execution path.",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "previous_same_source_indexes": [],
+      "translation": "una función invocable sin argumentos. En el modo con hilos se ejecuta fuera del hilo GUI y no debe manipular widgets. El modo en línea la ejecuta en el hilo que realiza la llamada.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source": "optional handler for ``fn``'s return value, called on the GUI thread in threaded mode or inline otherwise. Cancellation discards pending threaded deliveries.",
+      "context": "optional handler for ``fn``'s return value, called on the main GUI execution path in executed in a worker mode or inline otherwise. Cancellation discards pending executed in a worker deliveries.",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "previous_same_source_indexes": [],
+      "translation": "manejador opcional del valor devuelto por ``fn``, llamado en el hilo GUI en el modo con hilos o en línea en caso contrario. La cancelación descarta las entregas pendientes de trabajos con hilos.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source": "``True`` after starting a threaded job, before its outcome is known. Inline mode returns ``False`` if either callable raises an exception; otherwise it returns ``True``.",
+      "context": "``True`` after starting a background job, before its outcome is known. Inline mode returns ``False`` if either callable raises an exception; otherwise it returns ``True``.",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "previous_same_source_indexes": [],
+      "translation": "``True`` después de iniciar un trabajo con hilos, antes de conocer su resultado. El modo en línea devuelve ``False`` si cualquiera de las dos funciones invocables lanza una excepción; de lo contrario, devuelve ``True``.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source": "Whether threaded completions are pending; cancel clears this immediately.",
+      "context": "Whether executed in a worker completions are pending; cancel clears this immediately.",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "previous_same_source_indexes": [],
+      "translation": "Indica si hay finalizaciones de trabajos con hilos pendientes; la cancelación borra este estado inmediatamente.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source": "Inline work does not set this flag. A cancelled worker may still be running after this returns ``False``.",
+      "context": "Inline work does not set this flag. A cancelled worker may still be executing after this returns ``False``.",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "previous_same_source_indexes": [],
+      "translation": "El trabajo en línea no activa esta bandera. Un trabajador cancelado puede seguir ejecutándose después de que esto devuelva ``False``.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source": "Count tracked worker references, including running or not-yet-retired jobs.",
+      "context": "Count tracked worker references, including running or not-yet-retired jobs.",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "previous_same_source_indexes": [],
+      "translation": "Contar las referencias a trabajadores que se mantienen, incluidos los trabajos en ejecución o aún no retirados.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source": "Finished threads remain counted until the retirement sweep. Shutdown clears this count even when a thread has been parked elsewhere.",
+      "context": "Finished threads remain counted until the retirement sweep. Shutdown clears this count even when a thread has been parked elsewhere.",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "previous_same_source_indexes": [],
+      "translation": "Los hilos terminados siguen contándose hasta el barrido de retirada. El apagado pone el recuento a cero incluso si un hilo ha quedado retenido en otro lugar.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source": "Count pending threaded completion records, cleared immediately by cancel.",
+      "context": "Count pending executed in a worker completion records, cleared immediately by cancel.",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "previous_same_source_indexes": [],
+      "translation": "Contar los registros de finalización pendientes de trabajos con hilos; la cancelación los borra inmediatamente.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source": "Request thread interruption without waiting, then clear pending deliveries and busy state immediately. Late completions are ignored and emit no ``job_finished`` signal. Worker references remain until retirement or shutdown; interruption does not forcibly stop work. A worker's error signal can still emit ``job_failed``.",
+      "context": "Request independent execution path interruption without waiting, then clear pending deliveries and busy state immediately. Late completions are ignored and emit no ``job_finished`` signal. Worker references remain until retirement or shutdown; interruption does not forcibly stop work. A worker's error signal can still emit ``job_failed``.",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "previous_same_source_indexes": [],
+      "translation": "Solicitar la interrupción de los hilos sin esperar y después borrar inmediatamente las entregas pendientes y el estado ocupado. Las finalizaciones tardías se ignoran y no emiten la señal ``job_finished``. Las referencias a trabajadores se conservan hasta su retirada o el apagado; la interrupción no detiene el trabajo por la fuerza. La señal de error de un trabajador todavía puede emitir ``job_failed``.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source": "Cancel deliveries, then wait within a shared budget or park live threads.",
+      "context": "Cancel deliveries, then wait within a shared budget or park live threads.",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "previous_same_source_indexes": [],
+      "translation": "Cancelar las entregas y después esperar dentro de un plazo compartido o retener los hilos activos.",
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

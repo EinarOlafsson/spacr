@@ -252,3 +252,17 @@ source/locale pairs with normal scoped generation, published in0b9a828c97b.
 Unrelated13,401 API records per locale were retained. Evidence:
 features/data/cache_doc_catalogs_2026-10-15/. This closes the preceding
 source/derived-artifact batch; the wider semantic sweep is still open.
+
+2026-10-15 — JobRunner lifecycle documentation corrected.
+The documented cancellation, pending/busy counts, inline execution, shutdown
+budget and surviving-thread behavior now match actual code. Executable AST and
+comments are unchanged. Independent technical review covers172 target blocks:
+153 initial changes,18 genuine historical timeout/parking repairs or additions,
+and one previously English Icelandic heading. Normal guarded attempts correctly
+refused missing provenance/context; actual capped normal fallback then passed
+with a fresh canonical equality recheck and669 stable source hashes. No decoder
+requests. All unrelated API records are retained; normal history writer prunes
+only two hashes proven unreferenced across all ten catalogs. Normal Help search
+regeneration passes. Evidence:features/data/678_job_runner_api_catalogs_2026-10-15/
+and related source, historical-repair and independent peer directories.
+This is a bounded correctness delivery; the wider semantic sweep remains open.

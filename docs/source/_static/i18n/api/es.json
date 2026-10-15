@@ -82222,11 +82222,11 @@
         "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
         "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
         "35459c9d59856122a87e062b581e4055eab02cf6ba3e89cc06ef8affd6c24267",
-        "488c10c66e8c94acde0054ae4de4358f57d83b0371189aab491d3927ffb3c9f8",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+        "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993"
       ],
-      "source_sha256": "cd34b82e0fef38a00f7ef640845299630faacc7d3f1db642735fd671d4fe483a",
-      "text": "Ejecute una ruta de ejecución GUI principal y envíe su resultado en la ruta de ejecuciÃ3n GUI principal.\n\nLas vistas de aplicaciones como ``DbBrowserScreen``, ``PlateViewScreen`` y ``ReportScreen`` anteriormente tenían su propia copia de esta lógica, y las copias diferían: dos conectadas ``thread.finished`` a un *closure*, que nunca retira el trabajo (ver :meth:`_retire_finished_jobs`). Este módulo implementa las reglas una vez, para cualquier vista de aplicación que mueve el trabajo fuera de la ruta de ejecución principal GUI.\n\nLas normas:\n\n* ``PipelineWorker.finished`` se emite **en la unidad de ejecución de fondo**. Allí se invoca un cierre conectado a él. Tocar un widget de él es un comportamiento indefinido. Lo único seguro que una ranura en esa señal puede hacer es reemitir un ``Signal`` cuyo receptor es un método atado de un objeto principal de ruta de ejecución GUI -- Qt luego programa la llamada en la ruta principal de ejecución GUI.\n* **Requisito de receptor QObject.** Conecte ``QThread.finished`` a un método de un QObject perteneciente al hilo de la GUI. No use un cierre. PySide6 asigna el propio QThread como receptor del cierre. :func:`spacr.qt.bridge.make_thread` conecta primero ``thread.finished -> thread.deleteLater``. Las ranuras se ejecutan en orden de conexión, de modo que DeferredDelete se publica antes de la llamada al cierre. Qt descarta entonces la llamada en cola tras destruir su receptor. El trabajo queda activo y ``active_jobs()`` nunca llega a cero.\n* Una fuerte referencia tanto a la QThread como al trabajador debe mantenerse hasta ``thread.finished``. Una basura QThread recolectada mientras se ejecuta aborta el proceso.\n* El controlador de la terminación debe ejecutar para **cada** trabajo, incluyendo uno cuyo resultado ya no se desea, o las fugas de contabilidad y la cribado es permanentemente \"busy\". Si el *resultado* se utiliza es una decisión separada, tomada desde el contador de generación -- véase :meth:`cancel`.\n\nTodo lo que se envía aquí pasa por ``make_thread``, por lo que aparece en el proceso-ancho :func:`spacr.qt.bridge.registry` y gira el spinner de actividad de fondo (:mod:`spacr.qt.widgets.activity_spinner`) sin que el llamante haga nada.",
+      "source_sha256": "ef279b22872ef65edf0387969c89ca9dba19ecc717bfa5727e00509fe99d65af",
+      "text": "Ejecute una ruta de ejecución GUI principal y envíe su resultado en la ruta de ejecuciÃ3n GUI principal.\n\nLas vistas de aplicaciones como ``DbBrowserScreen``, ``PlateViewScreen`` y ``ReportScreen`` anteriormente tenían su propia copia de esta lógica, y las copias diferían: dos conectadas ``thread.finished`` a un *closure*, que nunca retira el trabajo (ver :meth:`_retire_finished_jobs`). Este módulo implementa las reglas una vez, para cualquier vista de aplicación que mueve el trabajo fuera de la ruta de ejecución principal GUI.\n\nLas normas:\n\n* ``PipelineWorker.finished`` se emite **en la unidad de ejecución de fondo**. Allí se invoca un cierre conectado a él. Tocar un widget de él es un comportamiento indefinido. Lo único seguro que una ranura en esa señal puede hacer es reemitir un ``Signal`` cuyo receptor es un método atado de un objeto principal de ruta de ejecución GUI -- Qt luego programa la llamada en la ruta principal de ejecución GUI.\n* **Requisito de receptor QObject.** Conecte ``QThread.finished`` a un método de un QObject perteneciente al hilo de la GUI. No use un cierre. PySide6 asigna el propio QThread como receptor del cierre. :func:`spacr.qt.bridge.make_thread` conecta primero ``thread.finished -> thread.deleteLater``. Las ranuras se ejecutan en orden de conexión, de modo que DeferredDelete se publica antes de la llamada al cierre. Qt descarta entonces la llamada en cola tras destruir su receptor. El trabajo queda activo y ``active_jobs()`` nunca llega a cero.\n* Una fuerte referencia tanto a la QThread como al trabajador debe mantenerse hasta ``thread.finished``. Una basura QThread recolectada mientras se ejecuta aborta el proceso.\n* La entrega de resultados y la liberación de referencias a hilos son independientes. :meth:`cancel` borra inmediatamente las entregas pendientes; una finalización tardía ya no emite la señal ``job_finished``. El barrido de hilos terminados sigue liberando sus referencias de forma independiente.\n\nLos trabajos con hilos pasan por ``make_thread``, por lo que aparecen en :func:`spacr.qt.bridge.registry`, compartido por todo el proceso, y activan el indicador de actividad en segundo plano (:mod:`spacr.qt.widgets.activity_spinner`). El modo en línea omite este registro y no cambia el estado ocupado del ejecutor.",
       "translation_source_blocks_sha256": [
         "dcdc4c7885888d598e472129494ded92b6ab9df1834c2ebf6ee2ba0c8a7d5f1c",
         "a80b94ff03948af31dc3e3a8d3ecb9c535b15696a1a8c59be7578c3ad8784223",
@@ -82234,120 +82234,126 @@
         "da0963d1bc57319ebdcf93a8b98919a0b2cac1cd514a258e088d764319a035e8",
         "881e8b01d32db2658fbcde0c99b69443140de833e47aa3495931c050f43cbbcb",
         "b86b36add38a7d26b9ed0067cbab9205d54f947de1cbea68b2546c8bfa9d0b10",
-        "4392e74130acfcd7fc08a0519d476eb323c6a70c063cc4fff11b5bcec9c23b50",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+        "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae"
       ]
     },
     "spacr.qt.job_runner.JobRunner": {
       "source_blocks_sha256": [
         "8910cf72a115abde1ce47627f46226b8d8f4891b352a6e6eb53290b3c0154698",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
         "b2d33c392b0cc478caf2e1a94221d54ad2ce7dae155ba96dee697eee7a63119e",
         "af9f2b99ce97cad3e0986be5f14829bf8e8b4f9755a0c70534d71237418a97b7",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "048b85c784cc96d879067fff66c027830096bc801c4849097d547a9be221c6a6",
+        "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "d5d9e078cc2c8b2ca8657098691a4a8b3aeeeb82e7367d8b6e9b5e79bf4444f1"
       ],
-      "source_sha256": "09fdc24666af59626c2fd54da3e8c8fcfd6830f3d29598359e2c92aee46c00cf",
-      "text": "Ejecute callables fuera de la ruta principal de ejecución GUI; envíe sus resultados en ella.\n\n:param parent: el widget que posee el trabajo. Se mantuvo como el padre del corredor Qt para que el corredor muera con él.\n:param threaded: ``False`` ejecuta cada trabajo en línea, emitiendo las mismas señales en el mismo orden, por lo que una prueba puede conducir una cribado de forma sincrónica sin el comportamiento divergente.\n:param app_key: los trabajos de nombre aparecen debajo en el registro de la sesión de procesamiento, y así en la punta de herramienta de la actividad spinner.\n:param user_visible: ``False`` para la limpieza del usuario no se inició. Tal trabajo todavía hace girar la spinner de actividad -- algo que está ejecutando -- pero nunca reclama un banner de sesión de procesamiento. El poller de uso envía cada dos segundos; sin este Home parpadea el uso \"<module> - ejecución\" encendido y apagado durante el tiempo que una vista de aplicación de módulo está abierta.\nCrear un corredor para el trabajo de fondo de un widget.\n\nSe registra a sí mismo en el momento en que existe, por lo que un corredor no puede ser creado y luego se pierde por el drenaje de tiempo de salida; el registro es débil, así que no mantiene nada vivo que Qt de otro modo se recogería.\n\n:param parent: el objeto propietario, o ``None``.\n:param threaded: ejecutar trabajos en una unidad de ejecución de fondo. ``False`` ejecuta cada uno en línea, emitiendo las mismas señales en el mismo orden.\n:param app_key: cómo se nombra el trabajo de este corredor en el registro de ejecución.\n:param user_visible: si estos trabajos cuentan como se ejecuta el usuario iniciado. Establecer ``False`` para la limpieza, por lo que el banner de ejecución de Home no lo muestra como una sesión de procesamiento.",
+      "source_sha256": "6e5f679c082897d95cb6376dc3948c809ece12d9de1ba17932d35ad8b73c288b",
+      "text": "Ejecute callables fuera de la ruta principal de ejecución GUI; envíe sus resultados en ella.\n\n:param parent: el widget que posee el trabajo. Se mantuvo como el padre del corredor Qt para que el corredor muera con él.\n:param threaded: ``False`` ejecuta el trabajo y su manejador en línea en el hilo que realiza la llamada. Las señales de error y finalización se emiten antes del retorno; no se registra ningún trabajador y el estado ocupado no cambia.\n:param app_key: los trabajos de nombre aparecen debajo en el registro de la sesión de procesamiento, y así en la punta de herramienta de la actividad spinner.\n:param user_visible: ``False`` para la limpieza del usuario no se inició. Tal trabajo todavía hace girar la spinner de actividad -- algo que está ejecutando -- pero nunca reclama un banner de sesión de procesamiento. El poller de uso envía cada dos segundos; sin este Home parpadea el uso \"<module> - ejecución\" encendido y apagado durante el tiempo que una vista de aplicación de módulo está abierta.\nCrear un corredor para el trabajo de fondo de un widget.\n\nSe registra a sí mismo en el momento en que existe, por lo que un corredor no puede ser creado y luego se pierde por el drenaje de tiempo de salida; el registro es débil, así que no mantiene nada vivo que Qt de otro modo se recogería.\n\n:param parent: el objeto propietario, o ``None``.\n:param threaded: ejecutar trabajos en un hilo de trabajo. ``False`` ejecuta el trabajo y su manejador en el hilo que realiza la llamada, sin registrar un trabajador ni cambiar el estado ocupado.\n:param app_key: cómo se nombra el trabajo de este corredor en el registro de ejecución.\n:param user_visible: si estos trabajos cuentan como se ejecuta el usuario iniciado. Establecer ``False`` para la limpieza, por lo que el banner de ejecución de Home no lo muestra como una sesión de procesamiento.",
       "translation_source_blocks_sha256": [
         "3dfbd1c06cb216af429e8680cbf6669545d07a9215a67352e953085a691ca243",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
         "3e5af743fb8ed6790be78403f93529d3dfb6ed4bf70068864d43019d94bea1f0",
         "91cf99fb87ff23d7b09bd341260c49cf3dc97d8cca8c34cbaa1812f447cc6cba",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "5ebb543cc092cda186edc74c53232e85628ee9c1012ed2a577c2299c83e67b18",
+        "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "460cd539047c66bcf53f8057ca4d5e32272103c0b52b4eff441a7b3aa10691ea"
       ]
     },
     "spacr.qt.job_runner.JobRunner.active_jobs": {
       "source_blocks_sha256": [
-        "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ],
-      "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
-      "text": "¿Cuántas unidades de ejecución de fondo todavía están desapareciendo.",
+      "source_sha256": "d9dade8b109f8c2925c6e84b31b312d13a2d9978424cee210ca6f2cc3263c3a6",
+      "text": "Contar las referencias a trabajadores que se mantienen, incluidos los trabajos en ejecución o aún no retirados.\n\nLos hilos terminados siguen contándose hasta el barrido de retirada. El apagado pone el recuento a cero incluso si un hilo ha quedado retenido en otro lugar.",
       "translation_source_blocks_sha256": [
-        "19c49fa615bddff20814365f7d0a7c265789612bd4a9a793342b2034ccef4f97"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ]
     },
     "spacr.qt.job_runner.JobRunner.cancel": {
       "source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "3cf69411195547dd50f165161356a8c44dd6043b2d8ab28129d9e3283ce37131"
+        "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24"
       ],
-      "source_sha256": "46c7a780a1ab844880b06ac514b56ca3a3d3751ceb567580db645dac5991a9e2",
-      "text": "Abandonar los resultados de todo en vuelo.\n\nLas rutas de ejecución independientes se les pide que se detengan y luego se les deja retirarse; están unidas *no*, porque la unión bloquearía la ruta de ejecución principal GUI. Sus resultados se dejan caer a la llegada por el control de generación, por lo que nada llega a un controlador que puede estar a punto de ser destruido.",
+      "source_sha256": "f7a0bdc5abb5129e7fbf51833ad4084665d294f8d4b19a8df9a18a9e3cc26b5e",
+      "text": "Abandonar los resultados de todo en vuelo.\n\nSolicitar la interrupción de los hilos sin esperar y después borrar inmediatamente las entregas pendientes y el estado ocupado. Las finalizaciones tardías se ignoran y no emiten la señal ``job_finished``. Las referencias a trabajadores se conservan hasta su retirada o el apagado; la interrupción no detiene el trabajo por la fuerza. La señal de error de un trabajador todavía puede emitir ``job_failed``.",
       "translation_source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "d18f4c3ea2a3b2b84f11f95ab1b8273ee14292e47af4c5297a38e95c80d2f6ca"
+        "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb"
       ]
     },
     "spacr.qt.job_runner.JobRunner.is_busy": {
       "source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+        "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285"
       ],
-      "source_sha256": "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5",
-      "text": "True mientras que un trabajo presentado aún no ha entregado su resultado.",
+      "source_sha256": "d44c1fd351b00059fe72a830f20b2a48604cd4f49afc6ffc54c3aa643dbd0202",
+      "text": "Indica si hay finalizaciones de trabajos con hilos pendientes; la cancelación borra este estado inmediatamente.\n\nEl trabajo en línea no activa esta bandera. Un trabajador cancelado puede seguir ejecutándose después de que esto devuelva ``False``.",
       "translation_source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+        "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b"
       ]
     },
     "spacr.qt.job_runner.JobRunner.pending_jobs": {
       "source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193"
       ],
-      "source_sha256": "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6",
-      "text": "¿Cuántos resultados no se han obtenido todavía?",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "text": "Contar los registros de finalización pendientes de trabajos con hilos; la cancelación los borra inmediatamente.",
       "translation_source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9"
       ]
     },
     "spacr.qt.job_runner.JobRunner.shutdown": {
       "source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "0816cfadd686e835c533d078a9ff374dbff4740a8ea48b59e01c3cefd988cb16"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e"
       ],
-      "source_sha256": "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
-      "text": "Cancelar, luego esperar brevemente para que ningún QThread sobreviva al widget.\n\nLlamada desde ``closeEvent``. Qt aborta el proceso si se destruye una ejecución QThread, por lo que se necesita una espera limitada cuando una vista de la aplicación se cierra a mitad de la carga. Rutas de ejecución independientes que duran más que el presupuesto están estacionados por :func:`spacr.qt.bridge.drain_thread` en lugar de terminadas.",
+      "source_sha256": "c96601558323f911ac19bebf17e41546c66554ebe2c6d143ae4aecc5c5818928",
+      "text": "Cancelar las entregas y después esperar dentro de un plazo compartido o retener los hilos activos.\n\nLlamar desde ``closeEvent``. Qt aborta el proceso si se destruye un QThread en ejecución, por lo que se necesita una espera limitada cuando una pantalla se cierra durante la carga. Todos los hilos de este ejecutor comparten ``timeout_ms``. Los hilos que superan ese tiempo quedan retenidos por :func:`spacr.qt.bridge.drain_thread` en lugar de terminarse por la fuerza.",
       "translation_source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "11328991d433b99f114901d8cb645f7101cc471cc31a5ceb0b8ec45eab24d7bb"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd"
       ]
     },
     "spacr.qt.job_runner.JobRunner.submit": {
       "source_blocks_sha256": [
-        "12af44ef7e5938ea0c5f618207afc691e4ef1e01bd1750b09b63daeb772e894c",
-        "3194492a23e4afb0b7c8b3e0e4039de6a49c779dd584968a70e518764dd48b10",
-        "c7c9aad31a6bd67766a3f96db07f69b27590a0ca5fb1cf05d8afcb7c346e59c5",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+        "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+        "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b"
       ],
-      "source_sha256": "e582622136df8f041658862e9493736bd484422b600c0cb5cc99ea658b6bef37",
-      "text": "Ejecutar ``fn()`` fuera de la ruta principal de ejecución GUI, luego ``on_done(result)`` en ella.\n\n:param fn: Se ejecuta en una unidad de ejecución de fondo y **no debe tocar ningún widget** -- devuelve los datos en su lugar.\n:param on_done: se llama a la ruta principal de ejecución GUI con el valor de retorno de ``fn``.\n:returns: True cuando se inició el trabajo (o, no roscado, ejecutado).",
+      "source_sha256": "97f0e63400fd95006431fc04c4ea7d7587ff52d9e3cbb9178f42dcb3247783eb",
+      "text": "Enviar ``fn()`` y entregar su resultado satisfactorio a ``on_done``.\n\n:param fn: una función invocable sin argumentos. En el modo con hilos se ejecuta fuera del hilo GUI y no debe manipular widgets. El modo en línea la ejecuta en el hilo que realiza la llamada.\n:param on_done: manejador opcional del valor devuelto por ``fn``, llamado en el hilo GUI en el modo con hilos o en línea en caso contrario. La cancelación descarta las entregas pendientes de trabajos con hilos.\n:returns: ``True`` después de iniciar un trabajo con hilos, antes de conocer su resultado. El modo en línea devuelve ``False`` si cualquiera de las dos funciones invocables lanza una excepción; de lo contrario, devuelve ``True``.",
       "translation_source_blocks_sha256": [
-        "80f86748c347b4f721d1c7df2e1fa9a0f4e7d15ee7552173a3c3ba87af92741e",
-        "43343668990e9ecb58921a6a3c209b09103cdb176379655b000d5ed5f975dc8b",
-        "88f69f9e8ee7ba8aa0c01335e900d6bcfd921366fe686a34b264625106726951",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+        "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+        "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589"
       ]
     },
     "spacr.qt.job_runner.shutdown_all": {
       "source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ],
-      "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
-      "text": "Detenga cada JobRunner en vivo. Devuelve cuántos fueron preguntados.\n\nLlame una vez en la salida, antes de que Qt comience a destruir widgets. Ordenar importa más que la integridad aquí: un corredor que no puede parar en el tiempo está estacionado por `bridge.drain_thread` en lugar de terminado, por lo que esto está limitado.",
+      "source_sha256": "d370dad5b5a783bca409e24001d83745abf282841e4f0b4b9e9c742ba75156c6",
+      "text": "Solicitar la cancelación de los ejecutores activos; devolver cuántas llamadas de apagado terminaron normalmente.\n\nLlamar antes de que Qt empiece a destruir widgets. Se solicita la cancelación de todos los ejecutores antes de cualquier espera y después comparten un único plazo de espera de ``timeout_ms``. Esto limita la espera de los hilos, no el tiempo total de salida de la aplicación. Los hilos que superan el plazo quedan retenidos por :func:`spacr.qt.bridge.drain_thread`, sin terminación forzada. Las llamadas de apagado fallidas se registran, se excluyen del recuento devuelto y no impiden procesar los demás ejecutores.\n\n:param timeout_ms: el tiempo total de espera disponible para todos los ejecutores en conjunto.",
       "translation_source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ]
     },
     "spacr.qt.laptop_mode": {
@@ -170660,14 +170666,14 @@
       "source_blocks_sha256": [
         "bc3b3f790771c3ac5febee6db66a8bea14cd1d1087fe073b3a6f003280b46a4c",
         "5ffe31d50c50026a60679aed48f0590e27b00d22db0d6ab50cc14f14e8b0755c",
-        "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c"
+        "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343"
       ],
-      "source_sha256": "3b12859878d36eccfdbfea157c85ab7fbde617a91f9505506ec36950f7b9fcb2",
-      "text": "Devuelve un guardado :meth:`plot_state`. Devuelve si se aplicó.\n\nCada setter público aquí redibuja, así que restaurar nueve de ellos a través de nueve setters dibujaría el panel nueve veces en cada interruptor de sesión de procesamiento -- y los fotogramas intermedios son de combinaciones que el usuario nunca eligió.\n\n:param state: diccionario tal como lo devuelve :meth:`plot_state`; las claves que le falten conservan su valor actual. No se aplica nada cuando no es un diccionario o no hay ninguna tabla cargada.",
+      "source_sha256": "1b651f58a50e5eff99149c5c8ee0b7457907b99cc47be1690a559d883dd7de7a",
+      "text": "Devuelve un guardado :meth:`plot_state`. Devuelve si se aplicó.\n\nCada setter público aquí redibuja, así que restaurar nueve de ellos a través de nueve setters dibujaría el panel nueve veces en cada interruptor de sesión de procesamiento -- y los fotogramas intermedios son de combinaciones que el usuario nunca eligió.\n\n:param state: dict devuelto por :meth:`plot_state`; las claves ausentes conservan su valor actual. No se aplica nada si el valor no es un dict o no hay ninguna tabla cargada. Un ``None`` explícito para el color desactiva la coloración. Siguen siendo compatibles los estados antiguos que solo contienen ``selected_key``.",
       "translation_source_blocks_sha256": [
         "bc3b3f790771c3ac5febee6db66a8bea14cd1d1087fe073b3a6f003280b46a4c",
         "d37a5a50f27f13134a33683ecb17875494e84b1bc31269a90abfb953e0117f07",
-        "4dc2a6986b1d1351de09411f04856f44bf6bb9d389720880bf30ac0845686db6"
+        "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state": {
@@ -170972,14 +170978,16 @@
       "source_blocks_sha256": [
         "d16a8a97e6ad7b9ba2a827ebe3e37812d6a8074428e84bcc4123ee5828290a6f",
         "a2c610687c28676b1a215fd06bc26f7a327d4601cb56f04f9346ef0bb717a698",
-        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08"
+        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08",
+        "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7"
       ],
-      "source_sha256": "6656ac222b7b87c29545d47a8d44200dcc2e3f673cff048768dae906f8741bf7",
-      "text": "Lo que el usuario ha construido en la parcela, como datos.\n\nCada ejecución de regresión mantiene su propio estado de trama. El experimento de proyección tiene un volcán que cada ejecución utiliza, por lo que sin esto, la ejecución de apertura B descartaría el nivel, la coloración, los límites del eje, el corte de efecto y la selección elegida en la ejecución A.\n\nTodo aquí pertenece a la ejecución, no al widget. La columna de color se almacena por nombre en lugar de por índice, porque el tabla combinado se reconstruye de las propias columnas de cada tabla y el índice 3 es una columna diferente en la siguiente ejecución.",
+      "source_sha256": "fe485e4258701db737818d6b6a10e4e963bdb4520c428f1cb27d5123a85e3f8e",
+      "text": "Lo que el usuario ha construido en la parcela, como datos.\n\nCada ejecución de regresión mantiene su propio estado de trama. El experimento de proyección tiene un volcán que cada ejecución utiliza, por lo que sin esto, la ejecución de apertura B descartaría el nivel, la coloración, los límites del eje, el corte de efecto y la selección elegida en la ejecución A.\n\nTodo aquí pertenece a la ejecución, no al widget. La columna de color se almacena por nombre en lugar de por índice, porque el tabla combinado se reconstruye de las propias columnas de cada tabla y el índice 3 es una columna diferente en la siguiente ejecución.\n\n``selected_keys`` contiene la selección completa de la tabla; el antiguo ``selected_key`` también conserva la clave activa usada por los gráficos vinculados. ``symbol_by`` y ``opacity_by`` registran de forma independiente las columnas elegidas para la forma de los marcadores y la opacidad, incluido ``None`` para un canal sin usar, de modo que un canal de forma vacío no cambie la función de la opacidad.",
       "translation_source_blocks_sha256": [
         "d16a8a97e6ad7b9ba2a827ebe3e37812d6a8074428e84bcc4123ee5828290a6f",
         "d8ef6e7982637cd45d2012b88ec266aa0d6bcc3a1c3a4c1901980f4c30b21678",
-        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08"
+        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08",
+        "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.ranking": {

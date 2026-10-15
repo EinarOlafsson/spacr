@@ -1,0 +1,9 @@
+{
+  "source_base": "fd908ba35",
+  "baseline": "9 FAIL / 8 PASS, 1.52 s; new diagnostic boundary failures include preexisting scalar/index errors, not nine silent corruption claims",
+  "owning": "24 PASS, 8.44 s: 17 new boundary/valid shape controls and seven existing spectral unmixing tests",
+  "counterexample": "Actual 2D control selection interprets spatial columns as channels; good plan accepts 2D input and changes only two spatial columns. Private synthetic controls and input bytes unchanged.",
+  "source_sha256": "b2efb304ae31a12f4ba0208a2295962f6eb95a22e86e1963ad1a53a04121b479",
+  "limits": "No upper dimension restriction, preserved explicit C1 and leading axes; no matrix, rank, threshold or PSF algorithm change. Real double-stain, biological efficacy and global CI remain open.",
+  "localization": "Nine targets independently technically reviewed; normal writer/full nine audit/arrival and 18 actual localized guard cases pending."
+}

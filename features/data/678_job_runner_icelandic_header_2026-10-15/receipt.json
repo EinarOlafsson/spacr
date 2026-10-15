@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "source_commits": [
+    "e8d45689ab5",
+    "35aa6c146f3"
+  ],
+  "record": {
+    "language": "is",
+    "label": "spacr.qt.job_runner#0",
+    "source": "Run a callable off the GUI thread and deliver its result on the GUI thread.",
+    "context": "Run a callable off the main GUI execution path and deliver its result on the main GUI execution path.",
+    "source_sha256": "f442cfec0c08ddd71264193932b78e337dd3dbdf330a7b6b38e8f2a1d222bc5c",
+    "translation": "Keyra kallanlegt fall utan GUI-þráðarins og afhenda niðurstöðu þess á GUI-þræðinum.",
+    "old_translation": "Run a callable off the GUI thread and deliver its result on the GUI thread.",
+    "old_target_sha256": "f442cfec0c08ddd71264193932b78e337dd3dbdf330a7b6b38e8f2a1d222bc5c",
+    "new_target_sha256": "a76e0dcfd0ca756da103e371e0375dc856bfe790d384daaf1037262615324cba",
+    "old_catalog_record": {
+      "source_blocks_sha256": [
+        "f442cfec0c08ddd71264193932b78e337dd3dbdf330a7b6b38e8f2a1d222bc5c",
+        "4196eb0fc3448452ffdd1474fa6d9fcd1aec512183f979623d9cb2875f6ddd83",
+        "5b35c540a85ee04b577f56ebf7803077454062617d6e23a3a8c71fc1113685c5",
+        "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
+        "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
+        "35459c9d59856122a87e062b581e4055eab02cf6ba3e89cc06ef8affd6c24267",
+        "488c10c66e8c94acde0054ae4de4358f57d83b0371189aab491d3927ffb3c9f8",
+        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+      ],
+      "source_sha256": "cd34b82e0fef38a00f7ef640845299630faacc7d3f1db642735fd671d4fe483a",
+      "text": "Run a callable off the GUI thread and deliver its result on the GUI thread.\n\nÁætlunar sýningar eins og ``DbBrowserScreen``, ``PlateViewScreen`` og ``ReportScreen`` áður hver hafði eigin kopi af þessu logic, og kopiir eru mismunandi: tveir tengjast ``thread.finished`` til *closure*, sem aldrei taka upp vinnu (sjá :meth:`_retire_finished_jobs`). Þessar mælikar fylgja reglum einu sinni, fyrir hvaða umsókn sýningu sem flytja vinnu frá helstu GUI framkvæmd stefnu.\n\nReglurnar eru:\n\n* ``PipelineWorker.finished`` er geymt **á bakgrunni útgáfu einkefni**. A loka tengd við það er kallað þar. Touching widget frá það er óþekkt hegðun. Það eina öryggi sem slott á þessu merki getur gert er að útgáfa aftur ``Signal`` þar sem viðkomandi er tengd aðferð á heiminum GUI útgáfur hlut - Qt þá skipuleggja samtal á heimi útgáf GUI.\n* **QObject viðkomandi þörf.** Connect ``QThread.finished`` til aðferð á QObject sem er hluti af GUI lóð. Að loka er óvæn. PySide6 veitir QThread sjálfan sig sem viðfangandi loka. :func:`spacr.qt.bridge.make_thread` er fyrst tengdur ``thread.finished -> thread.deleteLater``. Slots virkar í tengslum orði. DeferredDelete er því lagt fram áður en loka callback. Qt fjarlægir kvikmyndun eftir að eyðileggja viðkomandi sínu. Þá er vinnu enn aðgerð og ``active_jobs()`` ná aldrei null.\n* Stærri tengsl á bæði QThread og vinnandi verður að halda til ``thread.finished``. A QThread skammt samlað meðan á því að framkvæma abort ferlið.\n* Lokahandfangið verður að framkvæma fyrir **hvern** vinnu, þar með talið þá sem niðurstaða hennar er ekki lengur æskileg, annars leka bókhaldsupplýsingar og skjárinn verður varanlega \"busy\". Hvort *niðurstaðan* er notuð er sér ákvörðun, tekin út frá teljara kynslóða -- sjá :meth:`cancel`.\n\nAllt sem er sendur hér fara í gegnum ``make_thread``, svo það kemur út í ferli-svíði :func:`spacr.qt.bridge.registry` og snúa bakgrunnsverkefni (:mod:`spacr.qt.widgets.activity_spinner`) án þess að kallað gera neitt.",
+      "translation_source_blocks_sha256": [
+        "dcdc4c7885888d598e472129494ded92b6ab9df1834c2ebf6ee2ba0c8a7d5f1c",
+        "a80b94ff03948af31dc3e3a8d3ecb9c535b15696a1a8c59be7578c3ad8784223",
+        "5b35c540a85ee04b577f56ebf7803077454062617d6e23a3a8c71fc1113685c5",
+        "da0963d1bc57319ebdcf93a8b98919a0b2cac1cd514a258e088d764319a035e8",
+        "881e8b01d32db2658fbcde0c99b69443140de833e47aa3495931c050f43cbbcb",
+        "b86b36add38a7d26b9ed0067cbab9205d54f947de1cbea68b2546c8bfa9d0b10",
+        "4392e74130acfcd7fc08a0519d476eb323c6a70c063cc4fff11b5bcec9c23b50",
+        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+      ]
+    },
+    "old_block_count": 8,
+    "expected_old_english_block_count": 8
+  },
+  "normal_gates": "PASS exact source/context/actual inline checks and normal selected Icelandic reviewed loader.",
+  "scope": "Exactly one untranslated historical Icelandic header repaired;171 previously reviewed targets unchanged.",
+  "french_remaining_coverage": {
+    "locale": "fr",
+    "missing": [],
+    "normal_proven_api_history_called": true,
+    "no_runtime_collection": true
+  },
+  "prior_failure": "One normal canonical collection occurred, then model-decode refusal before any catalog write; no model was decoded."
+}

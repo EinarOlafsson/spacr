@@ -19,14 +19,6 @@
       "source_sha256": "23bafc7319af9cb7102cb843454669557b6440d1a99e091ddf6ee3e3c7f2956e",
       "text": "Show ``fig`` through matplotlib itself. True if the canvas is up.\n\nThis is what makes a figure crisp: the canvas redraws from the Figure\nat the widget's device resolution every time it changes size or zoom,\nso there is never a raster being stretched to fit. It is also what\nmakes it fast -- looking at a figure costs no render at all.\n\n:param fig: the Matplotlib figure to embed in a Qt canvas with its\n    navigation toolbar; the canvas already showing it is just redrawn."
     },
-    "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67": {
-      "source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "0816cfadd686e835c533d078a9ff374dbff4740a8ea48b59e01c3cefd988cb16"
-      ],
-      "source_sha256": "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
-      "text": "Cancel, then wait briefly so no QThread outlives the widget.\n\nCall from ``closeEvent``. Qt aborts the process if a running QThread is\ndestroyed, so a bounded wait is needed when a screen closes mid-load.\nThreads that outlast the budget are parked by\n:func:`spacr.qt.bridge.drain_thread` rather than terminated."
-    },
     "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3": {
       "source_blocks_sha256": [
         "25990a1b6842b3d8f390a1527d2e0972bc8e668d6bc2738dfa11f03f05f95ea1",
@@ -88,14 +80,6 @@
       ],
       "source_sha256": "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28",
       "text": "Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.\n\nIf ``resources/models`` already contains files, nothing is downloaded and\nits path is returned. Files are saved under their base names.\n\nArgs:\n    repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').\n    retries (int): Number of retry attempts in case of failure.\n    delay (int): Delay in seconds between retries.\n\nReturns:\n    str: The local path to the downloaded models."
-    },
-    "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483": {
-      "source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
-      ],
-      "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
-      "text": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Ordering\nmatters more than completeness here: a runner that cannot stop in time is\nparked by `bridge.drain_thread` rather than terminated, so this is bounded."
     },
     "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2": {
       "source_blocks_sha256": [

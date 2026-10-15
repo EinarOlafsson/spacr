@@ -1,0 +1,77 @@
+{
+  "baseline": "92d44cca97e8fe0f0c4a3ed80d0dfa53d9500cd6",
+  "batches": {
+    "678_job_runner_api_catalogs": {
+      "artifact": "ba0a0a894",
+      "symbols": [
+        "spacr.qt.job_runner",
+        "spacr.qt.job_runner.JobRunner",
+        "spacr.qt.job_runner.JobRunner.active_jobs",
+        "spacr.qt.job_runner.JobRunner.cancel",
+        "spacr.qt.job_runner.JobRunner.is_busy",
+        "spacr.qt.job_runner.JobRunner.pending_jobs",
+        "spacr.qt.job_runner.JobRunner.shutdown",
+        "spacr.qt.job_runner.JobRunner.submit",
+        "spacr.qt.job_runner.shutdown_all"
+      ],
+      "source_review_hashes_exact": true
+    },
+    "180_regression_api_catalogs": {
+      "artifact": "3a594466a",
+      "symbols": [
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state"
+      ],
+      "source_review_hashes_exact": true
+    }
+  },
+  "catalogs": {
+    "en": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13473
+    },
+    "de": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "es": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "fr": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "hi": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "is": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "ko": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "pt": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "sv": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    },
+    "zh_CN": {
+      "owned_symbols_exact": 11,
+      "unrelated_records_preserved": 13399
+    }
+  },
+  "source_history": {
+    "normal_pruned_unreferenced": [
+      "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
+      "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483"
+    ],
+    "all_other_records_exact": true
+  }
+}

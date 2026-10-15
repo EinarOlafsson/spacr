@@ -407,6 +407,10 @@ class _UnmixPlan:
         :returns: float32 copy with the plan's channels unmixed.
         """
         array = np.asarray(image)
+        if array.ndim < 3:
+            from .qt.i18n import tr
+
+            raise ValueError(tr("Spectral unmixing requires images with an explicit channel axis and at least three dimensions."))
         out = np.array(array, dtype=np.float32, copy=True)
         channels = list(self.channels)
         out[..., channels] = _unmix(array[..., channels], self.matrix,
@@ -601,6 +605,10 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None):
         for name in found:
             checkpoint()
             field = np.asarray(load(source / name))
+            if field.ndim < 3:
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Spectral unmixing requires images with an explicit channel axis and at least three dimensions."))
             if channels is None:
                 channels = tuple(range(field.shape[-1]))
             outside = [c for c in (*channels, dye) if not 0 <= c < field.shape[-1]]

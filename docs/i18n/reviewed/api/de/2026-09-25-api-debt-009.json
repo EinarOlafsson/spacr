@@ -1698,7 +1698,10 @@
       "source_sha256": "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c",
       "context": "key-value mapping as :meth:`plot_state` returns it; structured-data names it lacks keep their current value. Nothing applies when it is not a key-value mapping or no table is loaded.",
       "translation": "Wörterbuch, wie :meth:`plot_state` es zurückgibt; fehlende Schlüssel behalten ihren aktuellen Wert. Nichts wird angewendet, wenn es kein Wörterbuch ist oder keine Tabelle geladen ist.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Regression workspace-state contracts expanded in 2b5ba2553db plus1cd00114b270. Replacement exact-source review is2026-10-15-n180-regression-state.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state#2",
