@@ -390,3 +390,18 @@ this audit is not a new feature-completion tick. Continue independent work.
     runtime targets and actual installed locale callbacks. It does not replace
     the recorded full-cohort comparisons or close official pretrained Cell-DINO
     access, scientific comparisons, native/GPU or hosted release acceptance.
+
+
+2026-10-15 — Normal runtime closure for the label-comparison input guard.
+The existing backbone comparison now refuses a malformed crop stack or missing/
+misaligned labels before downstream indexing. Six owning checks pass against
+five baseline failures; no new scientific comparison or training is claimed.
+Its exact private caption owner is included without widening other extraction:
+combined39 owner checks pass, and the independent source peer preserves all
+earlier owner behavior. Nine reviewed warning translations pass normal runtime
+generation/audit alongside F370, preserving10,845 unrelated rows per locale.
+API prose/signatures are unchanged. Broader embedding-label comparison validation
+and scientific acceptance remain open. Evidence:
+data/560_comparison_input_boundary_2026-10-15/,
+data/560_comparison_caption_owner_2026-10-15/ and
+data/370_560_runtime_catalogs_2026-10-15/.

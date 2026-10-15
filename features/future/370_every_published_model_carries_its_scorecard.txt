@@ -1510,3 +1510,29 @@ No metric values, scoring, curation, model defaults, API prose or runtime
 captions changed. Evidence: data/370_detector_only_scorecards_2026-10-15/.
 The broader consistency/export/publication and scientific gates above remain
 open; this is not acceptance of every published model or scorecard.
+
+
+2026-10-15 — Exact built-in scorecards, tooltip rows and normal locale closure.
+The nine reviewed packaged cards now attach only to their original bundled
+declarations with matching checkpoint URI/digest and packaged-card digest.
+Custom, local, altered and same-key declarations retain their own measurements;
+serialized catalogue fields cannot enable curated presentation. All six current
+measurements, including Boundary F1 at TWO pixels, appear in descriptions and
+tooltips with dataset identity, counts and baseline model. Earlier evaluations
+remain archived; legacy one-pixel meaning and default model choices are unchanged.
+Normal generators use that same binding, include the sixth metric and link the
+actual three published card pages. Nine Markdown cards and two RST outputs were
+regenerated; unchanged SVG font serialization was preserved by exact-byte proof.
+Source tests24, generator22 and output11 checks are scoped overlapping evidence,
+not additive whole-feature totals. The combined extractor cohort passes39.
+Four existing API bodies received36 new reviewed translations plus27 exact
+positional moves;22 unchanged blocks per locale and unrelated API records/history
+remain exact. Help summaries are unchanged, proven with the normal helper.
+Normal runtime generation/audit passes all nine languages, with72 scorecard
+review records plus9 separate F560 records;10,845 unrelated rows per locale are
+preserved. Actual localized consumers verify nine cards in nine languages:
+81 cases, six rows, exact translated evaluation identity and two-pixel tolerance.
+No scoring, training, metric recomputation, new checkpoint download or upload.
+Broader model coverage, native GUI, central dataset export/publication and
+scientific acceptance remain open. Evidence: data/370_api_catalogs_2026-10-15/,
+data/370_generator_scorecard_artifacts_2026-10-15/ and data/370_560_runtime_catalogs_2026-10-15/.

@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — coherent scorecard and comparison-input delivery
+
+F370 exact builtin core983947, shared generators and eleven normal documentation
+outputs are integrated with four-symbol/nine-language API closure. The six-row
+tooltip includes the actual two-pixel boundary metric, counts, dataset and stock
+identity; custom declarations retain their own measurements and archived prior
+evaluations remain available. No scores, model choices or checkpoints changed.
+The exact F560 malformed-stack/label guard is included with its nine warning
+translations. Combined extractor39 checks pass. Normal nine-language runtime
+generation/audit passes with81 owned records and10,845 unrelated rows per locale
+preserved. Actual consumers verify all nine cards in all nine languages:81 cases.
+Normal API generation preserves22 unchanged selected blocks per locale and27
+source/context-proven positional moves;36 genuinely changed targets are reviewed.
+Unrelated API records/history remain exact. Help summaries are proven unchanged.
+
+Evidence: features/data/370_api_catalogs_2026-10-15/,
+features/data/370_560_runtime_catalogs_2026-10-15/ and the existing exact source,
+generator and extractor receipts. These are bounded software/locale deliveries,
+not whole F370/F560 scientific, native, hosted, full-CI or release acceptance.
+Original Home retains CI/release and backend lanes; Work retains tutorials,
+including the explicit Spaceout exclusion and clipped-sentence repair request.
+No Work acknowledgment has been received by Home-B.
+
+N698 site inspection found no actual hosted endpoint or browser exports. Website
+file ownership/deployment-contract request is queued to Original; no shared-site
+changes are made while awaiting coordination. Preserve its public live-cell-v1
+alias and leak gates; do not expose raw backend registry keys or invent routes.
+
+
 ## 2026-10-15 Maintainer → Work: hide Spaceout and repair clipped narration
 
 New explicit maintainer instruction: Spaceout is a hidden mode and must not
