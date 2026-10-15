@@ -353,3 +353,19 @@ an actual two-thread barrier and the existing progress contract. API prose
 and signatures are unchanged. Separate Qt stream loops and whole-module
 example-data availability remain separate scopes; no network or full CI was
 run. Receipt: features/data/633_private_archive_staging_2026-10-15/.
+
+2026-10-15 — ACTUAL GUI ARCHIVE STREAMS ISOLATED
+The single-example and selected-archive Qt workers now stream inside a unique
+private sibling directory, retaining the existing umask-created file mode.
+Pre-existing deterministic .part files and symlink targets are preserved.
+Short, interrupted and cancelled transfers clean their own stage after the
+file closes, preserve the last good archive, and never unpack an incomplete
+stream. Existing progress, one finished outcome, cancellation caption and
+completed-archive extraction/delete behavior remain unchanged. Cleanup is
+asserted after run returns; the cancellation signal still precedes context
+exit, and shared final-target/extraction concurrency is a separate limitation.
+Native worker fixtures reproduce10 predecessor failures;13 focused cases
+then pass, including existing stream/short/cancel contracts. All API prose,
+signatures and existing string literals are exact; no network/render/model
+run or native Windows claim. Receipt:
+features/data/633_gui_archive_staging_2026-10-15/.
