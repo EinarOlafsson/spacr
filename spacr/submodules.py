@@ -1404,6 +1404,8 @@ def _resolve_training_base(requested):
 
     :param requested: the ``base_model`` setting.
     :returns: what to hand ``CellposeModel(pretrained_model=...)``.
+    :raises ModelZooError: if a bare model name cannot be resolved exactly,
+        or its stock checkpoint is missing while downloads are disabled.
     """
     name = str(requested or 'cpsam').strip() or 'cpsam'
     if os.path.isfile(name):

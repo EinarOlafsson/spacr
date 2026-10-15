@@ -6603,6 +6603,8 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
         name, existing checkpoint or exact catalogue entry. Blank settings,
         known legacy names and the existing ``sam`` shorthand retain their
         default behavior.
+    :raises ModelUnreadable: if automatic downloads are disabled and the
+        resolved stock model has no existing local or regular cache file.
     """
     clause = _for_object(object_type)
 
