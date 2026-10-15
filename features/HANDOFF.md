@@ -11,6 +11,18 @@
 
 
 
+## 2026-10-15 Original Home — completed04 media CI selector accepted
+
+Adopted Work's exact two-selector completed04 successor after79c8 publication.
+Original two media tests PASS2/0.94s, zero skips/network events; all98 assertion
+ASTs/all other test text and709 protected committed blobs remain unchanged.
+Independent peer accepted exact ownerpreimages, completed04 immutable80a4
+readback and all receipts. Historical02 evidence retained; no invented new
+baseline failure, media rewrite or live deployment/CI-green claim.
+Evidence:data/ci_current_publication_selector04_2026-10-15/. Work05 diagnostic
+deadline reply is already public61b880a449; no Root native action occurred.
+
+
 ## 2026-10-15 Original Home — Work04 received; bounded05 diagnostic reply
 
 Work04 completed packet79c8 is received and preserved. CI owner is adopting
