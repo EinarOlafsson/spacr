@@ -744,14 +744,20 @@
       "source": "Keyboard-first shortcuts for the spaCR Qt GUI.",
       "context": "Keyboard-first shortcuts for the spaCR Qt GUI.",
       "source_sha256": "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-      "translation": "spaCR Qt GUI 를 위한 키보드 우선 단축키입니다."
+      "translation": "spaCR Qt GUI 를 위한 키보드 우선 단축키입니다.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#1",
       "source": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
       "context": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
       "source_sha256": "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-      "translation": "메인 창에서 전역 :class:`QShortcut` 바인딩을 등록하여 전체 앱을 마우스 없이 사용할 수 있습니다:"
+      "translation": "메인 창에서 전역 :class:`QShortcut` 바인딩을 등록하여 전체 앱을 마우스 없이 사용할 수 있습니다:",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#2",
@@ -767,7 +773,10 @@
       "source": "Switch to the Nth app in the sidebar",
       "context": "Switch to the Nth app in the sidebar",
       "source_sha256": "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
-      "translation": "사이드바에서 N번째 앱으로 전환"
+      "translation": "사이드바에서 N번째 앱으로 전환",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#4",
