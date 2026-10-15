@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "reviewer": "ci_release_audit",
+  "review_kind": "Independent exact-source AI technical review; no human/native-speaker signoff",
+  "time_utc": "2026-10-15T05:48:38.145162+00:00",
+  "official_batch_manifest": {
+    "path": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/batch1-manifest.json",
+    "sha256": "e460322c09b7f58870e3d1dc8487d50d5f7186b2d827391ac0655d964c40a13a",
+    "all_assigned_snapshot_bytes_identical": true
+  },
+  "snapshots": {
+    "sources": {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/features/data/698_web_caption_extractor_2026-10-15/new-sources.json",
+      "snapshot": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/sources.json",
+      "sha256": "31626b0fc404974ed6cd6aa0cd23b616fb86e7eae7d203582edcc0d66f4c54b7",
+      "bytes": 29551
+    },
+    "de": {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-web-mask-generator.json",
+      "snapshot": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/de.json",
+      "sha256": "b4e447655e0b7ae0682643ae2fa879896cb35ba32f39f441a34fc61df633859b",
+      "bytes": 63777
+    },
+    "es": {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-web-mask-generator.json",
+      "snapshot": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/es.json",
+      "sha256": "267cb4a95b090cf95d745dd4d5655e155de4d823830484bcae6c97b5241af451",
+      "bytes": 63581
+    },
+    "zh_CN": {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-web-mask-generator.json",
+      "snapshot": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/zh_CN.json",
+      "sha256": "8f8e3ea5ea5914fc122eb04f861cfd74d55621e0fadc0c42469ad90abeb23d2c",
+      "bytes": 60882
+    }
+  },
+  "reviewed": {
+    "de": 178,
+    "es": 178,
+    "zh_CN": 178,
+    "total": 534
+  },
+  "structural": "All178 unique sources, exact SHA256 and keys per locale, complete source-set equality and brace-placeholder identity verified; no mismatch.",
+  "semantic_review": "Read every534 source/translation pair. Mask labels/boxes, well geometry, logits/scores/probabilities/calibration disclaimers, actual backend arrays, byte preservation, optional readers, axis/page/time/Z/channel bounds, YX/CYX and (2,Y,X), model/checkpoint trust/hash, research-only hosting/privacy/cache conditionality and README file/placeholder semantics preserve source meaning.",
+  "findings": {
+    "technical_terminology_recommendations": 6,
+    "cross_locale_diameter_consistency_refinements": 8,
+    "packet": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/corrections.json",
+    "summary": "Four German resolved-diameter terms should use determined/effective diameter wording; two Chinese Toxoplasma vacuole family labels should use parasitophorous-vacuole terminology. ES/ZH diameter alternatives align the same interpretation; those are clarity refinements, not invented capability/limit changes."
+  },
+  "verdict": "Accept source/structural bindings and scientific/provenance distinctions; owner should adopt/review six technical terminology corrections before freezing these locales. Eight matching ES/ZH diameter refinements are optional consistency improvements.",
+  "context_source_bindings": {
+    "tools/web_mask_generator/app.py": {
+      "sha256": "b283fa4ebe2cc53e3528a27663368b5012008f5ec1ab3bd0f073468ab8d2b580",
+      "bytes": 19858
+    },
+    "tools/web_mask_generator/plaque.py": {
+      "sha256": "c8b4d53d519a49a302bb7514ac57a668eb68ef6266b0450e584d630323be7bb9",
+      "bytes": 4568
+    },
+    "tools/web_mask_generator/run.py": {
+      "sha256": "eb61644fdeab7611c4b796cf09f89793bf86f32b376001974f3886fe02591062",
+      "bytes": 6070
+    }
+  },
+  "no_mutations": "No Hard source/catalog/review edits, no tests, models, network or public deployment. Owner must apply chosen corrections and run normal candidate/runtime gates. Remaining six locales not reviewed here."
+}

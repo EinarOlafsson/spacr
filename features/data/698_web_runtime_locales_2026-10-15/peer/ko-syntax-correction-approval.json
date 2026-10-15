@@ -1,0 +1,8 @@
+{
+  "reviewer": "Original Home root independent AI technical peer; no human/native signoff",
+  "decision": "APPROVED exact three proposed translations",
+  "packet": "/mnt/wd4tb/scratch/n698-web-localization-20261015/ko-proposed-syntax-corrections.json",
+  "packet_sha256": "388668d45fb944b5adbc50832cfacda814e6ad7a19b997948722bd3e96e1d709",
+  "basis_review_sha256": "74c23611de6229f370ac1c97e4dac5f39ff5875ae18ee1f0d47bb8c5de68059a",
+  "rationale": "Explicit option/file nouns preserve natural Korean grammatical particles without adjoining protected CLI flags or filenames; original upload, centroid, actual outputs, non-calibration and absent masks semantics unchanged. Normal validator gates still required."
+}
