@@ -1,0 +1,15 @@
+{
+  "status": "ACCEPT",
+  "source_commit": "5909be1b8fa268c30c9cc705e881ae3c70b4ea0d",
+  "proof": "Only exact owning sanitizer test body changed; all other module AST exact. Fixed count replaced with exact normal-source/rendered route equality, named new dependencies required, all per-image exact destinations retained.",
+  "current_source_pins_verified": [
+    "README.rst",
+    "setup.py",
+    "tools/build_readme_images.py",
+    "packaging/readme_source.yaml",
+    "tests/readme_source_words.py",
+    "tests/test_pypi_readme_images.py"
+  ],
+  "evidence": "Read old66-vs67failure and current4PASS; real sanitized67bindings retained. No replay or generatedoutput change.",
+  "limits": "Current actualrenderer acceptance only; no hostedmain/PyPI upload or wholeN704claim."
+}

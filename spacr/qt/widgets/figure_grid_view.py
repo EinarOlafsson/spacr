@@ -475,7 +475,10 @@ class _FigureCell(QFrame):
 
         :param event: key event delivered to the figure tile.
         """
-        if (self.hasFocus() and event.modifiers() == Qt.NoModifier
+        if (self.hasFocus()
+                and (event.modifiers() == Qt.NoModifier
+                     or (event.key() == Qt.Key_Enter
+                         and event.modifiers() == Qt.KeypadModifier))
                 and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)):
             self.clicked.emit(self.index)
             event.accept()

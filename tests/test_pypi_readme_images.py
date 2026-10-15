@@ -95,14 +95,18 @@ def test_pypi_keeps_each_readable_panel_destination(metadata):
     assert html is not None, warnings.getvalue()
     article = Images()
     article.feed(html)
+    pages = readme_tool().compose("en", render=False).pages
+    assert {"hardware-support-2", "generated-model-zoo-3"} <= set(pages)
+    destination_prefix = (
+        "https://github.com/EinarOlafsson/spacr/blob/main/docs/readme_text/en/"
+    )
     destinations = {
-        "https://github.com/EinarOlafsson/spacr/blob/main/"
-        f"docs/readme_text/en/{name}.md"
-        for name in readme_tool().compose("en", render=False).pages
+        f"{destination_prefix}{name}.md" for name in pages
     }
-    assert len(destinations) == 66
-    assert destinations <= set(article.links)
-    for name in readme_tool().compose("en", render=False).pages:
+    assert destinations == {
+        link for link in article.links if link.startswith(destination_prefix)
+    }
+    for name in pages:
         image = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/main/"
                  f"docs/readme_images/en/{name}.svg")
         assert article.image_targets[image] == (

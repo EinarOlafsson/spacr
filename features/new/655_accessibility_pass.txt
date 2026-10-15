@@ -608,3 +608,17 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   Evidence:data/655_clear_figures_accessible_action_2026-10-15/receipt.json.
   This is in-process Linux/Qt6.12/offscreen acceptance; no native reader,
   other-OS or whole-item completion claim is added.
+
+2026-10-15 — Numeric Enter opens figure tiles through their existing route
+  The actual Qt Key_Enter plus KeypadModifier event failed for saved, live
+  and pinned figure tiles, despite the ordinary Enter route already working.
+  _FigureCell now accepts keypad-only Enter through its existing focused
+  activation path. Named modifiers and keypad-modified Space/Return remain
+  refused; saved indices, live keys and the pinned signal stay distinct.
+  Three baseline route failures become 26PASS3.13s: nine new keypad/refusal
+  cases plus seventeen existing keyboard/name/focus cases. Shared lock,
+  2G/offscreen Qt6.12/thread1/private settings, no native replay or data work.
+  Only that private handler body changes; all docs, signatures, comments
+  and other module AST remain exact, with no caption/API arrival.
+  Evidence: data/655_figure_keypad_enter_2026-10-15/receipt.json.
+  This closes the concrete event-routing defect, not all N655 acceptance.
