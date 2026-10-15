@@ -272,3 +272,32 @@ English API audit passed for13474symbols; all18 exact API and18 exact runtime
 review records were authored as AI technical reviews. Fatal Ruff passed.
 Raw source/exit/JUnit receipts remain in
 /mnt/wd4tb/scratch/n703-pip-handoff-20261014/handoff-delivery-receipt.json.
+
+
+2026-10-14 23:02 EDT — Home retained private POSIX runtime recovery
+Added explicit recover-runtime TRANSACTION --pid PREVIOUS_DESKTOP_PID for a
+retained, committed private POSIX runtime update. Run the helper with a Python
+interpreter outside both runtime directories. It requires the original private
+owner-only journal, unchanged directory device/inode identities and source/file
+content/modes, and the desktop process to have exited. Volatile __pycache__
+directories may differ; Python source, installed metadata and other files may not.
+It checks actual retained package/interpreter identity, atomically restores the
+old runtime, verifies it again at the original prefix, and keeps the newer runtime
+at the retained path. Failed restored identity exchanges back. The command never
+runs a package installer, removes either copy or automatically launches spaCR.
+
+Future update journals now bind both runtime directories and their inventories.
+An interrupted rollback can be completed from the actual directory orientation;
+a repeated successful recovery is idempotent. Legacy journals, altered content,
+shared directories, active desktop processes and an existing update lock refuse
+without changing either runtime. This does not recover arbitrary interrupted
+staging/activation or remove a stale update lock; those gaps remain explicit.
+
+Necessary offline cohort: 23 PASS, actual exit0 (14 new recovery cases plus9 pip
+transaction regressions), using real temporary venvs/fake wheels and actual Linux
+atomic exchanges. No real environment/user data or network was touched. Fatal
+Ruff passed. No public API paragraph, runtime UI caption or nested helper arrived,
+so the existing source-bound locale outputs remain applicable. Native macOS and
+Windows acceptance, shared/Conda/Windows replacement, current full hosted CI and
+release acceptance remain open. Raw receipts:
+/mnt/wd4tb/scratch/n703-runtime-recovery-20261014/owning.xml and owning.exit.

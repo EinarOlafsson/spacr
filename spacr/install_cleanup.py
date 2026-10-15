@@ -2971,6 +2971,109 @@ def _runtime_staging_allowed(prefix, machine):
                         raise ValueError("editable packages require their source checkout")
 
 
+def _runtime_recovery_inventory(prefix):
+    """Bind runtime content and modes while permitting volatile Python cache directories."""
+    return {path: entry for path, entry in _macos_tree(prefix, allow_external_links=True).items()
+            if "__pycache__" not in path.split(os.sep)}
+
+
+def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait=None, swap=None):
+    """Restore an unchanged retained POSIX runtime after the desktop has stopped."""
+    machine = machine or _Machine()
+    runner = runner or _run
+    exchange = swap or _runtime_exchange
+    root = os.path.abspath(transaction)
+    details = os.lstat(root)
+    if (os.path.realpath(root) != root or not stat.S_ISDIR(details.st_mode)
+            or details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077):
+        raise ValueError("recovery requires the original private transaction directory")
+    descriptor = os.open(os.path.join(root, "transaction.json"), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, encoding="utf-8") as stream:
+        details = os.fstat(stream.fileno())
+        if (not stat.S_ISREG(details.st_mode) or details.st_uid != os.geteuid()
+                or stat.S_IMODE(details.st_mode) & 0o077 or details.st_size > 64 * 1024 * 1024):
+            raise ValueError("recovery requires its unchanged owner-only journal")
+        state = json.load(stream)
+    prefix, backup = state["prefix"], state["rollback_runtime"]
+    if (state.get("schema") != 2 or state.get("family") != "posix-runtime"
+            or state.get("state") not in {"committed", "rolling_back", "rolled_back"}
+            or os.path.dirname(prefix) != os.path.dirname(root)
+            or backup != os.path.join(root, "runtime")
+            or any(os.path.realpath(path) != path for path in (prefix, backup))
+            or _inside(os.path.realpath(sys.prefix), prefix)
+            or _inside(os.path.realpath(sys.prefix), backup)):
+        raise ValueError("recovery requires a retained update and an outside interpreter")
+    for directory in (prefix, backup, os.path.dirname(root)):
+        details = os.lstat(directory)
+        if (not stat.S_ISDIR(details.st_mode) or details.st_uid != os.geteuid()
+                or stat.S_IMODE(details.st_mode) & 0o022):
+            raise ValueError("recovery cannot replace shared runtime directories")
+    if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0 or pid == os.getpid():
+        raise ValueError("recovery requires the previous desktop process identity")
+    lock = os.path.join(os.path.dirname(prefix), "." + os.path.basename(prefix) + ".spacr-update-lock")
+    os.mkdir(lock, 0o700)
+    try:
+        if not (wait or _wait_for_exit)(pid):
+            raise RuntimeError("spaCR did not close; both runtimes remain unchanged")
+        for path in (prefix, backup):
+            _runtime_staging_allowed(path, machine)
+        left, right = os.stat(prefix), os.stat(backup)
+        identities = ([left.st_dev, left.st_ino], [right.st_dev, right.st_ino])
+        new_at_target = identities == (state["new_identity"], state["old_identity"])
+        old_at_target = identities == (state["old_identity"], state["new_identity"])
+        if ((state["state"] == "committed" and not new_at_target)
+                or (state["state"] == "rolled_back" and not old_at_target)
+                or not (old_at_target or new_at_target)):
+            raise ValueError("journaled runtime directories were replaced; preserving both")
+        wanted = (state["new_inventory"], state["old_inventory"]) if new_at_target else (state["old_inventory"], state["new_inventory"])
+        if (_runtime_recovery_inventory(prefix), _runtime_recovery_inventory(backup)) != wanted:
+            raise ValueError("journaled runtime content changed; preserving both")
+        old = backup if new_at_target else prefix
+        probe = _runtime_identity_command(os.path.join(old, "bin", "python"), prefix=old)
+        probe.insert(2, "-B")
+        code, output = runner(probe)
+        previous_identity = json.loads(output) if code == 0 else {}
+        if code or previous_identity.get("verified") is not True:
+            raise RuntimeError("retained runtime could not be verified; preserving both")
+        if new_at_target:
+            state["state"] = "rolling_back"
+            _runtime_recovery_journal(root, state)
+            exchange(prefix, backup)
+            try:
+                probe = _runtime_identity_command(os.path.join(prefix, "bin", "python"), prefix=prefix)
+                probe.insert(2, "-B")
+                code, output = runner(probe)
+                restored = json.loads(output) if code == 0 else {}
+                if (code or restored.get("verified") is not True
+                        or restored.get("version") != previous_identity.get("version")
+                        or restored.get("distribution") != previous_identity.get("distribution")):
+                    raise RuntimeError("restored runtime could not be verified")
+            except BaseException:
+                exchange(prefix, backup)
+                state["state"] = "committed"
+                _runtime_recovery_journal(root, state)
+                raise
+        state["state"] = "rolled_back"
+        _runtime_recovery_journal(root, state)
+        return state
+    finally:
+        os.rmdir(lock)
+
+
+def _runtime_recovery_journal(root, state):
+    """Publish an owner-only complete recovery journal without a partial JSON window."""
+    descriptor, temporary = tempfile.mkstemp(prefix="transaction-", dir=root)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(state, stream, indent=2)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, os.path.join(root, "transaction.json"))
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def _transactional_runtime_update(record, version, install, *, machine, runner=None, activate=None):
     """Update a private POSIX runtime through a verified atomic exchange.
 
@@ -2991,7 +3094,9 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         transaction = tempfile.mkdtemp(prefix=".spacr-runtime-update-", dir=parent)
         staged = os.path.join(transaction, "runtime")
         journal = os.path.join(transaction, "transaction.json")
-        state = {"schema": 1, "prefix": prefix, "rollback_runtime": staged,
+        state = {"schema": 2, "family": "posix-runtime", "prefix": prefix, "rollback_runtime": staged,
+                 "old_identity": [os.stat(prefix).st_dev, os.stat(prefix).st_ino],
+                 "old_inventory": _runtime_recovery_inventory(prefix),
                  "requested_version": str(version), "state": "staging"}
 
         def note(phase):
@@ -2999,6 +3104,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
             state["state"] = phase
             temporary = journal + ".next"
             with open(temporary, "w", encoding="utf-8") as handle:
+                os.fchmod(handle.fileno(), 0o600)
                 json.dump(state, handle, indent=2)
                 handle.flush()
                 os.fsync(handle.fileno())
@@ -3066,6 +3172,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                 remainder = handle.read()
             with open(script, "wb") as handle:
                 handle.write(header.replace(os.fsencode(staged), os.fsencode(prefix)) + remainder)
+        state["new_identity"] = [os.stat(staged).st_dev, os.stat(staged).st_ino]
         note("ready")
         _runtime_exchange(prefix, staged)
         exchanged = True
@@ -3083,6 +3190,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         if code:
             raise RuntimeError("The activated application import failed: " + final_import)
         state["verified_version"] = identity["version"]
+        state["new_inventory"] = _runtime_recovery_inventory(prefix)
         note("committed")
         if activate is not None:
             activate(identity["version"])
@@ -3593,7 +3701,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
 
     :param argv: arguments; :data:`sys.argv` when ``None``.
     :returns: the exit code; ``1`` when an installer-made copy was not removed,
-        or ``6`` when frozen macOS recovery or its launch request fails.
+        or ``6`` when retained-runtime recovery or its launch request fails.
     """
     parser = argparse.ArgumentParser(
         prog="install_cleanup",
@@ -3628,7 +3736,18 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     recover.add_argument("--protected", action="store_true")
     recover.add_argument("--version")
     recover.add_argument("--sha256")
+    runtime_recover = commands.add_parser("recover-runtime", help="restore one unchanged retained private POSIX runtime")
+    runtime_recover.add_argument("transaction")
+    runtime_recover.add_argument("--pid", type=int, required=True, help="previous desktop process that must have exited")
     args = parser.parse_args(argv)
+    if args.command == "recover-runtime":
+        try:
+            receipt = _recover_runtime_update(args.transaction, args.pid)
+        except Exception as error:
+            print(f"Runtime recovery stopped: {error}")
+            return 6
+        print(json.dumps(receipt, sort_keys=True))
+        return 0
     if args.command == "verify-runtime":
         if args.retiring_prefix:
             retained = [path for path in _user_data(_Machine()) if _exists(path)
