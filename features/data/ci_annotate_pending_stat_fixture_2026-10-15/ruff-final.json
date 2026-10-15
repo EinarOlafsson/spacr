@@ -1,0 +1,177 @@
+[
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 31,
+      "row": 178
+    },
+    "filename": "/mnt/wd4tb/spacr-worktrees/codex-n703-aliased-user-data-20261015/tests/qt/test_the_annotate_screen_never_stats_its_last_source.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "    from PySide6.QtWidgets import QFileDialog\n\n    from spacr.qt import prefs\n",
+          "end_location": {
+            "column": 1,
+            "row": 179
+          },
+          "location": {
+            "column": 1,
+            "row": 177
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 5,
+      "row": 177
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 177,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 58,
+      "row": 379
+    },
+    "filename": "/mnt/wd4tb/spacr-worktrees/codex-n703-aliased-user-data-20261015/tests/qt/test_the_annotate_screen_never_stats_its_last_source.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "    import threading\n\n    from PySide6.QtWidgets import QFileDialog\n\n    from spacr.qt import annotate_engine as engine\n    from spacr.qt.screens import annotate as annotate_mod\n",
+          "end_location": {
+            "column": 1,
+            "row": 380
+          },
+          "location": {
+            "column": 1,
+            "row": 375
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 5,
+      "row": 375
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 375,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 58,
+      "row": 456
+    },
+    "filename": "/mnt/wd4tb/spacr-worktrees/codex-n703-aliased-user-data-20261015/tests/qt/test_the_annotate_screen_never_stats_its_last_source.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "    from PySide6.QtWidgets import QFileDialog\n\n    from spacr.qt import annotate_engine as engine\n    from spacr.qt import path_probe as probe\n    from spacr.qt.screens import annotate as annotate_mod\n",
+          "end_location": {
+            "column": 1,
+            "row": 457
+          },
+          "location": {
+            "column": 1,
+            "row": 453
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 5,
+      "row": 453
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 453,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 31,
+      "row": 535
+    },
+    "filename": "/mnt/wd4tb/spacr-worktrees/codex-n703-aliased-user-data-20261015/tests/qt/test_the_annotate_screen_never_stats_its_last_source.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "    from PySide6.QtWidgets import QFileDialog\n\n    from spacr.qt import prefs\n",
+          "end_location": {
+            "column": 1,
+            "row": 536
+          },
+          "location": {
+            "column": 1,
+            "row": 534
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 5,
+      "row": 534
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 534,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 58,
+      "row": 595
+    },
+    "filename": "/mnt/wd4tb/spacr-worktrees/codex-n703-aliased-user-data-20261015/tests/qt/test_the_annotate_screen_never_stats_its_last_source.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "    from PySide6.QtWidgets import QFileDialog\n\n    from spacr.qt import annotate_engine as engine\n    from spacr.qt.screens import annotate as annotate_mod\n",
+          "end_location": {
+            "column": 1,
+            "row": 596
+          },
+          "location": {
+            "column": 1,
+            "row": 593
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 5,
+      "row": 593
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 593,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  }
+]
