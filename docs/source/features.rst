@@ -199,7 +199,7 @@ Starting spaCR
 spaCR opens with a black container holding the spaCR logo as a photomosaic.
 The logo holds still while the window loads, then the mosaic blows away tile
 by tile and the container fades to show the window. A click or a key skips
-it. The sequence is off when **Preferences → Animation → Startup animation**
+it. The sequence is off when **Preferences → Appearance → Animation → Startup animation**
 is cleared (the mosaic then shows without the animation), while **Reduce
 motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set
 to ``1`` (the mosaic is then not shown at all). **Help → Show startup
@@ -274,8 +274,9 @@ Make Masks uses the same keys in its True 3D view. When a click lands on more
 than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under
 it are highlighted and listed at the top left of the graph under **Elements
 under the click**, in layer order with sheets before anchors; the top layer is
-blue and the others white. The click still grabs the first element. Click a
-row or press the Up and Down arrows to choose which element the next click on
+blue and the others white. The initial click grabs the nearest anchor under
+the pointer, if any; otherwise it grabs the nearest sheet. Click a row or
+press the Up and Down arrows to choose which element the next click on
 that overlap selects and moves. **Escape**, a click on empty space, leaving
 Edit, switching between 2D and 3D, or replacing the gate set closes the list.
 
