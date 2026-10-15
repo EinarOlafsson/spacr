@@ -622,3 +622,17 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   and other module AST remain exact, with no caption/API arrival.
   Evidence: data/655_figure_keypad_enter_2026-10-15/receipt.json.
   This closes the concrete event-routing defect, not all N655 acceptance.
+
+2026-10-15 — Numeric Enter opens montage crop provenance
+  An actual _WellTab regression confirmed that Key_Enter with KeypadModifier
+  opened no details dialog. Only _Thumb.keyPressEvent now accepts keypad-only
+  Enter through its existing focused route. The real selected crop's complete
+  provenance appears in one visible dialog, while measurement rows and crop
+  pixels remain unchanged. All four named modifiers, with or without keypad,
+  and keypad-modified Space/Return still refuse activation.
+  Baseline1FAIL2.51s; final18PASS3.98s covers the expanded existing provenance,
+  Tab, naming and focus module under the shared lock/2G/offscreen/thread1.
+  All other module AST, comments, signatures and docstrings are exact; no
+  workspace/model changes or runtime/API arrival. No native replay or whole
+  N655 acceptance claim. Evidence:
+  data/655_montage_keypad_enter_2026-10-15/receipt.json.
