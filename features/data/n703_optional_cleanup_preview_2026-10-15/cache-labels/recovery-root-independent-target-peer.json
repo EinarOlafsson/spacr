@@ -1,0 +1,17 @@
+{
+  "verdict": "APPROVED",
+  "reviewer": "Original Home root independent of Hard author",
+  "scope": "Nine exact recovery-message targets; retained packages and log may support recovery, no recovery-success promise; error placeholder preserved",
+  "source_sha256": "af180380d366333f65efff5d1c1c24c3f673dc15e40c9974a40553bee52be1f5",
+  "files": {
+    "sv": "fe1de386d63a46f0e8e9e7a1c5b9effa94c264029170b185aa9d6bc6c7b91c12",
+    "de": "a8bbd562f7ba8316fce3bd3bd7dcb0de4e288d13b35d3b404c915724fce75566",
+    "fr": "8a80eb76b78ef925a208c0748dcc78313134a06f8aa652a1905d5f88f1a9b493",
+    "es": "4027a3511264ab6e3e1f39c9b950f0f79c7bb3a5880cd3017586c374dd049538",
+    "pt": "60de187563f686e500897b253f98767feaed28e93103f77cea0f2467a3f9e116",
+    "hi": "a66a33b2457b840b658a0ad52eb0a724c837b102d1906fd37cf82139fbdb13f8",
+    "is": "6b78f9a6bb4c06c2978c90a934edf58cc207fdc5da6a7da19d33c5822309e157",
+    "ko": "ab77fe49d1846e3494d9e273adb90ad7bd8e35f8326ef9de19ac73db65a6eb2a",
+    "zh_CN": "41bc77ebb6c6d0a591c5846c77906b842aea4f157b3c564e47f1c34ae1a453b3"
+  }
+}

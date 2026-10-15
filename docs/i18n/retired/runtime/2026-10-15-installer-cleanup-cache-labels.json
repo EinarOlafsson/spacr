@@ -1,0 +1,247 @@
+{
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "Bakgrunder"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "Hintergründe"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "Fondos"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "背景"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "Arrière-plans"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "Fundos"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "पृष्ठभूमियाँ"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "배경"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-installer-cleanup-preview.json",
+      "reason": "2026-10-15: replace bare product identities with translated cache nouns; disambiguate wallpaper image cache from scientific background-value setting. Scientific targets and protected-path behavior unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Backgrounds",
+          "source": "Backgrounds",
+          "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+          "translation": "Bakgrunnar"
+        },
+        {
+          "table": "ui",
+          "key": "Hugging Face",
+          "source": "Hugging Face",
+          "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
+          "translation": "Hugging Face"
+        },
+        {
+          "table": "ui",
+          "key": "Torch",
+          "source": "Torch",
+          "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
+          "translation": "Torch"
+        }
+      ]
+    }
+  ]
+}
