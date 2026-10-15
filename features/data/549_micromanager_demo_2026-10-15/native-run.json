@@ -1,0 +1,211 @@
+{
+  "source_commit": "65949c5d95137994d2bd2cc458707393e1d9565c",
+  "source_file_sha256": "15d646438155df555d274b683dc3f40d8c8f588b84a4bed2c6cc474d6f0a88dc",
+  "pid": 665483,
+  "backend": "pycromanager Python headless, native pymmcore C++ MMCore",
+  "versions": {
+    "pycromanager": "1.0.2",
+    "mmpycorex": "0.3.16",
+    "pymmcore": "12.5.1.75.0",
+    "pymmcore-plus": "0.18.1",
+    "numpy": "2.5.2",
+    "tifffile": "2026.8.16"
+  },
+  "config_sha256": "e3e39464fc995e7815bf7aa8a3b05a99c820b127cf79ec373e8adf1bd72392bc",
+  "adapter_sha256": "ef5670fb40da4c7e00777bbf8429059a9c804c7e588cde692a7b6092859cb690",
+  "declared_devices": [
+    [
+      "DHub",
+      "DemoCamera",
+      "DHub"
+    ],
+    [
+      "Camera",
+      "DemoCamera",
+      "DCam"
+    ],
+    [
+      "Z",
+      "DemoCamera",
+      "DStage"
+    ],
+    [
+      "XY",
+      "DemoCamera",
+      "DXYStage"
+    ]
+  ],
+  "fixture_only_events": true,
+  "hardware_or_external_server_used": false,
+  "passed": true,
+  "loaded_devices": [
+    {
+      "label": "DHub",
+      "library": "DemoCamera",
+      "device": "DHub"
+    },
+    {
+      "label": "Camera",
+      "library": "DemoCamera",
+      "device": "DCam"
+    },
+    {
+      "label": "Z",
+      "library": "DemoCamera",
+      "device": "DStage"
+    },
+    {
+      "label": "XY",
+      "library": "DemoCamera",
+      "device": "DXYStage"
+    }
+  ],
+  "native_version_info": "MMCore version 12.5.1",
+  "native_api_version_info": "Device API version 75, Module API version 10",
+  "loaded_native_library_maps": [
+    "7744b8e1d000-7744b8e5d000 r--p 00000000 08:11 80877956                   /mnt/wd4tb/scratch/home-b-f549-demo-20261015/adapters/Micro-Manager-75.20261014.post1/libmmgr_dal_DemoCamera.so.0",
+    "7744b8e5d000-7744b8edb000 r-xp 00040000 08:11 80877956                   /mnt/wd4tb/scratch/home-b-f549-demo-20261015/adapters/Micro-Manager-75.20261014.post1/libmmgr_dal_DemoCamera.so.0",
+    "7744b8edb000-7744b8ef7000 r--p 000be000 08:11 80877956                   /mnt/wd4tb/scratch/home-b-f549-demo-20261015/adapters/Micro-Manager-75.20261014.post1/libmmgr_dal_DemoCamera.so.0",
+    "7744b8ef7000-7744b8eff000 r--p 000d9000 08:11 80877956                   /mnt/wd4tb/scratch/home-b-f549-demo-20261015/adapters/Micro-Manager-75.20261014.post1/libmmgr_dal_DemoCamera.so.0",
+    "7744b8eff000-7744b8f00000 rw-p 000e1000 08:11 80877956                   /mnt/wd4tb/scratch/home-b-f549-demo-20261015/adapters/Micro-Manager-75.20261014.post1/libmmgr_dal_DemoCamera.so.0"
+  ],
+  "final_native_stage_um": [
+    993.0,
+    2007.0,
+    7.5
+  ],
+  "images": [
+    {
+      "file": "spacr_watch/reimaged/demo_A01_e000_t000.tif",
+      "sha256": "8ccd40d21ae519d2e864f969a985e24df25ae35ed78b22ad4cbd88eb7e4d4b94",
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "uint16",
+      "minimum": 42,
+      "maximum": 349,
+      "stage_um": [
+        1006.0,
+        1993.0,
+        7.5
+      ]
+    },
+    {
+      "file": "spacr_watch/reimaged/demo_A01_e000_t001.tif",
+      "sha256": "9d925f5b4e6401cb4405834a9a3c732f9486d85d10214c18cda2099afab9a485",
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "uint16",
+      "minimum": 42,
+      "maximum": 349,
+      "stage_um": [
+        1006.0,
+        1993.0,
+        7.5
+      ]
+    },
+    {
+      "file": "spacr_watch/reimaged/demo_A01_e001_t000.tif",
+      "sha256": "23ff84dcf79e6283138a25e287f0bd06d1a10d32ef22755b787db829753d3b4a",
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "uint16",
+      "minimum": 42,
+      "maximum": 349,
+      "stage_um": [
+        993.0,
+        2007.0,
+        7.5
+      ]
+    },
+    {
+      "file": "spacr_watch/reimaged/demo_A01_e001_t001.tif",
+      "sha256": "02b4d95b6d8269236d0bc03b06d3624944eeecbe7560fb06865a83eada0977f2",
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "uint16",
+      "minimum": 42,
+      "maximum": 349,
+      "stage_um": [
+        993.0,
+        2007.0,
+        7.5
+      ]
+    }
+  ],
+  "acquired_events": [
+    {
+      "acquired": 1792038760.058815,
+      "files": [
+        "demo_A01_e000_t000.tif",
+        "demo_A01_e000_t001.tif"
+      ],
+      "id": "demo_A01_e000",
+      "object": "2",
+      "pixel": [
+        45.5,
+        43.5
+      ],
+      "stage": [
+        1006.0,
+        1993.0,
+        7.5
+      ],
+      "status": "acquired"
+    },
+    {
+      "acquired": 1792038760.0750127,
+      "files": [
+        "demo_A01_e001_t000.tif",
+        "demo_A01_e001_t001.tif"
+      ],
+      "id": "demo_A01_e001",
+      "object": "3",
+      "pixel": [
+        17.5,
+        17.5
+      ],
+      "stage": [
+        993.0,
+        2007.0,
+        7.5
+      ],
+      "status": "acquired"
+    }
+  ],
+  "missing_positions_not_acquired": [
+    {
+      "id": "demo_missing_e000",
+      "object": "2",
+      "pixel": [
+        45.5,
+        43.5
+      ],
+      "stage": null,
+      "status": "no_position"
+    },
+    {
+      "id": "demo_missing_e001",
+      "object": "3",
+      "pixel": [
+        17.5,
+        17.5
+      ],
+      "stage": null,
+      "status": "no_position"
+    }
+  ],
+  "repeat_drain_acquisitions": 0,
+  "cleanup_python_cores": 0,
+  "cleanup_java_processes": 0,
+  "cleanup_loaded_devices": [
+    "Core"
+  ]
+}
