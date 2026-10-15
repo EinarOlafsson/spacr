@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — F564 coherent delivery and verified free docs host
+
+F564 frozen backenddb589 plus actual alpha GUI controls,63 reviewed runtime
+targets, normal nine-language audit and settings-flow/Help output are coherent.
+GUI7 and exact caption-owner45 checks pass; backend21/legacy93 evidence is
+preserved without replay. Fresh coordinator canonical identities/hashes match
+the producer; no API arrivals. Actual18 localized control cases/27 diagnostic
+lookups pass. An extra harness final zero-attempt check ended1 on blocked
+ConsolePanel AI allowance refresh; exact original failure/caller is retained,
+not hidden or claimed as terminal0. No F564 source change was needed.
+
+N689 v2 free static host is accepted for its exact older8e0a1fd artifact:
+immutable3322file/459836810byte tree, live receipts/homepage, six representative
+files and preserved media identities. Site-src72d1b1a production and Pages deploys
+pass; public English/Swedish project links now reach the new host. Old Space/
+history were not modified and no paid options were requested. Canonical CI vars/
+secret, main Pages/nightly redirect and Work direct endpoints remain separate
+cutover gates; do not claim current-head docs, lesson playback or full N689.
+Evidence:data/689_free_static_candidate_2026-10-15/.
+
+F580 four-key session/bead GUI adapter is actively owned by Home-B accessibility
+lane in settings_model.py/calibration_preview.py; Original retains backend.
+F561 real own-backbone UI is actively owned by Home-B readme lane in
+qt/screens/embeddings.py; Original Hard retains frozen trainer and81 API inputs.
+No overlap with Work tutorials, Claude N700 or Original CI/release lanes.
+
+
 ## 2026-10-15 Home-B — N689 host configuration and complete snapshot verification
 
 N689 source delivery adds a checked paired host/URL resolver and routes main
