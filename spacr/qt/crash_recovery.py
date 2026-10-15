@@ -165,7 +165,7 @@ def _locks_folder() -> str:
     is ever written beside the user's images. ``SPACR_LOCK_DIR`` moves it.
     """
     folder = (os.environ.get("SPACR_LOCK_DIR")
-              or os.path.join(os.path.expanduser("~"), ".spacr", "locks"))
+              or os.path.join(str(_spacr_home()), "locks"))
     os.makedirs(folder, exist_ok=True)
     return folder
 
