@@ -1019,6 +1019,7 @@ _METADATA_CONVENTIONS = (
         "ext": "suffix",
         "examples": (
             "A1--W00001--P00001--Z00000--T00000--Alexa 488.tif",
+            "A1--W00001--P00001--Z00000--T00000--mCherry1.tif",
         ),
         "groups": {
             "wellID": "the well NAME, which ScanR writes before the "
@@ -1031,17 +1032,26 @@ _METADATA_CONVENTIONS = (
         },
         "source": (
             "forum.image.sc thread 14872, 'Olympus Scan^R metadata', where "
-            "a ScanR user gives 'A1--W00001--P00001--Z00000--T00000--Alexa "
-            "488' as an example of their own 96/384-well filenames and a "
-            "CellProfiler developer answers with a regex naming the first "
-            "block Well and the rest W/Position/Z/T/Channel. Bio-Formats "
-            "confirms the block grammar independently: ScanrReader.java's "
-            "getBlock() zero-pads to five digits and prepends the axis "
-            "letter, so getBlock(1, \"W\") is 'W00001'. PROVISIONAL "
-            "because ONE literal filename could be sourced, and because "
-            "Bio-Formats matches these blocks by substring search rather "
-            "than by a pattern, so it does not vouch for the '--' "
-            "separators or for the leading well name."),
+            "a ScanR user gives 'A1--W00001--P00001--Z00000--T00000--Alexa 488' "
+            "as an example of their own 96/384-well names and a CellProfiler "
+            "developer identifies Well/Position/Z/T/Channel. A second "
+            "acquisition user reports the stem "
+            "'A1--W00001--P00001--Z00000--T00000--mCherry1' in "
+            "https://forum.knime.com/t/combining-images-to-stack/2119 "
+            "on 2012-06-29 while describing their Olympus ScanR Z-stack. "
+            "Both cited stems omit the file extension. The configured .tif "
+            "suffix is inferred for both runnable examples; these are "
+            "not observed complete filenames. The public OME ScanR TIFF "
+            "listing at downloads.openmicroscopy.org/images/ScanR/idr0009/"
+            "0307-10--2007-05-30/data/ supports TIFF as a format, not the "
+            "missing suffixes of these two stems. Bio-Formats confirms the "
+            "axis blocks independently: ScanrReader.java's getBlock() "
+            "zero-pads to five digits and prepends the axis letter, so "
+            "getBlock(1, \"W\") is 'W00001'. PROVISIONAL: the two user "
+            "reports support the well-prefixed grammar, but their full "
+            "filenames were not supplied. Bio-Formats matches blocks by "
+            "substring search and does not establish the '--' separators "
+            "or the leading well name."),
         "status": "provisional",
     },
     {

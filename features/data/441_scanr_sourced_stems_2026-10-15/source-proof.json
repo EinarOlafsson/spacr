@@ -1,0 +1,21 @@
+{
+  "base": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "source_sha256": "af4913c48026af80ca17459cf98e4925320dd1768b0bee5c2dd2599d42931a6b",
+  "test_sha256": "87443012d8b78cc9c4e11a7fb0e4b97bd5dc88cd9e94fdef91172d923ab8bd2c",
+  "source_delta_only": {
+    "scanr": [
+      "examples",
+      "source"
+    ]
+  },
+  "all19patterns_and_other18records_exact": true,
+  "all_signatures_docstrings_and_trcalls_exact": true,
+  "entire_module_AST_restored_by_only_priorScanRrow": true,
+  "test_original_bytes_prefix_exact": false,
+  "new_example": "A1--W00001--P00001--Z00000--T00000--mCherry1.tif",
+  "status": "provisional unchanged",
+  "meaning": "Bothcitedsource strings are stems withoutsuffix; runtimeexample appendsdeclared.tif explicitlyinferred, not claimedobservedfullfilename.",
+  "tested_test_sha256": "01db4aed9bedd7b426aa118aac8f8507ca57ae3899cf1bcab5365451105b004a",
+  "post_test_documentation_only_correction": "Existing evidence-test docstring removes stale single-ScanR statement; explicitly distinguishes two acquisition-user stems and inferredTIFFsuffix. Entire tested executableAST remains identical; no retest necessary.",
+  "original_test_executable_AST_unchanged_except_appended_new_test": true
+}

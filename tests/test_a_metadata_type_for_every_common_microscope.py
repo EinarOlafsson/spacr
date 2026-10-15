@@ -202,9 +202,10 @@ def test_every_record_carries_the_evidence_for_itself(record):
 
     CONFIRMED NEEDS TWO EXAMPLES AND PROVISIONAL NEEDS ONE. One filename
     proves a pattern can parse something; two proves it parses a FAMILY, and
-    that is the difference between a convention and a screenshot. Where only
-    one could be sourced -- ScanR -- the record says provisional. EVOS has
+    that is the difference between a convention and a screenshot. EVOS has
     two exact vendor-documented literals, including the no-Z save dialog.
+    ScanR's two acquisition-user stems omit extensions; both runnable
+    examples explicitly disclose an inferred TIFF suffix.
     Cytation also remains provisional because its additional upstream
     real-world-derived names disclose sanitization. The dropdown shows this
     evidence limit rather than treating a matching example as confirmation.
@@ -355,3 +356,31 @@ def test_cytation_real_world_derived_examples_keep_their_provenance_caveat():
         assert int(match.group("fieldID")) == field
         assert match.group("chanID") == "Phase Contrast"
         assert match.group("timeID") == "001"
+
+
+def test_scanr_user_stems_disclose_the_inferred_tiff_suffix():
+    """Two acquisition users supply stems; the configured suffix is inferred."""
+    record = _metadata_convention("scanr")
+    stems = (
+        "A1--W00001--P00001--Z00000--T00000--Alexa 488",
+        "A1--W00001--P00001--Z00000--T00000--mCherry1",
+    )
+    assert record["examples"] == tuple(stem + ".tif" for stem in stems)
+    assert record["status"] == "provisional"
+    assert record["ext"] == "suffix"
+    assert "https://forum.knime.com/t/combining-images-to-stack/2119" in record["source"]
+    assert "forum.image.sc thread 14872" in record["source"]
+    assert "Both cited stems omit the file extension" in record["source"]
+    assert "configured .tif suffix is inferred" in record["source"]
+    assert "not observed complete filenames" in record["source"]
+    assert "ONE literal filename" not in record["source"]
+    for stem, channel in zip(stems, ("Alexa 488", "mCherry1")):
+        assert stem in record["source"]
+        pattern = _metadata_pattern("scanr", "tif")
+        assert re.fullmatch(pattern, stem) is None
+        match = re.fullmatch(pattern, stem + ".tif")
+        assert match is not None
+        assert match.groupdict() == {
+            "wellID": "A1", "fieldID": "00001", "sliceID": "00000",
+            "timeID": "00000", "chanID": channel,
+        }
