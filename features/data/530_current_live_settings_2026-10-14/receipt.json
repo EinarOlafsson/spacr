@@ -1,0 +1,66 @@
+{
+  "item": "N530",
+  "verified_at_utc": "2026-10-15T02:20:20.212962+00:00",
+  "source_commit": "c2080b4542c28c5a5904158ff28bf67d9c10a99b",
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+    "spacr/qt/widgets/fractal_travel.py": "a713d7f5481d38c121a01eee61a9d1f950cbae8630f3026cf0a6c347958e978f",
+    "spacr/qt/preferences.py": "2928504a1032a1891397c4fe2fa8e7f53dac299397e457739d4628da7524cee7",
+    "spacr/qt/fractal_defaults.py": "12e3393f4b3f123e8265c6ebf2a642e4842009878fd22ebd5ed01f5ac7252a1b",
+    "tests/qt/test_fractal_changes_apply_without_a_restart.py": "14a0b5c796d7ff7c2dd95af96e3039b3a4e0f2b99ce56a1d99347f0a895e2aa7",
+    "tests/qt/test_the_saved_fractal_settings_are_used.py": "f6b77eedd33ef01651852476bab5304b599d3c6a1a400402de3ae557b3c2165d",
+    "tests/qt/test_the_fractal_supersampling_setting_does_something.py": "1cb9a85be463ed2bba1cba6788b2d475579a0761a69ae9e6551a83e3d294e4d0"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen SPACR_NO_GL=1 tools/run_capped.sh 6G python -m pytest -q -n 2 --dist=loadfile tests/qt/test_fractal_changes_apply_without_a_restart.py tests/qt/test_the_saved_fractal_settings_are_used.py tests/qt/test_the_fractal_supersampling_setting_does_something.py",
+  "result": {
+    "passed": 110,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 23.44,
+    "exit_code": 0
+  },
+  "log": {
+    "path": "acceptance.log.gz",
+    "uncompressed_sha256": "2435dca90a221e5f776c73ec54c95d8d8fb57249e32b767bca5319b6055c73a3"
+  },
+  "all_30_saved_settings": {
+    "live_with_backdrop_rebuild": [
+      "pattern",
+      "backend",
+      "quality",
+      "scale",
+      "supersampling",
+      "max_iterations",
+      "precision_digits"
+    ],
+    "live_runtime_controls": [
+      "speed",
+      "dream",
+      "variable_speed",
+      "speed_min",
+      "speed_max",
+      "speed_period",
+      "pointer_gravity",
+      "pointer_size",
+      "pointer_strength",
+      "magnifier_size",
+      "zoom_rate"
+    ],
+    "live_frame_or_derived_settings": [
+      "render_scale",
+      "path",
+      "steering",
+      "max_depth",
+      "seconds_per_decade",
+      "base_iterations",
+      "iterations_per_decade",
+      "initial_scale",
+      "steering_strength",
+      "steering_interval_decades",
+      "steering_duration",
+      "candidate_count"
+    ],
+    "restart_only": []
+  },
+  "interpretation": "Current original CPU/offscreen software acceptance verified. Existing implementation retained. Supersampling was fixed by N531; magnifier size also applies live. GPU backend routing/shaders use Python vispy stand-ins; no hardware GPU, native frame-rate, or whole-release claim."
+}
