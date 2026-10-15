@@ -1,0 +1,38 @@
+--- a/spacr/qt/app.py
++++ b/spacr/qt/app.py
+@@ -5104,8 +5104,33 @@
+             if ticked is None:
+                 return
+         version = getattr(self, "_update_version", None) or ""
+-        plan = install_cleanup.start_update_helper(
+-            records, version, ticked=ticked)
++        if any(record.kind == "environment" and record.running
++               and record.platform == "windows" for record in records):
++            self._start_update_worker(
++                "prepare", lambda: install_cleanup.start_update_helper(
++                    records, version, ticked=ticked), self._on_update_plan_prepared)
++            return
++        self._on_update_plan_prepared(install_cleanup.start_update_helper(
++            records, version, ticked=ticked))
++
++    def _on_update_plan_prepared(self, plan):
++        """Handle a prepared update plan on the GUI thread.
++
++        :param plan: Result of the owned background preparation operation.
++        """
++        from spacr import install_cleanup
++
++        if self._closing:
++            if plan.get("handshake"):
++                try:
++                    handshake_type = (install_cleanup._WindowsPipHandshake
++                                      if plan.get("adapter") == "pip-private-windows-v1"
++                                      else install_cleanup._FrozenUpdateHandshake)
++                    handshake_type(plan).cancel()
++                except Exception:
++                    LOG.exception("Could not disarm a late update plan; no shutdown approval was issued")
++            return
++        version = str(plan.get("version") or "")
+         if not plan.get("command"):
+             QMessageBox.warning(
+                 self, "Updates",

@@ -1,0 +1,58 @@
+{
+  "state": "private implementation validated by owning contracts; source-peer/API closure still pending before public enable",
+  "base": "b460359010b4614f3a8e5261c3d0a804bc4e1f1f",
+  "source_sha256": {
+    "spacr/install_cleanup.py": "e8d507258ff2db6ec5a3885c3428c76117f3353e3afdaac87a783210b24329a3",
+    "spacr/qt/app.py": "6848bd5ec92fe7a94bb90028f7fcf6a155f42d3a9fe8b0ee0026fa1a37ac6cb5",
+    "tests/test_windows_private_pip_703.py": "0519b4eb3701869050df93b5e773626bb73a4b319d3fbce1052b7edf56801bc9",
+    "tests/qt/test_an_update_removes_older_copies_first.py": "104caff84836bd1e8d206ca9612534517860ecbfc56fc16d7eee19883fd9eb43"
+  },
+  "checks": {
+    "baseline": {
+      "exit": 1,
+      "junit_sha256": "0b8758c626001443656eb1b00c03d7a2e7247fd46e7e1df983f25e7eede9452f",
+      "tests": 1,
+      "failures": 1
+    },
+    "final-v6": {
+      "exit": 0,
+      "junit_sha256": "b216e280dd9ef57a7dfb4d4df49786983ac2a53ac651288c55cb6c8d8f7787ff",
+      "tests": 75,
+      "failures": 0
+    },
+    "qt-final": {
+      "exit": 1,
+      "junit_sha256": "be039e007b294a998522e22e9ea2a9a41e4fbe6d117c03edbf39fa8ed2f0ae70",
+      "tests": 14,
+      "failures": 2
+    },
+    "qt-lifetime-closure": {
+      "exit": 0,
+      "junit_sha256": "aa402b6db1c2791ba168ffc702f3d406348903a1efaccd73cf9a219daa8f45af",
+      "tests": 2,
+      "failures": 0
+    }
+  },
+  "distinct_passing_contracts": 89,
+  "scope": [
+    "Windows dedicated private venv only; Conda/shared/system-site/editable/untrusted/native-proof-unavailable paths refuse.",
+    "Current-user owned target+parent; native fixed-local-drive owner/DACL evidence; every code/helper/base descendant reparse/ACL checked in background. Single-path GUI status checks use native APIs without subprocess or proof cache.",
+    "Verified external base interpreter survives target retirement; all pip modifications occur in copied sibling stage; exact version/floor/import/metadata checks precede activation.",
+    "Normal pip-vendored distlib regenerates changed stage-bound EXE wrappers using final-prefix interpreter and refreshes owning RECORD hashes/sizes; ambiguous ownership refuses.",
+    "Journaled two-rename activation is non-atomic; ordinary failures restore only proven identities/inventories, foreign changes retain evidence/old runtime and lease for review.",
+    "Existing authenticated shutdown/settings-save/veto/cancel protocol preserved; existing worker performs preparation; heartbeat and late-result disarming tested."
+  ],
+  "baseline_limit": "Initial safe unsupported Windows refusal is the missing-capability baseline, not a native unsafe-install demonstration; fixture later gained native ACL/base seams.",
+  "test_limits": [
+    "Native Win32 APIs are modeled on Linux. Actual files/renames/journals/rollback/Qt worker scheduling are exercised on Linux.",
+    "Bundled distlib actual Windows PE/ZIP/RECORD byte construction is exercised with a module-local Windows os model; no Windows executable runs.",
+    "Actual offline fake wheel pip --target subprocesses and unchanged identity-probe body run in disposable layout; Windows interpreter prefix/executable identities are explicitly modeled.",
+    "qt-final had12PASS+2FAIL in finally because finished QThread was already deleted; test cleanup corrected via shiboken isValid, only failed2 rerun and pass. No production change or assertion weakening."
+  ],
+  "remaining": [
+    "Independent final source peer after native ACL/async changes.",
+    "Normal exact-source start_update_helper public English/nine-locale API closure, combined with root Debian prose before public enable.",
+    "Native Windows ACL/file-lock/launcher/restart/dependency acceptance and interruption/manual recovery remain open; no atomic or power-loss recovery claim.",
+    "No full CI or whole N703 completion claimed."
+  ]
+}

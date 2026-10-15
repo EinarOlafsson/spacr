@@ -5104,8 +5104,33 @@ class MainWindow(QMainWindow):
             if ticked is None:
                 return
         version = getattr(self, "_update_version", None) or ""
-        plan = install_cleanup.start_update_helper(
-            records, version, ticked=ticked)
+        if any(record.kind == "environment" and record.running
+               and record.platform == "windows" for record in records):
+            self._start_update_worker(
+                "prepare", lambda: install_cleanup.start_update_helper(
+                    records, version, ticked=ticked), self._on_update_plan_prepared)
+            return
+        self._on_update_plan_prepared(install_cleanup.start_update_helper(
+            records, version, ticked=ticked))
+
+    def _on_update_plan_prepared(self, plan):
+        """Handle a prepared update plan on the GUI thread.
+
+        :param plan: Result of the owned background preparation operation.
+        """
+        from spacr import install_cleanup
+
+        if self._closing:
+            if plan.get("handshake"):
+                try:
+                    handshake_type = (install_cleanup._WindowsPipHandshake
+                                      if plan.get("adapter") == "pip-private-windows-v1"
+                                      else install_cleanup._FrozenUpdateHandshake)
+                    handshake_type(plan).cancel()
+                except Exception:
+                    LOG.exception("Could not disarm a late update plan; no shutdown approval was issued")
+            return
+        version = str(plan.get("version") or "")
         if not plan.get("command"):
             QMessageBox.warning(
                 self, "Updates",
@@ -5113,12 +5138,15 @@ class MainWindow(QMainWindow):
                    error=self._removal_reason_text(
                        str(plan.get("error")))))
             return
-        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1"} and plan.get("handshake"):
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"} and plan.get("handshake"):
             from PySide6.QtCore import QTimer
 
             self._frozen_update_plan = plan
             try:
-                self._frozen_update_handshake = install_cleanup._FrozenUpdateHandshake(plan)
+                handshake_type = (install_cleanup._WindowsPipHandshake
+                                  if plan.get("adapter") == "pip-private-windows-v1"
+                                  else install_cleanup._FrozenUpdateHandshake)
+                self._frozen_update_handshake = handshake_type(plan)
             except Exception as error:
                 QMessageBox.warning(
                     self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
@@ -5189,7 +5217,7 @@ class MainWindow(QMainWindow):
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
             self._frozen_update_timer.stop()
-            if self._frozen_update_plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1"}:
+            if self._frozen_update_plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
                 message = tr(
                     "This will reinstall spaCR in its current environment. "
                     "spaCR will close before the update starts. "
@@ -5204,7 +5232,7 @@ class MainWindow(QMainWindow):
                 self._cancel_frozen_update()
                 return
             handshake.check()
-            if (self._frozen_update_plan.get("adapter") == "pip-private-posix-v1"
+            if (self._frozen_update_plan.get("adapter") in {"pip-private-posix-v1", "pip-private-windows-v1"}
                     and not self._save_pip_update_restart()):
                 self._cancel_frozen_update()
                 return

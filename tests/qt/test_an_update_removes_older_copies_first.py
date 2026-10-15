@@ -56,6 +56,7 @@ class _Window:
 
     _on_update_check_done = qt_app.MainWindow._on_update_check_done
     _on_old_installs_found = qt_app.MainWindow._on_old_installs_found
+    _on_update_plan_prepared = qt_app.MainWindow._on_update_plan_prepared
     _on_update_sequence_done = qt_app.MainWindow._on_update_sequence_done
     _removal_reason_text = staticmethod(qt_app.MainWindow._removal_reason_text)
 
@@ -85,7 +86,7 @@ class _Window:
         self.closed = True
 
 
-@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1"])
+@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"])
 def frozen_window(qtbot, monkeypatch, tmp_path, request):
     from types import SimpleNamespace
     from PySide6.QtWidgets import QMainWindow
@@ -115,11 +116,16 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
 
     work = tmp_path / "helper"
     work.mkdir(mode=0o700)
-    pip = request.param == "pip-private-posix-v1"
+    pip = request.param in {"pip-private-posix-v1", "pip-private-windows-v1"}
+    windows = request.param == "pip-private-windows-v1"
+    if windows:
+        monkeypatch.setattr(install_cleanup, "_windows_pip_acl", lambda path: {
+            "owner": "S-1-5-21-1001", "user": "S-1-5-21-1001", "has_dacl": True,
+            "rules": [{"sid": "S-1-5-21-1001", "type": 0, "rights": 0x1f01ff, "propagation": 0}]})
     online = request.param == "macos-online-uv-v1"
     record = install_cleanup.InstallRecord(
         "environment" if pip else "installer", "venv" if pip else "macos-runtime" if online else "macos-app",
-        "linux" if pip else "macos", str(tmp_path / ("venv" if pip else "Application Support" if online else "spaCR.app")), running=True)
+        "windows" if windows else "linux" if pip else "macos", str(tmp_path / ("venv" if pip else "Application Support" if online else "spaCR.app")), running=True)
     monkeypatch.setattr(install_cleanup, "_macos_online_update_record",
                         lambda records: record if online else None)
     plan = {"adapter": request.param, "command": ["inert-helper"],
@@ -138,6 +144,8 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
     qtbot.addWidget(window)
     window.show()
     window._on_old_installs_found([record])
+    if windows:
+        qtbot.waitUntil(lambda: getattr(window, "_frozen_update_handshake", None) is not None)
     handshake = window._frozen_update_handshake
     yield SimpleNamespace(window=window, handshake=handshake, plan=plan,
                           work=work, events=events, messages=messages)
@@ -155,7 +163,7 @@ def test_frozen_preparation_failure_keeps_the_window_alive(frozen_window, monkey
         monkeypatch.setattr(install_cleanup.time, "time", lambda: state.handshake.expires + 1)
     else:
         other = dict(state.plan, version="another version")
-        install_cleanup._FrozenUpdateHandshake(other).ready()
+        type(state.handshake)(other).ready()
     state.window._poll_frozen_update()
     assert state.window.isVisible() and not state.window._closing
     assert state.messages.warnings
@@ -539,7 +547,7 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
         (_title, _marked(DIALOG_CAPTIONS[4].format(version="9.9.9")))]
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1"], indirect=True)
 def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window
@@ -552,7 +560,7 @@ def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_win
     restart_state.discard()
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1"], indirect=True)
 def test_pip_handoff_refuses_unsaved_state_without_closing_or_approval(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window
@@ -590,3 +598,54 @@ def test_private_pip_refusal_and_settings_failure_use_reviewed_locale(
     source = "The current settings could not be saved. The update was cancelled and this window will stay open."
     assert seen == [expected[source]]
     assert all(value != source for source, value in expected.items())
+
+
+@pytest.mark.parametrize('frozen_window', ['pip-private-windows-v1'], indirect=True)
+@pytest.mark.parametrize('closing', [False, True])
+def test_windows_preparation_runs_off_gui_and_disarms_late_results(frozen_window, monkeypatch, qtbot, closing):
+    import threading
+    from PySide6.QtCore import QThread, QTimer
+
+    state = frozen_window
+    state.window._cancel_frozen_update()
+    work = state.work.parent / 'second helper'
+    work.mkdir(mode=0o700)
+    plan = dict(state.plan, workdir=str(work), handshake=dict(state.plan['handshake'], token='b' * 64))
+    entered, release = threading.Event(), threading.Event()
+    threads = []
+    main_thread = threading.get_ident()
+
+    def prepare(*args, **kwargs):
+        threads.append(threading.get_ident())
+        entered.set()
+        assert release.wait(3), 'The test did not release background preparation'
+        return plan
+
+    monkeypatch.setattr(install_cleanup, 'start_update_helper', prepare)
+    record = install_cleanup.InstallRecord(**plan['records'][0])
+    state.window._on_old_installs_found([record])
+    worker = state.window._update_worker
+    try:
+        qtbot.waitUntil(entered.is_set)
+        assert threads == [threads[0]] and threads[0] != main_thread
+        assert state.window._frozen_update_handshake is None
+        heartbeat = []
+        QTimer.singleShot(0, lambda: heartbeat.append(threading.get_ident()))
+        qtbot.waitUntil(lambda: bool(heartbeat))
+        assert heartbeat == [main_thread] and not release.is_set()
+        state.window._closing = closing
+        release.set()
+        if closing:
+            qtbot.waitUntil(lambda: (work / 'cancelled.json').exists())
+            assert not (work / 'approved.json').exists()
+            assert state.window._frozen_update_handshake is None
+        else:
+            qtbot.waitUntil(lambda: state.window._frozen_update_handshake is not None)
+            assert state.window._frozen_update_timer.thread() == QThread.currentThread()
+            assert state.window._frozen_update_plan['workdir'] == str(work)
+            assert not (work / 'approved.json').exists()
+    finally:
+        release.set()
+        from shiboken6 import isValid
+        qtbot.waitUntil(lambda: not isValid(worker) or not worker.isRunning())
+        state.window._closing = False
