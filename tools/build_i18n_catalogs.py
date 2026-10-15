@@ -4200,11 +4200,15 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
         if path == source_root / "model_zoo.py":
-            # Only the shared acquisition policy owns translated runtime
-            # diagnostics; model metadata and other backend prose do not.
+            # Shared acquisition diagnostics and curated scorecard display
+            # text own captions; unrelated metadata and backend prose do not.
+            diagnostic_owners = {
+                "_ensure_catalogue_model_file", "_curated_scorecard_rows",
+                "_curated_scorecard_lines",
+            }
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name == "_ensure_catalogue_model_file"]
+                         and node.name in diagnostic_owners]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",
