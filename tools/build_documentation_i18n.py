@@ -6587,8 +6587,11 @@ def _readme_picker_links_to_index(readme: str) -> bool:
                 self.valid = False
 
     picker = Picker()
-    picker.feed(raw.group("html"))
-    picker.close()
+    try:
+        picker.feed(raw.group("html"))
+        picker.close()
+    except AssertionError:
+        return False
     return (picker.valid and not picker.stack
             and all(picker.counts[tag] == 1 for tag in ("div", "a", "picture", "img")))
 
