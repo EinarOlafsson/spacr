@@ -360,3 +360,14 @@ WHAT IS LEFT
   No new caption or public API arrival. This closes only the demonstrated
   heading defects; native speech/human/macOS/Windows/tutorial gates stay open.
   Proof: data/655_section_header_accessibility_2026-10-15/receipt.json.
+
+2026-10-15 — New figure heading verified through native Linux accessibility
+The published repair now has one isolated X11/AT-SPI/Orca acceptance run. An
+external process found its actual run name; real Tab/Shift+Tab entered, left
+and returned, with focus states read from the native bus. Orca generated the
+run name and fold-help text. Source pin,203 process source hashes, exact native
+scripts/output and cleanup evidence are retained. One pass7.74s/329172KiB/4G.
+Independent coordinator payload/source/reader review passed without replay.
+Evidence:data/655_native_figure_heading_2026-10-15/. Native role remains panel;
+audio was disabled. No audible speech, human usability, Windows/macOS or full
+application acceptance is claimed. Broader N655 gates stay open.
