@@ -2000,6 +2000,12 @@ def _runs_under(root: Path) -> Dict[str, Any]:
 
 
 
+def _model_cache_root() -> Path:
+    """Return spaCR's shared checkpoint cache, including an explicit relocation."""
+    configured = os.environ.get("SPACR_MODEL_CACHE", "").strip()
+    return Path(configured).expanduser() if configured else _spacr_home() / "models"
+
+
 def package_model_root() -> Path:
     """``<spacr>/resources/models`` — where the bundled pack lives.
 
@@ -2018,7 +2024,7 @@ def default_local_roots() -> List[Path]:
     roots = [
         package_model_root(),
         Path.home() / ".cellpose" / "models",
-        _spacr_home() / "models",
+        _model_cache_root(),
     ]
     return [r for r in roots if r.is_dir()]
 
@@ -3878,7 +3884,7 @@ def _ensure_catalogue_model_file(entry, *, download=True):
         return Path(entry.path)
     if not entry.uri:
         return None
-    destination = _spacr_home() / "models"
+    destination = _model_cache_root()
     cached = destination / Path(entry.name).name
     if cached.is_file():
         if entry.sha256 and sha256_file(cached) == entry.sha256.lower():
@@ -5039,8 +5045,7 @@ def mitonet_weights(dest: Any = None, download: bool = True,
         published ones.
     """
     entry = _entry_from_mapping(_mitonet_record())
-    folder = Path(dest).expanduser() if dest is not None else (
-        _spacr_home() / "models")
+    folder = Path(dest).expanduser() if dest is not None else _model_cache_root()
     cached = folder / entry.name
     candidates = [cached]
     if folder.is_dir():

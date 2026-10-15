@@ -69,3 +69,26 @@ def test_plaque_key_preview_uses_only_pure_planning_index(checkpoint, monkeypatc
     monkeypatch.setattr(zoo, 'fetch', lambda *a, **k: pytest.fail('preview acquired weights'))
     with pytest.raises(submodules.ModelZooMissing):
         submodules._resolve_plaque_model({'plaque_model': entry.key}, fetch=False)
+
+
+@pytest.mark.parametrize('consumer', ['training', 'plaque', 'figure', 'detector'])
+def test_shared_legacy_acquisition_honors_relocated_model_cache(
+        checkpoint, monkeypatch, tmp_path, consumer):
+    from dataclasses import replace
+    entry, payload = checkpoint
+    if consumer == 'detector':
+        entry = replace(entry, kind='detector')
+        monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [entry])
+    destination = tmp_path / 'relocated-models'
+    monkeypatch.setenv('SPACR_MODEL_CACHE', str(destination))
+    if consumer == 'training':
+        result = submodules._resolve_training_base(entry.key)
+    elif consumer == 'plaque':
+        result = submodules._resolve_plaque_model({'plaque_model': entry.key})
+    elif consumer == 'detector':
+        result = submodules._resolve_well_detector({'well_detection': entry.key})
+    else:
+        result = plaque_papers._zoo_path(entry.key, tmp_path / 'obsolete-cache', kind='cellpose')[0]
+    assert Path(result).parent == destination
+    assert Path(result).read_bytes() == payload
+    assert not (tmp_path / 'cache' / 'models').exists()

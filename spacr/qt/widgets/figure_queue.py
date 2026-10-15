@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QIcon, QImage, QPalette, QPixmap
+from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPalette, QPen, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -747,6 +747,28 @@ class _ClearFiguresLabel(QLabel):
         self.setStyleSheet(
             f"QLabel#FigureQueueClear {{ color: {colour}; "
             "background: transparent; }")
+
+    def paintEvent(self, event):
+        """Keep keyboard focus visible alongside the existing text flash."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                painter.setPen(QPen(self.palette().color(QPalette.Highlight), 2))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def focusInEvent(self, event):
+        """Repaint when the clear control gains keyboard focus."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Remove the focus marker when the user moves to another control."""
+        super().focusOutEvent(event)
+        self.update()
 
     def flash(self) -> None:
         """Light the text briefly, then return it to its resting colour."""

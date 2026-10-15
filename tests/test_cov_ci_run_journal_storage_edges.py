@@ -81,6 +81,10 @@ def test_failed_run_deletion_stays_a_refusal_in_the_prune_result(
         tmp_path, monkeypatch):
     candidate = tmp_path / "old-run"
     candidate.mkdir()
+    run = journal.Run(app_key="mask", settings={}, dir=candidate)
+    run.status = "success"
+    run._write_settings()
+    run._write_manifest()
     monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
     monkeypatch.setattr(journal, "_protected_storage", set)
     monkeypatch.setattr(journal, "_tree_stats", lambda _entry: (4, 0))

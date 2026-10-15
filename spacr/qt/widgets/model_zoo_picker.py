@@ -81,6 +81,13 @@ def _store():
     return QSettings(*_store_args(_ORG, _APP))
 
 
+def _default_model_dir() -> str:
+    """Resolve the active model cache when a new destination is needed."""
+    from ... import model_zoo
+
+    return str(model_zoo._model_cache_root())
+
+
 def remembered_model_dir() -> str:
     """The folder the user last downloaded into, or the default.
 
@@ -94,7 +101,7 @@ def remembered_model_dir() -> str:
             return stored
     except Exception:                                       # noqa: BLE001
         pass
-    return DEFAULT_MODEL_DIR
+    return _default_model_dir()
 
 
 def _remember_model_dir(folder: str) -> None:
@@ -1759,7 +1766,7 @@ class ModelZooPicker(QDialog):
         if recorded and os.path.isfile(recorded):
             return recorded
         candidate = os.path.join(self.folder_edit.text().strip()
-                                 or DEFAULT_MODEL_DIR, entry.name)
+                                 or _default_model_dir(), entry.name)
         return candidate if os.path.isfile(candidate) else None
 
     def selected_entry(self):
@@ -1864,7 +1871,7 @@ class ModelZooPicker(QDialog):
         """Ask where downloaded checkpoints should live, and remember the answer."""
         folder = QFileDialog.getExistingDirectory(
             self, "Where should models be saved?",
-            self.folder_edit.text().strip() or DEFAULT_MODEL_DIR)
+            self.folder_edit.text().strip() or _default_model_dir())
         if folder:
             self.folder_edit.setText(folder)
             _remember_model_dir(folder)
@@ -1880,7 +1887,7 @@ class ModelZooPicker(QDialog):
         if _needs_install(entry) or getattr(entry, "kind", "") == "backend":
             self._install_backend(entry)
             return
-        folder = self.folder_edit.text().strip() or DEFAULT_MODEL_DIR
+        folder = self.folder_edit.text().strip() or _default_model_dir()
         try:
             os.makedirs(folder, exist_ok=True)
         except OSError as exc:

@@ -118,7 +118,6 @@ from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
                             reference_line, resolve_ink, rotate_ticks,
                             theme_target)
 from .plot import save_figure
-from .logging_util import _spacr_home
 
 #: The categorical vocabulary for a plot whose categories genuinely ARE the
 #: data -- one line per measured column, one bar per class. Taken from the
