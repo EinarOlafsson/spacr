@@ -1,0 +1,139 @@
+{
+  "scope": "Single private offscreen software Qt actual AppScreen plus normal MainWindow fold installer; no activation/model/native capture",
+  "root": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014",
+  "public_regression_stage": "stable",
+  "alpha": false,
+  "beta": false,
+  "future": false,
+  "strip_type": "FoldStrip",
+  "strip_visible": true,
+  "buttons": [
+    {
+      "key": "volcano_explorer",
+      "description": [
+        "Volcano Explorer",
+        "Open a regression result, click any point for its full record, restyle the plot and export it as vector PDF or PNG",
+        "alpha"
+      ],
+      "visible": true,
+      "hidden": false,
+      "enabled": true,
+      "stage_property": "alpha",
+      "stage_attribute": null,
+      "text": "",
+      "tooltip": "Volcano Explorer\nOpen a regression result, click any point for its full record, restyle the plot and export it as vector PDF or PNG",
+      "geometry": [
+        0,
+        0,
+        51,
+        51
+      ]
+    },
+    {
+      "key": "hit_list",
+      "description": [
+        "Hit List",
+        "Ranked, annotated, filterable hits with effect size, FDR and gRNA agreement",
+        "alpha"
+      ],
+      "visible": true,
+      "hidden": false,
+      "enabled": true,
+      "stage_property": "alpha",
+      "stage_attribute": null,
+      "text": "",
+      "tooltip": "Hit List\nRanked, annotated, filterable hits with effect size, FDR and gRNA agreement",
+      "geometry": [
+        60,
+        0,
+        51,
+        51
+      ]
+    },
+    {
+      "key": "methods_export",
+      "description": [
+        "Methods & Results",
+        "Draft the methods and results sections from the run, with every number traced",
+        "alpha"
+      ],
+      "visible": true,
+      "hidden": false,
+      "enabled": true,
+      "stage_property": "alpha",
+      "stage_attribute": null,
+      "text": "",
+      "tooltip": "Methods & Results\nDraft the methods and results sections from the run, with every number traced",
+      "geometry": [
+        120,
+        0,
+        51,
+        51
+      ]
+    },
+    {
+      "key": "investigate_hit",
+      "description": [
+        "Investigate Hit",
+        "Link a regression hit to cross-fitted candidate cells and well-level quantitative evidence",
+        "alpha"
+      ],
+      "visible": true,
+      "hidden": false,
+      "enabled": true,
+      "stage_property": "alpha",
+      "stage_attribute": null,
+      "text": "",
+      "tooltip": "Investigate Hit\nLink a regression hit to cross-fitted candidate cells and well-level quantitative evidence",
+      "geometry": [
+        180,
+        0,
+        51,
+        51
+      ]
+    },
+    {
+      "key": "profiler",
+      "description": [
+        "Prediction Profiler",
+        "Evaluate how a fitted model's prediction changes across one input variable",
+        "alpha"
+      ],
+      "visible": true,
+      "hidden": false,
+      "enabled": true,
+      "stage_property": "alpha",
+      "stage_attribute": null,
+      "text": "",
+      "tooltip": "Prediction Profiler\nEvaluate how a fitted model's prediction changes across one input variable",
+      "geometry": [
+        240,
+        0,
+        51,
+        51
+      ]
+    },
+    {
+      "key": "regression_diagnostics",
+      "description": [
+        "Diagnostics",
+        "Show the diagnostic panels the last regression run wrote beside its results",
+        "alpha"
+      ],
+      "visible": true,
+      "hidden": false,
+      "enabled": true,
+      "stage_property": "alpha",
+      "stage_attribute": null,
+      "text": "",
+      "tooltip": "Diagnostics\nShow the diagnostic panels the last regression run wrote beside its results",
+      "geometry": [
+        300,
+        0,
+        51,
+        51
+      ]
+    }
+  ],
+  "scientific_or_capture_acceptance": false
+}

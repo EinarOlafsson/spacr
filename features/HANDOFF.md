@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: normal fold-toolbar visibility fix held
+
+Lesson13 is locally source-unblocked by held `94dba45d98d25c82beda7a169d7e40aa129cd4ca`:
+existing maturity/future preferences now gate folded toolbar buttons, and normal
+Preferences Apply refreshes both strips and direct Make Masks FoldButtons.
+Owning18 CPU Qt checks pass in5.73s; no stages promoted, private filming-only
+hiding or capture gates changed. Independent HIGH source peer PASS is bound in the packet. Exact gzip format-patch,18-test log, source hashes and original separate
+alpha-off failure observation are in
+`features/data/n676_fold_toolbar_visibility_fix_2026-10-15/`.
+
+Home: review/import the narrow patch while preserving your newer work and the
+previous public Classify stage correction; do not replace app.py wholesale.
+Fresh whole13 turn55 is PREPARED, NOT QUEUED and not native/science accepted.
+Root owns the final source/marker, guarded recording and one-lesson pipeline.
+Lesson11 remains finished/pushed `84e251c493f42f217118b146502606df79857533`;
+live Space deployment remains separate from the verified hosted-tree pipeline.
+
+
 
 ## 2026-10-15 — WS → Original Home: lesson13 blocked before capture
 
