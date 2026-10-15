@@ -195,3 +195,16 @@ method behavior changed, and no runtime tests were repeated for this prose.
 One existing API block awaits normal nine-locale review/catalog generation.
 Evidence: features/data/678_training_monitor_prose_2026-10-15/receipt.json.
 This bounded lifecycle clarification does not complete the full N678 review.
+
+2026-10-15 — Published camera/layout and training/sorting derived artifacts
+The camera near-pole approximation and existing column-layout reuse corrections
+have36 independently reviewed targets, normal scoped generation and exact
+unrelated-record preservation. The training lifecycle and sorting contracts
+have27 independently reviewed targets; the German singleton wording was
+corrected before final approval. Root integration verifies all63 targets in
+five symbols, allpeer source/review hashes, unchanged executable ASTs and
+13,399 unrelated locale records (13,473 English) retained exactly.
+The guarded metadata-only27-target writer measured22.72s/582256KiB with zero
+full-canonical requests or model decoding. This closes these bounded batches,
+not whole N678. Evidence:678_volume_column_api_catalogs_2026-10-15/ and
+678_training_sorting_api_catalogs_2026-10-15/ underfeatures/data/.
