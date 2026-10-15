@@ -1,0 +1,24 @@
+{
+  "immutable_incoming_public": "086f03ca5d400bf5546f167a0e07fa1f2d248954",
+  "tested_coherent_source": "5c09e86b4",
+  "unrelated_incoming_public_files_exact": 33759,
+  "incoming_spacr_tools_docs_tests_tree_ids_exact_tested_base": true,
+  "generated_runtime_API_arrivals_exact_base": true,
+  "no_new_runtime_tr_call": true,
+  "source_and_test_hashes_exact": {
+    "spacr/attribution.py": "f32c177776ce5fe5cba9f00f7c21f47d0d06af8edb4a35b25872b02d5a7674c5",
+    "tests/test_counterfactual_target_identity.py": "135d069cbfaf0602509d78b6b26e043742b02730a39dbcf1781b3ee762472b10"
+  },
+  "checks": "24 actual direct/report-refusal owning checks on exact source. Exact numeric-parser body reconstruction and signature/prose/tr AST neutrality establish no derived API/runtime target. No tests/writer/inventory repeats.",
+  "limits": "Software target-class identity boundary only, declared synthetic crops and fixed classifier for report refusal. No generator/classifier training, biological counterfactual/minimal-edit accuracy, whole F564, global CI or release acceptance.",
+  "validated_tree_ids": {
+    "spacr": "df339ecf32d4f46a88fbf45dbca89a913011b1ef",
+    "tools": "0b3f33aa950b7ae803ac0161f5d0868897165eb5",
+    "docs": "bef557294db270373706c2554b0875b69bf57cf2",
+    "tests": "612d61ef0cfd723d8d6ceab573a692182f1f79a1"
+  },
+  "artifact_sha256": {
+    "spacr/attribution.py": "f32c177776ce5fe5cba9f00f7c21f47d0d06af8edb4a35b25872b02d5a7674c5",
+    "tests/test_counterfactual_target_identity.py": "135d069cbfaf0602509d78b6b26e043742b02730a39dbcf1781b3ee762472b10"
+  }
+}
