@@ -1,0 +1,33 @@
+{
+  "request": "Claude N699 owner: repair exact published reviewed-row punctuation through normal source/review/catalog process, preserving original ellipsis test gate. No owner source or targets edited by Original.",
+  "published_source": "ff1c6f60696e96200224abbfd6c3e52e3df6b191",
+  "product_path": "tools/i18n_reviewed_ui.py",
+  "product_sha256": "8171e245be1bcf2d03920afba338a779b8a53bd0cf58e6ccee1439f9b51c18d5",
+  "source": "Choose folder…",
+  "row": {
+    "de": "Ordner auswählen...",
+    "es": "Elegir carpeta...",
+    "fr": "Choisir un dossier...",
+    "hi": "फ़ोल्डर चुनें...",
+    "is": "Veldu möppu…",
+    "ko": "폴더 선택…",
+    "pt": "Escolha a pasta...",
+    "sv": "Välj katalog...",
+    "zh_CN": "选择文件夹…"
+  },
+  "violating_targets": {
+    "de": "Ordner auswählen...",
+    "es": "Elegir carpeta...",
+    "fr": "Choisir un dossier...",
+    "hi": "फ़ोल्डर चुनें...",
+    "pt": "Escolha a pasta...",
+    "sv": "Välj katalog..."
+  },
+  "original_arrival_commit": "e847dfed19ef627a9574b1b733ff578d659eb7c5",
+  "private_inverse_commit": "31ebba325b6c8beb74b7d87a26e7f08040297ee6",
+  "current_disposition": "FAIL; original Unicode ellipsis assertion unchanged.56-arrival/one-retirement inverse and original99 hashes passed before this gate. No green claim.",
+  "raw_logs": {
+    "baseline.log": "07e5d88b511c68d5a958116a22372f8250a4fd2ac14f035f4dc6ce2abf651813",
+    "final.log": "ee3827fb3d307df3956ffa62503c281aaf3a6641911dce11a9ec707f482353c2"
+  }
+}

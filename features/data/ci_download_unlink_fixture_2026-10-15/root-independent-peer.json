@@ -1,0 +1,14 @@
+{
+  "source_commit": "973a28a2eff4b28400fbd58c34f23a5f410e033e",
+  "review": "ACCEPT",
+  "reviewer": "Original Home Root independent source read",
+  "test_sha256": "b6e60b2befb95c6d692752e9e42b6d72d19b0a1196730e76c6298c9fba4ad6f6",
+  "checks": [
+    "original IsADirectoryError exception identity retained",
+    "actual generated .a.tif.*.part path intercepted only",
+    "original unlink delegated for every other path",
+    "cleanup failed file bytes retained, unrelated bytes and original directory intact",
+    "no final archive or product changes"
+  ],
+  "test_evidence": "author targeted baseline1FAIL2.48s and final1PASS1.69s; not rerun by peer"
+}

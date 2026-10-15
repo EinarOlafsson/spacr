@@ -1,0 +1,23 @@
+diff --git a/tests/test_settings_categories.py b/tests/test_settings_categories.py
+index 7d5000ed85..05eea4d541 100644
+--- a/tests/test_settings_categories.py
++++ b/tests/test_settings_categories.py
+@@ -376,6 +376,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
+     "counterfactual_generator",
+     # F564 structure objective and inversion strength, published 2026-10-15.
+     "counterfactual_strength", "counterfactual_structure_weight",
++    # F564 verified local checkpoint reuse (9bfaea5901).
++    "counterfactual_checkpoint", "counterfactual_checkpoint_sha256",
+     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
+     "plaque_growth_reference_um", "plaque_growth_reference_hours",
+     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
+@@ -874,6 +876,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
+     "intensity_calibration", "intensity_calibration_wells",
+     "intensity_calibration_reference_plate",
+     "intensity_calibration_statistic", "intensity_calibration_offset",
++    # F580 acquisition sessions and external reference images (b1aa37fd02).
++    "intensity_calibration_sessions", "intensity_calibration_session_column",
++    "intensity_calibration_beads", "intensity_calibration_reference_session",
+     # NEW SETTINGS, not a regrouping (item 583, 2026-09-27): Measure's
+     # plate map filled from sample records by plate barcode -- the records
+     # table or LIMS address, the plate barcodes, the barcode column and the

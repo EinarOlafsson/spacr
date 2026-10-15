@@ -1093,7 +1093,8 @@ def immediate_hover_help(monkeypatch, qtbot):
     Hidden anchors are rejected by the production policy, so content witnesses
     must expose their actual control before entering it.
     """
-    from PySide6.QtCore import QEvent
+    from PySide6.QtCore import QPointF
+    from PySide6.QtGui import QEnterEvent
     from PySide6.QtWidgets import QApplication
 
     monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms", lambda: 0)
@@ -1101,7 +1102,12 @@ def immediate_hover_help(monkeypatch, qtbot):
     def hover(widget, ready):
         """Deliver Enter to a visible anchor and await its real callback."""
         assert widget.isVisible(), "hover content needs a visible anchor"
-        QApplication.sendEvent(widget, QEvent(QEvent.Type.Enter))
+        point = widget.rect().center()
+        event = QEnterEvent(
+            QPointF(point), QPointF(widget.mapTo(widget.window(), point)),
+            QPointF(widget.mapToGlobal(point)),
+        )
+        QApplication.sendEvent(widget, event)
         qtbot.waitUntil(ready, timeout=1000)
 
     return hover

@@ -160,3 +160,22 @@ def test_loader_uses_actual_desktop_constructor_and_digest_cache(tmp_path, monke
     assert masks._load_mask_model(checkpoint, 'b' * 64, 'cell') is model
     assert len(calls) == 2
     masks._load_mask_model.cache_clear()
+
+
+def test_model_scale_flows_are_reported_unavailable_instead_of_failing(case, monkeypatch):
+    target, arguments, raw, labels, vectors, logits, calls = case
+    import spacr.spacr_cellpose as backend
+    actual = backend.parse_cellpose4_output
+
+    def model_scale(output):
+        parsed = list(actual(output))
+        parsed[2] = [np.ones((2, 18, 24), dtype=np.float32)]
+        parsed[3] = [np.zeros((18, 24), dtype=np.float32)]
+        return parsed
+    monkeypatch.setattr(backend, 'parse_cellpose4_output', model_scale)
+    masks.run_mask_download(target, family='toxoplasma_pv', model_id='toxoplasma_pv_v1', **arguments)
+    members = unpack(target)
+    assert 'flows.npy' not in members and 'cell_probability.npy' not in members
+    np.testing.assert_array_equal(tifffile.imread(io.BytesIO(members['mask.tif'])), labels)
+    unavailable = json.loads(members['manifest.json'])['unavailable']
+    assert unavailable['flows'] == unavailable['cell_probability'] == 'computed at the model scale (resample off), not the image size'

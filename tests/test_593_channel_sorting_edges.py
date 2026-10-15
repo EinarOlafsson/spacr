@@ -306,6 +306,8 @@ def test_a_plan_whose_sets_clash_by_name_is_refused(tmp_path):
 
 
 def test_given_roles_are_filtered_and_doubles_refused(tmp_path):
+    from spacr.qt.i18n import tr
+
     folder, sets = _pair_folder(tmp_path)
     plan = cs.build_plan(str(folder), sets,
                          mask_roles={1: "cell", "2": "cell", 9: "nucleus",
@@ -314,7 +316,12 @@ def test_given_roles_are_filtered_and_doubles_refused(tmp_path):
     assert any("cannot both give the cell mask" in p for p in plan.problems)
     text = plan.summary()
     assert "Mask planes: channel 1 -> cell, channel 2 -> cell" in text
-    assert "no mask in channel 2" in text
+    assert not plan.ok
+    assert tr(
+        "{count} set(s) have no {role} mask in channel {channel}. "
+        "Those sets cannot be merged when merging is requested.",
+        count=2, role=tr("cell"), channel=2,
+    ) in text
 
 
 def test_a_plan_with_no_masks_warns_that_merged_is_skipped(tmp_path):

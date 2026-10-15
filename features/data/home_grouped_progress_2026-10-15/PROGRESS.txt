@@ -5,7 +5,7 @@ Hours are estimates; external unknowns remain explicit.
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---:|---:|---|---|
-| N702 | ✅ | 0 | Home | Complete: exact cluster model acquisition, checksum/context errors, offline guidance, coalesced downloads, verified exported provenance and current nine-language/API/Help/guide closure. |
+| N702 | ✅ | 0 | Claude Home (handover; completed by Home) | Complete: exact cluster model acquisition, checksum/context errors, offline guidance, coalesced downloads, verified exported provenance and current nine-language/API/Help/guide closure. |
 | N690 | ✅ | 0 | Home / assigned owner | Complete: TEM readers, pixel scale, contrast, drawing/save, public example, recorded draft F1 and current translations; separate tutorial withdrawn. |
 | N180 | ✅ | 0 | Home / assigned owner | Complete: settings, ordered databases, montage, Graph/regression views and carried session figures restore through the workspace protocol. |
 | F549 | ✅ | 0 | Home / assigned owner | Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified. |
@@ -22,19 +22,19 @@ Hours are estimates; external unknowns remain explicit.
 | F556 | ✅ | 0 | Easy / Home | Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure. |
 | N692 | ✅ | 0 | CI / Home | Complete: 3D drawing/save/load, protected published FIB-SEM sample and current translations; original contract accepted. |
 | Release1.5.1.5 | 85 | 4–8 | Home | Publish remaining implementation; release/final CI at end per maintainer. |
-| N43 | 85 | 3–6 | Home / assigned owner | Root owns one source-frozen next full gate after daytime source settles. If SafeSpacr recurs, use reviewed postfailure/child-phase evidence; no blind retry or threshold change. |
+| N43 | 85 | 3–6 | Home / assigned owner | Named CI fixture/API inventory and both original fr/sv review gates repaired with source-bound targeted acceptance; remaining owner translation/media/provider and final full-CI gates stay open. |
 | N700 | 90 | 1–3 | Claude | See current owner delivery and remaining acceptance gates. |
 | N703 | 95 | 2–4 + external | Home / assigned owner | Installer replacement, rollback/cache-preservation software and translations published; native platform acceptance remains. |
 | N696 | 95 | 1–2 | Home / assigned owner | Source/widget/diameter/auto semantics and235merged owning checks plus original1.35paintgate passed, normal API/Help generation recorded. Fresh fullCI/platform-native and Work currentlayout tutorial remain; no new native modelquality/GPU acceptance. |
 | N697 | 95 | 1–2 | Home / assigned owner | Disconnected brush/volume behavior and235merged checks/unmodified1.35paintgate recorded. Fresh fullCI/native-platform and Work lesson14 recording/publication remain; oldprivate publication/performance notes superseded only to stated extent. |
-| N704 | 90 | 1–3 | Home-B / Home | See current owner delivery and remaining acceptance gates. |
+| N704 | 90 | 1–3 | Claude Home (handover acknowledged) | See current owner delivery and remaining acceptance gates. |
 | N676 | 65 | 12–24+ | Work | Work completed15/23 and selective02 publication; numerical04 review next.05 hidden Spaceout repair and remaining requested lessons remain Work-owned. |
-| N689 | 85 | 2–4 + external | Home-B / Home | Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain. |
+| N689 | 85 | 2–4 + external | Claude Home (handover acknowledged) | Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain. |
 | F560 | 90 | Unknown | Home / assigned owner | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
-| F370 | 90 | 2–6 + data | Home / assigned owner | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
+| F370 | 90 | 2–6 + data | Claude Home (handover acknowledged) | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
 | N678 | 90 | 2–4 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
-| N698 | 70 | 24–48+ | Home / assigned owner | Free service/schema live; channel API fix deployed. Corrected SDK delivers actual quota refusal (180s requested,167s left); hosted outputs, browser execution and full-family parity remain open. |
-| N699 | 90 | Unknown | Home / assigned owner | Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here. |
+| N698 | 70 | 24–48+ | Claude Home | Handed to Claude with published managed-host fixes and unvalidated export prototype. Claude reports a subsequent delivery; reconcile its complete hosted/browser acceptance before a whole-item tick. |
+| N699 | 90 | Unknown | Claude Home | Built; handed to Claude with published SSH/MFA/keychain/retry work. Actual Great Lakes login, submit and status acceptance remains maintainer-owned. |
 | N03 | ✅ | 0 | Home / assigned owner | Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps. |
 | N76 | ✅ | 0 | Home / assigned owner | Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed. |
 | N112 | 95 | 1–3 | Home / assigned owner | Private-doc/strict inventory fixes pass; foreign N700/API and active new-feature review obligations remain. |

@@ -1,0 +1,66 @@
+E402 Module level import not at top of file
+  --> tests/qt/test_the_preview_uses_the_model_the_run_will_use.py:33:1
+   |
+31 | MASK_KINDS = _mask_model_kinds()
+32 |
+33 | import numpy as np
+   | ^^^^^^^^^^^^^^^^^^
+34 | import pytest
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> tests/qt/test_the_preview_uses_the_model_the_run_will_use.py:34:1
+   |
+33 | import numpy as np
+34 | import pytest
+   | ^^^^^^^^^^^^^
+help: Move module level imports to top of file
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/qt/test_the_preview_uses_the_model_the_run_will_use.py:158:5
+    |
+156 |       panel.apply_settings({"cell_model_name": str(cell),
+157 |                             "pathogen_model_name": "cpsam"})
+158 | /     from types import SimpleNamespace
+159 | |     from PySide6.QtWidgets import QDialog
+    | |_________________________________________^
+160 |
+161 |       calls = []
+    |
+help: Organize imports
+    |
+158 |     from types import SimpleNamespace
+159 +
+160 |     from PySide6.QtWidgets import QDialog
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/qt/test_the_preview_uses_the_model_the_run_will_use.py:335:5
+    |
+333 |       rows are offered since item 503 and Cellpose-DINO rows since item 525:
+334 |       the pass segments each in its own backend, as the run does."""
+335 | /     import spacr.qt.widgets.model_zoo_picker as picker
+336 | |
+337 | |     from types import SimpleNamespace
+338 | |     from PySide6.QtWidgets import QDialog
+    | |_________________________________________^
+339 |
+340 |       seen = {}
+    |
+help: Organize imports
+    |
+334 |     the pass segments each in its own backend, as the run does."""
+    -     import spacr.qt.widgets.model_zoo_picker as picker
+    -
+335 |     from types import SimpleNamespace
+336 +
+337 |     from PySide6.QtWidgets import QDialog
+338 |
+339 +     import spacr.qt.widgets.model_zoo_picker as picker
+340 +
+341 |     seen = {}
+    |
+
+Found 4 errors.
+[*] 2 fixable with the `--fix` option.

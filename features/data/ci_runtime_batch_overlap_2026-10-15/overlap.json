@@ -1,0 +1,174 @@
+[
+  {
+    "language": "fr",
+    "overlap": [
+      {
+        "source": "Batch size",
+        "early": [
+          {
+            "file": "2026-10-01-runtime-review-twelfth-pass-labels.json",
+            "record": {
+              "table": "setting_labels",
+              "key": "batch_size",
+              "source": "Batch size",
+              "source_sha256": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+              "translation": "Taille de lot"
+            }
+          }
+        ],
+        "later": [
+          {
+            "file": "2026-10-15-f561-classifier-ui-runtime-home-b.json",
+            "record": {
+              "table": "ui",
+              "key": "Batch size",
+              "source": "Batch size",
+              "source_sha256": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+              "translation": "Taille de lot"
+            }
+          }
+        ]
+      },
+      {
+        "source": "Learning rate",
+        "early": [
+          {
+            "file": "2026-10-01-runtime-review-twelfth-pass-labels.json",
+            "record": {
+              "table": "setting_labels",
+              "key": "learning_rate",
+              "source": "Learning rate",
+              "source_sha256": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+              "translation": "Taux d’apprentissage"
+            }
+          }
+        ],
+        "later": [
+          {
+            "file": "2026-10-15-f561-classifier-ui-runtime-home-b.json",
+            "record": {
+              "table": "ui",
+              "key": "Learning rate",
+              "source": "Learning rate",
+              "source_sha256": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+              "translation": "Taux d’apprentissage"
+            }
+          }
+        ]
+      },
+      {
+        "source": "Train",
+        "early": [
+          {
+            "file": "2026-09-30-runtime-meaning-fixes-eleventh-pass.json",
+            "record": {
+              "table": "setting_labels",
+              "key": "train",
+              "source": "Train",
+              "source_sha256": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+              "translation": "Entraîner"
+            }
+          }
+        ],
+        "later": [
+          {
+            "file": "2026-10-15-f561-classifier-ui-runtime-home-b.json",
+            "record": {
+              "table": "ui",
+              "key": "Train",
+              "source": "Train",
+              "source_sha256": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+              "translation": "Entraîner"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "language": "sv",
+    "overlap": [
+      {
+        "source": "Batch size",
+        "early": [
+          {
+            "file": "2026-09-30-runtime-meaning-fixes-eleventh-pass.json",
+            "record": {
+              "table": "setting_labels",
+              "key": "batch_size",
+              "source": "Batch size",
+              "source_sha256": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+              "translation": "Batchstorlek"
+            }
+          }
+        ],
+        "later": [
+          {
+            "file": "2026-10-15-f561-classifier-ui-runtime-home-b.json",
+            "record": {
+              "table": "ui",
+              "key": "Batch size",
+              "source": "Batch size",
+              "source_sha256": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+              "translation": "Batchstorlek"
+            }
+          }
+        ]
+      },
+      {
+        "source": "Learning rate",
+        "early": [
+          {
+            "file": "2026-10-01-runtime-review-twelfth-pass-labels.json",
+            "record": {
+              "table": "setting_labels",
+              "key": "learning_rate",
+              "source": "Learning rate",
+              "source_sha256": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+              "translation": "Inlärningstakt"
+            }
+          }
+        ],
+        "later": [
+          {
+            "file": "2026-10-15-f561-classifier-ui-runtime-home-b.json",
+            "record": {
+              "table": "ui",
+              "key": "Learning rate",
+              "source": "Learning rate",
+              "source_sha256": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+              "translation": "Inlärningstakt"
+            }
+          }
+        ]
+      },
+      {
+        "source": "Train",
+        "early": [
+          {
+            "file": "2026-09-30-runtime-meaning-fixes-eleventh-pass.json",
+            "record": {
+              "table": "setting_labels",
+              "key": "train",
+              "source": "Train",
+              "source_sha256": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+              "translation": "Träna"
+            }
+          }
+        ],
+        "later": [
+          {
+            "file": "2026-10-15-f561-classifier-ui-runtime-home-b.json",
+            "record": {
+              "table": "ui",
+              "key": "Train",
+              "source": "Train",
+              "source_sha256": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+              "translation": "Träna"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,72 @@
+{
+  "resolver-dry-run.json": {
+    "raw_sha256": "217cde10765d1d5a3be7125dd2f87115b01e3e397b1b14719e4060b5c2ca8a99",
+    "raw_bytes": 20305,
+    "install": [
+      {
+        "name": "onnx",
+        "version": "1.23.2",
+        "download_info": {
+          "url": "https://files.pythonhosted.org/packages/87/56/21509a657f9a73ab0ca307d325043f49ca6c4ff6bf79edeb9e159190d44d/onnx-1.23.2-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=7abf381d278f31ac62487fddedc9dd42da842dce94d5d43536836ee3efdf4a2b",
+            "hashes": {
+              "sha256": "7abf381d278f31ac62487fddedc9dd42da842dce94d5d43536836ee3efdf4a2b"
+            }
+          }
+        },
+        "requested": true
+      },
+      {
+        "name": "ml_dtypes",
+        "version": "0.5.4",
+        "download_info": {
+          "url": "https://files.pythonhosted.org/packages/3a/cb/28ce52eb94390dda42599c98ea0204d74799e4d8047a0eb559b6fd648056/ml_dtypes-0.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=9ad459e99793fa6e13bd5b7e6792c8f9190b4e5a1b45c63aba14a4d0a7f1d5ff",
+            "hashes": {
+              "sha256": "9ad459e99793fa6e13bd5b7e6792c8f9190b4e5a1b45c63aba14a4d0a7f1d5ff"
+            }
+          }
+        },
+        "requested": true
+      }
+    ],
+    "normal_resolver": true
+  },
+  "install-report.json": {
+    "raw_sha256": "217cde10765d1d5a3be7125dd2f87115b01e3e397b1b14719e4060b5c2ca8a99",
+    "raw_bytes": 20305,
+    "install": [
+      {
+        "name": "onnx",
+        "version": "1.23.2",
+        "download_info": {
+          "url": "https://files.pythonhosted.org/packages/87/56/21509a657f9a73ab0ca307d325043f49ca6c4ff6bf79edeb9e159190d44d/onnx-1.23.2-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=7abf381d278f31ac62487fddedc9dd42da842dce94d5d43536836ee3efdf4a2b",
+            "hashes": {
+              "sha256": "7abf381d278f31ac62487fddedc9dd42da842dce94d5d43536836ee3efdf4a2b"
+            }
+          }
+        },
+        "requested": true
+      },
+      {
+        "name": "ml_dtypes",
+        "version": "0.5.4",
+        "download_info": {
+          "url": "https://files.pythonhosted.org/packages/3a/cb/28ce52eb94390dda42599c98ea0204d74799e4d8047a0eb559b6fd648056/ml_dtypes-0.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=9ad459e99793fa6e13bd5b7e6792c8f9190b4e5a1b45c63aba14a4d0a7f1d5ff",
+            "hashes": {
+              "sha256": "9ad459e99793fa6e13bd5b7e6792c8f9190b4e5a1b45c63aba14a4d0a7f1d5ff"
+            }
+          }
+        },
+        "requested": true
+      }
+    ],
+    "normal_resolver": true
+  }
+}

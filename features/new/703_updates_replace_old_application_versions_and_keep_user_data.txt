@@ -891,3 +891,10 @@ external PYTHONPYCACHEPREFIX behavior. Final26 affected original cases PASS
 actual current-version floor and both internal/external bytecode-cache cases.
 No native macOS/Windows, full CI or whole N703 acceptance is claimed. Evidence:
 features/data/n703_hosted_path_fixture_isolation_2026-10-15/.
+
+2026-10-15 Original — cleanup review tree now uses the shared sorting and
+sortable-cell contract without changing selection defaults, hierarchy, user
+cache consent or translated captions. Two source-contract tests plus eighteen
+existing actual cleanup-dialog cases pass; independent source/evidence peer
+accepted. Published c91e613ad1 within e63990cd27. This bounded repair does not
+claim final hosted CI or native installer/whole release acceptance.

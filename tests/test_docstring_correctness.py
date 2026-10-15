@@ -584,9 +584,9 @@ def _node_parameters(
 
 
 def _local_generated_fields(
-    node: ast.ClassDef, field_names: set[str],
+    node: ast.ClassDef, field_names: set[str], *, include_private: bool = False,
 ) -> dict[str, bool]:
-    """``{field: required}`` for locally generated constructor fields."""
+    """Return local constructor fields, including private dataclass arguments."""
     fields: dict[str, bool] = {}
     for child in node.body:
         if not isinstance(child, ast.AnnAssign):
@@ -596,7 +596,7 @@ def _local_generated_fields(
         name = child.target.id
         annotation = ast.unparse(child.annotation)
         if (
-            name.startswith("_")
+            (name.startswith("_") and not include_private)
             or "ClassVar" in annotation
             or _decorator_name(child.annotation) == "KW_ONLY"
         ):
@@ -647,7 +647,8 @@ def _dataclass_constructor_parameters(
                     or name in base_required
                 )
         inherited.update(possible_base_fields)
-    inherited.update(_local_generated_fields(node, module_info["field_names"]))
+    inherited.update(_local_generated_fields(
+        node, module_info["field_names"], include_private=True))
     return (
         frozenset(inherited),
         frozenset(name for name, required in inherited.items() if required),
@@ -1840,6 +1841,8 @@ class Base:
 @record
 class Child(Base):
     count: int = 0
+    _internal: bool = value_field(default=False, repr=False)
+    _hidden: str = value_field(init=False)
 
 class Failure(Exception):
     def __init__(self, reason: str):
@@ -1875,8 +1878,18 @@ ViaAlias = TupleAlias("ViaAlias", [("value", int)])
     }
     parameters, required = _dataclass_constructor_parameters(
         "spacr.synthetic.Child", classes["Child"], info, class_index)
-    assert parameters == {"name", "count"}
+    assert parameters == {"name", "count", "_internal"}
     assert required == {"name"}
+    namespace = {"__name__": __name__}
+    constructor_tree = ast.Module(
+        body=[tree.body[0], classes["Base"], classes["Child"]], type_ignores=[])
+    exec(compile(constructor_tree, "<dataclass-contract>", "exec", dont_inherit=True),
+         namespace)
+    actual_child = namespace["Child"]
+    assert set(inspect.signature(actual_child).parameters) == parameters
+    assert actual_child(name="accepted", _internal=True)._internal is True
+    with pytest.raises(TypeError):
+        actual_child(name="refused", _hidden="not a constructor argument")
     assert _inherits_exception(
         "spacr.synthetic.SpecificFailure", classes["SpecificFailure"],
         info, class_index,
@@ -2161,6 +2174,7 @@ def _validated_prior_699_callables(callables):
         "runner": ("str", "'spacr-run'"), "poll_seconds": ("int", "10"),
         "ssh_options": ("Dict[str, str]", "field(default_factory=dict)"),
         "ssh_interactive": ("bool", "False"),
+        "ssh_keychain": ("bool", "False"),
     }
     assert fields == expected_fields
     assert profile.category == "dataclass_constructor"
@@ -2172,7 +2186,7 @@ def _validated_prior_699_callables(callables):
     assert profile.variant_count == 1
     assert profile.docless_variant_count == profile.constructor_prose_variant_count == 0
     assert not profile.accepts_arbitrary_keywords
-    additions = {"ssh_options", "ssh_interactive"}
+    additions = {"ssh_options", "ssh_interactive", "ssh_keychain"}
     assert not additions & profile.required_parameters
     prior = replace(profile, parameters=profile.parameters - additions,
                     accepted_documented_parameters=(
@@ -2600,12 +2614,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
+                     "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json",
                      "699_ssh_connection_worker_api_arrival_2026-10-14.json",
-                     "reviewed_api_surface_arrivals_2026-10-15.json"):
+                     "reviewed_api_surface_arrivals_2026-10-15.json",
+                     "561_classifier_api_arrivals_2026-10-15.json",
+                     "180_session_figure_api_arrivals_2026-10-15.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
@@ -2617,6 +2634,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     late_sources = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "reviewed_api_surface_arrivals_2026-10-15.json").read_text())
+    workspace_sources = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "180_session_figure_api_arrivals_2026-10-15.json").read_text())
+    assert set(workspace_sources) == {
+        "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state",
+        "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state",
+    }
+    assert not workspace_sources.keys() & late_sources.keys()
+    late_sources = {**late_sources, **workspace_sources}
     late_parameters = {
         "spacr.install_cleanup.apply_optional_cleanup": (
             {"choices", "guard", "preview", "system"}, {"choices", "preview"},
@@ -2629,6 +2655,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": (
             {"state"}, {"state"}, "method"),
         "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": (
+            set(), set(), "method"),
+        "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state": (
+            {"state"}, {"state"}, "method"),
+        "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state": (
             set(), set(), "method"),
     }
     assert late_parameters.keys() == late_sources.keys() & by_symbol.keys()
@@ -2643,6 +2673,99 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert item.docstring == late_sources[symbol]
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
+    by_symbol = {item.symbol: item for item in callables}
+    private_field_sources = {
+        'spacr.crop_loader.CropPlan': {
+            '_source': '_source: Any = field(default=None, repr=False, compare=False)',
+        },
+        'spacr.model_zoo.ModelEntry': {
+            '_curated_card': '_curated_card: bool = _dc_field(default=False, compare=False, repr=False)',
+        },
+        'spacr.ome_zarr.OmeZarrImage': {
+            '_store': '_store: Any = field(default=None, repr=False, compare=False)',
+        },
+        'spacr.ops_stitch.StitchedWell': {
+            '_residuals': '_residuals: Optional[np.ndarray] = field(default=None, repr=False)',
+        },
+        'spacr.run_journal.Run': {
+            '_path_candidates': '_path_candidates: List[Tuple[str, Path, bool]] = field(default_factory=list, repr=False)',
+            '_baseline': '_baseline: Dict[str, Tuple[int, int]] = field(default_factory=dict, repr=False)',
+            '_start_cpu_s': '_start_cpu_s: float = field(default_factory=time.process_time, repr=False)',
+            '_ledgers': '_ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)',
+        },
+        'spacr.runctx.RunContext': {
+            '_resource_sampler': '_resource_sampler: Any = field(default=None, repr=False)',
+        },
+    }
+    from dataclasses import field
+    import time
+
+    private_parameters = {}
+    for symbol, expected_declarations in private_field_sources.items():
+        item = by_symbol[symbol]
+        module, _, class_name = symbol.rpartition(".")
+        source_path = pathlib.Path(__file__).resolve().parents[1] / (
+            module.replace(".", "/") + ".py")
+        tree = ast.parse(source_path.read_text())
+        declaration = next(node for node in tree.body
+                           if isinstance(node, ast.ClassDef)
+                           and node.name == class_name)
+        source_fields = {node.target.id: node for node in declaration.body
+                         if isinstance(node, ast.AnnAssign)
+                         and isinstance(node.target, ast.Name)
+                         and node.target.id in expected_declarations}
+        assert {key: ast.unparse(node) for key, node in source_fields.items()} == expected_declarations
+        names = set(expected_declarations)
+        assert item.category == "dataclass_constructor"
+        assert item.exposure == "autoapi"
+        assert names <= item.parameters & item.accepted_documented_parameters
+        assert not names & item.required_parameters
+        assert item.variant_count == 1 and not item.accepts_arbitrary_keywords
+        projected = ast.ClassDef(
+            name=class_name, bases=[], keywords=[],
+            body=list(source_fields.values()),
+            decorator_list=declaration.decorator_list,
+        )
+        projection = ast.Module(body=[
+            ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0),
+            projected,
+        ], type_ignores=[])
+        namespace = {"__name__": __name__, "dataclass": dataclass,
+                     "field": field, "_dc_field": field, "time": time}
+        exec(compile(ast.fix_missing_locations(projection),
+                     "<source-private-dataclass-fields>", "exec", dont_inherit=True), namespace)
+        constructor = namespace[class_name]
+        signature = inspect.signature(constructor)
+        assert set(signature.parameters) == names
+        assert all(parameter.default is not inspect.Parameter.empty
+                   for parameter in signature.parameters.values())
+        values = {name: object() for name in names}
+        instance = constructor(**values)
+        assert all(getattr(instance, name) is value for name, value in values.items())
+        private_parameters[symbol] = names
+    artifact_symbol = "spacr.torch_artifacts.load_model_artifact"
+    artifact = by_symbol[artifact_symbol]
+    artifact_parameters = {"path", "map_location", "model", "strict", "weights_only"}
+    assert artifact.parameters == artifact.accepted_documented_parameters == artifact_parameters
+    assert artifact.required_parameters == {"path"}
+    assert artifact.category == "function" and artifact.exposure == "autoapi"
+    assert _documented_parameter_names(artifact.docstring) == artifact_parameters
+    artifact_tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
+                              / "spacr/torch_artifacts.py").read_text())
+    artifact_node = next(node for node in artifact_tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "load_model_artifact")
+    weights_argument = next(arg for arg in artifact_node.args.kwonlyargs
+                            if arg.arg == "weights_only")
+    assert ast.unparse(weights_argument.annotation) == "bool"
+    assert ast.literal_eval(_declared_defaults(artifact_node)["weights_only"]) is False
+    assert "weights_only" not in artifact.required_parameters
+    private_parameters[artifact_symbol] = {"weights_only"}
+    callables = [replace(item,
+                         parameters=item.parameters - private_parameters[item.symbol],
+                         accepted_documented_parameters=(
+                             item.accepted_documented_parameters - private_parameters[item.symbol]))
+                 if item.symbol in private_parameters else item for item in callables]
     by_symbol = {item.symbol: item for item in callables}
     assert len(callables) == len(by_symbol) == 10026
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
@@ -4185,6 +4308,23 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in client700_additions} == client700_additions
     assert not client700_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **client700_additions}
+    # 2026-10-15: Item 700: spaCR AI summary scrubbing, saved explanations and question cache keys; one named contract.
+    s700_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
+        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text())
+    assert len(s700_additions) == 20
+    assert {key: docs[key] for key in s700_additions} == s700_additions
+    assert not s700_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **s700_additions}
+    for contract, expected_count in (
+        ("561_classifier_api_arrivals_2026-10-15.json", 19),
+        ("180_session_figure_api_arrivals_2026-10-15.json", 2),
+    ):
+        additions = json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text())
+        assert len(additions) == expected_count
+        assert {key: docs[key] for key in additions} == additions
+        assert not additions.keys() & zoo_additions.keys()
+        zoo_additions = {**zoo_additions, **additions}
     # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
     note_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts" / "install_cleanup_note_api_arrival_2026-10-14.json").read_text())
@@ -4608,12 +4748,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
+                     "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json",
                      "699_ssh_connection_worker_api_arrival_2026-10-14.json",
-                     "reviewed_api_surface_arrivals_2026-10-15.json"):
+                     "reviewed_api_surface_arrivals_2026-10-15.json",
+                     "561_classifier_api_arrivals_2026-10-15.json",
+                     "180_session_figure_api_arrivals_2026-10-15.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4654,12 +4797,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
+                     "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
                      "parascape_launcher_api_arrivals_2026-10-12.json",
                      "699_ssh_connection_worker_api_arrival_2026-10-14.json",
-                     "reviewed_api_surface_arrivals_2026-10-15.json"):
+                     "reviewed_api_surface_arrivals_2026-10-15.json",
+                     "561_classifier_api_arrivals_2026-10-15.json",
+                     "180_session_figure_api_arrivals_2026-10-15.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent

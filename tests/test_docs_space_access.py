@@ -227,3 +227,45 @@ def test_denied_boundary_preserves_exception_and_reports_only_safe_operation(
     assert json.loads(output.err) == {"space": "einarolafsson/spacr-docs-nightly-v2",
                                       "error": "HTTPError", "status": 403,
                                       "operation": operation}
+
+
+@pytest.mark.parametrize("message, reason", [
+    ("Storage limit reached for this space (Max: 1 GB).", "storage-limit"),
+    ("You don't have the rights to create a commit on this repo", "not-authorized"),
+    ("private server message sensitive-credential", None),
+])
+def test_commit_refusal_reports_a_fixed_reason_without_server_text(
+        service, monkeypatch, capsys, message, reason):
+    from urllib.error import HTTPError
+    failure = HTTPError("https://invalid/?token=sensitive-credential", 403, "Forbidden",
+                        {"X-Error-Message": message + " sensitive-credential"}, None)
+
+    def fail(*args, **kwargs):
+        raise failure
+
+    monkeypatch.setattr(publisher, "build_opener", lambda *args: SimpleNamespace(open=fail))
+    assert publisher.main(["verify-space-access", "--space",
+                           "einarolafsson/spacr-docs-nightly-v2"]) == 1
+    output = capsys.readouterr()
+    assert "sensitive-credential" not in output.err
+    assert message not in output.err
+    report = json.loads(output.err)
+    assert report["operation"] == "commit" and report["status"] == 403
+    assert report.get("reason") == reason
+
+
+def test_upload_storage_refusal_names_the_cause_and_still_fails(monkeypatch, capsys, tmp_path):
+    class HfHubHTTPError(Exception):
+        response = SimpleNamespace(status_code=403, headers={},
+                                   text="Storage limit reached for this space (Max: 1 GB).")
+
+    failure = HfHubHTTPError("403 Forbidden")
+
+    def fail(site, space):
+        raise failure
+
+    monkeypatch.setattr(publisher, "upload_nightly", fail)
+    with pytest.raises(HfHubHTTPError):
+        publisher.main(["upload-nightly", "--site", str(tmp_path), "--space",
+                        "einarolafsson/spacr-docs-nightly"])
+    assert "storage limit is reached" in capsys.readouterr().err

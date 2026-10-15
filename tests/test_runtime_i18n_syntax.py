@@ -111,6 +111,45 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     return sources
 
 
+def _later_cohort_records(path, expected, language, reviewed):
+    """Retain the frozen cohort bytes while proving two removed brush captions."""
+    if path.name != "2026-09-22-lock-levels-parascape-controls.json":
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == expected["sha256"]
+        return json.loads(path.read_text())["records"], set()
+    import gzip
+
+    archive = ROOT / "tests/data/release_contracts/697_retired_runtime_controls_2026-10-15" / (language + ".json.gz")
+    original_bytes = gzip.decompress(archive.read_bytes())
+    assert hashlib.sha256(original_bytes).hexdigest() == expected["sha256"]
+    document = json.loads(original_bytes)
+    hashes = {
+        "778abbd7904eeb2ed756fd39c45c0fb9bb631776ae43f029402d2546ed0a5574",
+        "61ff206138ebad2ee38e9ec13a0b782892f5c2a81ff43c37d5739ef1472c4cf5",
+    }
+    retired = [row for row in document["records"] if row["source_sha256"] in hashes]
+    assert len(retired) == len(hashes) == 2
+    assert {row["source_sha256"] for row in retired} == hashes
+    for row in retired:
+        assert hashlib.sha256(row["source"].encode()).hexdigest() == row["source_sha256"]
+    document["records"] = [row for row in document["records"] if row not in retired]
+    expected_bytes = (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+    assert path.read_bytes() == expected_bytes
+    sources = {row["source"] for row in retired}
+    assert not sources & reviewed.keys()
+    return document["records"], sources
+
+
+def _later_cohort_retirements(language: str, reviewed: dict[str, str]) -> set[str]:
+    report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
+    name = "2026-09-22-lock-levels-parascape-controls.json"
+    expected = [row for row in report["files"] if row["name"] == name]
+    assert len(expected) == 1
+    path = ROOT / "docs/i18n/reviewed/runtime" / language / name
+    records, retired = _later_cohort_records(path, expected[0], language, reviewed)
+    assert len(records) + len(retired) == expected[0]["records"]
+    return retired
+
+
 def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     """Reconcile later accepted records without changing historical counts."""
     sources: set[str] = set()
@@ -181,15 +220,17 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
+    later_retired: set[str] = set()
     later_names = {row["name"] for row in report["files"]}
     for row in report["files"]:
         path = folder / row["name"]
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == row["sha256"]
-        records = json.loads(path.read_text())["records"]
+        records, retired = _later_cohort_records(path, row, language, reviewed)
         values = {record["source"] for record in records}
-        assert len(records) == row["records"] and len(values) == row["sources"]
+        assert len(records) + len(retired) == row["records"]
+        assert len(values) + len(retired) == row["sources"]
         assert values <= reviewed.keys()
         later_sources.update(values)
+        later_retired.update(retired)
     earlier_sources = {
         record["source"] for path in folder.glob("*.json") if path.name not in later_names
         for record in json.loads(path.read_text())["records"]
@@ -204,8 +245,10 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     # in place in each of 2026-09-23-pipeline-workflow-phrases.json (8 -> 7)
     # and 2026-09-23-workflow-map-phrases.json (206 -> 205); the receipt's
     # hashes and counts were rebound to those files.
-    assert len(additions) == report["later_distinct_additions"] == 774  # 2026-10-04: -2, 48c4133c8 withdrew the Plasmodium/Candida guide notes
-    assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
+    historical_additions = additions | later_retired
+    assert not later_retired & earlier_sources
+    assert len(historical_additions) == report["later_distinct_additions"] == 774  # 2026-10-04: -2, 48c4133c8 withdrew the Plasmodium/Candida guide notes
+    assert hashlib.sha256(json.dumps(sorted(historical_additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     for filename, record_count, source_count in (
             # 3 -> 2 records on 2026-09-29: items 591-597 renamed the "Cloud"
@@ -296,6 +339,37 @@ def _requested_detection_retirements(language, filename):
     return values | later_sources
 
 
+def _figure_export_retirements(language, filename):
+    """Verify the two published factual-prose retirements against frozen bytes."""
+    if filename != "2026-09-15-integration-review.json":
+        return set()
+    from build_i18n_catalogs import reviewed_runtime_translations
+
+    folder = ROOT / "docs/i18n/reviewed/runtime" / language
+    archive = folder / "archive/2026-10-15-figure-export-prose" / filename
+    archive_hashes = {'fr': '30e2bd2724ef34c3cb52e533fe6f2b280f926b83599b99e91b95f07d41fbdd08', 'sv': '297c6f8f924c71ec2bf1a2e84b71c3a819bdf61318c18779a509adb15d456526'}
+    assert hashlib.sha256(archive.read_bytes()).hexdigest() == archive_hashes[language]
+    original = json.loads(archive.read_text())["records"]
+    reason = (
+        "2026-10-15: exact old source is no longer canonical after N678 "
+        "figure-export factual corrections c1be6383a7c; superseded by "
+        "2026-10-15-figure-export-factual.json. Original bytes archived beside this review.")
+    retired = [row for row in json.loads((folder / filename).read_text())
+               .get("retired_records", []) if row.get("retired") == reason]
+    expected = {
+        "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+        "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+    }
+    assert len(retired) == len(expected) == 2
+    assert {row["source_sha256"] for row in retired} == expected
+    for row in retired:
+        assert hashlib.sha256(row["source"].encode()).hexdigest() == row["source_sha256"]
+        assert {key: value for key, value in row.items() if key != "retired"} in original
+    sources = {row["source"] for row in retired}
+    assert not sources & reviewed_runtime_translations(language).keys()
+    return sources
+
+
 def _theme_cohort_retirements(language, filename):
     """Prove the exact source retirements without changing historical pins."""
     hashes = {
@@ -329,9 +403,10 @@ def _theme_cohort_retirements(language, filename):
             .get('retired_records', [])
             if str(row.get('retired', '')).startswith(
                 ('2026-10-11', TUTORIAL_RENDERER_RETIRED))}
+    figure_retired = _figure_export_retirements(language, filename)
     assert current == [row for row in original if row not in retired
-                       and row['source'] not in requested | n678]
-    return {row["source"] for row in retired} | requested
+                       and row['source'] not in requested | n678 | figure_retired]
+    return {row["source"] for row in retired} | requested | figure_retired
 
 
 def _with_training_sample_replacements(document, language, filename):
@@ -487,10 +562,11 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     retired_hashes = {
         "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
         "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478",
+        "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
     }
     retired = [record for record in original
                if record["source_sha256"] in retired_hashes]
-    assert len(retired) == 2
+    assert len(retired) == 3
     assert {record["source_sha256"] for record in retired} == retired_hashes
     assert all(hashlib.sha256(record["source"].encode()).hexdigest()
                == record["source_sha256"] for record in retired)
@@ -508,7 +584,18 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert reviewed[replacement[0]["source"]] == replacement[0]["translation"]
     from tools.build_i18n_catalogs import canonical_sources
 
-    current_timelapse = canonical_sources()["setting_tooltips"]["timelapse_events"]
+    diameter_reviews = json.loads((folder / "2026-10-14-magnification-default-and-auto-diameter.json").read_text())["records"]
+    diameter = [record for record in diameter_reviews
+                if record["table"] == "setting_tooltips"
+                and record["key"] == "robustness_diameter_factors"]
+    assert len(diameter) == 1
+    diameter = diameter[0]
+    assert diameter["source_sha256"] == "872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1"
+    assert hashlib.sha256(diameter["source"].encode()).hexdigest() == diameter["source_sha256"]
+    assert reviewed[diameter["source"]] == diameter["translation"]
+    current_tooltips = canonical_sources()["setting_tooltips"]
+    assert current_tooltips["robustness_diameter_factors"] == diameter["source"]
+    current_timelapse = current_tooltips["timelapse_events"]
     assert current_timelapse.startswith("After the run, detect events on every tracked object")
     assert "optional videomae encoder" in current_timelapse
     assert current_timelapse in reviewed
@@ -589,7 +676,34 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
                if "-runtime-review-twelfth-pass-" not in path.name
                for record in json.loads(path.read_text())["records"]]
     latest_batches = {record["source"] for record in batches}
-    assert not latest_batches & sources
+    repeated_sources = {
+        "Batch size": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+        "Learning rate": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+        "Train": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+    }
+    assert latest_batches & sources == repeated_sources.keys()
+    classifier_rows = json.loads((folder / "2026-10-15-f561-classifier-ui-runtime-home-b.json").read_text())["records"]
+    for source, source_hash in repeated_sources.items():
+        current = [row for row in classifier_rows if row["source"] == source]
+        assert len(current) == 1
+        current = current[0]
+        assert current["table"] == "ui" and current["key"] == source
+        assert current["source_sha256"] == source_hash
+        assert hashlib.sha256(source.encode()).hexdigest() == source_hash
+        previous_file = (
+            "2026-09-30-runtime-meaning-fixes-eleventh-pass.json"
+            if source == "Train" or (language == "sv" and source == "Batch size")
+            else "2026-10-01-runtime-review-twelfth-pass-labels.json"
+        )
+        previous = [row for row in json.loads((folder / previous_file).read_text())["records"]
+                    if row["source"] == source]
+        assert len(previous) == 1
+        previous = previous[0]
+        assert previous["table"] == "setting_labels"
+        assert previous["key"] == {"Batch size": "batch_size", "Learning rate": "learning_rate", "Train": "train"}[source]
+        assert previous["source_sha256"] == source_hash
+        assert previous["translation"] == current["translation"] == reviewed[source]
+        assert [row for row in batches if row["source"] == source] == [current]
     sources |= latest_batches
     assert sources <= reviewed.keys()
     return sources
@@ -620,7 +734,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     base_retired = _theme_cohort_retirements("sv", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 2 and len(refresh_retired) == 2
+    assert len(base_retired) == 4 and len(refresh_retired) == 2
     assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
@@ -853,7 +967,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.  # 625 -> 619 on 2026-10-11 (N678 retirements)
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) == 1672  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1678 -> 1672 on 2026-10-11 (N678 retirements)
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('sv', all_reviewed)) == 1672  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1678 -> 1672 on 2026-10-11 (N678 retirements)
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -877,7 +991,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
     refresh_retired |= _theme_cohort_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 2 and len(refresh_retired) == 2
+    assert len(base_retired) == 4 and len(refresh_retired) == 2
     assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
@@ -1118,7 +1232,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) + len(base_retired) == 335  # 338 -> 335 on 2026-10-11 (N678 retirements)
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 613  # 600b (2026-09-29): -1, the Features tooltip retired.  # 619 -> 613 on 2026-10-11 (N678 retirements)
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) == 1665  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) == 1665  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

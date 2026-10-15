@@ -1,0 +1,215 @@
+{
+  "commit": "69a77575b57ab030c94fcbd6ddd1e806881456eb",
+  "scope": "PARTIAL_SOURCE_GUARDS_ONLY_BROADER_TWO_TESTS_STILL_FAIL",
+  "N678": {
+    "fr": {
+      "archive": "docs/i18n/reviewed/runtime/fr/archive/2026-10-15-figure-export-prose/2026-09-15-integration-review.json",
+      "archive_sha256": "30e2bd2724ef34c3cb52e533fe6f2b280f926b83599b99e91b95f07d41fbdd08",
+      "retired_rows": [
+        {
+          "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+          "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+          "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+          "table": "ui",
+          "translation": "Chaque ligne du fichier : les courbes tracées, les lignes de référence, les bordures des axes et les graduations. Les nombres à côté des graduations sont du texte et suivent la couleur du texte.",
+          "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+        },
+        {
+          "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+          "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+          "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+          "table": "ui",
+          "translation": "Tout le texte du fichier : le titre, les étiquettes des axes, les nombres à côté des graduations et la légende.",
+          "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+        }
+      ],
+      "old_rows_byte_value_preserved": true
+    },
+    "sv": {
+      "archive": "docs/i18n/reviewed/runtime/sv/archive/2026-10-15-figure-export-prose/2026-09-15-integration-review.json",
+      "archive_sha256": "297c6f8f924c71ec2bf1a2e84b71c3a819bdf61318c18779a509adb15d456526",
+      "retired_rows": [
+        {
+          "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+          "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+          "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+          "table": "ui",
+          "translation": "Varje linje i filen: de ritade kurvorna, referenslinjerna, axellinjerna och skalstrecken. Siffrorna bredvid skalstrecken är text och följer textfärgen.",
+          "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+        },
+        {
+          "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+          "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+          "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+          "table": "ui",
+          "translation": "All text i filen: titeln, axeletiketterna, siffrorna bredvid skalstrecken och teckenförklaringen.",
+          "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+        }
+      ],
+      "old_rows_byte_value_preserved": true
+    }
+  },
+  "N697": {
+    "fr": {
+      "archive": "tests/data/release_contracts/697_retired_runtime_controls_2026-10-15/fr.json.gz",
+      "decompressed_archive_sha256": "ce04333cd350a32a1e5577e563d381d83d38af0ea6a1edb2439663e6fa178f23",
+      "frozen_report_row": {
+        "name": "2026-09-22-lock-levels-parascape-controls.json",
+        "records": 73,
+        "sources": 73,
+        "sha256": "ce04333cd350a32a1e5577e563d381d83d38af0ea6a1edb2439663e6fa178f23"
+      },
+      "matches_actual_predeletion_commit_bytes": "7e269c6067^",
+      "current_sha256": "02af302050c6203aa35db451a8e84d81eda80ea0dcb96a7b20f9307626990d9d",
+      "exactly_removed_rows": [
+        {
+          "key": "Pan, from any tool",
+          "source": "Pan, from any tool",
+          "source_sha256": "778abbd7904eeb2ed756fd39c45c0fb9bb631776ae43f029402d2546ed0a5574",
+          "table": "ui",
+          "translation": "Déplacer la vue avec n’importe quel outil"
+        },
+        {
+          "key": "Shift or Alt + drag",
+          "source": "Shift or Alt + drag",
+          "source_sha256": "61ff206138ebad2ee38e9ec13a0b782892f5c2a81ff43c37d5739ef1472c4cf5",
+          "table": "ui",
+          "translation": "Shift ou Alt + glisser"
+        }
+      ]
+    },
+    "sv": {
+      "archive": "tests/data/release_contracts/697_retired_runtime_controls_2026-10-15/sv.json.gz",
+      "decompressed_archive_sha256": "eaa96ec7f80c0533db54c9ea9f009ee1f3dd8d30a5f8fe215d25ee1f726916d7",
+      "frozen_report_row": {
+        "name": "2026-09-22-lock-levels-parascape-controls.json",
+        "records": 73,
+        "sources": 73,
+        "sha256": "eaa96ec7f80c0533db54c9ea9f009ee1f3dd8d30a5f8fe215d25ee1f726916d7"
+      },
+      "matches_actual_predeletion_commit_bytes": "7e269c6067^",
+      "current_sha256": "433582e0fad4eb18670aaa58229023143f37a99c2513b0a957855fb77b86ac54",
+      "exactly_removed_rows": [
+        {
+          "key": "Pan, from any tool",
+          "source": "Pan, from any tool",
+          "source_sha256": "778abbd7904eeb2ed756fd39c45c0fb9bb631776ae43f029402d2546ed0a5574",
+          "table": "ui",
+          "translation": "Panorera med valfritt verktyg"
+        },
+        {
+          "key": "Shift or Alt + drag",
+          "source": "Shift or Alt + drag",
+          "source_sha256": "61ff206138ebad2ee38e9ec13a0b782892f5c2a81ff43c37d5739ef1472c4cf5",
+          "table": "ui",
+          "translation": "Shift eller Alt + dra"
+        }
+      ]
+    }
+  },
+  "N696_next": {
+    "fr": {
+      "original_archive": "docs/i18n/reviewed/runtime/fr/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+      "archive_sha256": "48d47082089861bee1660ecb352bcc493869524b490b2250ae0ef77523751ced",
+      "original_records": 131,
+      "current_records": 128,
+      "existing_two_plus_one_retirements": [
+        {
+          "table": "ui",
+          "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+          "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+          "source_sha256": "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
+          "translation": "Un modèle entraîné sur des images de microscopie plutôt que sur des photographies. OpenPhenom et ChAda-ViT acceptent un nombre quelconque de marquages ; SubCell en prend deux, l'DNA puis le marquage d'intérêt, dans l'ordre d'encodage des canaux. Les poids ne sont téléchargés qu'une fois. Cell-DINO nécessite un point de contrôle officiel et n’est pas encore pris en charge par cette version. Par défaut : None (utiliser le réseau de base)."
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "timelapse_events",
+          "source": "After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. Runs on the CPU. Default False.",
+          "source_sha256": "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478",
+          "translation": "Après l'exécution, détecte les événements sur chaque objet suivi avec un petit réseau neuronal lisant de courtes fenêtres de chaque trajectoire (forme, intensité, mouvement, trajectoires commençant ou finissant à proximité et recadrages d'image) : mitose, sortie, invasion, mort de la cellule hôte ou classes indiquées par timelapse_events_annotations. Écrit dans tracks/events les événements horodatés, les arbres de lignage dont les liens sont reconstruits à partir des mitoses détectées et le délai jusqu'à chaque événement par condition selon Kaplan-Meier. Fonctionne sur CPU. Par défaut : False."
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "robustness_diameter_factors",
+          "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+          "source_sha256": "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
+          "translation": "Multiples du diamètre des objets que le rapport de robustesse essaie un à la fois ; un diamètre vide est interprété comme les 30 pixels nominaux de Cellpose. Par défaut : [0.75, 1.25]."
+        }
+      ],
+      "extra_single_retirement": {
+        "table": "setting_tooltips",
+        "key": "robustness_diameter_factors",
+        "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+        "source_sha256": "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
+        "translation": "Multiples du diamètre des objets que le rapport de robustesse essaie un à la fois ; un diamètre vide est interprété comme les 30 pixels nominaux de Cellpose. Par défaut : [0.75, 1.25]."
+      },
+      "exact_deletion_commit": "0a1059a098939e0d15021de140f13401ef61b736",
+      "current_exactly_previous_minus_one": true,
+      "replacement_path": "docs/i18n/reviewed/runtime/fr/2026-10-14-magnification-default-and-auto-diameter.json",
+      "replacement_file_sha256": "9cb0a8cb742962b5bf207cce8561fa8769db2b0daf2ddb671593f0e41cb569d4",
+      "replacement": {
+        "table": "setting_tooltips",
+        "key": "robustness_diameter_factors",
+        "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as its magnification default and 0 or 'auto' as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+        "source_sha256": "872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1",
+        "translation": "Multiples du diamètre de l’objet que le rapport de robustesse teste un par un ; un diamètre vide correspond au défaut selon le grossissement, et 0 ou 'auto' aux 30 pixels nominaux de Cellpose. Valeur par défaut : [0.75, 1.25]."
+      },
+      "current_file_sha256": "f20d089e870b0873040ff593fc245223e29296e72c0290eb2fa418130ab3aed2",
+      "actual_settings_literal_and_compiled_target_source_hash_match": true,
+      "compiled_sha256": "b50dffae7deaab020ad847b2cff960a583b374a2539323e9b0ae3944ca4a6630"
+    },
+    "sv": {
+      "original_archive": "docs/i18n/reviewed/runtime/sv/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+      "archive_sha256": "8f172c2a22603f59bc21c39efb2aa55f819bbc2e9b36ee276461c832fcabe87f",
+      "original_records": 131,
+      "current_records": 128,
+      "existing_two_plus_one_retirements": [
+        {
+          "table": "ui",
+          "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+          "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+          "source_sha256": "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
+          "translation": "En modell tränad på mikroskopibilder i stället för fotografier. OpenPhenom och ChAda-ViT tar valfritt antal färgningar; SubCell tar två, först DNA och sedan den färgning som ska undersökas, i den ordning kanalerna är kodade. Vikterna laddas ned en gång. Cell-DINO kräver en officiell kontrollpunkt och stöds ännu inte av denna version. Standard: None (använd basnätverket)."
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "timelapse_events",
+          "source": "After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. Runs on the CPU. Default False.",
+          "source_sha256": "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478",
+          "translation": "Efter körningen detekteras händelser i varje spårat objekt med ett litet neuralt nätverk som läser korta fönster av varje spår (form, intensitet, rörelse, spår som börjar eller slutar i närheten samt bildutsnitt): mitos, utträde, invasion, värdcelldöd eller de klasser som anges i timelapse_events_annotations. Skriver tidsstämplade händelser, släktträd vars länkar byggts om utifrån detekterade mitoser och Kaplan-Meier-tid till varje händelse per betingelse till tracks/events. Körs på CPU. Standard: False."
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "robustness_diameter_factors",
+          "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+          "source_sha256": "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
+          "translation": "Multiplar av objektdiametern som robusthetsrapporten provar, en i taget; en tom diameter räknas som de nominella 30 pixlarna i Cellpose. Standard: [0.75, 1.25]."
+        }
+      ],
+      "extra_single_retirement": {
+        "table": "setting_tooltips",
+        "key": "robustness_diameter_factors",
+        "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+        "source_sha256": "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
+        "translation": "Multiplar av objektdiametern som robusthetsrapporten provar, en i taget; en tom diameter räknas som de nominella 30 pixlarna i Cellpose. Standard: [0.75, 1.25]."
+      },
+      "exact_deletion_commit": "0a1059a098939e0d15021de140f13401ef61b736",
+      "current_exactly_previous_minus_one": true,
+      "replacement_path": "docs/i18n/reviewed/runtime/sv/2026-10-14-magnification-default-and-auto-diameter.json",
+      "replacement_file_sha256": "425535335a2905ea3cbb9ca9731a61639c66854d86c5420d09a72cc2b4c915a3",
+      "replacement": {
+        "table": "setting_tooltips",
+        "key": "robustness_diameter_factors",
+        "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as its magnification default and 0 or 'auto' as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+        "source_sha256": "872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1",
+        "translation": "Multiplar av objektdiametern som robusthetsrapporten provar en i taget; en tom diameter räknas som dess förstoringsstandardvärde och 0 eller 'auto' som nominella 30 pixlar för Cellpose. Standard: [0.75, 1.25]."
+      },
+      "current_file_sha256": "d20c1052fde33e014893455c221e1264d57f3e4ff9017afceb89feb64581b221",
+      "actual_settings_literal_and_compiled_target_source_hash_match": true,
+      "compiled_sha256": "a49c5f3b42e202b08802c701f0fe53a061e7a6c8142dd547d40d563445ef1d0d"
+    }
+  },
+  "frozen411_report_parent_unchanged": true,
+  "test_source_sha256": "6e00fdaf9f2897ea4e261e9d605c05b27c6491f4fb90933e725f0d0105dc42aa",
+  "settings_source_sha256": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5"
+}

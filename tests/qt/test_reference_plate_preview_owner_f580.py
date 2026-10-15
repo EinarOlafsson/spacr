@@ -65,5 +65,7 @@ def test_preview_explains_explicit_and_blank_reference(qtbot):
     dialog = preview._CalibrationPreview(dict)
     qtbot.addWidget(dialog)
     texts = ' '.join(label.text() for label in dialog.findChildren(QLabel))
-    assert 'The selected reference plate is used; leave it blank to use the first plate by name.' in texts
+    assert 'Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.' in texts
+    assert 'With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.' in texts
+    assert 'A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.' in texts
     dialog.close()

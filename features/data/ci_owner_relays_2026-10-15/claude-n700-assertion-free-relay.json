@@ -1,0 +1,82 @@
+{
+  "owner": "Claude N700; relay only, no edits/tests",
+  "run": "https://github.com/EinarOlafsson/spacr/actions/runs/38774384694/job/116568856246",
+  "gate": "tests/test_test_suite_hygiene.py::test_no_new_assertion_free_tests",
+  "log_sha256": "013e8e3e55455e80460b60ab954ff6f8eb75486a2a44ee52ca4db2a5bd9a37b1",
+  "source_file": "tests/qt/test_700_remaining_client_paths.py",
+  "source_pins": [
+    {
+      "source": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+      "file_sha256": "cd6d6b24d6d4544789bd75cde9b5726a0d6833447b33b53dc67bedd2d5cd0b87",
+      "tests": [
+        {
+          "name": "test_a_failing_fetch_shows_the_hint",
+          "line": 210,
+          "ast_sha256": "6fbb07da58dd2dd0aae7477976d8e0bfd4d0ba116172d0623c3abaa205b93831",
+          "contains_assert_node": false
+        },
+        {
+          "name": "test_an_answer_without_an_allowance_asks_again",
+          "line": 259,
+          "ast_sha256": "1ace96d9b35152f9266d9f8581a40a4b2c3327dbe9a78f6af24af5b38e3fffd2",
+          "contains_assert_node": false
+        },
+        {
+          "name": "test_a_failed_answer_asks_again",
+          "line": 275,
+          "ast_sha256": "33610865d56c76152580fdbf274cff1911f705c6b747b6465106e83ed92d5f80",
+          "contains_assert_node": false
+        }
+      ]
+    },
+    {
+      "source": "19ac60d443d397b576978d4126ce7958718ca499",
+      "file_sha256": "ed37dfa47492acc7cd7cdc6c1b6e91df09535c401d8e1e20c736adc38aee43b7",
+      "tests": [
+        {
+          "name": "test_a_failing_fetch_shows_the_hint",
+          "line": 210,
+          "ast_sha256": "6fbb07da58dd2dd0aae7477976d8e0bfd4d0ba116172d0623c3abaa205b93831",
+          "contains_assert_node": false
+        },
+        {
+          "name": "test_an_answer_without_an_allowance_asks_again",
+          "line": 259,
+          "ast_sha256": "1ace96d9b35152f9266d9f8581a40a4b2c3327dbe9a78f6af24af5b38e3fffd2",
+          "contains_assert_node": false
+        },
+        {
+          "name": "test_a_failed_answer_asks_again",
+          "line": 275,
+          "ast_sha256": "33610865d56c76152580fdbf274cff1911f705c6b747b6465106e83ed92d5f80",
+          "contains_assert_node": false
+        }
+      ]
+    },
+    {
+      "source": "3ed17e347af0bf443134f7c93bb3c8ba4b8811d4",
+      "file_sha256": "ed37dfa47492acc7cd7cdc6c1b6e91df09535c401d8e1e20c736adc38aee43b7",
+      "tests": [
+        {
+          "name": "test_a_failing_fetch_shows_the_hint",
+          "line": 210,
+          "ast_sha256": "6fbb07da58dd2dd0aae7477976d8e0bfd4d0ba116172d0623c3abaa205b93831",
+          "contains_assert_node": false
+        },
+        {
+          "name": "test_an_answer_without_an_allowance_asks_again",
+          "line": 259,
+          "ast_sha256": "1ace96d9b35152f9266d9f8581a40a4b2c3327dbe9a78f6af24af5b38e3fffd2",
+          "contains_assert_node": false
+        },
+        {
+          "name": "test_a_failed_answer_asks_again",
+          "line": 275,
+          "ast_sha256": "33610865d56c76152580fdbf274cff1911f705c6b747b6465106e83ed92d5f80",
+          "contains_assert_node": false
+        }
+      ]
+    }
+  ],
+  "disposition": "All three test bodies still exactly match hosted source at latest3ed; independent owner must resolve actual missing assertions without ratchet exemption. No source mutation by Original."
+}

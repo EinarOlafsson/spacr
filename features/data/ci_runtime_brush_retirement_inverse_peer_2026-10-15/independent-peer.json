@@ -1,0 +1,37 @@
+{
+  "verdict": "ACCEPT source-only exact historical two-retirement inverse; owning tests separate",
+  "review_kind": "independent AI technical, no tests/imports/canonical collectors",
+  "commit": "aaf00c9c35d07f281c437e7bf796356301b66a4c",
+  "source_sha256": "776f710cfcfe66e9d1375b71fcafa30e11388543e1225b5fcc01e5f9f077bcfd",
+  "checks": [
+    "Only one new helper and len(helper) addition at each of the two final aggregate assertions. Normalizing those three edits restores entire parent AST.",
+    "Frozen411 contract selects exactly one advertised filename; existing _later_cohort_records unchanged and retains exact archived hash/source digests/currentbyte reconstruction and retired absence guards.",
+    "All frozen numerical constants including1672/1665 and intermediate invariants remain; ordinary canonical/source/syntax/semantic gates untouched.",
+    "Both actual compressed archives independently decompress to expected411 SHA; only two named rows removed, exact remaining JSON bytes equal currentfiles and original record total restored."
+  ],
+  "bindings": [
+    {
+      "language": "sv",
+      "original_sha256": "eaa96ec7f80c0533db54c9ea9f009ee1f3dd8d30a5f8fe215d25ee1f726916d7",
+      "current_sha256": "433582e0fad4eb18670aaa58229023143f37a99c2513b0a957855fb77b86ac54",
+      "original_records": 73,
+      "current_records": 71,
+      "retired_sources": [
+        "Pan, from any tool",
+        "Shift or Alt + drag"
+      ]
+    },
+    {
+      "language": "fr",
+      "original_sha256": "ce04333cd350a32a1e5577e563d381d83d38af0ea6a1edb2439663e6fa178f23",
+      "current_sha256": "02af302050c6203aa35db451a8e84d81eda80ea0dcb96a7b20f9307626990d9d",
+      "original_records": 73,
+      "current_records": 71,
+      "retired_sources": [
+        "Pan, from any tool",
+        "Shift or Alt + drag"
+      ]
+    }
+  ],
+  "not_claimed": "No original-node PASS or global runtime acceptance; no product/source/target mutation."
+}

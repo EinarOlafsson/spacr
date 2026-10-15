@@ -123,7 +123,7 @@ def test_an_installed_backend_makes_the_row_an_ordinary_download(picker,
     assert "Runs through the Cellpose-DINO backend, which is installed" in card
 
 
-def test_use_writes_the_cellpose_dino_setting(picker, tmp_path):
+def test_use_writes_the_cellpose_dino_setting(picker, qtbot, tmp_path):
     _install(tmp_path)
     folder = tmp_path / "models"
     folder.mkdir()
@@ -135,8 +135,12 @@ def test_use_writes_the_cellpose_dino_setting(picker, tmp_path):
     assert picker.use_button.isEnabled()
     chosen = []
     picker.model_chosen.connect(chosen.append)
-    picker._accept_selected()
+    with qtbot.waitSignal(picker.model_chosen, timeout=5000):
+        picker._accept_selected()
     assert chosen == [f"cellpose_dino:{path}"]
+    assert picker._reference_thread is None
+    assert picker._reference_request is None
+    assert picker._chosen_reference is None
 
 
 def test_the_backend_row_says_where_it_is_chosen(tmp_path):
@@ -291,14 +295,26 @@ def test_the_preview_zoo_button_asks_for_dino_rows(qapp, monkeypatch):
 
     asked = []
 
-    def choose(parent, kinds=None):
-        asked.append(kinds)
-        return "cellpose_dino:/m/w"
+    class Picker:
+        _chosen_reference = None
 
-    monkeypatch.setattr(mzp, "choose_model", choose)
+        def __init__(self, kinds, parent):
+            assert parent is host
+            asked.append(kinds)
+
+        def exec(self):
+            from PySide6.QtWidgets import QDialog
+
+            return QDialog.Accepted
+
+        def chosen_path(self):
+            return "cellpose_dino:/m/w"
+
+    monkeypatch.setattr(mzp, "ModelZooPicker", Picker)
     host = types.SimpleNamespace(_model_box=QComboBox())
     LP.LivePreviewPanel._choose_a_preview_model(host)
     assert asked == [MASK_KINDS]
+    assert host._selected_model_reference is None
     assert host._model_box.currentText() == "cellpose_dino:/m/w"
 
 

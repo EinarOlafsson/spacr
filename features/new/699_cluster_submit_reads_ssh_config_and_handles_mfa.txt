@@ -3,7 +3,9 @@ SUBMIT TO CLUSTER: FILL THE SERVER FROM ~/.ssh, AND LOG IN THROUGH A SECOND
 FACTOR (DUO / OKTA PUSH OR CODE)
 ================================================================================
 
-Status:    new 2026-10-13
+Status:    BUILT 2026-10-15 (Claude Home). Remaining: maintainer acceptance - a real
+           Great Lakes login with Kerberos password + Okta, then one job submit
+           and status poll without further prompts.
 Requested: maintainer, 2026-10-13: "for the submit to cluster to have a
            button in the popup window that searches the computer (in the
            appropriate locations, and then allows the user to do it manually)
@@ -153,3 +155,44 @@ the unchanged measured helper group1 from the prior note is not an active
 rendered arrival. No runtime/API writer, network/account/MFA/private-key or
 other-OS acceptance; real maintainer cluster validation remains open.
 Evidence:data/699_hostname_tokens_2026-10-15/receipt.json.
+
+2026-10-15 — HANDOVER to Claude Home (maintainer ownership request).
+Original Home has stopped N699 implementation, tests and documentation edits.
+Published work includes SSH-config discovery/conditional Include and HostName
+token repairs, password-first keyboard-interactive MFA and literal-path handling;
+prior native local OpenSSH/injected-auth receipts remain in the notes above.
+The normal nine-locale guide refresh also includes the eighteen N699 targets.
+No real cluster account, provider-specific Duo/Okta, Windows/macOS or real MFA
+acceptance is claimed. These remaining original-contract checks transfer to
+Claude Home. No unpushed N699 implementation changes or active N699 worker
+remain in Original Home; private N441 work is separate. Whole N702 is already
+accepted and published at b5724d096e, so its eventual takeover needs no duplicate
+implementation. Source and receipts are on nightly, not only WD scratch.
+
+2026-10-15 — BUILT (Claude Home; took over from Codex per the HANDOFF notice).
+Codex's discovery, keyboard-interactive session pool and Test connection were
+already on nightly (no unpushed 699 branch differs from it). Added on top:
+- Denied and timed-out second factor are now told apart ("was denied" /
+  "timed out", e.g. a rejected or unanswered Okta push); nothing is run, and
+  a "Retry sign-in" button appears beside Test connection after any failure.
+  The authentication wait is at least 120 s so a push can be approved.
+- Optional "Remember my password in the system keychain" (profile field
+  ssh_keychain, off by default, needs the keyring package). Only a prompt
+  that is hidden and says "password" is stored; passcodes, push choices and
+  one-time codes never are. A remembered password is used once per login and
+  removed if that login fails; unticking the box deletes it.
+- Find my SSH settings tooltip states what is read (user + system config,
+  Includes, Windows profile .ssh, known_hosts) and that it never runs ssh -G
+  or reads private keys; Choose folder… has its own tooltip.
+- Tests: Okta two-step (password, then "Passcode or option (1-2)") shown
+  verbatim; denied and timed-out push; retry; second command not re-prompted;
+  keychain off by default / password-only / removed on rejection / broken
+  backend; discovery opens no private key file; discovery starts no process
+  and never runs ssh -G; GUI keychain box, retry button, help text.
+- 9 new captions with AI-reviewed records in nine languages (Claude, no
+  native-speaker signoff); one caption retired; caption arrivals refreshed;
+  ExecutionProfile#19 has AI-reviewed API records. Localized API JSONs
+  are left to the normal docs generation.
+Remaining (maintainer): a real Great Lakes login with Kerberos password +
+Okta push, then a job submit and status poll without another prompt; ideally
+also one Windows machine for the %USERPROFILE%\.ssh discovery.

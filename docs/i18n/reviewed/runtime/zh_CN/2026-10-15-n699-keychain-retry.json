@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_scope": "Claude AI technical review (Opus 5.5); translated directly from the English for item 699's SSH keychain option, denied/timed-out second-factor messages, Retry sign-in and read-only discovery help; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "SSH keychain storage must be a boolean.",
+      "source": "SSH keychain storage must be a boolean.",
+      "source_sha256": "c849d399024f153e96060044366fec64a939e7938c175f656629a654d4e5d7f8",
+      "translation": "SSH 钥匙串存储必须是布尔值。"
+    },
+    {
+      "table": "ui",
+      "key": "The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source": "The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source_sha256": "7fe1c1d6a51cdd931080e93507264b717ec42611fcf860650b1a6f0978692e22",
+      "translation": "登录或第二因素请求被拒绝（例如推送被拒绝）。未运行任何内容；请选择“重新登录”或“测试连接”再试一次。"
+    },
+    {
+      "table": "ui",
+      "key": "The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source": "The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source_sha256": "b93db088c6530a0bebc76ba7f978cde8206806c5767d4ffebc97968361450f4f",
+      "translation": "登录或第二因素请求超时（例如推送未得到响应）。未运行任何内容；请选择“重新登录”或“测试连接”再试一次。"
+    },
+    {
+      "table": "ui",
+      "key": "Reads your SSH config file and the files it includes, the system-wide SSH config, the .ssh folder in your Windows user profile, and known_hosts. Read-only: spaCR never changes SSH files, never reads private keys and never runs ssh -G.",
+      "source": "Reads your SSH config file and the files it includes, the system-wide SSH config, the .ssh folder in your Windows user profile, and known_hosts. Read-only: spaCR never changes SSH files, never reads private keys and never runs ssh -G.",
+      "source_sha256": "65ebbd5134abc6d80f8901ecd08a6697d8b2797da4e57f6dc13eeb2372c55fc3",
+      "translation": "读取您的 SSH 配置文件及其包含的文件、系统级 SSH 配置、Windows 用户配置文件中的 .ssh 文件夹以及 known_hosts。只读：spaCR 从不更改 SSH 文件，从不读取私钥，也从不运行 ssh -G。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose another folder that holds an SSH config or known_hosts file.",
+      "source": "Choose another folder that holds an SSH config or known_hosts file.",
+      "source_sha256": "c58d3bb13f16ccd7dcef1fc9165db044ed0ceffd166545d859338f9b349b6aa0",
+      "translation": "选择另一个包含 SSH config 或 known_hosts 文件的文件夹。"
+    },
+    {
+      "table": "ui",
+      "key": "Remember my password in the system keychain",
+      "source": "Remember my password in the system keychain",
+      "source_sha256": "9a9c237fe6ea219166bdc39df69382734940c40dbe4794562c839c204c7e9587",
+      "translation": "在系统钥匙串中记住我的密码"
+    },
+    {
+      "table": "ui",
+      "key": "Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.",
+      "source": "Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.",
+      "source_sha256": "44fdf3740ab3d8d39a06b31dd4cf82f16c0dd3d5cee4c4e42bd8787f0bb2afe4",
+      "translation": "默认关闭。仅将登录密码保存在操作系统钥匙串中，从不保存一次性验证码或推送应答。"
+    },
+    {
+      "table": "ui",
+      "key": "Install the keyring package to store the password in the system keychain.",
+      "source": "Install the keyring package to store the password in the system keychain.",
+      "source_sha256": "54628479d8c85a45f230c501cc56ba9f138cca89da35e357b79c179a1e268646",
+      "translation": "安装 keyring 包，即可将密码保存在系统钥匙串中。"
+    },
+    {
+      "table": "ui",
+      "key": "Retry sign-in",
+      "source": "Retry sign-in",
+      "source_sha256": "0338e01471b811839ef94a905b7867985fdb52293676988ae284d9b834ba56d0",
+      "translation": "重新登录"
+    }
+  ]
+}

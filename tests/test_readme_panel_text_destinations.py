@@ -50,7 +50,7 @@ def rendered(markdown):
 def test_every_panel_opens_rendered_words_before_any_other_content(language):
     tool = readme_tool()
     output = tool.compose(language, render=False)
-    assert len(output.pages) == 66
+    assert len(output.pages) == 67
     pictures = Article()
     pictures.feed(tool.readme_path(language).read_text(encoding="utf-8"))
     for name, expected in output.pages.items():

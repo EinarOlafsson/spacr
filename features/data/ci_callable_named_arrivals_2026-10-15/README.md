@@ -1,0 +1,3 @@
+The two original callable inventory guards now account for the already published F561 and FigureQueue source contracts. Full source-derived inventory remains accurate; only copied historical rows subtract the exact nine source-validated optional dataclass parameters and documented optional weights_only=False. Frozen counts, signature digests, ghost checks and every original assertion remain unchanged.
+
+The final acceptance is staged: the extractor original passed in both two-node attempts; the corrected first original passed alone. Earlier parameter-drift and author AST-default comparison failures remain in the raw logs. No production or generated artifact changed.

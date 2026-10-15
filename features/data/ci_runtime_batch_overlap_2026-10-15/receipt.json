@@ -1,0 +1,21 @@
+{
+  "root_head_observed": "4ab2101960fd71b3a358794dcb15fc35b25dcf3a",
+  "root_test_sha256": "4d7adc58786cdc5e8b7c4a175cb043bbecdd07a6b410cd76a27c3c0879d48deb",
+  "later_arrival_commit": "34ea953684f867955c3f7245ea846c88bc2c29b2",
+  "exact_overlap_each_locale": [
+    "Batch size",
+    "Learning rate",
+    "Train"
+  ],
+  "file_pins": {
+    "docs/i18n/reviewed/runtime/fr/2026-10-01-runtime-review-twelfth-pass-labels.json": "4741f355b0a77647382b78d1edb3eb7a74bbe9f56c04b6f5b8deb530f299dc17",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-f561-classifier-ui-runtime-home-b.json": "02d1cf45fc19dd586376ae54cf3d5e62b86fc5617a403503b87983150212aabf",
+    "docs/i18n/reviewed/runtime/fr/2026-09-30-runtime-meaning-fixes-eleventh-pass.json": "82baa49eef3316c625a6708f8140ee606e43502bf41dc575037977175369fada",
+    "docs/i18n/reviewed/runtime/sv/2026-09-30-runtime-meaning-fixes-eleventh-pass.json": "0399bb7d38b68f125cb900032560531e8eeee389bfe6a529718b7d50e40722ae",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-f561-classifier-ui-runtime-home-b.json": "59207d1d84ccfb589ab2ed6a61e39bc42e011df04c220dd6384550892b3ccde0",
+    "docs/i18n/reviewed/runtime/sv/2026-10-01-runtime-review-twelfth-pass-labels.json": "2d555cfd1dfc50c2a35f5932961ebf1fb8d8b0c0a21f0fda88c588460bc5ce37"
+  },
+  "finding": "All six source translations match historical records exactly. Same English sources are deliberately reused for classifier UI. No conflicting translation or stale source found in these records. Global disjointness assertion is overstrict for this exact declared re-review.",
+  "method": "AST-derived literal glob selection from _runtime_debt_sources; JSON records/Git only. No canonical collector/review loader/package import or pytest.",
+  "proposed_scope": "If authorized: precise three-source inverse contract validating exact earlier and later source hashes/translations and declared later file, then subtract ONLY these three proven repeats from later disjointness comparison. Preserve all other original cohort/negative/disjointness gates and counts."
+}

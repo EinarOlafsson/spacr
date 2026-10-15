@@ -1,0 +1,16 @@
+{
+  "decision": "ACCEPT",
+  "review_kind": "Independent AI technical generated-artifact and recorded-evidence peer, no rerun",
+  "commit": "28b1eb8411f8fac6aedfec1f72f1ecd64ed5a1b5",
+  "notebook_sha256": "64ab5475feaa1c3bd0e013130937ac5a0170568288625c4e00454cd207841458",
+  "generator_sha256": "71d799446a1ceb225cc4122fa47c906c87e545d5dc0bc53e73a5f0f179da9e13",
+  "only_changed_notebook": "Notebooks/11_activation_maps.ipynb",
+  "changed_generated_cells": [
+    5,
+    6
+  ],
+  "handwritten_cells_outputs_execution_counts_and_all_metadata_unchanged": true,
+  "generator_and_settings_bytes_unchanged": true,
+  "scope": "Exact4 source-line additions: two existing F564 checkpoint path/hash tooltip paragraphs and two blank defaults. Standard unchanged build_notebook_settings producer, no execution/model/native acceptance.",
+  "recorded_result": "Normal check names only11_activation_maps as stale; generator rewrites1; original currentness node1PASS11.93s."
+}

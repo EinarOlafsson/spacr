@@ -620,3 +620,98 @@ remain open. Source-bound evidence:698_managed_model_provisioning_2026-10-15.
 2026-10-15 Original — Actual deployed public schema accepted, no inference. Provider-derived READY domain returned config and Gradio API info: eight intended families, exact24 source-ordered inputs/two outputs each,17 source-matching model choices, consent false and upload disabled by default. Exact f457/free zero-a10g/two startup flags held before and after. Root independently verified eight payload SHA/size identities. Evidence:698_live_schema_2026-10-15. No model job, GPU inference, service mutation or website activation occurred. Held-out public test examples, desktop/hosted parity and original browser-export acceptance remain open.
 
 2026-10-15 Original — First actual public-input call found a real managed API defect. One anonymous nuclei request on the reviewed CC-BY test image timed out281.4s; one cancellation returned true, active-versus-queued remains unknown. Actual server log shows channel0 rejected by Gradio initial empty dropdown choices before app inference. Private reproduction2FAIL; repair28PASS9.77s plus one final optional-collection check. Three dropdown constructors now admit explicit values; existing header/type/count/consent validation remains, with duplicate/range checks moved before GPU entry using the existing translated error. Root reverse-byte peer confirms only three flags/five guard lines changed, source/test hashes exact. Evidence:698_api_channel_preprocessing_2026-10-15. No second hosted call, repair deployment or model-output acceptance yet.
+
+2026-10-15 — HANDOVER to Claude Home (current maintainer claim).
+Original has stopped all N698 code/tools/site implementation; no N698 worker,
+export, model, GPU or provider call is active. All working managed-host source
+fixes are public; exact source66f5bfc5b0/schema24inputs/2outputs and provider
+quota failure receipts are retained. Free ZeroGPU returned180s requested vs
+167s remaining; no masks or inference/parity success is claimed, and no retry
+or paid-resource workaround is authorized. Site configuration is live in nine
+languages, while execution remains disabled pending accepted inference/export.
+Private unvalidated export prototype355e0314b1 is preserved on local branch
+codex-n698-managed-provisioning-20261015. It has33 staged guard checks and an
+independent source-preparation peer, but NO actual model export/native/browser
+run. It is not working end-to-end software and was not published as executable
+feature. Exact source/patch/tests/evidence plus official operator/normalization
+proposal are portable in data/698_handover_to_claude_2026-10-15/. Owner may
+adopt them; Original will not modify them further. No unpushed working N698
+source remains beyond this explicitly unvalidated prototype. Whole item stays
+open for actual hosted and browser/native numerical acceptance.
+2026-10-15 Claude Home — BUILT (handover from Codex accepted; Claude owns 698;
+the private export prototype was not adopted, export_onnx.py replaces it)
+What is done (spaCR nightly + private site-src main):
+- Site (site-src): the Mask generator tab now has one sub-tab per model class
+  (8 tabs, deep links #mask-<class>), each with its score card, model-version
+  picker and recommended input. Shared form: drag/drop or file picker (TIFF,
+  OME-TIFF, PNG, JPEG, BMP, PDF; CZI/ND2 hosted only), channel picker built
+  from the decoded file (geotiff.js / pdf.js / canvas), percentile preview with
+  mask outlines or boxes, "Random test image from Hugging Face" (96 pinned
+  held-out TEST images, 12 per class, sha256-checked in the browser;
+  data/mask-examples.json from tools/mask-examples.mjs), progress, cancel,
+  ZIP download. All strings in 9 languages; node tools/check_i18n.mjs passes
+  (600/600 every language); node --test tools/ 80/80.
+- Backend switch: "Hosted GPU (Hugging Face Space, ZeroGPU)" calls the live
+  public Space einarolafsson/spacr-mask-generator with @gradio/client 2.7.1
+  (consent required, queue position shown, provider errors such as the
+  ZeroGPU quota shown with a link to sign in on the Space). "In my browser"
+  runs onnxruntime-web 1.30.0 (WebGPU, WASM fallback); nothing is uploaded.
+  Each route probes itself and says "Hosted GPU not yet available" /
+  "In-browser model not yet published" until it works.
+- Browser pipeline (src/assets/js/mask-core.js, mask-package.js): spaCR
+  normalization, Cellpose-SAM tiling, Cellpose 4.2.1.1 mask dynamics incl.
+  flow-error filter, YOLO letterbox/NMS/well filter, ZIP with the same layout
+  as results.py/detector.py (input/, image.tif, mask.tif, flows.npy,
+  cell_probability.npy, objects.csv, README.txt, manifest.json). Parity vs the
+  real Python code (fixtures in tools/fixtures/mask): masks pixel-identical,
+  tiling diff 0, spacr normalization diff 0, letterbox bit-exact, objects.csv
+  byte-identical; JS ZIPs read back by zipfile/tifffile/np.load.
+- Model export: tools/web_mask_generator/export_onnx.py (+16 tests). The
+  current default of all 8 classes plus well detector v2 were exported on CPU
+  (9 files, 1.22 GB per Cellpose-SAM model, ~10 MB detectors); torch vs
+  onnxruntime max flow diff 1.1e-5, detector boxes < 6.1e-4 px. On the real
+  fixture ONNX masks equal desktop masks; well detector v3 ONNX boxes equal
+  desktop detect_wells exactly (rgb/gray). Files wait locally in
+  /mnt/firecuda2/Claude/scratch/n698-onnx/out (not uploaded).
+- Real-browser end-to-end (headless Chromium, WASM, model served from that
+  folder): well detector v3 on rgb.png gave the desktop's 3 wells, identical
+  boxes and confidences. Nuclei-from-cellmask v1: the site's JS pipeline
+  (spacrNormalize + cellposeEval) with the exported ONNX in onnxruntime-node
+  on the 128x160 fixture of 698_native_nuclei_cpu (diameter 32) gave the
+  desktop spaCR mask exactly: 3/3 objects, IoU 1.0 each, 3.8 s CPU. (A full
+  headless-browser run of the 1.2 GB model was not finished: Playwright's
+  request interception streams that file too slowly.)
+- Hosted: the site's JS client reached the live Space end to end (pre-GPU
+  consent refusal, schema, CORS for einarolafsson.github.io). One anonymous
+  real request was refused by the provider: "ZeroGPU quota (180s requested
+  vs. 167s left)". app.py now reserves 40-120 s by upload size
+  (gpu_seconds), so a request fits an anonymous allowance; needs a redeploy.
+Maintainer steps left (your HF account, free tier only):
+1. Redeploy app.py to the Space (one file):
+   huggingface-cli upload einarolafsson/spacr-mask-generator
+     tools/web_mask_generator/app.py tools/web_mask_generator/app.py --repo-type space
+2. Upload the browser models (DATASET repo):
+   huggingface-cli upload einarolafsson/models
+     /mnt/firecuda2/Claude/scratch/n698-onnx/out web-onnx --repo-type dataset
+   The site already lists these exact files/SHA-256 under
+   https://huggingface.co/datasets/einarolafsson/models/resolve/main/web-onnx/
+   and turns each browser model on by itself once it answers there.
+3. Optional: Space variable SPACR_WEB_EXAMPLES_JSON = the "records" list of
+   site-src data/mask-examples.json (enables the Space's own example button).
+Then: one hosted run per tab and one WebGPU run on a real GPU browser to close
+the acceptance (label count / IoU >= 0.99 vs desktop, 10 MB TIFF timing).
+2026-10-15 Claude Home — Cellpose-style page + hosted ValueError fixed
+- Maintainer's "ValueError" reproduced by replaying the site's default hosted
+  request through the Space service on CPU with the real toxoplasma_pv_v4
+  weights: build_result_zip raised "flows must have shape (2, Y, X)" because
+  pathogen models (pv, toxoplasma_from_cellmask, toxoplasma_from_hoechst) run
+  with resample off and Cellpose returns flows/cell probability at the model
+  scale; ZeroGPU showed only the class name. masks.py now reports them
+  unavailable (same reason as the browser route) and app.py turns request
+  ValueErrors into gr.Error. Same replay now succeeds (4 objects).
+  Re-upload tools/web_mask_generator/app.py AND masks.py to the Space.
+- site-src 19af6af: drop zone becomes the image viewer immediately; controls
+  beside it (route, channels, diameter+auto, flow, cell probability, Run with
+  progress); result viewer with image/masks/outlines/flows/cell probability
+  (boxes for wells) + opacity; object count, mean area; ZIP, mask PNG/TIFF,
+  CSV downloads; translated friendly errors with technical details.

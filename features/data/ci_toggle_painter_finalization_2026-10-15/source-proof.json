@@ -1,0 +1,14 @@
+{
+  "base_commit": "3ed17e347af0bf443134f7c93bb3c8ba4b8811d4",
+  "test_before_sha256": "2bf9cb0732d6e29bd0ec947c139b8a1c9fa06900ea45c0070f24176de7e3a412",
+  "test_after_sha256": "de4a6a2dfe326245a47a9b4e0a26510ec7034fcc13700b3560ed3697645ecdb0",
+  "production_sha256": "cfbd5d733fe6cf74253fd0890486d2f0672f2f1858b8e8ef5ef3aa9c4ce726be",
+  "production_byte_identical": true,
+  "all_original_assertion_ASTs_identical": true,
+  "assert_count": 2,
+  "all_seven_scenarios_and_parametrization_identical": true,
+  "changed_source_files": [
+    "tests/qt/test_toggle_painter_finalization.py"
+  ],
+  "scope": "Test fault injection follows actual native focus rectangle; no rendering or policy change."
+}

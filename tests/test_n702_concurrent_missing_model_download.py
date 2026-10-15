@@ -140,6 +140,7 @@ def test_lock_permission_failure_preserves_existing_bytes_and_never_fetches(tmp_
 
     class RefusedLock:
         PermissionError = original.PermissionError
+        LockFailedError = original.LockFailedError
 
         def __init__(self, path):
             self.path = path
@@ -148,6 +149,9 @@ def test_lock_permission_failure_preserves_existing_bytes_and_never_fetches(tmp_
             pass
 
         def lock(self):
+            return False
+
+        def tryLock(self, timeout=0):
             return False
 
         def error(self):

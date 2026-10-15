@@ -132,10 +132,62 @@ def test_a_short_download_is_not_unpacked():
     assert "Nothing was unpacked" in source
 
 
-def test_a_cancelled_download_leaves_no_part_file():
-    source = _worker_source()
-    body = source[source.index("if self._cancel:"):]
-    assert "part.unlink" in body
+def test_a_cancelled_download_leaves_no_part_file(qapp, tmp_path, monkeypatch):
+    from spacr.qt import hf_download as hf
+
+    dest = tmp_path / "example"
+    dest.mkdir()
+    sentinel = dest / "retained.bin"
+    sentinel.write_bytes(b"unrelated existing file")
+    worker = hf._MeasureTarWorker(dest)
+    first_chunk = b"partial archive" * 1024
+    observed_parts = []
+    requests_seen = []
+    extractions = []
+    completed = []
+    worker.finished.connect(lambda *args: completed.append(args))
+
+    class Response:
+        headers = {"Content-Length": str(len(first_chunk) * 2)}
+
+        def raise_for_status(self):
+            return None
+
+        def iter_content(self, chunk_size):
+            assert chunk_size == 1 << 20
+            yield first_chunk
+            parts = list(dest.rglob("*.part"))
+            assert len(parts) == 1
+            assert parts[0].read_bytes() == first_chunk
+            observed_parts.extend(parts)
+            worker.cancel()
+            yield b"must not be written"
+
+    def get(url, **kwargs):
+        requests_seen.append((url, kwargs))
+        return Response()
+
+    def extract(*args):
+        extractions.append(args)
+        raise AssertionError("Cancelled content must not be unpacked")
+
+    monkeypatch.setattr("requests.get", get)
+    monkeypatch.setattr(hf, "extract_example_archive", extract)
+    worker.run()
+
+    archive = hf.EXAMPLE_ARCHIVES[worker.repo]
+    assert requests_seen == [(
+        f"https://huggingface.co/datasets/{worker.repo}/resolve/main/"
+        f"{archive}?download=true", {"stream": True, "timeout": 30},
+    )]
+    assert len(observed_parts) == 1
+    assert completed == [(False, "", "", "Cancelled by user.")]
+    assert extractions == []
+    assert not (dest / archive).exists()
+    assert not list(dest.rglob("*.part"))
+    assert not list(dest.glob(".spacr-archive-*"))
+    assert sentinel.read_bytes() == b"unrelated existing file"
+    assert list(dest.iterdir()) == [sentinel]
 
 
 def test_the_archive_is_removed_after_unpacking():

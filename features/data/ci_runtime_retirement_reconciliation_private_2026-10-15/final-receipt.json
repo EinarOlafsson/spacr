@@ -1,0 +1,18 @@
+{
+  "scope": "Exact historical runtime review reconciliation; original French and Swedish nodes",
+  "source_commit": "6c025ddfc5424b822a0d107661fb4bc6f56afe11",
+  "test_sha256": "776f710cfcfe66e9d1375b71fcafa30e11388543e1225b5fcc01e5f9f077bcfd",
+  "final": "2 passed in 58.76s",
+  "final_exit": 0,
+  "earlier_failures_retained": true,
+  "setup_failures": "baseline and diameter-retirement-final lacked sparse-tracked615 fixture; exact Git fixtures were materialized before actual acceptance",
+  "changes": [
+    "N678 exact two archived prose retirements",
+    "N697 exact two retired brush controls with immutable411 archive hashes and original totals",
+    "N696 exact old diameter tooltip retirement/current replacement source and target",
+    "F561 exact three identical reviewed label reuses"
+  ],
+  "production_reviews_catalogs_modified": false,
+  "pins_or_ceilings_raised": false,
+  "full_ci_dispatched": false
+}

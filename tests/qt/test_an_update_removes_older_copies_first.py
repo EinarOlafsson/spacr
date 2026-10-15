@@ -540,7 +540,7 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
 
     plans = iter([{"command": None, "error": REASONS[-1]},
                   {"command": ["python", "install_cleanup.py", "run-plan"],
-                   "error": None}])
+                   "version": "9.9.9", "error": None}])
     monkeypatch.setattr(install_cleanup, "start_update_helper",
                         lambda records, version, ticked: next(plans))
     running = _record(tmp_path, "installer", "desktop", running=True)

@@ -1,0 +1,20 @@
+E402 Module level import not at top of file
+  --> tests/qt/test_the_preview_uses_the_model_the_run_will_use.py:33:1
+   |
+31 | MASK_KINDS = _mask_model_kinds()
+32 |
+33 | import numpy as np
+   | ^^^^^^^^^^^^^^^^^^
+34 | import pytest
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> tests/qt/test_the_preview_uses_the_model_the_run_will_use.py:34:1
+   |
+33 | import numpy as np
+34 | import pytest
+   | ^^^^^^^^^^^^^
+help: Move module level imports to top of file
+
+Found 2 errors.

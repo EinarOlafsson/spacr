@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 12:45-0400\n"
+"POT-Creation-Date: 2026-10-15 15:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -88,6 +88,10 @@ msgstr "Líkansstöðupunktar á keyrslustaðnum"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames."
 msgstr "Útfluttar stillingar varðveita slóð líkansins og skráðan lykil í líkanasafni, útgáfu útgefanda og SHA-256, ef þessar upplýsingar eru skráðar. Fyrirliggjandi skrár með skráða auðkenningu verða að samsvara þeirri gátsummu. Skrár sem vantar eru aðeins fundnar með nákvæmlega skráðri auðkenningu eða, ef engin auðkenning er skráð, nákvæmum lykli eða skráarheiti í líkanasafninu; engin nálgunarsamsvörun er notuð í staðinn. Líkön eru í skyndiminni undir heimamöppu spaCR (venjulega ``~/.spacr/models``), nema ``SPACR_MODEL_CACHE`` velji aðra möppu. Ferli deila niðurhalslás og sannreyna stöðupunkta í skyndiminni áður en hlaðið er niður. Á ótengdri vél skal stilla ``SPACR_MODEL_DOWNLOAD=off`` áður en ``spacr-run`` er keyrt: hvorki lýsigögnum líkana né vigtum er þá hlaðið niður. Fyrirliggjandi staðbundnar skrár og sannreynd líkön í skyndiminni eru áfram nothæf; fyrir þekkt líkan sem vantar í skyndiminnið birtast gátsumman og slóðin í skyndiminnið sem afrita á í. Óþekktum beiðnum er hafnað með skýrum hætti. Sérsniðnar slóðir fá ekki trausta auðkenningu í líkanaskránni út frá skráarheitunum."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Jobs and nodes that share one model cache download a missing model once. The first job holds a lock file in the cache and refreshes it while it downloads; the others wait, then reuse the verified file. A lock that a crashed node left behind is removed after ``SPACR_MODEL_LOCK_STALE_SECONDS`` without a refresh (600 by default). When ``SPACR_MODEL_DOWNLOAD=off`` stops a run, the error ends with a shell command that downloads the checkpoint to the cache path and checks its SHA-256. Run it on a machine with network access that sees the same folder, or run it elsewhere and copy the file to that path."
+msgstr "Verk og hnútar sem deila einu skyndiminni líkana sækja líkan sem vantar aðeins einu sinni. Fyrsta verkið heldur læsingarskrá í skyndiminninu og endurnýjar hana á meðan það sækir; hin bíða og nota síðan staðfestu skrána. Læsing sem hrunin hnútur skildi eftir er fjarlægð eftir ``SPACR_MODEL_LOCK_STALE_SECONDS`` án endurnýjunar (sjálfgefið 600). Þegar ``SPACR_MODEL_DOWNLOAD=off`` stöðvar keyrslu endar villuboðin á skeljarskipun sem sækir vistunarpunktinn á slóð skyndiminnisins og athugar SHA-256-gildi hans. Keyrðu hana á tölvu með netaðgang sem sér sömu möppu, eða keyrðu hana annars staðar og afritaðu skrána á þá slóð."
 
 msgid "Command-line workflow"
 msgstr "Verkflæði í skipanalínu"
@@ -252,6 +256,9 @@ msgstr "óleyndar yfirskriftir SSH-stillinga, svo sem notandi, gátt, slóð au�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
 msgstr "nota staðfesta, viðvarandi SSH-tengingu með grafískum spurningum fyrir gagnvirka auðkenningu með lyklaborði í stað ytri OpenSSH-skipunarinnar."
+
+msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
+msgstr ""
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Smíða og sannprófa snið úr JSON-samhæfðum gögnum."

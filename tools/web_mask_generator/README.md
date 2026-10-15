@@ -290,3 +290,122 @@ managed environment. Only the exact 6.17.3 launch omits its unsupported
 other sharing, consent, upload, error and CORS safeguards remain the same.
 Weight provisioning, actual free-hardware selection, hosted execution and
 scientific acceptance remain explicit deployment work.
+
+### Browser (WebGPU) models: export and publish
+
+`export_onnx.py` converts the advertised model classes in `space/models.json`
+to ONNX for the in-browser route (onnxruntime-web, WebGPU execution provider
+with WASM fallback) and writes a browser manifest. It is an operator tool: it
+never uploads, and it downloads only with `--download` (public,
+revision-pinned Hub URL, no token). Every weight file is checked against the
+bytes and SHA-256 in `models.json` before it is loaded; a mismatch stops the
+export.
+
+Install the export dependencies in a private environment (CPU is enough):
+
+```bash
+python -m venv --system-site-packages /path/to/onnx-venv
+/path/to/onnx-venv/bin/pip install onnx==1.23.2 onnxscript==0.7.2 onnxruntime==1.30.0
+```
+
+Export from local weights (CPU only, about 6 GB RAM for a Cellpose-SAM model):
+
+```bash
+CUDA_VISIBLE_DEVICES='' /path/to/onnx-venv/bin/python -m tools.web_mask_generator.export_onnx \
+    --key nuclei_from_cellmask_v1 --key toxoplasma_well_detector_v2 \
+    --weights-dir ~/.spacr/models \
+    --weights toxoplasma_well_detector_v2=$HOME/.spacr/models/yolo_welldetect_v4.pt \
+    --out web-onnx
+```
+
+- `--key KEY` (repeatable) or `--all` chooses model classes.
+- `--weights KEY=PATH` names a file; `--weights-dir DIR` matches the basename
+  of each `models.json` filename; `--download` fetches the published file
+  instead (into `OUT/weights`, or `--download-dir`).
+- `--check` (default; `--no-check` to skip) runs torch and onnxruntime-CPU on
+  seeded random inputs and refuses the export if Cellpose flows differ by more
+  than 1e-3 (absolute), or detector boxes by more than 1e-2 px or scores by
+  more than 1e-3.
+- `--manifest PATH` (default `OUT/browser-manifest.json`) is created or updated
+  per key; other keys and an existing `base_url` are kept.
+- Detectors are exported with dynamic height and width so the browser can use
+  the desktop's rectangular letterbox. `--detector-static` exports a fixed
+  640 x 640 graph instead; on the bundled RGB well fixture that square
+  letterbox found one of the two desktop wells, while the dynamic graph
+  matched desktop exactly.
+- `--reference-fixture IMAGE` (with a Cellpose key; `--fixture-out DIR`) also
+  saves `.npy` arrays and `meta.json` for one 2-D plane: the normalized network
+  input and the desktop, torch and ONNX flows, cell probabilities and masks,
+  for testing the browser dynamics port.
+
+Files written to `OUT/`:
+
+- `<key>-<first 12 hex of its SHA-256>.onnx`, one self-contained file per
+  model. Cellpose-SAM: about 1.2 GB float32, input `image` [N, 3, 256, 256],
+  output `flows` [N, 3, 256, 256] = dY, dX, cell-probability logits. Well
+  detector: about 10 MB, input `images` [N, 3, H, W] RGB in [0, 1], output
+  `output0` [N, 4 + classes, anchors] before NMS. A re-export replaces the
+  older file of the same key.
+- `browser-manifest.json` (schema 1): for each key the file, bytes, SHA-256,
+  source weight identity, input/output layout, preprocessing (normalization,
+  tiling, letterbox), postprocessing (dynamics or NMS and desktop filters), the
+  spaCR desktop and web-app default thresholds, and the numeric check.
+  `base_url` stays `null` until the files are published.
+
+Publishing (maintainer only; the export tool never does this):
+
+1. Review `browser-manifest.json`: every `check.passed` must be `true`.
+2. Upload the ONNX files to the models DATASET repository:
+
+   ```bash
+   huggingface-cli upload einarolafsson/models web-onnx/ web-onnx/ --repo-type dataset \
+       --include "*.onnx" --commit-message "Browser ONNX models"
+   ```
+
+3. Set `"base_url": "https://huggingface.co/datasets/einarolafsson/models/resolve/main/web-onnx/"`
+   in `browser-manifest.json` (a model URL is `base_url + file`), then upload
+   the manifest:
+
+   ```bash
+   huggingface-cli upload einarolafsson/models web-onnx/browser-manifest.json \
+       web-onnx/browser-manifest.json --repo-type dataset
+   ```
+
+4. Download one model URL and compare its SHA-256 with the manifest.
+5. Copy the manifest into the website repository as
+   `data/mask-browser-models.json`.
+
+### Website integration and remaining maintainer steps
+
+The spaCR site (private `site-src`, Mask generator tab) has one sub-tab per
+model class. Visitors choose **Hosted GPU** (this Space, called with
+`@gradio/client` from the page, after explicit upload consent) or **In my
+browser** (the ONNX exports above in onnxruntime-web, WebGPU with WASM
+fallback; nothing is uploaded). Each route checks itself at run time and shows
+"Hosted GPU not yet available" or "In-browser model not yet published" while it
+cannot run. Random test images come from the site's `data/mask-examples.json`:
+pinned held-out TEST images (12 per class) generated by
+`node tools/mask-examples.mjs`, in exactly the record format that
+`SPACR_WEB_EXAMPLES_JSON` accepts.
+
+Maintainer steps (the maintainer's Hugging Face account; free tier only):
+
+1. Update the running Space so one request fits the anonymous ZeroGPU
+   allowance. The GPU reservation now scales with the upload (40 s to 120 s)
+   instead of a fixed 120 s, which the provider counts as 180 s, above what an
+   anonymous visitor has left:
+
+   ```bash
+   huggingface-cli upload einarolafsson/spacr-mask-generator \
+       tools/web_mask_generator/app.py tools/web_mask_generator/app.py --repo-type space
+   ```
+
+2. Optional: enable the Space's own random test image button by adding the
+   Space variable `SPACR_WEB_EXAMPLES_JSON` set to the `records` list of the
+   site's `data/mask-examples.json`.
+3. Publish the browser models: upload the nine `.onnx` files and
+   `browser-manifest.json` from the export folder to the models DATASET repo
+   under `web-onnx/` (commands above). The site already points at
+   `https://huggingface.co/datasets/einarolafsson/models/resolve/main/web-onnx/`
+   with those exact file names and SHA-256 values; each browser model turns on
+   by itself once its file answers there.

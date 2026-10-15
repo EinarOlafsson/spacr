@@ -96,7 +96,7 @@ def test_a_runnable_row_offers_its_download_and_says_its_licence(picker):
 
 @pytest.mark.parametrize("entry, expected", [
     (CYTO3, "cellpose3:{path}"), (SAM, "{path}")])
-def test_use_writes_the_setting_that_routes_it(picker, tmp_path, entry,
+def test_use_writes_the_setting_that_routes_it(picker, qtbot, tmp_path, entry,
                                                expected):
     path = tmp_path / entry.name
     path.write_bytes(b"weights")
@@ -105,8 +105,11 @@ def test_use_writes_the_setting_that_routes_it(picker, tmp_path, entry,
     assert picker.use_button.isEnabled()
     chosen = []
     picker.model_chosen.connect(chosen.append)
-    picker._accept_selected()
+    with qtbot.waitSignal(picker.model_chosen, timeout=5000):
+        picker._accept_selected()
     assert chosen == [expected.format(path=path)]
+    assert picker._reference_thread is None
+    assert picker._reference_request is None
 
 
 def test_the_warm_up_redraws_the_table_when_rows_arrive(qapp, qtbot,
