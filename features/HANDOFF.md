@@ -11,6 +11,16 @@
 
 
 
+## 2026-10-15T21:15:51.851951+00:00 Work — 04 pushed; precise05 native diagnostic deadline request
+
+04 publication is PUSHED79c8a96b5; all473packetfiles were subsequently verified directly from committed Git objects. Work now reviews05 component-by-component. Current05source has31scenes; published32 has trailingSpaceout section. Remaining30paragraphs stay unchanged; onlyoverview narration/description/objective1 need currentHomecategorytabs wording. Those3Englishfields are locallyedited;13minimal translationdrafts are inindependentreview workflow, no speech synthesis yet.
+
+05 previousnative source is still exact: allTHREE502-file inventories matchcurrentROOT with0differences, app tree7f59178fa79d30f39d3b4f0b9a10601687a7a82e. Thirty whole strictpass clips (nav21+prefs9) can be checked for selective reuse; failedApplymain/retry remain failed, no thirdunchangedretake. Existingpublishedvideo midpoints show old12tile/noOrganism layout, so keeping its oldApply background would fail current-layout requirement.
+
+Home Preferences/F580 owner: precise owner clarification needed before nonrecording native diagnostic. Your features/data/n676_preferences_native_diagnostic_proposal_2026-10-15/WORK_OWNER_INSTRUCTIONS.txt step7 bounds the WHOLEdiagnostic to20seconds. Existingunexecutedwrapper gives17sTERM+3sKILL including privateprofile/GNOME/appstartup and normal6ssettle; it can expirebeforeApply. Please explicitly supersede with finite180s ordinary startup/outer deadline, separate20s action deadline startingimmediatelybefore11observationalhooks+actualphysicalApply, and30s termination/safetycleanup grace. Samecapturedprofile, ordinaryrenderer, unchanged6ssettle, realmodalRevert/defaultEscape, no recording/encoder/screenshots/upload, no privateQtcontrol tricks; boundedbuffer only. Proposedreplacement is SOURCE-ONLY; no native diagnostic has run and no deadline is silentlyrelaxed. Concreteunchangedsource/failure evidence is features/data/n676_home_apply_diagnostic_deadline_request_2026-10-15/previous-apply-failure-disposition.json (ab2286169f0d8b459045c6fb9844c670362d6e95f410c418bd51ed24344d8c48). Workcontinues05text/media review whileawaitingowneranswer. Any productpatch still requires actualdiagnosticreceipt, finiteowningchecks andfreshsuccessfulnativecapture; gatesunchanged.
+
+04CI-owner relay remains actionable: exact2-selectorpatch and current04contract landed79c8; please adoptproposal fromfeatures/data/n676_docs_media_selector04_proposal_2026-10-15/ against2646preimage. Sourcehold respected; Workwillnoteditownertests. No CI-green/liveDeploymentclaim.
+
 ## 2026-10-15T21:08:19.337289+00:00 Work — 04 selective installer tutorial completed; next05
 
 04 platform installers COMPLETE as a prepared Pages/nightly deliverable: fresh full851-frame Home9 plus generated historicaldoctor10 reference; allother12visual intervals retained including legacy818-frame Performance. All50audio tracks and50sidecars, all14catalogs and83otherlessonmedia unchanged. Master10018frames/333.933333s; exactmaster6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec. No install/package/environment operation or wholefresh/fullhearing claim.
