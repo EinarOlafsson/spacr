@@ -77549,12 +77549,37 @@
       "source_sha256": "2bef368744801d2e4354125f4b06151d72a4e77b0c9fee91efc10ffac007d1fd",
       "text": "What the label is actually painting, elided or not.\n\nDistinct from :meth:`text`, which is the logical label. Tests need\nboth to tell \"the toggle says X\" from \"the toggle currently fits\nthis much of X\"."
     },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent": {
+      "source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ],
+      "source_sha256": "69a9364e8a0229bb8a073f8627aa7ae69d31f3a7d9610398ae9b38cb749f57a6",
+      "text": "Repaint the outline when keyboard focus enters the toggle.\n\n:param event: focus-entry event, forwarded to QLabel."
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent": {
+      "source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ],
+      "source_sha256": "64ee22fd609b5f1d712cc397752c4c96d2edce27a80723669b2619e600787634",
+      "text": "Remove the outline when keyboard focus leaves the toggle.\n\n:param event: focus-exit event, forwarded to QLabel."
+    },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.isChecked": {
       "source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
       ],
       "source_sha256": "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d",
       "text": "Return True when the AI toggle is currently ON."
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent": {
+      "source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
+      ],
+      "source_sha256": "ce756b8b94078aea7902d8e002322345ca4281a01d774b7683533b224ad37638",
+      "text": "Toggle once on unmodified Space, Return or numeric Enter while focused.\n\nAutomatic key repeats are consumed without changing state. Other key\nevents are forwarded to QLabel. Activation uses :meth:`setChecked`,\npreserving the existing state-change signal and routing connections.\n\n:param event: key-press event delivered to the toggle."
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.minimumSizeHint": {
       "source_blocks_sha256": [
@@ -77571,6 +77596,14 @@
       ],
       "source_sha256": "4a073f16db787bd81ae6e38017b04bf941de7976eb2be4312cbd94af553d8910",
       "text": "Flip the toggle on left-click; forward other buttons to Qt.\n\n:param event: the mouse press; only its button is read, and a\n    left-button press is consumed."
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent": {
+      "source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
+      ],
+      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
+      "text": "Paint the label and its cached outline while it has keyboard focus.\n\n:param event: paint request, passed to QLabel before drawing the outline."
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.resizeEvent": {
       "source_blocks_sha256": [

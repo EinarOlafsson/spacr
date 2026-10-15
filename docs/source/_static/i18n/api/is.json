@@ -122724,6 +122724,30 @@
         "c62e10ce1eb1fe4decefb235d0d5d22f9c2517958303b3a26f320a6faa8f72c1"
       ]
     },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent": {
+      "source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ],
+      "source_sha256": "69a9364e8a0229bb8a073f8627aa7ae69d31f3a7d9610398ae9b38cb749f57a6",
+      "text": "Teikna útlínuna aftur þegar rofinn fær lyklaborðsfókus.\n\n:param event: atburður þegar fókus fæst, áframsendur til QLabel.",
+      "translation_source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent": {
+      "source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ],
+      "source_sha256": "64ee22fd609b5f1d712cc397752c4c96d2edce27a80723669b2619e600787634",
+      "text": "Fjarlægja útlínuna þegar lyklaborðsfókus fer af rofanum.\n\n:param event: atburður þegar fókus tapast, áframsendur til QLabel.",
+      "translation_source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ]
+    },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.isChecked": {
       "source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
@@ -122732,6 +122756,20 @@
       "text": "Return True þegar AI rofi er nú ON.",
       "translation_source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent": {
+      "source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
+      ],
+      "source_sha256": "ce756b8b94078aea7902d8e002322345ca4281a01d774b7683533b224ad37638",
+      "text": "Skipta um stöðu einu sinni með bilslá, Return eða Enter á talnaborði án breytingarlykla meðan rofinn hefur fókus.\n\nSjálfvirkar endurtekningar lykla eru afgreiddar án þess að breyta stöðu. Aðrir lyklaatburðir eru áframsendir til QLabel. Virkjun notar :meth:`setChecked` og varðveitir núverandi merki um stöðubreytingu og tengingar fyrir leiðingu.\n\n:param event: atburður við að ýta á lykil, afhentur rofanum.",
+      "translation_source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.minimumSizeHint": {
@@ -122756,6 +122794,18 @@
       "translation_source_blocks_sha256": [
         "e2782bb5437f555ce9b914dd425050d466a7c5d86a68fac6ad6544f9e6403b36",
         "54cc92a0af8ecedc88268ae27a5636ff8c0f832e6d5aa201dc090e781ef85972"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent": {
+      "source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
+      ],
+      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
+      "text": "Teikna merkið og útlínuna úr skyndiminni meðan það hefur lyklaborðsfókus.\n\n:param event: teiknibeiðni sem er send til QLabel áður en útlínan er teiknuð.",
+      "translation_source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.resizeEvent": {
