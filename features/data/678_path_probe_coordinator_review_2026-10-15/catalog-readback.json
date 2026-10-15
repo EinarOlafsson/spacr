@@ -1,0 +1,60 @@
+{
+  "published_baseline": "08e2519d5",
+  "normal_artifact": "b7077bed768e90fb225083d2df6ac936175282f1",
+  "source_sha256": "7a617ca9623c977c14f00801a78290d8a9bff0667d8217c2c7772022050178e4",
+  "all10catalogs": {
+    "es": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "dba9d08011ab0e8b2bed9b7b956a2a6aa0f5c00fe271202e3fdffdbb824802f3"
+    },
+    "is": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "465c63b49ded210e92fa0951a2a8e28f581697f1261dc9a41cad6e22503b0c7d"
+    },
+    "zh_CN": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "40be175c9032e90c932a8735114bb8611cf8f2713bd97f5bee323d2c645ee872"
+    },
+    "fr": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "94c091ef3196c5b2bc3e1b6e8433c1bd15d1992940f75957fa8165998f1aa698"
+    },
+    "sv": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "3de4bd2ecc83d099f2a11e33c4d0da3e71700092b7d43ce5cc8b3733a1a915cd"
+    },
+    "pt": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "1476211802fd83f199e0a90497aa7b0a843678aad23559a46e84906f93ed04c6"
+    },
+    "hi": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "d5450efdc34e71b5cd1188e97a469cfc60e14d5ab675f6d9caecdcaa499ed155"
+    },
+    "en": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13479,
+      "sha256": "0e0e5478ebf2a8674e1647bf2e1bd4e54b6a8f3aa12d1a64f0ca1afeea4431b5"
+    },
+    "ko": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "4b40e5098a59256d18457257034d8c4357b3af672d33ad8e2fd398212c0790a8"
+    },
+    "de": {
+      "owned5_exact_artifact": true,
+      "unrelated_exact_public_records": 13405,
+      "sha256": "b82be59f31bb82c673ba90021405a53900bbf15d3ae21a2653c5627692bff2f5"
+    }
+  },
+  "source_history_exact": true,
+  "English_owned_exact_current_AST": true,
+  "limitations": "Scoped readback only; no repeated generator, runtime collection or whole-package acceptance."
+}
