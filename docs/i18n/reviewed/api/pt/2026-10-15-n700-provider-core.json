@@ -1,0 +1,296 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review by Codex with independent AI technical peer; no human or native-speaker signoff",
+  "note": "Source/context-bound current provider-core blocks only. Independent technical target peer: hard-final-core-target-peer.json (Hard, 2026-10-15); module#4 also independently accepted in hard-nine-target-peer.json. Eight unchanged historical blocks are preserved through ordinary source-proven history, not claimed as newly reviewed. No model-generated translation or human/native signoff is claimed.",
+  "records": [
+    {
+      "label": "spacr.qt.ai.providers#4",
+      "source": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+      "source_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+      "context": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+      "translation": "Um quarto, :class:`HostedProvider`, não precisa de CLI nem de conta: consulta o serviço de retransmissão do spaCR, que responde com um modelo alojado gratuito, e é a opção predefinida quando nenhum dos três está instalado e com sessão iniciada (:func:`default_provider`).",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider#0",
+      "source": "spaCR's hosted assistant: advice from spaCR's relay, no account needed.",
+      "source_sha256": "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+      "context": "spaCR's hosted assistant: advice from spaCR's relay, no account needed.",
+      "translation": "O assistente alojado do spaCR: conselhos do serviço de retransmissão do spaCR, sem necessidade de conta.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider#1",
+      "source": "It sends only what :func:`_hosted_request` keeps, the anonymised error summary and the question, to the relay's ``/diagnose`` route through :func:`spacr.crashreport.diagnose_remotely`. The answer is generated advice and is labelled as such. It is the provider used when no vendor CLI is installed and signed in (:func:`default_provider`), and it is unavailable when the network is forbidden (:func:`spacr.crashreport.network_allowed`).",
+      "source_sha256": "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2",
+      "context": "It sends only what :func:`_hosted_request` keeps, the anonymised error summary and the question, to the relay's ``/diagnose`` route through :func:`spacr.crashreport.diagnose_remotely`. The answer is generated advice and is labelled as such. It is the provider used when no vendor CLI is installed and signed in (:func:`default_provider`), and it is unavailable when the network is forbidden (:func:`spacr.crashreport.network_allowed`).",
+      "translation": "Envia apenas o que :func:`_hosted_request` conserva, o resumo anonimizado do erro e a pergunta, para a rota ``/diagnose`` do serviço de retransmissão através de :func:`spacr.crashreport.diagnose_remotely`. A resposta é um conselho gerado e é identificada como tal. É o fornecedor usado quando nenhuma CLI de fornecedor está instalada e com sessão iniciada (:func:`default_provider`), e fica indisponível quando o acesso à rede é proibido (:func:`spacr.crashreport.network_allowed`).",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.check_signed_in#0",
+      "source": "There is no sign-in to check.",
+      "source_sha256": "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+      "context": "There is no sign-in to check.",
+      "translation": "Não há início de sessão a verificar.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.check_signed_in#1",
+      "source": "``None``.",
+      "source_sha256": "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3",
+      "context": "``None``.",
+      "translation": "``None``.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.is_configured#0",
+      "source": "Whether the hosted provider may be used: the network is allowed.",
+      "source_sha256": "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa",
+      "context": "Whether the hosted provider may be used: the network is allowed.",
+      "translation": "Se o fornecedor alojado pode ser usado: o acesso à rede é permitido.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.is_installed#0",
+      "source": "Nothing to install: the hosted provider is always present.",
+      "source_sha256": "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf",
+      "context": "Nothing to install: the hosted provider is always present.",
+      "translation": "Nada a instalar: o fornecedor alojado está sempre presente.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.is_logged_in#0",
+      "source": "Nothing to sign in to: the relay needs no account.",
+      "source_sha256": "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc",
+      "context": "Nothing to sign in to: the relay needs no account.",
+      "translation": "Não é preciso iniciar sessão: o serviço de retransmissão não exige conta.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.source_of_key#0",
+      "source": "Say where answers come from, in place of a CLI's location.",
+      "source_sha256": "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc",
+      "context": "Say where answers come from, in place of a CLI's location.",
+      "translation": "Indicar de onde vêm as respostas, em vez da localização de uma CLI.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#0",
+      "source": "Ask the relay and yield its advice, then a line saying what it is.",
+      "source_sha256": "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+      "context": "Ask the relay and yield its advice, then a line saying what it is.",
+      "translation": "Consultar o serviço de retransmissão e fornecer o seu conselho, seguido de uma linha que indica do que se trata.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#1",
+      "source": "conversation history as ``{role, content}`` dicts; only the anonymised summary and the newest question leave this computer.",
+      "source_sha256": "274d88becafc4c017d49f19efba6109161035e4ca2d817a1e65c090316e51861",
+      "context": "conversation history as ``{role, content}`` key-value mappings; only the anonymised summary and the newest question leave this computer.",
+      "translation": "histórico da conversa como dicionários ``{role, content}``; apenas o resumo anonimizado e a pergunta mais recente saem deste computador.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#2",
+      "source": "ignored; the relay holds spaCR's own prompt.",
+      "source_sha256": "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+      "context": "ignored; the relay holds spaCR's own prompt.",
+      "translation": "ignorado; o serviço de retransmissão conserva a instrução própria do spaCR.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#3",
+      "source": "ignored; the relay chooses its free model.",
+      "source_sha256": "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+      "context": "ignored; the relay chooses its free model.",
+      "translation": "ignorado; o serviço de retransmissão escolhe o seu modelo gratuito.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#4",
+      "source": "iterator yielding the answer.",
+      "source_sha256": "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+      "context": "iterator yielding the answer.",
+      "translation": "iterador que fornece a resposta.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#5",
+      "source": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
+      "source_sha256": "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471",
+      "context": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
+      "translation": "com uma mensagem a indicar que o limite diário gratuito foi atingido ou que não foi possível contactar o serviço de retransmissão.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#0",
+      "source": "spaCR's relay gave no advice: its free daily limit, or no connection.",
+      "source_sha256": "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+      "context": "spaCR's relay gave no advice: its free daily limit, or no connection.",
+      "translation": "O serviço de retransmissão do spaCR não deu conselhos: limite diário gratuito atingido ou ausência de ligação.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#1",
+      "source": "A :class:`ProviderFailed`, so the console writes the message as it stands after \"[AI error]\".",
+      "source_sha256": "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+      "context": "A :class:`ProviderFailed`, so the console writes the message as it stands after \"[AI error]\".",
+      "translation": "Uma :class:`ProviderFailed`, pelo que a consola escreve a mensagem sem alterações depois de \"[AI error]\".",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#2",
+      "source": "the sentence the user reads.",
+      "source_sha256": "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+      "context": "the sentence the user reads.",
+      "translation": "a frase que o utilizador lê.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#3",
+      "source": "``\"quota\"``, ``\"network\"`` or ``\"error\"``, from :class:`spacr.crashreport.RelayRefused`, kept on the exception as ``reason``.",
+      "source_sha256": "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+      "context": "``\"quota\"``, ``\"network\"`` or ``\"error\"``, from :class:`spacr.crashreport.RelayRefused`, kept on the exception as ``reason``.",
+      "translation": "``\"quota\"``, ``\"network\"`` ou ``\"error\"``, de :class:`spacr.crashreport.RelayRefused`, conservado na exceção como ``reason``.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#4",
+      "source": "Keep the reason; the message is the whole text shown.",
+      "source_sha256": "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e",
+      "context": "Keep the reason; the message is the whole text shown.",
+      "translation": "Conservar o motivo; a mensagem é todo o texto apresentado.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#0",
+      "source": "Save a provider choice and use it at once in every open console.",
+      "source_sha256": "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+      "context": "Save a provider choice and use it at once in every open console.",
+      "translation": "Guardar uma escolha de fornecedor e usá-la imediatamente em todas as consolas abertas.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#1",
+      "source": "A vendor CLI that is not installed and signed in is saved but not applied; the consoles keep spaCR AI (free) until it is set up.",
+      "source_sha256": "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+      "context": "A vendor CLI that is not installed and signed in is saved but not applied; the consoles keep spaCR AI (free) until it is set up.",
+      "translation": "A escolha de uma CLI de fornecedor que não esteja instalada e com sessão iniciada é guardada mas não aplicada; as consolas mantêm spaCR AI (gratuito) até que esteja configurada.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#2",
+      "source": "a name from :data:`PROVIDER_CHOICES`.",
+      "source_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "context": "a name from :data:`PROVIDER_CHOICES`.",
+      "translation": "um nome de :data:`PROVIDER_CHOICES`.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#3",
+      "source": "whether the chosen provider can answer now.",
+      "source_sha256": "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7",
+      "context": "whether the chosen provider can answer now.",
+      "translation": "se o fornecedor escolhido pode responder agora.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.configured_providers#0",
+      "source": "Return the providers that can answer now, spaCR AI (free) first.",
+      "source_sha256": "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+      "context": "Return the providers that can answer now, spaCR AI (free) first.",
+      "translation": "Devolver os fornecedores que podem responder agora, com spaCR AI (gratuito) em primeiro lugar.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.configured_providers#1",
+      "source": "The hosted provider leads whenever the network is allowed, since it is the default; a vendor CLI follows when it is installed and logged in.",
+      "source_sha256": "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11",
+      "context": "The hosted provider leads whenever the network is allowed, since it is the default; a vendor CLI follows when it is installed and logged in.",
+      "translation": "O fornecedor alojado aparece primeiro sempre que o acesso à rede é permitido, pois é o predefinido; uma CLI de fornecedor segue-se quando está instalada e com sessão iniciada.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.default_provider#0",
+      "source": "Return the provider the AI switch uses.",
+      "source_sha256": "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+      "context": "Return the provider the AI switch uses.",
+      "translation": "Devolver o fornecedor usado pelo interruptor de IA.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.default_provider#1",
+      "source": "the provider Preferences names, or ``\"\"``.",
+      "source_sha256": "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+      "context": "the provider Preferences names, or ``\"\"``.",
+      "translation": "o fornecedor indicado nas Preferências, ou ``\"\"``.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.default_provider#2",
+      "source": "``preferred`` when it can answer; otherwise spaCR AI (free); otherwise, with the network forbidden, the first vendor CLI that is installed and logged in; ``None`` when nothing can answer.",
+      "source_sha256": "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5",
+      "context": "``preferred`` when it can answer; otherwise spaCR AI (free); otherwise, with the network forbidden, the first vendor CLI that is installed and logged in; ``None`` when nothing can answer.",
+      "translation": "``preferred`` quando pode responder; caso contrário, spaCR AI (gratuito); se também não estiver disponível e o acesso à rede for proibido, a primeira CLI de fornecedor instalada e com sessão iniciada; ``None`` quando nenhum pode responder.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.effective_provider_name#0",
+      "source": "Return the name of the provider Preferences shows as chosen.",
+      "source_sha256": "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+      "context": "Return the name of the provider Preferences shows as chosen.",
+      "translation": "Devolver o nome do fornecedor que as Preferências mostram como selecionado.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.effective_provider_name#1",
+      "source": "the stored preference; ``\"\"`` (never chosen) means spaCR AI (free).",
+      "source_sha256": "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+      "context": "the stored preference; ``\"\"`` (never chosen) means spaCR AI (free).",
+      "translation": "a preferência guardada; ``\"\"`` (nunca escolhido) significa spaCR AI (gratuito).",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.effective_provider_name#2",
+      "source": "a name from :data:`PROVIDER_CHOICES`.",
+      "source_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "context": "a name from :data:`PROVIDER_CHOICES`.",
+      "translation": "um nome de :data:`PROVIDER_CHOICES`.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.get_provider#0",
+      "source": "Look up a provider by its short id.",
+      "source_sha256": "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+      "context": "Look up a provider by its short id.",
+      "translation": "Procurar um fornecedor pelo seu identificador curto.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.get_provider#1",
+      "source": "provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` or :data:`HOSTED_PROVIDER_NAME`).",
+      "source_sha256": "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
+      "context": "provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` or :data:`HOSTED_PROVIDER_NAME`).",
+      "translation": "identificador do fornecedor (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` ou :data:`HOSTED_PROVIDER_NAME`).",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.list_providers#0",
+      "source": "Return every vendor CLI provider, regardless of install state.",
+      "source_sha256": "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+      "context": "Return every vendor CLI provider, regardless of install state.",
+      "translation": "Devolver todos os fornecedores por CLI dos vários fabricantes, independentemente do estado de instalação.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.providers.list_providers#1",
+      "source": "The hosted provider is not one of them: it has nothing to install or sign in to. :func:`hosted_provider` returns it.",
+      "source_sha256": "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033",
+      "context": "The hosted provider is not one of them: it has nothing to install or sign in to. :func:`hosted_provider` returns it.",
+      "translation": "O fornecedor alojado não é um deles: não tem nada a instalar nem requer início de sessão. :func:`hosted_provider` devolve-o.",
+      "review_basis": "Authored from exact current English and normal API context; independently technically reviewed by Hard; no human or native-speaker signoff"
+    }
+  ]
+}
