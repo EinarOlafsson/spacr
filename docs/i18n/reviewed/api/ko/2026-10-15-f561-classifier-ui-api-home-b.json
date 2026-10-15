@@ -9,7 +9,10 @@
       "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
       "previous_same_source_indexes": [],
       "translation": "이미지 영역 불러오기, 임베딩 계산 또는 두 자체 DINO 학습 작업 중 하나가 진행 중인지 여부.",
-      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
     },
     {
       "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
@@ -18,7 +21,10 @@
       "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
       "previous_same_source_indexes": [],
       "translation": "최종 결과가 화면에 전달된 뒤에도 작업 스레드가 정리될 때까지 두 학습 실행기를 모두 포함합니다.",
-      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
     },
     {
       "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
