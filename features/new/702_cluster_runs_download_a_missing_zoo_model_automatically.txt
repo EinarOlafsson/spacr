@@ -2,7 +2,7 @@
 CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
 ================================================================================
 
-Status:    not started
+Status:    PARTIAL — exact missing-path resolver component implemented 2026-10-14; identity export, offline mode and process coalescing remain open.
 Requested: maintainer, 2026-10-13: "when using run if the like with athe
            cluster, if a user puts in a version of a model thatisnt on the
            cluster it should be automatically downloaded. now it just fails
@@ -95,3 +95,30 @@ round trips, invalidate identities after model edits/CLI --set, recheck caches
 under a process lock and reject ambiguity/stale hashes. No code, tests, model
 downloads or GPU execution occurred; exact lookup/export/offline/lock/native
 acceptance remains to implement after release.
+
+2026-10-14 — exact missing-laptop-path resolver component (Home):
+The existing shared headless model resolver now accepts a missing POSIX,
+Windows or ~/ laptop path when its final component exactly names one unique
+catalogue key or checkpoint filename. Existing native files still win before
+any catalogue query. The selected immutable ModelEntry goes through the same
+kind restriction, cache hash verification, GUI-thread refusal and verified
+fetch implementation; no fuzzy prefix or neighbouring version is selected.
+Ambiguous identities remain unresolved for the caller's existing error path.
+Explicit remote URIs are not reinterpreted as laptop paths.
+
+The native offline file:// mirror baseline failed 5 new cases while 3 guards
+already passed. The first owning model-zoo/shared-catalogue/missing-model
+cohort passed 111 cases in 18.93 seconds. A final explicit-URI safeguard and
+its focused closure passed 26 cases in 7.24 seconds, actual exit 0; these
+cohorts overlap and are not summed. A prior test that incorrectly described
+an exact matching basename as unrelated now supplies a genuinely unrelated
+filename. Checksum rejection leaves no replacement weights; cache reuse,
+dry-run, wrong-kind, local-first and GUI-thread policies retain their tests.
+
+This closes only the bounded exact-path lookup component. Exported pinned
+key/version/hash metadata, metadata invalidation after edits, offline no-
+traffic controls, contextual unknown/ambiguous copy instructions, all-model
+entrypoint coverage, process download coalescing, docs/translations/native
+acceptance remain OPEN. No live weights download, network or GPU operation.
+Public signatures, docstrings and captions are unchanged.
+Evidence: data/702_exact_missing_path_resolver_2026-10-14/receipt.json.

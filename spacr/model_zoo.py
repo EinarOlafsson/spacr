@@ -3617,12 +3617,16 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
     local = Path(text).expanduser()
     if local.is_file():
         return local
-    if os.sep in text or text.startswith("~"):
+    if "://" in text:
         return None
-    entry = next((item for item in catalogue(remote=True)
-                  if item.key == text or item.name == text), None)
-    if entry is None:
+    path_like = "/" in text or "\\" in text or text.startswith("~")
+    identifier = Path(text.replace("\\", "/")).name if path_like else text
+    matches = [item for item in catalogue(remote=True)
+               if item.key == identifier or item.name == identifier
+               or (path_like and Path(item.name).name == identifier)]
+    if len(matches) != 1:
         return None
+    entry = matches[0]
     if kinds and entry.kind not in kinds:
         raise ModelZooError(
             f"{text!r} is a {entry.kind} model; this operation requires "
