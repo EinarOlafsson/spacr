@@ -424,3 +424,31 @@ bulk bundled pack/historical provenance and offline catalog localization
 remain separate. No scientific model/GPU/external network/fullCI; parent702
 remains partial.
 Evidence: data/702_legacy_shared_key_acquisition_2026-10-14/receipt.json.
+
+2026-10-14 — offline runtime component private delivery; ARTIFACT HOLD:
+SPACR_MODEL_DOWNLOAD=off (also false/0/no, case/space-insensitive) now
+returns shared catalogue cache without foreground or daemon metadata traffic,
+even when forced. Verified cached weights and preflight remain usable. An
+uncached exact entry raises a tr()-wrapped message naming the model key,
+SHA-256 and precise cache file to copy, before creating files or fetching.
+Baseline: 9 FAIL, 2 existing guards PASS. Initial owning runtime cohort51PASS;
+final52PASS/9deselected (7.37s, actual exit0) includes the real resolver to
+declared-catalogue/shared-catalogue chain with both metadata paths forbidden.
+
+Nine exact-source AI technical runtime reviews are authored, with placeholders
+and SPACR_MODEL_DOWNLOAD preserved; no native-speaker signoff. Actual nine-
+locale error-path tests read shipped catalog rows and exercise the resolver.
+All9 currently FAIL (KeyError), as expected while normal owner-generated
+catalogs are pending. They are not skipped and localization is NOT accepted.
+The normal full builder encountered unrelated missing N700 translations and
+was stopped rather than running an unrelated MT sweep (exit143). Source-only
+English generation succeeded; generated files were restored to exact tracked
+bytes. The normal arrival CLI prerequisite is separate31d31495814, identical
+to reviewed7e269's tool; no pin or gzip was manually edited.
+
+Home-B owns translation tooling. Its required scoped extractor addition is
+only spacr.model_zoo._ensure_model_file's new literal tr() call. Combined
+normal catalog/arrival regeneration and all nine locale tests MUST pass before
+publication of this private component. Pinned export identity, process
+coalescing, all-model coverage and full parent acceptance remain OPEN.
+Evidence: data/702_offline_runtime_private_2026-10-14/receipt.json.
