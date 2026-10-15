@@ -474,3 +474,13 @@ Python/frozen Debian adapters, full hosted CI and parentN703 remain open. The
 Debian outside helper exists but lacks a privileged verified rollback transaction;
 its refusal is retained and no real dpkg/root/package operation was run.
 Source-bound receipt: features/data/n703_current_catalog_closure_2026-10-14/.
+
+2026-10-15 00:05 EDT — Actual public caption-arrival refresh, explicit foreign hold
+Fetched and normally merged public helper e7a8e58a698, then executed its real
+--refresh command under the shared capped lock. Actualexit1: caption arrival
+lacks explicit reviewed record: sv/('UI', 'AI Error report'). The fixture is
+unchanged. This supersedes the earlier missing-tool hold with an observed
+N700-owned missing-review refusal. No waiver, manual fixture edit, model sweep
+or N700 source change was made. N703 runtime/API/63 owning PASS scope is
+unchanged; global acceptance remains held. Exact source/tool hashes and raw
+refusal are in features/data/n703_current_catalog_closure_2026-10-14/.
