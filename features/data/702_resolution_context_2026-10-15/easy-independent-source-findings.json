@@ -1,0 +1,43 @@
+{
+  "reviewer": "Original Home easy agent independent source peer",
+  "utc": "2026-10-15T16:51:56.534952+00:00",
+  "decision": "TWO BOUNDED CORRECTIONS PENDING; remaining reviewed source shape accepted",
+  "patch_sha256": "86729ba5efeab2350244413d68d68f47fb75182cfff7aff6afbd1e0f41228719",
+  "production_sha256": {
+    "spacr/model_zoo.py": "b0ce9feb98a2aa42ceacf8ab417844b4ed5d785170177239f2f8ada8400e78bf",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "spacr/submodules.py": "c7587d7bd6f3a27d204ddb73020848c10ae78846546da922a99a2658c5ebfd74",
+    "spacr/deep_spacr.py": "ff339c2b2477d4f14e25a6786f904a610396da43d0f8616904f84a5b53a0837a",
+    "spacr/plaque_papers.py": "1f2c3f5d8577f851b60c6b214604e2e92966678f156ff2eb12e50d2612f6a808"
+  },
+  "untouched_caller_sha256": {
+    "spacr/_mask_workers.py": "437ad88a4cd3ee1d2b320032e5cb280ce41805110a49fdabf735550bad68c25d",
+    "spacr/object.py": "bb71c885726aa4f52c878f4d038b61748f8772f8a3b5d363bdd0be98d425ab26"
+  },
+  "findings": [
+    {
+      "id": "actual-pathogen-override-setting",
+      "source": "spacr/_mask_workers.py::_prepare_mask_model already chooses actual key pathogen_model but omits setting=key from unpinned _resolve_cellpose_pretrained call. spacr/object.py robustness and Cellpose constructor similarly select override then omit actual setting.",
+      "effect": "New contextual success/refusal can incorrectly label pathogen_model_name when actual request came from pathogen_model. Other backend/low-level callers without explicit field still lack some full-item logging context; do not claim all callers covered.",
+      "correction": "Forward known actual setting through existing caller/API seams under root ownership, preserve direct-call defaults and all current resolver policy."
+    },
+    {
+      "id": "raw-publisher-version-uri-binding",
+      "source": "spacr/model_zoo.py::_ensure_model_file publisher_version next(...) matches raw key/name/kind/SHA but omits URI identity.",
+      "effect": "Custom/alternate declaration sharing key/name/kind/hash but different URI can borrow bundled rawNone/opaque version instead of retaining explicit technical ModelEntry.version attribution.",
+      "correction": "Require exact normalized raw entry URI conjunction before borrowing raw publisher version; otherwise preserve technical ModelEntry.version=... fallback."
+    }
+  ],
+  "reviewed_acceptances": [
+    "Offline _resolution_model_entries branches inspect only bundled/local regular catalogue/alreadycached shared declarations; never catalogue/provider/transport when SPACR_MODEL_DOWNLOAD disabled. download=False remains pure bundled planning.",
+    "Raw publisher versionNone/opaque001 preserved on exact pinned record path; success log occurs only after fetch returns under unchanged native lock/cache guards, never cached shortcut/checksum refusal.",
+    "Actual detector/base_model/plaque_model/resume_checkpoint/custom_model_path and paper detector/segmenter callers pass explicit source contexts. Unknown requests refuse before model construction, known local/legacy/sam/default precedence remains unchanged.",
+    "All source outside exact declared resolver/acquisition/context/caller functions is AST-identical to candidate HEAD. No scientific computation/default/constructor behavior widened.",
+    "Changed exception-type and strict fixture-kwargs failures are honestly retained in raw logs; no generic exception catch/test skip added."
+  ],
+  "evidence_limits": [
+    "Read-only source/AST/log review only; no import/model/network/test/collector execution.",
+    "Not final acceptance until the two exact corrections are source-bound reviewed and required author-owned affected checks terminal.",
+    "Normal18runtime9API/rootguide closure still pending, no source-only publication authorization."
+  ]
+}

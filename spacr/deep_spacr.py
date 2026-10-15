@@ -259,11 +259,30 @@ def _empty_device_cache() -> None:
 
 
 def _classifier_model_input(settings, name):
-    """Use verified recorded classifier bytes without rewriting their request."""
-    from .model_zoo import _resolve_pinned_model_file
+    """Resolve one named classifier input without rewriting its recorded request.
+
+    :param settings: original classifier settings, including any validated model pins.
+    :param name: actual input-field name, such as ``model_path`` or ``resume_checkpoint``.
+    :returns: verified pinned/acquired file path, or the unchanged optional/existing path.
+    :raises ModelZooError: no existing input or exact compatible zoo identity is available.
+    """
+    from .model_zoo import (
+        ModelZooError, _ensure_model_file, _model_resolution_context,
+        _resolve_pinned_model_file,
+    )
 
     resolved = _resolve_pinned_model_file(settings, name, kinds=('classifier',))
-    return str(resolved) if resolved is not None else settings.get(name)
+    if resolved is not None:
+        return str(resolved)
+    requested = settings.get(name)
+    if (not requested or (isinstance(requested, str) and not requested.strip())
+            or os.path.exists(requested)):
+        return requested
+    resolved = _ensure_model_file(requested, kinds=('classifier',), setting=name)
+    if resolved is None:
+        raise ModelZooError(_model_resolution_context(
+            requested, setting=name, kinds=('classifier',)))
+    return str(resolved)
 
 
 def _load_inference_model(model_path, device):

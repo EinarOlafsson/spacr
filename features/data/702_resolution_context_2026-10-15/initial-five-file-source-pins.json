@@ -1,0 +1,22 @@
+{
+  "tree": "/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015",
+  "branch": "codex-n702-resolution-diagnostics-20261015",
+  "head_before_source_commit": "d5849e0d7bea55d833b3049c66b675e235354f31",
+  "production_sha256": {
+    "spacr/model_zoo.py": "b0ce9feb98a2aa42ceacf8ab417844b4ed5d785170177239f2f8ada8400e78bf",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "spacr/submodules.py": "c7587d7bd6f3a27d204ddb73020848c10ae78846546da922a99a2658c5ebfd74",
+    "spacr/deep_spacr.py": "ff339c2b2477d4f14e25a6786f904a610396da43d0f8616904f84a5b53a0837a",
+    "spacr/plaque_papers.py": "1f2c3f5d8577f851b60c6b214604e2e92966678f156ff2eb12e50d2612f6a808"
+  },
+  "test_sha256": {
+    "tests/test_n702_contextual_model_resolution.py": "4a5ba1759e8615858c492d7da35cf8cb824d0ac15728a07b9df0dd8feaaf86ff",
+    "tests/test_cellpose4_model_story.py": "cccc485ecc991ac530a67db194f342f88808f0b3896258a1b31851be0aebb31a",
+    "tests/test_cov_utils_mask_filtering.py": "de41f1327554b33f178e193bcd9d0efcebe1e27ddf2768352060c150ecb242fd",
+    "tests/test_cov_deep_spacr_train_model.py": "8e11155273b2f637c73d4facfe3ba218726f625fcdb76716e29cfe82d9a83bdd",
+    "tests/test_n702_legacy_missing_consumer_paths.py": "c9ac6f0f98958b5d2458fd00887011b9c0ca7399bf947364791ca9e2973c4387",
+    "tests/test_submodules_plaque_well_integration.py": "2c3f908fec15d352dbbf9a2b40e993079319c472e276dc2340bdf65ad8a58e9b"
+  },
+  "patch_sha256": "86729ba5efeab2350244413d68d68f47fb75182cfff7aff6afbd1e0f41228719",
+  "freeze": "Final production5files frozen; test-only compatibility type adjustments possible after actualfinitecohort terminal, with separate pins ifneeded. No generator/writer/sourcepublish."
+}

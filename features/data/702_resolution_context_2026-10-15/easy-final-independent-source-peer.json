@@ -1,0 +1,34 @@
+{
+  "reviewer": "Original Home easy agent independent source peer",
+  "utc": "2026-10-15T16:55:13.534178+00:00",
+  "decision": "ACCEPT exact final seven-file production source; both prior source findings corrected",
+  "production_sha256": {
+    "spacr/model_zoo.py": "a05f8fc127e3c41f7f11ce1d2266defacd982d6770d58ce8ffd3bb948beb530b",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "spacr/submodules.py": "c7587d7bd6f3a27d204ddb73020848c10ae78846546da922a99a2658c5ebfd74",
+    "spacr/deep_spacr.py": "ff339c2b2477d4f14e25a6786f904a610396da43d0f8616904f84a5b53a0837a",
+    "spacr/plaque_papers.py": "1f2c3f5d8577f851b60c6b214604e2e92966678f156ff2eb12e50d2612f6a808",
+    "spacr/_mask_workers.py": "b39f5743dcffbff5a4f9f4fadb37c5b58553e10560c17fc7e2eaf4d3c6f24ebf",
+    "spacr/object.py": "4fcbea011c1ab5afb9f910c3f293040f9df163d59e0ba785ba6e434c298dab9c"
+  },
+  "patch_sha256": "a0a376751bc9d128c92e1263a551374168816ed53d28a78b145d0d54c16f10e6",
+  "prior_findings_receipt_sha256": "04dc531072dc1e24ef578b19767849456246b51982bcab313c54077223cc96e3",
+  "correction_review": [
+    "Raw publisher-version selection now additionally requires _entry_from_mapping(row).uri == entry.uri; mismatched origins retain explicit technical ModelEntry.version label. No network/provider/decoding in this mapping call.",
+    "_mask_workers forwards its existing exact key. Both actual object.py consumers compute the same non-None pathogen override origin as their actual value selection and forward setting=model_key. No altered model branch, constructor/science/defaults."
+  ],
+  "accepted_review": [
+    "Offline _resolution_model_entries never executes catalogue/plugins/transport; only bundled/local file/cached shared declarations. download=False remains pure planning.",
+    "Successful contextual log follows actual fetch return inside unchanged lock; cache hits, planning and failed fetch/checksum branches cannot log success. Pinned original requested_value and recorded raw None/opaque version survive separately from effective cache path/display version.",
+    "Explicit detector/base_model/plaque_model/custom_model_path/resume_checkpoint/paper detector+segmenter source contexts correct. Unresolved exact paths/names refuse before constructor; local/stock/sam/legacy precedence unchanged.",
+    "All seven modules outside exact allowed owning functions AST-identical to candidate HEAD. Both caller corrections are only key-expression/keyword forwarding.",
+    "Author raw logs retain original145PASS1staleFAIL and53PASS3strictfixtureFAIL; changed fixtures retain explicit errors/request/context assertions and narrow named setting keyword, no catchall/skip/test ceiling weakening observed."
+  ],
+  "owning_checks": "Author reports initial6/2 plus offline3 failures,145PASS1 stale failure\u2192affected1PASS, caller7FAIL\u21927PASS, compatibility53PASS3staleFAIL and affected finite controls. Final new actual-field/URI baseline4FAIL3PASS5.92s; author final affected7 terminal pending at review time. This receipt is source acceptance, not execution certification.",
+  "scope_limits": [
+    "No tests/imports/models/GPU/network/fullcollector executed by reviewer; AST/subprocess git reads only.",
+    "No claim every possible model consumer has contextual logging: low-level non-Cellpose backend and artifact/provider paths may lack setting context outside this approved component.",
+    "Normal18 runtime targets/nine API block targets/guide/derived closure and author terminal checks remain publication gates. No source-only release authorization."
+  ],
+  "findings": []
+}

@@ -730,8 +730,8 @@ def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
         epochs_without_improvement=0, artifact_role="best")
     resolved = []
     if catalogue_key is not None:
-        def _resolve(requested, *, kinds=()):
-            resolved.append((requested, kinds))
+        def _resolve(requested, *, kinds=(), setting=None):
+            resolved.append((requested, kinds, setting))
             return resume
 
         monkeypatch.setattr("spacr.model_zoo._ensure_model_file", _resolve)
@@ -751,7 +751,7 @@ def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
         intermedeate_save=False)
 
     assert {epoch for epoch, _ in calls} == {2}
-    assert resolved == ([(catalogue_key, ("classifier",))]
+    assert resolved == ([(catalogue_key, ("classifier",), "resume_checkpoint")]
                         if catalogue_key is not None else [])
     assert selected == str(resume)
     assert (tmp_path / "resume.card.json").is_file()
