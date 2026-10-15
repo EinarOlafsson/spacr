@@ -1,0 +1,1978 @@
+FFFFFFFFFFFFFFFFFF.FFFFFF.F.................................             [100%]
+=================================== FAILURES ===================================
+__ test_full_native_latency_tail_shifts_clocks_without_trimming_other_scenes ___
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_full_native_latency_tail_0/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_full_native_latency_tail_0/stage/recorded-doctor.json'), ...}
+
+    def test_full_native_latency_tail_shifts_clocks_without_trimming_other_scenes(mixed):
+>       r=mixed;path=refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline']);t=read(path)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_full_native_latency_tail_0/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_full_native_latency_tail_0/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[short] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis0/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis0/stage/recorded-doctor.json'), ...}
+change = 'short'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis0/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': 'c740e1fdb5728cbf623ed8327cad8fce854bd3bd45f3a7b931d8da435e75b747', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis0/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[noncontiguous] _
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis1/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis1/stage/recorded-doctor.json'), ...}
+change = 'noncontiguous'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis1/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': 'a44483de486f1c5e3bfa3a7707f264f2a7ecf7aca3b33847b42b74db34e46d48', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis1/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[badfps] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis2/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis2/stage/recorded-doctor.json'), ...}
+change = 'badfps'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis2/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '5714bdaaad1c9818636d6eeb131034dad0626a5ea6c9a4296ad9a7659d3b8b23', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis2/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+___ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[gatefail] ____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis3/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis3/stage/recorded-doctor.json'), ...}
+change = 'gatefail'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis3/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis3/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[freeze] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis4/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis4/stage/recorded-doctor.json'), ...}
+change = 'freeze'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis4/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis4/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[slow] ______
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis5/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis5/stage/recorded-doctor.json'), ...}
+change = 'slow'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis5/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis5/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[unknown] ____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis6/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis6/stage/recorded-doctor.json'), ...}
+change = 'unknown'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis6/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis6/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+__ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[samplergap] ___
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis7/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis7/stage/recorded-doctor.json'), ...}
+change = 'samplergap'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis7/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis7/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[stall] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis8/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis8/stage/recorded-doctor.json'), ...}
+change = 'stall'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis8/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis8/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[bypass] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis9/stage/live/root-...cal': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis9/stage/recorded-doctor.json'), ...}
+change = 'bypass'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis9/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis9/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[cursor] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis10/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis10/stage/recorded-doctor.json'), ...}
+change = 'cursor'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis10/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis10/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[topbar] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis11/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis11/stage/recorded-doctor.json'), ...}
+change = 'topbar'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis11/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis11/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[profile] ____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis12/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis12/stage/recorded-doctor.json'), ...}
+change = 'profile'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis12/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis12/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+__ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[provenance] ___
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis13/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis13/stage/recorded-doctor.json'), ...}
+change = 'provenance'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis13/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis13/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[cleanup] ____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis14/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis14/stage/recorded-doctor.json'), ...}
+change = 'cleanup'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis14/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis14/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[source] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis15/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis15/stage/recorded-doctor.json'), ...}
+change = 'source'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis15/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis15/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+___ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[approval] ____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis16/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis16/stage/recorded-doctor.json'), ...}
+change = 'approval'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis16/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis16/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+__ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[other_scene] __
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis18/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis18/stage/recorded-doctor.json'), ...}
+change = 'other_scene'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis18/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis18/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[legacy_performance] _
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis19/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis19/stage/recorded-doctor.json'), ...}
+change = 'legacy_performance'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis19/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis19/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+____ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[timing] _____
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis20/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis20/stage/recorded-doctor.json'), ...}
+change = 'timing'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+>           with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis20/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis20/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[missing_playback_mode] _
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis21/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis21/stage/recorded-doctor.json'), ...}
+change = 'missing_playback_mode'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+>           with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis21/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis21/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+__ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[wrong_range] __
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis22/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis22/stage/recorded-doctor.json'), ...}
+change = 'wrong_range'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis22/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis22/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[renderfailed] __
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis23/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis23/stage/recorded-doctor.json'), ...}
+change = 'renderfailed'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis23/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis23/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+_ test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[card_history] __
+
+mixed = {'N': 845, 'approval': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis25/stage/live/root...al': PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis25/stage/recorded-doctor.json'), ...}
+change = 'card_history'
+
+    @pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
+     'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
+     'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
+    def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
+        r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
+        if change in ('short','noncontiguous','badfps'):
+            p=source/(name+'.capture.json');j=read(p)
+            if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
+            if change=='noncontiguous':j['frames'][-1]['pts']-=1
+            if change=='badfps':j['encoded_fps']='60/1'
+            write(p,j)
+        elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
+            p=source/(name+'.gate.json');j=read(p)
+            if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
+            if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
+                key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
+                         samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
+            if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
+            if change=='topbar':j['top_bar']['hidden']=False
+            write(p,j)
+        elif change in ('profile','provenance','cleanup'):
+            p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
+            if change=='profile':j['show_alpha']=True
+            if change=='provenance':j['completed_capture']=False
+            if change=='cleanup':j['survivors_after_cleanup']=[123]
+            write(p,j)
+        elif change=='source':
+            p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
+        elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
+        elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
+        elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
+        elif change in ('other_scene','legacy_performance'):
+            p=root/'scenes.json';j=read(p)
+            if change=='other_scene':j['scenes'][3]['narration']='Changed'
+            else:j['scenes'][7]['clip']['duration']=33.235
+            write(p,j)
+        elif change in ('timing','missing_playback_mode'):
+            p=root/'video/native-live-timings.json';j=read(p)
+            if change=='timing':j['scenes'][7]['duration']=33.
+            else:del j['preserve_visual_intervals']
+            write(p,j)
+            with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+            return
+        elif change in ('wrong_range','renderfailed'):
+            p=r['render'];j=read(p)
+            if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
+            else:j['returncode']=1
+            write(p,j)
+        elif change=='card_history':
+            p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
+        r['seal']()
+        if change=='missing_policy':
+            j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
+>       with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/tutorials/tests/test_retained_mixed_visual_refresh.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/tutorials/retained_visual_refresh.py:60: in checked_retained_visual_timing
+    return _checked_mixed_refresh(stage, identity, baseline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tutorials/retained_visual_refresh.py:444: in _checked_mixed_refresh
+    new_origin = _checked_home(replacement, image, new_scene['clip'], root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+replacement = {'first_frame': 5111, 'frame_count': 845, 'kind': 'strict_full_native_clip', 'native': {'capture_root': '/tmp/pytest-o...rent_nightly_home.host.json', 'sha256': 'ab590047addc8220843092b5ead5082cc9726a930f4a8ab5b714c8d8ebfaa243'}, ...}, ...}
+image = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis25/stage/production/04_platform_installers/fresh/home.png')
+clip = {'duration': 28.166666666666668, 'receipt': 'fresh/home.capture.json', 'receipt_sha256': '0b3d5e7cb2ce818b407fa432308eb7a1ee3424c3e1ea226975787f9ed6682c42', 'sha256': '7fdd01e47ff3a3d6be608a9a40eae705eb4b21c7cb8a3ff27d22a8ba84c7a6b9', ...}
+root = PosixPath('/tmp/pytest-of-olafsson/pytest-3485/test_mixed_refresh_rejects_mis25/stage/production/04_platform_installers')
+
+    def _checked_home(replacement, image, clip, root):
+>       from native_live_timing import complete_native_duration
+E       ImportError: cannot import name 'complete_native_duration' from 'native_live_timing' (/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/tutorials/native_live_timing.py)
+
+tools/tutorials/retained_visual_refresh.py:241: ImportError
+- generated xml file: /mnt/wd4tb/scratch/work04-source-implementation-20261015/owning-tests.xml -
+=========================== short test summary info ============================
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_full_native_latency_tail_shifts_clocks_without_trimming_other_scenes
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[short]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[noncontiguous]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[badfps]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[gatefail]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[freeze]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[slow]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[unknown]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[samplergap]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[stall]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[bypass]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[cursor]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[topbar]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[profile]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[provenance]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[cleanup]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[source]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[approval]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[other_scene]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[legacy_performance]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[timing]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[missing_playback_mode]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[wrong_range]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[renderfailed]
+FAILED tools/tutorials/tests/test_retained_mixed_visual_refresh.py::test_mixed_refresh_rejects_missing_or_drifted_actual_evidence[card_history]
+25 failed, 35 passed in 3.71s
