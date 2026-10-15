@@ -14462,6 +14462,48 @@
       "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
       "text": "Return the official DINOv2 head output for each declared crop."
     },
+    "spacr.embeddings._dino_classifier_apply.refuse": {
+      "source_blocks_sha256": [
+        "2864fd3a7ef70a63c5139577fa80f69e03754ebff2a26a3beb2fbd17766396dc"
+      ],
+      "source_sha256": "2864fd3a7ef70a63c5139577fa80f69e03754ebff2a26a3beb2fbd17766396dc",
+      "text": "Refuse an incompatible own-DINO classifier application."
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.__init__": {
+      "source_blocks_sha256": [
+        "5b2472abedb9eaaba48438ce717baa8ba507fc126f6295c7bab0f1b931c67435"
+      ],
+      "source_sha256": "5b2472abedb9eaaba48438ce717baa8ba507fc126f6295c7bab0f1b931c67435",
+      "text": "Attach recorded scaling, teacher encoder and an untrained head."
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.features": {
+      "source_blocks_sha256": [
+        "8337910fbd701a016a6d6d9b4d7b96f32b4471ef5ab4da9b3dcdf50804d8e77e"
+      ],
+      "source_sha256": "8337910fbd701a016a6d6d9b4d7b96f32b4471ef5ab4da9b3dcdf50804d8e77e",
+      "text": "Scale selected raw NCHW planes and return recorded encoder features."
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.forward": {
+      "source_blocks_sha256": [
+        "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d"
+      ],
+      "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+      "text": "Scale selected raw NCHW planes and return class logits."
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.train": {
+      "source_blocks_sha256": [
+        "1273266a542bf66cc8a46d2ffc2363c8909a437bd8b177d2297a42192c66ad53"
+      ],
+      "source_sha256": "1273266a542bf66cc8a46d2ffc2363c8909a437bd8b177d2297a42192c66ad53",
+      "text": "Keep a frozen teacher in evaluation mode while training its head."
+    },
+    "spacr.embeddings._dino_classifier_from_config.refuse": {
+      "source_blocks_sha256": [
+        "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87"
+      ],
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "text": "Refuse an incompatible own-DINO classifier contract."
+    },
     "spacr.embeddings._dino_encoder.run": {
       "source_blocks_sha256": [
         "3c13f9973e023830a028114f092b87b73d36c278f1724e2dd3c23e11216c714f",
@@ -14470,6 +14512,20 @@
       ],
       "source_sha256": "7d14cd7d84e8aa0f1714e310440bd25e4e5e92848fdf92f9adc4001e3fb1a5f6",
       "text": "Encode ``(n, h, w, k)`` crops in batches at the training size.\n\n:param stack: float32 in [0, 1], channels last.\n:returns: ``(n, dims)`` float32 features."
+    },
+    "spacr.embeddings._dino_finetune_classifier.refuse": {
+      "source_blocks_sha256": [
+        "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87"
+      ],
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "text": "Refuse an incompatible own-DINO classifier contract."
+    },
+    "spacr.embeddings._dino_finetune_classifier.stop_if_requested": {
+      "source_blocks_sha256": [
+        "ec310f360d92289b41084c3d4cc0158201ba4b544939cb84ea378650a1058988"
+      ],
+      "source_sha256": "ec310f360d92289b41084c3d4cc0158201ba4b544939cb84ea378650a1058988",
+      "text": "Stop between batches when the caller requests cancellation."
     },
     "spacr.embeddings._dino_network.Head.__init__": {
       "source_blocks_sha256": [
@@ -63899,6 +63955,20 @@
       "source_sha256": "ca3cadd671bf7938cbb07f7ea185d53d01be6303c06ae42713a56182e2f9930a",
       "text": "Pick a crop source and a channel policy, and embed every object.\n\nThe crop loader above the encoder controls is the screen's entry point:\n:mod:`spacr.crop_loader` plans the selection, this screen pages through\nit on a worker thread, and each finished load calls :meth:`set_crops`.\n\n:param parent: the usual Qt parent.\n:param threaded: ``False`` runs the embedding and the crop load inline,\n    emitting the same signals in the same order, so a test drives the\n    screen synchronously without the behaviour diverging.\nBuild the screen: the controls above, the preview table below."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.finished": {
+      "source_blocks_sha256": [
+        "878d2e481199a504f1389703f1803831f0e9321380a975bc99adf5140d005634"
+      ],
+      "source_sha256": "878d2e481199a504f1389703f1803831f0e9321380a975bc99adf5140d005634",
+      "text": "Retain outputs only for the still-current, uncancelled crop selection."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.work": {
+      "source_blocks_sha256": [
+        "cbf6262bdf4f5c22821cfc4671c5551914f2fe2e4e114ec7666bc3aa6d21156f"
+      ],
+      "source_sha256": "cbf6262bdf4f5c22821cfc4671c5551914f2fe2e4e114ec7666bc3aa6d21156f",
+      "text": "Apply the actual artifact to unchanged full raw channel-last crops."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping": {
       "source_blocks_sha256": [
         "8591452059e7055f6313220c494a847dadf8ba8e8e73a88687ff09ba6a66a06d"
@@ -63919,6 +63989,20 @@
       ],
       "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
       "text": "The fifth plane belongs only to the Cell Painting factory."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": {
+      "source_blocks_sha256": [
+        "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d"
+      ],
+      "source_sha256": "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d",
+      "text": "Choose an explicit row-aligned label and acquisition-group table."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.start": {
+      "source_blocks_sha256": [
+        "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c"
+      ],
+      "source_sha256": "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c",
+      "text": "Retain the form when a path or metadata validation refuses the run."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_well_labels.work": {
       "source_blocks_sha256": [
@@ -63971,6 +64055,20 @@
       "source_sha256": "8340273f6da9e8f3ce27e16b0ee77384d90ef753d2615bcc74f90f01c4885941",
       "text": "Ask the database what it holds. Two cheap indexed reads.\n\nThe stat runs here, on the worker, because it is the part that\nblocks on a slow mount. A path that is not a file yet is not an\nerror -- it is one somebody is halfway through typing -- so it\nanswers with nothing to offer rather than raising, which would\nput a refusal in the status line for every keystroke."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.finished": {
+      "source_blocks_sha256": [
+        "6bbdadd9d4d29b5e5b69b72287b7597682f307430825a3793943262ea0da9e9a"
+      ],
+      "source_sha256": "6bbdadd9d4d29b5e5b69b72287b7597682f307430825a3793943262ea0da9e9a",
+      "text": "Report the exported snapshot only while its source result is current."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.work": {
+      "source_blocks_sha256": [
+        "40a4395cee6abd5955aab1c9fc4d2a82c48025ebead2d5455b7901d51b3b31b5"
+      ],
+      "source_sha256": "40a4395cee6abd5955aab1c9fc4d2a82c48025ebead2d5455b7901d51b3b31b5",
+      "text": "Write every output column with saved class names and channel provenance."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished": {
       "source_blocks_sha256": [
         "036efa6e9a1898f018f2c164935673cc64590df8e21756a1c55c2d7da9cc94c0"
@@ -63985,12 +64083,47 @@
       "source_sha256": "2cc5102e4547028891243e8bfd3e32b2122ef8c632d9f1d0d278361fe65bfd59",
       "text": "Persist vectors without blocking the graphical thread."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._show_classifier_application.show_view": {
+      "source_blocks_sha256": [
+        "93743ba21e3852d83a30b6a0490ed09e9c7029b97a9a2ce6069296364d58ec3e"
+      ],
+      "source_sha256": "93743ba21e3852d83a30b6a0490ed09e9c7029b97a9a2ce6069296364d58ec3e",
+      "text": "Render the selected real output without rerunning or changing the model."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping": {
       "source_blocks_sha256": [
         "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
       ],
       "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
       "text": "Store only a complete four-index choice, then close."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.cancelled": {
+      "source_blocks_sha256": [
+        "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481"
+      ],
+      "source_sha256": "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481",
+      "text": "Honor both the application's worker cancellation and the local stop."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.done": {
+      "source_blocks_sha256": [
+        "5025d1ff47db522f1ebb91376a6025b03e3fca7a92b9c7e8a8277dd7a749c465"
+      ],
+      "source_sha256": "5025d1ff47db522f1ebb91376a6025b03e3fca7a92b9c7e8a8277dd7a749c465",
+      "text": "Publish actual artifact metadata only to the run's original crop selection."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.progress": {
+      "source_blocks_sha256": [
+        "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab"
+      ],
+      "source_sha256": "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab",
+      "text": "Relay worker progress without reading or changing GUI widgets."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.work": {
+      "source_blocks_sha256": [
+        "aa52ccaceed27f154d2135f659fca029345f06b601276b12bb6dd3362b3a84ad"
+      ],
+      "source_sha256": "aa52ccaceed27f154d2135f659fca029345f06b601276b12bb6dd3362b3a84ad",
+      "text": "Filter the frozen row selection before calling the real trainer on raw planes."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {
       "source_blocks_sha256": [
@@ -64009,12 +64142,12 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
       "source_blocks_sha256": [
-        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
-        "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "95d43d42dd769dd22770b9adce4fe31be10d4aa987ac334486a359f19e9c433b",
+        "b7a7ceb67d5f33f86e3f369fcbcb42d48fa0c4117d270e6777184c857a1192aa",
         "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ],
-      "source_sha256": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24",
-      "text": "Discard pending results and drain both runners before the widget goes.\n\nThe crop stop flag is set first and further DINO progress is ignored.\nEach ``shutdown`` waits a bounded time, then parks any worker that\noutlasts it. A parked training worker can finish writing its checkpoint\nwithout updating this closed screen; it is not forcibly terminated.\n\n:param event: Qt's close event, passed to the base class unchanged.\n    The close is accepted even if a worker must be parked."
+      "source_sha256": "d326c6aae41e90c27faca7c270f397ea084662bcb9b4c5656f77ca03afe0c185",
+      "text": "Discard pending results and drain all runners before the widget goes.\n\nCrop loading and classifier training are asked to stop first; further\ntraining progress is ignored.\nEach ``shutdown`` waits a bounded time, then parks any worker that\noutlasts it. A parked training worker can finish writing its checkpoint\nwithout updating this closed GUI view; it is not forcibly terminated.\n\n:param event: Qt's close event, passed to the base class unchanged.\n    The close is accepted even if a worker must be parked."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query": {
       "source_blocks_sha256": [
@@ -64062,11 +64195,11 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
-        "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
-        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
+        "120441c091d7112f425351b6a36e80330d23b72fd287fcd605cf0835cc095d46",
+        "7d56e2a1bc3c6e82cb5924fd911f2b6670a9fd2a7b10a1f73318e70916a8f6b6"
       ],
-      "source_sha256": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
-      "text": "Whether a crop load, embedding job or DINO pretraining is in flight.\n\nIncludes the separate DINO runner until its worker has retired,\neven after its final result has reached the screen."
+      "source_sha256": "6c460ea1abfa706e0b3a023c8061f68205fa191bc83f58a1e2774f275cefb7d3",
+      "text": "Whether crop loading, embedding, training or classifier application is in flight.\n\nIncludes the training and application runners until their workers have retired,\neven after their final results have reached the screen."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
       "source_blocks_sha256": [
@@ -126481,11 +126614,11 @@
     },
     "spacr.torch_artifacts.build_model_from_configuration": {
       "source_blocks_sha256": [
-        "bac10dca9f59bb6357b5fe5cf11955168ac7b9a012ece997e980bcc526dae64a",
+        "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
         "b6d922f5eb251049c83900c6898718a5f78b6a36665c5eb59586746d8f384e84"
       ],
-      "source_sha256": "2fe3657246ccc9ff3243032bc41d0f1fc17798fa2b047bbcb29e06c98e05badc",
-      "text": "Reconstruct a :class:`TorchModel` without pretrained weights.\n\n:param config: recorded model-constructor settings."
+      "source_sha256": "12af3b30d68df2cc3eda6747a6cd7c350a2f1ff23588715887db0502825a93ca",
+      "text": "Reconstruct a recorded classifier without pretrained downloads.\n\n:param config: recorded model-constructor settings."
     },
     "spacr.torch_artifacts.capture_rng_state": {
       "source_blocks_sha256": [
@@ -126505,15 +126638,16 @@
       "source_blocks_sha256": [
         "443dc3d96e5c8c4f2602c91cde6046a1518e192620f6b5192a8e3cb970ffae0c",
         "f245c0b804076329bfb976f0a4f0af710cf659965a467e784ad405e9463fc07d",
-        "a2fd2ff271aea2943181118a2ad857965623abd78339facd75c7a2917a251f6f",
+        "038a2b3fcd0e7be92e27693e060e6b784ff6e4a34b2a062d14a46ec9c926ab96",
+        "d9819ce6c6afcd220bb834fa7253f4f65ff98347b818515441caaa20fae17d56",
         "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
         "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
         "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
         "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
         "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5"
       ],
-      "source_sha256": "ee5eb2ad085ad22f84dce71ef36ce20b01fd84ae68aad3714320ad647ff79881",
-      "text": "Load current artifacts and legacy full-module/state-dict checkpoints.\n\nThe returned metadata dict always contains ``legacy``. Current artifacts\nretain their optimizer/scheduler/RNG state so callers can resume training.\n\n:param path: checkpoint to read. Unpickled with ``weights_only=False``,\n    so only files you trust are safe to pass.\n:param map_location: forwarded to :func:`torch.load`. The ``cpu`` default\n    lets a GPU-trained checkpoint load on a machine without a GPU; an\n    unrecognised device string raises ``RuntimeError`` from torch.\n:param model: ``None`` rebuilds the architecture from the recorded\n    config -- a legacy bare state dict records none, so ``maxvit_t`` is\n    assumed silently. A module passed here is loaded in place and\n    returned as the same object; for legacy full-module files it is\n    ignored and the file's own module comes back.\n:param strict: forwarded to ``load_state_dict``; ``True`` raises\n    ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and\n    unexpected keys so a mismatched architecture loads quietly with parts\n    still randomly initialised. Also ignored for legacy full-module files.\n:raises ValueError: the file is neither a module nor a checkpoint\n    mapping, its ``artifact_version`` is not the supported one, no state\n    dictionary was found, or the config names no architecture and no\n    ``model`` was supplied.\n:returns: ``(model, metadata)``."
+      "source_sha256": "1eefeeca99be76755874a66dd641629afdf218b3f109ecbc734fc6fdd2712875",
+      "text": "Load current artifacts and legacy full-module/state-dict checkpoints.\n\nThe returned metadata dict always contains ``legacy``. Current artifacts\nretain their optimizer/scheduler/RNG state so callers can resume training.\n\n:param path: checkpoint to read, or a seekable binary stream only with\n    ``weights_only=True``. The legacy default unpickles trusted files.\n:param weights_only: use restricted tensor-and-primitive decoding and local\n    files only when true; unsupported pickles refuse without unsafe retry.\n:param map_location: forwarded to :func:`torch.load`. The ``cpu`` default\n    lets a GPU-trained checkpoint load on a machine without a GPU; an\n    unrecognised device string raises ``RuntimeError`` from torch.\n:param model: ``None`` rebuilds the architecture from the recorded\n    config -- a legacy bare state dict records none, so ``maxvit_t`` is\n    assumed silently. A module passed here is loaded in place and\n    returned as the same object; for legacy full-module files it is\n    ignored and the file's own module comes back.\n:param strict: forwarded to ``load_state_dict``; ``True`` raises\n    ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and\n    unexpected keys so a mismatched architecture loads quietly with parts\n    still randomly initialised. Also ignored for legacy full-module files.\n:raises ValueError: the file is neither a module nor a checkpoint\n    mapping, its ``artifact_version`` is not the supported one, no state\n    dictionary was found, or the config names no architecture and no\n    ``model`` was supplied.\n:returns: ``(model, metadata)``."
     },
     "spacr.torch_artifacts.make_model_artifact": {
       "source_blocks_sha256": [
