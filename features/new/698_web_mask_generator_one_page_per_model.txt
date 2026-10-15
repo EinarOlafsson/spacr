@@ -309,3 +309,108 @@ configuration fallback is recorded in the raw log. Inputs, ZIPs, script and
 receipt: data/698_native_well_cpu_2026-10-15/. Other models, default plaque-v4
 availability, actual hosted service/browser/GPU and biological acceptance remain
 open; this does not close N698 or imply all eight routes are public.
+
+2026-10-14 — Original Home: six remaining segmentation-family backend adapters
+implemented through canonical N696 diameter/settings and existing desktop
+normalization, Cellpose evaluation, mask filtering and field-size restoration.
+Exactly one explicitly chosen input channel; no invented reference channel or
+new scientific algorithm. Blank/magnification, explicit pixels and Auto use the
+same N696 helpers. Original intensities, actual returned vectors/logits and
+post-filter labels reach the result ZIP; desktop filtering can relabel objects.
+Validation: 27 owning CPU cases PASS, actualexit0/10.68s, including all six
+families, native/explicit diameter, role thresholds/resampling, original-intensity
+measurements, border/area filters, exact checkpoint identity and constructor
+cache. Actual desktop helpers execute; model construction/evaluation injected.
+Private validation uses nine owner-provided N696 backend source files, bound in
+receipt; these dependencies are not published by this web lane. Actual approved
+weights, scientific/GPU/browser parity, service/UI enablement and deployment
+remain open; parent N698 partial. Receipt:features/data/698_shared_masks_2026-10-14/.
+
+2026-10-14 — Original Home: private service dispatch and registry now enable all
+eight implemented desktop adapters: plaque, well detector and six Mask families.
+Exact family/version/checksum resolution remains server-owned; no visitor paths,
+limits or callbacks accepted. Each adapter shares consent, bounded private input
+copy and staging cleanup on success/failure/consumer exception. PlaqueService
+remains a compatibility alias for ModelService. Validation31 owning service and
+registry cases PASS/actualexit0/3.79s, including distinct dispatch for all eight
+families; dispatch tests inject adapters and make no scientific inference claim.
+UI enablement, approved weights, actual GPU/browser parity and deployment remain
+open; parentN698 partial. Receipt:features/data/698_all_family_service_2026-10-14/.
+
+2026-10-14 — Original Home: dedicated Gradio UI now exposes runnable callbacks
+for all eight model classes, with per-family closure factories (no loop-variable
+cross-routing), current version/provenance, consent and explicit image selection.
+Plaque resolved/native diameter remains distinct from generic blank/magnification
+and Auto; generic routes accept desktop normalization/filter JSON overrides.
+Well detection exposes confidence/axis-ratio and draws actual rectangles, with
+no fake segmentation mask. All callbacks share the bounded queue/private staging
+and strict nonfractional REST selection rules. Validation44 actual-Gradio cases
+PASS/actualexit0/40.60s, including each family's captured settings, original
+plaque API compatibility, JSON/path refusal, detector geometry preview and prior
+REST preprocessing regression cohort. Model service mocked; no server/GPU or
+real weights started. Native ZeroGPU placement/quota and actual checkpoint,
+scientific/browser parity, accessibility/localization and public hosting remain
+acceptance gates; parentN698 partial. Receipt:features/data/698_all_family_ui_2026-10-14/.
+
+2026-10-14 — Original Home: operator CLI now supports all eight desktop routes.
+--family selects the adapter; generic Mask routes preserve blank/magnification,
+Auto/native and explicit diameter plus role-specific cell-score defaults and
+optional normalization/filter JSON. Detector options expose confidence, image
+size and axis-ratio; plaque's required explicit scale behavior is retained.
+Non-Mask routes reject normalization/filter overrides rather than ignoring them.
+Validation23 command cases PASS/actualexit0/1.46s; actual header decoding plus
+injected adapter dispatch only. No real model/GPU/scientific parity inferred;
+parentN698 partial. Receipt:features/data/698_all_family_cli_2026-10-14/.
+
+2026-10-14 — Original Home: random public HF test-image transport and dedicated
+UI button implemented. Only operator-reviewed per-family test records are
+accepted, with immutable DATASET commit, exact relative filename, SHA-256, byte
+count and credit. No arbitrary visitor URLs, ambient authentication, directory
+scans or inferred dataset mappings. Download streams stop before exceeding the
+approved size; full size/hash and actual image headers are checked before
+serving. Temporary staging cleans on HTTP/hash/size/consumer failures; Gradio
+copies into its disclosed temporary cache and displays source/credit. Buttons
+stay disabled for families without reviewed records. Validation68 owning cases
+PASS/actualexit0/43.19s (23 transport and45 actual-Gradio callback regressions).
+HTTP and model service mocked: no real dataset download, test-split/rights
+review, hosted/GPU or scientific parity accepted. Reviewed real example records,
+all-family ZeroGPU deployment and browser route remain open; parentN698 partial.
+Receipt:features/data/698_approved_examples_2026-10-14/.
+
+2026-10-14 — Original Home: common desktop normalization/filter settings now
+have normal Gradio controls, inside a collapsed optional section: background,
+signal-to-noise, lower percentile, shared-perimeter merge and explicit
+Default/Enabled/Disabled background/border switches. Blank fields retain desktop
+role defaults; JSON remains optional for additional object filters. Detector
+image size now has an explicit control with strict integer validation before
+GPU entry. Validation47 actual-Gradio cases PASS/actualexit0/48.92s, including
+exact settings emission/default preservation and fractional detector-size refusal.
+No live server/model/GPU or scientific parity accepted; parentN698 partial.
+Receipt:features/data/698_normalization_controls_2026-10-14/.
+
+2026-10-15 — Preview/example boundary closure before full-family publication:
+Detection previews use finite clipped floor/ceil extents before edge indexing;
+empty/reversed/outside boxes cannot wrap an outline to the opposite edge.
+Approved example filenames containing NUL fail before network or file setup.
+Actual tiny-ZIP/no-network regressions: old committed functions8FAIL/3PASS,
+new functions11PASS (70 unrelated deselected),4.85/3.92s,exit1/0. No model
+substitution, scientific or hosted-service acceptance is implied. Receipt:
+data/698_preview_example_edges_2026-10-15/. Source integration still excludes
+the private nine-file N696 backend prerequisite; public N696 is authoritative.
+
+2026-10-15 — Original Home: reviewed all-eight-family source integrated against
+actual public N696 desktop backend (3335cf1), without the private nine-file
+backend dependency. Six segmentation families, plaque and well detection now
+have trusted service dispatch, dedicated Gradio callbacks and operator CLI.
+Shared desktop normalization, native/explicit/Auto diameter, role settings and
+filters remain canonical. Approved immutable HF example records are supported;
+none are fabricated or silently downloaded. Preview boxes clip/floor/ceil before
+indexing; NUL example filenames refuse before URL/network.
+Actual combined six-module CPU compatibility:162PASS44.83s, exit0; source hashes
+unchanged. Model construction/predictions injected, not eight-family scientific
+acceptance. Separate published native well-v2 receipt proves only that explicit
+installed checkpoint's synthetic grey/RGB CPU parity. Remaining171 tool tr()
+sources require scoped extractor/nine-locale closure (owner requested); actual
+free hosting, browser WebGPU/site integration, all approved checkpoints and
+biological parity remain open. No shared website/translation-tool edits.
+Evidence:data/698_public_backend_integration_2026-10-15/. Parent698 stays partial.

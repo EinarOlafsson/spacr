@@ -1,0 +1,61 @@
+{
+  "item": 698,
+  "component": "bounded approved HF examples and family-specific UI buttons",
+  "status": "transport and actual UI source contract accepted; provisioning and parent N698 partial",
+  "source_sha256": {
+    "tools/web_mask_generator/examples.py": "bb15825547dfdfb01d41e61fe70b910d98c9d2c7cdd735b8f2c1668e9ed9a716",
+    "tools/web_mask_generator/app.py": "bf7f7be9fcdbf7f20f7776e0cef7e720b75ce34705aaa72a02de99332f6872b7",
+    "tests/test_web_approved_examples_n698.py": "42f4a9add730b6f740f4c23e5146c53772b8bb1be6d548e6365d2dc2db71827a",
+    "tests/test_web_mask_gradio_app_n698.py": "ffb6c64dfb8792af670b8f7be844ab3e14824b8c55a3df6e698c57336330a33e",
+    "tools/web_mask_generator/README.md": "3a952ed4f962dfa81363cfb7a58af9e9dd44fae8c6aed357765d6ead82f8e653"
+  },
+  "checks": {
+    "passed": 68,
+    "transport_cases": 23,
+    "actual_Gradio_cases": 45,
+    "actual_exit": 0,
+    "seconds": 43.19,
+    "coverage": {
+      "tools/web_mask_generator/app.py": {
+        "covered_lines": 186,
+        "num_statements": 192,
+        "percent_covered": 94.71544715447155,
+        "percent_covered_display": "94.72",
+        "missing_lines": 6,
+        "excluded_lines": 0,
+        "percent_statements_covered": 96.875,
+        "percent_statements_covered_display": "96.88",
+        "num_branches": 54,
+        "num_partial_branches": 7,
+        "covered_branches": 47,
+        "missing_branches": 7,
+        "percent_branches_covered": 87.03703703703704,
+        "percent_branches_covered_display": "87.04"
+      },
+      "tools/web_mask_generator/examples.py": {
+        "covered_lines": 60,
+        "num_statements": 61,
+        "percent_covered": 97.46835443037975,
+        "percent_covered_display": "97.47",
+        "missing_lines": 1,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.36065573770492,
+        "percent_statements_covered_display": "98.36",
+        "num_branches": 18,
+        "num_partial_branches": 1,
+        "covered_branches": 17,
+        "missing_branches": 1,
+        "percent_branches_covered": 94.44444444444444,
+        "percent_branches_covered_display": "94.44"
+      }
+    },
+    "evidence": "/mnt/wd4tb/scratch/n698-results-20261014/examples-ui*"
+  },
+  "limits": [
+    "HTTP and model service injected; no real dataset or checkpoint/GPU run.",
+    "Operator must review actual test membership, input suitability and rights.",
+    "No approved sample records invented; unconfigured buttons disabled.",
+    "Browser exports/parity, host acceptance and deployment remain open.",
+    "Private N696 dependency parent is not a web publication commit."
+  ]
+}

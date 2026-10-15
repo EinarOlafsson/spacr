@@ -18,7 +18,7 @@ def model_families():
     """Public model identities/defaults, preserving desktop alpha/version rules.
 
     Detection families advertise boxes rather than fabricated segmentation
-    outputs. Only the plaque family currently has a web inference adapter.
+    outputs. Each family advertises its implemented desktop inference adapter.
     Scientific score/provenance text comes from the existing catalogue, without
     reinterpreting it as a new benchmark or cross-dataset ranking.
     """
@@ -41,7 +41,7 @@ def model_families():
                 "versus_stock": record.get("versus_stock", ""),
                 "notes": list(entry.notes),
                 "output_kind": "boxes" if entry.kind == "detector" else "labels",
-                "inference_adapter": "plaque" if family["stem"] == "toxoplasma_plaque" else None,
+                "inference_adapter": "plaque" if family["stem"] == "toxoplasma_plaque" else "well_detector" if entry.kind == "detector" else "masks",
             })
         result.append({"family": family["stem"], "default": family["default"]["key"], "versions": versions})
     return result

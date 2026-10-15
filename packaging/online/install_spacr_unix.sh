@@ -497,6 +497,8 @@ SPACR_INSTALLER_LEASE=""
 SPACR_INSTALLER_LEASE_ID=""
 SPACR_RUNTIME_LEASE=""
 SPACR_RUNTIME_LEASE_ID=""
+SPACR_INSTALLER_STATUS_LEASE=""
+SPACR_INSTALLER_STATUS_LEASE_ID=""
 SPACR_INSTALLER_RETAIN_LEASE=0
 spacr_installer_lease_identity() {
     if [[ "$PLATFORM" == "macos" ]]; then stat -f '%d:%i' "$1"; else stat -c '%d:%i' "$1"; fi
@@ -504,9 +506,15 @@ spacr_installer_lease_identity() {
 spacr_release_installer_lease() {
     [[ "$SPACR_INSTALLER_RETAIN_LEASE" == "0" ]] || return 0
     local lease saved current
-    for lease in "$SPACR_RUNTIME_LEASE" "$SPACR_INSTALLER_LEASE"; do
+    for lease in "$SPACR_INSTALLER_STATUS_LEASE" "$SPACR_RUNTIME_LEASE" "$SPACR_INSTALLER_LEASE"; do
         [[ -n "$lease" && -d "$lease" && ! -L "$lease" ]] || continue
-        if [[ "$lease" == "$SPACR_RUNTIME_LEASE" ]]; then saved="$SPACR_RUNTIME_LEASE_ID"; else saved="$SPACR_INSTALLER_LEASE_ID"; fi
+        if [[ "$lease" == "$SPACR_INSTALLER_STATUS_LEASE" ]]; then
+            saved="$SPACR_INSTALLER_STATUS_LEASE_ID"
+        elif [[ "$lease" == "$SPACR_RUNTIME_LEASE" ]]; then
+            saved="$SPACR_RUNTIME_LEASE_ID"
+        else
+            saved="$SPACR_INSTALLER_LEASE_ID"
+        fi
         current="$(spacr_installer_lease_identity "$lease")" || continue
         if [[ -n "$saved" && "$current" == "$saved" ]]; then rmdir "$lease" 2>/dev/null || true; fi
     done
@@ -542,6 +550,15 @@ spacr_acquire_installer_lease() {
         return 73
     fi
     SPACR_RUNTIME_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_RUNTIME_LEASE")"
+    if [[ "$PLATFORM" == "macos" ]]; then
+        SPACR_INSTALLER_STATUS_LEASE="$INSTALL_ROOT/.installing"
+        if ! (umask 077; mkdir "$SPACR_INSTALLER_STATUS_LEASE"); then
+            SPACR_INSTALLER_STATUS_LEASE=""
+            spacr_say already_running >&2
+            return 73
+        fi
+        SPACR_INSTALLER_STATUS_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_INSTALLER_STATUS_LEASE")"
+    fi
 }
 spacr_acquire_installer_lease
 # @SPACR_INSTALLER_LEASE_END@

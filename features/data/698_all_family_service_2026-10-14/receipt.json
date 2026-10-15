@@ -1,0 +1,56 @@
+{
+  "item": 698,
+  "component": "all-eight family trusted service dispatch",
+  "status": "CPU service contract accepted; N698 partial",
+  "source_sha256": {
+    "tools/web_mask_generator/service.py": "c85c21338da4f6ce28254000d55b6e0209a1b1a3a34051feb0924f1567c270a5",
+    "tools/web_mask_generator/registry.py": "6272ea7d986979d93a5b9acfd28b60ce2a9cb3cabe02503f79f014e706535ce9",
+    "tests/test_web_model_registry_n698.py": "499d9383fec193c8ee7bc0045ed0e375041670fbcb53de836677123523ced64e",
+    "tests/test_web_plaque_service_n698.py": "a19020b06491498c448a1687022adcb344bdb4d0df3ae016e2aa0b57ac509aa2"
+  },
+  "checks": {
+    "passed": 31,
+    "actual_exit": 0,
+    "seconds": 3.79,
+    "coverage": {
+      "tools/web_mask_generator/registry.py": {
+        "covered_lines": 32,
+        "num_statements": 32,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 12,
+        "num_partial_branches": 0,
+        "covered_branches": 12,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "tools/web_mask_generator/service.py": {
+        "covered_lines": 63,
+        "num_statements": 63,
+        "percent_covered": 98.73417721518987,
+        "percent_covered_display": "98.73",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 16,
+        "num_partial_branches": 1,
+        "covered_branches": 15,
+        "missing_branches": 1,
+        "percent_branches_covered": 93.75,
+        "percent_branches_covered_display": "93.75"
+      }
+    },
+    "evidence": "/mnt/wd4tb/scratch/n698-results-20261014/all-service*"
+  },
+  "limits": [
+    "Adapters injected in dispatch tests; real backend owning tests separately bound.",
+    "UI integration, actual approved weights, GPU/browser scientific parity and deployment open.",
+    "Private N696 dependency 7ec1af62c3f not for publication by web lane."
+  ]
+}
