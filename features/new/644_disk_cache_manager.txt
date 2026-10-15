@@ -114,3 +114,23 @@ baseline cases failed before the repair; the focused metadata/environment
 cohort now passes28 in1.64seconds under a2G cap. No UI/caption changes or real
 cache/model/network/GPU/fullCI operations. Evidence:
 data/644_cache_location_path_types_2026-10-15/receipt.json.
+
+2026-10-15 — model-cache UI validated with the actual relocation core:
+Storage now captures the original cache identity and updates a remembered model
+folder only after a successful move and only when it still matches the old cache.
+New Model Zoo screens/pickers and plaque detector lookup/download use the active
+shared root. Explicit custom folders and already open picker choices are kept.
+The existing storage documentation describes SPACR_MODEL_CACHE defaults, external
+override precedence and saved cache_locations.json startup behavior.
+
+The coherent private integration includes core8d1b8738f75, UIc598753c4d9 and
+public nightlyb820072441a (including environment allowlist and malformed-path
+guards). The37-case Qt/storage cohort passed in13.04seconds, exit0, under a6G
+cap. Two end-to-end cases each move real temporary checkpoint bytes twice through
+the asynchronous Storage UI, then open real widgets after each move; custom
+folder bytes remain unchanged. Plaque resolution uses a temporary checkpoint;
+its download test is stubbed and transfers nothing. No live caches, GPU, real
+models, fullCI or native macOS/Windows execution. Original Home must integrate
+the core and UI together before publication; this receipt records private
+source-bound acceptance, not a published feature or other-OS completion.
+Evidence: data/644_model_cache_ui_2026-10-15/receipt.json.
