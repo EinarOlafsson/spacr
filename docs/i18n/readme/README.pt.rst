@@ -271,7 +271,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light-2.desktop.svg"><img src="../../readme_images/pt/install-from-source-light-2.svg" alt="O clone completo de nightly baixou 9.25 GiB. Adicionar --filter=blob:none ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 3416 MB na cópia de trabalho (medidos em 2026-10-08), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."></picture></a></div>
+   <div><a href="../../readme_text/pt/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light-2.desktop.svg"><img src="../../readme_images/pt/install-from-source-light-2.svg" alt="O clone completo de nightly baixou 9.25 GiB. Adicionar --filter=blob:none ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 4657 MB na cópia de trabalho (medidos em 2026-10-15), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."></picture></a></div>
 
 .. raw:: html
 

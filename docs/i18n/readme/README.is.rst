@@ -271,7 +271,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light-2.desktop.svg"><img src="../../readme_images/is/install-from-source-light-2.svg" alt="Full klónun nightly sótti 9.25 GiB. Að bæta --filter=blob:none við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 3416 MB í vinnueintakinu (mælt 2026-10-08), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."></picture></a></div>
+   <div><a href="../../readme_text/is/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light-2.desktop.svg"><img src="../../readme_images/is/install-from-source-light-2.svg" alt="Full klónun nightly sótti 9.25 GiB. Að bæta --filter=blob:none við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 4657 MB í vinnueintakinu (mælt 2026-10-15), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."></picture></a></div>
 
 .. raw:: html
 

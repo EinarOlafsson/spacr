@@ -271,7 +271,7 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-from-source-light-2.desktop.svg"><img src="../../readme_images/fr/install-from-source-light-2.svg" alt="Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter --filter=blob:none au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 3416 MB dans la copie de travail (mesurés le 2026-10-08), hors historique Git. La taille et la durée du téléchargement varient selon la branche."></picture></a></div>
+   <div><a href="../../readme_text/fr/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-from-source-light-2.desktop.svg"><img src="../../readme_images/fr/install-from-source-light-2.svg" alt="Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter --filter=blob:none au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 4657 MB dans la copie de travail (mesurés le 2026-10-15), hors historique Git. La taille et la durée du téléchargement varient selon la branche."></picture></a></div>
 
 .. raw:: html
 
