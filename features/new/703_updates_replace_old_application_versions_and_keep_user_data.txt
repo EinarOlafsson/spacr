@@ -579,3 +579,22 @@ to the193PASS cohort, reused without repetition. The shared purge file retains
 current unrelated journal changes; its owned assertion is AST-identical.
 No new fullCI/native acceptance or foreign caption-arrival waiver is claimed.
 Source-bound proof: publication-receipt.json in the existing retirement evidence.
+
+2026-10-15 00:47 EDT — External online replacement refuses runtime downgrades
+Both existing Unix/Windows engines already pass the retiring prefix before
+retirement/swap. The standalone verifier now reads one private installed wheel
+identity using stdlib metadata/import resolution and optional shipped-version
+AST, without executing spaCR or GUI dependencies. Fresh installation, same
+version repair and newer replacement remain supported. A staged older version
+is refused using PEP440 ordering; missing/ambiguous/editable/shadowed identity
+and unsupported version produce recoverable machine-readable reasons. No
+old application/data/cache bytes are changed by verification. Missing previous
+interpreter remains an explicit recovery requirement, with no automatic bypass.
+Actual predecessor regression1FAIL (older staging previously accepted exit0);
+final44owningPASS/exit0/26.19s under2GiB, including22new and22existing cases,
+standalone python-I-S, broken-import repair and release/prerelease ordering.
+Fatal Ruff and scoped diff checks pass; no new user caption/public API prose.
+Normal English audit records existing foreign model_zoo/preferences staleness
+at public base021fd; current owner API closure/re-audit remains pending.
+Native desktop acceptance, all other parentN703 gaps and finalCI remain OPEN.
+Evidence: features/data/n703_online_no_downgrade_2026-10-15/.
