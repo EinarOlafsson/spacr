@@ -162,3 +162,13 @@ assignments unchanged. Normal immutable arrival refresh reports892added,
 Evidence: features/data/678_umap_runtime_catalogs_2026-10-15/,
 678_umap_api_catalogs_2026-10-15/ and678_umap_api_peer_review_2026-10-15/.
 This closes this source/API/caption scope, not the entire N678 review.
+2026-10-15 — Bounded plate-map coordinate documentation repair.
+Corrected four row/column parameter descriptions in PlateMapPicker.begin_drag
+and its private well constructor: coordinates are one-based, matching grid
+construction, drag anchors, selection methods and well labels. Nine selected
+coordinate-contract docstrings are recorded: two revised, seven retained.
+The complete executable AST is identical; no caption, key, signature or
+selection behavior changed. Two existing public API blocks require the normal
+nine-locale review and catalog batch; the private constructor adds no API
+symbol. No runtime test replay or whole N678 completion is claimed.
+Evidence: features/data/678_plate_map_coordinate_prose_2026-10-15/receipt.json.
