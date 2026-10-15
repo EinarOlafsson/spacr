@@ -540,3 +540,16 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   absent. Numeric native value/range/setter and speech/human/other-platform
   acceptance remain open. This does not restore the rejected418e interface.
   Evidence:data/655_hint_native_safe_actions_2026-10-15/receipt.json.
+
+2026-10-15 — Plate-map wells now show keyboard focus
+  An actual6-well baseline reached/named/toggled A01 correctly, but focused
+  and unfocused pixels were identical in Dark, Light and High contrast, and
+  Stronger focus changed nothing. Private _Well now overlays focus using
+  cached theme policy, including live3px strong focus. Empty and selected
+  wells retain their center fill, selection and square geometry; Tab/Space,
+  normal names and all original mouse/drag methods remain unchanged.
+  Final45PASS6.82s comprises8new+37existing checks;9.65s wall,588964KiB peak,
+  2G/offscreenQt6.12/thread1. Four private overrides are excluded by normal
+  API policy; the one pre-existing nested helper changes only source lines.
+  Public prose/captions remain exact. No new native/human/other-OS claim.
+  Evidence:data/655_plate_well_focus_2026-10-15/receipt.json.
