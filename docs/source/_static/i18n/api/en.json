@@ -102703,6 +102703,13 @@
       "source_sha256": "46af02429ddb28f67e790d85b4f629aee9242616decdae3bc67850b920995d70",
       "text": "The repeated per-object settings, drawn as one row per question.\n\n78 of Mask's 201 settings are the same twenty-odd questions asked once per\nobject type -- ``cell_diameter``, ``nucleus_diameter``,\n``pathogen_diameter``, ``organelle_diameter`` -- and a form that lists them\nflat asks each of them separately. A table was chosen over tabs and over\nleaving the names flat.\n\n:mod:`spacr.object_settings_table` is the model and draws nothing; this is\nthe view over it. Because of this split the stored keys never change, so no\nsettings file, notebook, tutorial or ``spacr-run`` invocation needs migrating;\nonly the presentation differs.\n\nThe table shape allows an arbitrary number of organelles. The number of\norganelles a run may declare is not fixed. In a flat vocabulary each new\norganelle is twenty new settings that every tooltip table and translation\ncatalog has to include; here it is one column, and the number of questions\ndoes not change. :meth:`ObjectSettingsGrid.add_organelle` adds one, and it\nstarts a new organelle from the first one's answers rather than from a global\ndefault.\n\nThe view enforces two rules; breaking either would corrupt a settings file\nrather than only display it wrongly:\n\n* **A value keeps its type.** ``cell_diameter`` is an int, ``organelle_\n  cellprob_threshold`` is a float, and a cell edited in a table arrives as a\n  string. Writing ``\"12\"`` where ``12`` was changes the meaning of the\n  settings file without notice, and the pipeline reading it either coerces\n  silently or fails far from here.\n* **A question an object does not ask stays absent.** ``cytoplasm`` has no\n  channel, no diameter and no detection method -- it is derived, cell minus\n  the rest, not found in a channel. Those cells are blank and not editable,\n  because writing a value there invents a key nothing reads."
     },
+    "spacr.qt.widgets.object_settings_grid.AUTO_TEXT": {
+      "source_blocks_sha256": [
+        "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+      ],
+      "source_sha256": "c893aa4e897119493efa9c1e2d097eff9ac73485f95059bff4f74125c4331996",
+      "text": "What an unset value reads as. ``None`` means \"work it out\" for most of\nthese, and an empty cell would read as \"nobody has filled this in yet\",\nwhich is a different claim. An object diameter is the exception: its\n``None`` is the magnification default, drawn greyed (item 696)."
+    },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid": {
       "source_blocks_sha256": [
         "7729639fd6a5bc1998f6efb0f6fccbffaa5181674944d4855944ee4a980fed27",
@@ -129017,12 +129024,12 @@
     "spacr.utils.download_models": {
       "source_blocks_sha256": [
         "0eb5ee178887eeb6c18e94c01135ba5b8f92fb0d92464ce3bdb375a934fbf594",
-        "98d7b0e89eaa2eac89101b8f3bb097410bcf35e00f8f310b4d717876cad1d04c",
+        "976d312579a89e44f4994049f8fa869ea4b256f8b0b572550505cd39bdbb0772",
         "1aa5fc047502cc070a0166bafc6071546e0b64aaebf88eff83029bab80fc7db6",
         "0be481431a16753686c333f14ee2b2dc42f43a884b0bc0bd11d2724bb3631bb0"
       ],
-      "source_sha256": "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28",
-      "text": "Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.\n\nIf ``resources/models`` already contains files, nothing is downloaded and\nits path is returned. Files are saved under their base names.\n\nArgs:\n    repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').\n    retries (int): Number of retry attempts in case of failure.\n    delay (int): Delay in seconds between retries.\n\nReturns:\n    str: The local path to the downloaded models."
+      "source_sha256": "e7b2e426daa168584e53ec876a68151b11daa9ff4eca60a35f03aee461330e1b",
+      "text": "Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.\n\nIf ``resources/models`` already contains files, nothing is downloaded and\nits path is returned. Files are staged under their base names and the\ncomplete pack is published only after every stream succeeds.\n\nArgs:\n    repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').\n    retries (int): Number of retry attempts in case of failure.\n    delay (int): Delay in seconds between retries.\n\nReturns:\n    str: The local path to the downloaded models."
     },
     "spacr.utils.estimate_class_counts": {
       "source_blocks_sha256": [
