@@ -1,0 +1,10 @@
+[
+  {
+    "domain": "features",
+    "msgid": "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on.",
+    "source_sha256": "1668b4a0963cf0a363e117f9473f107423a7eb66fab4dfb0a1508174c94a7df8",
+    "msgstr": "**환경설정** 에서 :kbd:`Tab` 키로 도움말 영역의 좁은 위쪽 가장자리에 포커스를 둡니다. 그런 다음 다른 키를 누르지 않은 상태에서 :kbd:`Up` 또는 :kbd:`Down` 키를 눌러 크기 제한 내에서 영역의 높이를 늘리거나 줄입니다. :kbd:`Tab` 키를 누르면 다음 컨트롤로 이동합니다.",
+    "target_sha256": "6dbb659e4b1a84172b555992156b73b333bc913e589d6f7e2e0796c073a8854e",
+    "review_kind": "AI technical review; no native-speaker signoff"
+  }
+]
