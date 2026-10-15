@@ -1,4 +1,13 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+
+## 2026-10-15 Work — tutorial 02 selective repair in progress
+
+Ordered review continues after 01 KEEP. Tutorial 02 needs only scene 7 repaired: the Conda environment-creation command is absent from all 692 frames of its published scene. The replacement command-reference card has been rendered and visually checked; all 50 audio tracks, 50 timing sidecars and 14 catalog objects remain the intended retained components. No new installation or native recording is required.
+
+The first actual staging attempt stopped before encoding: historical catalogs contain only an absent/provisional voice inventory, whereas the current publication declares the actual 50 voices. Every other lesson field matches across all 14 objects. Work is repairing this narrow retention-check compatibility issue with focused tests and independent source review; failed stage/log remain preserved. Current held source is 2a04d64f25410c3d9f265da11259dc3fb96ee1e4 (166 owning tests passed before this newly observed seam). No tutorial 02 completion or publication is claimed.
+
+Work observed Home through 68f51acbe and notified the maintainer. Only features/docs leave Work while the source hold remains active. The separate 05 diagnostic and 25 preparation stay parked; next ordered route after 02 is 04 because old 02/03 installation aliases are consolidated.
+
 ## 2026-10-15 Home-B — whole workspace delivery and spatial rerun repair
 
 N180 whole original A–D/five-criteria contract is accepted after the real
