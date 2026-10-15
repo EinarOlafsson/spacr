@@ -1,0 +1,75 @@
+{
+  "counts": {
+    "runtime": 306,
+    "api_source_context": 180,
+    "api_inline": 90
+  },
+  "failures": [
+    {
+      "language": "fr",
+      "domain": "api",
+      "index": "3",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "target": "L’arrêt du chargement des extraits et de l’entraînement du classificateur est demandé en premier ; toute progression ultérieure de l’entraînement est ignorée. Chaque ``shutdown`` attend un temps limité, puis met à l’écart tout thread de travail encore actif. Un thread d’entraînement ainsi mis à l’écart peut terminer l’écriture de son point de contrôle sans mettre à jour cet écran fermé ; il n’est pas arrêté de force.",
+      "source_valid": true,
+      "context_valid": false,
+      "markup": []
+    },
+    {
+      "language": "pt",
+      "domain": "api",
+      "index": "3",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "target": "Primeiro é solicitada a parada do carregamento de recortes e do treinamento do classificador; o progresso posterior do treinamento é ignorado. Cada ``shutdown`` espera um tempo limitado e depois estaciona qualquer thread de trabalho que continue ativa. Uma thread de treinamento estacionada pode terminar de gravar seu checkpoint sem atualizar esta tela fechada; ela não é encerrada à força.",
+      "source_valid": true,
+      "context_valid": false,
+      "markup": []
+    },
+    {
+      "language": "is",
+      "domain": "api",
+      "index": "3",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "target": "Fyrst er óskað eftir að hleðsla myndútskurða og þjálfun flokkara stöðvist; frekari þjálfunarframvinda er hunsuð. Hvert ``shutdown`` bíður í takmarkaðan tíma og leggur síðan þeim vinnuþráðum sem enn eru í gangi til hliðar. Þjálfunarþráður sem hefur verið lagður til hliðar getur lokið við að skrifa vistaða líkanstöðu sína án þess að uppfæra þennan lokaða skjá; hann er ekki stöðvaður með valdi.",
+      "source_valid": true,
+      "context_valid": false,
+      "markup": []
+    },
+    {
+      "language": "zh_CN",
+      "domain": "api",
+      "index": "3",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "target": "首先请求停止裁剪图像加载和分类器训练；忽略后续训练进度。每次 ``shutdown`` 都会等待有限时间，然后停放仍在运行的工作线程。已停放的训练线程可以完成检查点写入，但不会更新此已关闭的界面；不会强制终止该线程。",
+      "source_valid": true,
+      "context_valid": false,
+      "markup": []
+    },
+    {
+      "language": "hi",
+      "domain": "api",
+      "index": "3",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "target": "पहले छवि-खंड लोड करने और वर्गीकरण मॉडल के प्रशिक्षण को रुकने का अनुरोध दिया जाता है; आगे की प्रशिक्षण प्रगति अनदेखी की जाती है। हर ``shutdown`` सीमित समय तक प्रतीक्षा करता है और फिर अभी भी चल रहे कार्य-थ्रेड को अलग रख देता है। अलग रखा गया प्रशिक्षण थ्रेड इस बंद स्क्रीन को अपडेट किए बिना अपना चेकपॉइंट लिखना पूरा कर सकता है; उसे ज़बरदस्ती समाप्त नहीं किया जाता।",
+      "source_valid": true,
+      "context_valid": false,
+      "markup": []
+    },
+    {
+      "language": "ko",
+      "domain": "api",
+      "index": "3",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "target": "먼저 이미지 영역 불러오기와 분류기 학습에 중지를 요청하며, 이후의 학습 진행 상황은 무시합니다. 각 ``shutdown`` 은 제한된 시간 동안 기다린 다음 계속 실행 중인 작업 스레드를 별도로 보관합니다. 별도로 보관된 학습 스레드는 이 닫힌 화면을 갱신하지 않고 체크포인트 기록을 마칠 수 있으며, 강제로 종료되지 않습니다.",
+      "source_valid": true,
+      "context_valid": false,
+      "markup": []
+    }
+  ],
+  "scope": "Normal pure candidate/context, source/context API review gates and actual Docutils inline markup. Standard runtime review-loading recursion guard only; canonical/public collection explicitly refused. No normal full review loader or writer executed.",
+  "target_files": {
+    "west": "0bcd3c3e251c1ac080d65a24289c625e90fc545b3d5636eea51fbfec7695b3ca",
+    "middle": "5a1b90221001ef2b1511a3739de11ec3937dd5ac1ef1d8abe7398ed7b422f493",
+    "asia": "c26554d07bc5cecda7544df7f4131cbe9f664e1a015d848465c36014ae46ba04"
+  }
+}
