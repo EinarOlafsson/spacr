@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — sorting, picker fixtures and normal notebook repair
+
+Installer cleanup tree now uses the existing shared sorting/cell factories;
+original selection flags, parent/child structure and all captions are unchanged.
+Both formerly failing source-contract tests plus eighteen real cleanup-dialog
+cases pass (20 total), with independent source/evidence peer. No new API/runtime
+caption arrival or global writer was needed.
+
+Two bioimageio picker cases now wait for the real queued reference result,
+retaining exact route assertions and verifier behavior;2PASS. The live-preview
+fixture uses the actual dialog seam, preserving modal safety and no false
+verified reference;1PASS. Independent peers bind both exact patches/logs.
+
+The unchanged notebook generator reproduced stale11_activation_maps.ipynb,
+then rewrote only that notebook with the two existing F564 checkpoint settings.
+All other notebooks and all nongenerated cells/outputs are exact. Existing
+currentness pytest1PASS11.93s and independent source/artifact peer retained.
+These are targeted CI components, not whole release completion. Final full CI
+and release remain deferred; no new global runtime/API writer was started.
+
+
 ## 2026-10-15 Original Home — additional targeted CI fixes published
 
 Toggle fault injection now targets the actual rounded focus drawing path; all
