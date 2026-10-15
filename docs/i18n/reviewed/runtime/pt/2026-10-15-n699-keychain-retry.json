@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_scope": "Claude AI technical review (Opus 5.5); translated directly from the English for item 699's SSH keychain option, denied/timed-out second-factor messages, Retry sign-in and read-only discovery help; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "SSH keychain storage must be a boolean.",
+      "source": "SSH keychain storage must be a boolean.",
+      "source_sha256": "c849d399024f153e96060044366fec64a939e7938c175f656629a654d4e5d7f8",
+      "translation": "O armazenamento no porta-chaves SSH tem de ser um valor booleano."
+    },
+    {
+      "table": "ui",
+      "key": "The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source": "The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source_sha256": "7fe1c1d6a51cdd931080e93507264b717ec42611fcf860650b1a6f0978692e22",
+      "translation": "O início de sessão ou o pedido do segundo fator foi recusado (por exemplo, uma notificação push rejeitada). Nada foi executado; escolha Repetir início de sessão ou Testar ligação para tentar novamente."
+    },
+    {
+      "table": "ui",
+      "key": "The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source": "The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source_sha256": "b93db088c6530a0bebc76ba7f978cde8206806c5767d4ffebc97968361450f4f",
+      "translation": "O início de sessão ou o pedido do segundo fator excedeu o tempo limite (por exemplo, uma notificação push sem resposta). Nada foi executado; escolha Repetir início de sessão ou Testar ligação para tentar novamente."
+    },
+    {
+      "table": "ui",
+      "key": "Reads your SSH config file and the files it includes, the system-wide SSH config, the .ssh folder in your Windows user profile, and known_hosts. Read-only: spaCR never changes SSH files, never reads private keys and never runs ssh -G.",
+      "source": "Reads your SSH config file and the files it includes, the system-wide SSH config, the .ssh folder in your Windows user profile, and known_hosts. Read-only: spaCR never changes SSH files, never reads private keys and never runs ssh -G.",
+      "source_sha256": "65ebbd5134abc6d80f8901ecd08a6697d8b2797da4e57f6dc13eeb2372c55fc3",
+      "translation": "Lê o seu ficheiro de configuração SSH e os ficheiros que inclui, a configuração SSH de todo o sistema, a pasta .ssh do seu perfil de utilizador do Windows e known_hosts. Só leitura: o spaCR nunca altera ficheiros SSH, nunca lê chaves privadas e nunca executa ssh -G."
+    },
+    {
+      "table": "ui",
+      "key": "Choose another folder that holds an SSH config or known_hosts file.",
+      "source": "Choose another folder that holds an SSH config or known_hosts file.",
+      "source_sha256": "c58d3bb13f16ccd7dcef1fc9165db044ed0ceffd166545d859338f9b349b6aa0",
+      "translation": "Escolha outra pasta que contenha um ficheiro config ou known_hosts do SSH."
+    },
+    {
+      "table": "ui",
+      "key": "Remember my password in the system keychain",
+      "source": "Remember my password in the system keychain",
+      "source_sha256": "9a9c237fe6ea219166bdc39df69382734940c40dbe4794562c839c204c7e9587",
+      "translation": "Memorizar a minha palavra-passe no porta-chaves do sistema"
+    },
+    {
+      "table": "ui",
+      "key": "Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.",
+      "source": "Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.",
+      "source_sha256": "44fdf3740ab3d8d39a06b31dd4cf82f16c0dd3d5cee4c4e42bd8787f0bb2afe4",
+      "translation": "Desativado por predefinição. Guarda apenas a palavra-passe de início de sessão no porta-chaves do sistema operativo, nunca códigos de utilização única nem respostas push."
+    },
+    {
+      "table": "ui",
+      "key": "Install the keyring package to store the password in the system keychain.",
+      "source": "Install the keyring package to store the password in the system keychain.",
+      "source_sha256": "54628479d8c85a45f230c501cc56ba9f138cca89da35e357b79c179a1e268646",
+      "translation": "Instale o pacote keyring para guardar a palavra-passe no porta-chaves do sistema."
+    },
+    {
+      "table": "ui",
+      "key": "Retry sign-in",
+      "source": "Retry sign-in",
+      "source_sha256": "0338e01471b811839ef94a905b7867985fdb52293676988ae284d9b834ba56d0",
+      "translation": "Repetir início de sessão"
+    }
+  ]
+}

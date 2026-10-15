@@ -249,16 +249,6 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         'SSH 인증이 취소되었거나 시간이 초과되었습니다.',
         'SSH-auðkenningu var hætt eða hún rann út á tíma.',
         'L’authentification SSH a été annulée ou son délai a expiré.'),
-    'SSH authentication was denied. Test the connection to try again.': _row(
-        'SSH-autentiseringen nekades. Testa anslutningen för att försöka igen.',
-        'Die SSH-Authentifizierung wurde abgelehnt. Testen Sie die Verbindung für einen neuen Versuch.',
-        'Se denegó la autenticación SSH. Prueba la conexión para reintentarlo.',
-        'SSH 认证被拒绝。请测试连接后重试。',
-        'A autenticação SSH foi recusada. Teste a ligação para tentar novamente.',
-        'SSH प्रमाणीकरण अस्वीकृत हुआ। दोबारा कोशिश के लिए कनेक्शन जाँचें।',
-        'SSH 인증이 거부되었습니다. 다시 시도하려면 연결을 테스트하세요.',
-        'SSH-auðkenningu var hafnað. Prófaðu tenginguna til að reyna aftur.',
-        'L’authentification SSH a été refusée. Testez la connexion pour réessayer.'),
     'SSH command output exceeded the capture limit.': _row(
         'SSH-kommandots utdata överskred insamlingsgränsen.',
         'Die Ausgabe des SSH-Befehls überschritt die Erfassungsgrenze.',
