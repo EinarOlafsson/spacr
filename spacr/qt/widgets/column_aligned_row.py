@@ -322,8 +322,9 @@ def align_row_to_columns(
 ) -> Optional[ColumnAlignedRow]:
     """Re-lay ``strip``'s widgets out over ``header``'s sections.
 
-    Idempotent: a strip that is already following this header is returned
-    unchanged, so a repeated show costs nothing and cannot stack two layouts.
+    An existing ``ColumnAlignedRow`` on the strip is returned unchanged.
+    Its header, widget-column assignments and invalidation callback are not
+    compared with or replaced by the new arguments.
 
     :param strip: the widget holding the buttons. Its existing layout is
         emptied and destroyed -- the widgets survive, reparented on ``strip``.
@@ -333,7 +334,9 @@ def align_row_to_columns(
     :param on_invalidate: passed to the layout; called when a managed
         widget's size hint changes, so the header's owner can re-fit the
         column to a caption that has since been translated.
-    :returns: the installed layout, or ``None`` when there was nothing to do.
+    :returns: the existing or newly installed layout, including an empty
+        layout when ``columns`` is empty. Returns ``None`` when the strip or
+        header is missing or its Qt object has been deleted.
     """
     if strip is None or not _alive(strip) or not _alive(header):
         return None
