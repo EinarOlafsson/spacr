@@ -570,6 +570,7 @@ exec > >(tee -a "$INSTALL_LOG") 2>&1
 spacr_say detailed_log "$INSTALL_LOG"
 install_linux_system_dependencies
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/spacr-install.XXXXXX")"
+work_dir="$(cd "$work_dir" && pwd -P)"
 installer_tmp="$work_dir/uv-installer.sh"
 stage_venv="$INSTALL_ROOT/.venv-staging-$$"
 stage_profile="$INSTALL_ROOT/.install-profile-staging-$$.json"
@@ -717,12 +718,12 @@ fi
     --report-issues "$REPORT_ISSUES" \
     --sign-in-now "$SIGN_IN_NOW"
 
-identity_args=()
+identity_args=(verify-runtime)
 if [[ "$DEFAULT_SPACR_VERSION" != @*@ ]]; then
     identity_args+=(--version "$DEFAULT_SPACR_VERSION")
 fi
-"$cleanup_python" -I "$cleanup_module" verify-runtime \
-    --python "$stage_python" --retiring-prefix "$VENV_DIR" "${identity_args[@]}"
+"$cleanup_python" -I "$cleanup_module" "${identity_args[@]}" \
+    --python "$stage_python" --retiring-prefix "$VENV_DIR"
 if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
     spacr_say old_copy_not_removed >&2
     exit 6
@@ -742,8 +743,8 @@ if [[ -d "$VENV_DIR" ]]; then
     swap_started=1
 fi
 mv "$stage_venv" "$VENV_DIR"
-if ! "$cleanup_python" -I "$cleanup_module" verify-runtime \
-    --python "$VENV_DIR/bin/python" "${identity_args[@]}" > "$work_dir/runtime-identity.new.json"; then
+if ! "$cleanup_python" -I "$cleanup_module" "${identity_args[@]}" \
+    --python "$VENV_DIR/bin/python" > "$work_dir/runtime-identity.new.json"; then
     rm -rf "$VENV_DIR"
     if [[ -d "$old_venv" ]]; then
         mv "$old_venv" "$VENV_DIR"

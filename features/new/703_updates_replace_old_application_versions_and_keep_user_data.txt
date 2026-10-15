@@ -671,3 +671,15 @@ Source has proper private-helper docs; no new caption/public API/generated
 artifact changes. Fatal Ruff/diff pass. Fresh native confirmation/fullCI and
 parent703 remain OPEN. Nightly prerelease work is preserved/paused for CI.
 Evidence: features/data/n703_windows_metadata_alias_2026-10-15/.
+2026-10-15 — Hosted macOS legacy-Bash runtime-verification repair
+Existing automatic hosted run38685071978 at2adfa fails before activation:
+Apple Bash rejects empty identity_args under nounset, leaving finder version
+unknown. The verification array now always includes its command verb, retaining
+exact optional version/interpreter/retiring-prefix checks at both boundaries.
+The newly created installer temporary folder is physically canonicalized before
+metadata snapshot; POSIX linked-folder refusal remains unchanged.
+Actual GNU Bash3.2 built in WD on Linux reproduces this failure. Baseline3FAIL/
+6PASS becomes9PASS/0.77s; complete scoped shell/lease/installer cohort99PASS/
+3.16s/exit0. Raw fixture-development failure is retained separately. Source-only
+installer-owner peer review accepted. No native macOS replay, package install,
+fullCI or release acceptance. Evidence: data/n703_bash32_runtime_verification_2026-10-15/.

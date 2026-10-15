@@ -141484,10 +141484,10 @@
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "e62c753d0334d95a0edfb877bf41ed784131c4f03b5a29f2696afcc8408fbf9b",
-        "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
+        "a690fcdcf7947d314d31a8684b92a0a07e49d8015511619c85db10b408ed4089"
       ],
-      "source_sha256": "82717ccf340d914e78889a9386998d2bb7183b62d8c8c64376d422d2bcb88839",
-      "text": "编辑支持的现场图表的显示设置。\n\n控制是从图像的当前轴,艺术家,传说,和可选的 spaCR 数据创建的。 变化是预见后一个短暂的启动; 拒绝对话恢复开放状态,当它可以被捕获。\n\n图像的拍摄图像被取出,所以取消有回去的东西:直播应用没有办法是陷阱 - 用户拖动一个旋转框来看到它做什么,并且已经没有一个 \"as it was\". 每个图像文本大小的超级图像是单独保留的,因为取消恢复图像通过复制轴从图像,而不是通过交换对象,所以这个属性将否则生存一个 undo 的所有它适用于。\n\n统计选项卡只显示一个比较群体的数字:一个在Q-Q字符串上提供一个 t 测试将是一个邀请报告一个数字,这并不意味着什么。 UMAP 选项单仅显示一个包含它从中提取的数字 - 没有它, \"live\" 将意味着重新运行减少,每个点将移动。\n\n:param figure: 以 matplotlib 图为重定向。\n:param parent: 父控件，或 ``None``。\n:param on_change: 被召回 redraw; 需要 ``preview`` 如果可能。\n:param propagate_callback: 将值写入所拥有的模块的设置面板. ``None`` 阻止播放并说明为什么。",
+      "source_sha256": "2bbe1f5e5f79771074902723895db2b121e917734d2b099dd9228ded21ea25ce",
+      "text": "编辑支持的现场图表的显示设置。\n\n控制是从图像的当前轴,艺术家,传说,和可选的 spaCR 数据创建的。 变化是预见后一个短暂的启动; 拒绝对话恢复开放状态,当它可以被捕获。\n\n图像的拍摄图像被取出,所以取消有回去的东西:直播应用没有办法是陷阱 - 用户拖动一个旋转框来看到它做什么,并且已经没有一个 \"as it was\". 每个图像文本大小的超级图像是单独保留的,因为取消恢复图像通过复制轴从图像,而不是通过交换对象,所以这个属性将否则生存一个 undo 的所有它适用于。\n\n统计选项卡只显示一个比较群体的数字:一个在Q-Q字符串上提供一个 t 测试将是一个邀请报告一个数字,这并不意味着什么。 UMAP 选项单仅显示一个包含它从中提取的数字 - 没有它, \"live\" 将意味着重新运行减少,每个点将移动。\n\n:param figure: 以 matplotlib 图为重定向。\n:param parent: 父控件，或 ``None``。\n:param on_change: 被召回 redraw; 需要 ``preview`` 如果可能。\n:param propagate_callback: 接收 Image UMAP 控件的当前值，将其写入所属模块的设置面板。不包含其他图形样式更改；没有 Image UMAP 控件的图形提供空字典。``None`` 会禁用 Propagate 并说明原因。",
       "translation_source_blocks_sha256": [
         "7e8a49eeac12cfc7fb4a41aa7472670066bb58fca1386c233d5991f66bc21da8",
         "44335159cabd57379f07a758f2871fc163c62c8630f66dbcf2ca78143470e8e9",
@@ -141496,7 +141496,7 @@
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "e62c753d0334d95a0edfb877bf41ed784131c4f03b5a29f2696afcc8408fbf9b",
-        "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
+        "f8446aed75bc86a0ed7e8df0b6a806290b3e3200b3ca7c23053b92f9efaa74cc"
       ]
     },
     "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge": {
@@ -141963,14 +141963,14 @@
       "source_blocks_sha256": [
         "3282d496928d959d8ac7c174647e4d67a04088b7163c98478181178370266567",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "83f03171e1dcb7a9638cff5ea96c379859a5fa2c27e2da6705c549d92efe3149"
+        "e21f374fa116635a4ee0b040b4d86172013b5ca121cf66555cb0ac9fb9e03cbf"
       ],
-      "source_sha256": "d42d0831969539715570056a1a8a59122b3d292a78f851055a590fe6b7ef448f",
-      "text": "保存图形风格作为活跃的偏好。\n\n参数\n----------\ngeneral : mapping 一般风格超级。 per_graph : mapping of str to mapping 风格按图形类型键超级. 不是地图的值被忽略。",
+      "source_sha256": "2e149964d4cdaf4c42ea3612589c74594a51e4155f752e0fed60a5571e108b63",
+      "text": "保存图形风格作为活跃的偏好。\n\n参数\n----------\ngeneral : mapping 通用样式覆盖设置。per_graph : mapping of str to mapping 以图形类型为键的样式覆盖设置。非字典值会被忽略。",
       "translation_source_blocks_sha256": [
         "3282d496928d959d8ac7c174647e4d67a04088b7163c98478181178370266567",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "83f03171e1dcb7a9638cff5ea96c379859a5fa2c27e2da6705c549d92efe3149"
+        "0caa3175edb59d3cec9df8b4476b047a4742aee8def0ab098c88edc5bc4deb12"
       ]
     },
     "spacr.qt.widgets.figure_settings.apply_line_colour": {
@@ -142137,18 +142137,18 @@
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "9be8b2cbed177806aea26c1b4d5de1708118e96f86b15aedcb461474af6802fb",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
-        "9cae15c3329d04b017ae764dfb72ff43e2915c0889f4162c2a1e8ad92be9e05b",
+        "a3209f6e0fbcc206acc8634456d0444048dac5c41ffbc852a4f83c1215a59392",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "16207bf62ced7957a1192829fb0ab40a7897a3ca604942590897ad7c0102dcb5"
       ],
-      "source_sha256": "0e5fb24d9309a12fcf9c2df5869647b68e161646625610051613dc03535f230e",
-      "text": "序列化图形风格偏好超过一个关键值地图。\n\n参数\n----------\ngeneral : mapping, optional 一般风格超级。 如果 ``None``,请阅读当前偏好。 per_graph : mapping of str to mapping, optional 按图形类型密钥。 如果 ``None``,请阅读当前偏好。\n\n返回\n-------\n关键值地图 与 ``spacr_style_kind``、 ``general`` 和 ``per_graph`` 结构化数据名称的风格数据。\n\n备注\n-----\n仅存储偏好过度,主题解决的颜色和包装默认不从目前显示的数字中获取。",
+      "source_sha256": "4a5f41b84d60a13090a676a7623b9a9f869b3ccc7871a36bff5bd701c90ed6b8",
+      "text": "序列化图形风格偏好超过一个关键值地图。\n\n参数\n----------\ngeneral : mapping, optional 一般风格超级。 如果 ``None``,请阅读当前偏好。 per_graph : mapping of str to mapping, optional 按图形类型密钥。 如果 ``None``,请阅读当前偏好。\n\n返回\n-------\ndict 包含 ``spacr_style_kind``、``general`` 和 ``per_graph`` 键的样式数据。各图形的值若不是字典，则会被忽略。\n\n备注\n-----\n仅存储偏好过度,主题解决的颜色和包装默认不从目前显示的数字中获取。",
       "translation_source_blocks_sha256": [
         "6ef3ecb00045e231b50e7f633fb50510b6c60719daa9ae7831730739562863a0",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "9be8b2cbed177806aea26c1b4d5de1708118e96f86b15aedcb461474af6802fb",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
-        "439d9aa6601d52b7b8f6a43973fdc0ddcbe3f62ae3f8d399fa6392c5e20bc58f",
+        "207f42b87ebea7fa422b8c735546eeae6777e550f3a8fcc2e219b96bcdad18c8",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "16207bf62ced7957a1192829fb0ab40a7897a3ca604942590897ad7c0102dcb5"
       ]
@@ -171709,14 +171709,14 @@
       "source_blocks_sha256": [
         "bd80699456c116e24ba937d018607bf3422c0f2af4d7bfaa0df3000f7dfd8d64",
         "241cae3fd0c7a14ed10a3002b3351314d502ee1ad120e01a53e26929de6bf2e1",
-        "cf7ca0048d87597f4a117f604aca949c7840ca459834951c3f8ded4d92fb3313"
+        "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65"
       ],
-      "source_sha256": "acd872bfeceb1d198358a41d9611e9310a6aa2df5fad8b8e0c74b0cb454aadf1",
-      "text": "预览并保存为文件而不是筛选设计的图像。\n\n显示在 spaCR 的数字从未改变. 一个 Matplotlib 数字在设计之前被复制; 一个 pyqtgraph 字符串不能安全地复制,因此它只为一个外部显示器的长度而设计。\n\n对话提供属于文件 - 其背景,颜色和宽度的线条,其文本的颜色,其页面的形状,以及它是什么类型的文件。 任何其他一个数字可以说属于PLOT,并生活在字符串的右点菜单上,它到达筛选和每个出口同时; 从那里继承的值在这里显示,而不是提供第二次。",
+      "source_sha256": "a6a5e4a6011b2c4cc34714a6fd57ab7f77f78bfac214c35f3533b4f6c21a6645",
+      "text": "预览并保存为文件而不是筛选设计的图像。\n\n显示在 spaCR 的数字从未改变. 一个 Matplotlib 数字在设计之前被复制; 一个 pyqtgraph 字符串不能安全地复制,因此它只为一个外部显示器的长度而设计。\n\n此对话框提供属于文件的设置：背景、线条颜色和宽度、文字颜色、页面形状以及文件类型。其他图形设置都属于绘图本身，位于绘图的右键菜单中，同时作用于屏幕显示和每次导出；从该菜单继承的值会在这里显示，而不会再次提供设置。Matplotlib 图形也有实时修改图形的设置菜单。当输出页面大小改变时，此对话框还会为独立的 Matplotlib 副本提供仅用于导出的文字缩放。",
       "translation_source_blocks_sha256": [
         "bd80699456c116e24ba937d018607bf3422c0f2af4d7bfaa0df3000f7dfd8d64",
         "241cae3fd0c7a14ed10a3002b3351314d502ee1ad120e01a53e26929de6bf2e1",
-        "cf7ca0048d87597f4a117f604aca949c7840ca459834951c3f8ded4d92fb3313"
+        "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65"
       ]
     },
     "spacr.qt.widgets.save_figure_dialog.SaveFigureDialog": {
@@ -171726,22 +171726,22 @@
         "31433db814efe79103bb776b9ac24b484bd470a8e82567d7ebdba50e947f42b6",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "ccd05a9cf1f1bec6a9ece68be55ba0aaf15eb8ff3955a04c0ab07697c61e0f66",
-        "625343f5227f082cc3d6262c662cbde8adeb2684a5bb7aa8c82fc9b688e993ff",
+        "3d1b3e9da7e7fbd0ee38c27637c904702a5cdc1ae40a90bb47ff1365d56290db",
         "356a26d92dbfe92b282fdfd4f2a37ae674ef36d1f26e76d0979e260a8f1594f9",
         "bc5f3627ffd9aafb53c1584422eefbaac66a5f45f31cabe2cdc3c6b98ddb5c4d",
         "f0b77df58a371a8a92721d8a9ec95eb0c65c2f20d8cb3c080cb3c88042eee65d",
         "ea21d0af2cfdb115c3051699d6d56a32d841909272d66d7fc14d7a8e55f26977",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "d282c607fc1f4870023d03869e0730a8c7dddde10a82360088d60cdd00730cfb",
-      "text": "预览并保存一个独立格式的图像副本。\n\n参数\n----------\n图: matplotlib.figure.Figure 或快速插图 源图. Matplotlib 图在预览风格之前复制; 快速插件提供自己的风格截图和出口方法. 父母 : QWidget,可选的 父母对话 widget。\n\n备注\n-----\n出口设置永远不会改变应用程序中显示的来源。\n\n它提供什么,为什么它是短的. 对于一个快速的序列,四个设置组改变了文件的外观 - 背景,线条的颜色和宽度,文本的色彩和页面的形状 - 还有三个说什么文件IS:其格式,分辨率和页面大小。\n\n页面尺寸写一个 pyqtgraph 字符串在该菜单上设置; 这个对话显示它将得到的尺寸,并保持句子从哪里来,作为一个更安静的笔记旁边的数字。\n\n无论图像是否是一个快速的动作,在这里决定一次,因为两种类型是通过不同的方法设计和写作,下面的每个分支阅读了旗帜,而不是重新扫描对象。\n\n文本规模控制仅供一个 matplotlib 图数:将广泛的应用视图减少到一个日志列,将其标签全部大小并包围轴,而一个快速字体已经拥有一个字体大小设置在自己的菜单上 - 这里的第二个答案会矛盾。\n\n:param figure: 要拯救的数字。\n:param parent: 父控件，或 ``None``。",
+      "source_sha256": "6e148b496af6053e5af64a43df690fa53c93ab6f9e99f8554f8824b2e1ad7345",
+      "text": "预览并保存一个独立格式的图像副本。\n\n参数\n----------\n图: matplotlib.figure.Figure 或快速插图 源图. Matplotlib 图在预览风格之前复制; 快速插件提供自己的风格截图和出口方法. 父母 : QWidget,可选的 父母对话 widget。\n\n备注\n-----\n出口设置永远不会改变应用程序中显示的来源。\n\n提供哪些设置，以及为何保持简短。对于快速绘图，四组设置改变文件的外观：背景、线条颜色和宽度、文字颜色以及页面形状。另外三项确定文件的属性：格式、分辨率和页面大小。其他设置都属于绘图的右键菜单，同时作用于屏幕显示和每次导出。Matplotlib 图形也有实时修改图形的设置菜单；此对话框为导出副本提供额外的文字缩放。\n\n页面尺寸写一个 pyqtgraph 字符串在该菜单上设置; 这个对话显示它将得到的尺寸,并保持句子从哪里来,作为一个更安静的笔记旁边的数字。\n\n无论图像是否是一个快速的动作,在这里决定一次,因为两种类型是通过不同的方法设计和写作,下面的每个分支阅读了旗帜,而不是重新扫描对象。\n\n文本规模控制仅供一个 matplotlib 图数:将广泛的应用视图减少到一个日志列,将其标签全部大小并包围轴,而一个快速字体已经拥有一个字体大小设置在自己的菜单上 - 这里的第二个答案会矛盾。\n\n:param figure: 要拯救的数字。\n:param parent: 父控件，或 ``None``。",
       "translation_source_blocks_sha256": [
         "d9496625243465b6b21574de68f680282f8e7811e97cf6b51cf79e6130554557",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "31433db814efe79103bb776b9ac24b484bd470a8e82567d7ebdba50e947f42b6",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "ccd05a9cf1f1bec6a9ece68be55ba0aaf15eb8ff3955a04c0ab07697c61e0f66",
-        "9d297e15d39bba31a387f54d89ee259d24a7bfbf31b67888083a887b9bf1bff8",
+        "f59a87e16e91e8874f0746e46226284413e43acec08cf1bb74dd22d2d96ee9d7",
         "2662ad0a100f17fabd6b2ab67e4a6bfa1eb1d6eb04c50fecae268eec7e3b1dae",
         "bc5f3627ffd9aafb53c1584422eefbaac66a5f45f31cabe2cdc3c6b98ddb5c4d",
         "4523cbdcf9c7741a3f29704527089e7e6b53d85270c0a3e460779c48715019aa",
@@ -171859,18 +171859,18 @@
       "source_blocks_sha256": [
         "1208c21224d57375ebdc07976591a4c08bf56958313044da9dc9b1e08a1dfcb3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "74070cabc56e1be5895123b1671bb6d9014d38d3d86a51bf7ea3558e2a8962c4",
+        "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "12a0820b34a859c09e12fe7b7188e2a1a9e45ecee502399b47499eee3408df0f",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "03d0fa680c9db3203be0cb84a1893899069dddd98417ae9b6101d510fcba5c38"
       ],
-      "source_sha256": "c311d19bd84d4feaf60a638b0f676a5abf8b48460b0ef5aab1ca57b708260d8b",
-      "text": "只适用于一个 Matplotlib 数字的出口风格。\n\n参数\n----------\n: matplotlib.figure.Figure 或 None 图片复制修改。  ``None`` 被接受用于预览回退。  ink : str, optional 颜色应用于标题、标签、刻度线、书脊、图例和文本 — — 文本和行一起,即纸张或幻灯片预设的含义。  空字符串保留现有的颜色。  text_colour : str, optional 仅用于 TEXT 的颜色:标题、轴标签、刻度数字和图例。 重写 ``ink`` 的那一半。  line_colour : str, optional 仅用于线条的颜色:脊柱和刻度线。 重写 ``ink`` 的那一半。  background : str, optional 图形和轴的背景颜色。  空字符串使两个背景透明。 grid : bool or None, default None 在 ``True`` 时绘制大网线,并在 ``False`` 时禁用它们。 ``None`` 只留下数字的自己的网格,这就是一个没有网格控制的通话者想要的: ``False`` 的默认转向一个网格的数字被拖动,没有人问。 width, height : float, default 0 英寸的输出尺寸。 尺寸只有当两个值是积极的时才会改变。 dpi : int, default 0 输出分辨率。 零保留了数字的当前分辨率。 font_scale : float, default 0 适用于每个文本艺术家。 值在或低于零保持当前文本大小。\n\n返回\n-------\nmatplotlib.figure.Figure 或 None 格式化后相同的图像对象,或者 ``None`` ``figure`` 是 ``None``。\n\n备注\n-----\n此功能适用于分离出口副本,不阅读或更新直播图表偏好。",
+      "source_sha256": "2d42df3bc13fb58d3b50fce5252993a90c71a278d81dff9ce19b17effbd223d4",
+      "text": "只适用于一个 Matplotlib 数字的出口风格。\n\n参数\n----------\nfigure : matplotlib.figure.Figure or None 要修改的图形副本。预览回退时允许使用 ``None``。ink : str, optional 应用于坐标轴标题、坐标轴标签、刻度标签、图例条目、坐标轴内文字、轴框线和刻度线的颜色。图形级文字、图例标题和绘制的数据线保持不变。空字符串保留现有颜色。text_colour : str, optional 用于 ``ink`` 下列出的坐标轴文字元素的颜色。对于这些元素，此值覆盖 ``ink``。line_colour : str, optional 仅用于线条的颜色：轴框线和刻度线。对于这部分，此值覆盖 ``ink``。background : str, optional 图形和坐标轴的背景颜色。空字符串使两个背景均透明。grid : bool or None, default None 当值为 ``True`` 时绘制主网格线，为 ``False`` 时禁用。``None`` 保持图形自身的网格不变，这符合没有自身网格控制项的调用方的需要：默认值 ``False`` 会在无人要求的情况下关闭绘图时已有的网格。width, height : float, default 0 输出尺寸，单位为英寸。只有两个值均为正时才更改大小。dpi : int, default 0 输出分辨率。零保留图形的当前分辨率。font_scale : float, default 0 应用于每个文字对象的缩放因子。小于或等于零的值保留当前文字大小。\n\n返回\n-------\nmatplotlib.figure.Figure 或 None 格式化后相同的图像对象,或者 ``None`` ``figure`` 是 ``None``。\n\n备注\n-----\n此功能适用于分离出口副本,不阅读或更新直播图表偏好。",
       "translation_source_blocks_sha256": [
         "1208c21224d57375ebdc07976591a4c08bf56958313044da9dc9b1e08a1dfcb3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "74070cabc56e1be5895123b1671bb6d9014d38d3d86a51bf7ea3558e2a8962c4",
+        "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "12a0820b34a859c09e12fe7b7188e2a1a9e45ecee502399b47499eee3408df0f",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",

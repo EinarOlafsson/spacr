@@ -109,8 +109,8 @@ def test_the_ink_reaches_the_legend_and_the_free_text():
 
 def test_a_figure_that_cannot_be_copied_is_still_offered_as_it_stands(qtbot):
     """A figure holding a closure cannot be pickled, so there is no detached
-    copy to restyle. The dialog says the file will be written exactly as the
-    figure appears rather than showing a blank preview."""
+    copy to restyle. The dialog explains that existing styling is retained
+    while resolution, transparency and a tight crop still apply."""
     fig = _figure()
     fig._unpicklable = lambda: None
     dialog = SaveFigureDialog(fig)
@@ -118,7 +118,7 @@ def test_a_figure_that_cannot_be_copied_is_still_offered_as_it_stands(qtbot):
     assert dialog.preview() is None
     assert dialog._canvas is None
     labels = [w.text() for w in dialog.findChildren(QLabel)]
-    assert any("exactly as it appears" in text for text in labels)
+    assert any("current styling" in text and "tight crop" in text for text in labels)
 
 
 def test_a_fast_plot_that_cannot_be_previewed_disables_saving(qtbot):

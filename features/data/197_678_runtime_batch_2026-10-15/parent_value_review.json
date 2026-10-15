@@ -1,0 +1,67 @@
+{
+  "base_commit": "5b79b6402b13c9628525b69bf79d704b2451ec2e",
+  "mode": "Independent semantic comparison of every generated assignment against committed values; exactly8current/6retired UI sources allowed",
+  "catalogs": [
+    {
+      "locale": "en",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "sv",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "de",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "es",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "zh_CN",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "pt",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "hi",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "ko",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "is",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    },
+    {
+      "locale": "fr",
+      "all_unrelated_assignments_preserved": true,
+      "current_owned_rows": 8,
+      "retired_owned_rows": 6
+    }
+  ],
+  "formatting": "English source-set formatting regenerated through the updated normal writer; values/hashes outside approvedcaption changes remain identical."
+}

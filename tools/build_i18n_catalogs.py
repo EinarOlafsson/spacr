@@ -4173,7 +4173,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         if path == source_root / "measure.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_phases_by_xgboost", "_wound_plane"}]
+                         and node.name in {
+                             "_phases_by_xgboost", "_phases_by_torch", "_wound_plane",
+                         }]
         if path == source_root / "object_classifier.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
@@ -4691,7 +4693,9 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
 
 def _render_assignment(name: str, value: object) -> str:
     if isinstance(value, frozenset):
-        rendered = f"frozenset({tuple(sorted(value))!r})"
+        rendered = "frozenset((\n" + "".join(
+            f"    {item!r},\n" for item in sorted(value)
+        ) + "))"
     elif isinstance(value, dict):
         # One entry per line is deterministic and reviewable without pprint's
         # repeated continuation indentation multiplying large tooltip files.

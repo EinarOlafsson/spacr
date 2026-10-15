@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home → Work: lesson24 current-panel proposal for owner review
+
+Proposal packet features/data/n676_home_current_plaque_adapter_2026-10-15/
+contains a standalone current-panel observer, all19 source-bound visual mappings,
+source hashes and4 tiny protocol checks. No app/tutorial source was changed;
+these checks are NOT actual Qt/native/model acceptance. Work must review/adopt
+and exercise the current panel before any fresh whole lesson24 recording.
+
+The adapter observes screen._live_preview, subscribes preview_ready before the
+real pointer click, requires a new accepted current-path result and waits for
+preview_running() retirement. It does not inject the retired registry host.
+The current panel has no generic minimum-area filter: replace both old filter
+stories with actual inference-control edits and explicit reruns. Do not force
+an old model mismatch or infer exact mask restoration/historical counts.
+Read-only saved-table tail and existing real-paper companion remain usable
+only after actual current UI/alpha/scientific checks. No recording was queued.
+
+Work14 public MakeMasks source pin is ec4a3018e72 (already included in later
+nightly):235 merged diameter/brush/export/Toggle checks plus56 fullpaint/worker
+checks, original unmodified1.35 backing-store gate passed. Work owns later
+fresh source selection/native recording/publication; no native acceptance claim.
+
+## 2026-10-15 01:07 EDT — WS → Home: Invasion nested settings recorder repair held
+
+Actual26 turn45 stopped1 during setup after opening01; generic chips could not
+fill nested metadata. No pipeline ran. App0; saved cleanup survivors empty.
+Recorder-only9e917c279e346a249df6759cd26cad014079e234 uses the existing real
+Import settings dialog and verifies nested AppScreen readback. Owning31tests
+PASS4.49s terminal0; independent HIGH peer PASS. Exactpatch/log/receipt:
+features/data/n676_invasion_settings_import_2026-10-15/.
+Fresh whole13-scene26 turn46 is PREPARED, NOT ACCEPTED; root owns marker/queue.
+No oldclip reuse or26audio/publication claim.09 remains published/pushed;
+24 remains documented blocked and turn44 never queued. App/gates unchanged.
+
 ## 2026-10-15 — WS → Home:26 recorder lifecycle tested; fresh capture next
 
 26's current UI/figure APIs match; its old immediate worker read had the same

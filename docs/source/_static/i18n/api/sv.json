@@ -141483,10 +141483,10 @@
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "e62c753d0334d95a0edfb877bf41ed784131c4f03b5a29f2696afcc8408fbf9b",
-        "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
+        "a690fcdcf7947d314d31a8684b92a0a07e49d8015511619c85db10b408ed4089"
       ],
-      "source_sha256": "82717ccf340d914e78889a9386998d2bb7183b62d8c8c64376d422d2bcb88839",
-      "text": "Redigera utseendeinställningarna som stöds för en levande figur.\n\nKontroller skapas från figurens nuvarande axlar, artister, legender och valfria spaCR metadata. Ändringar förhandsgranskas efter en kort debounce. Att avvisa dialogrutan återställer öppningstillståndet när det kunde fångas. Bygg dialogrutan för figurinställningar med en live- förhandsgranskning.\n\nEn inlagd bild av siffran tas så Avbryt har något att gå tillbaka till: Live gäller utan någon utväg är en fälla -- användaren drar en spin box för att se vad den gör och det finns inte längre en \"as it was\". Den per-figur text-size åsidosätter sparas separat, eftersom Avbryt återställer figuren genom att kopiera axlar från ögonblicksbilden snarare än genom att byta objekt, Så att attributet annars skulle överleva ett ogjort av allt som det gäller.\n\nFliken Statistik visas endast för en siffra som jämför grupper: en som erbjuder ett t-test på en Q-Q-plot skulle vara en inbjudan att rapportera ett tal som inte betyder någonting. Fliken UMAP visas bara för en figur som bär inbäddningen den drogs från -- utan den skulle \"live\" betyda att man kör om minskningen och varje punkt skulle flyttas.\n\n:param figure: figuren matplotlib att ändra stil.\n:param parent: överordnad widget, eller ``None``.\n:param on_change: kallas för att rita om; tar ``preview`` när det kan.\n:param propagate_callback: skriver in värdena i modulens inställningspanel. ``None`` inaktiverar Propagate och säger varför.",
+      "source_sha256": "2bbe1f5e5f79771074902723895db2b121e917734d2b099dd9228ded21ea25ce",
+      "text": "Redigera utseendeinställningarna som stöds för en levande figur.\n\nKontroller skapas från figurens nuvarande axlar, artister, legender och valfria spaCR metadata. Ändringar förhandsgranskas efter en kort debounce. Att avvisa dialogrutan återställer öppningstillståndet när det kunde fångas. Bygg dialogrutan för figurinställningar med en live- förhandsgranskning.\n\nEn inlagd bild av siffran tas så Avbryt har något att gå tillbaka till: Live gäller utan någon utväg är en fälla -- användaren drar en spin box för att se vad den gör och det finns inte längre en \"as it was\". Den per-figur text-size åsidosätter sparas separat, eftersom Avbryt återställer figuren genom att kopiera axlar från ögonblicksbilden snarare än genom att byta objekt, Så att attributet annars skulle överleva ett ogjort av allt som det gäller.\n\nFliken Statistik visas endast för en siffra som jämför grupper: en som erbjuder ett t-test på en Q-Q-plot skulle vara en inbjudan att rapportera ett tal som inte betyder någonting. Fliken UMAP visas bara för en figur som bär inbäddningen den drogs från -- utan den skulle \"live\" betyda att man kör om minskningen och varje punkt skulle flyttas.\n\n:param figure: figuren matplotlib att ändra stil.\n:param parent: överordnad widget, eller ``None``.\n:param on_change: kallas för att rita om; tar ``preview`` när det kan.\n:param propagate_callback: tar emot de aktuella värdena från Image UMAP-kontrollerna för att skriva dem till den ansvariga modulens inställningspanel. Andra ändringar av figurens stil ingår inte; en figur utan Image UMAP-kontroller lämnar en tom ordlista. ``None`` inaktiverar Propagate och anger orsaken.",
       "translation_source_blocks_sha256": [
         "7e8a49eeac12cfc7fb4a41aa7472670066bb58fca1386c233d5991f66bc21da8",
         "44335159cabd57379f07a758f2871fc163c62c8630f66dbcf2ca78143470e8e9",
@@ -141495,7 +141495,7 @@
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "e62c753d0334d95a0edfb877bf41ed784131c4f03b5a29f2696afcc8408fbf9b",
-        "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
+        "f8446aed75bc86a0ed7e8df0b6a806290b3e3200b3ca7c23053b92f9efaa74cc"
       ]
     },
     "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge": {
@@ -141962,14 +141962,14 @@
       "source_blocks_sha256": [
         "3282d496928d959d8ac7c174647e4d67a04088b7163c98478181178370266567",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "83f03171e1dcb7a9638cff5ea96c379859a5fa2c27e2da6705c549d92efe3149"
+        "e21f374fa116635a4ee0b040b4d86172013b5ca121cf66555cb0ac9fb9e03cbf"
       ],
-      "source_sha256": "d42d0831969539715570056a1a8a59122b3d292a78f851055a590fe6b7ef448f",
-      "text": "Spara graf-stil åsidosätter som aktiva inställningar.\n\nParametrar\n----------\ngeneral : mapping Allmän stil åsidosätter. per_graph : mapping of str to mapping Stil överskrider tangenten av graftyp. Värden som inte är avbildningar utelämnas.",
+      "source_sha256": "2e149964d4cdaf4c42ea3612589c74594a51e4155f752e0fed60a5571e108b63",
+      "text": "Spara graf-stil åsidosätter som aktiva inställningar.\n\nParametrar\n----------\ngeneral : mapping Allmänna stilåsidosättningar. per_graph : mapping of str to mapping Stilåsidosättningar med diagramtyp som nyckel. Värden som inte är ordlistor utelämnas.",
       "translation_source_blocks_sha256": [
         "3282d496928d959d8ac7c174647e4d67a04088b7163c98478181178370266567",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "83f03171e1dcb7a9638cff5ea96c379859a5fa2c27e2da6705c549d92efe3149"
+        "0caa3175edb59d3cec9df8b4476b047a4742aee8def0ab098c88edc5bc4deb12"
       ]
     },
     "spacr.qt.widgets.figure_settings.apply_line_colour": {
@@ -142136,18 +142136,18 @@
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "9be8b2cbed177806aea26c1b4d5de1708118e96f86b15aedcb461474af6802fb",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
-        "9cae15c3329d04b017ae764dfb72ff43e2915c0889f4162c2a1e8ad92be9e05b",
+        "a3209f6e0fbcc206acc8634456d0444048dac5c41ffbc852a4f83c1215a59392",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "16207bf62ced7957a1192829fb0ab40a7897a3ca604942590897ad7c0102dcb5"
       ],
-      "source_sha256": "0e5fb24d9309a12fcf9c2df5869647b68e161646625610051613dc03535f230e",
-      "text": "Serialisera graf-stil preferenser åsidosätter till en nyckel-värdekartläggning.\n\nParametrar\n----------\ngeneral : mapping, optional Allmän stil åsidosätter. Om ``None``, läs den nuvarande inställningen. per_graph : mapping of str to mapping, optional Överskrider med graftyp. Om ``None``, läs den aktuella inställningen.\n\nReturnerar\n----------\nKartläggning av nyckelvärden Stildata med ``spacr_style_kind``, ``general`` och ``per_graph`` strukturerade datanamn. Pergrafvärden som inte är kartläggningar utelämnas.\n\nAnteckningar\n------------\nBara företräden sparas. Tema-lösta färger och standardpaket fångas inte från figuren som för närvarande visas.",
+      "source_sha256": "4a5f41b84d60a13090a676a7623b9a9f869b3ccc7871a36bff5bd701c90ed6b8",
+      "text": "Serialisera graf-stil preferenser åsidosätter till en nyckel-värdekartläggning.\n\nParametrar\n----------\ngeneral : mapping, optional Allmän stil åsidosätter. Om ``None``, läs den nuvarande inställningen. per_graph : mapping of str to mapping, optional Överskrider med graftyp. Om ``None``, läs den aktuella inställningen.\n\nReturnerar\n----------\ndict Stildata med nycklarna ``spacr_style_kind``, ``general`` och ``per_graph``. Värden per diagram som inte är ordlistor utelämnas.\n\nAnteckningar\n------------\nBara företräden sparas. Tema-lösta färger och standardpaket fångas inte från figuren som för närvarande visas.",
       "translation_source_blocks_sha256": [
         "6ef3ecb00045e231b50e7f633fb50510b6c60719daa9ae7831730739562863a0",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "9be8b2cbed177806aea26c1b4d5de1708118e96f86b15aedcb461474af6802fb",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
-        "439d9aa6601d52b7b8f6a43973fdc0ddcbe3f62ae3f8d399fa6392c5e20bc58f",
+        "207f42b87ebea7fa422b8c735546eeae6777e550f3a8fcc2e219b96bcdad18c8",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "16207bf62ced7957a1192829fb0ab40a7897a3ca604942590897ad7c0102dcb5"
       ]
@@ -171708,14 +171708,14 @@
       "source_blocks_sha256": [
         "bd80699456c116e24ba937d018607bf3422c0f2af4d7bfaa0df3000f7dfd8d64",
         "241cae3fd0c7a14ed10a3002b3351314d502ee1ad120e01a53e26929de6bf2e1",
-        "cf7ca0048d87597f4a117f604aca949c7840ca459834951c3f8ded4d92fb3313"
+        "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65"
       ],
-      "source_sha256": "acd872bfeceb1d198358a41d9611e9310a6aa2df5fad8b8e0c74b0cb454aadf1",
-      "text": "Förhandsgranskning och spara en figur formaterad för filen snarare än för skärmen.\n\nSiffran som visas i spaCR ändras aldrig. En Matplotlib- figur kopieras innan den stylas. En pyqtgraph- diagramplott kan inte kopieras säkert, så den är bara styled för längden på en offscreen-återgivning och sätts tillbaka efteråt. Siffror som varken kan kopieras eller återges använder fortfarande den vanliga spara sökvägen utan en stilad förhandsgranskning.\n\nDialogrutan erbjuder vad som hör till FILE -- dess bakgrund, färg och bredd på dess linjer, textens färg, formen på dess sida och vilken typ av fil det är. Allt annat en siffra kan berättas tillhör PLOT och lever på tomtens egen högerklicksmeny, där den når skärmen och varje export på en gång; ett värde som ärvs därifrån visas här snarare än erbjuds en andra gång. Matplotlib- figurer har ingen sådan diagrammeny, så deras dialogruta erbjuder också en textskala med enbart export för att hålla typen proportionell när utmatningssidan ändras.",
+      "source_sha256": "a6a5e4a6011b2c4cc34714a6fd57ab7f77f78bfac214c35f3533b4f6c21a6645",
+      "text": "Förhandsgranskning och spara en figur formaterad för filen snarare än för skärmen.\n\nSiffran som visas i spaCR ändras aldrig. En Matplotlib- figur kopieras innan den stylas. En pyqtgraph- diagramplott kan inte kopieras säkert, så den är bara styled för längden på en offscreen-återgivning och sätts tillbaka efteråt. Siffror som varken kan kopieras eller återges använder fortfarande den vanliga spara sökvägen utan en stilad förhandsgranskning.\n\nDialogrutan erbjuder inställningar som hör till FILEN: dess bakgrund, linjernas färg och bredd, textens färg, sidans form och filtypen. Alla andra figurinställningar hör till DIAGRAMMET och finns i diagrammets egen högerklicksmeny, där de påverkar både skärmen och varje export; ett värde som ärvs därifrån visas här i stället för att erbjudas igen. Matplotlib-figurer har också en meny för figurinställningar som uppdaterar den visade figuren. Den här dialogrutan erbjuder dessutom en textskalning enbart för export, som används på den fristående Matplotlib-kopian när utdatasidans storlek ändras.",
       "translation_source_blocks_sha256": [
         "bd80699456c116e24ba937d018607bf3422c0f2af4d7bfaa0df3000f7dfd8d64",
         "241cae3fd0c7a14ed10a3002b3351314d502ee1ad120e01a53e26929de6bf2e1",
-        "cf7ca0048d87597f4a117f604aca949c7840ca459834951c3f8ded4d92fb3313"
+        "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65"
       ]
     },
     "spacr.qt.widgets.save_figure_dialog.SaveFigureDialog": {
@@ -171725,22 +171725,22 @@
         "31433db814efe79103bb776b9ac24b484bd470a8e82567d7ebdba50e947f42b6",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "ccd05a9cf1f1bec6a9ece68be55ba0aaf15eb8ff3955a04c0ab07697c61e0f66",
-        "625343f5227f082cc3d6262c662cbde8adeb2684a5bb7aa8c82fc9b688e993ff",
+        "3d1b3e9da7e7fbd0ee38c27637c904702a5cdc1ae40a90bb47ff1365d56290db",
         "356a26d92dbfe92b282fdfd4f2a37ae674ef36d1f26e76d0979e260a8f1594f9",
         "bc5f3627ffd9aafb53c1584422eefbaac66a5f45f31cabe2cdc3c6b98ddb5c4d",
         "f0b77df58a371a8a92721d8a9ec95eb0c65c2f20d8cb3c080cb3c88042eee65d",
         "ea21d0af2cfdb115c3051699d6d56a32d841909272d66d7fc14d7a8e55f26977",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "d282c607fc1f4870023d03869e0730a8c7dddde10a82360088d60cdd00730cfb",
-      "text": "Förhandsgranskning och spara en självständig figurkopia.\n\nParametrar\n----------\nfigur : matplotlib.figure.Figure eller snabb diagram Källa siffra. Matplotlib siffror kopieras innan förhandsgranskning styling; Snabba diagram ger sina egna stilade ögonblicksbilder och exportmetoder. överliggande : QWidget, valfri överliggande komponent för modaldialogrutan.\n\nAnteckningar\n------------\nExportera inställningar ändrar aldrig källan som visas i programmet.\n\nVad den erbjuder, och varför den är kort. För en snabblott, ändrar fyra inställningsgrupper hur FILE ser ut -- bakgrunden, linjernas färg och bredd, textfärgen och sidans form -- och ytterligare tre säga vad filen ÄR: dess format, upplösning och sidstorlek. Allt annat hör hemma på tomtens egen högerklicksmeny, där det gäller skärmen och varje export samtidigt. En Matplotlib- figur har ingen motsvarande livemeny, så dess dialogruta erbjuder också en textskala med enbart export.\n\nEn inställning som ärvs från handlingen visas, inte förklaras. Sidstorleken som en pyqtgraphplot skriver på är inställd på den menyn. Dialogrutan visar storleken som den får och behåller meningen om var den kommer ifrån som en tystare anteckning bredvid numret. Skapa dialogrutan för att spara: de fyra stilvalen, formen och sidan.\n\nOm figuren är en snabb komplott bestäms en gång här, eftersom de två typerna är stylade och skrivna genom olika metoder och varje gren nedan läser flaggan snarare än om-sniffning objektet.\n\nKontrollen av textskalan erbjuds endast för en siffra matplotlib: att reducera en bred bild på en tidskriftskolumn lämnar sina etiketter full storlek och trängs in i axlarna, och en snabb diagrambild äger redan en inställning av typsnittsstorlek på sin egen meny – ett andra svar här skulle strida mot det.\n\n:param figure: Siffran att spara.\n:param parent: överordnad widget, eller ``None``.",
+      "source_sha256": "6e148b496af6053e5af64a43df690fa53c93ab6f9e99f8554f8824b2e1ad7345",
+      "text": "Förhandsgranskning och spara en självständig figurkopia.\n\nParametrar\n----------\nfigur : matplotlib.figure.Figure eller snabb diagram Källa siffra. Matplotlib siffror kopieras innan förhandsgranskning styling; Snabba diagram ger sina egna stilade ögonblicksbilder och exportmetoder. överliggande : QWidget, valfri överliggande komponent för modaldialogrutan.\n\nAnteckningar\n------------\nExportera inställningar ändrar aldrig källan som visas i programmet.\n\nVAD DEN ERBJUDER OCH VARFÖR DEN ÄR KORT. För ett snabbdiagram ändrar fyra inställningsgrupper FILENS utseende: bakgrunden, linjernas färg och bredd, textens färg och sidans form. Tre till anger vad filen ÄR: format, upplösning och sidstorlek. Allt annat hör till diagrammets egen högerklicksmeny, där det påverkar både skärmen och varje export. Matplotlib-figurer har också en meny för figurinställningar som uppdaterar den visade figuren; den här dialogrutan ger exportkopian en extra textskalning.\n\nEn inställning som ärvs från handlingen visas, inte förklaras. Sidstorleken som en pyqtgraphplot skriver på är inställd på den menyn. Dialogrutan visar storleken som den får och behåller meningen om var den kommer ifrån som en tystare anteckning bredvid numret. Skapa dialogrutan för att spara: de fyra stilvalen, formen och sidan.\n\nOm figuren är en snabb komplott bestäms en gång här, eftersom de två typerna är stylade och skrivna genom olika metoder och varje gren nedan läser flaggan snarare än om-sniffning objektet.\n\nKontrollen av textskalan erbjuds endast för en siffra matplotlib: att reducera en bred bild på en tidskriftskolumn lämnar sina etiketter full storlek och trängs in i axlarna, och en snabb diagrambild äger redan en inställning av typsnittsstorlek på sin egen meny – ett andra svar här skulle strida mot det.\n\n:param figure: Siffran att spara.\n:param parent: överordnad widget, eller ``None``.",
       "translation_source_blocks_sha256": [
         "d9496625243465b6b21574de68f680282f8e7811e97cf6b51cf79e6130554557",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "31433db814efe79103bb776b9ac24b484bd470a8e82567d7ebdba50e947f42b6",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "ccd05a9cf1f1bec6a9ece68be55ba0aaf15eb8ff3955a04c0ab07697c61e0f66",
-        "9d297e15d39bba31a387f54d89ee259d24a7bfbf31b67888083a887b9bf1bff8",
+        "f59a87e16e91e8874f0746e46226284413e43acec08cf1bb74dd22d2d96ee9d7",
         "2662ad0a100f17fabd6b2ab67e4a6bfa1eb1d6eb04c50fecae268eec7e3b1dae",
         "bc5f3627ffd9aafb53c1584422eefbaac66a5f45f31cabe2cdc3c6b98ddb5c4d",
         "4523cbdcf9c7741a3f29704527089e7e6b53d85270c0a3e460779c48715019aa",
@@ -171858,18 +171858,18 @@
       "source_blocks_sha256": [
         "1208c21224d57375ebdc07976591a4c08bf56958313044da9dc9b1e08a1dfcb3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "74070cabc56e1be5895123b1671bb6d9014d38d3d86a51bf7ea3558e2a8962c4",
+        "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "12a0820b34a859c09e12fe7b7188e2a1a9e45ecee502399b47499eee3408df0f",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "03d0fa680c9db3203be0cb84a1893899069dddd98417ae9b6101d510fcba5c38"
       ],
-      "source_sha256": "c311d19bd84d4feaf60a638b0f676a5abf8b48460b0ef5aab1ca57b708260d8b",
-      "text": "Applicera endast exportstyling på en Matplotlib figur.\n\nParametrar\n----------\nfigur : matplotlib.figure.Figure eller None Figurkopia för att ändra. ``None`` accepteras för förhandsgranskningsbackar. ink : str, optional Färg som tillämpas på titlar, etiketter, fästingar, ryggrader, legender och text -- text och linjer tillsammans, vilket är vad en pappers- eller glidförinställning innebär. En tom sträng bevarar de befintliga färgerna. text_colour : str, optional Färg för TEXT endast: titeln, axeletiketterna, fästingens nummer och legenden. Överskrider ``ink`` för den halvan. line_colour : str, optional Färg för LINES endast: ryggraderna och fästingmärkena. Överdriver ``ink`` för den hälften. background : str, optional Figur och axlar bakgrundsfärg. En tomt sträng gör båda bakgrunderna transparenta. grid : bool or None, default None Rita större rutnätslinjer när ``True`` och inaktivera dem när ``False``. ``None`` lämnar figurens eget rutmönster ensamt, vilket är vad en uppringare utan egen gridkontroll vill ha: en standard på ``False`` stänger av ett rutnätet som figuren ritades med och ingen frågade om. width, height : float, default 0 Utmatningsdimensioner i tum. Storleken ändras bara när båda värdena är positiva. dpi : int, default 0 Utdataupplösning. Zero bevarar figurens nuvarande upplösning. font_scale : float, default 0 Multiplier tillämpas på varje textkonstnär. Värden vid eller under noll bevarar de nuvarande textstorlekarna.\n\nReturnerar\n----------\nmatplotlib.figure.Figure eller None Samma figurobjekt efter styling, eller ``None`` när ``figure`` var ``None``.\n\nAnteckningar\n------------\nFunktionen är avsedd för fristående exportkopior. Den läser eller uppdaterar inte inställningar för levande figurer.",
+      "source_sha256": "2d42df3bc13fb58d3b50fce5252993a90c71a278d81dff9ce19b17effbd223d4",
+      "text": "Applicera endast exportstyling på en Matplotlib figur.\n\nParametrar\n----------\nfigure : matplotlib.figure.Figure or None Figurkopia att ändra. ``None`` godtas när förhandsgranskningen behöver en reservlösning. ink : str, optional Färg för axeltitlar, axeletiketter, skalstreckens etiketter, förklaringsposter, text i axlarna, axelramar och skalstreck. Text på figurnivå, förklaringstitlar och ritade datalinjer ändras inte. En tom sträng bevarar de befintliga färgerna. text_colour : str, optional Färg för axlarnas textelement som anges under ``ink``. Åsidosätter ``ink`` för dessa element. line_colour : str, optional Färg enbart för LINJER: axelramar och skalstreck. Åsidosätter ``ink`` för den delen. background : str, optional Bakgrundsfärg för figuren och axlarna. En tom sträng gör båda bakgrunderna genomskinliga. grid : bool or None, default None Rita huvudrutnätslinjer när värdet är ``True`` och inaktivera dem vid ``False``. ``None`` lämnar figurens eget rutnät oförändrat, vilket passar en anropare utan egen rutnätskontroll: standardvärdet ``False`` skulle stänga av ett rutnät som figuren ritades med utan att någon begärde det. width, height : float, default 0 Utdatamått i tum. Storleken ändras bara när båda värdena är positiva. dpi : int, default 0 Utdataupplösning. Noll bevarar figurens aktuella upplösning. font_scale : float, default 0 Faktor som tillämpas på varje textobjekt. Värden som är noll eller negativa bevarar de aktuella textstorlekarna.\n\nReturnerar\n----------\nmatplotlib.figure.Figure eller None Samma figurobjekt efter styling, eller ``None`` när ``figure`` var ``None``.\n\nAnteckningar\n------------\nFunktionen är avsedd för fristående exportkopior. Den läser eller uppdaterar inte inställningar för levande figurer.",
       "translation_source_blocks_sha256": [
         "1208c21224d57375ebdc07976591a4c08bf56958313044da9dc9b1e08a1dfcb3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "74070cabc56e1be5895123b1671bb6d9014d38d3d86a51bf7ea3558e2a8962c4",
+        "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "12a0820b34a859c09e12fe7b7188e2a1a9e45ecee502399b47499eee3408df0f",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",

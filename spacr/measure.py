@@ -5227,7 +5227,8 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
     the model named by ``cell_cycle_model`` or trains one with
     :func:`spacr.deep_spacr.train_test_model`, the same training Classify
     runs: labelled crops go to ``train/<phase>`` and ``test/<phase>`` of a
-    dataset split by field, and the trained model is applied to every crop
+    dataset split by the requested acquisition group (well by default), and
+    the trained model is applied to every crop
     with :func:`spacr.deep_spacr.apply_model`. The phase order the model
     was trained with is written beside it as ``cell_cycle_phases.json``.
 
@@ -5239,9 +5240,11 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
     :param channel: the merged-array DNA channel.
     :param work: the folder the crops, dataset and model go in.
     :returns: ``(phases, confidence, report)``.
-    :raises ValueError: fewer than two labelled phases, or a model file
-        without its phase order.
+    :raises ValueError: fewer than two labelled phases, an unverifiable or
+        class-inadequate grouped holdout, or a model file without its phase
+        order.
     """
+    from .classifier_evaluation import grouped_split, split_group_values
     from .deep_spacr import apply_model, train_test_model
 
     size = _nucleus_crop_size(nuclei)
@@ -5272,12 +5275,26 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
             raise ValueError(
                 f"The torch phase classifier needs labelled crops of at "
                 f"least two phases; it has {classes or 'none'}.")
+        seed = int(settings.get('random_seed', 42))
+        level, groups = split_group_values(
+            frame=nuclei.loc[usable],
+            group_by=settings.get('cv_group_by', 'well'),
+            table=_CELL_CYCLE_TABLE)
+        try:
+            _, held_rows, split_report = grouped_split(
+                groups, labels.loc[usable].to_numpy(), 0.2,
+                seed=seed, group_by=level)
+        except ValueError as error:
+            from .qt.i18n import tr
+
+            raise ValueError(tr("The requested acquisition groups cannot place every class in both training and held-out data.")) from error
+        held = np.zeros(int(usable.sum()), dtype=bool)
+        held[held_rows] = True
+        report['split_group_by'] = level
+        report['split'] = split_report.to_dict()
         dataset = os.path.join(work, 'dataset')
         if os.path.isdir(dataset):
             shutil.rmtree(dataset)
-        fields = nuclei.loc[usable, list(_CELL_CYCLE_KEYS)].astype(str).agg(
-            '_'.join, axis=1)
-        held = _field_split(fields.to_numpy())
         for (i, png), test in zip(paths[usable].items(), held):
             target = os.path.join(dataset, 'test' if test else 'train',
                                   labels[i])
@@ -5295,7 +5312,8 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
             'init_weights': False, 'learning_rate': 1e-3,
             'gradient_accumulation_steps': 1, 'use_checkpoint': False,
             'plot': False, 'tensorboard': False, 'n_jobs': 0,
-            'pin_memory': False, 'cv_group_by': 'field', 'verbose': False,
+            'pin_memory': False, 'cv_group_by': level, 'verbose': False,
+            'random_seed': seed,
             'class_balance': 'weighted_loss',
         })
         if not model_path or not str(model_path).endswith('.pth'):
@@ -5305,7 +5323,8 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
         with open(os.path.join(os.path.dirname(model_path),
                                'cell_cycle_phases.json'), 'w') as handle:
             json.dump({'phases': classes, 'crop_size': size,
-                       'channel': int(channel)}, handle)
+                       'channel': int(channel), 'split_group_by': level,
+                       'split': split_report.to_dict()}, handle)
         report['model'] = model_path
     scored = apply_model(crops, model_path, image_size=size, batch_size=64,
                          normalize=True, n_jobs=0)
