@@ -173,3 +173,50 @@ def test_real_panel_receives_deferred_graph_controls_on_explicit_open(view, monk
     assert panel.comparison() is previous
     assert panel.workspace_state()["kind"] == "box"
     assert panel.workspace_state()["selected_wells"] is None
+
+
+def _loaded_sources(view):
+    frame = pd.DataFrame({"feature": ["gene_fraction:gene[GRA14]"], "coefficient": [0.2]})
+    view._frame_provider = lambda: frame
+    view._results_provider = lambda: "/not-probed/run/results.csv"
+    view._database_provider = lambda: [{"plate": "p1", "database": "/not-probed/measurements.db"}]
+
+
+def test_restore_loaded_run_does_not_stat_optional_run_name(view, monkeypatch):
+    from spacr.qt import path_probe
+
+    _loaded_sources(view)
+    monkeypatch.setattr(path_probe, "exists", lambda path: True)
+    monkeypatch.setattr(montage.os.path, "isfile", lambda path: pytest.fail("restore performed filesystem stat"))
+    assert view.apply_workspace_state({"coefficient": "gene_fraction:gene[GRA14]"})
+    assert view._name == "GRA14"
+    assert view._show.isEnabled()
+    assert view.status_text() == 'Ready: press “Show the cells” for GRA14.'
+    assert not view.__dict__.get("_restoring_workspace", False)
+
+
+def test_restore_keeps_nonblocking_database_presence_validation(view, monkeypatch):
+    from spacr.qt import path_probe
+
+    _loaded_sources(view)
+    probes = []
+    monkeypatch.setattr(path_probe, "exists", lambda path: (probes.append(path), False)[1])
+    assert view.apply_workspace_state({"coefficient": "gene_fraction:gene[GRA14]"})
+    assert probes and set(probes) == {"/not-probed/measurements.db"}
+    assert not view._show.isEnabled()
+    assert "No measurement database" in view.status_text()
+
+
+def test_restore_guard_and_signal_blocks_are_restored_after_exception(view, monkeypatch):
+    view._restoring_workspace = "outer"
+    view._channels.blockSignals(True)
+
+    def fail(_values):
+        raise ValueError("controlled restore failure")
+
+    monkeypatch.setattr(view, "_write_back", fail)
+    with pytest.raises(ValueError, match="controlled restore failure"):
+        view.apply_workspace_state({"widgets": {"channels": "r"}})
+    assert view._restoring_workspace == "outer"
+    assert view._channels.signalsBlocked()
+    assert not view._source.signalsBlocked()

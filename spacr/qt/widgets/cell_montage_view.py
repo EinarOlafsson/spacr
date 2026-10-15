@@ -2602,6 +2602,8 @@ class CellMontageView(QWidget):
         blockers = [QSignalBlocker(getattr(self, name))
                     for name in self._MIRRORED.values()]
         applied = False
+        previous_restore = self.__dict__.get("_restoring_workspace", False)
+        self._restoring_workspace = True
         try:
             if crop_state:
                 self._drop_montage()
@@ -2632,11 +2634,12 @@ class CellMontageView(QWidget):
                 else:
                     applied = (self._graph_panel.apply_workspace_state(
                         comparison) or applied)
+            self._refresh_controls()
+            self._announce()
         finally:
+            self._restoring_workspace = previous_restore
             for blocker in blockers:
                 blocker.unblock()
-        self._refresh_controls()
-        self._announce()
         return applied
 
     def compare_a_measurement(self, *_args):
@@ -3175,7 +3178,8 @@ class CellMontageView(QWidget):
             if not self._name:
                 self._set_status(self.NOTHING_SELECTED)
             else:
-                run = self.loaded_run_name()
+                run = ("" if self.__dict__.get("_restoring_workspace", False)
+                       else self.loaded_run_name())
                 selection = self.selected_coefficients()
                 more = (f" {len(selection)} coefficients are selected; this "
                         f"grid is one of them."
