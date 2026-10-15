@@ -46,6 +46,15 @@ def _selection_index(value, name, *, minimum=0):
     return index
 
 
+def gpu_seconds(path, request=None):
+    """ZeroGPU reservation scaled to the upload, so anonymous daily quota fits."""
+    try:
+        size = os.path.getsize(path)
+    except (OSError, TypeError, ValueError):
+        size = 0
+    return int(min(120, 40 + 20 * size / 10_000_000))
+
+
 def _card(metadata):
     rows = [tr("Model: {name}", name=metadata["display_name"]), metadata["trained_on"],
             metadata["versus_stock"], tr("Source: {url}", url=metadata["source_url"])]
@@ -196,7 +205,7 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                 gpu_execute = execute
                 if zero_gpu:
                     import spaces
-                    gpu_execute = spaces.GPU(duration=120)(execute)
+                    gpu_execute = spaces.GPU(duration=gpu_seconds)(execute)
 
                 def infer(path, model_key, accepted, selected_series, selected_t, selected_z, chosen_channels,
                           selected_page, selected_dpi, chosen_diameter, native_scale, flow_threshold, score_threshold,
