@@ -1,0 +1,54 @@
+{
+  "profiling_complete": true,
+  "profile_calls": [
+    {
+      "label": "preferences-open",
+      "thread_name": "MainThread",
+      "thread_ident": 134930910005056,
+      "started_monotonic": 556085.544328356,
+      "original_module": "spacr.qt.startup_benchmark",
+      "original_qualname": "BenchmarkController._open_preferences",
+      "original_file": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/startup_benchmark.py",
+      "original_first_line": 326,
+      "ended_monotonic": 556085.984945323,
+      "elapsed_seconds_with_profiling": 0.4406169669236988,
+      "pstats_file": "01-preferences-open.pstats"
+    },
+    {
+      "label": "mask-build",
+      "thread_name": "MainThread",
+      "thread_ident": 134930910005056,
+      "started_monotonic": 556086.588086711,
+      "original_module": "spacr.qt.app",
+      "original_qualname": "MainWindow._build_screen",
+      "original_file": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/app.py",
+      "original_first_line": 7455,
+      "ended_monotonic": 556091.712467958,
+      "elapsed_seconds_with_profiling": 5.124381246976554,
+      "pstats_file": "02-mask-build.pstats"
+    }
+  ],
+  "instrumentation": {
+    "patched": [
+      "mask-build",
+      "preferences-open"
+    ],
+    "import_hook_restored": true,
+    "entrypoint": "unchanged original driver WORKER suffix",
+    "scope": "Only synchronous original callback duration; deferred work after return is not profiled."
+  },
+  "benchmark_passed": false,
+  "benchmark_violations": [
+    "cold-process: worst_event_loop_stall_ms reached the 500 ms ceiling",
+    "cold-process: stall_budget_met is not true",
+    "cold-process: worker reported violation: __home__: no readiness record meeting the 5.0 s budget",
+    "cold-process: worker reported violation: __preferences__: event-loop stall reached the 500 ms ceiling",
+    "cold-process: worker reported violation: mask: event-loop stall reached the 500 ms ceiling",
+    "cold-process: benchmark.results[0].within_budget is not true",
+    "cold-process: benchmark.results[0].duration_s exceeds its declared budget",
+    "cold-process: benchmark.results[1] reached the 500 ms event-loop stall ceiling",
+    "cold-process: benchmark.results[1].event_loop_stall_budget_met is not true",
+    "cold-process: benchmark.results[2] reached the 500 ms event-loop stall ceiling",
+    "cold-process: benchmark.results[2].event_loop_stall_budget_met is not true"
+  ]
+}

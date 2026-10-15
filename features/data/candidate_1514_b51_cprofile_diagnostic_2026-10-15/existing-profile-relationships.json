@@ -1,0 +1,3981 @@
+[
+  {
+    "file": "01-preferences-open.pstats",
+    "total_calls": 344515,
+    "total_tt": 0.44453466000000047,
+    "selected_call_relationships": [
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'append' of 'collections.deque' objects>"
+        ],
+        "primitive_calls": 12,
+        "calls": 12,
+        "self_seconds": 3.8080000000000002e-06,
+        "cumulative_seconds": 3.8080000000000002e-06,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              323,
+              "wait"
+            ],
+            "statistics": [
+              12,
+              12,
+              3.8080000000000002e-06,
+              3.8080000000000002e-06
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'remove' of 'collections.deque' objects>"
+        ],
+        "primitive_calls": 10,
+        "calls": 10,
+        "self_seconds": 4.418e-06,
+        "cumulative_seconds": 4.418e-06,
+        "callers": [
+          {
+            "function": [
+              "<frozen importlib._bootstrap_external>",
+              1187,
+              "get_data"
+            ],
+            "statistics": [
+              2,
+              2,
+              8.000000000000001e-07,
+              8.000000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap_external>",
+              993,
+              "exec_module"
+            ],
+            "statistics": [
+              1,
+              1,
+              8.5e-07,
+              8.5e-07
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap_external>",
+              140,
+              "_path_stat"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.9e-07,
+              3.9e-07
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap>",
+              911,
+              "_load_unlocked"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.900000000000001e-07,
+              5.900000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/figure_settings.py",
+              85,
+              "_colour_button"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.4000000000000003e-07,
+              3.4000000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preferences.py",
+              5238,
+              "get_reduce_motion"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.5000000000000003e-07,
+              4.5000000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/theme.py",
+              3748,
+              "_sheets_itself_before_it_shows"
+            ],
+            "statistics": [
+              2,
+              2,
+              7.890000000000001e-07,
+              7.890000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              394,
+              "notify"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.09e-07,
+              2.09e-07
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'keys' of 'collections.OrderedDict' objects>"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 4.1000000000000004e-07,
+        "cumulative_seconds": 4.1000000000000004e-07,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/cloudpickle/cloudpickle.py",
+              1231,
+              "Pickler"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.1000000000000004e-07,
+              4.1000000000000004e-07
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'values' of 'collections.OrderedDict' objects>"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 3.0900000000000003e-07,
+        "cumulative_seconds": 3.0900000000000003e-07,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/cloudpickle/cloudpickle.py",
+              1231,
+              "Pickler"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.0900000000000003e-07,
+              3.0900000000000003e-07
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'items' of 'collections.OrderedDict' objects>"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 3.9e-07,
+        "cumulative_seconds": 3.9e-07,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/cloudpickle/cloudpickle.py",
+              1231,
+              "Pickler"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.9e-07,
+              3.9e-07
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/typing.py",
+          262,
+          "_collect_parameters"
+        ],
+        "primitive_calls": 13,
+        "calls": 13,
+        "self_seconds": 1.7035000000000002e-05,
+        "cumulative_seconds": 4.5994e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/typing.py",
+              1123,
+              "_generic_init_subclass"
+            ],
+            "statistics": [
+              3,
+              3,
+              6.399e-06,
+              2.2982e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/typing.py",
+              1269,
+              "__init__"
+            ],
+            "statistics": [
+              10,
+              10,
+              1.0636000000000001e-05,
+              2.3012000000000003e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'connect' of 'PySide6.QtCore.SignalInstance' objects>"
+        ],
+        "primitive_calls": 217,
+        "calls": 217,
+        "self_seconds": 0.003512017,
+        "cumulative_seconds": 0.003512877,
+        "callers": [
+          {
+            "function": [
+              "<frozen importlib._bootstrap_external>",
+              1187,
+              "get_data"
+            ],
+            "statistics": [
+              77,
+              3,
+              0.002027475,
+              5.7947000000000006e-05
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap_external>",
+              1066,
+              "get_code"
+            ],
+            "statistics": [
+              34,
+              1,
+              0.000268459,
+              1.4474e-05
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap_external>",
+              993,
+              "exec_module"
+            ],
+            "statistics": [
+              5,
+              3,
+              6.2865e-05,
+              2.9968000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap>",
+              1304,
+              "_find_and_load_unlocked"
+            ],
+            "statistics": [
+              4,
+              4,
+              3.1439e-05,
+              3.1439e-05
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap>",
+              1240,
+              "_find_spec"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap>",
+              911,
+              "_load_unlocked"
+            ],
+            "statistics": [
+              4,
+              4,
+              2.3011e-05,
+              2.3011e-05
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap>",
+              480,
+              "_call_with_frames_removed"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              323,
+              "wait"
+            ],
+            "statistics": [
+              4,
+              3,
+              3.6517e-05,
+              2.6961e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/toggle.py",
+              16,
+              "__init__"
+            ],
+            "statistics": [
+              22,
+              0,
+              0.00045372500000000004,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/section.py",
+              196,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.9923000000000002e-05,
+              1.9923000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preferences.py",
+              7112,
+              "__init__"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preferences.py",
+              8485,
+              "_send_the_unseen_pages_away"
+            ],
+            "statistics": [
+              3,
+              3,
+              2.627e-05,
+              2.627e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preferences.py",
+              9522,
+              "_percent_row"
+            ],
+            "statistics": [
+              9,
+              9,
+              8.286800000000001e-05,
+              8.286800000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/button_roles.py",
+              193,
+              "_classify_live"
+            ],
+            "statistics": [
+              13,
+              7,
+              7.2762e-05,
+              3.9344e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              10211,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.3285e-05,
+              1.3285e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/setup_card.py",
+              93,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.7993000000000002e-05,
+              1.7993000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/ffi.py",
+              117,
+              "_load_lib"
+            ],
+            "statistics": [
+              1,
+              1,
+              6.964300000000001e-05,
+              6.964300000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/figure_settings.py",
+              85,
+              "_colour_button"
+            ],
+            "statistics": [
+              2,
+              0,
+              2.0562e-05,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typeconv/castgraph.py",
+              131,
+              "unsafe"
+            ],
+            "statistics": [
+              3,
+              3,
+              3.6656e-05,
+              3.6656e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              3252,
+              "__init__"
+            ],
+            "statistics": [
+              2,
+              2,
+              2.2011e-05,
+              2.2871000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              10084,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.826e-06,
+              9.826e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/glass.py",
+              151,
+              "spin_on_every_button"
+            ],
+            "statistics": [
+              4,
+              4,
+              2.7369000000000002e-05,
+              2.7369000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preferences.py",
+              8360,
+              "_show_only_the_open_page_at_first"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preferences.py",
+              11247,
+              "_resource_button"
+            ],
+            "statistics": [
+              2,
+              0,
+              1.5575000000000002e-05,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/theme.py",
+              3748,
+              "_sheets_itself_before_it_shows"
+            ],
+            "statistics": [
+              23,
+              1,
+              0.000133719,
+              5.228000000000001e-06
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "02-mask-build.pstats",
+    "total_calls": 4282855,
+    "total_tt": 7.24576353300001,
+    "selected_call_relationships": [
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'append' of 'collections.deque' objects>"
+        ],
+        "primitive_calls": 349,
+        "calls": 349,
+        "self_seconds": 7.997100000000001e-05,
+        "cumulative_seconds": 7.997100000000001e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              323,
+              "wait"
+            ],
+            "statistics": [
+              142,
+              142,
+              4.5427000000000004e-05,
+              4.5427000000000004e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/byteflow.py",
+              86,
+              "run"
+            ],
+            "statistics": [
+              5,
+              5,
+              1.02e-06,
+              1.02e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/contextlib.py",
+              548,
+              "_push_exit_callback"
+            ],
+            "statistics": [
+              202,
+              202,
+              3.3524e-05,
+              3.3524e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'extend' of 'collections.deque' objects>"
+        ],
+        "primitive_calls": 96,
+        "calls": 96,
+        "self_seconds": 4.0374000000000003e-05,
+        "cumulative_seconds": 4.0374000000000003e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/interpreter.py",
+              1365,
+              "interpret"
+            ],
+            "statistics": [
+              20,
+              20,
+              4.14e-06,
+              4.14e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/byteflow.py",
+              86,
+              "run"
+            ],
+            "statistics": [
+              30,
+              30,
+              7.467000000000001e-06,
+              7.467000000000001e-06
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<method 'repaint' of 'PySide6.QtWidgets.QWidget' objects>"
+            ],
+            "statistics": [
+              34,
+              34,
+              7.374e-06,
+              7.374e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/email/feedparser.py",
+              121,
+              "pushlines"
+            ],
+            "statistics": [
+              12,
+              12,
+              2.1393e-05,
+              2.1393e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'pop' of 'collections.deque' objects>"
+        ],
+        "primitive_calls": 207,
+        "calls": 207,
+        "self_seconds": 3.6837e-05,
+        "cumulative_seconds": 3.6837e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/contextlib.py",
+              567,
+              "__exit__"
+            ],
+            "statistics": [
+              207,
+              207,
+              3.6837e-05,
+              3.6837e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'popleft' of 'collections.deque' objects>"
+        ],
+        "primitive_calls": 1428,
+        "calls": 1428,
+        "self_seconds": 0.00010885300000000001,
+        "cumulative_seconds": 0.00010885300000000001,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/datamodel/packer.py",
+              190,
+              "unflatten"
+            ],
+            "statistics": [
+              249,
+              249,
+              2.2952e-05,
+              2.2952e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/interpreter.py",
+              1365,
+              "interpret"
+            ],
+            "statistics": [
+              32,
+              32,
+              3.729e-06,
+              3.729e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/byteflow.py",
+              86,
+              "run"
+            ],
+            "statistics": [
+              40,
+              40,
+              5.647e-06,
+              5.647e-06
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<method 'repaint' of 'PySide6.QtWidgets.QWidget' objects>"
+            ],
+            "statistics": [
+              52,
+              52,
+              6.428e-06,
+              6.428e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/email/feedparser.py",
+              77,
+              "readline"
+            ],
+            "statistics": [
+              1055,
+              1055,
+              7.0097e-05,
+              7.0097e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'remove' of 'collections.deque' objects>"
+        ],
+        "primitive_calls": 142,
+        "calls": 142,
+        "self_seconds": 6.297e-05,
+        "cumulative_seconds": 6.297e-05,
+        "callers": [
+          {
+            "function": [
+              "<frozen _collections_abc>",
+              811,
+              "__contains__"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.200000000000001e-07,
+              7.200000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "<frozen importlib._bootstrap_external>",
+              1187,
+              "get_data"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.429e-06,
+              1.429e-06
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<built-in method builtins.exec>"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.0000000000000004e-07,
+              3.0000000000000004e-07
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<built-in method builtins.getattr>"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.7e-07,
+              5.7e-07
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<built-in method builtins.next>"
+            ],
+            "statistics": [
+              3,
+              3,
+              1.3290000000000001e-06,
+              1.3290000000000001e-06
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<method 'format' of 'str' objects>"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.0000000000000003e-07,
+              4.0000000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/ImageFile.py",
+              291,
+              "load"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.5000000000000004e-07,
+              3.5000000000000004e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/ImageFile.py",
+              672,
+              "_encode_tile"
+            ],
+            "statistics": [
+              3,
+              3,
+              1.8400000000000002e-06,
+              1.8400000000000002e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/section.py",
+              386,
+              "add_row"
+            ],
+            "statistics": [
+              1,
+              1,
+              8.590000000000001e-07,
+              8.590000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/iconset.py",
+              465,
+              "reink"
+            ],
+            "statistics": [
+              5,
+              5,
+              2.11e-06,
+              2.11e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/iconset.py",
+              574,
+              "_write_cached_icon"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.2e-07,
+              4.2e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/i18n.py",
+              4225,
+              "_a11y_source"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.09e-07,
+              5.09e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/toggle.py",
+              16,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.9e-07,
+              3.9e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/gil_priority.py",
+              349,
+              "eventFilter"
+            ],
+            "statistics": [
+              8,
+              8,
+              3.649e-06,
+              3.649e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/object_settings_table.py",
+              248,
+              "to_table"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.6900000000000004e-07,
+              3.6900000000000004e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              1017,
+              "convert"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.19e-06,
+              1.19e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/PngImagePlugin.py",
+              167,
+              "read"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.9000000000000003e-07,
+              2.9000000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              2592,
+              "save"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.6e-07,
+              7.6e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              2329,
+              "resize"
+            ],
+            "statistics": [
+              6,
+              6,
+              2.819e-06,
+              2.819e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              11668,
+              "_on_tick"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.900000000000001e-07,
+              4.900000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              11961,
+              "_paint_ambient"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.15e-06,
+              1.15e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              6260,
+              "refresh_maturity_visibility"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.7000000000000005e-07,
+              4.7000000000000005e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/object_grid_binding.py",
+              52,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.3e-07,
+              4.3e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              2334,
+              "_categories_for_app_uncached"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.6000000000000005e-07,
+              3.6000000000000005e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              4253,
+              "api_docs_url"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.1900000000000003e-07,
+              4.1900000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              4696,
+              "format_tooltip"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.900000000000001e-07,
+              5.900000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              6479,
+              "refresh_api_tooltips"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.200000000000001e-07,
+              9.200000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              10969,
+              "_watch_setting_commit"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.4e-07,
+              5.4e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/ir.py",
+              321,
+              "_rec_list_vars"
+            ],
+            "statistics": [
+              2,
+              2,
+              9.79e-07,
+              9.79e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/cgutils.py",
+              175,
+              "__setitem__"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.990000000000001e-07,
+              7.990000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/lowering.py",
+              457,
+              "lower_inst"
+            ],
+            "statistics": [
+              1,
+              1,
+              8.100000000000001e-07,
+              8.100000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/cgutils.py",
+              168,
+              "__getitem__"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.2e-07,
+              3.2e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typing/cffi_utils.py",
+              39,
+              "is_cffi_func"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.800000000000001e-07,
+              4.800000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/context.py",
+              9,
+              "get_global_context"
+            ],
+            "statistics": [
+              2,
+              2,
+              8.6e-07,
+              8.6e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/newpassmanagers.py",
+              542,
+              "_dispose"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.8e-07,
+              3.8e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/errors.py",
+              285,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              6.398e-06,
+              6.398e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/ir.py",
+              354,
+              "list_vars"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.400000000000001e-07,
+              9.400000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/targets.py",
+              18,
+              "get_process_triple"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.0000000000000003e-07,
+              4.0000000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/newpassmanagers.py",
+              120,
+              "run"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.159e-06,
+              1.159e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/ir/_utils.py",
+              44,
+              "__str__"
+            ],
+            "statistics": [
+              2,
+              2,
+              7.890000000000001e-07,
+              7.890000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/ir/_utils.py",
+              54,
+              "get_reference"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.6e-07,
+              5.6e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/ir/values.py",
+              1003,
+              "descr_body"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.8e-07,
+              2.8e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/newpassmanagers.py",
+              568,
+              "getFunctionPassManager"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.1900000000000003e-07,
+              4.1900000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/executionengine.py",
+              94,
+              "finalize_object"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.4e-07,
+              5.4e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/colorama/ansitowin32.py",
+              49,
+              "isatty"
+            ],
+            "statistics": [
+              4,
+              4,
+              2.1290000000000003e-06,
+              2.1290000000000003e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/module.py",
+              251,
+              "_next"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.99e-07,
+              3.99e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/ir/values.py",
+              544,
+              "_to_string"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.900000000000001e-07,
+              7.900000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              10040,
+              "<genexpr>"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.200000000000001e-07,
+              9.200000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              10400,
+              "<lambda>"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.0000000000000003e-07,
+              4.0000000000000003e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/gui_scale.py",
+              250,
+              "_set_dims"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.5000000000000004e-07,
+              3.5000000000000004e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/PngImagePlugin.py",
+              1127,
+              "putchunk"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.6e-07,
+              2.6e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              1356,
+              "copy"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.02e-06,
+              1.02e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preferences.py",
+              5379,
+              "get_strong_focus"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.1600000000000001e-06,
+              1.1600000000000001e-06
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<method 'polish' of 'PySide6.QtWidgets.QCommonStyle' objects>"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.900000000000001e-07,
+              4.900000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<method 'text' of 'PySide6.QtWidgets.QAccessibleWidget' objects>"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.5e-07,
+              5.5e-07
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<method 'min' of 'numpy.ndarray' objects>"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.200000000000001e-07,
+              7.200000000000001e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              394,
+              "notify"
+            ],
+            "statistics": [
+              55,
+              55,
+              1.1997e-05,
+              1.1997e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<built-in method gc.collect>"
+        ],
+        "primitive_calls": 4,
+        "calls": 4,
+        "self_seconds": 0.033261812,
+        "cumulative_seconds": 0.033261812,
+        "callers": [
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/gc_policy.py",
+              68,
+              "collect_once"
+            ],
+            "statistics": [
+              4,
+              4,
+              0.033261812,
+              0.033261812
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'setdefault' of 'collections.OrderedDict' objects>"
+        ],
+        "primitive_calls": 80,
+        "calls": 80,
+        "self_seconds": 2.8868000000000002e-05,
+        "cumulative_seconds": 2.8868000000000002e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              323,
+              "wait"
+            ],
+            "statistics": [
+              44,
+              44,
+              1.5084000000000002e-05,
+              1.5084000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/executionengine.py",
+              94,
+              "finalize_object"
+            ],
+            "statistics": [
+              15,
+              15,
+              4.578e-06,
+              4.578e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              1356,
+              "copy"
+            ],
+            "statistics": [
+              21,
+              21,
+              9.206000000000001e-06,
+              9.206000000000001e-06
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'values' of 'collections.OrderedDict' objects>"
+        ],
+        "primitive_calls": 138,
+        "calls": 138,
+        "self_seconds": 2.7006000000000002e-05,
+        "cumulative_seconds": 2.7006000000000002e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typeinfer.py",
+              1033,
+              "build_constraint"
+            ],
+            "statistics": [
+              5,
+              5,
+              1.08e-06,
+              1.08e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typeinfer.py",
+              1006,
+              "_get_return_vars"
+            ],
+            "statistics": [
+              10,
+              10,
+              2.4790000000000003e-06,
+              2.4790000000000003e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/bytecode.py",
+              308,
+              "_compute_lineno"
+            ],
+            "statistics": [
+              5,
+              5,
+              1.159e-06,
+              1.159e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/dispatcher.py",
+              281,
+              "nopython_signatures"
+            ],
+            "statistics": [
+              16,
+              16,
+              3.518e-06,
+              3.518e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/ir/module.py",
+              217,
+              "_get_body_lines"
+            ],
+            "statistics": [
+              102,
+              102,
+              1.877e-05,
+              1.877e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'items' of 'collections.OrderedDict' objects>"
+        ],
+        "primitive_calls": 5,
+        "calls": 5,
+        "self_seconds": 1.3e-06,
+        "cumulative_seconds": 1.3e-06,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              323,
+              "wait"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.9e-07,
+              3.9e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/figure_queue.py",
+              2456,
+              "cache_budget_entries"
+            ],
+            "statistics": [
+              2,
+              2,
+              3.2e-07,
+              3.2e-07
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/crops.py",
+              918,
+              "cache_budget_entries"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.1000000000000004e-07,
+              4.1000000000000004e-07
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              637,
+              "wait"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.8000000000000002e-07,
+              1.8000000000000002e-07
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+          1058,
+          "_bootstrap_inner"
+        ],
+        "primitive_calls": 1,
+        "calls": 2,
+        "self_seconds": 7.356e-06,
+        "cumulative_seconds": 1.516727938,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              1018,
+              "_bootstrap"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/socket.py",
+          823,
+          "create_connection"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 8.487e-06,
+        "cumulative_seconds": 2.2911e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/http/client.py",
+              1048,
+              "connect"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/http/client.py",
+          1048,
+          "connect"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 1.0317000000000001e-05,
+        "cumulative_seconds": 3.8045e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/http/client.py",
+              1517,
+              "connect"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/resource_cleanup.py",
+          465,
+          "_collect_budget_entries"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 1.2304000000000001e-05,
+        "cumulative_seconds": 7.446e-05,
+        "callers": [
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/resource_cleanup.py",
+              626,
+              "sweep_memory_budget"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.2304000000000001e-05,
+              7.446e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/gc_policy.py",
+          68,
+          "collect_once"
+        ],
+        "primitive_calls": 4,
+        "calls": 4,
+        "self_seconds": 3.1838e-05,
+        "cumulative_seconds": 0.023088154000000003,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/ImageFile.py",
+              644,
+              "_save"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.666e-06,
+              0.006839472
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/errors.py",
+              285,
+              "__init__"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/errors.py",
+              362,
+              "_markup"
+            ],
+            "statistics": [
+              1,
+              1,
+              6.567000000000001e-06,
+              0.008037171000000001
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              10400,
+              "<lambda>"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.479000000000001e-06,
+              0.008201385
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/crashreport.py",
+          2404,
+          "_post_json"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 1.3753e-05,
+        "cumulative_seconds": 0.568656236,
+        "callers": [
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/crashreport.py",
+              2960,
+              "fetch_allowance"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/multiprocessing/connection.py",
+          1172,
+          "reduce_connection"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 4.598000000000001e-06,
+        "cumulative_seconds": 1.1025e-05,
+        "callers": [
+          {
+            "function": [
+              "~",
+              0,
+              "<function Pickler.dump at 0x7ab7e196f100>"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.598000000000001e-06,
+              1.1025e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+          11080,
+          "collect"
+        ],
+        "primitive_calls": 4,
+        "calls": 4,
+        "self_seconds": 0.000561788,
+        "cumulative_seconds": 0.022436288000000002,
+        "callers": [
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/chaining.py",
+              568,
+              "current_settings"
+            ],
+            "statistics": [
+              1,
+              1,
+              0.00018280500000000002,
+              0.00469796
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              2829,
+              "thumbnail"
+            ],
+            "statistics": [
+              1,
+              1,
+              5.5674e-05,
+              0.000304217
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/object_grid_binding.py",
+              117,
+              "seed"
+            ],
+            "statistics": [
+              1,
+              1,
+              0.00015867,
+              0.012878774
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              3812,
+              "_form_shape"
+            ],
+            "statistics": [
+              1,
+              1,
+              0.000164639,
+              0.0045553370000000004
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+          3812,
+          "_form_shape"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 6.248e-06,
+        "cumulative_seconds": 0.005291304,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/functools.py",
+              982,
+              "__get__"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/bytecode.py",
+          262,
+          "_fetch_opcode"
+        ],
+        "primitive_calls": 534,
+        "calls": 534,
+        "self_seconds": 7.2419e-05,
+        "cumulative_seconds": 0.00050761,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/bytecode.py",
+              265,
+              "next"
+            ],
+            "statistics": [
+              534,
+              534,
+              7.2419e-05,
+              0.00050761
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/crashreport.py",
+          2960,
+          "fetch_allowance"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 9.677e-06,
+        "cumulative_seconds": 0.568719251,
+        "callers": [
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/console_panel.py",
+              2055,
+              "_fetch"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/crashreport.py",
+          2397,
+          "_open_url"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 1.9494e-05,
+        "cumulative_seconds": 0.5685108750000001,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/ir/module.py",
+              217,
+              "_get_body_lines"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+          12321,
+          "_connect_object_visibility_signals"
+        ],
+        "primitive_calls": 2,
+        "calls": 2,
+        "self_seconds": 5.2839e-05,
+        "cumulative_seconds": 0.0011903480000000001,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typeinfer.py",
+              1465,
+              "typeof_assign"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.9465e-05,
+              0.000997695
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<built-in method processEvents>"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.3374000000000001e-05,
+              0.00019265300000000001
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+          11668,
+          "_connect_setting_dependency_signals"
+        ],
+        "primitive_calls": 2,
+        "calls": 2,
+        "self_seconds": 1.3043e-05,
+        "cumulative_seconds": 0.004483955,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/errors.py",
+              362,
+              "_markup"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<built-in method processEvents>"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.478e-06,
+              3.8185e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+          11679,
+          "_connect_column_fields"
+        ],
+        "primitive_calls": 2,
+        "calls": 2,
+        "self_seconds": 2.19e-06,
+        "cumulative_seconds": 2.68e-06,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typeinfer.py",
+              1465,
+              "typeof_assign"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.0000000000000002e-06,
+              1.2200000000000002e-06
+            ]
+          },
+          {
+            "function": [
+              "~",
+              0,
+              "<built-in method processEvents>"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.19e-06,
+              1.46e-06
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+          403,
+          "_connect_value_changed"
+        ],
+        "primitive_calls": 4,
+        "calls": 4,
+        "self_seconds": 7.407e-06,
+        "cumulative_seconds": 6.1876e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typeinfer.py",
+              1571,
+              "typeof_global"
+            ],
+            "statistics": [
+              4,
+              4,
+              7.407e-06,
+              6.1876e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/chaining.py",
+          926,
+          "_connect_host"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 9.987000000000001e-06,
+        "cumulative_seconds": 9.6821e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/colorama/initialise.py",
+              111,
+              "wrap_stream"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.987000000000001e-06,
+              9.6821e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/console_panel.py",
+          2055,
+          "_fetch"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 4.578e-06,
+        "cumulative_seconds": 0.5687238290000001,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              1001,
+              "run"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/console_panel.py",
+          2065,
+          "_collect"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 6.747000000000001e-06,
+        "cumulative_seconds": 0.00027938800000000004,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/ImageFile.py",
+              644,
+              "_save"
+            ],
+            "statistics": [
+              1,
+              1,
+              6.747000000000001e-06,
+              0.00027938800000000004
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/ssl.py",
+          1236,
+          "recv_into"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 3.948e-06,
+        "cumulative_seconds": 0.019075105000000002,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/socket.py",
+              706,
+              "readinto"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/ssl.py",
+          1086,
+          "_check_connected"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 2.5000000000000004e-07,
+        "cumulative_seconds": 2.5000000000000004e-07,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/ssl.py",
+              1312,
+              "do_handshake"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.5000000000000004e-07,
+              2.5000000000000004e-07
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/ssl.py",
+          1312,
+          "do_handshake"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 1.2795e-05,
+        "cumulative_seconds": 0.0053285070000000006,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/ssl.py",
+              955,
+              "_create"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/email/_policybase.py",
+          319,
+          "header_fetch_parse"
+        ],
+        "primitive_calls": 7,
+        "calls": 7,
+        "self_seconds": 2.888e-06,
+        "cumulative_seconds": 1.2146e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/email/message.py",
+              504,
+              "get"
+            ],
+            "statistics": [
+              7,
+              7,
+              2.888e-06,
+              1.2146e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/http/client.py",
+          1517,
+          "connect"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 6.4656e-05,
+        "cumulative_seconds": 0.061607991,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/http/client.py",
+              1077,
+              "send"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/socket.py",
+          961,
+          "getaddrinfo"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 1.1443e-05,
+        "cumulative_seconds": 0.005058045000000001,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/socket.py",
+              823,
+              "create_connection"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'do_handshake' of '_ssl._SSLSocket' objects>"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 0.005307816,
+        "cumulative_seconds": 0.005307816,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/ssl.py",
+              1312,
+              "do_handshake"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'connect' of '_socket.socket' objects>"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 1.2055e-05,
+        "cumulative_seconds": 1.2055e-05,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              637,
+              "wait"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<built-in method _socket.getaddrinfo>"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 0.005016952000000001,
+        "cumulative_seconds": 0.005030937,
+        "callers": [
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/socket.py",
+              961,
+              "getaddrinfo"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'connect' of 'PySide6.QtCore.SignalInstance' objects>"
+        ],
+        "primitive_calls": 630,
+        "calls": 630,
+        "self_seconds": 0.02397919,
+        "cumulative_seconds": 0.024898175,
+        "callers": [
+          {
+            "function": [
+              "<frozen importlib._bootstrap>",
+              1349,
+              "_find_and_load"
+            ],
+            "statistics": [
+              3,
+              3,
+              4.5223000000000004e-05,
+              4.5223000000000004e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              323,
+              "wait"
+            ],
+            "statistics": [
+              6,
+              3,
+              0.00035457900000000005,
+              5.4239e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/ImageFile.py",
+              672,
+              "_encode_tile"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.2680000000000005e-06,
+              7.2680000000000005e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/iconset.py",
+              340,
+              "_load_rgba"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.676e-05,
+              2.676e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/iconset.py",
+              465,
+              "reink"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/theme.py",
+              6395,
+              "apply_close_mark"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.0926e-05,
+              1.0926e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/toggle.py",
+              16,
+              "__init__"
+            ],
+            "statistics": [
+              40,
+              35,
+              0.000897766,
+              0.0007725560000000001
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/sortable_table.py",
+              617,
+              "install_sorting"
+            ],
+            "statistics": [
+              4,
+              4,
+              2.2912e-05,
+              2.2912e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/console_panel.py",
+              1132,
+              "__init__"
+            ],
+            "statistics": [
+              4,
+              4,
+              5.7308e-05,
+              5.7308e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/console_panel.py",
+              1199,
+              "_build_ui"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/hover_tooltip.py",
+              281,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.4524e-05,
+              1.4524e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/tooltip_policy.py",
+              166,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.2525000000000001e-05,
+              1.2525000000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/object_settings_grid.py",
+              647,
+              "__init__"
+            ],
+            "statistics": [
+              8,
+              8,
+              9.892100000000001e-05,
+              9.892100000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/section.py",
+              196,
+              "__init__"
+            ],
+            "statistics": [
+              18,
+              18,
+              0.00041050600000000004,
+              0.00041050600000000004
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/chaining.py",
+              187,
+              "__init__"
+            ],
+            "statistics": [
+              4,
+              4,
+              5.3049000000000007e-05,
+              5.3049000000000007e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/bridge.py",
+              592,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.0275e-05,
+              1.0275e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/resource_cleanup.py",
+              1634,
+              "install_budget_sweep"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.677000000000001e-06,
+              7.677000000000001e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/bridge.py",
+              2237,
+              "make_thread"
+            ],
+            "statistics": [
+              4,
+              4,
+              3.3776e-05,
+              3.4516e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/PngImagePlugin.py",
+              1328,
+              "_save"
+            ],
+            "statistics": [
+              2,
+              2,
+              3.2327000000000004e-05,
+              3.2327000000000004e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              1017,
+              "convert"
+            ],
+            "statistics": [
+              2,
+              2,
+              5.8057e-05,
+              5.8057e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              2592,
+              "save"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.8639e-05,
+              2.8639e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/PIL/Image.py",
+              2329,
+              "resize"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.8472000000000002e-05,
+              1.8472000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/button_roles.py",
+              193,
+              "_classify_live"
+            ],
+            "statistics": [
+              10,
+              10,
+              6.1827e-05,
+              6.1827e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/job_runner.py",
+              171,
+              "submit"
+            ],
+            "statistics": [
+              3,
+              3,
+              2.2851000000000002e-05,
+              2.2851000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/fold_strip.py",
+              662,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.5775e-05,
+              3.5775e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              10211,
+              "__init__"
+            ],
+            "statistics": [
+              3,
+              3,
+              2.9428000000000004e-05,
+              3.0838000000000005e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/collapsible_splitter.py",
+              588,
+              "__init__"
+            ],
+            "statistics": [
+              6,
+              6,
+              0.00012791000000000001,
+              0.00012791000000000001
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/collapsible_splitter.py",
+              1270,
+              "target"
+            ],
+            "statistics": [
+              2,
+              2,
+              2.4031e-05,
+              2.4031e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/live_zoom.py",
+              601,
+              "__init__"
+            ],
+            "statistics": [
+              4,
+              4,
+              4.0033e-05,
+              4.0033e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/model_install.py",
+              479,
+              "__init__"
+            ],
+            "statistics": [
+              2,
+              2,
+              4.2224e-05,
+              4.2224e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              8712,
+              "_wire_category_hints"
+            ],
+            "statistics": [
+              13,
+              13,
+              5.4827e-05,
+              5.4827e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              4143,
+              "_build_a_waiting_heading"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.487e-06,
+              9.487e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              3918,
+              "_settings_section_steps"
+            ],
+            "statistics": [
+              2,
+              2,
+              2.9318000000000003e-05,
+              2.9318000000000003e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/live_preview.py",
+              1448,
+              "__init__"
+            ],
+            "statistics": [
+              6,
+              6,
+              7.2322e-05,
+              7.2322e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              3777,
+              "_watch_the_cellpose3_choosers"
+            ],
+            "statistics": [
+              5,
+              5,
+              5.4669e-05,
+              5.4669e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              1457,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.51e-05,
+              2.51e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              6917,
+              "_wire_live_preview_naming"
+            ],
+            "statistics": [
+              3,
+              3,
+              1.9572e-05,
+              1.9572e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              6876,
+              "_wire_live_preview_autoload"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.3094e-05,
+              1.3094e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              6305,
+              "_install_dimension_switches"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.4870000000000005e-06,
+              7.4870000000000005e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/mask.py",
+              382,
+              "_install_organize_button"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.516e-06,
+              9.516e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/figure_queue.py",
+              930,
+              "__init__"
+            ],
+            "statistics": [
+              2,
+              2,
+              3.0878000000000005e-05,
+              3.0878000000000005e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/figure_queue.py",
+              983,
+              "_build_ui"
+            ],
+            "statistics": [
+              2,
+              2,
+              3.0968e-05,
+              3.0968e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              3720,
+              "_watch_the_settings_that_decide_the_form"
+            ],
+            "statistics": [
+              4,
+              4,
+              5.988500000000001e-05,
+              5.988500000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/_mask_workers.py",
+              892,
+              "_watch_mask_gpu_probe"
+            ],
+            "statistics": [
+              2,
+              2,
+              2.7649000000000002e-05,
+              2.7649000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/object_grid_binding.py",
+              133,
+              "follow_the_form"
+            ],
+            "statistics": [
+              7,
+              7,
+              6.3287e-05,
+              6.3287e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              5040,
+              "_with_a_model_zoo_button"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.946000000000001e-06,
+              9.946000000000001e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/train_cellpose.py",
+              151,
+              "__init__"
+            ],
+            "statistics": [
+              2,
+              2,
+              2.0232000000000002e-05,
+              2.0232000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/preview_refresh.py",
+              78,
+              "install_refresh_button"
+            ],
+            "statistics": [
+              2,
+              2,
+              2.9547e-05,
+              2.9547e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/picture_export.py",
+              316,
+              "install_picture_save"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.5264e-05,
+              1.5264e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/object_grid_binding.py",
+              52,
+              "__init__"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              7036,
+              "_add_cloud_browse_action"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.4135000000000001e-05,
+              1.4135000000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              8771,
+              "_add_chip"
+            ],
+            "statistics": [
+              14,
+              14,
+              0.00016032600000000002,
+              0.00016032600000000002
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              9056,
+              "__init__"
+            ],
+            "statistics": [
+              15,
+              15,
+              0.000318897,
+              0.000318897
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              9174,
+              "_add_strip"
+            ],
+            "statistics": [
+              19,
+              19,
+              0.000190575,
+              0.000190575
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              8662,
+              "__init__"
+            ],
+            "statistics": [
+              13,
+              13,
+              0.000126271,
+              0.000126271
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              8703,
+              "__init__"
+            ],
+            "statistics": [
+              33,
+              33,
+              0.00034224600000000004,
+              0.00034224600000000004
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              10969,
+              "_watch_setting_commit"
+            ],
+            "statistics": [
+              210,
+              52,
+              0.001392262,
+              0.00042450900000000005
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              11348,
+              "_refresh_mask_gpu_enablement"
+            ],
+            "statistics": [
+              14,
+              14,
+              0.000156508,
+              0.000156508
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/colorama/initialise.py",
+              37,
+              "init"
+            ],
+            "statistics": [
+              4,
+              4,
+              4.4192e-05,
+              4.4192e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/lowering.py",
+              1244,
+              "lower_expr"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.1653e-05,
+              4.1653e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/postproc.py",
+              71,
+              "run"
+            ],
+            "statistics": [
+              12,
+              12,
+              7.2482e-05,
+              7.2482e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/typeinfer.py",
+              1465,
+              "typeof_assign"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.2914e-05,
+              1.2914e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              1473,
+              "_watch_splitter"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.4484e-05,
+              1.4484e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              12432,
+              "_build_analysis_lock_button"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.2251e-05,
+              2.2251e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/app_screen.py",
+              5685,
+              "_install_example_images_button"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.1455000000000001e-05,
+              1.1455000000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/interpreter.py",
+              1443,
+              "post_process"
+            ],
+            "statistics": [
+              16,
+              16,
+              9.1531e-05,
+              9.1531e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/base.py",
+              1119,
+              "get_abi_sizeof"
+            ],
+            "statistics": [
+              5,
+              1,
+              0.000479467,
+              8.656e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/lowering.py",
+              1605,
+              "alloca"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.48e-06,
+              2.48e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/lowering.py",
+              1636,
+              "decref"
+            ],
+            "statistics": [
+              1,
+              1,
+              3.1278e-05,
+              3.1278e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/np/numpy_support.py",
+              338,
+              "ufunc_can_cast"
+            ],
+            "statistics": [
+              2,
+              2,
+              0.004066811,
+              0.004066811
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/errors.py",
+              285,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.94e-05,
+              4.94e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/colorama/initialise.py",
+              111,
+              "wrap_stream"
+            ],
+            "statistics": [
+              2,
+              2,
+              3.5636e-05,
+              3.5636e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/errors.py",
+              362,
+              "_markup"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.5034e-05,
+              1.5034e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/errors.py",
+              377,
+              "errmsg"
+            ],
+            "statistics": [
+              4,
+              4,
+              6.7873e-05,
+              6.7873e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/newpassmanagers.py",
+              120,
+              "run"
+            ],
+            "statistics": [
+              4,
+              2,
+              0.0014298610000000002,
+              2.0502e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/ir/types.py",
+              49,
+              "get_abi_size"
+            ],
+            "statistics": [
+              1,
+              1,
+              9.986e-06,
+              9.986e-06
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/ffi.py",
+              210,
+              "__call__"
+            ],
+            "statistics": [
+              6,
+              6,
+              6.0536000000000005e-05,
+              6.0536000000000005e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/colorama/ansitowin32.py",
+              49,
+              "isatty"
+            ],
+            "statistics": [
+              4,
+              4,
+              0.000102311,
+              0.000102311
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              9121,
+              "set_value"
+            ],
+            "statistics": [
+              3,
+              3,
+              3.9443e-05,
+              3.9443e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/map_barcodes.py",
+              789,
+              "register_page_fold"
+            ],
+            "statistics": [
+              2,
+              2,
+              3.0248000000000002e-05,
+              3.0248000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py",
+              403,
+              "_connect_value_changed"
+            ],
+            "statistics": [
+              4,
+              4,
+              2.3031e-05,
+              2.3031e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preview_registry.py",
+              359,
+              "attach_folded"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.2315000000000002e-05,
+              1.2315000000000002e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/preview_registry.py",
+              491,
+              "_insert_above_console"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.6113e-05,
+              1.6113e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/job_runner.py",
+              138,
+              "__init__"
+            ],
+            "statistics": [
+              5,
+              5,
+              0.000107058,
+              0.000107058
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py",
+              10084,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.6473e-05,
+              1.6473e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/bridge.py",
+              737,
+              "register"
+            ],
+            "statistics": [
+              1,
+              1,
+              8.976e-06,
+              8.976e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/bridge.py",
+              1351,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.4694e-05,
+              1.5443e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/chaining.py",
+              400,
+              "_wire_run_button"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.1266e-05,
+              1.1266e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/chaining.py",
+              926,
+              "_connect_host"
+            ],
+            "statistics": [
+              2,
+              2,
+              8.217600000000001e-05,
+              8.217600000000001e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/chaining.py",
+              378,
+              "_wire_edit_signals"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.0506e-05,
+              1.0506e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/verbose_logger.py",
+              386,
+              "register_console_target"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.2955e-05,
+              1.2955e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/sortable_table.py",
+              437,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              7.317e-06,
+              7.317e-06
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/verbose_logger.py",
+              246,
+              "__init__"
+            ],
+            "statistics": [
+              1,
+              1,
+              4.5542000000000005e-05,
+              4.5542000000000005e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/console_panel.py",
+              2033,
+              "refresh_ai_usage"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.3814e-05,
+              1.3814e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/theme.py",
+              3748,
+              "_sheets_itself_before_it_shows"
+            ],
+            "statistics": [
+              10,
+              6,
+              9.0705e-05,
+              5.4208e-05
+            ]
+          },
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/__init__.py",
+              80,
+              "_after"
+            ],
+            "statistics": [
+              2,
+              2,
+              1.5793e-05,
+              1.5793e-05
+            ]
+          },
+          {
+            "function": [
+              "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+              637,
+              "wait"
+            ],
+            "statistics": [
+              1,
+              1,
+              1.7423000000000002e-05,
+              1.7423000000000002e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "~",
+          0,
+          "<method 'disconnect' of 'PySide6.QtCore.SignalInstance' objects>"
+        ],
+        "primitive_calls": 1,
+        "calls": 1,
+        "self_seconds": 2.47e-05,
+        "cumulative_seconds": 2.47e-05,
+        "callers": [
+          {
+            "function": [
+              "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/bridge.py",
+              682,
+              "retire"
+            ],
+            "statistics": [
+              1,
+              1,
+              2.47e-05,
+              2.47e-05
+            ]
+          }
+        ]
+      },
+      {
+        "function": [
+          "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py",
+          1018,
+          "_bootstrap"
+        ],
+        "primitive_calls": 1,
+        "calls": 2,
+        "self_seconds": 3.1241e-05,
+        "cumulative_seconds": 1.5168291280000001,
+        "callers": [
+          {
+            "function": [
+              "~",
+              0,
+              "<method 'acquire' of '_thread.lock' objects>"
+            ],
+            "statistics": [
+              0,
+              0,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
