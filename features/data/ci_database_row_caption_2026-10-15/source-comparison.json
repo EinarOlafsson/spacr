@@ -1,0 +1,16 @@
+{
+  "old": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+  "current": "72e412b9f37a3f661981de19e8c4ad5ccffd9cc8",
+  "files": {
+    "spacr/qt/widgets/file_list.py": {
+      "old_sha256": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
+      "current_sha256": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
+      "identical": true
+    },
+    "tests/test_measurements_database_per_plate.py": {
+      "old_sha256": "da4917be3ce2818b70594751bdc29b6e01c9c220207378f22c71e92f401791de",
+      "current_sha256": "da4917be3ce2818b70594751bdc29b6e01c9c220207378f22c71e92f401791de",
+      "identical": true
+    }
+  }
+}
