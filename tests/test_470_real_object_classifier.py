@@ -286,3 +286,32 @@ def test_annotation_reader_does_not_create_missing_databases(tmp_path):
     with pytest.raises(sqlite3.OperationalError):
         oc._annotated_real_crops([str(database)])
     assert not database.exists()
+
+
+@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
+@pytest.mark.parametrize('problem', ['fingerprint', 'conflict'])
+def test_annotation_reader_uses_exact_reviewed_runtime_diagnostics(tmp_path, monkeypatch, language, problem):
+    import shutil
+
+    from spacr.qt import i18n
+
+    monkeypatch.setattr(i18n, 'current_language', lambda: language)
+    database, crop = _sample_fingerprinted_annotation(tmp_path / 'original')
+    databases = [str(database)]
+    if problem == 'fingerprint':
+        crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+        source = 'Annotated crop {path} no longer matches its sample-creation fingerprint.'
+    else:
+        other = tmp_path / 'other.db'
+        shutil.copyfile(database, other)
+        with sqlite3.connect(other) as db:
+            db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
+        databases.append(str(other))
+        source = 'Annotated crop {path} has conflicting labels or acquisition identities.'
+    reviews = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-annotated-crop-integrity.json').read_text())
+    target = next(row['translation'] for row in reviews['records'] if row['source'] == source)
+    before = {Path(path): Path(path).read_bytes() for path in databases}
+    with pytest.raises(ValueError) as error:
+        oc._annotated_real_crops(databases)
+    assert str(error.value) == target.format(path=str(crop))
+    assert all(path.read_bytes() == raw for path, raw in before.items())
