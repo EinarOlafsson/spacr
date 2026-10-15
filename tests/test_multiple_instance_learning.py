@@ -357,3 +357,23 @@ def test_direct_mil_only_participating_rows_can_contradict_well_identity():
     bags, labels, wells, positions, kept = _mil_bags(frame)
     assert len(bags) == 8 and len(kept) == len(frame) - 1
     pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
+def test_direct_mil_conflict_uses_actual_reviewed_locale_callback(language, monkeypatch):
+    import hashlib
+    import json
+
+    monkeypatch.setenv('SPACR_LANGUAGE', language)
+    source = 'Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.'
+    reviews = (Path(__file__).resolve().parents[1] / 'docs/i18n/reviewed/runtime'
+               / language / '2026-10-15-mil-direct-well-identity.json')
+    row = next(record for record in json.loads(reviews.read_text())['records']
+               if record['source'] == source)
+    assert row['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
+    frame = _direct_mil_identity_table()
+    original = frame.copy(deep=True)
+    with pytest.raises(ValueError) as error:
+        _mil_bags(frame)
+    assert str(error.value) == row['translation'].format(well='A1')
+    pd.testing.assert_frame_equal(frame, original)
