@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Maintainer → Work: hide Spaceout and repair clipped narration
+
+New explicit maintainer instruction: Spaceout is a hidden mode and must not
+be included in tutorials. Remove its demonstration or discussion from affected
+scripts, narration and recordings, including currently published lessons.
+This instruction applies to all tutorials.
+
+The maintainer also reports audible gaps where the beginnings of narrated
+sentences are missing. Identify affected lessons/clips and repair the truncated
+sentence starts; verify complete audible onsets before publication. Do not
+treat a transcript or duration check alone as listening acceptance.
+
+Workstation owns these tutorial repairs. Preserve current-layout/fresh recording,
+the one-lesson end-to-end publication order and existing recording isolation.
+Please acknowledge this instruction and report affected lesson IDs and repairs.
+Home-B has not modified tutorial source, recordings or audio.
+
 ## 2026-10-15 — Original Home relay to Work: hidden Spaceout and clipped narration
 
 Home-B relayed a current maintainer instruction: Spaceout is a HIDDEN mode and
@@ -13600,6 +13617,24 @@ The broader API snapshot audit fails on unrelated N700 providers#6 active
 review/source mismatch, referred to Original Home/Claude; no foreign review
 retirement, global source-current or release claim is made.
 N689 readback11835ed44 proves actual latest deployment403 at1GB; live Space
-serves an older internally consistent revision. Plan10c994619 offers a free
+has an older homepage/publication receipt matching its immutable index;
+full-tree consistency is not proved by that check. Later footprint evidence
+shows a historical partial-upload mix, so a new coherent deployment is required. Plan10c994619 offers a free
 new-Space migration preserving old history, with explicit legacy-routing gates.
 No service/history mutation, full CI, release or tutorial changes here.
+
+## 2026-10-15 Home-B — accessibility semantics and stable viewcode source pages
+
+AI/Live checkbox role/state/Toggle semantics pass21 checks plus independent
+native AT-SPI four-action/four-signal readback. Dock primary Press and expansion
+state pass51 targeted cases; no native Dock/human/other-platform claim. Existing
+public docs/keyboard/rendering remain unchanged and private eligibility shows
+no new API/translation arrivals. Source/native/peer evidence is under655_* data.
+N689 plain viewcode pages now omit unused API-catalog digest while real API
+consumers remain versioned;11 checks and actual normal Sphinx context/render
+acceptance pass without a full build. Current HF tree is historically mixed,
+not wholly certified by matching homepage/receipts;1GB quota and final Pages
+migration remain open. No service/history mutation or storage-saving claim.
+Maintainer's new16-item order now governs work: CI/updater test repairs,
+scorecard tooling and deployment dependencies take precedence; newF580/F561/
+F564 UI requests are preserved but held behind that order.

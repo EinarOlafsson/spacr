@@ -1,0 +1,23 @@
+{
+  "source_sha256": "f611d07a0b83ae3c6ac88fbd769a808377d043d0a0cf0b189a45f084ac556ecd",
+  "baseline_source_sha256": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+  "public_method_docs_unchanged": true,
+  "module_and_class_docs_unchanged": true,
+  "other_existing_methods_ast_unchanged": true,
+  "changed_existing_methods": [
+    "setChecked",
+    "mousePressEvent"
+  ],
+  "comments_unchanged": true,
+  "actual_public_symbol_calls": {
+    "spacr.qt.widgets.ai_toggle_label._AccessibleAiToggle": false,
+    "spacr.qt.widgets.ai_toggle_label._AccessibleAiToggle.__init__": false,
+    "spacr.qt.widgets.ai_toggle_label._AccessibleAiToggle.state": false,
+    "spacr.qt.widgets.ai_toggle_label._AccessibleAiToggle.text": false,
+    "spacr.qt.widgets.ai_toggle_label._AccessibleAiToggle.actionNames": false,
+    "spacr.qt.widgets.ai_toggle_label._AccessibleAiToggle.doAction": false,
+    "spacr.qt.widgets.ai_toggle_label._ai_toggle_accessible_factory": false
+  },
+  "actual_scoped_nested_inventory": [],
+  "scope": "Normal policy on every new declaration and normal helper inventory on an isolated one-file source root; no full repository collector or generated output."
+}

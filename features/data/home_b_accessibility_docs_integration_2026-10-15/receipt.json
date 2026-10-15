@@ -1,0 +1,19 @@
+{
+  "scope": "Coordinator source review and exact tested-byte integration; no test replay or global release claim.",
+  "source_files": {
+    "spacr/qt/widgets/ai_toggle_label.py": {
+      "tested_ref": "d41f12fbf",
+      "sha256": "f611d07a0b83ae3c6ac88fbd769a808377d043d0a0cf0b189a45f084ac556ecd"
+    },
+    "spacr/qt/widgets/dock.py": {
+      "tested_ref": "e53212443",
+      "sha256": "6ae995de50835d66754c12d0693e3f15656d06b62fe7aba99564b6b52440e04a"
+    },
+    "docs/source/conf.py": {
+      "tested_ref": "862f6f66b",
+      "sha256": "f120c19bd25e076470b252895113c90d3355287120b7e7b46652d56ddcddbea7"
+    }
+  },
+  "dock_peer": "Primary press and expandable/collapsed/expanded state reflect existing setter; changed-state mask flags transitions, disabled actions refuse, Qt owns/caches interface and widget retains wrapper. Existing width/drag/keyboard/persistence/public docs/captions remain exact per source disposition. Normal private eligibility proves no API arrivals. Owning51 cases pass; no new native Dock acceptance.",
+  "viewcode_peer": "Digest omitted only for plain standard viewcode pages with no doctree/API route/description-list markup. Unchanged frontend returns before fetching there. Other script attributes/navigation remain; per-page object cloning protects shared context. Existing normal Sphinx rendering proves stable source HTML and changing API versions. No deployment/quota-saving claim."
+}

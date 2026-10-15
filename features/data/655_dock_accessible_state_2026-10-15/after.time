@@ -1,0 +1,23 @@
+	Command being timed: "/home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -s tests/qt/test_655_dock_accessible_state.py tests/qt/test_655_dock_keyboard_activation.py tests/qt/test_529_dock_collapse_and_glyphs.py tests/qt/test_529_the_dock_and_right_column_resize.py tests/qt/test_the_dock_edge_drags_only_with_the_left_button.py"
+	User time (seconds): 42.53
+	System time (seconds): 1.98
+	Percent of CPU this job got: 105%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:42.20
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1188976
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1795
+	Minor (reclaiming a frame) page faults: 349786
+	Voluntary context switches: 61738
+	Involuntary context switches: 1764
+	Swaps: 0
+	File system inputs: 288184
+	File system outputs: 5840
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
