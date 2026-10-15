@@ -114,7 +114,10 @@
       "label": "spacr.qt.job_runner#6",
       "source": "The completion handler must run for **every** job, including one whose result is no longer wanted, or the bookkeeping leaks and the screen is permanently \"busy\". Whether the *result* is used is a separate decision, taken from the generation counter -- see :meth:`cancel`.",
       "source_sha256": "488c10c66e8c94acde0054ae4de4358f57d83b0371189aab491d3927ffb3c9f8",
-      "translation": "Lokahandfangið verður að framkvæma fyrir **hvern** vinnu, þar með talið þá sem niðurstaða hennar er ekki lengur æskileg, annars leka bókhaldsupplýsingar og skjárinn verður varanlega \"busy\". Hvort *niðurstaðan* er notuð er sér ákvörðun, tekin út frá teljara kynslóða -- sjá :meth:`cancel`."
+      "translation": "Lokahandfangið verður að framkvæma fyrir **hvern** vinnu, þar með talið þá sem niðurstaða hennar er ekki lengur æskileg, annars leka bókhaldsupplýsingar og skjárinn verður varanlega \"busy\". Hvort *niðurstaðan* er notuð er sér ákvörðun, tekin út frá teljara kynslóða -- sjá :meth:`cancel`.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "JobRunner inline, cancellation and shutdown documentation corrected in e8d45689ab5 plus35aa6c146f3. Replacement exact-source review is2026-10-15-job-runner-lifecycle.json; original source and translation retained as historical evidence."
     },
     {
       "context": "**The chunks.** Default is 1 along t and c (a viewer draws one channel of one timepoint), :data:`DEFAULT_TILE` on y and x, and :data:`DEFAULT_Z_CHUNK` on any other space axis — about 2 MiB per chunk for uint16. Pass ``chunks=`` to override.",
