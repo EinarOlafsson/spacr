@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "status": "actual_first_native_diagnostic_incomplete_no_Apply_cause",
+  "files": [
+    {
+      "path": "00-original20-first-attempt-independent-readback.json",
+      "bytes": 7478,
+      "sha256": "4730039b383f6c84473ddcfbe79a1cdddd2abd33f942908be5277b2ba21204a4",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/original20-first-attempt-independent-readback.json"
+    },
+    {
+      "path": "01-original20-native-apply-independent-source-peer.json",
+      "bytes": 6919,
+      "sha256": "c648e988b6803ce2a6a18f483dc4ca8ab53b41d900e320ec9adc27a073475baa",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/original20-native-apply-independent-source-peer.json"
+    },
+    {
+      "path": "02-root-original20-diagnostic-decision.json",
+      "bytes": 1442,
+      "sha256": "294f9a7c033d9c3661f71259251e676aea98356c3f1749b95b1fce600ac64355",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/root-original20-diagnostic-decision.json"
+    },
+    {
+      "path": "03-original20-controller-failure-diagnosis.json",
+      "bytes": 3828,
+      "sha256": "92f65f095dfbfb9c6860fa81053b031f3014292072f3d37f9f19b303798d985f",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/original20-controller-failure-diagnosis.json"
+    },
+    {
+      "path": "04-diagnostic-result.json",
+      "bytes": 67,
+      "sha256": "881e414d2189adccbad4b4fdde8fc196264a56f9f194bb0dbdc4b7bd30ea76d2",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/diagnostic-result.json"
+    },
+    {
+      "path": "05-owner-cleanup.json",
+      "bytes": 112,
+      "sha256": "06533f5f87359342eed170a7edc775ba8310f988b266e45a57de6ab757cb5950",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/owner-cleanup.json"
+    },
+    {
+      "path": "06-cleanup.json",
+      "bytes": 54,
+      "sha256": "75c9ae32733b323c48b654979ccd7d383e654d187b7c4ce6e2b9b705e009dfad",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/gh/cleanup.json"
+    },
+    {
+      "path": "07-source-identity.json",
+      "bytes": 1274,
+      "sha256": "010ba824e41ad2790706bad6d734a1c2e2e2f5c5e34cd9c20eb62f2d9ea0544b",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/source-identity.json"
+    }
+  ],
+  "private_logs_included": false,
+  "native_result": "incomplete TimeoutError, exit1 afterabout10s; notouter17TERM",
+  "cleanup": "bothownedcleanup receipts reportno survivors",
+  "limits": [
+    "No product patch or completedApply observation. Startupcontroller origin is source/timeline inference, not recordedthrowingphase.",
+    "Home61b880a44 deadlineclarification is nowreceived; nextadapterfix mustpreserve180execution/20action/210total andindependentpeerbeforelaunch."
+  ]
+}

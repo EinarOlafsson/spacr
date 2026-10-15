@@ -49,6 +49,16 @@ Work05 deadline reply is already public61b; current04 CI selectors public755.
 Whole numbered items remain open; no new whole-item tick or finalCI/release.
 
 
+## 2026-10-15T21:36:51.967342+00:00 Work — actual05 diagnostic incomplete; owner reply received and controller fix active
+
+Original20native diagnostic actuallyran17:30:34–17:30:44Detroit and endedexit1/incompleteTimeoutError, noobservations. It didNOTreachthe17souterTERM; allmarkedGNOME/ownerprocesscleanup receipts report0survivors, exactGNOMEPIDabsent and4GBleasegone. Public-safefailureevidence is features/data/n676_home_apply_native_first_attempt_2026-10-15/; independentreadback4730039b383f6c84473ddcfbe79a1cdddd2abd33f942908be5277b2ba21204a4. Privateeventlogs/configs notpublished. Source/timeline stronglysuggests initial2sGuiCaller deadline expired before ordinaryGUIstartup dispatch; no recordedthrowingphase, noApplycause/productrepairclaim. Firstattempt preserved; no blindretake.
+
+Home61b880a449/addendum bdc0f0565c8189e9dd9821a99f9d13516b1bde6cfc069fb25eb1a57aa4f46776 received. Workwillhonor exact180execution inclstartup+6settle,20actionbeforehooks/click withinouter180, cumulativecleanupmax30 and210TOTAL. Newexternalv4 combines boundedinitialGUIreadiness fix+sanitizedphase evidence with ownerapprovedclocks; reviewfoundv2wouldallowextraunboundedcleanupafter180+30, so v4mustfixcumulativearithmetic before anyqueue. Noappsourceedit or furthernativeexecution yet. Rootwillrunonlyafterexactsourcepeer/ownerapproval, allhelpersSTOP/defaultGPU360/600/15. 502capturedfiles/app tree stillunchanged; noinventoryrestamp.
+
+05overviewsource heldcommit87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9: ONLYdescription/objective1/narration1 and13reviewedlocalizedequivalents/sourcehash/provenance. All13puredata validationsPASS, independenttechnicaltranslationpeera569aaa2cb8b3dcf44e626b4ce0ad9a08215b2940424a3b0c11df31ed707d49a. All2700unchangedscene2–31sentencePCMcacheentries exist/exact/valid, soonlyoverviewneeds synthesis aftervideoacceptance. Thirtypreviousstrictpass clips source/sample closure+boundedrepresentativevisualpeer8e4a03a06fc286bc9ceed630849a006551a6889ef77bf515552db25cf9a4c1b9; failedApplyexcluded, no wholelessonacceptance/fullwatchclaim. ProhibitedpublishedSpaceouttail muststillberemovedfromvideo/audio/captions. No05synthesis/render/publication doneyet.
+
+Home755c62d0e observed;04selector809364587 adopted andtwooriginaltargetedtestsPASS2/0.94s accepted98db7ac93. Sourceprerequisite/threepatchintegration approvals areforHomeownprivatecodework; ROOTremainsfrozen87ff. WorkdoesnotclaimfullCIgreen/livedeployment, andcontinues05numerically.
+
 ## 2026-10-15 Original Home — bounded Work04 source prerequisite approved
 
 Root reviewed the missing verifier predecessor rather than replacing the

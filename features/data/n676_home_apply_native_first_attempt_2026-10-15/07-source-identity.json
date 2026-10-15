@@ -1,0 +1,30 @@
+{
+  "checkout_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "original_capture_app_source": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "five_app_files": [
+    {
+      "path": "spacr/qt/preferences.py",
+      "sha256": "2928504a1032a1891397c4fe2fa8e7f53dac299397e457739d4628da7524cee7"
+    },
+    {
+      "path": "spacr/qt/widgets/glass.py",
+      "sha256": "0a30f850192003a63e6edfcfb0363187062c87ff849eca65a2c4ae2568474766"
+    },
+    {
+      "path": "spacr/qt/widgets/setup_card.py",
+      "sha256": "1e18095eb0017b4c2ebd2abe6f575c79f712f99b0b67682ce2a17223bb50e3fc"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a"
+    },
+    {
+      "path": "spacr/qt/app.py",
+      "sha256": "903de638e52b4bcb5a71c401aa50b6587bdd5792ce900ac99c4240d2dcaef64e"
+    }
+  ],
+  "hook_peer_sha256": "5d84a889788f350620d25101209574e28979ac88d9ca201ef7d738f4aa578672",
+  "original_capture_manifest_sha256": "5453488e83d97dee5bc33c835698c47e65f7d196ac15a6fb0717521b092c2569",
+  "original_capture_profile_sha256": "2c50a2e1b1763e795330c1347a5e5a9279bec5fb855f11efa9e7c123b812d3f4",
+  "limits": "Later checkout may add only owner-reviewed non-app changes. No hook or original source identity restamped."
+}
