@@ -410,9 +410,15 @@ def test_a_png_is_converted_and_its_original_kept(tmp_path):
     Image.fromarray(np.full((4, 5, 3), 30, np.uint8)).save(source)
     target = tmp_path / "out" / "c.tif"
     target.parent.mkdir()
-    cs._write_converted(str(source), str(target), "rgb", str(tmp_path / "d"))
+    original_bytes = source.read_bytes()
+    saved = Path(cs._write_converted(str(source), str(target), "rgb", str(tmp_path / "d")))
     assert tifffile.imread(str(target)).shape == (4, 5)
-    assert (tmp_path / "d" / "originals" / "c.png").is_file()
+    assert saved.is_file()
+    assert saved.name == source.name
+    assert saved.parent.parent == tmp_path / "d" / "originals"
+    assert saved.parent.name.startswith("spacr-original-")
+    assert saved.read_bytes() == original_bytes
+    assert not source.exists()
 
 
 def test_merging_without_masks_writes_stacks_only(tmp_path):
