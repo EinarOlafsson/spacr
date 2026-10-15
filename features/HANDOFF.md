@@ -11,6 +11,25 @@
 
 
 
+## 2026-10-15 Original Home — documented EVOS optional-Z parser repaired
+
+N441 exact vendor save-dialog filename without Z now parses; omitted Z stays
+None and ArrayScan no longer claims the same filename. Actual baseline7FAIL/
+8PASS becomes29PASS/7.54s, zero skips/network events, including actual reader/
+Import and disposable TIFF Mask ingest with original-byte preservation.
+Original four patterns, unrelated records, all definition/docstring and tr
+identities remain exact. No API/runtime writer needed; prior normal99 closure
+remains intact. Original request permits vendor-document examples, so earlier
+raw-image-only phrasing is superseded. WholeN441 remains open on explicit
+provenance limits; no whole-item tick or finalCI/release claim.
+See data/441_evos_documented_optional_z_2026-10-15/ and original-contract ledger.
+ScanR now includes a second primary user-reported stem and explicitly labels
+both inferred TIFF suffixes; status stays provisional. Source baseline1FAIL/
+9PASS becomes10PASS/7.00s. Merged five-case acceptance PASS5/0.62s, preserving
+all ten catalogs. Peer/evidence:data/441_scanr_sourced_stems_2026-10-15/ and
+data/441_combined_evos_scanr_acceptance_2026-10-15/. No counts are summed.
+
+
 ## 2026-10-15 Original Home — coherent metadata/web-caption translations ready
 
 Normal99 producer PASS:90 metadata +9 web model-scale targets, all nine

@@ -431,3 +431,34 @@ filename lacks Z and is rejected rather than inventing a slice. No guessed
 second acquired filename or whole-item closure. See data/441_698_translation_batch_2026-10-15/,
 data/441_actual_compiled_metadata_consumers_2026-10-15/ and
 data/441_evos_primary_followup_2026-10-15/.
+
+2026-10-15 — Vendor-documented EVOS names without Z are accepted safely.
+The original request explicitly accepts vendor documentation; downloaded raw
+images or microscope execution are not extra prerequisites. Two exact M7000
+manual literals now parse, including the Next filename shown on printed p.41
+without a Z segment. The optional slice remains None, never an invented Z0.
+ArrayScan excludes this EVOS variant instead of silently claiming it.
+Actual baseline7FAIL/8PASS becomes29PASS/7.54s, including the real filename
+reader, Import metadata, a disposable TIFF through actual Mask preprocessing,
+unchanged input bytes, malformed-name refusals, overlap and old-four controls.
+All public/private definition signatures/docstrings and literal tr identities
+remain exact; no API/runtime target or generated writer is needed for this
+bounded parser repair. Vendor-document confirmation is not a claim of native
+device or acquired-directory testing; mixed unknown/known-Z aggregation was
+not tested. Whole-item filename provenance limits remain, particularly the
+ScanR inferred suffix and Zeiss macro-derived examples. Evidence:
+data/441_evos_documented_optional_z_2026-10-15/ and
+data/441_original_contract_current_disposition_2026-10-15/.
+
+2026-10-15 — ScanR second reported stem and combined acceptance.
+A second first-person acquisition-user stem (KNIME topic2119) is now shown
+with its TIFF suffix explicitly marked inferred, just like the prior Alexa
+example. Both sources omit their extension; these are not claimed to be
+observed complete TIFF filenames. ScanR remains provisional; its pattern,
+groups and every unrelated convention remain unchanged. Actual provenance
+baseline1FAIL/9PASS becomes10PASS/7.00s. Independent source/log peer accepted.
+After combining EVOS and ScanR, the exact five own-example, cross-convention
+and provenance checks PASS5/0.62s, zero skips/network events; all ten catalogs
+remain byte-identical. These are staged overlapping checks, not39 distinct
+cases. See data/441_scanr_sourced_stems_2026-10-15/ and
+data/441_combined_evos_scanr_acceptance_2026-10-15/.
