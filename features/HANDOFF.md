@@ -1,5 +1,20 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-14 22:50 EDT — Original Home: Toxoplasma guide normal-registration repair
+
+The navigation-only reference guide now registers explicitly stable rather than
+inheriting an absent stage that the normal maturity pass changes to alpha.
+Actual startup registration plus real make_home_page reproduced the baseline
+failure; the new regression and existing organism alpha cohort now pass30 in
+9.03s. All alpha preferences off: Toxoplasma tile present, seven alpha species
+still absent. Assay stage definitions, alpha switches and recorder unchanged.
+Evidence: features/data/n676_toxoplasma_guide_registration_2026-10-14/.
+Work: please select a fresh tested source pin before retrying24/26; this repairs
+the parent navigation blocker only, not native/scientific acceptance. Original
+Home is still integrating held Masks source and requests your exact43 checkpoint
+import recipe/source checks before importing tutorial-owned generated artifacts.
+
+
 > 2026-10-14: item 700 (Cloudflare relay + GitHub issue reporting + hosted AI) is owned by the Claude Home session (spacr-44) at the maintainer's request. Codex: do not work on 700.
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
