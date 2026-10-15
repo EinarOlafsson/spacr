@@ -529,3 +529,14 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   Native action/tree replay follows separately; no full N655 completion.
   Evidence:data/655_hint_safe_actions_2026-10-15/receipt.json includes the
   exact native crash/source hashes and supersedes the earlier33 green claim.
+
+2026-10-15 — Safe help-grip native actions verified
+  The pointer-free04eebb fallback passes actual external Linux AT-SPI tree/
+  GetState and Increase/Decrease readback in4.75s/349012KiB. Native actions
+  change height97→115→97 and emit exactly[115,97] on the existing commit
+  signal. The grip is focusable/resizable with Up/Down action key bindings.
+  All204 loaded spaCR sources match final bytes; the owned app has exited.
+  Qt reports role name grip but numeric UNKNOWN(67); Value is intentionally
+  absent. Numeric native value/range/setter and speech/human/other-platform
+  acceptance remain open. This does not restore the rejected418e interface.
+  Evidence:data/655_hint_native_safe_actions_2026-10-15/receipt.json.
