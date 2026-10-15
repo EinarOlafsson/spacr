@@ -17,8 +17,10 @@ from __future__ import annotations
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QPainter, QPalette, QPen, QPixmap
+from PySide6.QtGui import (QAccessible, QAccessibleActionInterface, QColor,
+                          QPainter, QPalette, QPen, QPixmap)
 from PySide6.QtWidgets import (
+    QAccessibleWidget,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -323,6 +325,50 @@ class _SectionHeader(QFrame):
             self._activate()
             return
         super().keyPressEvent(event)
+
+
+class _AccessibleSectionHeader(QAccessibleWidget):
+    """Expose a figure section's existing fold control and expansion state."""
+
+    def __init__(self, widget):
+        """Retain normal widget accessibility with a button role."""
+        super().__init__(widget, QAccessible.Button)
+
+    def state(self):
+        """Describe the current header; a relayout creates its replacement."""
+        state = super().state()
+        state.expandable = True
+        state.expanded = self.widget().is_expanded()
+        state.collapsed = not state.expanded
+        return state
+
+    def actionNames(self):
+        """Offer Press and normal widget actions only while enabled."""
+        if not self.widget().isEnabled():
+            return []
+        return [QAccessibleActionInterface.pressAction(), *super().actionNames()]
+
+    def doAction(self, action):
+        """Use the existing reach-first, fold-second route for enabled Press."""
+        widget = self.widget()
+        if not widget.isEnabled():
+            return
+        if action == QAccessibleActionInterface.pressAction():
+            widget._activate()
+            return
+        super().doAction(action)
+
+
+def _section_header_accessible_factory(_key, widget):
+    """Supply only section-header adapters, retaining their Python wrappers."""
+    if isinstance(widget, _SectionHeader):
+        interface = _AccessibleSectionHeader(widget)
+        widget._accessible_section = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_section_header_accessible_factory)
 
 
 class _FigureCell(QFrame):

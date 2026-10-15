@@ -651,3 +651,21 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   Evidence:data/655_model_card_keypad_enter_2026-10-15/receipt.json.
   No additional widget Enter guard rejecting KeypadModifier was identified
   in the bounded source inspection; this is not whole-program acceptance.
+
+2026-10-15 — Figure-section headings expose their fold action and state
+  Actual headings exposed Border/Set Focus only, without expansion flags;
+  two baseline checks failed. A private ordinary QAccessibleWidget adapter
+  now exposes Button/Press and the current expandable/expanded/collapsed state.
+  Press uses the existing reach-first, fold-second handler; the unchanged
+  relayout replaces headings, and the replacement exposes current state.
+  Disabled Press refuses. Qt owns the cached interface; no raw pointer or
+  numeric Value interface is introduced. All original methods remain exact,
+  including fold persistence, geometry, titles, focus and keypad routing.
+  Final29PASS3.34s (5.07s wall/612996KiB): six new semantic/cache cases plus
+  five existing heading focus/name and eighteen fold/persistence/layout cases.
+  Actual cells and JSON workspace state are checked through fold/rebuild/open.
+  Normal policy excludes six private declarations; actual nested-helper
+  inventory stays empty. A metadata harness's mistaken enabled-module request
+  is retained and corrected using the real rollout membership. No caption or
+  API arrival, native replay, other-OS or whole N655 completion claim.
+  Evidence:data/655_figure_section_actions_2026-10-15/receipt.json.

@@ -1,0 +1,18 @@
+{
+  "source_sha256": "013aaa423739e14dbcafbdeff85f0312c8bdb8828d29c45660a221f078e76d21",
+  "before_sha256": "2dd469ce299779f259119aa12f82bff90557e055c2ad70fb8015e2b4c765c94c",
+  "remove_only_private_adapter_factory_registration_and_imports_restores_entire_original_AST": true,
+  "all_original_docs_comments_handlers_workspace_and_geometry_unchanged": true,
+  "actual_public_symbol_calls": {
+    "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader": false,
+    "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.__init__": false,
+    "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.state": false,
+    "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.actionNames": false,
+    "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.doAction": false,
+    "spacr.qt.widgets.figure_grid_view._section_header_accessible_factory": false
+  },
+  "normal_one_file_helper_inventory_semantics_unchanged": true,
+  "existing_enabled_helpers": 0,
+  "module_in_actual_enabled_set": false,
+  "no_runtime_caption_changes": true
+}
