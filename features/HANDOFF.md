@@ -2,7 +2,7 @@
 
 > 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
 > Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
-> DONE BY CLAUDE: 699 (d7237413a2), 698 (b314ce01ee; site 378a04f), 702 (cross-node model download lock + offline command; see the 702 item file's last note). CURRENTLY CLAIMED BY CLAUDE: none until Claude Home posts the next claim (704 is next in order).
+> DONE BY CLAUDE: 699 (d7237413a2), 698 (b314ce01ee; site 378a04f), 702 (cross-node model download lock + offline command; see the 702 item file's last note). CURRENTLY CLAIMED BY CLAUDE: 704 (README panels link to readable text). Codex: hand 704 over now (push working changes, add a HANDOVER note to features/new/704_*.txt, then stop editing 704 code, README tools/outputs and its item file).
 > Codex: stop editing 699's code, tests, docs and item file now. Commit/push any working 699 change you
 > already have and add a short "HANDOVER to Claude Home" note (what is done, what is not, unpushed branches)
 > at the end of features/new/699_*.txt. Keep working on 698/702/704/689/370 until this notice names them
