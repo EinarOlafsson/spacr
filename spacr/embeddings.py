@@ -1851,12 +1851,23 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
                                                  how="inner")
     if frame.empty:
         raise ValueError(f"no stored embedding in {db_path} joins a crop")
-    parts = frame["prcfo"].str.split("_")
-    for column, at in (("plateID", 0), ("rowID", 1), ("columnID", 2),
-                       ("fieldID", 3)):
+    from .schema import parse_prcfo
+    from .qt.i18n import tr
+
+    parsed = {}
+    for column in ("plateID", "rowID", "columnID", "fieldID"):
         if column not in frame.columns:
-            frame[column] = parts.str[at]
-    frame["object"] = parts.str[-1]
+            frame[column] = None
+        missing = frame[column].isna() | frame[column].astype(str).str.strip().eq("")
+        for index in frame.index[missing]:
+            if index not in parsed:
+                key = frame.at[index, "prcfo"]
+                try:
+                    parsed[index] = parse_prcfo(key).field.to_dict()
+                except (TypeError, ValueError) as error:
+                    raise ValueError(tr("Cannot recover acquisition metadata from object key {key}.", key=key)) from error
+            frame.at[index, column] = parsed[index][column]
+    frame["object"] = frame["prcfo"].str.rsplit("_", n=1).str[-1]
     frame.insert(1, _MIL_WELL_COLUMN, frame["plateID"].astype(str) + "_"
                  + frame["rowID"].astype(str) + "_"
                  + frame["columnID"].astype(str))
@@ -1868,8 +1879,6 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     for column in (well_column, label_column):
         if column not in labels.columns:
             raise ValueError(f"the well-label table has no {column!r} column")
-    from .qt.i18n import tr
-
     named = {}
     for key, label in zip(labels[well_column], labels[label_column]):
         if pd.isna(key) or pd.isna(label):

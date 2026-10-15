@@ -160,3 +160,17 @@ runtime generation remain pending. No generated catalog rows inserted here.
 Existing ALPHA_FEATURES[562] and literal widget gates remain unchanged; whole
 F562 scientific/publication acceptance is not newly claimed by this repair.
 Receipt:features/data/562_well_label_identity_2026-10-14/.
+
+2026-10-14 — Canonical metadata fallback for the same read-only MIL join.
+Missing/null/blank acquisition columns now recover through the existing
+schema.parse_prcfo right-to-left parser, retaining full underscored plate names
+and canonical row/column/field identity. Explicit populated metadata remains
+authoritative; unparseable fallback keys refuse rather than inventing a well.
+Only _mil_frame_from_db changes; schema and encoder/UMAP source are untouched.
+Validation20 owning MIL cases PASS/actualexit0/10.58s, including actual SQLite
+absent/null/blank columns, underscored plate IDs, explicit metadata, malformed
+keys and byte-preserving refusal. The one new diagnostic brings this function
+to4tr callsites/3unique sources; all27 review targets across9locales pass normal
+contextualization/candidate gates, actualexit0. Owner extraction/generation and
+independent translation review remain pending; no scientific/GPU acceptance.
+Receipt:features/data/562_well_label_identity_2026-10-14/canonical-identity.json.

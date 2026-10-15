@@ -220,3 +220,53 @@ def test_mil_missing_database_refuses_without_creating_it(tmp_path):
     with pytest.raises(ValueError, match='no stored crop embeddings'):
         _mil_frame_from_db(missing)
     assert not missing.exists()
+
+
+@pytest.mark.parametrize('layout', ['absent', 'null', 'blank'])
+def test_mil_recovers_underscored_plate_metadata_with_canonical_parser(tmp_path, layout):
+    import sqlite3
+    from spacr import tabular
+    from spacr.embeddings import _mil_frame_from_db
+    db, _ = _embedded_project(tmp_path)
+    with sqlite3.connect(db) as connection:
+        connection.execute("UPDATE png_list SET prcfo=replace(prcfo, 'plate1_', 'screen_day_1_')")
+        connection.execute("UPDATE crop_embedding SET prcfo=replace(prcfo, 'plate1_', 'screen_day_1_')")
+        connection.execute("UPDATE png_list SET plateID='screen_day_1'")
+    crops = tabular.read_table(db, table='png_list', canonicalise=False, repair_plate_ids=False, migrate=False, read_only=True, report=None)
+    if layout == 'absent':
+        crops = crops.drop(columns=['plateID', 'rowID', 'columnID', 'fieldID'])
+    elif layout == 'null':
+        crops.loc[:, ['plateID', 'rowID', 'columnID', 'fieldID']] = None
+    else:
+        crops.loc[:, ['plateID', 'rowID', 'columnID', 'fieldID']] = ' '
+    tabular.write_database(crops, db, 'png_list', canonicalise=False, if_exists='replace')
+    before = Path(db).read_bytes()
+    frame = _mil_frame_from_db(db)
+    assert frame.plateID.eq('screen_day_1').all()
+    assert set(frame.rowID) == {'A', 'B'} and set(frame.columnID) == {'1', '2', '3', '4'}
+    assert frame.fieldID.eq('f1').all()
+    assert frame.wellID.str.startswith('screen_day_1_').all()
+    assert Path(db).read_bytes() == before
+
+
+def test_mil_invalid_fallback_key_refuses_without_writing_or_guessing(tmp_path):
+    import sqlite3
+    from spacr.embeddings import _mil_frame_from_db
+    db, _ = _embedded_project(tmp_path)
+    with sqlite3.connect(db) as connection:
+        connection.execute("UPDATE png_list SET prcfo='invalid-key', plateID=NULL WHERE prcfo=(SELECT prcfo FROM png_list LIMIT 1)")
+        connection.execute("UPDATE crop_embedding SET prcfo='invalid-key' WHERE prcfo=(SELECT prcfo FROM crop_embedding LIMIT 1)")
+    before = Path(db).read_bytes()
+    with pytest.raises(ValueError, match='Cannot recover acquisition metadata'):
+        _mil_frame_from_db(db)
+    assert Path(db).read_bytes() == before
+
+
+def test_mil_explicit_metadata_remains_authoritative(tmp_path):
+    import sqlite3
+    from spacr.embeddings import _mil_frame_from_db
+    db, _ = _embedded_project(tmp_path)
+    with sqlite3.connect(db) as connection:
+        connection.execute("UPDATE png_list SET plateID='explicit_plate', fieldID='f9'")
+    frame = _mil_frame_from_db(db)
+    assert frame.plateID.eq('explicit_plate').all() and frame.fieldID.eq('f9').all()

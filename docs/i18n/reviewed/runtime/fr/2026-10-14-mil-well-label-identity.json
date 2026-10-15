@@ -4,7 +4,7 @@
   "review_kind": "Direct exact-source AI technical translation review; independent parent review requested; no native-speaker signoff",
   "draft_author": "hard_overnight",
   "technical_reviewer": "hard_overnight",
-  "review": "Reviewed two diagnostic source/target pairs for microplate wells rather than generic good/well meaning, conflicting class labels and ambiguous abbreviated identifiers across plates. Preserved {well} placeholder and literal plate_row_column identifier exactly. No scientific MIL accuracy or native signoff claimed. Normal owner-scoped extraction, candidate gates, independent review and generation remain required.",
+  "review": "Reviewed three diagnostic source/target pairs for microplate well labels, conflicting class assignments, ambiguous abbreviated identifiers across plates and acquisition metadata recovered from an object identity key. Preserved {well}, {key} placeholders and literal plate_row_column identifier exactly. No scientific MIL accuracy or native signoff claimed. Normal owner-scoped extraction, candidate gates, independent review and generation remain required.",
   "records": [
     {
       "table": "ui",
@@ -19,6 +19,13 @@
       "source": "Well label {well} is ambiguous across plates; use the full plate_row_column identifier.",
       "source_sha256": "72772f5d0ba44e6bd47ad06b17b67d9e6583b77b6d53b7ad47b5b2566aa940a9",
       "translation": "L’étiquette de puits {well} est ambiguë entre plusieurs plaques ; utilisez l’identifiant complet plate_row_column."
+    },
+    {
+      "table": "ui",
+      "key": "Cannot recover acquisition metadata from object key {key}.",
+      "source": "Cannot recover acquisition metadata from object key {key}.",
+      "source_sha256": "c890cfbaaf2a545421ae3d75eaa90de824395bb7b121467949cb0532bd723b06",
+      "translation": "Impossible de récupérer les métadonnées d’acquisition à partir de la clé d’objet {key}."
     }
   ]
 }
