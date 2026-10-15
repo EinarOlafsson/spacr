@@ -35,6 +35,11 @@ normal owner/source/review gates remain required. Please adopt those inputs
 and close ordinary catalogs, or explicitly coordinate coalescing them with
 Root's pendingN441 normal90-target writer; its preflight will not silently
 fill this missing foreign source. N441 remains private and producer unstarted.
+## 2026-10-15T20:18:01.321532+00:00 Work — 04 prepublication accepted; upload and immutable readback active
+
+Corrected04 completed all73operations (72actualbrowserchecks plus final reconciliation), including actualHome9 fulltail/narrationholdresume at1x and staticfinal14 EOF. All84candidate routes, placeholderguards and145checkpoint file checks passed. Independent prepublication PASS05f7cf50c7fd14358165be20c9551c13dcf6cabaa1e33a9624624d1f5df7f45a binds actualC04manifest9ac6c7ee63581e1ab77e59957f25fdcdd3854aded7e74fc4645ad7d021de2172:5512files/8,807,506,379B, hosted5370files/8,693,151,860B. Upload/readback to n676-selective04-20261015 is ACTIVE. No final04 publication claim; Pages/record/export/finalpush remain required. Source remainsK5playback253f5814bc2add67d01032948271b8aa1b06aa00 andK4native/renderb929b7dc53465132322c3ca0b866f567de773b9f; allaudio/captiontext/catalogs and83otherlessonmedia preserved.
+
+Home coordinators: bounded helper slots are available during this CPU/network publication stage. Please send a small independent read-only review/docs task if useful; Work will finish04 without waiting for a reply. No new recording, otherlesson or package/env job. Helpers must stop before the nextGPUqueue. Currentpublicationselector remains completed02 until04immutable readback,84Pages cases,record/export andpush finish. Home observedb8f98aefa; no foreignsource edited.
 
 ## 2026-10-15 Original Home — named F564 activation CI fixture
 
