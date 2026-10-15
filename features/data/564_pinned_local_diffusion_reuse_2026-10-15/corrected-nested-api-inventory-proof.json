@@ -1,0 +1,145 @@
+{
+  "method": "Actual normal nested_helper_docs.inventory/entries on exact two-file snapshots with enabled-module subset, plus exact AST normal _is_visible_function_name public/module prose comparison. No whole collector or application import.",
+  "normal_nested_tool_sha256": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237",
+  "normal_visibility_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "modules_enabled": [
+    "spacr.attribution",
+    "spacr.deep_spacr"
+  ],
+  "entry_count": 21,
+  "nested_entries_equal": true,
+  "public_module_docs_equal": true,
+  "nested_entries": {
+    "spacr.attribution._ablation_cam._ablate": {
+      "signatures": [
+        "_ablate(_m, _inp, out)"
+      ],
+      "docstring": "Record the clean feature maps, or zero one channel per batch row."
+    },
+    "spacr.attribution._ask_for_attention_weights._wrap": {
+      "signatures": [
+        "_wrap(block)"
+      ],
+      "docstring": "Install the attention-weight adapter and return the original call."
+    },
+    "spacr.attribution._ask_for_attention_weights._wrap.forward": {
+      "signatures": [
+        "forward(*args, **kwargs)"
+      ],
+      "docstring": "Request per-head weights unless a positional request owns them."
+    },
+    "spacr.attribution._ask_for_attention_weights.restore": {
+      "signatures": [
+        "restore()"
+      ],
+      "docstring": "Restore every block's exact original bound forward method."
+    },
+    "spacr.attribution._check_spatial_activation._attn_hook": {
+      "signatures": [
+        "_attn_hook(_m, _inp, _out)"
+      ],
+      "docstring": "Record that an attention block ran."
+    },
+    "spacr.attribution._check_spatial_activation._target_hook": {
+      "signatures": [
+        "_target_hook(_m, _inp, out)"
+      ],
+      "docstring": "Capture the target layer's output and its position in the pass."
+    },
+    "spacr.attribution._eigen_cam._hook": {
+      "signatures": [
+        "_hook(_m, _inp, out)"
+      ],
+      "docstring": "Capture the target layer's feature maps."
+    },
+    "spacr.attribution._layer_activation_and_gradient._hook": {
+      "signatures": [
+        "_hook(_m, _inp, out)"
+      ],
+      "docstring": "Copy the feature maps and ask for their gradient."
+    },
+    "spacr.attribution._layer_activation_and_gradient._keep_gradient": {
+      "signatures": [
+        "_keep_gradient(grad)"
+      ],
+      "docstring": "Store the gradient that reaches the hooked feature map."
+    },
+    "spacr.attribution.attention_rollout._hook": {
+      "signatures": [
+        "_hook(_m, _inp, out)"
+      ],
+      "docstring": "Capture the (B, L, S) attention weights an MHA block returns."
+    },
+    "spacr.attribution.chefer_relevance._hook": {
+      "signatures": [
+        "_hook(_m, _inp, out)"
+      ],
+      "docstring": "Keep the attention weights an MHA block returns, graph attached."
+    },
+    "spacr.attribution.randomization_sanity_check._run": {
+      "signatures": [
+        "_run(m: nn.Module) -> np.ndarray"
+      ],
+      "docstring": "Attribute ``image`` with the method under test on model ``m``."
+    },
+    "spacr.deep_spacr._VirtualStainUNet.__init__.block": {
+      "signatures": [
+        "block(cin, cout)"
+      ],
+      "docstring": "Two convolution, normalisation and ReLU layers."
+    },
+    "spacr.deep_spacr._cross_validate_model._fit_one": {
+      "signatures": [
+        "_fit_one(train_loader, validation_loader, destination)"
+      ],
+      "docstring": "Train one fold model with a validation set not used for final scoring."
+    },
+    "spacr.deep_spacr._cross_validate_model._inner_loader": {
+      "signatures": [
+        "_inner_loader(indices, *, training)"
+      ],
+      "docstring": "Build one inner loader from global indexes into the base dataset."
+    },
+    "spacr.deep_spacr._cross_validate_model._metrics_for_probabilities": {
+      "signatures": [
+        "_metrics_for_probabilities(labels, probabilities)"
+      ],
+      "docstring": "Compute legacy fold metrics for an ensemble probability matrix."
+    },
+    "spacr.deep_spacr._flowview_pipeline.decorate": {
+      "signatures": [
+        "decorate(function)"
+      ],
+      "docstring": "Return a wrapper that reports ``function`` lifecycle for ``family``."
+    },
+    "spacr.deep_spacr._flowview_pipeline.decorate.observed": {
+      "signatures": [
+        "observed(*args, **kwargs)"
+      ],
+      "docstring": "Call the pipeline, preserving its result or error while tracing lifecycle."
+    },
+    "spacr.deep_spacr._vs_cellpose_segment.segment": {
+      "signatures": [
+        "segment(plane)"
+      ],
+      "docstring": "Segment one 0-1 plane with Cellpose."
+    },
+    "spacr.deep_spacr.annotate_filter_vision.filter_csv_by_png": {
+      "signatures": [
+        "filter_csv_by_png(csv_file)"
+      ],
+      "docstring": "Return a DataFrame with rows matching any PNG in the sibling ``training/train`` folders removed.\n\n:param csv_file: Path to the score CSV.\n:returns: Filtered DataFrame."
+    },
+    "spacr.deep_spacr.model_fusion.combine_tensors": {
+      "signatures": [
+        "combine_tensors(tensor_list, mode='mean')"
+      ],
+      "docstring": "Given a list of Tensors, combine them using the chosen aggregator."
+    }
+  },
+  "correction": "Earlier direct-top-level-only proof overlooked new nested fingerprint despite attribution being enabled; removed that nested arrival by documented top-level SHA helper, no policy exemption. Historical proof preserved as superseded.",
+  "source_sha256": {
+    "attribution.py": "bd263b9364f46b8663a7b6dfb817d514d7748d4bda77c76145bbf6f3895ed278",
+    "deep_spacr.py": "920cfff243175833e7a1234e327b56ed2c5da792897bfb7559764666e24bf950"
+  }
+}

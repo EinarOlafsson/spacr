@@ -39,8 +39,12 @@ def sample(tmp_path, fitted_generator):
     description = {'schema': 1, 'channel_ids': ['measured_plane_4'],
                    'class_labels': ['control', 'condition'],
                    'condition_key': 'class',
-                   'preprocessing': {'normalization': {'mean': [0.2], 'std': [0.4]},
-                                     'crop': [8, 8]}}
+                   'preprocessing': {'pipeline': 'synthetic_model_input_v1',
+                                     'crop_loading_policy': 'declared_synthetic_tensor_v1',
+                                     'normalization': None, 'center_crop': [8, 8],
+                                     'selected_channels_1based': [1],
+                                     'selection_semantics': 'zero_unselected_stored_rgb_planes',
+                                     'classifier_preprocessing': None}}
     contract = cf._cf_input_contract(model, crops, description, [])
     generator = copy.deepcopy(fitted_generator)
     payload = {'artifact_type': 'spacr.counterfactual_diffusion',
@@ -317,3 +321,41 @@ def test_saved_schedule_must_match_declared_configuration(sample):
     torch.save(payload, path)
     with pytest.raises(ValueError, match='counterfactual checkpoint'):
         cf._cf_load_checkpoint(path, pinned(path), payload['input_contract'])
+
+
+@pytest.mark.parametrize('change', ['schema_bool', 'missing_pipeline', 'missing_policy',
+    'crop_shape', 'zero_std', 'bad_mean', 'channel_mask', 'selection_semantics',
+    'classifier_metadata'])
+def test_incomplete_or_mismatched_preprocessing_refuses_before_classifier(sample, monkeypatch, change):
+    model, crops, description, generator, payload, path = sample
+    if change == 'schema_bool':
+        description['schema'] = True
+    elif change.startswith('missing_'):
+        del description['preprocessing'][{'missing_pipeline': 'pipeline',
+                                          'missing_policy': 'crop_loading_policy'}[change]]
+    elif change == 'crop_shape':
+        description['preprocessing']['center_crop'] = [4, 8]
+    elif change == 'zero_std':
+        description['preprocessing']['normalization'] = {'mean': [0.], 'std': [0.]}
+    elif change == 'bad_mean':
+        description['preprocessing']['normalization'] = {'mean': [True], 'std': [1.]}
+    elif change == 'channel_mask':
+        description['preprocessing']['selected_channels_1based'] = [True]
+    elif change == 'selection_semantics':
+        description['preprocessing']['selection_semantics'] = 'drop_and_reorder'
+    else:
+        description['preprocessing']['classifier_preprocessing'] = []
+    monkeypatch.setattr(model, 'forward', lambda *a: pytest.fail('metadata refusal scored classifier'))
+    with pytest.raises(ValueError, match='counterfactual checkpoint'):
+        cf._cf_input_contract(model, crops, description, [])
+    assert model.training
+
+
+@pytest.mark.parametrize('shape', [(8,), (8, 8), (8, 1, 8)])
+def test_selected_reuse_shape_refuses_before_legacy_channel_indexing(sample, shape):
+    model, crops, description, generator, payload, path = sample
+    with pytest.raises(ValueError, match='counterfactual checkpoint'):
+        cf._counterfactual_report(model, torch.zeros(shape), generator='diffusion',
+                                  checkpoint=path, checkpoint_sha256=pinned(path),
+                                  input_contract=description)
+    assert model.training

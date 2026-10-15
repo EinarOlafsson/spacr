@@ -3431,7 +3431,8 @@ def _cf_input_contract(model, crops, description, levels):
 
     try:
         data = json.loads(json.dumps(description, allow_nan=False, sort_keys=True))
-        if not isinstance(data, dict) or data.get('schema') != 1:
+        if (not isinstance(data, dict) or type(data.get('schema')) is not int
+                or data['schema'] != 1):
             raise _cf_checkpoint_error()
         channels = data['channel_ids']
         classes = data['class_labels']
@@ -3449,6 +3450,36 @@ def _cf_input_contract(model, crops, description, levels):
                 or not isinstance(data['condition_key'], str)
                 or not data['condition_key']):
             raise _cf_checkpoint_error()
+        preprocessing = data['preprocessing']
+        required = {'pipeline', 'crop_loading_policy', 'center_crop',
+                    'normalization', 'selected_channels_1based',
+                    'selection_semantics', 'classifier_preprocessing'}
+        if not required <= preprocessing.keys():
+            raise _cf_checkpoint_error()
+        for name in ['pipeline', 'crop_loading_policy']:
+            if not isinstance(preprocessing[name], str) or not preprocessing[name].strip():
+                raise _cf_checkpoint_error()
+        center = preprocessing['center_crop']
+        selected = preprocessing['selected_channels_1based']
+        if (not isinstance(center, list) or len(center) != 2
+                or any(type(v) is not int or v < 1 for v in center)
+                or center != list(crops.shape[-2:])
+                or not isinstance(selected, list)
+                or any(type(v) is not int or not 1 <= v <= crops.shape[1] for v in selected)
+                or preprocessing['selection_semantics'] != 'zero_unselected_stored_rgb_planes'
+                or (preprocessing['classifier_preprocessing'] is not None
+                    and not isinstance(preprocessing['classifier_preprocessing'], dict))):
+            raise _cf_checkpoint_error()
+        normalization = preprocessing['normalization']
+        if normalization is not None:
+            if not isinstance(normalization, dict) or normalization.keys() != {'mean', 'std'}:
+                raise _cf_checkpoint_error()
+            for name in ['mean', 'std']:
+                values = normalization[name]
+                if (not isinstance(values, list) or len(values) != crops.shape[1]
+                        or any(type(v) not in (int, float) or not math.isfinite(v)
+                               or (name == 'std' and v <= 0) for v in values)):
+                    raise _cf_checkpoint_error()
         digest = hashlib.sha256()
         for key, value in sorted(model.state_dict().items()):
             value = value.detach().cpu().contiguous()
@@ -3470,6 +3501,20 @@ def _cf_input_contract(model, crops, description, levels):
         raise _cf_checkpoint_error() from exc
 
 
+def _cf_checkpoint_sha256(handle):
+    """Stream SHA256 from the same held descriptor, positioned from its start.
+
+    :param handle: seekable binary checkpoint handle; never reopened by path.
+    :returns: hexadecimal digest; leaves the handle at EOF.
+    """
+    import hashlib
+    handle.seek(0)
+    digest = hashlib.sha256()
+    for block in iter(lambda: handle.read(1024 * 1024), b''):
+        digest.update(block)
+    return digest.hexdigest()
+
+
 def _cf_load_checkpoint(path, expected_sha256, contract):
     """Load only a pinned, bounded, local version1 diffusion state dictionary.
 
@@ -3479,7 +3524,6 @@ def _cf_load_checkpoint(path, expected_sha256, contract):
     :returns: CPU generator and verified source SHA; no trainer is called.
     :raises ValueError: for unsafe, incompatible, changed or unverified input.
     """
-    import hashlib
     import json
     import os
     import re
@@ -3495,14 +3539,7 @@ def _cf_load_checkpoint(path, expected_sha256, contract):
             before = os.fstat(handle.fileno())
             if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 512 * 1024 ** 2:
                 raise _cf_checkpoint_error()
-            def fingerprint():
-                """Hash this same descriptor without Python-version-specific APIs."""
-                handle.seek(0)
-                digest = hashlib.sha256()
-                for block in iter(lambda: handle.read(1024 * 1024), b''):
-                    digest.update(block)
-                return digest.hexdigest()
-            sha = fingerprint()
+            sha = _cf_checkpoint_sha256(handle)
             if sha != expected_sha256.lower():
                 raise _cf_checkpoint_error()
             handle.seek(0)
@@ -3514,7 +3551,7 @@ def _cf_load_checkpoint(path, expected_sha256, contract):
                     raise _cf_checkpoint_error()
             handle.seek(0)
             payload = torch.load(handle, map_location='cpu', weights_only=True)
-            after_sha = fingerprint()
+            after_sha = _cf_checkpoint_sha256(handle)
             after = os.fstat(handle.fileno())
         if (after_sha != sha or (before.st_dev, before.st_ino, before.st_size,
                 before.st_mtime_ns, before.st_ctime_ns) != (after.st_dev,
@@ -3656,6 +3693,9 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         or training condition, or no held-out crop outside the target.
     """
     crops = torch.as_tensor(crops).float()
+    if ((input_contract is not None or (checkpoint is not None and str(checkpoint).strip()))
+            and crops.ndim != 4):
+        raise _cf_checkpoint_error()
     if preserve_channels is not None and crops.ndim != 4:
         from .qt.i18n import tr
         raise ValueError(tr("Reference preservation requires NCHW crop tensors."))

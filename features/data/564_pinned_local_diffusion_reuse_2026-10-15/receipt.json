@@ -2,9 +2,9 @@
   "status": "Private backend implementation; not published or whole-feature complete",
   "base": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
   "source_sha256": {
-    "spacr/attribution.py": "6c85eb048cdd15a809616cd11887bb513dcb20173c1513bbe08916f051b52ce5",
+    "spacr/attribution.py": "bd263b9364f46b8663a7b6dfb817d514d7748d4bda77c76145bbf6f3895ed278",
     "spacr/deep_spacr.py": "920cfff243175833e7a1234e327b56ed2c5da792897bfb7559764666e24bf950",
-    "tests/test_f564_pinned_diffusion_reuse.py": "4bee85f139a162d4b56ea21ecafa02e96c34de852c7588d0852e4fd7bd02767a",
+    "tests/test_f564_pinned_diffusion_reuse.py": "fecba0642fe33249886bfeac106f2eb4cff062c35d86970f4c6cf4ce9ef33f72",
     "tests/test_f564_pinned_diffusion_locales.py": "321f37ed24f9644015c9faa8067a3f7b6abc390eeb99ff96c282633ffd446bff"
   },
   "validation": [
@@ -27,6 +27,11 @@
       "scope": "Final selected-output collision/schedule mismatch refusals plus relevant positive roundtrip/reuse",
       "result": "5PASS3.65s",
       "limit": "Five cases includes two positive cases repeated because schedule guard changed. No whole suite."
+    },
+    {
+      "scope": "Final complete descriptor/NCHW refusal, factored held-FD SHA roundtrip/file-change/reuse and unchanged legacy-default route",
+      "result": "16PASS4.20s,26deselected",
+      "limit": "Only affected/new controls; actual tiny1epoch CPU fit for fixture, no quality evidence."
     }
   ],
   "execution": "BlankCUDA/offscreen, Original CI lock, run_capped6G, OMP/BLAS1. First two setup failures archived; no tests ran in those attempts.",
@@ -37,5 +42,6 @@
     "Genuine compatible pretrained acquisition outside tiny synthetic fit, app-scale known-phenotype and biological/monotonicity/structure validation remain open.",
     "Existing pixel-space U-Net reuse is not a larger latent-diffusion architecture; no architecture/quality claim."
   ],
-  "safety": "No fallback trainer for selected checkpoint; weights_only CPU ZIP/load pin; no download/GPU/protected jobs; no torch_artifacts changes. Training provenance is declared metadata, not authenticated independent pretraining."
+  "safety": "No fallback trainer for selected checkpoint; weights_only CPU ZIP/load pin; no download/GPU/protected jobs; no torch_artifacts changes. Training provenance is declared metadata, not authenticated independent pretraining.",
+  "api_visibility_correction": "Original private-top-level-only proof missed enabled nested fingerprint. Factored SHA loop to documented private top-level; actual normal scoped inventory now21 entries/prose/signatures equal plus public/module docs equal, exact source-bound receipt retained. No new API target."
 }
