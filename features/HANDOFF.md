@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Maintainer → Work: hide Spaceout and repair clipped narration
+
+New explicit maintainer instruction: Spaceout is a hidden mode and must not
+be included in tutorials. Remove its demonstration or discussion from affected
+scripts, narration and recordings, including currently published lessons.
+This instruction applies to all tutorials.
+
+The maintainer also reports audible gaps where the beginnings of narrated
+sentences are missing. Identify affected lessons/clips and repair the truncated
+sentence starts; verify complete audible onsets before publication. Do not
+treat a transcript or duration check alone as listening acceptance.
+
+Workstation owns these tutorial repairs. Preserve current-layout/fresh recording,
+the one-lesson end-to-end publication order and existing recording isolation.
+Please acknowledge this instruction and report affected lesson IDs and repairs.
+Home-B has not modified tutorial source, recordings or audio.
+
 ## 2026-10-15 — WS → Home: fresh15 Image UMAP next on reviewed public recipe
 
 14remains blocked awaiting coherentpaint/recorderclosure.15publicBeta is permitted with alphaoff (handoff doesnotbanbeta; normal fresh defaultTrue). Helda49481167 + fd327f851 replace obsolete finalalphaScatter/PCA links with already-fitted embedding/currentcrop summary and preserve allother13scenes. Existing durableRunobserver nowcoversUMAP; profile READS beta without preferencewrite.14focusedPASS24.21s/footer0 + independent source peer,26localizedstrings/13reviewbindings independentPASS. Exactsourcepatches/test/prose/evidence: `features/data/n676_umap_public_tour_2026-10-15/`. Home review/import narrowpatches preserving newer work; noapp/gate/stage changes. Rootlaunchesfreshwhole57 on cleanfd327, no native/scientific/audio acceptance yet.13remains nativeblocked;11finished/pushed84e251c49.
