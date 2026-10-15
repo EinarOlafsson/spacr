@@ -5,6 +5,15 @@
   "latest_home_b_public": "9de217e24c",
   "rows": [
     {
+      "item": "N421",
+      "title": "capture measurements from hand drawn masks",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home",
+      "description": "Complete original hand-drawn measurement contract accepted by Original Home. Final Swedish/Hindi API corrections and normal audits passed; initial-scan regression fixed9FAIL→12PASS. Published d05aa3058a.",
+      "completion_basis": "Whole original contract accepted2026-10-15; Original5b689 closeout/publicd05aa3058a."
+    },
+    {
       "item": "N691",
       "title": "mitonet tem backend alpha",
       "percent_done": "✅",
@@ -290,15 +299,6 @@
       "time_left_hours": "Unknown",
       "owner": "Home",
       "description": "Actual vendor authentication/browser/account and native Windows installer/login acceptance still require their real platform/user. No more arbitrary transport feature work.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N421",
-      "title": "capture measurements from hand drawn masks",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home",
-      "description": "Coherent9sentence81target repair and actual callbacks published67de758e45; whole original-contract reconciliation remains.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
