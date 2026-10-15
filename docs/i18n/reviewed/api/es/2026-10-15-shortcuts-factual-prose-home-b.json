@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review of changed shortcut prose; source-current targets retained for11 moved constructor records;7 proven mistranslations corrected with explicit authorization; independent peer review pending; no native-speaker signoff",
+  "note": "Source8a20fded961;22 blocks from seven symbols selected by the normal public_docstrings collector. Existing108 superseded review rows are listed separately for the shared API owner; this input commit does not alter them or generated catalogs. Full normal loader acceptance is pending coordinated retirement.",
+  "records": [
+    {
+      "label": "spacr.qt.shortcuts#0",
+      "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+      "context": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+      "source_sha256": "65f4368521a698c22915ab79ef37486844105d0ce8ebbaf2ba9be48934893aa9",
+      "translation": "Atajos de toda la ventana y específicos de cada pantalla para la GUI Qt de spaCR.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts#1",
+      "source": "The default window-wide actions include:",
+      "context": "The default window-wide actions include:",
+      "source_sha256": "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
+      "translation": "Las acciones predeterminadas de toda la ventana incluyen:",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts#3",
+      "source": "Open the corresponding app-registry entry if visible",
+      "context": "Open the corresponding app-registry entry if visible",
+      "source_sha256": "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
+      "translation": "Abrir la entrada correspondiente del registro de aplicaciones si es visible",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts#7",
+      "source": "?             Use the active screen's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full screen",
+      "context": "?             Use the active application view's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full application view",
+      "source_sha256": "f2a0782310323264fda94ede0b8ad10a73d9556a6d6920ddc410176d9057d735",
+      "translation": "?             Usar la ayuda de la pantalla activa o mostrar la guía rápida Ctrl+P        Abrir Preferencias Ctrl+Alt+0    Restablecer las escalas de la GUI, la fuente y las vistas previas al 100 % Ctrl+/        Alternar AI Console del módulo activo Ctrl+End      Ir a la línea más reciente de la consola F11           Alternar pantalla completa",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts#8",
+      "source": ":func:`install` creates the bindings returned by :func:`installed`. Other actions in :data:`SHORTCUTS` are bound by the main window's menus; the scroll gesture uses an event filter. Screen-owned bindings are included by :func:`mapped`, with their scope and saved overrides. Escape handling belongs to the active screen, overlay or dialog rather than a binding installed here.",
+      "context": ":func:`install` creates the bindings returned by :func:`installed`. Other actions in :data:`SHORTCUTS` are bound by the main window's menus; the scroll gesture uses an event filter. Screen-owned bindings are included by :func:`mapped`, with their scope and saved overrides. Escape handling belongs to the active screen, overlay or dialog rather than a binding installed here.",
+      "source_sha256": "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
+      "translation": ":func:`install` crea las asignaciones devueltas por :func:`installed`. Los menús de la ventana principal asignan otras acciones de :data:`SHORTCUTS`; el gesto de desplazamiento usa un filtro de eventos. :func:`mapped` incluye las asignaciones propias de cada pantalla, con su ámbito y sus sustituciones guardadas. La gestión de Escape corresponde a la pantalla activa, la superposición o el diálogo, y no a una asignación instalada aquí.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts#9",
+      "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+      "context": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+      "source_sha256": "e28ff7179d0185de46de73bafa6bf0f879215c0b7151b774741c7c4e7af2c515",
+      "translation": "Las secuencias de teclas declaradas para toda la ventana pueden reasignarse. La guía rápida tiene un botón \"Change shortcuts…\" que abre una tabla de acciones de toda la ventana; la tecla introducida sustituye a la predeterminada. Si otra acción ya utiliza esa tecla, se indica el conflicto y no se permite guardarla. Las sustituciones se guardan en las preferencias bajo :data:`_KEYMAP_KEY`, en la notación portable de Qt, para que un mapa guardado en una plataforma se interprete igual en las demás. Las teclas de una sola pantalla (Annotate, Make Masks, el navegador de campos, Gate Editor) tienen filas editables y sustituciones guardadas independientes, aplicadas tanto a pantallas existentes como nuevas.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.discover#0",
+      "source": "Find additional child shortcut and action sequences for the map.",
+      "context": "Find additional child shortcut and action sequences for the map.",
+      "source_sha256": "510918330742b7346b601c30bfff9a065e99b5f4859aa4909a9b514a860bd0be",
+      "translation": "Buscar secuencias adicionales de atajos y acciones secundarios para el mapa.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.discover#1",
+      "source": "Sequences already described by :func:`mapped`, including saved window-wide overrides, are excluded. Other nonempty sequences are deduplicated by their native spelling. The scan includes existing holders regardless of whether they are enabled or currently visible; it does not determine which action would receive a key event.",
+      "context": "Sequences already described by :func:`mapped`, including saved window-wide overrides, are excluded. Other nonempty sequences are deduplicated by their native spelling. The scan includes existing holders regardless of whether they are enabled or currently visible; it does not determine which action would receive a key event.",
+      "source_sha256": "a8ce4cafe6ca0c2f85735e4609e3e1f8556f7a82f67f909cdfb8f93aa1901f47",
+      "translation": "Se excluyen las secuencias ya descritas por :func:`mapped`, incluidas las sustituciones guardadas para toda la ventana. Las demás secuencias no vacías se deduplican según su notación nativa. La búsqueda incluye los objetos existentes que las contienen, estén habilitados o visibles actualmente o no; no determina qué acción recibiría un evento de teclado.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.discover#2",
+      "source": "The declared map supplies labels and scopes for known bindings even before their owning screens have been constructed.",
+      "context": "The declared map supplies labels and scopes for known bindings even before their owning screens have been constructed.",
+      "source_sha256": "5e4734862eb1e3640fc8e7c3a9bf0ec5d3d59988c07490634681de93a51fe629",
+      "translation": "El mapa declarado proporciona etiquetas y ámbitos de las asignaciones conocidas incluso antes de construir las pantallas a las que pertenecen.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.install#0",
+      "source": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+      "context": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+      "source_sha256": "6706ba544f6499a712531b101f6ef6451d48fabe2bf7cf327248d878bc005799",
+      "translation": "Asignar los atajos devueltos por :func:`installed` a ``window``.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.install#1",
+      "source": "Existing shortcut holders are reused. Menu-owned keys and the scroll gesture are installed elsewhere; this function also installs the optional window hooks and applies saved keymap overrides.",
+      "context": "Existing shortcut holders are reused. Menu-owned keys and the scroll gesture are installed elsewhere; this function also installs the optional window hooks and applies saved keymap overrides.",
+      "source_sha256": "ebf9a5b54b8786da2529631c6a2bcef7aa60741987a6f6560e7e6b208c59d1fb",
+      "translation": "Se reutilizan los objetos existentes que contienen los atajos. Las teclas de los menús y el gesto de desplazamiento se instalan en otro lugar; esta función también instala los enganches opcionales de la ventana y aplica las sustituciones guardadas del mapa de teclas.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#0",
+      "source": "Show the declared shortcut map and additional child bindings over a window.",
+      "context": "Show the declared shortcut map and additional child bindings over a window.",
+      "source_sha256": "186b990a918025fb3b1a6ce9da18fc549c321d2b683edd8ca800aa7453c90967",
+      "translation": "Mostrar sobre una ventana el mapa de atajos declarado y las asignaciones secundarias adicionales.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#1",
+      "source": "The translucent card groups actions by category and displays saved overrides and screen scopes. Its scroll area exposes content that does not fit. Key presses and mouse presses handled by the overlay dismiss it; the Change shortcuts button closes it and opens the keymap editor.",
+      "context": "The translucent card groups actions by category and displays saved overrides and screen scopes. Its scroll area exposes content that does not fit. Key presses and mouse presses handled by the overlay dismiss it; the Change shortcuts button closes it and opens the keymap editor.",
+      "source_sha256": "9abd3d4e79273ac86ae6a5c2c43d6cee14da00add47691fb0543664b41f17a99",
+      "translation": "La tarjeta translúcida agrupa las acciones por categoría y muestra las sustituciones guardadas y los ámbitos de pantalla. Su área desplazable permite acceder al contenido que no cabe. Las pulsaciones de teclado y ratón gestionadas por la superposición la cierran; el botón Cambiar atajos la cierra y abre el editor del mapa de teclas.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#2",
+      "source": "the parent widget to cover and inspect for bindings. The overlay resizes with this widget and does not create a separate top-level window.",
+      "context": "the parent widget to cover and inspect for bindings. The overlay resizes with this widget and does not create a separate top-level window.",
+      "source_sha256": "3a5855ef2858991d4cb7dc54c6ea110098522ecef03abd44dafb1e21cfae5c4b",
+      "translation": "el widget padre que se cubre y se examina para buscar asignaciones. La superposición cambia de tamaño con este widget y no crea una ventana de nivel superior independiente.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "source": "Build the shortcut cheat sheet as a card over the window.",
+      "context": "Build the shortcut cheat sheet as a card over the window.",
+      "source_sha256": "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
+      "translation": "Construye la hoja de trucos de acceso directo como una carta sobre la ventana.",
+      "review_basis": "Existing source-current generated target preserved byte-for-byte for an index-shifted constructor block; source-block hash and previous target index verified. No new translation or native-speaker review claimed."
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#4",
+      "source": "the window it covers; the card is centred in it and scrolls when the map does not fit.",
+      "context": "the window it covers; the card is centred in it and scrolls when the map does not fit.",
+      "source_sha256": "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74",
+      "translation": "la ventana que cubre; la carta se centra en ella y se desplaza cuando el mapa no encaja.",
+      "review_basis": "Existing source-current generated target preserved byte-for-byte for an index-shifted constructor block; source-block hash and previous target index verified. No new translation or native-speaker review claimed."
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent#0",
+      "source": "Dismiss the overlay when a key press reaches this handler.",
+      "context": "Dismiss the overlay when a key press reaches this handler.",
+      "source_sha256": "2b2d59f66f044693960f817e69c2a882f4e1d5c99d6f8cdc52f30273d752c17c",
+      "translation": "Cerrar la superposición cuando una pulsación de tecla llega a este manejador.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent#0",
+      "source": "Dismiss the overlay when a mouse press reaches this handler.",
+      "context": "Dismiss the overlay when a mouse press reaches this handler.",
+      "source_sha256": "173e9f253713a4ee887f369f8e9fb2de3165b97ab14a51bdcb8f2acc120ec513",
+      "translation": "Cerrar la superposición cuando una pulsación del ratón llega a este manejador.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.show_cheat_sheet#0",
+      "source": "Show shortcut help as an overlay or a fallback dialog.",
+      "context": "Show shortcut help as an overlay or a fallback dialog.",
+      "source_sha256": "f7baa4bb84230f74777014892a2869b9e5cfca37f40292483e3b57abadc824c3",
+      "translation": "Mostrar la ayuda de atajos como superposición o diálogo alternativo.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.show_cheat_sheet#1",
+      "source": "A nonzero-sized widget gets :class:`ShortcutOverlay`, which includes declared screen scopes, saved bindings and additional child sequences. A parentless or zero-sized caller gets a modal dialog containing the default window-wide :data:`SHORTCUTS` table instead.",
+      "context": "A nonzero-sized widget gets :class:`ShortcutOverlay`, which includes declared application view scopes, saved bindings and additional child sequences. A parentless or zero-sized caller gets a modal dialog containing the default window-wide :data:`SHORTCUTS` table instead.",
+      "source_sha256": "c0a54d6ea771ff1e9483058ecb3c2b147eeb06aebd306017db6902002f3069b8",
+      "translation": "Un widget de tamaño distinto de cero recibe :class:`ShortcutOverlay`, que incluye los ámbitos de pantalla declarados, las asignaciones guardadas y las secuencias secundarias adicionales. Un llamador sin padre o de tamaño cero recibe en su lugar un diálogo modal con la tabla predeterminada de toda la ventana :data:`SHORTCUTS`.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.show_cheat_sheet#2",
+      "source": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has. Otherwise, ``None`` or a zero-sized widget parents the fallback dialog.",
+      "context": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has. Otherwise, ``None`` or a zero-sized widget parents the fallback dialog.",
+      "source_sha256": "7b5a6efddc8c0dd46f206c4bdba2f5df116a513c1055d50c3877807a7ff751bc",
+      "translation": "la ventana que se cubrirá. Un :class:`QWidget` de tamaño distinto de cero recibe la superposición, que sustituye a cualquier superposición existente. En caso contrario, ``None`` o un widget de tamaño cero actúa como padre del diálogo alternativo.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.shortcuts.show_cheat_sheet#3",
+      "source": "the overlay when one is shown, or ``None`` after the fallback dialog closes.",
+      "context": "the overlay when one is shown, or ``None`` after the fallback dialog closes.",
+      "source_sha256": "7ca3f41e238f8bf92047bfb151d45c774b0b582e92ce5224bdccd3e46d2f5f4f",
+      "translation": "la superposición cuando se muestra una, o ``None`` después de cerrar el diálogo alternativo.",
+      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+    }
+  ]
+}

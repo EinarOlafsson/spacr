@@ -1,0 +1,371 @@
+Wrote198 records; preserved18 constructor targets; syntax failures:50
+de spacr.qt.shortcuts.ShortcutOverlay#3 Erstellen Sie das Shortcut Cheat Sheet als Karte über dem Fenster.
+de spacr.qt.shortcuts.ShortcutOverlay#4 das Fenster, das es bedeckt; die Karte ist in ihr zentriert und scrollt, wenn die Karte nicht passt.
+es spacr.qt.shortcuts.ShortcutOverlay#3 Construye la hoja de trucos de acceso directo como una carta sobre la ventana.
+es spacr.qt.shortcuts.ShortcutOverlay#4 la ventana que cubre; la carta se centra en ella y se desplaza cuando el mapa no encaja.
+fr spacr.qt.shortcuts.ShortcutOverlay#3 Construisez la feuille de triche de raccourci comme une carte au-dessus de la fenêtre.
+fr spacr.qt.shortcuts.ShortcutOverlay#4 la fenêtre qu'elle couvre; la carte y est centrée et défile lorsque la carte ne correspond pas.
+is spacr.qt.shortcuts.ShortcutOverlay#3 Að byggja smá skammt svipaðilinu sem kort yfir glugganum.
+is spacr.qt.shortcuts.ShortcutOverlay#4 fönnun sem það dekkar; kortin er miðlaður í það og snúir þegar kortin passar ekki.
+sv spacr.qt.shortcuts.ShortcutOverlay#3 Bygg genvägen fusklakan som ett kort över fönstret.
+sv spacr.qt.shortcuts.ShortcutOverlay#4 det fönster som den täcker; kortet är centrerat i det och rullar när kartan inte passar.
+hi spacr.qt.shortcuts.ShortcutOverlay#3 खिड़की के ऊपर एक कार्ड के रूप में छोटे-छोटे धोखाधड़ी शीट का निर्माण करें।
+hi spacr.qt.shortcuts.ShortcutOverlay#4 खिड़की यह कवर करता है; कार्ड इसमें केंद्रित है और जब नक्शा फिट नहीं होता है तो स्क्रॉल करता है।
+ko spacr.qt.shortcuts.ShortcutOverlay#3 창문 위에 카드로 짧은 사기 잎을 구축하십시오.
+ko spacr.qt.shortcuts.ShortcutOverlay#4 그것이 덮는 창; 카드는 그것에 집중하고 지도가 맞지 않을 때 회전합니다.
+zh_CN spacr.qt.shortcuts.ShortcutOverlay#3 建造短片欺骗板作为窗口上的卡片。
+zh_CN spacr.qt.shortcuts.ShortcutOverlay#4 它覆盖的窗口;卡片集中在它,当地图不适合时旋转。
+pt spacr.qt.shortcuts.ShortcutOverlay#3 Crie a folha de atalho como um cartão sobre a janela.
+pt spacr.qt.shortcuts.ShortcutOverlay#4 a janela que cobre; o cartão é centrado nele e se desloca quando o mapa não se encaixa.
+[
+  {
+    "language": "de",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Fensterweite und bildschirmspezifische Tastenkürzel für die spaCR-Qt-Oberfläche."
+  },
+  {
+    "language": "de",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Fensterweite und bildschirmspezifische Tastenkürzel für die spaCR-Qt-Oberfläche."
+  },
+  {
+    "language": "de",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "Deklarierte fensterweite Tastenfolgen lassen sich neu zuordnen. Die Kurzübersicht enthält die Schaltfläche „Tastenkürzel ändern…“, die eine Tabelle der fensterweiten Aktionen öffnet; eine dort eingegebene Taste ersetzt die Standardtaste. Ist sie bereits einer anderen Aktion zugeordnet, wird der Konflikt benannt und die Zuordnung kann nicht gespeichert werden. Die Überschreibungen werden im Einstellungsspeicher unter :data:`_KEYMAP_KEY` in der portablen Qt-Schreibweise gespeichert, sodass eine auf einer Plattform gespeicherte Tastenbelegung auf anderen gleich gelesen wird. Tasten einzelner Bildschirme (Annotate, Make Masks, Feldbrowser, Gate Editor) haben eigene bearbeitbare Zeilen und gespeicherte Überschreibungen, die für bestehende und neue Bildschirme gelten."
+  },
+  {
+    "language": "de",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "Deklarierte fensterweite Tastenfolgen lassen sich neu zuordnen. Die Kurzübersicht enthält die Schaltfläche „Tastenkürzel ändern…“, die eine Tabelle der fensterweiten Aktionen öffnet; eine dort eingegebene Taste ersetzt die Standardtaste. Ist sie bereits einer anderen Aktion zugeordnet, wird der Konflikt benannt und die Zuordnung kann nicht gespeichert werden. Die Überschreibungen werden im Einstellungsspeicher unter :data:`_KEYMAP_KEY` in der portablen Qt-Schreibweise gespeichert, sodass eine auf einer Plattform gespeicherte Tastenbelegung auf anderen gleich gelesen wird. Tasten einzelner Bildschirme (Annotate, Make Masks, Feldbrowser, Gate Editor) haben eigene bearbeitbare Zeilen und gespeicherte Überschreibungen, die für bestehende und neue Bildschirme gelten."
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Atajos de toda la ventana y específicos de cada pantalla para la interfaz Qt de spaCR."
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Atajos de toda la ventana y específicos de cada pantalla para la interfaz Qt de spaCR."
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "source",
+    "source": "?             Use the active screen's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full screen",
+    "target": "?             Usar la ayuda de la pantalla activa o mostrar la guía rápida Ctrl+P        Abrir Preferencias Ctrl+Alt+0    Restablecer las escalas de la interfaz, la fuente y las vistas previas al 100 % Ctrl+/        Alternar AI Console del módulo activo Ctrl+End      Ir a la línea más reciente de la consola F11           Alternar pantalla completa"
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "context",
+    "source": "?             Use the active application view's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full application view",
+    "target": "?             Usar la ayuda de la pantalla activa o mostrar la guía rápida Ctrl+P        Abrir Preferencias Ctrl+Alt+0    Restablecer las escalas de la interfaz, la fuente y las vistas previas al 100 % Ctrl+/        Alternar AI Console del módulo activo Ctrl+End      Ir a la línea más reciente de la consola F11           Alternar pantalla completa"
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "Las secuencias de teclas declaradas para toda la ventana pueden reasignarse. La guía rápida tiene un botón «Cambiar atajos…» que abre una tabla de acciones de toda la ventana; la tecla introducida sustituye a la predeterminada. Si otra acción ya utiliza esa tecla, se indica el conflicto y no se permite guardarla. Las sustituciones se guardan en las preferencias bajo :data:`_KEYMAP_KEY`, en la notación portable de Qt, para que un mapa guardado en una plataforma se interprete igual en las demás. Las teclas de una sola pantalla (Annotate, Make Masks, el navegador de campos, Gate Editor) tienen filas editables y sustituciones guardadas independientes, aplicadas tanto a pantallas existentes como nuevas."
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "Las secuencias de teclas declaradas para toda la ventana pueden reasignarse. La guía rápida tiene un botón «Cambiar atajos…» que abre una tabla de acciones de toda la ventana; la tecla introducida sustituye a la predeterminada. Si otra acción ya utiliza esa tecla, se indica el conflicto y no se permite guardarla. Las sustituciones se guardan en las preferencias bajo :data:`_KEYMAP_KEY`, en la notación portable de Qt, para que un mapa guardado en una plataforma se interprete igual en las demás. Las teclas de una sola pantalla (Annotate, Make Masks, el navegador de campos, Gate Editor) tienen filas editables y sustituciones guardadas independientes, aplicadas tanto a pantallas existentes como nuevas."
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts.install#0",
+    "form": "source",
+    "source": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+    "target": "Asignar a ``window`` los atajos devueltos por :func:`installed`."
+  },
+  {
+    "language": "es",
+    "label": "spacr.qt.shortcuts.install#0",
+    "form": "context",
+    "source": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+    "target": "Asignar a ``window`` los atajos devueltos por :func:`installed`."
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Raccourcis à l'échelle de la fenêtre et propres à chaque écran pour l'interface Qt de spaCR."
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Raccourcis à l'échelle de la fenêtre et propres à chaque écran pour l'interface Qt de spaCR."
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "source",
+    "source": "?             Use the active screen's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full screen",
+    "target": "?             Utiliser l'aide de l'écran actif ou afficher l'aide-mémoire Ctrl+P        Ouvrir les préférences Ctrl+Alt+0    Rétablir les échelles de l'interface, de la police et des aperçus à 100 % Ctrl+/        Afficher ou masquer AI Console du module actif Ctrl+End      Aller à la dernière ligne de la console F11           Basculer le mode plein écran"
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "context",
+    "source": "?             Use the active application view's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full application view",
+    "target": "?             Utiliser l'aide de l'écran actif ou afficher l'aide-mémoire Ctrl+P        Ouvrir les préférences Ctrl+Alt+0    Rétablir les échelles de l'interface, de la police et des aperçus à 100 % Ctrl+/        Afficher ou masquer AI Console du module actif Ctrl+End      Aller à la dernière ligne de la console F11           Basculer le mode plein écran"
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "Les séquences de touches déclarées à l'échelle de la fenêtre peuvent être réaffectées. L'aide-mémoire comporte un bouton « Modifier les raccourcis… » qui ouvre un tableau des actions de la fenêtre ; une touche saisie remplace celle par défaut. Si une autre action utilise déjà cette touche, le conflit est indiqué et l'affectation ne peut pas être enregistrée. Les substitutions sont conservées dans les préférences sous :data:`_KEYMAP_KEY`, selon la notation portable de Qt, afin qu'une configuration enregistrée sur une plateforme soit interprétée de la même façon sur les autres. Les touches propres à un écran (Annotate, Make Masks, le navigateur de champs, Gate Editor) disposent de lignes modifiables et de substitutions enregistrées distinctes, appliquées aux écrans existants comme aux nouveaux."
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "Les séquences de touches déclarées à l'échelle de la fenêtre peuvent être réaffectées. L'aide-mémoire comporte un bouton « Modifier les raccourcis… » qui ouvre un tableau des actions de la fenêtre ; une touche saisie remplace celle par défaut. Si une autre action utilise déjà cette touche, le conflit est indiqué et l'affectation ne peut pas être enregistrée. Les substitutions sont conservées dans les préférences sous :data:`_KEYMAP_KEY`, selon la notation portable de Qt, afin qu'une configuration enregistrée sur une plateforme soit interprétée de la même façon sur les autres. Les touches propres à un écran (Annotate, Make Masks, le navigateur de champs, Gate Editor) disposent de lignes modifiables et de substitutions enregistrées distinctes, appliquées aux écrans existants comme aux nouveaux."
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts.install#0",
+    "form": "source",
+    "source": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+    "target": "Associer à ``window`` les raccourcis renvoyés par :func:`installed`."
+  },
+  {
+    "language": "fr",
+    "label": "spacr.qt.shortcuts.install#0",
+    "form": "context",
+    "source": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+    "target": "Associer à ``window`` les raccourcis renvoyés par :func:`installed`."
+  },
+  {
+    "language": "is",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Flýtilyklar sem gilda fyrir allan gluggann eða tiltekna skjái í Qt-viðmóti spaCR."
+  },
+  {
+    "language": "is",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Flýtilyklar sem gilda fyrir allan gluggann eða tiltekna skjái í Qt-viðmóti spaCR."
+  },
+  {
+    "language": "is",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "source",
+    "source": "?             Use the active screen's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full screen",
+    "target": "?             Nota hjálparaðgerð virka skjásins eða sýna flýtilyklayfirlitið Ctrl+P        Opna stillingar Ctrl+Alt+0    Setja viðmótskvarða, leturkvarða og forskoðunarkvarða aftur í 100 % Ctrl+/        Sýna eða fela AI Console virku einingarinnar Ctrl+End      Fara í nýjustu línu stjórnborðsins F11           Skipta um fullskjásstillingu"
+  },
+  {
+    "language": "is",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "context",
+    "source": "?             Use the active application view's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full application view",
+    "target": "?             Nota hjálparaðgerð virka skjásins eða sýna flýtilyklayfirlitið Ctrl+P        Opna stillingar Ctrl+Alt+0    Setja viðmótskvarða, leturkvarða og forskoðunarkvarða aftur í 100 % Ctrl+/        Sýna eða fela AI Console virku einingarinnar Ctrl+End      Fara í nýjustu línu stjórnborðsins F11           Skipta um fullskjásstillingu"
+  },
+  {
+    "language": "is",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "Hægt er að endurbinda skilgreindar lyklaraðir sem gilda fyrir allan gluggann. Flýtilyklayfirlitið hefur hnappinn „Breyta flýtilyklum…“ sem opnar töflu yfir aðgerðir gluggans; lykill sem er sleginn inn kemur í stað sjálfgefins lykils. Ef önnur aðgerð notar lykilinn er áreksturinn tilgreindur og ekki hægt að vista bindinguna. Yfirskriftir eru vistaðar í stillingageymslunni undir :data:`_KEYMAP_KEY` með flytjanlegri ritun Qt, svo lyklakort sem er vistað á einu stýrikerfi sé lesið eins á öðrum. Lyklar sem tilheyra einum skjá (Annotate, Make Masks, sviðavafranum, Gate Editor) hafa aðskildar breytanlegar línur og vistaðar yfirskriftir sem gilda bæði fyrir fyrirliggjandi og nýja skjái."
+  },
+  {
+    "language": "is",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "Hægt er að endurbinda skilgreindar lyklaraðir sem gilda fyrir allan gluggann. Flýtilyklayfirlitið hefur hnappinn „Breyta flýtilyklum…“ sem opnar töflu yfir aðgerðir gluggans; lykill sem er sleginn inn kemur í stað sjálfgefins lykils. Ef önnur aðgerð notar lykilinn er áreksturinn tilgreindur og ekki hægt að vista bindinguna. Yfirskriftir eru vistaðar í stillingageymslunni undir :data:`_KEYMAP_KEY` með flytjanlegri ritun Qt, svo lyklakort sem er vistað á einu stýrikerfi sé lesið eins á öðrum. Lyklar sem tilheyra einum skjá (Annotate, Make Masks, sviðavafranum, Gate Editor) hafa aðskildar breytanlegar línur og vistaðar yfirskriftir sem gilda bæði fyrir fyrirliggjandi og nýja skjái."
+  },
+  {
+    "language": "sv",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Fönsterövergripande och skärmspecifika kortkommandon för spaCR:s Qt-gränssnitt."
+  },
+  {
+    "language": "sv",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Fönsterövergripande och skärmspecifika kortkommandon för spaCR:s Qt-gränssnitt."
+  },
+  {
+    "language": "sv",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "source",
+    "source": "?             Use the active screen's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full screen",
+    "target": "?             Använd den aktiva skärmens hjälpåtgärd eller visa snabbguiden Ctrl+P        Öppna inställningar Ctrl+Alt+0    Återställ gränssnittets skala, teckensnittsskalan och förhandsvisningarnas skalor till 100 % Ctrl+/        Visa eller dölj den aktiva modulens AI Console Ctrl+End      Gå till den senaste konsolraden F11           Växla helskärmsläge"
+  },
+  {
+    "language": "sv",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "context",
+    "source": "?             Use the active application view's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full application view",
+    "target": "?             Använd den aktiva skärmens hjälpåtgärd eller visa snabbguiden Ctrl+P        Öppna inställningar Ctrl+Alt+0    Återställ gränssnittets skala, teckensnittsskalan och förhandsvisningarnas skalor till 100 % Ctrl+/        Visa eller dölj den aktiva modulens AI Console Ctrl+End      Gå till den senaste konsolraden F11           Växla helskärmsläge"
+  },
+  {
+    "language": "sv",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "Deklarerade fönsterövergripande tangentsekvenser kan bindas om. Snabbguiden har knappen ”Ändra kortkommandon…” som öppnar en tabell över fönsterövergripande åtgärder; en inmatad tangent ersätter den förvalda. Om en annan åtgärd redan använder tangenten anges konflikten och bindningen kan inte sparas. Åsidosättningarna lagras i inställningarna under :data:`_KEYMAP_KEY` med Qt:s portabla skrivsätt, så att en tangentkarta som sparas på en plattform läses likadant på andra. Tangenter som hör till en enda skärm (Annotate, Make Masks, fältbläddraren, Gate Editor) har egna redigerbara rader och sparade åsidosättningar som används för både befintliga och nya skärmar."
+  },
+  {
+    "language": "sv",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "Deklarerade fönsterövergripande tangentsekvenser kan bindas om. Snabbguiden har knappen ”Ändra kortkommandon…” som öppnar en tabell över fönsterövergripande åtgärder; en inmatad tangent ersätter den förvalda. Om en annan åtgärd redan använder tangenten anges konflikten och bindningen kan inte sparas. Åsidosättningarna lagras i inställningarna under :data:`_KEYMAP_KEY` med Qt:s portabla skrivsätt, så att en tangentkarta som sparas på en plattform läses likadant på andra. Tangenter som hör till en enda skärm (Annotate, Make Masks, fältbläddraren, Gate Editor) har egna redigerbara rader och sparade åsidosättningar som används för både befintliga och nya skärmar."
+  },
+  {
+    "language": "hi",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "spaCR के Qt इंटरफ़ेस के लिए पूरी विंडो में लागू और स्क्रीन-विशिष्ट शॉर्टकट।"
+  },
+  {
+    "language": "hi",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "spaCR के Qt इंटरफ़ेस के लिए पूरी विंडो में लागू और स्क्रीन-विशिष्ट शॉर्टकट।"
+  },
+  {
+    "language": "hi",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "पूरी विंडो के लिए घोषित कुंजी अनुक्रमों को दोबारा बाँधा जा सकता है। संक्षिप्त शॉर्टकट सूची में “शॉर्टकट बदलें…” बटन होता है, जो पूरी विंडो की कार्रवाइयों की तालिका खोलता है; वहाँ दर्ज कुंजी डिफ़ॉल्ट कुंजी की जगह लेती है। यदि किसी दूसरी कार्रवाई ने कुंजी पहले से ले रखी है, तो टकराव बताया जाता है और उसे सहेजा नहीं जा सकता। ओवरराइड Qt के पोर्टेबल लेखन में वरीयता भंडार के :data:`_KEYMAP_KEY` के अंतर्गत सहेजे जाते हैं, ताकि एक प्लेटफ़ॉर्म पर सहेजा गया कुंजी मानचित्र दूसरे प्लेटफ़ॉर्म पर भी उसी तरह पढ़ा जाए। एक स्क्रीन (Annotate, Make Masks, फ़ील्ड ब्राउज़र, Gate Editor) से संबंधित कुंजियों की अलग संपादन योग्य पंक्तियाँ और सहेजे गए ओवरराइड होते हैं, जो मौजूदा तथा नई दोनों स्क्रीन पर लागू होते हैं।"
+  },
+  {
+    "language": "hi",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "पूरी विंडो के लिए घोषित कुंजी अनुक्रमों को दोबारा बाँधा जा सकता है। संक्षिप्त शॉर्टकट सूची में “शॉर्टकट बदलें…” बटन होता है, जो पूरी विंडो की कार्रवाइयों की तालिका खोलता है; वहाँ दर्ज कुंजी डिफ़ॉल्ट कुंजी की जगह लेती है। यदि किसी दूसरी कार्रवाई ने कुंजी पहले से ले रखी है, तो टकराव बताया जाता है और उसे सहेजा नहीं जा सकता। ओवरराइड Qt के पोर्टेबल लेखन में वरीयता भंडार के :data:`_KEYMAP_KEY` के अंतर्गत सहेजे जाते हैं, ताकि एक प्लेटफ़ॉर्म पर सहेजा गया कुंजी मानचित्र दूसरे प्लेटफ़ॉर्म पर भी उसी तरह पढ़ा जाए। एक स्क्रीन (Annotate, Make Masks, फ़ील्ड ब्राउज़र, Gate Editor) से संबंधित कुंजियों की अलग संपादन योग्य पंक्तियाँ और सहेजे गए ओवरराइड होते हैं, जो मौजूदा तथा नई दोनों स्क्रीन पर लागू होते हैं।"
+  },
+  {
+    "language": "ko",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "선언된 창 전체 키 시퀀스는 다시 지정할 수 있습니다. 단축키 안내의 ‘단축키 변경…’ 버튼은 창 전체 동작 표를 엽니다. 여기에 입력한 키는 기본 키를 대체하며, 다른 동작이 이미 사용하는 키는 충돌로 표시되어 저장할 수 없습니다. 재정의는 Qt의 이식 가능한 표기법으로 환경설정 저장소의 :data:`_KEYMAP_KEY` 아래에 저장되므로, 한 플랫폼에서 저장한 키맵을 다른 플랫폼에서도 동일하게 읽을 수 있습니다. 단일 화면(Annotate, Make Masks, 필드 브라우저, Gate Editor)에 속하는 키에는 별도의 편집 가능한 행과 저장된 재정의가 있으며, 기존 화면과 새 화면 모두에 적용됩니다."
+  },
+  {
+    "language": "ko",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "선언된 창 전체 키 시퀀스는 다시 지정할 수 있습니다. 단축키 안내의 ‘단축키 변경…’ 버튼은 창 전체 동작 표를 엽니다. 여기에 입력한 키는 기본 키를 대체하며, 다른 동작이 이미 사용하는 키는 충돌로 표시되어 저장할 수 없습니다. 재정의는 Qt의 이식 가능한 표기법으로 환경설정 저장소의 :data:`_KEYMAP_KEY` 아래에 저장되므로, 한 플랫폼에서 저장한 키맵을 다른 플랫폼에서도 동일하게 읽을 수 있습니다. 단일 화면(Annotate, Make Masks, 필드 브라우저, Gate Editor)에 속하는 키에는 별도의 편집 가능한 행과 저장된 재정의가 있으며, 기존 화면과 새 화면 모두에 적용됩니다."
+  },
+  {
+    "language": "zh_CN",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "spaCR Qt 图形界面中适用于整个窗口及特定界面的快捷键。"
+  },
+  {
+    "language": "zh_CN",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "spaCR Qt 图形界面中适用于整个窗口及特定界面的快捷键。"
+  },
+  {
+    "language": "zh_CN",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "已声明的窗口级按键序列可以重新绑定。快捷键速查表中的“更改快捷键…”按钮会打开窗口级操作表；在其中输入的按键会替换默认按键。若按键已被其他操作使用，则会指出冲突，且无法保存。覆盖设置以 Qt 的可移植写法保存在首选项存储的 :data:`_KEYMAP_KEY` 下，因此在一个平台上保存的键位映射在其他平台上也能以相同方式读取。属于单个界面（Annotate、Make Masks、视野浏览器、Gate Editor）的按键具有独立的可编辑行和已保存的覆盖设置，并应用于已有和新建的界面。"
+  },
+  {
+    "language": "zh_CN",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "已声明的窗口级按键序列可以重新绑定。快捷键速查表中的“更改快捷键…”按钮会打开窗口级操作表；在其中输入的按键会替换默认按键。若按键已被其他操作使用，则会指出冲突，且无法保存。覆盖设置以 Qt 的可移植写法保存在首选项存储的 :data:`_KEYMAP_KEY` 下，因此在一个平台上保存的键位映射在其他平台上也能以相同方式读取。属于单个界面（Annotate、Make Masks、视野浏览器、Gate Editor）的按键具有独立的可编辑行和已保存的覆盖设置，并应用于已有和新建的界面。"
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "source",
+    "source": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Atalhos de toda a janela e específicos de cada ecrã para a interface Qt do spaCR."
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts#0",
+    "form": "context",
+    "source": "Window-wide and application view-specific shortcuts for the spaCR Qt GUI.",
+    "target": "Atalhos de toda a janela e específicos de cada ecrã para a interface Qt do spaCR."
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "source",
+    "source": "?             Use the active screen's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full screen",
+    "target": "?             Usar a ajuda do ecrã ativo ou mostrar o guia de atalhos Ctrl+P        Abrir Preferências Ctrl+Alt+0    Repor as escalas da interface, do tipo de letra e das pré-visualizações em 100 % Ctrl+/        Mostrar ou ocultar AI Console do módulo ativo Ctrl+End      Ir para a linha mais recente da consola F11           Alternar o ecrã inteiro"
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts#7",
+    "form": "context",
+    "source": "?             Use the active application view's help action, or show the cheat sheet Ctrl+P        Open Preferences Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 % Ctrl+/        Toggle the active module's AI Console Ctrl+End      Jump to the newest console line F11           Toggle full application view",
+    "target": "?             Usar a ajuda do ecrã ativo ou mostrar o guia de atalhos Ctrl+P        Abrir Preferências Ctrl+Alt+0    Repor as escalas da interface, do tipo de letra e das pré-visualizações em 100 % Ctrl+/        Mostrar ou ocultar AI Console do módulo ativo Ctrl+End      Ir para a linha mais recente da consola F11           Alternar o ecrã inteiro"
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "source",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate editable rows and saved overrides, applied to both existing and new screens.",
+    "target": "As sequências de teclas declaradas para toda a janela podem ser reatribuídas. O guia de atalhos tem um botão «Alterar atalhos…» que abre uma tabela de ações de toda a janela; uma tecla introduzida substitui a predefinida. Se outra ação já utilizar essa tecla, o conflito é identificado e a associação não pode ser guardada. As substituições são guardadas nas preferências em :data:`_KEYMAP_KEY`, na notação portável do Qt, para que um mapa de teclas guardado numa plataforma seja lido da mesma forma nas outras. As teclas de um único ecrã (Annotate, Make Masks, o navegador de campos, Gate Editor) têm linhas editáveis e substituições guardadas separadas, aplicadas tanto aos ecrãs existentes como aos novos."
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts#9",
+    "form": "context",
+    "source": "Declared window-wide key sequences can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser, Data-selection boundary Editor) have separate editable rows and saved overrides, applied to both existing and new application views.",
+    "target": "As sequências de teclas declaradas para toda a janela podem ser reatribuídas. O guia de atalhos tem um botão «Alterar atalhos…» que abre uma tabela de ações de toda a janela; uma tecla introduzida substitui a predefinida. Se outra ação já utilizar essa tecla, o conflito é identificado e a associação não pode ser guardada. As substituições são guardadas nas preferências em :data:`_KEYMAP_KEY`, na notação portável do Qt, para que um mapa de teclas guardado numa plataforma seja lido da mesma forma nas outras. As teclas de um único ecrã (Annotate, Make Masks, o navegador de campos, Gate Editor) têm linhas editáveis e substituições guardadas separadas, aplicadas tanto aos ecrãs existentes como aos novos."
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts.install#0",
+    "form": "source",
+    "source": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+    "target": "Associar a ``window`` os atalhos devolvidos por :func:`installed`."
+  },
+  {
+    "language": "pt",
+    "label": "spacr.qt.shortcuts.install#0",
+    "form": "context",
+    "source": "Bind the shortcuts returned by :func:`installed` on ``window``.",
+    "target": "Associar a ``window`` os atalhos devolvidos por :func:`installed`."
+  }
+]
