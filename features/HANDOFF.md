@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Maintainer progress-table format supersedes component totals
+
+The maintainer requests ONE row per numbered item (for example N689), with
+remaining-time estimates in hours. Reprint the complete grouped table only
+when every remaining task for a whole item is finished. Component fixes,
+translation batches and test repairs must not be counted as separate finished
+items. Earlier182 component scopes remain evidence, not182 completed features.
+The current grouped tracker is in scratch/original-home-grouped-progress-20261015.json.
+Continue implementation, targeted checks and immediate nightly publication;
+this changes reporting, not ownership or the release/final-CI sequencing.
+
 ## 2026-10-15 Home-B — session calibration software integrated
 
 F580 backend0d814 and GUI6a1b are coherent with162 runtime/nine API targets,
