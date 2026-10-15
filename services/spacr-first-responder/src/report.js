@@ -1,7 +1,7 @@
 import { SQL } from "./sql.js";
 import { createComment, createIssue, issueState } from "./github.js";
 import { causeLabel, ensureCauseLabel, hubFor, linkToHub, openIssuesWithLabel, splitCause } from "./causes.js";
-import { causeOnFile, dropExplanations } from "./explanations.js";
+import { causeOnFile, dropError } from "./cache.js";
 import { sha256Hex } from "./util.js";
 
 export const ISSUE_LABEL = "user-report";
@@ -353,7 +353,7 @@ async function openNewIssue(env, r, signature, now, getSummary) {
 }
 
 async function reopenAsRecurred(env, r, signature, closedNumber, getSummary) {
-  await dropExplanations(env.DB, signature);
+  await dropError(env.DB, signature);
   const summary = await obtainSummary(r, getSummary);
   const grouping = await groupingFor(env, r, signature, summary);
   const title = `[recurred] ${issueTitle(r)}${grouping.titleSuffix}`;

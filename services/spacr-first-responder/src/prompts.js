@@ -76,13 +76,15 @@ export const SUMMARY_PROMPT = [
 export function userPrompt(r) {
   const parts = [
     `Environment: ${environmentLine(r)}`,
-    `Module: ${r.module}`,
+    `Module: ${r.module || "n/a"}`,
     ...(r.screen ? [`Screen: ${r.screen}`] : []),
     ...(r.kind === "user_error" ? ["Kind: reported as a settings or usage error, not a crash in spaCR"] : []),
-    `Exception: ${r.exception_type}: ${r.message || ""}`,
-    "Traceback (most recent call last):",
-    tracebackText(r.frames),
   ];
+  if (r.exception_type || r.frames.length) {
+    parts.push(`Exception: ${r.exception_type}: ${r.message || ""}`, "Traceback (most recent call last):", tracebackText(r.frames));
+  } else {
+    parts.push("No error: the user asks a question.");
+  }
   if (r.user_note) parts.push("", `User note: ${r.user_note}`);
   if (r.question) parts.push("", `User question: ${r.question}`);
   return parts.join("\n");

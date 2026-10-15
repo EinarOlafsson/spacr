@@ -1,3 +1,4 @@
+import { cacheStats } from "./cache.js";
 import { limits } from "./config.js";
 import { buildAllowance } from "./allowance.js";
 import { handleDiagnose, summarizeWithRelay } from "./diagnose.js";
@@ -55,7 +56,12 @@ export async function handle(request, env, ctx, now = new Date()) {
   try {
     if (path === "/health" || path === "/") {
       if (request.method !== "GET" && request.method !== "HEAD") throw new HttpError(405, "use GET");
-      return json(200, { ok: true, version: VERSION, routes: ROUTES });
+      const health = { ok: true, version: VERSION, routes: ROUTES };
+      if (env && env.DB) {
+        const cache = await cacheStats(env.DB, now);
+        if (cache) health.cache = cache;
+      }
+      return json(200, health);
     }
     if (path === "/allowance") {
       if (request.method !== "GET") throw new HttpError(405, "use GET");

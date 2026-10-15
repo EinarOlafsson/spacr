@@ -1,4 +1,4 @@
-export const VERSION = "0.2.4";
+export const VERSION = "0.2.5";
 
 export const MAX_BODY_BYTES = 32 * 1024;
 

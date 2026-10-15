@@ -9,6 +9,8 @@ export const ROUTE = Object.freeze({
   aiLight: "ai_light",
   aiNeurons: "ai_neurons",
   aiInstallNeurons: "ai_install_neurons",
+  cacheHit: "cache_hit",
+  cacheMiss: "cache_miss",
 });
 
 export const GLOBAL = "global";

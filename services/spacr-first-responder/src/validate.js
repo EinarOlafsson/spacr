@@ -352,8 +352,9 @@ export function validatePayload(body, kind) {
   out.qt = checkString(body, "qt", VERSION_RE, { optional: true, nullable: true });
   out.torch = checkString(body, "torch", VERSION_RE, { optional: true, nullable: true });
   out.gpu = checkString(body, "gpu", GPU_RE, { optional: true, nullable: true });
-  out.module = checkString(body, "module", MODULE_RE);
-  out.exception_type = checkString(body, "exception_type", EXC_RE);
+  const plainQuestion = kind === "diagnose" && typeof body.question === "string" && body.question.trim() !== "";
+  out.module = plainQuestion && body.module === "" ? "" : checkString(body, "module", MODULE_RE);
+  out.exception_type = plainQuestion && body.exception_type === "" ? "" : checkString(body, "exception_type", EXC_RE);
   if (body.kind !== undefined && body.kind !== null && !KINDS.includes(body.kind)) {
     throw bad("field kind must be fault or user_error");
   }

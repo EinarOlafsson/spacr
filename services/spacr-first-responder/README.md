@@ -16,7 +16,7 @@ Every response is JSON. `GET /` answers like `/health`.
 
 | Route | Request | 200 response |
 | --- | --- | --- |
-| `GET /health` | none | `{ok, version, routes}` |
+| `GET /health` | none | `{ok, version, routes, cache: {rows, bytes, today: {hits, misses, hit_rate}}}` |
 | `GET /allowance?install_id=<uuid>` | none; consumes nothing | the allowance object below |
 | `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize`, `kind` | `{issue_number, issue_url, deduplicated, commented?, recurred_from?, ai_summary_source, ai_summary?, allowance}` |
 | `POST /report` with `dry_run: true` | same | `{dry_run: true, title, body, signature, ai_summary_source, ai_summary?, allowance}` |
@@ -104,13 +104,21 @@ must scrub before sending; the relay only double-checks.
 - **Title.** `[user-report] <exception> in <module>: <message>`. A
   `kind: "user_error"` report gets `[user-report][settings]` and the extra label
   `user-error`.
-- **Saved explanations.** An error explanation (no question, or spaCR's fixed
-  explanation question) is stored per signature in `ai_explanations` and reused
-  for 30 days for the same spaCR major.minor: `cached: true`, no model call, no
-  neurons, no share and the install is not marked active. Chat questions are
-  never cached. A relay summary is stored under `summary:<signature>`. Both are
-  dropped when the signature's issue is found closed. A user error's signature
-  includes its normalised problem list.
+- **AI cache.** Answers are kept in the D1 table `ai_cache`, read by primary
+  key only. An error explanation (no question, or spaCR's fixed explanation
+  question) is keyed by the error signature (a user error's includes its
+  normalised problem list); a relay summary by `summary:<signature>`; a chat
+  question by `q:` + SHA-256 of the normalised question (lower case, whitespace
+  and punctuation collapsed) + screen|module + spaCR major.minor. A question with
+  more than 500 characters of question and pasted context is never cached. A hit
+  answers with `cached: true`: no model call, no neurons, no share and the
+  install is not marked active. Entries expire after `AI_CACHE_TTL_DAYS` (30) or
+  when the asker's spaCR major.minor differs. Every 50th insert, or when the
+  running counts in `ai_cache_meta` pass `AI_CACHE_MAX_ROWS` (20000) or
+  `AI_CACHE_MAX_BYTES` (60 MB), expired rows are deleted and, still over a cap,
+  about 10% more, fewest hits and least recently used first. An error's entries
+  are dropped when its issue is found closed. `/health` shows `cache.rows`,
+  `cache.bytes` and today's hit rate, never keys or text.
 - **Likely causes.** The model ends an error answer with `CAUSE: <slug>`; the line
   is stripped from the text, the slug is stored and returned as `cause`. Each new
   issue gets the label `cause:<slug>` (or ` · Cause: <slug>` in the title when the

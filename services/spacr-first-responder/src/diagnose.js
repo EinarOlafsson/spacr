@@ -2,7 +2,7 @@ import { aiState, buildAllowance, grantAi, refundUser, settle } from "./allowanc
 import { MODEL_RATES, limits } from "./config.js";
 import { MAX_OUTPUT_TOKENS, estimateTokens, neuronCost } from "./neurons.js";
 import { splitCause } from "./causes.js";
-import { SUMMARY_PREFIX, saveExplanation, savedExplanation } from "./explanations.js";
+import { SUMMARY_PREFIX, cached, questionKey, store } from "./cache.js";
 import { SUMMARY_PROMPT, SYSTEM_PROMPT, isExplanationRequest, userPrompt } from "./prompts.js";
 import { signatureOf } from "./report.js";
 import { GLOBAL, ROUTE, hashIp, raiseTo, release, reserve } from "./quota.js";
@@ -69,9 +69,10 @@ export async function handleDiagnose(report, request, env, now) {
   const ipScope = await hashIp(request.headers.get("cf-connecting-ip"), day, env.IP_HASH_SALT);
   if ((await reserve(db, day, ROUTE.diagnose, ipScope, 1, cfg.perIp)) === null) return refused("ip");
 
-  const cacheKey = isExplanationRequest(report) ? await signatureOf(report) : null;
+  const explaining = isExplanationRequest(report);
+  const cacheKey = explaining ? await signatureOf(report) : await questionKey(report);
   if (cacheKey) {
-    const saved = await savedExplanation(db, cacheKey, report, now);
+    const saved = await cached(env, cacheKey, report, now);
     if (saved) {
       return json(200, {
         advice: saved.text,
@@ -114,13 +115,15 @@ export async function handleDiagnose(report, request, env, now) {
   await settle(db, day, grant, actualCost(grant.model, result, inputTokens, raw));
   const parsed = splitCause(raw);
   let advice = parsed.text;
-  const cause = isExplanationRequest(report) ? parsed.cause : null;
+  const cause = explaining ? parsed.cause : null;
   if (!advice) {
     await refundUser(db, day, grant);
     throw new HttpError(502, "diagnosis returned no answer; try again later");
   }
   if (advice.length > MAX_ADVICE_CHARS) advice = `${advice.slice(0, MAX_ADVICE_CHARS)}…`;
-  if (cacheKey) await saveExplanation(db, cacheKey, report, now, { text: advice, model: grant.model, tier: grant.tier, cause });
+  if (cacheKey) {
+    await store(env, cacheKey, explaining ? "error" : "question", report, now, { text: advice, model: grant.model, tier: grant.tier, cause });
+  }
   return json(200, {
     advice,
     model: grant.model,
@@ -139,7 +142,7 @@ export async function summarizeWithRelay(env, report, now, timeoutMs = SUMMARY_T
     const db = env.DB;
     const day = utcDay(now);
     const cacheKey = SUMMARY_PREFIX + (await signatureOf(report));
-    const saved = await savedExplanation(db, cacheKey, report, now);
+    const saved = await cached(env, cacheKey, report, now);
     if (saved) return { text: saved.text, source: "relay", model: saved.model, cached: true, cause: saved.cause };
     const messages = [
       { role: "system", content: SUMMARY_PROMPT },
@@ -170,7 +173,7 @@ export async function summarizeWithRelay(env, report, now, timeoutMs = SUMMARY_T
       return null;
     }
     if (text.length > SUMMARY_MAX_CHARS) text = `${text.slice(0, SUMMARY_MAX_CHARS - 1)}…`;
-    await saveExplanation(db, cacheKey, report, now, { text, model: grant.model, tier: grant.tier, cause: parsed.cause });
+    await store(env, cacheKey, "error", report, now, { text, model: grant.model, tier: grant.tier, cause: parsed.cause });
     return { text, source: "relay", model: grant.model, cached: false, cause: parsed.cause };
   } catch (_) {
     console.log("summary: skipped after an internal error");

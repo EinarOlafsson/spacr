@@ -34,8 +34,8 @@ function refused(overrides = {}) {
   );
 }
 
-test("the relay is version 0.2.4", () => {
-  assert.equal(VERSION, "0.2.4");
+test("the relay is version 0.2.5", () => {
+  assert.equal(VERSION, "0.2.5");
 });
 
 test("screen is optional, validated and at most 60 characters", () => {
@@ -92,4 +92,13 @@ test("the prompt names the screen and tells Mask from Make Masks", () => {
   assert.match(userPrompt(refused()), /^Screen: Mask$/m);
   assert.match(SYSTEM_PROMPT, /"Make Masks" is a DIFFERENT screen: the manual mask editor/);
   assert.match(SYSTEM_PROMPT, /When a Screen is given, call it by exactly that name/);
+});
+
+test("a plain question may come without an exception or module; an error report may not", () => {
+  const plain = validatePayload(sampleReport({ question: "How do I pick a diameter?", exception_type: "", module: "", message: "", frames: [] }), "diagnose");
+  assert.equal(plain.exception_type, "");
+  assert.equal(plain.module, "");
+  assert.match(userPrompt(plain), /No error: the user asks a question\./);
+  assert.throws(() => validatePayload(sampleReport({ exception_type: "" }), "diagnose"), /exception_type/);
+  assert.throws(() => validatePayload(sampleReport({ exception_type: "", module: "" }), "report"), /module|exception_type/);
 });

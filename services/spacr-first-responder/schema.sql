@@ -30,22 +30,43 @@ CREATE TABLE IF NOT EXISTS issue_signatures (
 
 CREATE INDEX IF NOT EXISTS issue_signatures_issue ON issue_signatures (issue_number);
 
--- Saved AI explanations, so a repeated error is answered without a model call.
--- signature: the error signature (src/report.js signatureOf); a relay-written
--- issue summary is stored under "summary:<signature>".
--- spacr_minor: the reporter's spaCR major.minor; another version asks again.
--- created: ISO time the text was written; older than 30 days asks again.
--- hits: how many requests reused it. Dropped when its issue is found closed.
-CREATE TABLE IF NOT EXISTS ai_explanations (
-  signature   TEXT    PRIMARY KEY,
+-- Saved AI answers, so a repeated error or question costs no model call.
+-- key: an error signature (src/report.js signatureOf; a user error's includes
+-- its normalised problem list), "summary:<signature>" for a relay-written issue
+-- summary, or "q:<SHA-256>" of a normalised question + screen|module + spaCR
+-- major.minor. Read by primary key only.
+-- kind: 'error' or 'question'. spacr_minor: the asker's spaCR major.minor;
+-- another one asks again. created / last_used: Unix seconds. bytes: stored size.
+-- Expired after AI_CACHE_TTL_DAYS; past AI_CACHE_MAX_ROWS or AI_CACHE_MAX_BYTES
+-- about 10% go, fewest hits and least recently used first. An error's entries
+-- are dropped when its issue is found closed.
+CREATE TABLE IF NOT EXISTS ai_cache (
+  key         TEXT    PRIMARY KEY,
+  kind        TEXT    NOT NULL CHECK (kind IN ('error', 'question')),
   text        TEXT    NOT NULL,
   model       TEXT    NOT NULL,
   tier        TEXT    NOT NULL,
+  cause_slug  TEXT,
   spacr_minor TEXT    NOT NULL,
-  created     TEXT    NOT NULL,
+  created     INTEGER NOT NULL,
+  last_used   INTEGER NOT NULL,
   hits        INTEGER NOT NULL DEFAULT 0,
-  cause       TEXT
+  bytes       INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE INDEX IF NOT EXISTS ai_cache_eviction ON ai_cache (hits, last_used);
+
+-- One row (id 1) with the cache's running row and byte counts and its insert
+-- count, so no request counts the table; corrected at every cleanup.
+CREATE TABLE IF NOT EXISTS ai_cache_meta (
+  id      INTEGER PRIMARY KEY CHECK (id = 1),
+  rows    INTEGER NOT NULL DEFAULT 0,
+  bytes   INTEGER NOT NULL DEFAULT 0,
+  inserts INTEGER NOT NULL DEFAULT 0
+);
+
+-- The 0.2.4 cache table, replaced by ai_cache.
+DROP TABLE IF EXISTS ai_explanations;
 
 -- Likely causes the AI named (CAUSE: <slug>), and the hub issue for each:
 -- the oldest open issue with that cause, which gets a comment for every new

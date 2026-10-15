@@ -230,7 +230,7 @@ test("pool exhaustion refuses everyone with scope global and refunds", async () 
   assert.deepEqual(r.body, { refused: "quota", scope: "global" });
   assert.equal(calls.length, 0);
   for (const [key, n] of env.DB.counters) {
-    if (key !== POOL) assert.equal(n, 0, key);
+    if (key !== POOL && !key.includes("|cache_")) assert.equal(n, 0, key);
   }
   const a = await allowance(env);
   assert.equal(a.pool, "exhausted");

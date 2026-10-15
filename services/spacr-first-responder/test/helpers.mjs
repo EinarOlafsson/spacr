@@ -8,7 +8,8 @@ export class FakeD1 {
   constructor() {
     this.counters = new Map();
     this.signatures = new Map();
-    this.explanations = new Map();
+    this.cache = new Map();
+    this.cacheMeta = null;
     this.causes = new Map();
     this.log = [];
   }
@@ -136,23 +137,60 @@ export class FakeD1 {
         row.last_comment_day = a[1];
         return [{ issue_number: row.issue_number, count: row.count, has_summary: row.has_summary }];
       }
-      case SQL.getExplanation: {
-        const row = this.explanations.get(a[0]);
+      case SQL.cacheGet: {
+        const row = this.cache.get(a[0]);
         return row ? [{ ...row }] : [];
       }
-      case SQL.putExplanation: {
-        this.explanations.set(a[0], { text: a[1], model: a[2], tier: a[3], spacr_minor: a[4], created: a[5], hits: 0, cause: a[6] ?? null });
+      case SQL.cachePut: {
+        this.cache.set(a[0], {
+          key: a[0], kind: a[1], text: a[2], model: a[3], tier: a[4], cause_slug: a[5] ?? null,
+          spacr_minor: a[6], created: a[7], last_used: a[7], hits: 0, bytes: a[8],
+        });
         return [];
       }
-      case SQL.hitExplanation: {
-        const row = this.explanations.get(a[0]);
-        if (row) row.hits += 1;
+      case SQL.cacheHit: {
+        const row = this.cache.get(a[0]);
+        if (row) {
+          row.hits += 1;
+          row.last_used = a[1];
+        }
         return [];
       }
-      case SQL.dropExplanations: {
-        this.explanations.delete(a[0]);
-        this.explanations.delete(a[1]);
+      case SQL.cacheDrop: {
+        this.cache.delete(a[0]);
+        this.cache.delete(a[1]);
         return [];
+      }
+      case SQL.cacheExpire: {
+        for (const [k, row] of [...this.cache]) if (row.created < a[0]) this.cache.delete(k);
+        return [];
+      }
+      case SQL.cacheEvict: {
+        const order = [...this.cache.values()].sort((x, y) => x.hits - y.hits || x.last_used - y.last_used);
+        for (const row of order.slice(0, a[0])) this.cache.delete(row.key);
+        return [];
+      }
+      case SQL.cacheCount: {
+        let bytes = 0;
+        for (const row of this.cache.values()) bytes += row.bytes;
+        return [{ rows: this.cache.size, bytes }];
+      }
+      case SQL.cacheMetaBump: {
+        if (!this.cacheMeta) this.cacheMeta = { rows: 1, bytes: a[0], inserts: 1 };
+        else {
+          this.cacheMeta.rows += 1;
+          this.cacheMeta.bytes += a[0];
+          this.cacheMeta.inserts += 1;
+        }
+        return [{ ...this.cacheMeta }];
+      }
+      case SQL.cacheMetaSet: {
+        if (!this.cacheMeta) this.cacheMeta = { rows: a[0], bytes: a[1], inserts: 0 };
+        else Object.assign(this.cacheMeta, { rows: a[0], bytes: a[1] });
+        return [];
+      }
+      case SQL.cacheMetaRead: {
+        return this.cacheMeta ? [{ ...this.cacheMeta }] : [];
       }
       case SQL.getCause: {
         const row = this.causes.get(a[0]);
