@@ -13,6 +13,7 @@ library. On Windows the caller falls back to opening a terminal, as before.
 """
 from __future__ import annotations
 
+import codecs
 import os
 import queue
 import re
@@ -107,6 +108,7 @@ class PtySession:
 
     def _pump(self) -> None:
         """Move the terminal's output to the queue until it closes."""
+        decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
         while True:
             try:
                 chunk = os.read(self._master, 4096)
@@ -114,7 +116,12 @@ class PtySession:
                 break
             if not chunk:
                 break
-            self._queue.put(chunk.decode("utf-8", "replace"))
+            text = decoder.decode(chunk)
+            if text:
+                self._queue.put(text)
+        remaining = decoder.decode(b"", final=True)
+        if remaining:
+            self._queue.put(remaining)
 
     def read(self) -> str:
         """Everything the command has written since the last call.
