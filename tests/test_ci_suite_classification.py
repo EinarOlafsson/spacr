@@ -316,7 +316,7 @@ def test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci(tmp_path):
     shim.chmod(0o700)
     for batched in (False, True):
         for fail_tail in (False, True):
-            assigned = []
+            assigned: list[str] = []
             for shard_index in range(3):
                 serial_tail = shard_index == 2
                 inputs = {

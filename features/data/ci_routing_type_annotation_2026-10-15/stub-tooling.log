@@ -1,0 +1,5 @@
+Collecting types-PyYAML==6.0.12.20260906
+  Downloading types_pyyaml-6.0.12.20260906-py3-none-any.whl.metadata (1.8 kB)
+Downloading types_pyyaml-6.0.12.20260906-py3-none-any.whl (21 kB)
+Installing collected packages: types-PyYAML
+Successfully installed types-PyYAML-6.0.12.20260906
