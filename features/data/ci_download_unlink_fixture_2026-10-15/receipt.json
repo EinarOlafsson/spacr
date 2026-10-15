@@ -1,0 +1,13 @@
+{
+  "scope": "TEST ONLY one existing failure-cleanup node; no product changes",
+  "baseline": "1 failed in2.48s; fixed .part directory no longer collides with private staging",
+  "final": "1 passed in1.69s; one original node only",
+  "behavior": "Actual download_archive streams controlled offline response to real private staging. Stream raises exact sentinel IsADirectoryError; only captured private stage unlink raises PermissionError. Original error identity escapes; failed-cleanup stage retains streamedbytes; existing fixed.part directory and unrelatedsentinel unchanged; no finalarchive.",
+  "limits": "Fake transport only; no network/model/download/decode or fullsuite claim. No cleanup success claim when unlink intentionally fails.",
+  "artifacts": {
+    "baseline.log": "e57e679c8df654e456a02d85524e7c7274fbd4e9871e4b83cf031b40ac3d001f",
+    "final.log": "5059e8cab1917830313cc43d37cfdd4ecf17d2efd090c6732645c0ea98e41ff8",
+    "source-proof.json": "b336ee84748a6a0f9761c1e7061e7c9d1cb28e3ccfc9466d88c9cef2aca82e3e",
+    "proposed.patch": "8656b5e0e73419dc1e389b42160356bfc4ca1160c11a030a2e9dfd7434a767a9"
+  }
+}

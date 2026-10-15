@@ -231,15 +231,39 @@ def test_download_one_keeps_an_existing_good_file_when_a_retry_fails(
 
 
 def test_download_one_reraises_when_the_staging_file_cannot_be_removed(
-        fake_get, tmp_path):
-    """A directory sitting where the .part file belongs breaks both the
-    write and the cleanup; the original error must still surface."""
+        fake_get, tmp_path, monkeypatch):
+    """A failed private-stage cleanup must preserve the original stream error."""
     (tmp_path / "a.tif.part").mkdir()
-    fake_get(FakeResponse([b"x"]))
-    with pytest.raises(IsADirectoryError):
-        hf._download_one("r/x", "a.tif", tmp_path)
+    sentinel = tmp_path / "unrelated.bin"
+    sentinel.write_bytes(b"UNRELATED")
+    original_error = IsADirectoryError("original stream failure")
+    stages, cleanup_attempts = [], []
+    original_unlink = Path.unlink
+
+    class BrokenStream(FakeResponse):
+        def iter_content(self, chunk_size=None):
+            yield b"x"
+            stages.extend(tmp_path.glob(".a.tif.*.part"))
+            assert len(stages) == 1
+            raise original_error
+
+    def refuse_stage_unlink(path, *args, **kwargs):
+        if stages and path == stages[0]:
+            cleanup_attempts.append(path)
+            raise PermissionError("controlled staging cleanup refusal")
+        return original_unlink(path, *args, **kwargs)
+
+    fake_get(BrokenStream())
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "unlink", refuse_stage_unlink)
+        with pytest.raises(IsADirectoryError) as exc:
+            hf._download_one("r/x", "a.tif", tmp_path)
+    assert exc.value is original_error
+    assert cleanup_attempts == stages and len(stages) == 1
+    assert stages[0].read_bytes() == b"x"
     assert (tmp_path / "a.tif.part").is_dir()
     assert not (tmp_path / "a.tif").exists()
+    assert sentinel.read_bytes() == b"UNRELATED"
 
 
 # ---------------------------------------------------------------------------
