@@ -1,0 +1,113 @@
+{
+  "frozen_source_pin": "baed73656e3c4fc1eb91a9e2f7b0ba9e93c966d5",
+  "phase": "Prejob comparison while corrected writer is still a flock waiter; all named actual source bytes equal frozen pin. Postjob comparison will follow.",
+  "all_source_bodies_exact": true,
+  "historical_native_eleven_bodies_also_exact": true,
+  "files": {
+    "spacr/io.py": {
+      "frozen_git_sha256": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+      "current_sha256": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+      "exact_body_equal": true
+    },
+    "spacr/model_zoo.py": {
+      "frozen_git_sha256": "74ba404d3bc3bd896a991c614714a592fcb5b0884ac0efbab36b4929802a85d7",
+      "current_sha256": "74ba404d3bc3bd896a991c614714a592fcb5b0884ac0efbab36b4929802a85d7",
+      "exact_body_equal": true
+    },
+    "spacr/object.py": {
+      "frozen_git_sha256": "bb71c885726aa4f52c878f4d038b61748f8772f8a3b5d363bdd0be98d425ab26",
+      "current_sha256": "bb71c885726aa4f52c878f4d038b61748f8772f8a3b5d363bdd0be98d425ab26",
+      "exact_body_equal": true
+    },
+    "spacr/object_settings_table.py": {
+      "frozen_git_sha256": "e793c24403132e4f87a374de1958ac2c043922fad4d4493740e1a0ce0d34dd2f",
+      "current_sha256": "e793c24403132e4f87a374de1958ac2c043922fad4d4493740e1a0ce0d34dd2f",
+      "exact_body_equal": true
+    },
+    "spacr/qt/i18n.py": {
+      "frozen_git_sha256": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+      "current_sha256": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+      "exact_body_equal": true
+    },
+    "spacr/settings.py": {
+      "frozen_git_sha256": "3447f17d34ae9ec55312a7ed0a3836a6545b8d72a7f24910a34740ea423b5e41",
+      "current_sha256": "3447f17d34ae9ec55312a7ed0a3836a6545b8d72a7f24910a34740ea423b5e41",
+      "exact_body_equal": true
+    },
+    "spacr/spacr_cellpose.py": {
+      "frozen_git_sha256": "34e749495b7a96ac7946068e5283cdcdcdfc03532523f23328221acf434dcc25",
+      "current_sha256": "34e749495b7a96ac7946068e5283cdcdcdfc03532523f23328221acf434dcc25",
+      "exact_body_equal": true
+    },
+    "spacr/utils.py": {
+      "frozen_git_sha256": "d76be1ceb647fb3db120458c0d56e1d17bbb24632d7ce2d1f9479dd48d9c077d",
+      "current_sha256": "d76be1ceb647fb3db120458c0d56e1d17bbb24632d7ce2d1f9479dd48d9c077d",
+      "exact_body_equal": true
+    },
+    "tests/test_web_mask_runtime_locales_n698.py": {
+      "frozen_git_sha256": "3b266269a7df3d8a894cff0e6cf1996ec70ffbdc75d4509d255015aa9abe84e1",
+      "current_sha256": "3b266269a7df3d8a894cff0e6cf1996ec70ffbdc75d4509d255015aa9abe84e1",
+      "exact_body_equal": true
+    },
+    "tools/build_i18n_catalogs.py": {
+      "frozen_git_sha256": "736a2c53faeb1e8e4b54198e9841e157f19c4f0ebc7094ad6028cc22fdf811f6",
+      "current_sha256": "736a2c53faeb1e8e4b54198e9841e157f19c4f0ebc7094ad6028cc22fdf811f6",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/app.py": {
+      "frozen_git_sha256": "b283fa4ebe2cc53e3528a27663368b5012008f5ec1ab3bd0f073468ab8d2b580",
+      "current_sha256": "b283fa4ebe2cc53e3528a27663368b5012008f5ec1ab3bd0f073468ab8d2b580",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/detector.py": {
+      "frozen_git_sha256": "9b1321aff80e9e8883380bdf22e9b7b02c4bcce9d1740a6140ddecb2f343a6e3",
+      "current_sha256": "9b1321aff80e9e8883380bdf22e9b7b02c4bcce9d1740a6140ddecb2f343a6e3",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/examples.py": {
+      "frozen_git_sha256": "bde92452ea75ba7a054132c4244419976e44e42f236a5682aa59fcecd92f8eab",
+      "current_sha256": "bde92452ea75ba7a054132c4244419976e44e42f236a5682aa59fcecd92f8eab",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/inputs.py": {
+      "frozen_git_sha256": "6429eb33aa772290ccb260330dad94746fec7ec2d376d604ef06eac00767596f",
+      "current_sha256": "6429eb33aa772290ccb260330dad94746fec7ec2d376d604ef06eac00767596f",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/masks.py": {
+      "frozen_git_sha256": "c1f1ddf533119004b06080b126820c07e8cee8e8ecc8079ce80bba5b2e47e8f0",
+      "current_sha256": "c1f1ddf533119004b06080b126820c07e8cee8e8ecc8079ce80bba5b2e47e8f0",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/plaque.py": {
+      "frozen_git_sha256": "c8b4d53d519a49a302bb7514ac57a668eb68ef6266b0450e584d630323be7bb9",
+      "current_sha256": "c8b4d53d519a49a302bb7514ac57a668eb68ef6266b0450e584d630323be7bb9",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/registry.py": {
+      "frozen_git_sha256": "6272ea7d986979d93a5b9acfd28b60ce2a9cb3cabe02503f79f014e706535ce9",
+      "current_sha256": "6272ea7d986979d93a5b9acfd28b60ce2a9cb3cabe02503f79f014e706535ce9",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/results.py": {
+      "frozen_git_sha256": "02291991b5a1c6d5e01d03e0c8dd656c5f229188a295e5e881daf9249e9466fc",
+      "current_sha256": "02291991b5a1c6d5e01d03e0c8dd656c5f229188a295e5e881daf9249e9466fc",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/run.py": {
+      "frozen_git_sha256": "eb61644fdeab7611c4b796cf09f89793bf86f32b376001974f3886fe02591062",
+      "current_sha256": "eb61644fdeab7611c4b796cf09f89793bf86f32b376001974f3886fe02591062",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/service.py": {
+      "frozen_git_sha256": "c85c21338da4f6ce28254000d55b6e0209a1b1a3a34051feb0924f1567c270a5",
+      "current_sha256": "c85c21338da4f6ce28254000d55b6e0209a1b1a3a34051feb0924f1567c270a5",
+      "exact_body_equal": true
+    },
+    "tools/web_mask_generator/space_app.py": {
+      "frozen_git_sha256": "9950a721933053f3801054c423380939ae427942dbf0002f13be40d51223d1d4",
+      "current_sha256": "9950a721933053f3801054c423380939ae427942dbf0002f13be40d51223d1d4",
+      "exact_body_equal": true
+    }
+  }
+}

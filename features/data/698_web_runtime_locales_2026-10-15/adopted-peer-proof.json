@@ -38,8 +38,9 @@
   "ko": {
     "records": 178,
     "exact_adopted_corrections": 5,
-    "final_review_sha256": "74c23611de6229f370ac1c97e4dac5f39ff5875ae18ee1f0d47bb8c5de68059a",
-    "exact_immutable_plus_peer_corrections": true
+    "final_review_sha256": "162263ec481c3355b5c61bc26d6523f60bf0be024d4029055f8fce3c8fb5458a",
+    "exact_immutable_plus_peer_corrections": true,
+    "additional_exact_peer_approved_syntax_corrections": 3
   },
   "hi": {
     "records": 178,

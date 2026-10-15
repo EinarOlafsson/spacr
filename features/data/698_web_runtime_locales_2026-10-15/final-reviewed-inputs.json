@@ -43,9 +43,9 @@
   },
   "ko": {
     "review_file": "docs/i18n/reviewed/runtime/ko/2026-10-15-web-mask-generator.json",
-    "sha256": "74c23611de6229f370ac1c97e4dac5f39ff5875ae18ee1f0d47bb8c5de68059a",
+    "sha256": "162263ec481c3355b5c61bc26d6523f60bf0be024d4029055f8fce3c8fb5458a",
     "records": 178,
-    "record_array_sha256": "208cae61a610969a0cf7dcd0328a0f568a7dffcfcd589e129cdc84462aa48bfe"
+    "record_array_sha256": "1da20631a4a195aba880badfadf6bc72677926ab979575a7b92731c4bf69b9b4"
   },
   "is": {
     "review_file": "docs/i18n/reviewed/runtime/is/2026-10-15-web-mask-generator.json",
