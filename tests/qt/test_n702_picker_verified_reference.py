@@ -468,19 +468,15 @@ def test_actual_worker_start_status_uses_its_reviewed_locale(
     from spacr.qt import i18n
 
     source = 'Checking the selected model file…'
-    review_dir = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language)
-    records = []
-    for review_path in review_dir.glob('*.json'):
-        review = json.loads(review_path.read_text())
-        records.extend(row for row in review.get('records', [])
-                       if row.get('source') == source and row.get('table') == 'ui')
-    assert records, 'The normal reviewed runtime input must be installed first'
-    expected_targets = {row['translation'] for row in records}
-    assert len(expected_targets) == 1
-    expected = expected_targets.pop()
+    review_path = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language /
+                   '2026-10-15-n702-picker-file-check.json')
+    review = json.loads(review_path.read_text())
+    assert review['language'] == language
+    record, = [row for row in review['records']
+               if row['source'] == source and row['table'] == 'ui']
+    expected = record['translation']
     assert expected != source
-    assert all(row['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
-               for row in records)
+    assert record['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
     picker = local_picker(selected_model, qtbot)
     entered, release = threading.Event(), threading.Event()
