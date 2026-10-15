@@ -243,3 +243,20 @@ exit0. Runtime callers/provenance wiring follows; trusted external raw
 catalogues, all-consumer acceptance and offline caption artifacts remain
 open. No real weights/network/GPU/fullCI; parent702 stays partial.
 Evidence: data/702_pinned_runtime_byte_resolution_2026-10-14/receipt.json.
+
+2026-10-14 — training/plaque consumers load the recorded pinned bytes:
+Actual Cellpose training now passes a verified pinned base path to model
+construction; plaque segmentation, well detection and Figure mode detection
+resolve their exact recorded pins before local/name fallbacks. Supplied
+wrong pinned files are preserved and refused. Plaque preview keeps its
+fetch=False boundary and never acquires missing weights. Effective paths
+are local derived arguments; original settings and requested_value remain
+unchanged. Unpinned legacy consumer behavior stays covered.
+
+Seven new native consumer cases and the finite owning training/plaque cohort
+passed42tests in6.87seconds, exit0 (two existing skimage deprecation warnings).
+Actual training model construction is intercepted before loading/inference;
+Figure mode intercepts the actual measure boundary. No network/weights/GPU/
+scientific or fullCI claim. Mask/classifier consumers and CLI provenance remain
+separate work; parent702 stays partial.
+Evidence: data/702_training_plaque_pinned_consumers_2026-10-14/receipt.json.

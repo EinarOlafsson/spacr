@@ -476,7 +476,11 @@ def train_cellpose(settings):
     model_save_path = os.path.expanduser(settings['save_path'] or os.path.join(settings['src'], 'models', 'cellpose_model'))
     os.makedirs(model_save_path, exist_ok=True)
     save_settings(settings, name=model_name)
-    base = _resolve_training_base(settings['base_model'])
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned_base = _resolve_pinned_model_file(settings, 'base_model', kinds=('cellpose',))
+    base = (str(pinned_base) if pinned_base is not None
+            else _resolve_training_base(settings['base_model']))
     print(f'Training starts from {base}')
     model = cp_models.CellposeModel(gpu=_cellpose_use_gpu(), pretrained_model=base)
     try:
@@ -1336,6 +1340,11 @@ def _resolve_well_detector(settings):
     ``well_detection`` may be ``False`` (off), a path, or a
     :mod:`spacr.model_zoo` key -- ``True`` means the default detector.
     """
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned = _resolve_pinned_model_file(settings, 'well_detection', kinds=('detector',))
+    if pinned is not None:
+        return str(pinned)
     requested = settings.get('well_detection', False)
     if not requested:
         return None
@@ -1541,6 +1550,13 @@ def _resolve_plaque_model(settings, fetch=True):
     """
     from .utils import download_models
 
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned = _resolve_pinned_model_file(settings, 'plaque_model', kinds=('cellpose',), download=fetch)
+    if pinned is not None:
+        if os.path.isfile(pinned):
+            return str(pinned)
+        raise ModelZooMissing(str(pinned))
     requested = _requested_plaque_model(settings)
 
     if os.path.isfile(requested):
@@ -1984,6 +2000,11 @@ def _analyze_plaque_figures(settings, model_path):
         returns.
     """
     from . import plaque_papers
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned_detector = _resolve_pinned_model_file(settings, 'figure_detector', kinds=('detector',))
+    detector = (str(pinned_detector) if pinned_detector is not None
+                else str(settings.get('figure_detector') or plaque_papers.DEFAULT_DETECTOR))
 
     sizes = tuple(int(float(part)) for part in
                   str(settings.get('figure_imgsz') or '640').split(',')
@@ -1994,8 +2015,7 @@ def _analyze_plaque_figures(settings, model_path):
     for folder in plaque_papers.figure_folders(settings['src']):
         part = plaque_papers.measure_figure_folder(
             folder, os.path.join(settings['src'], 'plaque_figures'),
-            detector=str(settings.get('figure_detector')
-                         or plaque_papers.DEFAULT_DETECTOR),
+            detector=detector,
             segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
             confidence=float(settings.get('figure_confidence', 0.25)),
             confirm_each=bool(settings.get('confirm_annotations', False)),
