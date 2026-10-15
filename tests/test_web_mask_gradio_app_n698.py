@@ -301,3 +301,33 @@ def test_detector_preview_uses_actual_boxes_and_no_mask(tmp_path):
     assert np.all(overlay[2, 2:4] == 0)
     with zipfile.ZipFile(target) as archive:
         assert 'mask.tif' not in archive.namelist()
+
+
+def test_public_random_example_is_family_bound_cached_and_credited(demo, tmp_path, monkeypatch):
+    _, calls = demo
+    source = tmp_path / 'test.tif'
+    tifffile.imwrite(source, np.arange(35, dtype=np.uint16).reshape(5, 7))
+    chosen = []
+    class Examples:
+        def __init__(self, records, **kwargs):
+            assert records == ['reviewed manifest']
+        def available(self, family):
+            return family == 'live_cell'
+        @contextmanager
+        def random_image(self, family):
+            chosen.append(family)
+            yield {'image': source, 'source': {'credit': 'Author credit', 'source_url': 'https://huggingface.co/datasets/owner/test/blob/revision/test.tif'}}
+    monkeypatch.setattr(app, 'ExampleStore', Examples)
+    actual = app.build_app({}, approved_examples=['reviewed manifest'])
+    actual.GRADIO_CACHE = str(tmp_path / 'example-cache')
+    try:
+        callbacks = [item.fn for item in actual.fns.values() if item.fn and item.fn.__name__ == 'load_example']
+        assert len(callbacks) == 8
+        for callback in callbacks:
+            cached, credit = callback()
+            assert Path(cached).read_bytes() == source.read_bytes()
+            assert 'Author credit' in credit and 'https://huggingface.co/datasets/' in credit
+        assert set(chosen) == set(app.FAMILY_LABELS) and len(chosen) == 8
+        assert calls == []
+    finally:
+        actual.close()

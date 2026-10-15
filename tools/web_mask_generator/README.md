@@ -237,3 +237,15 @@ Mask models, omit diameter to use `--magnification` (default 20), choose
 passes only desktop normalization/filter settings. For the well detector,
 `--confidence`, `--min-axis-ratio` and `--detector-image-size` retain desktop
 defaults 0.25, 0.7 and 640. Detector settings do not fabricate pixel masks.
+
+Random public test images are configured with `SPACR_WEB_EXAMPLES_JSON`, a JSON
+list of operator-reviewed records, each with exactly: `family`, `repo_id`,
+`revision` (40 lowercase hex immutable DATASET commit), `filename` (relative
+path), `sha256`, `bytes`, `credit`, `split` (`"test"`). Review actual test-split
+membership, scientific input suitability and redistribution rights before
+provisioning records; the code cannot establish those facts from a filename.
+No example catalogue is invented or downloaded implicitly. Buttons stay
+disabled for unconfigured classes. Downloads use no ambient account token,
+stream within the approved byte count and verify the entire checksum/header
+before returning a cached image and attribution. Public example staging is
+removed on success/failure; returned files use the disclosed Gradio cache.

@@ -344,3 +344,18 @@ Non-Mask routes reject normalization/filter overrides rather than ignoring them.
 Validation23 command cases PASS/actualexit0/1.46s; actual header decoding plus
 injected adapter dispatch only. No real model/GPU/scientific parity inferred;
 parentN698 partial. Receipt:features/data/698_all_family_cli_2026-10-14/.
+
+2026-10-14 — Original Home: random public HF test-image transport and dedicated
+UI button implemented. Only operator-reviewed per-family test records are
+accepted, with immutable DATASET commit, exact relative filename, SHA-256, byte
+count and credit. No arbitrary visitor URLs, ambient authentication, directory
+scans or inferred dataset mappings. Download streams stop before exceeding the
+approved size; full size/hash and actual image headers are checked before
+serving. Temporary staging cleans on HTTP/hash/size/consumer failures; Gradio
+copies into its disclosed temporary cache and displays source/credit. Buttons
+stay disabled for families without reviewed records. Validation68 owning cases
+PASS/actualexit0/43.19s (23 transport and45 actual-Gradio callback regressions).
+HTTP and model service mocked: no real dataset download, test-split/rights
+review, hosted/GPU or scientific parity accepted. Reviewed real example records,
+all-family ZeroGPU deployment and browser route remain open; parentN698 partial.
+Receipt:features/data/698_approved_examples_2026-10-14/.

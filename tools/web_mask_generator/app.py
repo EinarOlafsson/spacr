@@ -19,6 +19,7 @@ from skimage.segmentation import find_boundaries
 from spacr.qt.i18n import tr
 
 from .inputs import describe_upload
+from .examples import ExampleStore
 from .registry import model_families
 from .service import PlaqueService
 
@@ -69,7 +70,7 @@ def _preview(archive_path):
     return rgb
 
 
-def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=None):
+def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=None, approved_examples=None):
     """Construct actual Gradio components without launching a listening server."""
     import gradio as gr
     from gradio.processing_utils import save_file_to_cache
@@ -78,6 +79,7 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
     if preload:
         controller.preload_default()
     catalogue = model_families()
+    examples = ExampleStore([] if approved_examples is None else approved_examples, job_parent=job_parent)
     with gr.Blocks(title=tr("spaCR mask generator"), analytics_enabled=False,
                    delete_cache=(300, 3600)) as demo:
         gr.Markdown(tr("# spaCR mask generator"))
@@ -105,6 +107,16 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                                  file_types=[".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp", ".pdf", ".czi", ".nd2"])
                 consent.change(lambda value: gr.File(interactive=bool(value)), inputs=consent, outputs=upload,
                                api_visibility="private", queue=False)
+                example_button = gr.Button(tr("Random approved test image"), interactive=examples.available(family_id))
+                example_credit = gr.Markdown()
+                def load_example():
+                    with examples.random_image(family_id) as example:
+                        cached = save_file_to_cache(example["image"], demo.GRADIO_CACHE)
+                        source = example["source"]
+                        credit = source["credit"] + " — " + source["source_url"]
+                    return cached, credit
+                example_button.click(load_example, outputs=[upload, example_credit], api_visibility="private",
+                                     concurrency_limit=1, concurrency_id="spacr-public-example")
                 dimensions = gr.Markdown()
                 with gr.Row():
                     series = gr.Number(0, precision=None, minimum=0, label=tr("Image series / position (zero-based)"))
@@ -222,7 +234,10 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
 def main():
     paths = json.loads(os.environ.get("SPACR_WEB_MODELS_JSON", "{}"))
     zero_gpu = os.environ.get("SPACR_WEB_ZERO_GPU") == "1"
-    demo = build_app(paths, preload=zero_gpu, zero_gpu=zero_gpu)
+    options = {}
+    if os.environ.get("SPACR_WEB_EXAMPLES_JSON"):
+        options["approved_examples"] = json.loads(os.environ["SPACR_WEB_EXAMPLES_JSON"])
+    demo = build_app(paths, preload=zero_gpu, zero_gpu=zero_gpu, **options)
     demo.launch(share=False, server_name="0.0.0.0", max_file_size="64mb", show_error=False,
                 theme="base", strict_cors=True, run_history=False)
 
