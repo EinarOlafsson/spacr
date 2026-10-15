@@ -1760,7 +1760,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
       "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
-      "translation": "mappage tel qu’enregistré avec l’espace de travail ; ses entrées ``picture_settings``, ``widgets``, ``picture_mode`` et ``coefficient`` sont chacune appliquées si elles sont présentes, et un objet qui n’est pas un dictionnaire n’applique rien."
+      "translation": "mappage tel qu’enregistré avec l’espace de travail ; ses entrées ``picture_settings``, ``widgets``, ``picture_mode`` et ``coefficient`` sont chacune appliquées si elles sont présentes, et un objet qui n’est pas un dictionnaire n’applique rien.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Montage comparison workspace protocol updated in c5e7b630762; new panel methods from b7df416dac1. Replacement exact-source review is2026-10-15-n180-graph-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Cancel the active montage and queued selections without blocking.",

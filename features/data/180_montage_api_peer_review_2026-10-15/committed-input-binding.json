@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-15",
+  "result": "PASS",
+  "input_commit": "2b9113154ebcb19ee433c51b7be7ecf4c31bda38",
+  "source_commit": "c5e7b630762a946c75f471ec954fc28466178c86",
+  "source_sha256": "fe39247d4cff1d270152b6762c248443df7e901b588b503b1ef34afc9b9b540e",
+  "reviewed_pairs": 72,
+  "languages": 9,
+  "rendered_blocks": 8,
+  "draft_review_commit": "7ec51e45c5e634090a11723692b16ce803dcc29f",
+  "source_review_commit": "27725acbd6ca116e065fee9abc24f3ecdfbd4852",
+  "binding": "All72 committed montage source/context/target triples exactly match the independently semantically approved draft hashes. Corrected montage source public docstrings are unchanged. No duplicate semantic pass, normal collector, writer or owning test run was performed.",
+  "independence": "Reviewer authored panel dependency only; did not author montage code/English or any API targets. Only montage72 are approved, not the54 panel targets in the same files.",
+  "limitations": [
+    "Technical semantic review, no native-speaker claim.",
+    "Generation and preservation validation remain normal API writer/integration-owner responsibilities."
+  ],
+  "input_files_sha256": {
+    "docs/i18n/reviewed/api/de/2026-10-15-n180-graph-state.json": "2b305b9248b0f4c4dc8e6050515e472c1a0515ab2d92ddefec246cd3aae8ca06",
+    "docs/i18n/reviewed/api/es/2026-10-15-n180-graph-state.json": "1ce796485045661cb8b370162765da84eeafaa7620669683e8fdc081dec7c1a5",
+    "docs/i18n/reviewed/api/fr/2026-10-15-n180-graph-state.json": "448d0193ae6b98d6cc1f6d08c3ea6c076ca5b3d3af39038dd197522b9626a6a9",
+    "docs/i18n/reviewed/api/hi/2026-10-15-n180-graph-state.json": "f6553e072e2d94d305d9869c21f9f5e7ef558c461d62286e9df08b1ef1aea36c",
+    "docs/i18n/reviewed/api/is/2026-10-15-n180-graph-state.json": "23cd44dcc06a1ed0d61ab573e0be33a2c4d1529c55151c924e7ead42e70ed0fc",
+    "docs/i18n/reviewed/api/ko/2026-10-15-n180-graph-state.json": "b22aeb52af9d96db3c517d6c8eddc2e7123356b70b477ca6c67687710d65c881",
+    "docs/i18n/reviewed/api/pt/2026-10-15-n180-graph-state.json": "2820e4c55e90504fb305983f19e0161a83bb057483b016e8a8bffdf13f402fde",
+    "docs/i18n/reviewed/api/sv/2026-10-15-n180-graph-state.json": "6afe3aa601010a2ec8f49655305362793638d7eb28272b5eda6a8b29c9b2f092",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-n180-graph-state.json": "4651fbde7b502afe431070a8f147275dcdc1c15d865ae0e9bdf619b5b8a96ee1"
+  }
+}

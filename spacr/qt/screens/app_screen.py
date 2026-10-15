@@ -12671,6 +12671,7 @@ class AppScreen(QWidget):
 
         key = str(self.app_key)
         register(f"{key}:settings", lambda: self)
+        register(f"{key}:databases", self._workspace_database_control)
         for name, attribute in self._WORKSPACE_PANELS.items():
             register(f"{key}:{name}",
                      lambda attribute=attribute: self._if_built(attribute))
@@ -12681,8 +12682,21 @@ class AppScreen(QWidget):
 
         key = str(self.app_key)
         unregister(f"{key}:settings")
+        unregister(f"{key}:databases")
         for name in self._WORKSPACE_PANELS:
             unregister(f"{key}:{name}")
+
+    def _workspace_database_control(self):
+        """Return the current built database control without constructing a setting."""
+        model = self.__dict__.get("_settings_model")
+        controls = getattr(model, "_widgets", None)
+        built = getattr(controls, "built", None)
+        widget = built("src") if callable(built) else None
+        if widget is None:
+            return None
+        from ..widgets.database_set import DatabaseSetWidget
+
+        return widget if isinstance(widget, DatabaseSetWidget) else None
 
     def workspace_state(self) -> dict:
         """The settings AS EDITED, which is a superset of the run's dict.

@@ -72154,7 +72154,7 @@
         "dd31301bdc07c284eae8f725e299a96ff0ca5e7c8a0f003c812dc0a133bcb7f1",
         "cae14cefb5743bb6962c0fe8f3d848a71d484930c25046dea3be2090c8d67002",
         "a7948d1062a0abfe9cd288fb5e66d040da9e0560635618531df9f20eee28f443",
-        "48321534ca659883643fb0f2c10fd5f0a779ea53db3813940feeb79caa0db496",
+        "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
         "94633bed6ef19f94ecc8c7f134dd33260a49e4c6a91309a2f0a076fac79e7bad",
         "b21f658726f68547c19a46febcf0fc292b88394cf70ded5e56e53ebd76e1ef7d",
         "aac35525bca9e24d0f64af2c85ac7423674cdb050cc407a19c1e5536e1239039",
@@ -72166,8 +72166,8 @@
         "c41a1b40f8225e36b90fe4d28c077957984b5fa4440ad8cc6a5067d117f9ec68",
         "79a2f8fcf8af66887f74fbff41aa32e912aae726897e1fcfe083a5b9fd590651"
       ],
-      "source_sha256": "fe54c1425a484a18a7b3b97cd94f639b21117829439a358dfd3c791a3683f766",
-      "text": "Fügen Sie eine App zur Registrierung hinzu. Die Naht ein neues Modul registriert sich durch.\n\nRufen Sie es zum Zeitpunkt des Imports aus dem Modul an, das die App besitzt::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\nDie ersten vier Argumente setzen eine Kachel auf Home und eine Zeile in der Seitenleiste. Die Keyword-Argumente nach ``stage`` sind, was machen, dass Kachel eine Arbeits-App: Sie sind die Strings der App, gegeben ONCE hier, und in die Tabellen, die verwendet, um eine Hand-edit jede benötigen fächerte — siehe :data:`APP_META`.\n\n:param key: stabile Anwendungs-ID. Sie ist maßgeblich — ``bridge``, ``cli``, ``validate``, die Drag-and-drop-Handler, ``settings_model`` und der gespeicherte Benutzerzustand verwenden sie alle als Schlüssel. Deshalb wird sie einmal gewählt und nie umbenannt. Sie muss über integrierte Anwendungen und Plugins hinweg eindeutig sein.\n:param name: Anzeigename; Seitenleiste, Kachel und Menüeintrag.\n:param desc: Zusammenfassung einer Zeile; die Tooltip- und Status-Tipp.\n:param section: eine der :data:`SECTION_ORDER`. Ein Abschnitt ohne Apps hat keine Registerkarte, so dass die Registrierung der ersten App in einem neuen Abschnitt ist, was diesen Abschnitt erscheinen lässt.\n:param factory: optionale Null-Argument-Aufrufe, die die ``QWidget``-Anwendungsansicht der App zurückgeben. Es kann ``app_key`` und/oder ``host`` Schlüsselwortparameter deklarieren — ``host`` ist der :class:`MainWindow`, für eine Anwendungsansicht, die Signale zum Verbinden hat — und wird gegeben, egal welche der beiden es akzeptiert. Lassen Sie es und die App bekommt die generischen Einstellungen angetrieben ``AppScreen``, wie jedes Workflow-Modul.\n:param stage: Optionales :data:`STAGES`-Element. Ausgelassen bedeutet stabil, was auch das spätere Löschen des Eintrags bedeuten würde.\n:param title: Header oben auf dem Bildschirm der Anwendung angezeigt. Falls weggelassen, verwendet es ``name``. Liefern Sie einen benutzerdefinierten Header, wenn der Bildschirm längere Formulierungen benötigt (\"Illumination Correction\" über einer Kachel mit \"Illumination\"). Der Wert wird in ``app_screen.APP_TITLES`` gespeichert.\n:param intro: der Absatz neben diesem Header — was das Modul tut, in einem oder zwei Sätzen. Defaults zu ``desc``. Erreicht ``app_screen.APP_INTROS``.\n:param cli_note: für eine App mit KEINEN kopflosen Pfad: ein Satz sagt so und was stattdessen zu tun ist. Erreicht ``cli.INTERACTIVE_ONLY``, was ``spacr-run <key>`` druckt statt \"unknown module\". Gegenseitig exklusiv mit ``entry`` im Geiste – eine App ist die eine oder andere.\n:param api_module: gepunkteter oder gestrichelter Modulpfad unter dem generierten API docs (\"qt/layer_viewer\"), für den ⓘ Link neben den Einstellungen. Erreicht ``settings_model._APP_API_MODULE``.\n:param entry: ``\"module:function\"`` des Aufrufbaren läuft die Run-Taste. Lässig durch :func:`registered_entry` aufgelöst und von :func:`spacr.qt.bridge.resolve_pipeline_entry` konsultiert; ohne sie antwortet die Run Taste \"Not runnable\".\n:param defaults_module: Das Modul, dessen Import für diesen strukturierten Datennamen :func:`spacr.settings.register_defaults` aufruft. ``settings_model.resolve_default_settings`` importiert es, bevor er fragt, ob der strukturierte Datenname Voreinstellungen registriert hat – sonst hat ein Modul, das seine Einstellungen beim Import registriert, keine Einstellungsfelder, bis etwas anderes passiert, um ihn zu importieren, und die App öffnet sich auf einem leeren Formular. Importiert auf Anfrage, so dass die Registrierung einer App beim Start keine numpy/pandas/ torch kostet.\n:param translations: die Anzeige ``name`` in den neun nicht-englischen UI Sprachen, in :data:`spacr.qt.i18n.LANGUAGES` Reihenfolge. Erreicht ``i18n._ROWS`` und seine Kataloge.\n:returns: die Zeile, die angehängt wurde, damit ein Anrufer sie behalten kann.\n:raises ValueError: auf einem doppelten Schlüssel, einem unbekannten Abschnitt, einem unbekannten Stadium oder einem leeren Namen/Beschreibung.\n:raises TypeError: wenn ``factory`` nicht erreichbar ist.",
+      "source_sha256": "7968939def60679893a349be2b8fe85aead57b0ae3894d8a8d8c7a24e9348448",
+      "text": "Fügen Sie eine App zur Registrierung hinzu. Die Naht ein neues Modul registriert sich durch.\n\nRufen Sie es zum Zeitpunkt des Imports aus dem Modul an, das die App besitzt::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\nDie ersten vier Argumente setzen eine Kachel auf Home und eine Zeile in der Seitenleiste. Die Keyword-Argumente nach ``stage`` sind, was machen, dass Kachel eine Arbeits-App: Sie sind die Strings der App, gegeben ONCE hier, und in die Tabellen, die verwendet, um eine Hand-edit jede benötigen fächerte — siehe :data:`APP_META`.\n\n:param key: stabile Anwendungs-ID. Sie ist maßgeblich — ``bridge``, ``cli``, ``validate``, die Drag-and-drop-Handler, ``settings_model`` und der gespeicherte Benutzerzustand verwenden sie alle als Schlüssel. Deshalb wird sie einmal gewählt und nie umbenannt. Sie muss über integrierte Anwendungen und Plugins hinweg eindeutig sein.\n:param name: Anzeigename; Seitenleiste, Kachel und Menüeintrag.\n:param desc: Zusammenfassung einer Zeile; die Tooltip- und Status-Tipp.\n:param section: eine der :data:`SECTION_ORDER`. Ein Abschnitt ohne Apps hat keine Registerkarte, so dass die Registrierung der ersten App in einem neuen Abschnitt ist, was diesen Abschnitt erscheinen lässt.\n:param factory: optionale Null-Argument-Aufrufe, die die ``QWidget``-Anwendungsansicht der App zurückgeben. Es kann ``app_key`` und/oder ``host`` Schlüsselwortparameter deklarieren — ``host`` ist der :class:`MainWindow`, für eine Anwendungsansicht, die Signale zum Verbinden hat — und wird gegeben, egal welche der beiden es akzeptiert. Lassen Sie es und die App bekommt die generischen Einstellungen angetrieben ``AppScreen``, wie jedes Workflow-Modul.\n:param stage: optionales Mitglied von :data:`STAGES`. Wenn es fehlt, wird kein expliziter Stufeneintrag geschrieben. Fehlende Einträge gelten beim Lesen als stabil, bis :func:`spacr.qt.maturity.apply` nicht bewerteten Apps ohne Deklaration alpha zuweist. Bereits als stabil bestätigte Apps bleiben stabil. Das Weglassen oder Löschen eines Eintrags ist keine Stabilitätsbewertung.\n:param title: Header oben auf dem Bildschirm der Anwendung angezeigt. Falls weggelassen, verwendet es ``name``. Liefern Sie einen benutzerdefinierten Header, wenn der Bildschirm längere Formulierungen benötigt (\"Illumination Correction\" über einer Kachel mit \"Illumination\"). Der Wert wird in ``app_screen.APP_TITLES`` gespeichert.\n:param intro: der Absatz neben diesem Header — was das Modul tut, in einem oder zwei Sätzen. Defaults zu ``desc``. Erreicht ``app_screen.APP_INTROS``.\n:param cli_note: für eine App mit KEINEN kopflosen Pfad: ein Satz sagt so und was stattdessen zu tun ist. Erreicht ``cli.INTERACTIVE_ONLY``, was ``spacr-run <key>`` druckt statt \"unknown module\". Gegenseitig exklusiv mit ``entry`` im Geiste – eine App ist die eine oder andere.\n:param api_module: gepunkteter oder gestrichelter Modulpfad unter dem generierten API docs (\"qt/layer_viewer\"), für den ⓘ Link neben den Einstellungen. Erreicht ``settings_model._APP_API_MODULE``.\n:param entry: ``\"module:function\"`` des Aufrufbaren läuft die Run-Taste. Lässig durch :func:`registered_entry` aufgelöst und von :func:`spacr.qt.bridge.resolve_pipeline_entry` konsultiert; ohne sie antwortet die Run Taste \"Not runnable\".\n:param defaults_module: Das Modul, dessen Import für diesen strukturierten Datennamen :func:`spacr.settings.register_defaults` aufruft. ``settings_model.resolve_default_settings`` importiert es, bevor er fragt, ob der strukturierte Datenname Voreinstellungen registriert hat – sonst hat ein Modul, das seine Einstellungen beim Import registriert, keine Einstellungsfelder, bis etwas anderes passiert, um ihn zu importieren, und die App öffnet sich auf einem leeren Formular. Importiert auf Anfrage, so dass die Registrierung einer App beim Start keine numpy/pandas/ torch kostet.\n:param translations: die Anzeige ``name`` in den neun nicht-englischen UI Sprachen, in :data:`spacr.qt.i18n.LANGUAGES` Reihenfolge. Erreicht ``i18n._ROWS`` und seine Kataloge.\n:returns: die Zeile, die angehängt wurde, damit ein Anrufer sie behalten kann.\n:raises ValueError: auf einem doppelten Schlüssel, einem unbekannten Abschnitt, einem unbekannten Stadium oder einem leeren Namen/Beschreibung.\n:raises TypeError: wenn ``factory`` nicht erreichbar ist.",
       "translation_source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
         "71563e1df62a7ff352e266fec507ce257570d9d4d138594deb2d9acbb0a196e3",
@@ -72177,7 +72177,7 @@
         "dd31301bdc07c284eae8f725e299a96ff0ca5e7c8a0f003c812dc0a133bcb7f1",
         "cae14cefb5743bb6962c0fe8f3d848a71d484930c25046dea3be2090c8d67002",
         "5e5601e8f3db2e1bf9d62201c8bd234b3cda1b52a3095351f5909f59f177f32f",
-        "48321534ca659883643fb0f2c10fd5f0a779ea53db3813940feeb79caa0db496",
+        "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
         "5db6538eaf248fe63398c1ed7921db1d0c6871cd654bb37547e96d4b6d50a270",
         "b21f658726f68547c19a46febcf0fc292b88394cf70ded5e56e53ebd76e1ef7d",
         "aac35525bca9e24d0f64af2c85ac7423674cdb050cc407a19c1e5536e1239039",
@@ -101396,6 +101396,26 @@
         "0be5de8c5d7c6e5d352f07b3a727c2f9614e68469165a910905ca1af71550d25"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done": {
+      "source_blocks_sha256": [
+        "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b"
+      ],
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "text": "Nur einen Abschluss annehmen, der zum aktuellen Lauf dieses Bildschirms gehört.",
+      "translation_source_blocks_sha256": [
+        "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress": {
+      "source_blocks_sha256": [
+        "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b"
+      ],
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "text": "Berichte des Backends weiterleiten, ohne im Worker-Thread auf Widgets zuzugreifen.",
+      "translation_source_blocks_sha256": [
+        "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
       "source_blocks_sha256": [
         "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"
@@ -126616,18 +126636,20 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": {
       "source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "d09a2eabf33060e5d34076f3faa2411e1627391fc74987a1fa7c4d3708f65756",
-        "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ],
-      "source_sha256": "715c194898c02d1a2ee9d47e6be34494ad9bba7ba34437d07b05d25c30092de2",
-      "text": "Stellen Sie die Einstellungen der Montage wieder ein.\n\nGibt zurück, ob etwas angewendet wurde.\n\nDie Montage wird nicht wieder aufgebaut. Das Laden der extrahierten Bildregionen ist die langsame Hälfte -- die erste Montage einer Verarbeitungssitzung liest Bilder für Sekunden von der Festplatte aus -- und das Starten bei Wiederherstellung würde ein Fenster einfrieren, das gerade geöffnet wurde. Die Einstellungen werden zurückgesetzt und die Schaltfläche ist verfügbar.\n\n:param state: Mapping, wie es mit dem Arbeitsbereich gespeichert wurde; seine Einträge ``picture_settings``, ``widgets``, ``picture_mode`` und ``coefficient`` werden jeweils angewendet, wenn sie vorhanden sind, und ein Nicht-Wörterbuch wendet nichts an.",
+      "source_sha256": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de",
+      "text": "Montage- und Vergleichssteuerelemente wiederherstellen, ohne Bilder zu berechnen.\n\nErkannter Zustand bricht den ausstehenden Montage-Ladevorgang und eingereihte Koeffizienten-Ladevorgänge ab. Während der Wiederherstellung der Einstellungen werden die Steuersignale blockiert, sodass eine bestehende Montage nicht automatisch neu geladen oder gezeichnet wird. Die Bildausschnittsauswahl gilt für den nächsten ausdrücklich angeforderten Aufbau; bestehende Well-Reiter behalten ihre eigenen Beschriftungen und Bilder.\n\nVergleichseinstellungen werden ohne Aktualisierung an ein bestehendes Panel übergeben. Gibt es keines, bleiben sie einfache Daten, bis ein ausdrücklich angeforderter Montageaufbau oder eine Vergleichsaktion es erstellt. Die Wiederherstellung erstellt niemals ein Vergleichspanel, startet keine Verknüpfung von Messdaten und berechnet keinen Graphen.\n\n:param state: gespeicherte Zuordnung; erkannt werden ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` und ``comparison``. Ein Wert, der kein Dictionary ist, wendet nichts an.\n:returns: ob erkannter Zustand angewendet oder für später aufbewahrt wurde.",
       "translation_source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "49244b6eff32a88ed1b2416caf7c7ce138d3e6e9c39da782aab0342dc09ef557",
-        "0ec435962d676e57022aa935ec1c21ab24a28e549511778294e7c78f03f3527a"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "a6bb4a08c5db8a5758ce938acc2aba122357525613b8d4d2027fc36f3ce53818",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "65a9115855716795665b0dec811a15cc9d9e178b153a3a8819c8024129b8b18b",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
@@ -127084,16 +127106,16 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": {
       "source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "6ad18ddc1bd8de9c2a6f32c4ad7b9c62fa226b7fd1441e13a2c0ea12476ef997",
-        "4bb274b436dc6d049141d30590c02c2c22da203b326508a285f0f65881ac71bf"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ],
-      "source_sha256": "58037117eea4f795e35862f031a042e398fb810bf926dc8b890631c1d3fea0e4",
-      "text": "Die Montage der Sitzung war als Daten geöffnet.\n\nDie Einstellungen und die Auswahl werden gespeichert, nicht die Pixel. Eine Montage ist zehn Megabyte der extrahierten Bildregionen, die die eigenen Bilder der Verarbeitungssitzung genau regenerieren; was nicht regeneriert werden kann, ist welcher Koeffizient in der Anwendungsansicht war, wie die Zellen ausgewählt wurden und wie sie gezeichnet wurden.\n\nDie ausgewählten Gruppen werden als Datensatz gespeichert, nicht als Eingabe -- `picked_groups()` ist das, was der Picker bei diesen Einstellungen gewählt hat, und die Wiederherstellung der Einstellungen reproduziert sie. Sie werden gespeichert, so dass ein Leser eines gespeicherten Laufs sehen kann, auf welche Zellen das Ergebnis ruhte, ohne etwas erneut auszuführen.",
+      "source_sha256": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+      "text": "Montageauswahlen und gegebenenfalls gespeicherte Vergleichseinstellungen als Daten zurückgeben.\n\nEinstellungen und ausgewählter Koeffizient werden gespeichert, nicht die Pixel der Bildausschnitte. Die ausgewählten Gruppen dokumentieren, welche Zellen die aktuelle Montage gewählt hat; sie werden nicht als Eingabe an den Auswähler zurückgespielt. Ein Neuaufbau verwendet die aktuellen Laufdateien, Einstellungen und die aktuelle Implementierung des Auswählers.\n\nDer Vergleich liefert seine Steuereinstellungen, wenn sein Panel bereits existiert. Andernfalls bleibt ein vor dem Aufbau des Panels wiederhergestellter Vergleich als einfache Daten erhalten. Das Erfassen des Zustands erstellt niemals das Panel und berechnet keinen Vergleich.",
       "translation_source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "b48004093a287cb4e763d6aef1ef530d750f947326693b2886d13ccf330f4080",
-        "db8968002955679854da04668a6415e1322c1e5ed146aa64f73158eed95ae7dd"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "b5faee2627a6dafa458019f1ef221faac0df8f355ea4d3e734932c4579209c16",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.write_scores_into_the_databases": {
@@ -157880,6 +157902,22 @@
         "9fb8480b0e0d137987fc23bd4d2d561e8621bc869f45c513646870ba840474e3"
       ]
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+        "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ],
+      "source_sha256": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+      "text": "Vergleichssteuerelemente wiederherstellen, ohne einen Graphen zu berechnen oder zu zeichnen.\n\nErkannte Einträge mit korrektem Typ werden unabhängig angewendet. Unbekannte feste Auswahlen werden ignoriert; noch nicht angebotene Messungs- und Klassenkennungen bleiben bis zu einer normalen Aktualisierung oder Datenaktualisierung ausstehend. Ausgewählte Guide- und Well-Kennungen bleiben erhalten, ohne Dateien zu lesen. Eine aktive Tabellenverknüpfung dieses Panels wird abgebrochen, damit ihr verspätetes Ergebnis den wiederhergestellten Zustand nicht ersetzen kann. Es wird keine neue Verknüpfung, kein Dateilesevorgang und keine Inferenz gestartet. Der zwischengespeicherte Vergleich und die Abbildung bleiben bis zur nächsten Aktualisierung unverändert.\n\n:param state: die von :meth:`workspace_state` zurückgegebene Zuordnung; Werte, die keine Dictionaries sind, und Zuordnungen ohne verwendbare Einträge lassen das Panel unverändert.\n:returns: ``True``, wenn mindestens ein verwendbarer Eintrag angewendet wurde, auch wenn sein Wert bereits ausgewählt war; andernfalls ``False``.",
+      "translation_source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "b89286a3fc14b7146db4e4270a2ec0be26e101c839c6cbdf49ebfd826c63b3f3",
+        "95be6ed5f1388e6b6a40b98af0e0073dc163e0c03ddb293ee94d9873ca4d07bc",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ]
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.cancel_the_join": {
       "source_blocks_sha256": [
         "cf9f10aceb8044cae462c47596405599c2dde1ac3fd27942dbe7c048df82db1a",
@@ -158084,6 +158122,18 @@
         "68440708b0176e3d3063c76675d3ef778f403d7f08413368eda149b6feed8aed",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "4668fd61aa02d91b6f540e72570177108878feb58dea42c66fd4eebf5a7cf2bf"
+      ]
+    },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": {
+      "source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9"
+      ],
+      "source_sha256": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+      "text": "JSON-kompatible Vergleichsauswahlen zurückgeben, ohne Daten zu erfassen.\n\nDie Werte der Kombinationsfelder sind stabile Kennungen, keine übersetzten Beschriftungen. Ausstehende Messungs- und Klassenauswahlen bleiben gespeichert, bis eine spätere Aktualisierung sie anbieten kann. Die Well-Auswahlen behalten ``None`` für alle annotierten Wells beziehungsweise für die aus Guides abgeleiteten Wells des Auswahlbereichs bei; eine leere Liste wählt keines aus. Datentabellen, Abbildungen, Datenbankpfade und laufende Aufträge werden nicht eingeschlossen.",
+      "translation_source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "393ee9ba01f4ce62b031924e55a9211f7a577ab4a807b6c5bdabed626b7b67c4"
       ]
     },
     "spacr.qt.widgets.measurement_scan_panel": {
@@ -171381,19 +171431,19 @@
         "dee68aea6a999302631ad6b8faa7e53095f9af5a8abacc2f052997e2e10e4fea",
         "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "ae9f0d0b6c52cf8d6913acd7d66d55c5924a0e7e700988e90a21c490b2e668a5",
+        "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ],
-      "source_sha256": "4980a914264421b7abdf0aa255a417749b71f9bd0d320808564b2eeca5455749",
-      "text": "Spalten-/Werteditor zum Ausschließen von Zeilen von UMAP Eingabedaten.\n\nAlles, was dieses Widget bietet dem Benutzer kommt aus einer Messdatenbank, und beide liest, um auf dem Haupt- GUI Ausführungspfad geschehen:\n\n* ``discover_columns`` öffnet jede Datenbank, die die ``src``-Einstellung auflöst und ``sqlite_master`` plus ``PRAGMA table_info`` pro Tabelle ausführt. Sie wird von ``SettingsWidgets._refresh_contextual_widgets`` angetrieben, so dass sie jedes Mal ausgeführt wird, wenn ``src`` oder ``tables`` gesetzt ist.\n* ``distinct_values`` führt eine Abfrage ``SELECT DISTINCT … LIMIT 501`` für jedes Paar ``(database, table)`` aus, in dem die ausgewählte Spalte vorkommt. Gerade die Spalten, nach denen Benutzer tatsächlich ausschließen (``plateID``, ``columnID``, ``rowID``), enthalten über die gesamte Tabelle nur wenige verschiedene Werte; das LIMIT wird daher nie erreicht und SQLite durchsucht jede Zeile. Gemessen mit warmem Seitencache auf einer measurements.db mit 200 000 Zeilen × 8 Tabellen: **196 ms pro Spalte**. Außerdem ist die Spaltenauswahl editierbar, sodass ``currentTextChanged`` bei jedem Tastendruck ausgelöst wird. Acht schnelle Änderungen blockierten das Fenster für **894 ms** am Stück; ``set_source`` selbst benötigte 183 ms und eine einzelne bewusste Spaltenauswahl 220 ms. Mit einem Hintergrundthread betragen dieselben drei Werte 29 ms, 5 ms und 2 ms.\n\nAlso gehen beide durch eine :class:`~spacr.qt.job_runner.JobRunner`, die dem Editor gehört, und die Werte werden zusätzlich entblößt. Drei Regeln halten dies zusammen:\n\n* ``_value_cache`` und ``_column_sources`` sind der wichtigste GUI Ausführungspfadzustand. Der Worker-Prozesse gibt einfache Daten zurück und der Complete Handler, der Qt auf dem Haupt GUI Ausführungsleiter ausführt, ist das einzige, was sie schreibt.\n* Schema-Entdeckung und Wertwerte werden mit **separate** Läufern ermittelt. :meth:`JobRunner.cancel` funktioniert nach Generation, so dass ein Läufer einen Wert nicht ablesen kann, ohne auch das Schema zu lesen, von dem der Wert abgelesen wird.\n* Ein Debounce Timer kokettiert Tastenanschläge und :meth:`JobRunner.cancel` fällt, was auch immer ein früherer Tastenanschlag gestartet hat, so dass die letzte Bearbeitung gewinnt und nicht der langsamste gelesen wird.",
+      "source_sha256": "12beaaf3559ea4f5022a57a1affcbcec527169a4bedfa6aef986ac5d326c24cd",
+      "text": "Spalten-/Werteditor zum Ausschließen von Zeilen von UMAP Eingabedaten.\n\nAlles, was dieses Widget bietet dem Benutzer kommt aus einer Messdatenbank, und beide liest, um auf dem Haupt- GUI Ausführungspfad geschehen:\n\n* ``discover_columns`` öffnet jede Datenbank, die die ``src``-Einstellung auflöst und ``sqlite_master`` plus ``PRAGMA table_info`` pro Tabelle ausführt. Sie wird von ``SettingsWidgets._refresh_contextual_widgets`` angetrieben, so dass sie jedes Mal ausgeführt wird, wenn ``src`` oder ``tables`` gesetzt ist.\n* ``distinct_values`` führt eine Abfrage ``SELECT DISTINCT … LIMIT 501`` für jedes Paar ``(database, table)`` aus, in dem die ausgewählte Spalte vorkommt. Gerade die Spalten, nach denen Benutzer tatsächlich ausschließen (``plateID``, ``columnID``, ``rowID``), enthalten über die gesamte Tabelle nur wenige verschiedene Werte; das LIMIT wird daher nie erreicht und SQLite durchsucht jede Zeile. Gemessen mit warmem Seitencache auf einer measurements.db mit 200 000 Zeilen × 8 Tabellen: **196 ms pro Spalte**. Außerdem ist die Spaltenauswahl editierbar, sodass ``currentTextChanged`` bei jedem Tastendruck ausgelöst wird. Acht schnelle Änderungen blockierten das Fenster für **894 ms** am Stück; ``set_source`` selbst benötigte 183 ms und eine einzelne bewusste Spaltenauswahl 220 ms. Mit einem Hintergrundthread betragen dieselben drei Werte 29 ms, 5 ms und 2 ms.\n\nAlso gehen beide durch eine :class:`~spacr.qt.job_runner.JobRunner`, die dem Editor gehört, und die Werte werden zusätzlich entblößt. Drei Regeln halten dies zusammen:\n\n* ``_value_cache`` und ``_column_sources`` sind Zustandsdaten des GUI-Threads. Arbeitsthreads geben einfache Daten zurück, die Abschlussbehandler im GUI-Thread übernehmen. Ein Quellenwechsel leert den Wertecache, bevor das neue Schema eintrifft.\n* Schema-Entdeckung und Wertwerte werden mit **separate** Läufern ermittelt. :meth:`JobRunner.cancel` funktioniert nach Generation, so dass ein Läufer einen Wert nicht ablesen kann, ohne auch das Schema zu lesen, von dem der Wert abgelesen wird.\n* Ein Debounce Timer kokettiert Tastenanschläge und :meth:`JobRunner.cancel` fällt, was auch immer ein früherer Tastenanschlag gestartet hat, so dass die letzte Bearbeitung gewinnt und nicht der langsamste gelesen wird.",
       "translation_source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
         "f20a7e164d54c4fe0872f0e3fd851d866e117c07d9a1883ec8bad71c17cd3400",
         "e4f4a33d45d70556d4054850c1ffebf1e1239cec7c5a4391d84702355556e524",
         "58baf3424081f737a92b95dc8720982b50327eabed01fa70cae86af863e14953",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "d5c5fcc9e087cdf926fe46a19b46736262140d7bd3c04fd504fe75ccce9b1432",
+        "94887b98ac3a003e152cc0ab859fbdbc4f74d5ed5dc03d45d25a4d89e95f7fa9",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ]
@@ -171405,7 +171455,7 @@
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171413,15 +171463,15 @@
         "18cd0699afc14d577b431789ed60bd0bc69fb62e88adc61c17ef29bcfe884d26",
         "570b81780e0fcdf2a8eb49aaebfa81cb75adbc38ca9c60173525ca6ea4b6f529"
       ],
-      "source_sha256": "133cbed42dbdf3da07e43c60179b1c70b5c11a3884647d535aff5012d89b1296",
-      "text": "Fügen Sie einen oder mehrere UMAP Zeilenausschlüsse hinzu, indem Sie Spalten und Werte auswählen.\n\nDie Datenbank liest hinter den beiden Dropdowns laufen auf Hintergrundausführungseinheiten; siehe das Modul docstring aus dem gemessenen Grund. Nichts über den öffentlichen Vertrag des Widgets geändert — :meth:`set_source` nimmt immer noch eine Quelle und kehrt zurück, es wartet einfach nicht mehr auf sqlite, bevor es tut.\n\n:param value: anfängliche Regeln, in jeder Form :func:`spacr.row_exclusions.normalize_row_exclusions` akzeptiert.\n:param parent: Qt Eltern.\n:param threaded: ``False`` läuft beide liest inline, in der gleichen Reihenfolge, sendet die gleichen Signale - ein Anrufer, der die Werte haben muss, die instant :meth:`set_source` zurückgibt kann danach fragen. Stichwort nur, und standardmäßig, weil die ausgelieferte Anruf-Website (``SettingsWidgets._widget_for``) übergeben ``value`` und ``parent`` und nichts anderes.\n:param debounce_ms: wie lange eine Spalte editiert wird, bevor sie gelesen wird. ``0`` liest beim nächsten Event-Loop-Dreh, ohne zu verschmelzen.\nErstellen Sie den Zeilenausschlusseditor.\n\nZwei Läufer, nicht einer: ``cancel`` verlässt alles, was ein Läufer im Flug hat, und der Wert eines Tastendrucks gelesen zu ersetzen, darf nicht auch das Schema lesen lassen, in dem steht, in welchen Datenbanken die Spalte sogar lebt.\n\n:param value: die Ausschlüsse, mit denen man anfangen muss.\n:param parent: übergeordnetes Widget oder ``None``.\n:param threaded: lesen Sie auf Hintergrundausführungseinheiten. Setzen Sie ``False`` in Tests, so dass ein Lesen beendet, bevor es zurückgibt.\n:param debounce_ms: wie lange das Tippen sich vor dem Auslesen eines Wertes absetzt.",
+      "source_sha256": "1551325b7b603a67afa8cb725be736dc56d2dac2594e61a7a282a8e1501e55c9",
+      "text": "Fügen Sie einen oder mehrere UMAP Zeilenausschlüsse hinzu, indem Sie Spalten und Werte auswählen.\n\nDie Datenbank liest hinter den beiden Dropdowns laufen auf Hintergrundausführungseinheiten; siehe das Modul docstring aus dem gemessenen Grund. Nichts über den öffentlichen Vertrag des Widgets geändert — :meth:`set_source` nimmt immer noch eine Quelle und kehrt zurück, es wartet einfach nicht mehr auf sqlite, bevor es tut.\n\n:param value: anfängliche Regeln, in jeder Form :func:`spacr.row_exclusions.normalize_row_exclusions` akzeptiert.\n:param parent: Qt Eltern.\n:param threaded: ``False`` läuft beide liest inline, in der gleichen Reihenfolge, sendet die gleichen Signale - ein Anrufer, der die Werte haben muss, die instant :meth:`set_source` zurückgibt kann danach fragen. Stichwort nur, und standardmäßig, weil die ausgelieferte Anruf-Website (``SettingsWidgets._widget_for``) übergeben ``value`` und ``parent`` und nichts anderes.\n:param debounce_ms: wie lange eine Spaltenänderung vor dem Lesen wartet. ``0`` plant den Lesevorgang für einen späteren Durchlauf der Ereignisschleife; Änderungen vor dem Auslösen des Timers können weiterhin zusammengefasst werden.\nErstellen Sie den Zeilenausschlusseditor.\n\nZwei Läufer, nicht einer: ``cancel`` verlässt alles, was ein Läufer im Flug hat, und der Wert eines Tastendrucks gelesen zu ersetzen, darf nicht auch das Schema lesen lassen, in dem steht, in welchen Datenbanken die Spalte sogar lebt.\n\n:param value: die Ausschlüsse, mit denen man anfangen muss.\n:param parent: übergeordnetes Widget oder ``None``.\n:param threaded: lesen Sie auf Hintergrundausführungseinheiten. Setzen Sie ``False`` in Tests, so dass ein Lesen beendet, bevor es zurückgibt.\n:param debounce_ms: wie lange das Tippen sich vor dem Auslesen eines Wertes absetzt.",
       "translation_source_blocks_sha256": [
         "d5bfd69cae64697afee305b98d0ce85e11dd454bdd6566f6db248d2b543ed760",
         "cbfe8822e354a2b4ace7e99025c2ed6210110597e145cb27a80c26bc96a36a1f",
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171442,18 +171492,18 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent": {
       "source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "62152c11aa07004be9f8d65639f44b9b1fddb980f3999ed34ce73e2f6e26c25f",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ],
-      "source_sha256": "7d62184d9caf47e150cd529672547c0c3e2afeb7b3a604750e5a20aa4973eed8",
-      "text": "Schließen des mittleren Lesevorgangs darf keinen Faden zurücklassen.\n\nQt beendet den Prozess, wenn ein ausgeführtes QThread zerstört wird, und ein Worker-Prozesse, der in ein Widget auf seinem Weg nach draußen liefert, ist ein use-affter-free. ``JobRunner.shutdown`` übernimmt beides.\n\nNicht die einzige Verteidigungslinie, absichtlich, weil sie nicht immer erreicht wird: Dieser Editor ist ein Kind innerhalb eines Einstellungspanels und das Navigieren von diesem Panel zerstört es ohne ein nahes Ereignis. Was diesen Fall abdeckt, ist der Läufer selbst – die QThreads sind unparent und gehen in den Ruhestand, und ``JobRunner._relay`` fängt das ``RuntimeError`` PySide6 steigt, wenn sich ein Worker-Prozesse nach der C++-Halbzeit seines Läufers niederlässt.\n\n:param event: das Schließereignis; unverändert an die Basisklasse weitergereicht, nachdem die Worker heruntergefahren wurden.",
+      "source_sha256": "4156e48885a50bacfcaec9ec3c4cd1e896b5cb262a1e11f86dea008cde33c441",
+      "text": "Die Ergebniszustellung abbrechen und beide Auftragsausführer abwickeln, wenn während eines Lesevorgangs geschlossen wird.\n\nQt beendet den Prozess, wenn ein ausgeführtes QThread zerstört wird, und ein Worker-Prozesse, der in ein Widget auf seinem Weg nach draußen liefert, ist ein use-affter-free. ``JobRunner.shutdown`` übernimmt beides.\n\nNicht die einzige Verteidigungslinie, absichtlich, weil sie nicht immer erreicht wird: Dieser Editor ist ein Kind innerhalb eines Einstellungspanels und das Navigieren von diesem Panel zerstört es ohne ein nahes Ereignis. Was diesen Fall abdeckt, ist der Läufer selbst – die QThreads sind unparent und gehen in den Ruhestand, und ``JobRunner._relay`` fängt das ``RuntimeError`` PySide6 steigt, wenn sich ein Worker-Prozesse nach der C++-Halbzeit seines Läufers niederlässt.\n\n:param event: das Schließereignis; wird unverändert an die Basisklasse weitergereicht, nachdem beide Auftragsausführer ihr Herunterfahren mit begrenzter Wartezeit versucht haben.",
       "translation_source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "e11be8a906c9d4f938ebaad21b17c9ea8eaa51139cd25aaf1254d9152d5e698e",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ]
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value": {
@@ -171481,15 +171531,15 @@
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source": {
       "source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
         "87d80f5603b7c2266e0ff92fcd40f3855c868b26ea33552f3c6694aa292391af",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ],
-      "source_sha256": "b65063fcbea16743b3b9a7eabb761809733ef80daa3725d3c1d5ac04f85a3fad",
-      "text": "Spalten-/Wertwahl aus einer Dropd-Messung DB befüllen.\n\nDie Dropdowns behalten alles, was sie zeigen, bis der Worker-Prozesse liefert – eine Liste, die eine halbe Sekunde verstrichen ist, schlägt ein gefrorenes Fenster, und beim ersten Aufruf zeigen sie sowieso nichts.\n\n:param source: alles, was :func:`source_paths` akzeptiert: ein Laufordner, sein ``measurements``-Ordner, eine ``.db``-Datei oder eine Liste davon.\n:param tables: die Spalten auf diese Tabellennamen beschränken; ``None`` liest jede Tabelle.",
+      "source_sha256": "0eda86201147005dbc8b9efbfa460800369b037a9b0755d01bca0e2bc6fe10d7",
+      "text": "Spalten-/Wertwahl aus einer Dropd-Messung DB befüllen.\n\nIm standardmäßigen Threadmodus kehrt der Aufruf nach dem Starten der Schemaabfrage zurück. Bestehende Spaltenauswahlen und angekreuzte Werte bleiben währenddessen sichtbar, einschließlich Regeln, die vor dem Setzen der ersten Quelle wiederhergestellt wurden. Mit ``threaded=False`` erfolgen die Lesevorgänge direkt innerhalb des Aufrufs.\n\n:param source: alles, was :func:`source_paths` akzeptiert: ein Laufordner, sein ``measurements``-Ordner, eine ``.db``-Datei oder eine Liste davon.\n:param tables: die Spalten auf diese Tabellennamen beschränken; ``None`` liest jede Tabelle.",
       "translation_source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "2c2389dc635d24005b894466e5f9b93749a91db69b1877bedd353ba424d9dc39",
         "38cc33db135f23dae1172f244d27fc1d037f242d5d0e1665218db07cfa3554f8",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ]
@@ -171508,14 +171558,14 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown": {
       "source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "01ebdf8f200e32e2f5d672b4957d27c9b784b66887d7674bd9db3995a8a96aa9"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0"
       ],
-      "source_sha256": "366af60fc4c5bda86796e6c2cf9ccf5df7d642578bed0483f88f6b579ef6dbdf",
-      "text": "Hör auf zu lesen und lass keinen Worker-Prozesse das Widget ausleben.\n\nÖffentlich, weil ein Host, der diesen Editor in einer größeren Anwendungsansicht besitzt, ihn direkt aufrufen kann — Qt liefert ein nahes Ereignis an das Fenster, nicht an jedes Widget darin, so dass eine Anwendungsansicht, die die Lesevorgänge stoppen will, sobald der Benutzer weg navigiert, das sagen muss. Idempotent.",
+      "source_sha256": "6be5e6528b02b0cc4f9a9a236698ba6a32bdb9e469d49c5f4dc8987b87021eb4",
+      "text": "Ausstehende Ergebnisse verwerfen und beide Auftragsausführer mit begrenzten Wartezeiten abwickeln.\n\nÖffentlich, damit ein Host, dem dieser Editor innerhalb einer größeren Ansicht gehört, die Methode direkt aufrufen kann — Qt liefert ein Schließereignis an das Fenster, nicht an jedes darin enthaltene Widget. Eine Ansicht, die beim Wegnavigieren ausstehende Ergebnisse verwerfen will, muss sie daher aufrufen. Langsame Datenbankabfragen können in geparkten Arbeitsthreads weiterlaufen, ohne ihre Ergebnisse an diesen Editor zu liefern. Idempotent.",
       "translation_source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "20f9228f1e42c43f14ce22b52d841cc7c965a1b42969acd637cdcbac1c5aae80"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "e45b981b1e3cd2793410106a7878e40c8e91faeb18ca53973899f8ec626e00d2"
       ]
     },
     "spacr.qt.widgets.row_exclusion.discover_columns": {
@@ -171556,14 +171606,14 @@
     },
     "spacr.qt.widgets.row_exclusion.source_paths": {
       "source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "2ed4efbe0590e3c33e8093da33f2d99b04ef6c5c5be3d9a08fb922cccfeaf3c4",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ],
-      "source_sha256": "a8f09b0eebe8d43b292acd8916590683b30a0ce957374ba172caa0155f302a8e",
-      "text": "Gibt die ``measurements.db``-Dateien zurück ``source`` wird aufgelöst.\n\nAkzeptiert einen Pfad, eine Liste von Pfaden oder den Repr einer Liste (was ein Einstellungstextfeld nach einem Multi-Ordner-Drop enthält) und toleriert einen Processing-Session-Order, seinen ``measurements``-Unterordner oder die Datenbank selbst. Pfade, die nicht existieren, werden anstatt gemeldet: Dies füttert einen Dropdown, und ein halbtypisierter ``src`` ist kein Fehler.\n\n:param source: ein Pfad, eine Liste oder ein Tupel von Pfaden oder der Text einer solchen Liste; leere Einträge werden übersprungen, und ``~`` wird expandiert.",
+      "source_sha256": "b85b5688c6bda7c11df18c5408c7923744ce688a264c8bedeec58a4a06785e32",
+      "text": "Die Pfade zu vorhandenen Datenbankdateien zurückgeben, auf die ``source`` aufgelöst wird.\n\nAkzeptiert einen Pfad, eine Liste von Pfaden oder den Repr einer Liste (was ein Einstellungstextfeld nach einem Multi-Ordner-Drop enthält) und toleriert einen Processing-Session-Order, seinen ``measurements``-Unterordner oder die Datenbank selbst. Pfade, die nicht existieren, werden anstatt gemeldet: Dies füttert einen Dropdown, und ein halbtypisierter ``src`` ist kein Fehler.\n\n:param source: ein Pfad, eine Liste oder ein Tupel von Pfaden oder der Text einer solchen Liste; leere Einträge werden übersprungen, und ``~`` wird expandiert.",
       "translation_source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ]

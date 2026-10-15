@@ -397,7 +397,8 @@ def test_rgb_and_zstack_images_are_listed_then_converted_when_asked(tmp_path):
     assert grey.shape == (20, 30) and grey.dtype == np.uint8 and int(grey[0, 0]) == 60
     projected = tifffile.imread(by_channel[2])
     assert projected.shape == (20, 30) and int(projected[0, 0]) == 50
-    kept = sorted(os.listdir(os.path.join(plan.dest, "originals")))
+    kept = sorted(path.name for path in Path(plan.dest, "originals").rglob("*")
+                  if path.is_file())
     assert kept == ["s1_rgb.png", "s1_z.tif"]
     with open(os.path.join(plan.dest, cs.MANIFEST_NAME), encoding="utf-8") as handle:
         statuses = {row["status"] for row in csv.DictReader(handle)}

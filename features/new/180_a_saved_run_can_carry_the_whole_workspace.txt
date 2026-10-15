@@ -206,3 +206,39 @@ and peer directories. No new caption, backend/default or source-root guessing.
 Still actionable: Graph/measurement-comparison control state and lazy montage
 handoff, now explicitly owned by Home-B. This adapter is not whole N180 closure
 or a promise that a fresh arbitrary pipeline can rebuild missing source roots.
+
+2026-10-15 — Graph comparison workspace controls completed.
+MeasurementComparePanel now saves stable control identifiers and selection
+state, preserving unavailable dynamic choices until the ordinary data refresh.
+Explicit activation of a displayed fallback clears the corresponding pending
+choice. Montage saves an existing panel's state or retains plain pending state
+without building a deferred panel. Restore blocks mirrored controls, cancels
+superseded work and suppresses synchronous optional run-name metadata probes;
+it does not load data, join measurements, render or run inference. Existing
+bounded asynchronous missing-source validation remains enabled. Pending graph
+state applies once when the user later builds the panel explicitly.
+Final source-bound four-module integration:71PASS16.48s. Both implementation
+and126 API translation targets have independent peer review. Coordinator
+readback verifies all four API symbols against normal generated artifacts and
+preserves every unrelated incoming record. Evidence is under
+features/data/180_montage_comparison_workspace_2026-10-15/ and related Graph
+review/readback directories. Real-app database contributor registration and
+settings-before-panel restore ordering remain separately owned by Original
+Home. This is a completed Graph scope, not whole N180 acceptance.
+
+2026-10-15 — Actual UMAP workspace registration and restore order repaired.
+The real screen omitted DatabaseSetWidget from the registry despite its working
+protocol. A real AppScreen baseline failed before saving the database section.
+After registration, a complete restore exposed a second failure: settings replay
+cleared the restored carried-database mapping. The stable app:databases provider
+now resolves the current built source control without constructing deferred
+controls; teardown unregisters it. Matching namespaced settings restore before
+their panels, preserving all other panel order and existing refusal reporting.
+Actual complete registry/settings -> copy -> delete original -> move -> load ->
+restore -> read-only SQLite query now passes.48 distinct owning cases pass
+across47+1 runs; both product baselines and an initial generic fixture ordering
+error remain preserved. Existing prose/captions unchanged; independent normal
+API eligibility peer excludes the new direct private class helper. Evidence:
+features/data/n180_actual_app_database_registry_2026-10-15/. No full CI, native
+GUI, fresh UMAP pipeline or whole-item acceptance is claimed. Home-B separately
+owns Graph/comparison/montage contribution and its API/publication closure.

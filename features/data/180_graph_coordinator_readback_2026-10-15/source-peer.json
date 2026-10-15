@@ -1,0 +1,26 @@
+{
+  "reviewer": "Home-B coordinator; independent of montage and panel implementation authors",
+  "review_kind": "Independent source/dependency/recorded-evidence review, no duplicate test run or human/native acceptance",
+  "source_commits": [
+    "e0d54c365f0",
+    "c5e7b630762"
+  ],
+  "source_sha256": "fe39247d4cff1d270152b6762c248443df7e901b588b503b1ef34afc9b9b540e",
+  "dependency": "b7df416dac1",
+  "dependency_sha256": "96209de2cadc2df2f71bcecc8bbf63a6a686ea2e5e3e5c101b090055fc45b836",
+  "decision": "PASS",
+  "all_other_ast_unchanged": true,
+  "comment_tokens_unchanged": true,
+  "literal_tr_sets_unchanged_both_modules": true,
+  "evidence_logs_bound": true,
+  "terminal_evidence": "Final71 targeted owning checks PASS16.48s, source-bound; prior focused baseline6FAIL/2PASS and direct-stat regression retained.",
+  "findings_resolved": [
+    "Mirrored control signals blocked during restore; existing montage does not automatically load/redraw.",
+    "Cancelled old loads and queued coefficients cannot overwrite restored choices.",
+    "Existing graph serializes via owner protocol; absent graph remains copied plain state and collection never constructs a deferred panel.",
+    "Explicit later Compare/build consumes pending graph state once.",
+    "Direct GUI filesystem stat via optional loaded-run-name lookup suppressed only during restore, finally restores previous guard and block states.",
+    "Existing asynchronous presence validation and missing-source gating retained."
+  ],
+  "boundary": "No data loading/render/join/inference during restore. Normal asynchronous metadata validation remains allowed. This is not a whole N180 or scientific acceptance claim."
+}

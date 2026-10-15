@@ -2824,7 +2824,10 @@
       "source_sha256": "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04",
       "context": "the close event; passed on unchanged to the base class after the workers are shut down.",
       "translation": "close इवेंट; वर्कर बंद होने के बाद बिना बदलाव के बेस क्लास को आगे दिया जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Row-exclusion path, restore and lifecycle documentation corrected in ae9fe9df94b. Replacement exact-source review is2026-10-15-row-exclusion-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source#2",

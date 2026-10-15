@@ -1,0 +1,20 @@
+{
+  "spacr/qt/screens/app_screen.py": {
+    "old_sha256": "10dea5c68963d4b9aafcf065a37c69f91da89a8d08fc71a870cd45b52d4543a7",
+    "new_sha256": "9d8a9c714c461ab46171cfdd5eea3c345553c55e737813f12f67f47ec28ab37c",
+    "existing_docs_signatures_unchanged": true,
+    "tr_calls_unchanged": true,
+    "added_symbols": [
+      "AppScreen._workspace_database_control"
+    ]
+  },
+  "spacr/workspace.py": {
+    "old_sha256": "968d00b969edf06d4802c7d75223d216352ec9e150ccf337d3c6191827bee89e",
+    "new_sha256": "155c19eb811efe9ff42fb972dd602d7fea1e23a920a3c49779f8784165065e45",
+    "existing_docs_signatures_unchanged": true,
+    "tr_calls_unchanged": true,
+    "added_symbols": []
+  },
+  "private_helper_api_disposition": "Independent Hard policy peer, bound actual app_screen hash; ordinary private direct class method excluded, no nested-helper source.",
+  "scope": "No API/runtime prose/signature changes; source bodies only and one excluded direct private method. No generator run claimed."
+}

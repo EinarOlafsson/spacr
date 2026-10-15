@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review; independent source-semantic peer review requested; no native-speaker signoff",
+  "note": "Fourteen changed or new blocks across four public symbols from final tested source c5e7b630762 and b7df416dac1, including two new comparison-panel protocol methods. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. No runtime caption changes. Final normal help API index refresh belongs to the integration coordinator.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state#0",
+      "source": "Return JSON-compatible comparison choices without collecting data.",
+      "context": "Return JSON-compatible comparison choices without collecting data.",
+      "source_sha256": "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+      "previous_same_source_indexes": [],
+      "translation": "Skilar samanburðarvali á sniði sem samræmist JSON án þess að safna gögnum.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state#1",
+      "source": "Combo values are stable identifiers, not translated labels. Pending measurement and class choices remain saved until a later refresh can offer them. Well selections preserve ``None`` for all annotated wells or guide-derived scope wells, respectively; an empty list selects none. Frames, figures, database paths and running jobs are not included.",
+      "context": "Combo values are stable identifiers, not translated labels. Pending measurement and class choices remain saved until a later refresh can offer them. Well selections preserve ``None`` for all annotated microplate sample positions or guide-derived scope microplate sample positions, respectively; an empty list selects none. Frames, figures, database paths and executing jobs are not included.",
+      "source_sha256": "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9",
+      "previous_same_source_indexes": [],
+      "translation": "Gildi fellilista eru stöðug auðkenni en ekki þýdd heiti. Mælinga- og flokkaval sem bíður helst vistað þar til síðari endurnýjun getur boðið það. Brunnaval heldur ``None`` fyrir alla merkta brunna eða brunna innan valsviðs sem er leitt af guide-valinu, eftir því hvort við á; tómur listi velur enga. Gagnatöflur, myndir, gagnagrunnsslóðir og verk í keyrslu eru ekki tekin með.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state#0",
+      "source": "Restore comparison controls without computing or drawing a graph.",
+      "context": "Restore comparison controls without computing or drawing a graph.",
+      "source_sha256": "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+      "previous_same_source_indexes": [],
+      "translation": "Endurheimtir samanburðarstýringar án þess að reikna eða teikna graf.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state#1",
+      "source": "Recognized, correctly typed entries are applied independently. Unknown fixed choices are ignored; measurement and class identifiers that are not yet offered remain pending until an ordinary refresh or data update. Selected guide and well identifiers are retained without reading files. An active join owned by this panel is cancelled so its late result cannot replace the restored state. No new join, file read or inference starts. The cached comparison and figure remain unchanged until the next refresh.",
+      "context": "Recognized, correctly typed entries are applied independently. Unknown fixed choices are ignored; measurement and class identifiers that are not yet offered remain pending until an ordinary refresh or data update. Selected guide and microplate sample position identifiers are retained without reading files. An active join owned by this panel is cancelled so its late result cannot replace the restored state. No new join, file read or inference starts. The cached comparison and figure remain unchanged until the next refresh.",
+      "source_sha256": "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+      "previous_same_source_indexes": [],
+      "translation": "Þekktar færslur af réttri gerð eru notaðar óháð hver annarri. Óþekkt föst val eru hunsuð; auðkenni mælinga og flokka sem ekki eru enn í boði bíða fram að venjulegri endurnýjun eða gagnauppfærslu. Valin guide-auðkenni og brunnaauðkenni haldast án þess að lesa skrár. Virk samtenging sem þessi hluti á er afturkölluð svo sein niðurstaða hennar komi ekki í stað endurheimta ástandsins. Engin ný samtenging, skráarlestur eða ályktunarkeyrsla hefst. Samanburðurinn og myndin í skyndiminni haldast óbreytt þar til næst er endurnýjað.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state#2",
+      "source": "mapping returned by :meth:`workspace_state`; non-dicts and mappings without usable entries leave the panel unchanged.",
+      "context": "mapping returned by :meth:`workspace_state`; non-key-value mappings and mappings without usable entries leave the panel unchanged.",
+      "source_sha256": "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+      "previous_same_source_indexes": [],
+      "translation": "vörpunin sem :meth:`workspace_state` skilar; gildi sem eru ekki orðabækur og varpanir án nothæfra færslna skilja viðmótshlutann eftir óbreyttan.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state#3",
+      "source": "``True`` if at least one usable entry was applied, even if its value was already selected; otherwise ``False``.",
+      "context": "``True`` if at least one usable entry was applied, even if its value was already selected; otherwise ``False``.",
+      "source_sha256": "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b",
+      "previous_same_source_indexes": [],
+      "translation": "``True`` ef að minnsta kosti ein nothæf færsla var notuð, jafnvel þótt gildi hennar hafi þegar verið valið; annars ``False``.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state#0",
+      "source": "Return montage choices and any saved comparison controls as data.",
+      "context": "Return montage choices and any saved comparison controls as data.",
+      "source_sha256": "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+      "previous_same_source_indexes": [],
+      "translation": "Skilar vali myndsamsetningar og öllum vistuðum samanburðarstýringum sem gögnum.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state#1",
+      "source": "Settings and the selected coefficient are saved, not crop pixels. Picked groups record which cells the current montage selected; they are not replayed as input to the picker. Rebuilding uses the current run files, settings and picker implementation.",
+      "context": "Settings and the selected coefficient are saved, not extracted image region pixels. Picked groups record which cells the current montage selected; they are not replayed as input to the picker. Rebuilding uses the current processing session files, settings and picker implementation.",
+      "source_sha256": "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+      "previous_same_source_indexes": [],
+      "translation": "Stillingar og valinn stuðull eru vistuð en ekki pixlar myndútsniða. Valdir hópar skrá hvaða frumur núverandi myndsamsetning valdi; þeir eru ekki endurspilaðir sem inntak í valbúnaðinn. Endurbygging notar núverandi skrár keyrslunnar, stillingar og útfærslu valbúnaðarins.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state#2",
+      "source": "The comparison contributes its controls when its panel already exists. Otherwise a comparison restored before the panel was built is retained as plain data. Collecting state never creates the panel or computes a comparison.",
+      "context": "The comparison contributes its controls when its panel already exists. Otherwise a comparison restored before the panel was built is retained as plain data. Collecting state never creates the panel or computes a comparison.",
+      "source_sha256": "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406",
+      "previous_same_source_indexes": [],
+      "translation": "Samanburðurinn leggur til stýringar sínar þegar viðmótshluti hans er þegar til. Annars er samanburður sem var endurheimtur áður en hlutinn var byggður geymdur sem einföld gögn. Söfnun ástands býr aldrei til viðmótshlutann né reiknar samanburð.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#0",
+      "source": "Restore montage and comparison controls without computing images.",
+      "context": "Restore montage and comparison controls without computing images.",
+      "source_sha256": "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+      "previous_same_source_indexes": [],
+      "translation": "Endurheimtir stýringar myndsamsetningar og samanburðar án þess að reikna myndir.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#1",
+      "source": "Recognized state cancels the pending montage and queued coefficient loads. Control signals are blocked while settings are restored, so an existing montage does not automatically reload or redraw. Crop choices are applied for the next explicit build; its existing well tabs retain their own captions and images.",
+      "context": "Recognized state cancels the pending montage and queued coefficient loads. Control signals are blocked while settings are restored, so an existing montage does not automatically reload or redraw. Extracted image region choices are applied for the next explicit build; its existing well tabs retain their own captions and images.",
+      "source_sha256": "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+      "previous_same_source_indexes": [],
+      "translation": "Þekkt ástand afturkallar hleðslu myndsamsetningar sem bíður og stuðlahleðslur í biðröð. Merki stýringa eru stöðvuð meðan stillingarnar eru endurheimtar svo fyrirliggjandi myndsamsetning hlaðist ekki aftur eða teiknist sjálfkrafa. Val myndútsniða gildir við næstu sérstaklega umbeðnu byggingu; fyrirliggjandi brunnaflipar halda eigin myndatextum og myndum.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#2",
+      "source": "Comparison controls are passed to an existing panel without a refresh. If no panel exists, they remain plain data until an explicit montage build or Compare action creates it. Restoring never creates a comparison panel, starts a measurement join, or computes a graph.",
+      "context": "Comparison controls are passed to an existing panel without a refresh. If no panel exists, they remain plain data until an explicit montage build or Compare action creates it. Restoring never creates a comparison panel, starts a measurement join, or computes a graph.",
+      "source_sha256": "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+      "previous_same_source_indexes": [],
+      "translation": "Samanburðarstýringar eru sendar til fyrirliggjandi viðmótshluta án endurnýjunar. Ef enginn slíkur hluti er til haldast þær sem einföld gögn þar til sérstaklega umbeðin bygging myndsamsetningar eða samanburðaraðgerð býr hann til. Endurheimt býr aldrei til samanburðarhluta, ræsir samtengingu mælinga eða reiknar graf.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "saved mapping; recognized entries are ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` and ``comparison``. A non-dict applies nothing.",
+      "context": "saved mapping; recognized entries are ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` and ``comparison``. A non-key-value mapping applies nothing.",
+      "source_sha256": "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+      "previous_same_source_indexes": [],
+      "translation": "vistuð vörpun; þekktar færslur eru ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` og ``comparison``. Gildi sem er ekki orðabók breytir engu.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#4",
+      "source": "whether recognized state was applied or retained for later.",
+      "context": "whether recognized state was applied or retained for later.",
+      "source_sha256": "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461",
+      "previous_same_source_indexes": [],
+      "translation": "hvort þekkt ástand var notað eða geymt til síðari nota.",
+      "review_basis": "Exact-source technical translation review of comparison workspace protocols, stable identifiers, pending choices, None-versus-empty well selection, retained plain-data comparison state, cancellation, and no eager data read, join, rendering or panel construction during restore. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

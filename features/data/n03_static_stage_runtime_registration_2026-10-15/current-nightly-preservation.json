@@ -1,0 +1,19 @@
+{
+  "actual_incoming": "67b58caacc76c84565709af5a5547f1e88c795c1",
+  "validated_commit": "240cc9d935020584008ff561198c4f16257f7d9a",
+  "merged_head_before_receipt": "707d0c1bc182a081f4c9c33173b48cb9f9fc51d0",
+  "all_8_case_tests_harness_and_stage_source_dependencies_byte_identical": [
+    "tests/qt/test_home_v2.py",
+    "tests/qt/test_app_maturity.py",
+    "tests/qt/test_634_organism_alpha_pages.py",
+    "tests/qt/test_classify_public_maturity_route.py",
+    "tests/conftest.py",
+    "tests/qt/conftest.py",
+    "spacr/qt/app.py",
+    "spacr/qt/maturity.py",
+    "spacr/settings.py"
+  ],
+  "all_incoming_production_docs_tools_packaging_byte_identical": true,
+  "all_index_paths_equal_HEAD_tree": 32700,
+  "scope": "Test-only CI invariant repair;8PASS retained, no repeat or source/API generator."
+}

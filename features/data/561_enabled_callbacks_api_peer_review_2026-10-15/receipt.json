@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical source and semantic translation review; reviewer did not author either callback or target translations; no human/native-speaker claim",
+  "source_commit": "bc75604cb3304d8e4524a97fc4a91e5e2686097a",
+  "original_f561_source_commit": "efe3784e64a6a527a5ca557ccd2dbffc45272052",
+  "source_file": {
+    "path": "spacr/qt/screens/embeddings.py",
+    "sha256": "9fda21401f1777bf049b0ccbf11015e38f0e22c19fcb9b972ae46e50040d5785"
+  },
+  "input_commit": "2393714a6c8b9acdb0ed6515429a20bd688951d0",
+  "reviewed_count": 18,
+  "symbol_count": 2,
+  "frozen_draft_hashes": {
+    "targets": "61628bdd691cfa45bc08aaade81ebdb55e8975af0b6d7b71f71bbb4ccfae40ee",
+    "sources": "15236a071c7c0ec8307c18dc679ba3e1e3109d4cf94a5923275081f895e48b3f"
+  },
+  "review_files": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "c42299871aed1f47694f8cbaf2478799f4c82337a8565f8c9684b8ca1d6b671b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "03794ffa3a0c7c7149a869b8511aa21479197e97a3bb7679a585cdd66b418030"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "71cb90da5ce845fb59a9e4914897db0340c20288280908e70406466f2ac9398e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "e3f2a2d247ea1bcaf2f8de2e471170b1dc0aaea50753dfa118983af646bcbd31"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "5c5430405ea5bd6d3eaeea2e4f2f06bc846f72f993023376e48c2e680e4181e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "09c18d481fc94115bbf18555db0d19035597d72745f66e4ebcd95e259fe692e6"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "ea0535d778a9a13e5db96f0f3dba82af2748fd27ef6d27ec3ff136cef73cde53"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "8618890c5f480d5424cfe09fa3f7e2baf0a3a4639ec464fb69a7691666431b57"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-enabled-callbacks.json",
+      "sha256": "800f0eb434303e938bb42d8469a9f9a5f832739fb3bb937dfd98f0b23343a733"
+    }
+  ],
+  "source_findings": [
+    {
+      "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done",
+      "decision": "PASS",
+      "evidence": "The closure captures this invocation generation and calls _on_dino_done only when the screen is not closed and generation still equals _dino_generation. Closing sets _dino_closed and advances generation; JobRunner also rejects cancelled results."
+    },
+    {
+      "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress",
+      "decision": "PASS",
+      "evidence": "The closure only converts scalar values and emits the captured _dino_progress signal. It does not call widget setters; deleted-signal RuntimeError is caught. The signal is connected to the GUI-bound _on_dino_progress receiver, which checks closed/running/generation before updating controls."
+    }
+  ],
+  "existing_tests_read": [
+    "test_real_worker_progress_is_applied_on_gui_thread_and_busy_is_guarded",
+    "test_old_run_progress_cannot_overwrite_a_new_run",
+    "test_failure_restores_controls_and_rejects_late_progress",
+    "test_close_ignores_queued_progress_and_deleted_signal_is_safe",
+    "test_closing_active_worker_drops_late_progress_and_completion",
+    "test_cancel_before_worker_start_restores_controls_without_an_error"
+  ],
+  "dependency_sha256": {
+    "spacr/qt/job_runner.py": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b",
+    "tests/qt/test_dino_pretrain_controls.py": "2b3082658a04e7870d71d55f9bdbb78dc1746da825154166ee41c9261818c32a"
+  },
+  "records": [
+    {
+      "language": "sv",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "3d91e6ea3e8987086174ded25cc9eb97b108fb56982328df3d617c0edc064e84",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "6919c60934db86e893076dd0fea7a91509b3fc3dc814eaed8e967d892286a8a4",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "03b954716b5646ab63d373d119c4f19e0bf2edb585b2fe718b162135cfcdc40f",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "076eb973d75ab0a806c180cb62415b0af1b955aefd11ff29de3835276eaf8af1",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "b20a8a4aa4e58d2c2e899458d5fbcb4c2c9b7d06920650efc920ae4f5ed06999",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "9ca5580834e217fe49bb433a164cbae2b23e1ca84cca2f2a18c12c320e4ef014",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "a1412f879d79edacaaa82185ce17dcd02844eab02fb6663f14deeff6a08a6651",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "f7605ee71563b3d06fbfdd9f8cd79e342de2ac64b4ba9a579258cb4ea1d70414",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "376cfd1793f9ffd072c3bb0429121aa84c7a38db28b64168baa969e850cabe19",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "e11c243382403b49755f2e25bd9f9013d6faf2c25619d049abf0da04cf772878",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "4da6cda1b21c9bdca0f533ca15396f410bd8f565f987496da4c0705d943fbe09",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "dd9c14701b49f0845dc0c01b184fca3af40345d2c01a802afd8ce9f4830dd0bf",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "ca68f45c371ea47366c35f5fbe3c1dc7f300eeeb8724c3d5191d7ce4a3035dad",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "be5fc6632f0169d80af35f999917b6af7754ac633db7c25da8eec401aa180961",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "4044830eebe563694dd23de8d85e41ff09c046d77fb71bfc0c1d52a912bc5d99",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "9f3e8eb4d8c1e8f5d7fe65d6fab03d8aef9173ec81e8bf86bc4692e58cdf5b93",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done#0",
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "context_sha256": "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b",
+      "translation_sha256": "cb3cadd370395069c70c04cdf5668a45d62934c801b7dd3d7780fd54efc6a0ae",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress#0",
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "context_sha256": "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b",
+      "translation_sha256": "d56c6d98efbe3e6877ed2f4227ca068d4029e0993d654033f4010c74a3988a31",
+      "decision": "PASS"
+    }
+  ],
+  "normal_author_checks": "Author reports all source/context/actual inline checks and nine selected review loaders pass; no normal helper rollout, policy or translation gate changed.",
+  "limits": [
+    "No backend training, model inference, native capture or behavioral test rerun by this reviewer.",
+    "Only these two enabled helper entries and their18 translations are approved; JobRunner prose and other API symbols are outside this receipt.",
+    "Normal English/catalog generation and final Help-index refresh remain author/coordinator responsibilities."
+  ],
+  "result": "PASS: actual lexical AST docstrings and all18 committed targets match the independently reviewed callback contracts."
+}

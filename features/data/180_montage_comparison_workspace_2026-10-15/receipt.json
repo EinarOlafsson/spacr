@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "source_base": "a4f6f5b1e969ace2755ebf3a5d4e65c9af42d3a9",
+  "source_path": "spacr/qt/widgets/cell_montage_view.py",
+  "source_before_sha256": "e75a7094a23b269283fcacd054517e851a346f884907170289e9999dc6f11625",
+  "source_after_sha256": "6e11df7786dd825c9cb5324f97850368ad3297475b0256930c2572a77c768993",
+  "scope": [
+    "_ensure_graph_tab",
+    "apply_workspace_state",
+    "workspace_state"
+  ],
+  "all_other_source_ast_unchanged": true,
+  "measurement_panel_dependency": "c02ece7107c15bee407f86c044ca6683e2715356",
+  "dependency_note": "Panel owner has an independent followup pending for same-index activation; schema and public doc bodies unchanged. This receipt records the source actually tested.",
+  "regressions": {
+    "before": "6 failed, 2 passed in 2.97s",
+    "after": "8 passed in 1.77s, terminal exit0",
+    "owning": "65 passed in 16.42s, terminal exit0",
+    "modules": [
+      "tests/qt/test_montage_comparison_workspace.py",
+      "tests/qt/test_measurement_compare_workspace_state.py",
+      "tests/qt/test_cov_r5_cell_montage_view.py",
+      "tests/qt/test_the_panels_contribute_to_a_saved_run.py"
+    ]
+  },
+  "resource_control": {
+    "memory_cap": "2G via tools/run_capped.sh",
+    "serialized_lock": "/mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "behavior": [
+    "Existing comparison controls contribute through the panel public protocol; absent panels retain copied pending state without construction.",
+    "Both incoming and outgoing comparison state are independent copies.",
+    "Restore blocks crop control signals, cancels the prior load generation and clears queued coefficients.",
+    "Existing well tabs retain captioned images; stale summary plans are discarded when crop choices are restored.",
+    "Existing comparison applies controls without computing. A later explicit montage build or Compare action consumes pending state once.",
+    "Real panel integration verifies selected expression, level, bar/SD graph and class; applying into that panel again performs no build/statistics/join."
+  ],
+  "limitations": [
+    "No image I/O, model inference, physical hardware or native timing acceptance was performed.",
+    "This adds the montage comparison state contribution, not all N180 requirements.",
+    "No claim that crop selection reproduces unchanged across changed source files or algorithms.",
+    "Independent source review is owned by parent and is not claimed by this implementation receipt.",
+    "API review and normal generation are owned by the documentation worker."
+  ],
+  "logs": {
+    "before": {
+      "path": "features/data/180_montage_comparison_workspace_2026-10-15/before.log.gz",
+      "sha256": "44eca2234a8383bdf6666e23dece61a17d8e0a74f33d9d88610cd89beba74983",
+      "uncompressed_sha256": "2723bac4152d9e4c88ff0a5c5bd1777bbda42995080fb62e0600be5c7e7303fa"
+    },
+    "after": {
+      "path": "features/data/180_montage_comparison_workspace_2026-10-15/after.log.gz",
+      "sha256": "842c20c375ec69e06d63af0c580d02dff0254d62e743a659bde7d8cc645a7bde",
+      "uncompressed_sha256": "82c903b7a82adfb49d061a16d1434de2403964c3b61058e158e56816845da72c"
+    },
+    "owning": {
+      "path": "features/data/180_montage_comparison_workspace_2026-10-15/owning.log.gz",
+      "sha256": "dc753f2ce14a84e68594ef9495f99ea1d677fabbd93e71c3c7339c83c5bd6fe1",
+      "uncompressed_sha256": "2ae94dd4cc452a731d394085c5dd4526e398155bdbd6ae415aa7a82d3c1b5bff"
+    }
+  },
+  "docstrings": [
+    {
+      "symbol": "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state",
+      "before": "The montage the session had open, as data.\n\nThe settings and the choice are saved, not the pixels. A montage is\ntens of megabytes of crops that the run's own images regenerate\nexactly; what cannot be regenerated is which coefficient was on screen,\nhow the cells were picked, and how they were drawn. Those are what go\nin.\n\nThe picked groups are saved as a record, not as an input --\n`picked_groups()` is what the picker chose given these settings, and\nrestoring the settings reproduces it. They are saved so a reader of a\nsaved run can see which cells the result rested on without re-running\nanything.",
+      "after": "Return montage choices and any saved comparison controls as data.\n\nSettings and the selected coefficient are saved, not crop pixels.\nPicked groups record which cells the current montage selected; they\nare not replayed as input to the picker. Rebuilding uses the current\nrun files, settings and picker implementation.\n\nThe comparison contributes its controls when its panel already\nexists. Otherwise a comparison restored before the panel was built\nis retained as plain data. Collecting state never creates the panel\nor computes a comparison."
+    },
+    {
+      "symbol": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state",
+      "before": "Put the montage's settings back. Does not rebuild it.\n\nReturns whether anything was applied.\n\nThe montage is not rebuilt. Loading the crops is the slow half -- the\nfirst montage of a run reads images off disk for seconds -- and\nstarting it on restore would freeze a window that was just opened. The\nsettings are put back and the button is available.\n\n:param state: mapping as saved with the workspace; its\n    ``picture_settings``, ``widgets``, ``picture_mode`` and\n    ``coefficient`` entries are each applied when present, and a\n    non-dict applies nothing.",
+      "after": "Restore montage and comparison controls without computing images.\n\nRecognized state cancels the pending montage and queued coefficient\nloads. Control signals are blocked while settings are restored, so\nan existing montage does not automatically reload or redraw. Crop\nchoices are applied for the next explicit build; its existing well\ntabs retain their own captions and images.\n\nComparison controls are passed to an existing panel without a\nrefresh. If no panel exists, they remain plain data until an explicit\nmontage build or Compare action creates it. Restoring never creates\na comparison panel, starts a measurement join, or computes a graph.\n\n:param state: saved mapping; recognized entries are\n    ``picture_settings``, ``widgets``, ``picture_mode``,\n    ``coefficient`` and ``comparison``. A non-dict applies nothing.\n:returns: whether recognized state was applied or retained for later."
+    },
+    {
+      "symbol": "spacr.qt.widgets.cell_montage_view.CellMontageView._ensure_graph_tab",
+      "before": "Put the Graph tab beside Summary once there is something to graph.\n\nBuilt on the first montage rather than at construction: the panel\nneeds the object rows and the picker's groups, and a tab that said\n\"nothing yet\" would be a second way of saying what the Summary tab\nalready says.",
+      "after": "Put the Graph tab beside Summary once there is something to graph.\n\nBuilt on the first montage rather than at construction: the panel\nneeds the object rows and the picker's groups, and a tab that said\n\"nothing yet\" would be a second way of saying what the Summary tab\nalready says. Saved comparison controls are handed over here, once,\nbefore refreshing the graph for this explicit build or Compare action."
+    }
+  ]
+}

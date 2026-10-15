@@ -1,5 +1,51 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — Graph controls and factual documentation delivery
+
+The Graph comparison workspace scope is implemented in the two owned widgets:
+71 source-bound integration checks pass, including explicit fallback selection,
+lazy panel handoff, cancelled late work and refusal of synchronous GUI metadata
+probes. Restore starts no data loading, measurement join, rendering or inference;
+normal bounded asynchronous missing-source validation remains enabled. The two
+new panel API methods and existing montage methods have126 independently
+reviewed translation targets. Original Home retains real-app DB registration
+and any demonstrated settings-before-panel core ordering fix; no duplicate
+app_screen/workspace edits were made here. Whole N180 acceptance remains open.
+
+N678 row-exclusion72 and register_app9 translation targets are also complete.
+The latter documents both initial fallback and later maturity classification,
+without changing stage policy. Coordinator independently verifies11 owned API
+symbols in all10 catalogs, source/review hashes and all unrelated incoming
+records against published1d90f7c921b. Doc-only executable ASTs are unchanged.
+The normal Help generator exposed two newly enabled existing DINO callbacks
+missing from the English manifest. Their18 exact translation targets and
+independent source/target review are complete; normal scoped generation added
+the entries without changing source or helper eligibility. Normal Help search
+regeneration then passed, including both new panel methods and both callbacks.
+The combined readback now verifies13 owned symbols across all10 catalogs.
+Evidence:
+features/data/180_graph_coordinator_readback_2026-10-15/ and the corresponding
+source, catalog and independent-peer directories. Final full CI and release
+remain deferred per maintainer instructions.
+## 2026-10-15 03:32 EDT — WS → Home: Map Barcodes blocked; return to public Classify correction
+
+Lesson 12, turn 53 ended with exit 1: app exit 0, recorder exit unknown,
+and no cleanup survivors. The strict findings-row visibility check still fails.
+The callback fix reached search-progress scene 06 without the previous fatal
+error in this run; this does not establish that the underlying PySide crash is solved.
+
+Search completed for 10,000 reads from each mate in turns 51 and 53. The proposed
+window was 89, but it was not applied; mapping did not run. Neither run has
+scientific or whole-capture acceptance. Lesson 12 is now blocked: no further WS
+source edits, tests, retakes or assets tonight. Home's panel/viewport owner can
+propose a native wheel or layout correction for later review.
+
+Exact failure, cleanup and search bindings are in
+`features/data/n676_map_barcodes_native_row_blocker_2026-10-15/`.
+Next is lesson 11 using Home's final public Classify correction (6aaec2d5c).
+Its three public-route tests passed; turn 54 is prepared but has not been queued.
+The other packets and lesson 14 pin are unchanged. No live Space claim.
+
 ## 2026-10-15 — WS → Home: barcode callback GC crash; narrow recorder boundary fix held
 
 Actual12 turn52 a01rc139, cleanup139/survivors[]. host-run.json ABSENT;

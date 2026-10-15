@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "source_head": "fc24e48868d2307c71ea8277f9e863e54425f678",
+  "source_commits": [
+    "ae9fe9df94b"
+  ],
+  "published_base": "fd3655e74556d6371cc9d7918602b9f6cabe5e1a",
+  "scope": "Normal scoped API generation for eight reviewed blocks in six existing symbols across nine locales; exact prior public English plus only owned normal AST-rendered replacements, no global current-source claim.",
+  "owned_source_files": {
+    "spacr/qt/widgets/row_exclusion.py": "219812e83b270e57d6278e43957b3d775d5d49158abe02586118fab3c44aaad3"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-row-exclusion-contracts.json": "ee2552cb2ed55ff6cd592eb9846ea7759500d50653967e453094aae7e1321822",
+    "docs/i18n/reviewed/api/de/2026-10-15-row-exclusion-contracts.json": "d588ab1dfa58fa0ba8e1a96719e36d1e1658e054756d259c9ec7e20676b61fa6",
+    "docs/i18n/reviewed/api/es/2026-10-15-row-exclusion-contracts.json": "b305e523a9778ecfa3f1401693b32e5c45ccc93cb0a14c52414ddde2b81fa83a",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-row-exclusion-contracts.json": "32bd8ae994ea73175ff394f306fc79958c043f2c95a91dd168fc80134c8f1fed",
+    "docs/i18n/reviewed/api/pt/2026-10-15-row-exclusion-contracts.json": "15cf112d0078efb9f14ae5820d26d0f445ac58f5e539190bfed10678b54638a2",
+    "docs/i18n/reviewed/api/hi/2026-10-15-row-exclusion-contracts.json": "4e69a03bfc4803df938be886e7ea373c92c3e11d110a150c85653bce73871dc5",
+    "docs/i18n/reviewed/api/ko/2026-10-15-row-exclusion-contracts.json": "bc7c0851e17bb221e54af6b20e88197d514ca9a67c958bfb255a6a5d9953cfca",
+    "docs/i18n/reviewed/api/is/2026-10-15-row-exclusion-contracts.json": "8e4686fa0b4ed9298e18fa8c95410d170320aaa0fd8c9b3db299d0668b144a07",
+    "docs/i18n/reviewed/api/fr/2026-10-15-row-exclusion-contracts.json": "c821fd4bb63f1249614fc6459b2fa7c423c690a5fa003c6c22836b80edef72aa"
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "2846bc9c58840c83fa6af7ed6f3028156dbc2a2099a4776d8cfc261d53331e66",
+      "unrelated_after_sha256": "2846bc9c58840c83fa6af7ed6f3028156dbc2a2099a4776d8cfc261d53331e66",
+      "catalog_sha256": "db44ca44b42ba02d8104dfdec1d7a28ffd7817653911ee67f3cfacd5a18d2b6d"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "7e7ceb4fe418514a9098e9153b9e681404655b7e416df959923407304824d1ed",
+      "unrelated_after_sha256": "7e7ceb4fe418514a9098e9153b9e681404655b7e416df959923407304824d1ed",
+      "catalog_sha256": "395af2a9a560f8649b714a402fbe24bbe122ac60586e6a5dafcaac23641eece8"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "a1a175bab94b3efe41ca61844753397074f68b132fe09d7495d7177e2706d864",
+      "unrelated_after_sha256": "a1a175bab94b3efe41ca61844753397074f68b132fe09d7495d7177e2706d864",
+      "catalog_sha256": "3c828f31075aef2d09e5f5d1eff0d8859df699793703933126455ee0ef426ea4"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "98dee18d007485a123174b9051a77bcdf30a6149fa57dfe5205054c373f7c0a0",
+      "unrelated_after_sha256": "98dee18d007485a123174b9051a77bcdf30a6149fa57dfe5205054c373f7c0a0",
+      "catalog_sha256": "867e44d58efa9b085ff54a1719421d59bb511bcc04b8fe69588bf43e7c2ec187"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "9a2ec183c20623c240bc41d1fd78fd0f5b15e595197203e97a9b46e7a69f2155",
+      "unrelated_after_sha256": "9a2ec183c20623c240bc41d1fd78fd0f5b15e595197203e97a9b46e7a69f2155",
+      "catalog_sha256": "864e118eaf397e032e088357ceac555b922787cbacc4eb798c7beb219debddb2"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "4637b98c102bc8a02f5c7042341f154f40e3d6f22a00af069ff03cf0ae01d71d",
+      "unrelated_after_sha256": "4637b98c102bc8a02f5c7042341f154f40e3d6f22a00af069ff03cf0ae01d71d",
+      "catalog_sha256": "c3f137ddd625eb1087eb03e1e16cf400d70a76d2eeaa1ef6430ffdaeed97e733"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "fdc80fcc08f6d638dbf4fec0a9568951cfe271598b1fc67f49c22dc8fcb49d88",
+      "unrelated_after_sha256": "fdc80fcc08f6d638dbf4fec0a9568951cfe271598b1fc67f49c22dc8fcb49d88",
+      "catalog_sha256": "1fefe1e26d9f92422b751ae74ec7249da29d014b346f39b7a42c5d3ca7fb87f7"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "8890bbb49c47abd6235bd68a228ab4849d18f0efe4450485e9e8d0b9f1f277a5",
+      "unrelated_after_sha256": "8890bbb49c47abd6235bd68a228ab4849d18f0efe4450485e9e8d0b9f1f277a5",
+      "catalog_sha256": "6a4e9d3ad1dbe009ba5905d52e15032c06dcc4811329596b828f64cd2e559031"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.widgets.row_exclusion",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+        "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+        "spacr.qt.widgets.row_exclusion.source_paths"
+      ],
+      "reviewed_blocks_exact": 8,
+      "unchanged_blocks_preserved": 25,
+      "unrelated_records_preserved": 13398,
+      "unrelated_before_sha256": "54233640e642759667156f18d90a494a9beaeeb63b1f8036752bd6c7610e1913",
+      "unrelated_after_sha256": "54233640e642759667156f18d90a494a9beaeeb63b1f8036752bd6c7610e1913",
+      "catalog_sha256": "370edd967cc904ef1bdb79b511906fb8da7bb6e8c78fdc667121190aae9a58c8"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.widgets.row_exclusion",
+    "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+    "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+    "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+    "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+    "spacr.qt.widgets.row_exclusion.source_paths"
+  ],
+  "unrelated_english_records_preserved": 13472,
+  "normal_functions": [
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "runtime_collection_policy": "Light mode refuses before any full canonical collection. Heavy mode lazily freezes one real canonical_sources result only if requested, then re-collects and compares; all normal review/candidate validators unchanged.",
+  "normal_api_collector_run": false,
+  "model_decoder_requests": 0,
+  "stats": {
+    "mode": "light",
+    "runtime_canonical_requests": 0,
+    "actual_runtime_collections": 0,
+    "runtime_collection_seconds": [],
+    "model_decode_requests": 0,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "written_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ]
+  },
+  "limitations": [
+    "AI technical review; no native-speaker claim.",
+    "No Sphinx, runtime/global arrivals, native-platform or external publication claim."
+  ]
+}

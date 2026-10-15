@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review; independent source-semantic peer review requested; no native-speaker signoff",
+  "note": "One changed block in one existing symbol from documentation-only source dbc777acb4c; executable AST and comments unchanged. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.app.register_app#8",
+      "source": "optional :data:`STAGES` member. If omitted, no explicit stage entry is written. Missing entries read as stable until :func:`spacr.qt.maturity.apply` assigns alpha to unassessed apps without a declaration. Already affirmed stable apps remain stable. Omitting or deleting an entry is not a stability assessment.",
+      "context": "optional :data:`STAGES` member. If omitted, no explicit stage entry is written. Missing entries read as stable until :func:`spacr.qt.maturity.apply` assigns alpha to unassessed apps without a declaration. Already affirmed stable apps remain stable. Omitting or deleting an entry is not a stability assessment.",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "previous_same_source_indexes": [],
+      "translation": ":data:`STAGES` का वैकल्पिक सदस्य। इसे छोड़ने पर चरण की कोई स्पष्ट प्रविष्टि नहीं लिखी जाती। अनुपस्थित प्रविष्टियाँ स्थिर मानी जाती हैं, जब तक :func:`spacr.qt.maturity.apply` बिना घोषणा वाले और अब तक मूल्यांकित न किए गए ऐप को alpha नहीं सौंपता। पहले से स्थिर होने की पुष्टि वाले ऐप स्थिर बने रहते हैं। किसी प्रविष्टि को छोड़ना या मिटाना स्थिरता का मूल्यांकन नहीं है।",
+      "review_basis": "Exact-source technical translation review of registration stage semantics: omission writes no explicit stage, missing entries initially read stable, maturity.apply later assigns alpha to unassessed undeclared apps, affirmed stable apps remain stable, and omission/deletion is not assessment. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

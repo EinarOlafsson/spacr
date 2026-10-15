@@ -1,0 +1,5 @@
+{
+  "source_sha256": "9d8a9c714c461ab46171cfdd5eea3c345553c55e737813f12f67f47ec28ab37c",
+  "peer": "Root approved initial patch plus defensive callable built() refinement; no get fallback",
+  "core_scope": "Unchanged, dispatch ordering not edited"
+}

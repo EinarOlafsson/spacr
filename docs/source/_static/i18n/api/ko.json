@@ -72154,7 +72154,7 @@
         "dd31301bdc07c284eae8f725e299a96ff0ca5e7c8a0f003c812dc0a133bcb7f1",
         "cae14cefb5743bb6962c0fe8f3d848a71d484930c25046dea3be2090c8d67002",
         "a7948d1062a0abfe9cd288fb5e66d040da9e0560635618531df9f20eee28f443",
-        "48321534ca659883643fb0f2c10fd5f0a779ea53db3813940feeb79caa0db496",
+        "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
         "94633bed6ef19f94ecc8c7f134dd33260a49e4c6a91309a2f0a076fac79e7bad",
         "b21f658726f68547c19a46febcf0fc292b88394cf70ded5e56e53ebd76e1ef7d",
         "aac35525bca9e24d0f64af2c85ac7423674cdb050cc407a19c1e5536e1239039",
@@ -72166,8 +72166,8 @@
         "c41a1b40f8225e36b90fe4d28c077957984b5fa4440ad8cc6a5067d117f9ec68",
         "79a2f8fcf8af66887f74fbff41aa32e912aae726897e1fcfe083a5b9fd590651"
       ],
-      "source_sha256": "fe54c1425a484a18a7b3b97cd94f639b21117829439a358dfd3c791a3683f766",
-      "text": "등록에 하나의 앱을 추가합니다. 새 모듈 등록을 통해 시엄.\n\n앱을 소유하는 모듈에서 수입 시간을 호출합니다.::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\n``stage`` 후 키워드 논쟁은 그 논쟁을 작동 응용 프로그램으로 만드는 것입니다 : 그들은 응용 프로그램의 스트립입니다, 여기에서 한 번 주어지고, 각각 수동으로 편집해야하는 테이블에 니다 - :data:`APP_META` 참조.\n\n:param key: 안정적인 애플리케이션 ID. 충전 - ``bridge``, ``cli``,``validate``, 드래그 앤 드래프 매니저, ``settings_model`` 및 저장된 사용자가 모든 키를 제거하므로 한 번 선택하고 다시 이름을 지정하지 않습니다.\n:param name: 표시 이름; 측면 바 라인, 탭 및 메뉴 입력.\n:param desc: 단일 라인 요약; 도구 팁 및 상태 팁.\n:param section: :data:`SECTION_ORDER`의 한 부분에는 앱이 없는 섹션에는 탭이 없으므로 첫 번째 앱을 새 섹션에 등록하면 그 섹션이 나타납니다.\n:param factory: ``QWidget`` 응용 프로그램 전망을 반환하는 옵션 0-argument callable. 그것은 ``app_key`` 및/또는 ``host`` 키워드 매개 변수를 선언 할 수 있습니다 - ``host``는 :class:`MainWindow`이며, 연결 신호가있는 응용 프로그램 보기에서 - 그것은 그것이 받아들이는 두 가지 중 누구에게나 주어집니다. 그것을 놓치고 애플리케이션은 모든 작업 흐름 모듈과 마찬가지로 ``AppScreen``의 일반 설정을 얻습니다.\n:param stage: 옵션 :data:`STAGES` 회원. 무시된 의미 안정, 또한 삭제 입력 후에 의미하는 것입니다.\n:param title: 응용 프로그램의 화면의 상단에 표시된 헤더. 잊혀지면 ``name``를 사용합니다. 화면이 더 오래 글쓰기를 필요로 할 때 사용자 지정 헤더를 제공합니다 (\"Illumination Correction\" \"Illumination\" 라벨이 표시된 테이블 위). 값은 ``app_screen.APP_TITLES``에 저장됩니다.\n:param intro: 그 제목 옆의 단락 - 모듈이 한 문장 또는 두 문장에서 하는 일. ``desc``로 결함. ``app_screen.APP_INTROS``에 도달합니다.\n:param cli_note: 헤드없는 경로가없는 응용 프로그램을 위해 : 한 문장이 그렇게 말하고 대신에 무엇을해야합니까? ``cli.INTERACTIVE_ONLY``어떤 것이 무엇인가 ``spacr-run <key>`` 인쇄 대신 \"unknown module\"• 상호 독점적 인 ``entry`` 영혼에서 - 하나의 애플리케이션이 하나 또는 다른 하나입니다.\n:param api_module: 설정 옆 ⓘ 링크에 사용할, 생성된 API 문서 아래의 점 또는 슬래시 형식 모듈 경로(\"qt/layer_viewer\")입니다. ``settings_model._APP_API_MODULE``에 전달됩니다.\n:param entry: ``\"module:function\"``의 호출 가능한 실행 버튼이 실행됩니다. :func:`registered_entry`에 의해 합리적으로 해결되고 :func:`spacr.qt.bridge.resolve_pipeline_entry`에 의하여 검토; 없이는 실행버튼이 \"Not runnable\"에 응답합니다.\n:param defaults_module: 이 구조화된 데이터 이름을 위해 수입된 모듈이 :func:`spacr.settings.register_defaults`이라고 합니다. ``settings_model.resolve_default_settings``은 구조화된 데이터 이름에 기록된 오류가 있는지 묻기 전에 그것을 가져옵니다 - 그렇지 않으면 가져오는 설정을 기록하는 모듈은 다른 무언가가 가져올 때까지 설정 패널이 없으며, 앱은 빈 양식으로 열립니다. 요구에 따라 수입, 그래서 응용 프로그램 등록 비용 numpy/pandas/torch 스타트업에서.\n:param translations: ``name`` 표시된 9개의 영어가 아닌 UI 언어로, :data:`spacr.qt.i18n.LANGUAGES` 순서로. ``i18n._ROWS`` 및 그 카탈로그를 접근합니다.\n:returns: 은 줄이 붙어있어서, 호출자가 그것을 유지할 수 있습니다.\n:raises ValueError: 두 번 키, 알려지지 않은 섹션, 알려진 단계 또는 빈 이름/설명.\n:raises TypeError: ``factory``이 호출할 수 없는 경우.",
+      "source_sha256": "7968939def60679893a349be2b8fe85aead57b0ae3894d8a8d8c7a24e9348448",
+      "text": "등록에 하나의 앱을 추가합니다. 새 모듈 등록을 통해 시엄.\n\n앱을 소유하는 모듈에서 수입 시간을 호출합니다.::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\n``stage`` 후 키워드 논쟁은 그 논쟁을 작동 응용 프로그램으로 만드는 것입니다 : 그들은 응용 프로그램의 스트립입니다, 여기에서 한 번 주어지고, 각각 수동으로 편집해야하는 테이블에 니다 - :data:`APP_META` 참조.\n\n:param key: 안정적인 애플리케이션 ID. 충전 - ``bridge``, ``cli``,``validate``, 드래그 앤 드래프 매니저, ``settings_model`` 및 저장된 사용자가 모든 키를 제거하므로 한 번 선택하고 다시 이름을 지정하지 않습니다.\n:param name: 표시 이름; 측면 바 라인, 탭 및 메뉴 입력.\n:param desc: 단일 라인 요약; 도구 팁 및 상태 팁.\n:param section: :data:`SECTION_ORDER`의 한 부분에는 앱이 없는 섹션에는 탭이 없으므로 첫 번째 앱을 새 섹션에 등록하면 그 섹션이 나타납니다.\n:param factory: ``QWidget`` 응용 프로그램 전망을 반환하는 옵션 0-argument callable. 그것은 ``app_key`` 및/또는 ``host`` 키워드 매개 변수를 선언 할 수 있습니다 - ``host``는 :class:`MainWindow`이며, 연결 신호가있는 응용 프로그램 보기에서 - 그것은 그것이 받아들이는 두 가지 중 누구에게나 주어집니다. 그것을 놓치고 애플리케이션은 모든 작업 흐름 모듈과 마찬가지로 ``AppScreen``의 일반 설정을 얻습니다.\n:param stage: 선택적인 :data:`STAGES` 멤버입니다. 생략하면 명시적인 단계 항목을 기록하지 않습니다. 누락된 항목은 :func:`spacr.qt.maturity.apply` 함수가 선언이 없는 미평가 앱에 alpha를 지정할 때까지 안정 상태로 읽힙니다. 이미 안정 상태로 확인된 앱은 안정 상태를 유지합니다. 항목을 생략하거나 삭제하는 것은 안정성 평가가 아닙니다.\n:param title: 응용 프로그램의 화면의 상단에 표시된 헤더. 잊혀지면 ``name``를 사용합니다. 화면이 더 오래 글쓰기를 필요로 할 때 사용자 지정 헤더를 제공합니다 (\"Illumination Correction\" \"Illumination\" 라벨이 표시된 테이블 위). 값은 ``app_screen.APP_TITLES``에 저장됩니다.\n:param intro: 그 제목 옆의 단락 - 모듈이 한 문장 또는 두 문장에서 하는 일. ``desc``로 결함. ``app_screen.APP_INTROS``에 도달합니다.\n:param cli_note: 헤드없는 경로가없는 응용 프로그램을 위해 : 한 문장이 그렇게 말하고 대신에 무엇을해야합니까? ``cli.INTERACTIVE_ONLY``어떤 것이 무엇인가 ``spacr-run <key>`` 인쇄 대신 \"unknown module\"• 상호 독점적 인 ``entry`` 영혼에서 - 하나의 애플리케이션이 하나 또는 다른 하나입니다.\n:param api_module: 설정 옆 ⓘ 링크에 사용할, 생성된 API 문서 아래의 점 또는 슬래시 형식 모듈 경로(\"qt/layer_viewer\")입니다. ``settings_model._APP_API_MODULE``에 전달됩니다.\n:param entry: ``\"module:function\"``의 호출 가능한 실행 버튼이 실행됩니다. :func:`registered_entry`에 의해 합리적으로 해결되고 :func:`spacr.qt.bridge.resolve_pipeline_entry`에 의하여 검토; 없이는 실행버튼이 \"Not runnable\"에 응답합니다.\n:param defaults_module: 이 구조화된 데이터 이름을 위해 수입된 모듈이 :func:`spacr.settings.register_defaults`이라고 합니다. ``settings_model.resolve_default_settings``은 구조화된 데이터 이름에 기록된 오류가 있는지 묻기 전에 그것을 가져옵니다 - 그렇지 않으면 가져오는 설정을 기록하는 모듈은 다른 무언가가 가져올 때까지 설정 패널이 없으며, 앱은 빈 양식으로 열립니다. 요구에 따라 수입, 그래서 응용 프로그램 등록 비용 numpy/pandas/torch 스타트업에서.\n:param translations: ``name`` 표시된 9개의 영어가 아닌 UI 언어로, :data:`spacr.qt.i18n.LANGUAGES` 순서로. ``i18n._ROWS`` 및 그 카탈로그를 접근합니다.\n:returns: 은 줄이 붙어있어서, 호출자가 그것을 유지할 수 있습니다.\n:raises ValueError: 두 번 키, 알려지지 않은 섹션, 알려진 단계 또는 빈 이름/설명.\n:raises TypeError: ``factory``이 호출할 수 없는 경우.",
       "translation_source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
         "71563e1df62a7ff352e266fec507ce257570d9d4d138594deb2d9acbb0a196e3",
@@ -72177,7 +72177,7 @@
         "dd31301bdc07c284eae8f725e299a96ff0ca5e7c8a0f003c812dc0a133bcb7f1",
         "cae14cefb5743bb6962c0fe8f3d848a71d484930c25046dea3be2090c8d67002",
         "5e5601e8f3db2e1bf9d62201c8bd234b3cda1b52a3095351f5909f59f177f32f",
-        "48321534ca659883643fb0f2c10fd5f0a779ea53db3813940feeb79caa0db496",
+        "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
         "5db6538eaf248fe63398c1ed7921db1d0c6871cd654bb37547e96d4b6d50a270",
         "b21f658726f68547c19a46febcf0fc292b88394cf70ded5e56e53ebd76e1ef7d",
         "aac35525bca9e24d0f64af2c85ac7423674cdb050cc407a19c1e5536e1239039",
@@ -101396,6 +101396,26 @@
         "0be5de8c5d7c6e5d352f07b3a727c2f9614e68469165a910905ca1af71550d25"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done": {
+      "source_blocks_sha256": [
+        "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b"
+      ],
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "text": "이 화면의 현재 실행에 속하는 완료 결과만 수락합니다.",
+      "translation_source_blocks_sha256": [
+        "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress": {
+      "source_blocks_sha256": [
+        "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b"
+      ],
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "text": "작업 스레드에서 위젯을 건드리지 않고 백엔드 보고를 전달합니다.",
+      "translation_source_blocks_sha256": [
+        "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
       "source_blocks_sha256": [
         "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"
@@ -126616,18 +126636,20 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": {
       "source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "d09a2eabf33060e5d34076f3faa2411e1627391fc74987a1fa7c4d3708f65756",
-        "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ],
-      "source_sha256": "715c194898c02d1a2ee9d47e6be34494ad9bba7ba34437d07b05d25c30092de2",
-      "text": "설치 설정을 다시 넣으십시오.그것을 재건하지 않습니다.\n\n무언가가 적용되었는지 여부를 반환합니다.\n\n설치가 재건되지 않습니다. 추출 된 이미지 영역을 충전하는 것은 느린 절반입니다 - 처리 세션의 첫 번째 설치는 디스크에서 이미지를 몇 초 동안 읽습니다. - 복구를 시작하면 방금 열려있는 창을 냉동 할 것입니다.\n\n:param state: 작업 공간과 함께 저장된 매핑입니다. ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` 항목은 각각 있으면 적용되며, 사전이 아니면 아무것도 적용되지 않습니다.",
+      "source_sha256": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de",
+      "text": "이미지를 계산하지 않고 몽타주 및 비교 컨트롤을 복원합니다.\n\n인식된 상태는 대기 중인 몽타주 로드와 큐에 있는 계수 로드를 취소합니다. 설정을 복원하는 동안 컨트롤 신호를 차단하므로 기존 몽타주는 자동으로 다시 로드되거나 그려지지 않습니다. 잘라낸 이미지 영역의 선택 사항은 다음 명시적인 구성 요청에 적용되며, 기존 웰 탭은 각자의 캡션과 이미지를 유지합니다.\n\n비교 컨트롤 설정은 새로 고침 없이 기존 패널에 전달됩니다. 패널이 없으면 명시적인 몽타주 구성이나 비교 동작으로 패널을 만들 때까지 일반 데이터로 유지됩니다. 복원할 때 비교 패널을 만들거나 측정 조인을 시작하거나 그래프를 계산하지 않습니다.\n\n:param state: 저장된 매핑이며 인식되는 항목은 ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient``, ``comparison`` 입니다. 딕셔너리가 아닌 값은 아무것도 적용하지 않습니다.\n:returns: 인식된 상태를 적용했는지 또는 나중을 위해 보관했는지 여부입니다.",
       "translation_source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "49244b6eff32a88ed1b2416caf7c7ce138d3e6e9c39da782aab0342dc09ef557",
-        "0ec435962d676e57022aa935ec1c21ab24a28e549511778294e7c78f03f3527a"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "a6bb4a08c5db8a5758ce938acc2aba122357525613b8d4d2027fc36f3ce53818",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "65a9115855716795665b0dec811a15cc9d9e178b153a3a8819c8024129b8b18b",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
@@ -127084,16 +127106,16 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": {
       "source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "6ad18ddc1bd8de9c2a6f32c4ad7b9c62fa226b7fd1441e13a2c0ea12476ef997",
-        "4bb274b436dc6d049141d30590c02c2c22da203b326508a285f0f65881ac71bf"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ],
-      "source_sha256": "58037117eea4f795e35862f031a042e398fb810bf926dc8b890631c1d3fea0e4",
-      "text": "세션의 설치는 데이터로 열렸습니다.\n\n설정과 선택이 저장되고, 픽셀이 아닙니다.모팅은 처리 세션 자체의 이미지가 정확하게 재생되는 추출 된 이미지 영역의 수십 메가바이트입니다; 재생할 수없는 것은 응용 프로그램 전망에 어떤 비율이 있었는지, 세포가 어떻게 선택되었는지 및 그들이 어떻게 끌려 갔는지입니다.\n\n선택된 그룹은 기록으로 저장되며 입력이 아닙니다 - `picked_groups()`은 피커가 이러한 설정에 따라 선택한 것이며, 설정을 복원하면 재현됩니다. 그들은 저장되어 저장된 실행의 독자가 결과를 다시 실행하지 않고 어떤 셀에서 휴식을 취할 수 있는지 볼 수 있습니다.",
+      "source_sha256": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+      "text": "몽타주 선택 사항과 저장된 비교 컨트롤 설정을 데이터로 반환합니다.\n\n설정과 선택한 계수를 저장하며 잘라낸 이미지 영역의 픽셀은 저장하지 않습니다. 선택된 그룹은 현재 몽타주가 어떤 세포를 선택했는지 기록할 뿐 선택기의 입력으로 재생되지 않습니다. 다시 구성할 때는 현재 실행의 파일, 설정 및 선택기 구현을 사용합니다.\n\n비교 패널이 이미 있으면 해당 컨트롤 설정을 가져옵니다. 그렇지 않으면 패널이 만들어지기 전에 복원된 비교 상태를 일반 데이터로 보관합니다. 상태를 수집해도 패널을 생성하거나 비교를 계산하지 않습니다.",
       "translation_source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "b48004093a287cb4e763d6aef1ef530d750f947326693b2886d13ccf330f4080",
-        "db8968002955679854da04668a6415e1322c1e5ed146aa64f73158eed95ae7dd"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "b5faee2627a6dafa458019f1ef221faac0df8f355ea4d3e734932c4579209c16",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.write_scores_into_the_databases": {
@@ -157880,6 +157902,22 @@
         "9fb8480b0e0d137987fc23bd4d2d561e8621bc869f45c513646870ba840474e3"
       ]
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+        "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ],
+      "source_sha256": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+      "text": "그래프를 계산하거나 그리지 않고 비교 컨트롤을 복원합니다.\n\n인식된 항목 중 자료형이 올바른 항목을 독립적으로 적용합니다. 알 수 없는 고정 선택 사항은 무시하며, 아직 제공되지 않은 측정 항목 및 클래스 식별자는 일반적인 새로 고침이나 데이터 갱신까지 대기 상태로 유지됩니다. 선택한 가이드와 웰 식별자는 파일을 읽지 않고 보존합니다. 이 패널이 소유한 활성 조인 작업은 취소되어 늦게 도착한 결과가 복원된 상태를 대체하지 못하게 합니다. 새 조인, 파일 읽기 또는 추론을 시작하지 않습니다. 캐시된 비교 결과와 그림은 다음 새로 고침까지 변경되지 않습니다.\n\n:param state: :meth:`workspace_state` 메서드가 반환한 매핑이며, 딕셔너리가 아닌 값과 사용 가능한 항목이 없는 매핑은 패널을 변경하지 않습니다.\n:returns: 사용 가능한 항목을 하나 이상 적용했으면 이미 선택된 값이어도 ``True`` 이고, 그렇지 않으면 ``False`` 입니다.",
+      "translation_source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "b89286a3fc14b7146db4e4270a2ec0be26e101c839c6cbdf49ebfd826c63b3f3",
+        "95be6ed5f1388e6b6a40b98af0e0073dc163e0c03ddb293ee94d9873ca4d07bc",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ]
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.cancel_the_join": {
       "source_blocks_sha256": [
         "cf9f10aceb8044cae462c47596405599c2dde1ac3fd27942dbe7c048df82db1a",
@@ -158084,6 +158122,18 @@
         "68440708b0176e3d3063c76675d3ef778f403d7f08413368eda149b6feed8aed",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "4668fd61aa02d91b6f540e72570177108878feb58dea42c66fd4eebf5a7cf2bf"
+      ]
+    },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": {
+      "source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9"
+      ],
+      "source_sha256": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+      "text": "데이터를 수집하지 않고 JSON 호환 비교 선택 사항을 반환합니다.\n\n콤보 상자의 값은 번역된 레이블이 아닌 안정적인 식별자입니다. 대기 중인 측정 항목과 클래스 선택은 이후 새로 고침에서 해당 선택을 제공할 수 있을 때까지 저장됩니다. 웰 선택의 ``None`` 값은 각각 모든 주석된 웰 또는 가이드에서 도출한 범위의 웰을 뜻하며, 빈 리스트는 아무것도 선택하지 않습니다. 데이터 테이블, 그림, 데이터베이스 경로 및 실행 중인 작업은 포함되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "393ee9ba01f4ce62b031924e55a9211f7a577ab4a807b6c5bdabed626b7b67c4"
       ]
     },
     "spacr.qt.widgets.measurement_scan_panel": {
@@ -171381,19 +171431,19 @@
         "dee68aea6a999302631ad6b8faa7e53095f9af5a8abacc2f052997e2e10e4fea",
         "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "ae9f0d0b6c52cf8d6913acd7d66d55c5924a0e7e700988e90a21c490b2e668a5",
+        "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ],
-      "source_sha256": "4980a914264421b7abdf0aa255a417749b71f9bd0d320808564b2eeca5455749",
-      "text": "UMAP 입력 데이터에서 라인을 제외하는 열/값 편집기.\n\n이 위젯이 제공하는 모든 것은 사용자가 측정 데이터베이스에서 나와 있으며, 두 개의 읽기는 주요 GUI 실행 경로에서 발생하는 데 사용됩니다 :\n\n* ``discover_columns``은 각 데이터베이스에서 ``src`` 설정이 해결되고 테이블 당 ``sqlite_master`` 플러스 ``PRAGMA table_info``를 실행합니다. ``SettingsWidgets._refresh_contextual_widgets``에서 드라이브되므로 ``src`` 또는 ``tables`` 설정할 때마다 실행됩니다.\n* ``distinct_values`` 실행 1 ``SELECT DISTINCT … LIMIT 501`` 에 대 한 ``(database, table)`` 쌍 선택된 열이 나타납니다 - 그리고 사용자가 실제로 열을 제외합니다 (``plateID``, ``columnID``, ``rowID``) 테이블 전체에 걸쳐 몇 가지 별도의 값을 가지고 있으므로 제한은 결코 달성되지 않습니다. SQLite 각 라인을 스캔합니다. 200,000 로에 측정 × 8 테이블 measurements.db 따뜻한 페이지 캐시: **컬러 당 196 ms**, 그리고 열 combo 편집 가능, 그래서 ``currentTextChanged`` 각 키스트로크에 화재. 8 빠른 편집이 창을 냉동합니다. **894 메이저** 끊임없는 블록에 앉아있다. ``set_source`` 자체 비용은 183 ms 및 단일 의도적 인 열 선택 220 ms. 노동자 실행으로 동일한 세 개는 29 ms, 5 ms 및 2 ms입니다.\n\n그래서 둘 다 편집자가 소유 한 :class:`~spacr.qt.job_runner.JobRunner`를 통과하고, 가치 리더는 추가로 데뷔됩니다.\n\n* ``_value_cache`` 그리고 ``_column_sources`` 그들은 주요 GUI 실행 경로 상태.노동자는 명확한 데이터를 반환하고 완료 매니저는 - Qt 사형제도에 대하여 주요 GUI 실행 경로 - 그것을 쓰는 유일한 것입니다.\n* 스케줄 발견 및 가치 읽기 **분리** 실행자를 얻습니다. :meth:`JobRunner.cancel`는 세대에 따라 작동하므로 한 실행자는 가치 읽기를 잃지 않고도 가치 읽기가 의존하는 스케줄 읽기를 잃지 않습니다.\n* 데보운스 타이머는 키스트로크를 녹이고 :meth:`JobRunner.cancel`는 이전 키스트로크가 시작되었을 때 무엇이든 떨어지므로 마지막 편집은 가장 느린 읽기보다는 승리합니다.",
+      "source_sha256": "12beaaf3559ea4f5022a57a1affcbcec527169a4bedfa6aef986ac5d326c24cd",
+      "text": "UMAP 입력 데이터에서 라인을 제외하는 열/값 편집기.\n\n이 위젯이 제공하는 모든 것은 사용자가 측정 데이터베이스에서 나와 있으며, 두 개의 읽기는 주요 GUI 실행 경로에서 발생하는 데 사용됩니다 :\n\n* ``discover_columns``은 각 데이터베이스에서 ``src`` 설정이 해결되고 테이블 당 ``sqlite_master`` 플러스 ``PRAGMA table_info``를 실행합니다. ``SettingsWidgets._refresh_contextual_widgets``에서 드라이브되므로 ``src`` 또는 ``tables`` 설정할 때마다 실행됩니다.\n* ``distinct_values`` 실행 1 ``SELECT DISTINCT … LIMIT 501`` 에 대 한 ``(database, table)`` 쌍 선택된 열이 나타납니다 - 그리고 사용자가 실제로 열을 제외합니다 (``plateID``, ``columnID``, ``rowID``) 테이블 전체에 걸쳐 몇 가지 별도의 값을 가지고 있으므로 제한은 결코 달성되지 않습니다. SQLite 각 라인을 스캔합니다. 200,000 로에 측정 × 8 테이블 measurements.db 따뜻한 페이지 캐시: **컬러 당 196 ms**, 그리고 열 combo 편집 가능, 그래서 ``currentTextChanged`` 각 키스트로크에 화재. 8 빠른 편집이 창을 냉동합니다. **894 메이저** 끊임없는 블록에 앉아있다. ``set_source`` 자체 비용은 183 ms 및 단일 의도적 인 열 선택 220 ms. 노동자 실행으로 동일한 세 개는 29 ms, 5 ms 및 2 ms입니다.\n\n그래서 둘 다 편집자가 소유 한 :class:`~spacr.qt.job_runner.JobRunner`를 통과하고, 가치 리더는 추가로 데뷔됩니다.\n\n* ``_value_cache`` 와 ``_column_sources`` 는 GUI 스레드의 상태입니다. 작업 스레드는 일반 데이터를 반환하고 GUI 스레드의 완료 처리기가 이를 반영합니다. 원본이 바뀌면 새 스키마가 도착하기 전에 값 캐시가 지워집니다.\n* 스케줄 발견 및 가치 읽기 **분리** 실행자를 얻습니다. :meth:`JobRunner.cancel`는 세대에 따라 작동하므로 한 실행자는 가치 읽기를 잃지 않고도 가치 읽기가 의존하는 스케줄 읽기를 잃지 않습니다.\n* 데보운스 타이머는 키스트로크를 녹이고 :meth:`JobRunner.cancel`는 이전 키스트로크가 시작되었을 때 무엇이든 떨어지므로 마지막 편집은 가장 느린 읽기보다는 승리합니다.",
       "translation_source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
         "f20a7e164d54c4fe0872f0e3fd851d866e117c07d9a1883ec8bad71c17cd3400",
         "e4f4a33d45d70556d4054850c1ffebf1e1239cec7c5a4391d84702355556e524",
         "58baf3424081f737a92b95dc8720982b50327eabed01fa70cae86af863e14953",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "d5c5fcc9e087cdf926fe46a19b46736262140d7bd3c04fd504fe75ccce9b1432",
+        "94887b98ac3a003e152cc0ab859fbdbc4f74d5ed5dc03d45d25a4d89e95f7fa9",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ]
@@ -171405,7 +171455,7 @@
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171413,15 +171463,15 @@
         "18cd0699afc14d577b431789ed60bd0bc69fb62e88adc61c17ef29bcfe884d26",
         "570b81780e0fcdf2a8eb49aaebfa81cb75adbc38ca9c60173525ca6ea4b6f529"
       ],
-      "source_sha256": "133cbed42dbdf3da07e43c60179b1c70b5c11a3884647d535aff5012d89b1296",
-      "text": "열과 값을 선택함으로써 UMAP 순서 제외 사항 하나 이상을 추가합니다.\n\n데이터베이스는 배경 실행 단위에서 실행되는 두 개의 dropdowns 뒤에서 읽습니다; 측정 된 이유로 모듈을 docstring하는 것을 참조하십시오. widget의 공공 계약에 대해 아무것도 변경되지 않았습니다 - :meth:`set_source`는 여전히 출처를 취하고 반환, 그것은 더 이상 sqlite를 기다리지 않습니다.\n\n:param value: 초기 규칙은 :func:`spacr.row_exclusions.normalize_row_exclusions`의 어떤 형태로든 받아 들여집니다.\n:param parent: Qt 부모의 경우\n:param threaded: ``False``는 동일한 순서로, 같은 신호를 발행하는 두 개의 읽기를 실행합니다 - 즉시 :meth:`set_source` 반환이 요청할 수있는 값을 가질 필요가있는 호출자. 키워드만, 그리고 기본으로, 배송 된 호출 사이트 (``SettingsWidgets._widget_for``)는 ``value``와 ``parent``를 통과하고 다른 아무것도 없습니다.\n:param debounce_ms: 열 편집이 읽기 전에 얼마나 오래 기다리나요. ``0``는 다음 이벤트 롤 롤에서 읽을 수 있습니다.\n라인 배제 편집기를 만드십시오.\n\n두 개의 달리기, 하나가 아닙니다: ``cancel``는 달리기가 비행 중에있는 모든 것을 포기하고, 키스트로크의 가치 읽기를 뛰어 넘는 것은 또한 어떤 데이터베이스에서 열이 심지어 살고 있다고 말하는 스케줄 읽기를 포기해서는 안됩니다.\n\n:param value: 빼앗기기 시작하는 것.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.\n:param threaded: ``False``을 테스트에 설정하여 읽기가 돌아오기 전에 끝납니다.\n:param debounce_ms: 값 읽기 전에 얼마나 오랫동안 인쇄를 설정하는지.",
+      "source_sha256": "1551325b7b603a67afa8cb725be736dc56d2dac2594e61a7a282a8e1501e55c9",
+      "text": "열과 값을 선택함으로써 UMAP 순서 제외 사항 하나 이상을 추가합니다.\n\n데이터베이스는 배경 실행 단위에서 실행되는 두 개의 dropdowns 뒤에서 읽습니다; 측정 된 이유로 모듈을 docstring하는 것을 참조하십시오. widget의 공공 계약에 대해 아무것도 변경되지 않았습니다 - :meth:`set_source`는 여전히 출처를 취하고 반환, 그것은 더 이상 sqlite를 기다리지 않습니다.\n\n:param value: 초기 규칙은 :func:`spacr.row_exclusions.normalize_row_exclusions`의 어떤 형태로든 받아 들여집니다.\n:param parent: Qt 부모의 경우\n:param threaded: ``False``는 동일한 순서로, 같은 신호를 발행하는 두 개의 읽기를 실행합니다 - 즉시 :meth:`set_source` 반환이 요청할 수있는 값을 가질 필요가있는 호출자. 키워드만, 그리고 기본으로, 배송 된 호출 사이트 (``SettingsWidgets._widget_for``)는 ``value``와 ``parent``를 통과하고 다른 아무것도 없습니다.\n:param debounce_ms: 열 편집 후 읽기까지 기다리는 시간입니다. ``0`` 값은 이후 이벤트 루프 차례에 읽기를 예약하며, 타이머가 실행되기 전의 편집은 여전히 합쳐질 수 있습니다.\n라인 배제 편집기를 만드십시오.\n\n두 개의 달리기, 하나가 아닙니다: ``cancel``는 달리기가 비행 중에있는 모든 것을 포기하고, 키스트로크의 가치 읽기를 뛰어 넘는 것은 또한 어떤 데이터베이스에서 열이 심지어 살고 있다고 말하는 스케줄 읽기를 포기해서는 안됩니다.\n\n:param value: 빼앗기기 시작하는 것.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.\n:param threaded: ``False``을 테스트에 설정하여 읽기가 돌아오기 전에 끝납니다.\n:param debounce_ms: 값 읽기 전에 얼마나 오랫동안 인쇄를 설정하는지.",
       "translation_source_blocks_sha256": [
         "d5bfd69cae64697afee305b98d0ce85e11dd454bdd6566f6db248d2b543ed760",
         "cbfe8822e354a2b4ace7e99025c2ed6210110597e145cb27a80c26bc96a36a1f",
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171442,18 +171492,18 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent": {
       "source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "62152c11aa07004be9f8d65639f44b9b1fddb980f3999ed34ce73e2f6e26c25f",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ],
-      "source_sha256": "7d62184d9caf47e150cd529672547c0c3e2afeb7b3a604750e5a20aa4973eed8",
-      "text": "중간 읽기 닫는 것은 뒤에 끈을 남기지 않아야합니다.\n\nQt 낙태를 시행할 때의 절차 QThread 그것은 파괴되고, 그것의 출구에있는 위젯에 배달하는 노동자는 사용 후 무료입니다. ``JobRunner.shutdown`` 둘 다 처리합니다.\n\n의도적으로 방어의 유일한 라인이 아니기 때문에 그것은 항상 달성되지 않습니다 : 이 편집자는 설정 패널 내부에있는 아이이며, 그 패널에서 멀리 탐색하면 가까운 이벤트없이 파괴됩니다. QThreads 그들은 퇴직하고 자기 자신을 떠나고, ``JobRunner._relay`` 캡처 The ``RuntimeError`` PySide6 노동자가 실행자의 C++ 절반이 사라졌을 때 일어난다.\n\n:param event: 닫기 이벤트입니다. 작업자가 종료된 뒤 변경 없이 기본 클래스로 전달됩니다.",
+      "source_sha256": "4156e48885a50bacfcaec9ec3c4cd1e896b5cb262a1e11f86dea008cde33c441",
+      "text": "읽기 도중 닫을 때 결과 전달을 취소하고 두 작업 실행기의 종료 처리를 수행합니다.\n\nQt 낙태를 시행할 때의 절차 QThread 그것은 파괴되고, 그것의 출구에있는 위젯에 배달하는 노동자는 사용 후 무료입니다. ``JobRunner.shutdown`` 둘 다 처리합니다.\n\n의도적으로 방어의 유일한 라인이 아니기 때문에 그것은 항상 달성되지 않습니다 : 이 편집자는 설정 패널 내부에있는 아이이며, 그 패널에서 멀리 탐색하면 가까운 이벤트없이 파괴됩니다. QThreads 그들은 퇴직하고 자기 자신을 떠나고, ``JobRunner._relay`` 캡처 The ``RuntimeError`` PySide6 노동자가 실행자의 C++ 절반이 사라졌을 때 일어난다.\n\n:param event: 닫기 이벤트이며, 두 작업 실행기가 제한된 대기 시간으로 종료를 시도한 뒤 변경 없이 기본 클래스에 전달됩니다.",
       "translation_source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "e11be8a906c9d4f938ebaad21b17c9ea8eaa51139cd25aaf1254d9152d5e698e",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ]
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value": {
@@ -171481,15 +171531,15 @@
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source": {
       "source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
         "87d80f5603b7c2266e0ff92fcd40f3855c868b26ea33552f3c6694aa292391af",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ],
-      "source_sha256": "b65063fcbea16743b3b9a7eabb761809733ef80daa3725d3c1d5ac04f85a3fad",
-      "text": "잃어버린 측정 DB에서 셀 / 값 선택을 인구.\n\n스케줄 읽기가 전송되면 반환됩니다. 던드폰은 노동자가 전달할 때까지 그들이 보여주는 것을 유지합니다. - 반 두 번째 스틸의 목록은 얼어붙은 창을 때리고 첫 번째 호출에서 그들은 아무것도 보여주지 않습니다.\n\n:param source: :func:`source_paths` 가 받는 모든 것입니다: 처리 세션 폴더, 그 ``measurements`` 폴더, ``.db`` 파일, 또는 이들의 목록.\n:param tables: 열을 이 테이블 이름들로 제한합니다. ``None`` 이면 모든 테이블을 읽습니다.",
+      "source_sha256": "0eda86201147005dbc8b9efbfa460800369b037a9b0755d01bca0e2bc6fe10d7",
+      "text": "잃어버린 측정 DB에서 셀 / 값 선택을 인구.\n\n기본 스레드 모드에서는 스키마 읽기를 요청한 뒤 반환합니다. 읽기가 실행되는 동안 기존 열 선택과 선택 표시된 값은 계속 보이며, 처음 원본을 설정하기 전에 복원한 규칙도 포함됩니다. ``threaded=False`` 설정에서는 호출 안에서 읽기를 직접 실행합니다.\n\n:param source: :func:`source_paths` 가 받는 모든 것입니다: 처리 세션 폴더, 그 ``measurements`` 폴더, ``.db`` 파일, 또는 이들의 목록.\n:param tables: 열을 이 테이블 이름들로 제한합니다. ``None`` 이면 모든 테이블을 읽습니다.",
       "translation_source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "2c2389dc635d24005b894466e5f9b93749a91db69b1877bedd353ba424d9dc39",
         "38cc33db135f23dae1172f244d27fc1d037f242d5d0e1665218db07cfa3554f8",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ]
@@ -171508,14 +171558,14 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown": {
       "source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "01ebdf8f200e32e2f5d672b4957d27c9b784b66887d7674bd9db3995a8a96aa9"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0"
       ],
-      "source_sha256": "366af60fc4c5bda86796e6c2cf9ccf5df7d642578bed0483f88f6b579ef6dbdf",
-      "text": "읽기를 멈추고 노동자가 위젯을 과생시킬 수 없게 해주십시오.\n\n더 큰 응용 프로그램 보기 내에서이 편집기를 소유 한 호스트가 직접 호출 할 수 있기 때문에 - Qt 창에 가까운 이벤트를 제공하고, 안에있는 모든 위젯이 아닙니다, 그래서 읽기를 원하는 응용 프로그램 전망은 사용자가 멀리 탐색하는 순간에 중지되어야합니다.",
+      "source_sha256": "6be5e6528b02b0cc4f9a9a236698ba6a32bdb9e469d49c5f4dc8987b87021eb4",
+      "text": "대기 중인 결과를 버리고 제한된 대기 시간으로 두 작업 실행기의 종료 처리를 수행합니다.\n\n더 큰 화면 안에서 이 편집기를 소유하는 호스트가 직접 호출할 수 있도록 공개됩니다. Qt 닫기 이벤트는 창에 전달되며 창 안의 모든 위젯에 전달되지는 않으므로, 사용자가 다른 화면으로 이동할 때 대기 중인 결과를 버리려는 화면은 이를 호출해야 합니다. 느린 데이터베이스 읽기는 별도로 관리되는 작업 스레드에서 계속될 수 있지만 이 편집기에 결과를 전달하지 않습니다. 여러 번 호출해도 효과는 같습니다.",
       "translation_source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "20f9228f1e42c43f14ce22b52d841cc7c965a1b42969acd637cdcbac1c5aae80"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "e45b981b1e3cd2793410106a7878e40c8e91faeb18ca53973899f8ec626e00d2"
       ]
     },
     "spacr.qt.widgets.row_exclusion.discover_columns": {
@@ -171556,14 +171606,14 @@
     },
     "spacr.qt.widgets.row_exclusion.source_paths": {
       "source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "2ed4efbe0590e3c33e8093da33f2d99b04ef6c5c5be3d9a08fb922cccfeaf3c4",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ],
-      "source_sha256": "a8f09b0eebe8d43b292acd8916590683b30a0ce957374ba172caa0155f302a8e",
-      "text": "``measurements.db`` 파일 ``source`` 해결을 반환합니다.\n\n경로, 경로 목록 또는 목록의 리프를 수락합니다 (이 설정 텍스트 필드가 멀티 폴더 떨어진 후에 유지하는 것이 무엇입니까), 그리고 처리 세션 패널, ``measurements`` 하위 패널 또는 데이터베이스 자체를 용납합니다. 존재하지 않는 경로는 보고하는 것보다 떨어집니다 : 이것은 떨어지는 것을 공급하고, 반형 ``src``은 오류가 아닙니다.\n\n:param source: 경로, 경로의 목록이나 튜플, 또는 그런 목록의 텍스트입니다. 빈 항목은 건너뛰고 ``~`` 는 확장됩니다.",
+      "source_sha256": "b85b5688c6bda7c11df18c5408c7923744ce688a264c8bedeec58a4a06785e32",
+      "text": "``source`` 값으로 확인되는 기존 데이터베이스 파일 경로를 반환합니다.\n\n경로, 경로 목록 또는 목록의 리프를 수락합니다 (이 설정 텍스트 필드가 멀티 폴더 떨어진 후에 유지하는 것이 무엇입니까), 그리고 처리 세션 패널, ``measurements`` 하위 패널 또는 데이터베이스 자체를 용납합니다. 존재하지 않는 경로는 보고하는 것보다 떨어집니다 : 이것은 떨어지는 것을 공급하고, 반형 ``src``은 오류가 아닙니다.\n\n:param source: 경로, 경로의 목록이나 튜플, 또는 그런 목록의 텍스트입니다. 빈 항목은 건너뛰고 ``~`` 는 확장됩니다.",
       "translation_source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ]
