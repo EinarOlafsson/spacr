@@ -1,0 +1,41 @@
+--- a/spacr/qt/widgets/figure_grid_view.py
++++ b/spacr/qt/widgets/figure_grid_view.py
+@@ -322,6 +322,8 @@
+         self.letter = letter
+         self.live_key = live_key
+         self._pixmap = pixmap
++        self.setFocusPolicy(Qt.StrongFocus)
++        self.setAccessibleName(str(title or letter.upper() or live_key or index + 1))
+         #: The last width :meth:`fit_to` was given, so the cell can be drawn
+         #: again at a new pixel density without the grid re-measuring.
+         self._fit_width = 0
+@@ -336,7 +338,9 @@
+         layout.setSpacing(2)
+ 
+         self.setAutoFillBackground(False)
+-        self.setStyleSheet("_FigureCell { background: transparent; }")
++        self.setStyleSheet(
++            "_FigureCell { background: transparent; }"
++            "_FigureCell:focus { border: 2px solid palette(highlight); }")
+         self.setAttribute(Qt.WA_TranslucentBackground, True)
+ 
+         from ..theme import font_px
+@@ -399,6 +403,18 @@
+         place on every cell but the first.
+         """
+         self.menu_requested.emit(self.index, self.mapToGlobal(point))
++
++    def keyPressEvent(self, event):
++        """Open the focused tile with an unmodified activation key.
++
++        :param event: key event delivered to the figure tile.
++        """
++        if (self.hasFocus() and event.modifiers() == Qt.NoModifier
++                and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)):
++            self.clicked.emit(self.index)
++            event.accept()
++            return
++        super().keyPressEvent(event)
+ 
+     def mousePressEvent(self, event):  # noqa: N802 - Qt naming
+         """Open the figure on a left click; leave a right click to the menu.

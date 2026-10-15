@@ -4129,6 +4129,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "embeddings.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
+    paths.add(ROOT / "spacr" / "attribution.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
     source_root = ROOT / "spacr"
@@ -4146,6 +4147,14 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name == "_ensure_catalogue_model_file"]
+        if path == source_root / "attribution.py":
+            diagnostic_owners = {
+                "_cf_preserved_channels", "_cf_preserve_reference_channels",
+                "_counterfactual_sequences", "_counterfactual_report",
+            }
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in diagnostic_owners]
         is_preferences = path == preferences_path
         filename = path.name
         helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")

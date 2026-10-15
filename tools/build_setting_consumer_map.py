@@ -18,8 +18,10 @@ diff rather than a rerun.
 from __future__ import annotations
 
 import ast
+import importlib.util
 import json
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -574,6 +576,16 @@ def _is_settings_mapping(node, aliases=frozenset()) -> bool:
     return False
 
 
+@lru_cache(maxsize=1)
+def _flow_helpers():
+    """Share conservative literal-key binding with the settings-flow analyser."""
+    path = Path(__file__).with_name('settings_flow.py')
+    spec = importlib.util.spec_from_file_location('_consumer_flow_helpers', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 class Reads(ast.NodeVisitor):
     """Collect setting reads with the qualified function that encloses them."""
 
@@ -598,6 +610,8 @@ class Reads(ast.NodeVisitor):
         self.constants: dict = {}
         #: ``local name -> the setting names it can hold`` in this scope.
         self.keyed: dict = {}
+        self.key_helpers: dict = {}
+        self.shadowed: frozenset = frozenset()
 
     def visit_Module(self, node):             # noqa: N802 - ast naming
         """Fold this module's name tables before walking its functions."""
@@ -605,6 +619,7 @@ class Reads(ast.NodeVisitor):
         self.constants = _module_constants(node)
         self.keyed = {name: {value}
                       for name, value in self.constants.items()}
+        self.key_helpers = _flow_helpers()._literal_key_helpers({self.module: node})
         self.generic_visit(node)
 
     def _scoped(self, node, name, kind):
@@ -617,6 +632,11 @@ class Reads(ast.NodeVisitor):
         # through the copy counts as a read. Collected before descending,
         # because the copy is usually made on the first line and read after.
         before = self.aliases
+        was_shadowed = self.shadowed
+        parameters = {arg.arg for arg in node.args.posonlyargs + node.args.args
+                      + node.args.kwonlyargs}
+        self.shadowed = frozenset(set(was_shadowed) | parameters
+            | _flow_helpers()._bound_names(_flow_helpers()._scope_nodes(node)))
         found = set(before)
         for child in ast.walk(node):
             if isinstance(child, ast.Assign) and self._binds_settings(
@@ -660,6 +680,7 @@ class Reads(ast.NodeVisitor):
         finally:
             self.aliases = before
             self.keyed = was_keyed
+            self.shadowed = was_shadowed
 
     visit_AsyncFunctionDef = visit_FunctionDef
 
@@ -768,6 +789,12 @@ class Reads(ast.NodeVisitor):
 
     def visit_Call(self, node):               # noqa: N802 - ast naming
         f = node.func
+        if isinstance(f, ast.Name) and f.id not in self.shadowed:
+            helper = self.key_helpers.get(f'{self.module}.{f.id}')
+            if helper is not None:
+                for key in sorted(_flow_helpers()._helper_keys(
+                        node, helper, self.aliases, self.keys)):
+                    self._record(key, node, 'helper-key')
         if (isinstance(f, ast.Attribute) and f.attr in ("get", "setdefault")
                 and node.args and _is_settings_mapping(f.value, self.aliases)):
             a = node.args[0]
@@ -949,7 +976,7 @@ def _rank(hit: dict) -> tuple:
     function and then alphabetically, so the committed map is stable across
     runs and a diff means the code moved rather than the sort did.
     """
-    form_rank = {"subscript": 0, "get": 0,
+    form_rank = {"subscript": 0, "get": 0, "helper-key": 1,
                  "subscript-dynamic": 1, "get-dynamic": 1}.get(hit["form"], 2)
     # AutoAPI runs without `private-members`, so an underscore function has no
     # published anchor. Preferring a public consumer keeps the link landing on
