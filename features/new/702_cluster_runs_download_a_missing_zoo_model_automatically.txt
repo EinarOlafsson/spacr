@@ -611,3 +611,20 @@ close failures remain outside this narrow rename rollback; no blanket atomic
 concurrency or native Windows acceptance. No API prose/caption, actual model/
 network/GPU/live data/fullCI or whole702 acceptance. Evidence:
 data/702_claim_reservation_rollback_2026-10-15/receipt.json.
+
+
+2026-10-15 — private unknown Cellpose stock-substitution refusal
+    Actual runtime helper returnedstock for unknown bare keys, CP_model
+    filenames and missing Windows paths. It now refuses unresolved explicit
+    names before model construction. Installed stock, every declared legacy
+    alias, blank defaults and exact local/catalogue identity routes remain;
+    existing sam shorthand is used only after local/exact lookup. Root caught
+    the initial proposed alias placement before apply; actual named-sam file
+    and catalogue controls verify priority. Baseline3FAIL4PASS8.42s and final
+    owning25PASS9.49s. Old tests deliberately expecting unknown fallback now
+    enforce N702 refusal; no assertion silently removed to retain wrong output.
+    PRIVATE until exact runtime owner plus nine reviewed targets/generation
+    and actual localized refusals close. Two private doc changes have normal
+    visibility/zero-nested/committed-English absence evidence, no API targets.
+    No real model/network/GPU/nativecluster/fullCI or whole702 acceptance.
+    Evidence:data/702_unknown_model_stock_refusal_2026-10-15/.
