@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review; independent parent peer review requested; no native-speaker signoff",
+  "note": "Six changed blocks in four existing symbols from file-list sourcef419206a0ed+1f930c37d55 and plate-map source409c1060994. Normal targeted AST rendering matches source-owner ledger; source-verified full cache reused without collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#1",
+      "source": "A proposal is never authoritative: the editable table is the contract the user confirms. Each score first takes its unique best match among unused count paths. Remaining count paths then fill score rows without a count, in input order, including rows whose token matches were tied or absent. Database matches require a unique best match without an input-order fallback; any databases left unmatched receive separate rows.",
+      "context": "A proposal is never authoritative: the editable table is the contract the user confirms. Each score first takes its unique best match among unused count paths. Remaining count paths then fill score rows without a count, in input order, including rows whose token matches were tied or absent. Database matches require a unique best match without an input-order fallback; any databases left unmatched receive separate rows.",
+      "source_sha256": "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
+      "previous_same_source_indexes": [],
+      "translation": "प्रस्ताव कभी अंतिम निर्णय नहीं होता: उपयोगकर्ता जिस संपादन योग्य तालिका की पुष्टि करता है, वही मान्य अनुबंध है। हर स्कोर फ़ाइल पहले अप्रयुक्त काउंट पथों में से अपना एकमात्र सर्वोत्तम मिलान चुनती है। बाकी काउंट पथ फिर इनपुट क्रम में उन स्कोर पंक्तियों में भरते हैं जिनमें काउंट नहीं है; इसमें वे पंक्तियाँ भी आती हैं जिनके टोकन मिलान बराबर थे या मिले ही नहीं। डेटाबेस के लिए एकमात्र सर्वोत्तम मिलान आवश्यक है और इनपुट क्रम के आधार पर वैकल्पिक जोड़ी नहीं बनती; बिना मिलान वाले डेटाबेस को अलग पंक्तियाँ मिलती हैं।",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths, in fallback pairing order. Score rows select unique best filename-token matches first; remaining paths fill score rows still missing a count, and any left over get their own rows.",
+      "context": "count CSV paths, in fallback pairing order. Score rows select unique best filename-token matches first; remaining paths fill score rows still missing a count, and any left over get their own rows.",
+      "source_sha256": "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc",
+      "previous_same_source_indexes": [],
+      "translation": "काउंट CSV फ़ाइलों के पथ, वैकल्पिक जोड़ी बनाने के क्रम में। स्कोर पंक्तियाँ पहले फ़ाइल-नाम टोकन के एकमात्र सर्वोत्तम मिलान चुनती हैं; बाकी पथ उन स्कोर पंक्तियों में भरते हैं जिनमें अभी काउंट नहीं है, और शेष पथों को अपनी अलग पंक्तियाँ मिलती हैं।",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database#2",
+      "source": "With no row, the database is offered to the token pairing first, so ``plate2/measurements/measurements.db`` finds plate 2 wherever that row happens to be when its tokens match uniquely. If pairing leaves the database on its own row, it is attached to the first row without a database, if one exists. This fallback also applies when the path contains a plate name that did not produce a unique match. The returned sentence, also shown under the table, names the chosen row.",
+      "context": "With no row, the database is offered to the token pairing first, so ``plate2/measurements/measurements.db`` finds laboratory microplate 2 wherever that row happens to be when its tokens match uniquely. If pairing leaves the database on its own row, it is attached to the first row without a database, if one exists. This fallback also applies when the path contains a laboratory microplate name that did not produce a unique match. The returned sentence, also shown under the table, names the chosen row.",
+      "source_sha256": "cd0fdc773ef0448abed8cde10a3a7bb6026ba11332018bbb221f32a3f4d57348",
+      "previous_same_source_indexes": [],
+      "translation": "पंक्ति न देने पर डेटाबेस पहले टोकन के आधार पर जोड़ी बनाने की प्रक्रिया में जाता है। इसलिए टोकन का अद्वितीय मिलान होने पर ``plate2/measurements/measurements.db`` प्लेट 2 को ढूँढ़ लेता है, चाहे उसकी पंक्ति कहीं भी हो। यदि जोड़ी बनाने के बाद डेटाबेस अपनी अलग पंक्ति में रह जाता है, तो उसे बिना डेटाबेस वाली पहली पंक्ति से जोड़ा जाता है, यदि ऐसी पंक्ति मौजूद हो। यह वैकल्पिक तरीका तब भी लागू होता है जब पथ में प्लेट का नाम हो लेकिन उससे अद्वितीय मिलान न बना हो। लौटाया गया वाक्य चुनी गई पंक्ति का नाम बताता है और तालिका के नीचे भी दिखता है।",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent#2",
+      "source": "A DATABASE is decided by its extension and never by aim: a ``.db`` dropped on the score column is a mis-aim, not a request to fit the regression on a sqlite file, and a CSV dropped on the database column is likewise still a CSV. A database dropped in the database column on an existing row is explicitly attached to that row. A drop over another column or outside an existing row uses automatic attachment, including the fallback described by :meth:`attach_database`.",
+      "context": "A database is decided by its extension and never by aim: a ``.db`` dropped on the score column is a mis-aim, not a request to fit the regression on a sqlite file, and a CSV dropped on the database column is likewise still a CSV. A database dropped in the database column on an existing row is explicitly attached to that row. A drop over another column or outside an existing row uses automatic attachment, including the fallback described by :meth:`attach_database`.",
+      "source_sha256": "ac4a388a506cd73c944d1483f245d85faf4e6ea88c375bbd896f960c6d676670",
+      "previous_same_source_indexes": [],
+      "translation": "डेटाबेस की पहचान उसके एक्सटेंशन से होती है, उसे कहाँ छोड़ा गया इससे कभी नहीं: स्कोर कॉलम में छोड़ी गई ``.db`` गलत जगह छोड़ी गई फ़ाइल है, sqlite फ़ाइल पर प्रतिगमन फ़िट करने का अनुरोध नहीं; इसी तरह डेटाबेस कॉलम में छोड़ी गई CSV भी CSV ही रहती है। किसी मौजूदा पंक्ति के डेटाबेस कॉलम में छोड़ा गया डेटाबेस स्पष्ट रूप से उसी पंक्ति से जोड़ा जाता है। दूसरे कॉलम पर या किसी मौजूदा पंक्ति के बाहर छोड़ने पर स्वचालित जोड़ लागू होता है, जिसमें :meth:`attach_database` में वर्णित वैकल्पिक तरीका भी शामिल है।",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag#1",
+      "source": "one-based plate row of the pressed well.",
+      "context": "one-based laboratory microplate row of the pressed microplate sample position.",
+      "source_sha256": "48c509ac62ad8f95597b50c9212732bd70cdaf6d3cae6584f086ecfffd9397cd",
+      "previous_same_source_indexes": [],
+      "translation": "दबाए गए वेल की प्लेट में पंक्ति, जिसकी गिनती एक से शुरू होती है।",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag#2",
+      "source": "one-based plate column of the pressed well.",
+      "context": "one-based laboratory microplate column of the pressed microplate sample position.",
+      "source_sha256": "18cfd53dba60fff2bac3946587aa4857635d24a2608cbee9dc2f859544a19717",
+      "previous_same_source_indexes": [],
+      "translation": "दबाए गए वेल का प्लेट में कॉलम, जिसकी गिनती एक से शुरू होती है।",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    }
+  ]
+}

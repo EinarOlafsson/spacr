@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "source_commits": [
+    "f419206a0ed40ee50dd7a0f06413d028d8c11e63",
+    "1f930c37d5560ac67a6a64111a92d9301bb8170d",
+    "409c1060994"
+  ],
+  "normal_collector": "Four normal targeted rendered bodies/six blocks match source-owner ledgers. Only file-list and plate-map Python files changed from verified full-collector cache; old body identities and all source-file hashes verified. Four changed private bodies remain excluded. No full collector replay.",
+  "review_count": 54,
+  "source_docs_sha256": {
+    "spacr.qt.widgets.file_list.suggest_file_pairs": "5eb745f9845f5672270485cdf78ce93e52056f02c5d706f6685ab7c62cae615d",
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database": "3b0cfae063958ccf29f1532da1c032deae567d0202dc16401cef1cd008375735",
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent": "59dd0d457c462f99721a48136a5c4c1c45c5948bd8ccc01079f081103a78285b",
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": "c3d17d37e529f731cad6d9f594bda1e7943efb63412743a639a12dcf6fc95d3a"
+  },
+  "source_and_context_gates": "PASS all54; normal reviewed_api_block_translations passes for nine complete selected document sets.",
+  "retired_review_rows": [
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-005.json",
+      "record_index": 351,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-009.json",
+      "record_index": 33,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 392,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-010.json",
+      "record_index": 14,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-010.json",
+      "record_index": 80,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-006.json",
+      "record_index": 375,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-010.json",
+      "record_index": 373,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-010.json",
+      "record_index": 44,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "record_index": 298,
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
+      "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+    }
+  ],
+  "unrelated_review_rows": "Exact preservation asserted. Retired source/translation content retained.",
+  "scope": "Review inputs; normal catalog generation separate.",
+  "review_claim": "AI technical review; independent peer review requested, no native-speaker claim."
+}

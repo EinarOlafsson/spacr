@@ -105,12 +105,10 @@ class CollapsibleSection(QWidget):
         self._header.setChecked(bool(expanded))
 
     def title(self) -> str:
-        """The section's caption, as written rather than as displayed.
+        """Return the title passed to the constructor, converted to ``str``.
 
-        The header uppercases it and may append a maturity badge; this is
-        the string a catalog or a settings file is keyed on.
-
-        :returns: the title.
+        :returns: the stored title; changing the header button's text does
+            not change this value.
         """
         return self._title
 

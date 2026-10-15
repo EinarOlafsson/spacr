@@ -455,8 +455,13 @@ Actual final owning44PASS7.26s:27real locale-dependent eight-tab/refusal and
 mask/detector ZIP checks plus17owner extractor cases, no skips. Graph controller
 is stubbed and no model runs; real packagers verify translated README content,
 untouched original bytes, member hashes and genuine unavailable semantics.
-Twenty runtime/owner source bodies remain byte-exact to frozenbaed73656e3;
-test-only package-qualified fixture import repair is separately hash-bound.
+At owning-check time, twenty runtime/owner source bodies are byte-exact to
+frozenbaed73656e3; the test-only qualified fixture import repair is hash-bound.
+Later import sorting/explicit fixture reexport preserves every test/fixture
+body AST and exact import bindings; normal Ruff passes. Final incoming F370
+model_zoo and F580 settings bodies are separately identified; all eleven web
+tool files and the owned extractor body remain exact. No unchanged callback
+or native rerun, or new whole-source native parity, is asserted by that merge.
 Initial Korean gate rejection, fixture collection error, base-environment
 Gradio skip and one redundant metadata audit caused by separately scoped
 Python surviving wrapper cancellation are honestly archived; final raw log,
@@ -466,3 +471,11 @@ Parent698 remains partial: actual free hosting/GPU service, browser WebGPU,
 shared-site integration and broader model/biological acceptance remain open.
 No whole-feature, scientific, finalfullCI or release acceptance is asserted.
 Evidence:data/698_web_runtime_locales_2026-10-15/.
+
+Final normal merge includes F580 public9ade viafd365: all ten runtime catalogs
+merge cleanly. All178 owned targets and every current incoming unrelated
+row/hash are preserved in all9languages. Only the compressed immutable
+arrival delta needs normal regeneration; baseline9833 retained,1075added/
+151retired/30changed. Merged English-only guard explicitly languages0,
+settings1274/categories242/UI7912/modules77; prior full9audit remains bound
+to its tested premerge source/counts. No unchanged44/native rerun.

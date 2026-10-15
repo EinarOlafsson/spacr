@@ -1,0 +1,48 @@
+{
+  "scope": "N180 directory-based DatabaseSetWidget restoration after verified core direct-file replacement",
+  "status": "Actionable owner integration required; no widget source edits or native GUI acceptance claimed",
+  "source_base": "4ace1c5a86cca90f90e3e9c57fc7f812861b2b88",
+  "file": "/mnt/wd4tb/spacr-worktrees/codex-n180-carried-file-restore-20261015/spacr/qt/widgets/database_set.py",
+  "sha256": "da8fa59bb170bf26be16a2cdafcb5e18ad78d05a597294d8727b3d2863ad6900",
+  "consumer": "spacr/qt/screens/app_screen.py restore(providers(), document, run_dir=folder)",
+  "current_flow": [
+    {
+      "symbol": "workspace_state",
+      "behavior": "Saves ordered sources and matching ordered databases, plus mode."
+    },
+    {
+      "symbol": "database_for_source",
+      "behavior": "folder mode joins source/measurements/measurements.db; database mode uses source directly."
+    },
+    {
+      "symbol": "apply_workspace_state",
+      "behavior": "Reads sources only; ignores remapped databases; submits async original source existence check."
+    },
+    {
+      "symbol": "_present_sources_arrived",
+      "behavior": "Removes missing original sources from the checked set, preserving additions made while the check was pending."
+    }
+  ],
+  "reproduction_contract": [
+    "Create a real disposable SQLite plate/measurements/measurements.db; folder-mode widget selects the plate.",
+    "Collect/save(copy), preserving original ordered sources and databases; remove/move original plate, relocate run.",
+    "Core restore now remaps exact databases file references to contained digest-verified carried copies, but leaves missing source directories unchanged.",
+    "Current adapter ignores those database references and drops missing plate; no usable database remains."
+  ],
+  "required_owner_behavior": [
+    "Use only explicit verified/restored file references supplied by the core; never guess a directory-to-file mapping.",
+    "Retain original existing source behavior and ordered merge semantics.",
+    "Support carried databases for missing folder sources without feeding a database filename through the folder join.",
+    "Keep filesystem probes off GUI thread and reject stale results after replacement/removal/close; preserve user additions during pending checks.",
+    "Preserve saved document/input nonmutation, visible missing/corrupt reports and section attachment truth."
+  ],
+  "proposed_owning_cases": [
+    "Real SQLite read after copied bundle relocation and original plate deletion.",
+    "Mixed existing original and carried missing sources preserve database order.",
+    "Corrupt/unverified/escaping carried database remains refused by core and is not opened by widget.",
+    "Missing reference-only folder remains visibly missing, without path guesses.",
+    "Pending existence callback cannot undo replacement or add/remove operations."
+  ],
+  "ownership": "Home-B shared widget boundary; request narrow source grant or owner patch before production mutation",
+  "whole_item": "N180 remains partial until this actual adapter is delivered; direct-file core commit4ace1c5a86c is not whole-item completion."
+}

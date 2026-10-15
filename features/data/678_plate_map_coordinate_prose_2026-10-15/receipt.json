@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "source_base": "1ef140fdcb1f4403b7c87201ce7dffb87d17feb8",
+  "source_file": "spacr/qt/widgets/plate_map_picker.py",
+  "before_sha256": "f6f9aebca198b91a89183f1f6828ee0dd218d44fcc79142c49194e7c94a4dc41",
+  "after_sha256": "d5faebe1855cd792b1b313b05c92370245d23e55f45dcbf5da3e8067298f5e6f",
+  "scope": "Coordinate-contract review of nine selected docstrings after full file read. Only four row/column parameter descriptions changed; other prose is retained without claiming whole-file N678 completion.",
+  "executable_ast_identical": true,
+  "changed_docstrings": 2,
+  "retained_selected_docstrings": 7,
+  "docstring_ledger": [
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker",
+      "disposition": "retained",
+      "before": "Select one or more wells from a plate-shaped grid.\n\nSelections are parsed and serialized through :mod:`spacr.well_spec`, so rows,\ncolumns, and individual wells use the same validated vocabulary in the GUI and\nheadless APIs. Rectangular selection is exposed through :meth:`select_region`\nfor mouse-drag handling and programmatic use.\n\nThe labels and the wells share one grid. The column numbers, the row\nletters and the wells all live in a single :class:`QGridLayout`, every item\nlocked to the same square cell, so a column number sits over its column and a\nrow letter beside its row at every window size. The grid takes the width and\nheight its square cells need and leaves the rest to a trailing empty row and\ncolumn, rather than dividing whatever the window happens to give it -- which\nis what pulls the labels away from the wells they name.\n\nEach cell states that square in its own style sheet rather than through\n``setFixedSize``, which does not survive being polished under the application\nstylesheet. See :func:`_locked_square`.",
+      "after": "Select one or more wells from a plate-shaped grid.\n\nSelections are parsed and serialized through :mod:`spacr.well_spec`, so rows,\ncolumns, and individual wells use the same validated vocabulary in the GUI and\nheadless APIs. Rectangular selection is exposed through :meth:`select_region`\nfor mouse-drag handling and programmatic use.\n\nThe labels and the wells share one grid. The column numbers, the row\nletters and the wells all live in a single :class:`QGridLayout`, every item\nlocked to the same square cell, so a column number sits over its column and a\nrow letter beside its row at every window size. The grid takes the width and\nheight its square cells need and leaves the rest to a trailing empty row and\ncolumn, rather than dividing whatever the window happens to give it -- which\nis what pulls the labels away from the wells they name.\n\nEach cell states that square in its own style sheet rather than through\n``setFixedSize``, which does not survive being polished under the application\nstylesheet. See :func:`_locked_square`.",
+      "before_sha256": "01adc819c3edcad250f018d54981cefbe17946f06002cc333871125daae98488",
+      "after_sha256": "01adc819c3edcad250f018d54981cefbe17946f06002cc333871125daae98488"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker._Well.__init__",
+      "disposition": "revised",
+      "before": "Build one well of the plate.\n\n:param row: the well's row index, counting from zero.\n:param column: its column index, counting from zero.\n:param parent: parent widget.\n\nThe pair is the well's IDENTITY, not just its position: the picker\naddresses wells by it, and :func:`well_label` turns it into the\n``A01`` name shown in the tooltip.",
+      "after": "Build one well of the plate.\n\n:param row: the well's one-based row number.\n:param column: the well's one-based column number.\n:param parent: parent widget.\n\nThe pair is the well's IDENTITY, not just its position: the picker\naddresses wells by it, and :func:`well_label` turns it into the\n``A01`` name shown in the tooltip.",
+      "before_sha256": "a8408f61f2891f491431e443cecd90c843597692b639ac6a38fdf8c5349f0698",
+      "after_sha256": "ce51c7ab2c57af092e968bf379771efd47fb5a699c0260b3adf7016c4675654d"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker._Well.mousePressEvent",
+      "disposition": "retained",
+      "before": "Begin a drag-select from this well.\n\n:param event: the mouse event; its modifiers decide whether the drag\n    adds to the selection or replaces it.",
+      "after": "Begin a drag-select from this well.\n\n:param event: the mouse event; its modifiers decide whether the drag\n    adds to the selection or replaces it.",
+      "before_sha256": "b6bfb325af74e298c063195d5d40de5c51f5f7e1c0fe56b52d56c4fa9ba07dff",
+      "after_sha256": "b6bfb325af74e298c063195d5d40de5c51f5f7e1c0fe56b52d56c4fa9ba07dff"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.set_layout_size",
+      "disposition": "retained",
+      "before": "Rebuild the map for a plate layout and retain valid selections.\n\nWells outside the new layout are dropped and counted in the caption,\nmaking a layout-induced selection change visible.\n\n:param layout: number of wells on the plate: 6, 12, 24, 96, 384 or\n    1536; any other value raises ``WellSpecError``.",
+      "after": "Rebuild the map for a plate layout and retain valid selections.\n\nWells outside the new layout are dropped and counted in the caption,\nmaking a layout-induced selection change visible.\n\n:param layout: number of wells on the plate: 6, 12, 24, 96, 384 or\n    1536; any other value raises ``WellSpecError``.",
+      "before_sha256": "a80e6853651026e168fb5c72f5e75fbc3eeb8cbb27f7800478077e7c774dc13d",
+      "after_sha256": "a80e6853651026e168fb5c72f5e75fbc3eeb8cbb27f7800478077e7c774dc13d"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag",
+      "disposition": "revised",
+      "before": "Anchor a drag on one well.\n\n:param row: zero-based plate row of the pressed well.\n:param column: zero-based plate column of the pressed well.\n:param modifiers: the keyboard state at the press. With Ctrl the\n    rectangle adds to what is already chosen; without it the drag\n    replaces the selection, which is what every other grid in this\n    application does.",
+      "after": "Anchor a drag on one well.\n\n:param row: one-based plate row of the pressed well.\n:param column: one-based plate column of the pressed well.\n:param modifiers: the keyboard state at the press. With Ctrl the\n    rectangle adds to what is already chosen; without it the drag\n    replaces the selection, which is what every other grid in this\n    application does.",
+      "before_sha256": "a4747e1f4b18314c3c3a4f89bb22233464bef5f464569e7744eb340da65eeb86",
+      "after_sha256": "c3d17d37e529f731cad6d9f594bda1e7943efb63412743a639a12dcf6fc95d3a"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.well_at",
+      "disposition": "retained",
+      "before": "The well under a global point, or ``None``.\n\nGlobal, because the pointer is over a sibling of the widget that is\nreceiving the events -- the pressed one keeps the grab.\n\n:param position: a point in global screen coordinates (a ``QPoint``).",
+      "after": "The well under a global point, or ``None``.\n\nGlobal, because the pointer is over a sibling of the widget that is\nreceiving the events -- the pressed one keeps the grab.\n\n:param position: a point in global screen coordinates (a ``QPoint``).",
+      "before_sha256": "cd00dae381c551bc0db3dc608cb9f43339b78aa78e7a8ed82ca32bf2b306b5c4",
+      "after_sha256": "cd00dae381c551bc0db3dc608cb9f43339b78aa78e7a8ed82ca32bf2b306b5c4"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.select_region",
+      "disposition": "retained",
+      "before": "Select or clear the rectangle between two plate coordinates.\n\nParameters\n----------\nstart, end : tuple of int\n    Inclusive one-based row and column coordinates.\nchoosing : bool, optional\n    ``True`` selects and ``False`` clears. ``None`` inverts the state\n    of the starting well, matching spreadsheet-style drag selection.",
+      "after": "Select or clear the rectangle between two plate coordinates.\n\nParameters\n----------\nstart, end : tuple of int\n    Inclusive one-based row and column coordinates.\nchoosing : bool, optional\n    ``True`` selects and ``False`` clears. ``None`` inverts the state\n    of the starting well, matching spreadsheet-style drag selection.",
+      "before_sha256": "aff04eed60a87e098a74405a2c1372ec6b19225704d6d700907155564495abca",
+      "after_sha256": "aff04eed60a87e098a74405a2c1372ec6b19225704d6d700907155564495abca"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.selection",
+      "disposition": "retained",
+      "before": "Return selected wells as one-based ``(row, column)`` pairs.",
+      "after": "Return selected wells as one-based ``(row, column)`` pairs.",
+      "before_sha256": "6dafb5e33c9e50bf3fd410aa5b152fbebfca2c4e7c85944e70cb58b2baf2f374",
+      "after_sha256": "6dafb5e33c9e50bf3fd410aa5b152fbebfca2c4e7c85944e70cb58b2baf2f374"
+    },
+    {
+      "symbol": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.set_selection",
+      "disposition": "retained",
+      "before": "Choose exactly ``cells`` and repaint the whole plate.\n\n:param cells: one-based ``(row, column)`` pairs, well-specification\n    text such as ``\"A01\"`` or ``\"c3\"``, or a mixture. The field this\n    picker edits is written in the second vocabulary, so both are\n    accepted.\n\nThe whole plate is always repainted. Signals are blocked so that\nsetting a hundred wells says the count once rather than a hundred\ntimes, and that also silences the ``toggled -> _paint`` connection --\nso a well chosen without a click, which includes the picker's own\nstarting value and everything kept across a layout change, would be\nchecked and still drawn empty.",
+      "after": "Choose exactly ``cells`` and repaint the whole plate.\n\n:param cells: one-based ``(row, column)`` pairs, well-specification\n    text such as ``\"A01\"`` or ``\"c3\"``, or a mixture. The field this\n    picker edits is written in the second vocabulary, so both are\n    accepted.\n\nThe whole plate is always repainted. Signals are blocked so that\nsetting a hundred wells says the count once rather than a hundred\ntimes, and that also silences the ``toggled -> _paint`` connection --\nso a well chosen without a click, which includes the picker's own\nstarting value and everything kept across a layout change, would be\nchecked and still drawn empty.",
+      "before_sha256": "77268942df4a6d6027cb5b36e0f33320a97c1a8cf826e59f28018764b8882ddf",
+      "after_sha256": "77268942df4a6d6027cb5b36e0f33320a97c1a8cf826e59f28018764b8882ddf"
+    }
+  ],
+  "code_evidence": {
+    "grid": "PlateMapPicker.set_layout_size constructs _Well(row,column) and dictionary keys using range(1, rows+1) and range(1, columns+1).",
+    "drag": "_Well.mousePressEvent passes self.row/self.column unchanged to begin_drag; begin_drag stores those integer coordinates directly as its anchor.",
+    "selection": "select_region, selection and set_selection already state one-based coordinates; select_region loops inclusive endpoints.",
+    "label": "spacr.well_spec.well_label and row_label both document and implement one-based labels, so (1,1) is A01.",
+    "well_spec_sha256": "f1fc1fbd46386e6763ef8f2283cd51557d39b0eadb8aac3dc855a1f18bab15d8"
+  },
+  "rendered_changed_blocks": [
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag#1",
+      "before": "zero-based plate row of the pressed well.",
+      "source": "one-based plate row of the pressed well.",
+      "context": "one-based laboratory microplate row of the pressed microplate sample position.",
+      "source_sha256": "48c509ac62ad8f95597b50c9212732bd70cdaf6d3cae6584f086ecfffd9397cd"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag#2",
+      "before": "zero-based plate column of the pressed well.",
+      "source": "one-based plate column of the pressed well.",
+      "context": "one-based laboratory microplate column of the pressed microplate sample position.",
+      "source_sha256": "18cfd53dba60fff2bac3946587aa4857635d24a2608cbee9dc2f859544a19717"
+    }
+  ],
+  "non_rendered_private_constructor": "spacr.qt.widgets.plate_map_picker._Well.__init__",
+  "normal_full_collector_run": false,
+  "block_identification": "Existing public English symbol rendered through normal targeted _clean_doc/translatable_blocks helpers. Private _Well is absent from English API; no new API arrival.",
+  "tests_run": false,
+  "reason_no_tests": "Doc-only correction; complete executable AST equality proves behavior/signatures/captions unchanged.",
+  "pending": [
+    "Normal API source-bound nine-locale review and scoped catalog generation for the two listed public blocks."
+  ],
+  "native_platform_or_full_N678_claim": false
+}

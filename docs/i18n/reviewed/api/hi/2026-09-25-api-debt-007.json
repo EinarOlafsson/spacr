@@ -3444,7 +3444,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
       "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-      "translation": "वह ``(elev, azim, roll)`` जिससे matplotlib यह फ़्रेम बनाता है।"
+      "translation": "वह ``(elev, azim, roll)`` जिससे matplotlib यह फ़्रेम बनाता है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
@@ -3452,7 +3455,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
       "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
-      "translation": "``elev`` को ``[-90, 90]`` के भीतर रखा जाता है ताकि ऊर्ध्वाधर दिशा कभी उलटे नहीं; तब roll दृष्टि-रेखा के चारों ओर फ़्रेम का जो भी घुमाव है उसे वहन करता है। सीधे नीचे (या ऊपर) देखने पर azimuth मुक्त होता है, इसलिए उसे ऐसे चुना जाता है कि roll शून्य हो।"
+      "translation": "``elev`` को ``[-90, 90]`` के भीतर रखा जाता है ताकि ऊर्ध्वाधर दिशा कभी उलटे नहीं; तब roll दृष्टि-रेखा के चारों ओर फ़्रेम का जो भी घुमाव है उसे वहन करता है। सीधे नीचे (या ऊपर) देखने पर azimuth मुक्त होता है, इसलिए उसे ऐसे चुना जाता है कि roll शून्य हो।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "the screen's right-pointing axis.",
