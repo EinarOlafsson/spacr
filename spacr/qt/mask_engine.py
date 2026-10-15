@@ -5973,7 +5973,7 @@ class VolumeMaskSession:
                 output[parts == part] = candidate
                 occupied.add(candidate)
         changed = self._commit(output)
-        return changed, len(np.unique(self.mask)) - 1
+        return changed, int(np.count_nonzero(np.unique(self.mask)))
 
     def _validate_boundaries(self):
         """Refuse saved geometry that disagrees with its actual labelled voxels."""

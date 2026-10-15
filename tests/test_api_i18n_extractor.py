@@ -46,6 +46,14 @@ _NEW_VISIBLE_DIGEST = (
 _PREVIOUS_VISIBLE_DIGEST = (
     "d756bd8ed64b13f473eee9905cdee6a394866efc00b09cd2725f8ead4e4a4195"
 )
+_N696_ASSIGNMENT_ARRIVALS = {
+    'spacr.qt.widgets.object_settings_grid.AUTO_TEXT': (
+        'What an unset value reads as. ``None`` means "work it out" for most of\n'
+        'these, and an empty cell would read as "nobody has filled this in yet",\n'
+        'which is a different claim. An object diameter is the exception: its\n'
+        '``None`` is the magnification default, drawn greyed (item 696).'
+    ),
+}
 _LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION",
                          "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS"}
 _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
@@ -288,7 +296,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert len(spatial_arrivals) == 22
     assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
     assert not spatial_arrivals.keys() & dunders
-    assignments = assignments - spatial_arrivals.keys() - _LAUNCHER_ASSIGNMENTS
+    assert _N696_ASSIGNMENT_ARRIVALS.keys() <= assignments
+    assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
+        _N696_ASSIGNMENT_ARRIVALS
+    )
+    assignments = (assignments - spatial_arrivals.keys()
+                   - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys())
     assert len(assignments) == 35
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
@@ -1607,6 +1620,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in ssh_arrivals} == ssh_arrivals
     assert not ssh_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **ssh_arrivals}
+    late_reviewed_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text())
+    assert len(late_reviewed_arrivals) == 20
+    assert {key: docs[key] for key in late_reviewed_arrivals} == (
+        late_reviewed_arrivals
+    )
+    assert not late_reviewed_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **late_reviewed_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -2106,7 +2128,11 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
     # live_preview.BOUND_ROWS (2026-09-26); 36 with _parascape.MINIMUM_VERSION
     # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13).
-    assert len(assignment_keys) == 37
+    assert _N696_ASSIGNMENT_ARRIVALS.keys() <= assignment_keys
+    assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
+        _N696_ASSIGNMENT_ARRIVALS
+    )
+    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 37
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

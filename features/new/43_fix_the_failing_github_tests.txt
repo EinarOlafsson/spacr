@@ -3868,3 +3868,56 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     is not inferred. Nine existing ad hoc lint findings remain; no fullCI,
     native model, training or release acceptance is claimed.
     Evidence:data/43_cellpose_signature_doubles_2026-10-15/.
+
+
+2026-10-15 — DINO diameter test follows current shared contract
+    The old empty-settings expectation incorrectly required nativeNone despite
+    supplying a30px magnification default. Test now requires30.0 and separately
+    verifies explicitauto retainsNone; explicit40px and other assertions remain.
+    Actual old node fails, changed node1PASS4.80s. No production/model/scientific
+    or fullCI claim. Evidence:data/43_dino_default_diameter_contract_2026-10-15/.
+
+
+2026-10-15 — final shared-Mask eval fake obeys API contract
+    A kwargs-only fake in the six-family Mask adapter fixture evaded the
+    named-input signature sweep but was caught by both hygiene gates. It now
+    declares recorded4.2 parameters/sentinel and records only actual bound
+    parameters, includingx and defaults. All26 original assertions and
+    returned arrays remain. Actual hygiene baseline2FAIL; owning+hygiene+
+    sweep30PASS40.49s. A source-reviewed recorder-only freevar exclusion then
+    passed27affected owning cases7.55s; unchanged gates were not repeated.
+    No production/ratchet/model/fullCI acceptance claim.
+    Evidence:data/43_shared_mask_double_contract_2026-10-15/.
+
+
+2026-10-15 — deleted bioimageio fixture isolates unavailable model
+    The old test left an external provider declaration after deleting its
+    local fake download, triggering intended exact-basename reacquisition. It
+    now supplies an empty unavailable catalogue and refuses any attempted
+    fetch, keeping the original FileNotFoundError/notthere expectation and
+    asserting the path stays absent. All previous assertion ASTs remain.
+    Safe controlled baseline1FAIL6.10s; affected node1PASS6.15s. Existing N702
+    legitimate reacquisition cases are hash-bound/read only, not duplicated.
+    No production/trust changes, network/model/fullCI acceptance claim.
+    Evidence:data/43_bioimageio_deleted_fixture_2026-10-15/.
+
+
+2026-10-15 — prefixed diameter and wound diagnostic tests current
+    Prefixed Mask test now distinguishes blank17px default from explicitauto
+    nativeNone, keeping original parameters/array assertions. Wound edge test
+    still requires refusal and now checks the exact translated current index3
+    versus2planes diagnostic instead of the obsolete English regex. Existing
+    absent-well/condition assertions remain. Actual two-node baseline2FAIL6.70s
+    and final2PASS6.45s; current public helper ASTs were equal before edits.
+    No production, algorithm, caption/API, model or fullCI changes/acceptance.
+    Evidence:data/43_imaging_test_contracts_2026-10-15/.
+
+
+2026-10-15 — four runtime fixture consumers verified, no new source fix
+    The two current-runtime-floor and two timestamp-collision cases now pass
+    with the already published shared fixture isolation. Target test files,
+    imported fixture and production cleanup source match pinned public3922
+    before and after execution. Actual4PASS10.52s, no skips; no mac/pip/nightly
+    cohort repetition or code mutation. Disposable local synthetic wheels only;
+    no hostedPython3.9/nativeplatform/fullCI/release acceptance is inferred.
+    Evidence:data/43_runtime_fixture_consumers_2026-10-15/.

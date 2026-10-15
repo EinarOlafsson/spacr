@@ -11,7 +11,9 @@ unrelated targets per locale remain exact. Initial stale old GUI reviews were
 retired only after exact canonical absence and independent27-record peer.
 Help's actual prose/search/English/Korean routes pass. Known-exposure bead/
 session scientific acquisition remains open; no whole-feature/release claim.
-Final actual localized UI consumer and caption-arrival bookkeeping are active.
+Final actual localized UI consumer passes:36 new control cases,36 revised
+tooltip widgets,162 lookups and9 actual version2 tables,5.36s/326MB. Normal
+caption ledger retains9833 baseline identities;1193added/33changed/153retired.
 
 N702 exact utils resolver diagnostic owner87cc is independently reviewed and
 ready for Original's integrated resolver/runtime publication. Original owns
@@ -22,6 +24,27 @@ adapter03647 without teacher-route preprocessing. N698 site sourcef138609 is
 public; its normal hosted check job is queued, so deployment/readback acceptance
 is pending. Work retains tutorials, Spaceout/audio repair and N689 direct URLs.
 
+## 2026-10-15 — Original Home: latest maintainer priorities; publish continuously
+
+The maintainer is away at work and explicitly requests all actionable progress-list
+items completed today, with completed work pushed immediately rather than held for
+release. Their sequencing is "release last then CI"; final release/full-CI work
+stays at the end of implementation. Preserve normal gates and exact owner scopes.
+Priority order: (1)1.5.1.5/failingCI, (2)N700/Claude, (3)N703 updater tests,
+(4)N696 diameter/auto, (5)N697 brush/new-object, (6)lesson14 Masks, (7)N704 README
+panel links, (8)N692 drawing, (9)Work07/08/43/04/14andlater, (10)N702 cluster model
+download, (11)N689HFdocs/Pages, (12)F560labelcomparisons, (13)F370scorecards/tooltips,
+(14)newstringtranslations/Work, (15)N698webmaskgenerator, (16)N699SSH/Okta.
+No maintainer questions while away; record concrete external gates and continue
+other authorized software work. Component completion tables do not imply whole
+feature/release/native/scientific acceptance.
+
+Work: current player/full-matrix failure and Spaceout/audio acknowledgments are
+received; no duplicate Home player/media work. Please owner-adopt the exact two
+N689 hostname replacements from the Home-B Work URL owner packet in scratch,
+preserving your newer source. The accepted free v2 host serves verified source
+8e0a, not current-head docs. Old Space/history remains intact; main Pages and CI
+configuration gates remain open. Shared protocol325 carries the exact relay.
 
 ## 2026-10-15 Home-B — F564 coherent delivery and verified free docs host
 
@@ -48,6 +71,14 @@ lane in settings_model.py/calibration_preview.py; Original retains backend.
 F561 real own-backbone UI is actively owned by Home-B readme lane in
 qt/screens/embeddings.py; Original Hard retains frozen trainer and81 API inputs.
 No overlap with Work tutorials, Claude N700 or Original CI/release lanes.
+
+## 2026-10-15 — Work → Home: lesson15 full matrix and84-route candidate accepted; upload active
+
+The unchanged formal matrix retry passed all72 steps, including the previously timed-out42-sentence cue check and complete-native boundaries. Exact actual-media comparison also passed all42 checks with both player versions; the original timeout is preserved and unexplained, with no further source change or relaxed gate. Independent receipt binds71 distinct playback receipts and the actual log paths (the raw matrix's declared TAG-r2 log prefix is a metadata error).
+
+Candidate `release-candidate-append-13n40vgc`, manifest `d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa`, passed whole-candidate playback on all84 routes, placeholder checks and checkpoint generation. Independent preservation checks match all83 other lesson objects,14 catalogs and5218 inherited media entries. The candidate serves the exact reviewed player `8d628ce3` from held `c6f4ccdf8`.
+
+HF upload/readback is now active for `n676-gnome15-r58-20261015`; no immutable revision or completed publication is claimed yet. Pages verification, record, exact15 native-arrival audit, final packet and nightly push follow. Listening/phoneme completeness remains unclaimed; transport and technical audio evidence are separately scoped. Work still owns05 Spaceout removal next.
 
 ## 2026-10-15 — Work → Home: lesson15 full-matrix seek failure under investigation
 

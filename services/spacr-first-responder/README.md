@@ -18,8 +18,8 @@ Every response is JSON. `GET /` answers like `/health`.
 | --- | --- | --- |
 | `GET /health` | none | `{ok, version, routes}` |
 | `GET /allowance?install_id=<uuid>` | none; consumes nothing | the allowance object below |
-| `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize`, `kind` | `{issue_number, issue_url, deduplicated, commented?, recurred_from?, ai_summary_source, allowance}` |
-| `POST /report` with `dry_run: true` | same | `{dry_run: true, title, body, signature, ai_summary_source, allowance}` |
+| `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize`, `kind` | `{issue_number, issue_url, deduplicated, commented?, recurred_from?, ai_summary_source, ai_summary?, allowance}` |
+| `POST /report` with `dry_run: true` | same | `{dry_run: true, title, body, signature, ai_summary_source, ai_summary?, allowance}` |
 | `POST /diagnose` | report JSON plus optional `question` | `{advice, model, tier: "best"\|"light", allowance}` |
 
 The allowance object is the same on all three routes:
@@ -51,6 +51,8 @@ The allowance object is the same on all three routes:
   answer's cost (1,000 tokens in, 400 out). They are repeated at the top level for
   clients built against 3b50b593d.
 - `ai_summary_source` is `"client"`, `"relay"` or `"none"`.
+- `ai_summary` is the summary text the relay wrote, present only when
+  `ai_summary_source` is `"relay"`, so spaCR can show it in its console.
 - `resets_at` is the next 00:00 UTC, in ISO 8601.
 
 Errors: `400 {error}` (validation), `413 {error}` (body over 16 KB), `404/405 {error}`,

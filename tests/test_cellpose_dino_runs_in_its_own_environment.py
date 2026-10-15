@@ -531,7 +531,11 @@ def test_the_dino_masks_function_makes_v1s_sam_call():
     O._cellpose_dino_masks(model, images[:1], {}, "pathogen", min_size=1,
                            default_diameter=30)
     assert model.calls[1]["resample"] is False
-    assert model.calls[1]["diameter"] is None
+    assert model.calls[1]["diameter"] == 30.0
+    O._cellpose_dino_masks(model, images[:1], {"pathogen_diameter": "auto"},
+                           "pathogen", min_size=1, default_diameter=30)
+    assert model.calls[2]["diameter"] is None
+    assert model.calls[2]["resample"] is False
 
 
 def test_v2_segments_a_cellpose_dino_model_exactly_as_v1_does(tmp_path,

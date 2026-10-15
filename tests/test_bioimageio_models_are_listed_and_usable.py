@@ -414,12 +414,16 @@ def test_a_downloaded_cellpose3_model_is_a_cellpose3_setting(tmp_path):
     assert SB._cellpose3_is_chosen({"cell_model_name": value})
 
 
-def test_a_deleted_download_is_refused_not_run_as_cyto3(tmp_path):
+def test_a_deleted_download_is_refused_not_run_as_cyto3(tmp_path, monkeypatch):
     _row, path = _downloaded(tmp_path, "bioimageio_cellpose_cyto3")
     value = SB._cellpose3_value(str(path))
     path.unlink()
+    monkeypatch.setattr(zoo, "catalogue", lambda **kwargs: [])
+    monkeypatch.setattr(zoo, "fetch", lambda *args, **kwargs:
+                        pytest.fail("an unavailable deleted model must not be fetched"))
     with pytest.raises(FileNotFoundError, match="not there"):
         SB._cellpose3_model(value, object_type="cell")
+    assert not path.exists()
 
 
 def test_a_downloaded_cellpose_sam_model_is_its_path(tmp_path):
