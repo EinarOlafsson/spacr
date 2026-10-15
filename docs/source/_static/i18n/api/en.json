@@ -73933,36 +73933,30 @@
     },
     "spacr.qt.shortcuts": {
       "source_blocks_sha256": [
-        "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-        "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
+        "65f4368521a698c22915ab79ef37486844105d0ce8ebbaf2ba9be48934893aa9",
+        "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
         "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
-        "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
+        "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
         "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-        "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
-        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
-        "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
-        "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
-        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
-        "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25"
+        "f2a0782310323264fda94ede0b8ad10a73d9556a6d6920ddc410176d9057d735",
+        "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
+        "e28ff7179d0185de46de73bafa6bf0f879215c0b7151b774741c7c4e7af2c515"
       ],
-      "source_sha256": "625d90fc6093f086ee76bae19436af671eeaac38ee1e39db5bed502a3cbe6999",
-      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Open the AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up.\n\nEvery window-wide key can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser) have separate\neditable rows and saved overrides, applied to both existing and new screens."
+      "source_sha256": "40ffbcd0cc92ebb7fa5a1e2d037bd42c19a813a0d2ef35fee6256d0dba1d91f4",
+      "text": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.\n\nThe default window-wide actions include:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Open the corresponding app-registry entry if visible\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1            Show the shortcuts cheat sheet\n    ?             Use the active screen's help action, or show the cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Toggle the active module's AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n\n:func:`install` creates the bindings returned by :func:`installed`.\nOther actions in :data:`SHORTCUTS` are bound by the main window's menus;\nthe scroll gesture uses an event filter. Screen-owned bindings are included\nby :func:`mapped`, with their scope and saved overrides. Escape handling\nbelongs to the active screen, overlay or dialog rather than a binding\ninstalled here.\n\nDeclared window-wide key sequences can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate\neditable rows and saved overrides, applied to both existing and new screens."
     },
     "spacr.qt.shortcuts.ShortcutOverlay": {
       "source_blocks_sha256": [
-        "81fd136bd723455eff86d836a00cf7b2808e06d78199dacf150ef2c7bbc8d4e2",
-        "6bf037cefe871b2991161f468e6b0f6eab2ac4f2347a081e55b0d4d2a4ea7ea0",
-        "d68d23358afd214ef38c69e6d26eee340bd42b9ae8bf19d87c9b256cad5e0548",
-        "9e45f8e9602b44a9148035eba321685afff9ff5a5cf183bf3bf862278d6a5905",
+        "186b990a918025fb3b1a6ce9da18fc549c321d2b683edd8ca800aa7453c90967",
+        "9abd3d4e79273ac86ae6a5c2c43d6cee14da00add47691fb0543664b41f17a99",
+        "3a5855ef2858991d4cb7dc54c6ea110098522ecef03abd44dafb1e21cfae5c4b",
         "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
         "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74"
       ],
-      "source_sha256": "5999ee2b251361f60c88210749055b323fb61969b305b58efa1f551bed99ef80",
-      "text": "The ``?`` overlay — every shortcut, over the window, dismissed by any key.\n\nA modal dialog was the wrong shape for this. The question a user asks by\npressing ``?`` is \"what can I press *here*\", and the answer is worth\nabout two seconds; a dialog with a title bar and a close button makes\nthem commit to a mode, find the button, and leave it. An overlay dims\nwhat is behind, answers, and disappears on the next keystroke or click —\nincluding on ``?`` itself, so the key that opened it also closes it.\n\nLaid out in columns by category rather than one long list, because\nfifteen bindings in one column is a scroll and in three is a glance.\n\n:param window: the window to cover and to read the bindings from. The\n    overlay is drawn OVER it rather than as a dialog of its own, which is\n    the whole argument above -- so this is not a parent in the ordinary\n    sense but the thing being annotated.\nBuild the shortcut cheat sheet as a card over the window.\n\n:param window: the window it covers; the card is centred in it and\n    scrolls when the map does not fit."
+      "source_sha256": "b13e17150283f83554e4e6e76ae3606623d3c78b1f56ff99cb325a4ce7deb26e",
+      "text": "Show the declared shortcut map and additional child bindings over a window.\n\nThe translucent card groups actions by category and displays saved\noverrides and screen scopes. Its scroll area exposes content that does\nnot fit. Key presses and mouse presses handled by the overlay dismiss\nit; the Change shortcuts button closes it and opens the keymap editor.\n\n:param window: the parent widget to cover and inspect for bindings. The\n    overlay resizes with this widget and does not create a separate\n    top-level window.\nBuild the shortcut cheat sheet as a card over the window.\n\n:param window: the window it covers; the card is centred in it and\n    scrolls when the map does not fit."
     },
     "spacr.qt.shortcuts.ShortcutOverlay.dismiss": {
       "source_blocks_sha256": [
@@ -73982,19 +73976,19 @@
     },
     "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent": {
       "source_blocks_sha256": [
-        "b6256152c56cfa6cb6dea94d4aafb39855c0bfb2a74d3cc8f3ac2cc387a6e39c",
+        "2b2d59f66f044693960f817e69c2a882f4e1d5c99d6f8cdc52f30273d752c17c",
         "029ff431c7e3d16d7434bc072282808870acd8e573c4002c92555da75a6663ee"
       ],
-      "source_sha256": "8a415d4b935330789b18fe12f771e57957bfde5fd9f32b16cb23646584ab0776",
-      "text": "Any key closes it — that is the whole interaction.\n\n:param event: the key event; which key was pressed is not read."
+      "source_sha256": "398946e9166c1eaaffb089effd7de2fc17cb18c983e0cd1895c4f7d8ec38b344",
+      "text": "Dismiss the overlay when a key press reaches this handler.\n\n:param event: the key event; which key was pressed is not read."
     },
     "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent": {
       "source_blocks_sha256": [
-        "e9bd0b6c877b87c47355562f39b2b8ba9ace34aec37c495e9bac2ea63caaffd0",
+        "173e9f253713a4ee887f369f8e9fb2de3165b97ab14a51bdcb8f2acc120ec513",
         "61a5b73353a3cad05ca2b93892197a897c6284448a4ad0645c49bc7f43124f65"
       ],
-      "source_sha256": "490a04356cf69a2da53623a5469df6ed4e335131cfa33c8ba89cc03b1547b342",
-      "text": "A click anywhere closes it too.\n\n:param event: the mouse press event; its button and position are not\n    read."
+      "source_sha256": "9ed7fb591b4e5c280a6bced7b652e5184f4541a90b4f12018dd81a6d47e46488",
+      "text": "Dismiss the overlay when a mouse press reaches this handler.\n\n:param event: the mouse press event; its button and position are not\n    read."
     },
     "spacr.qt.shortcuts.ShortcutOverlay.paintEvent": {
       "source_blocks_sha256": [
@@ -74025,22 +74019,22 @@
     },
     "spacr.qt.shortcuts.discover": {
       "source_blocks_sha256": [
-        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
-        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
-        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb",
+        "510918330742b7346b601c30bfff9a065e99b5f4859aa4909a9b514a860bd0be",
+        "a8ce4cafe6ca0c2f85735e4609e3e1f8556f7a82f67f909cdfb8f93aa1901f47",
+        "5e4734862eb1e3640fc8e7c3a9bf0ec5d3d59988c07490634681de93a51fe629",
         "d63e4ccef730bbe90834e4bb8144f7794c8361c03fdf39ee48b8c65e503ec759"
       ],
-      "source_sha256": "eba2c20b29573e1f3968b68f6b505f98e8a76f0e7b10c66759026baeb834c0ef",
-      "text": "Every shortcut LIVE on ``window``, whether declared or not.\n\nThe declared table is what the map is drawn from, because a per-screen\nbinding does not exist until that screen is built and the map has to\ndescribe it anyway. This is the other half: a shortcut added at runtime\n-- a plugin, a menu action -- appears without anyone editing a list.\n\nAnything already in :data:`SHORTCUTS` is left to its declaration, which\nis where the label and the scope live.\n\n:param window: the widget whose child :class:`QShortcut` and\n    :class:`QAction` objects are searched; a widget that cannot be searched\n    yields an empty list."
+      "source_sha256": "019f0c097ed8d0a0f82113de702c352ff496614b52bbbe77366c2aa5b8ab2b5e",
+      "text": "Find additional child shortcut and action sequences for the map.\n\nSequences already described by :func:`mapped`, including saved\nwindow-wide overrides, are excluded. Other nonempty sequences are\ndeduplicated by their native spelling. The scan includes existing\nholders regardless of whether they are enabled or currently visible;\nit does not determine which action would receive a key event.\n\nThe declared map supplies labels and scopes for known bindings even\nbefore their owning screens have been constructed.\n\n:param window: the widget whose child :class:`QShortcut` and\n    :class:`QAction` objects are searched; a widget that cannot be searched\n    yields an empty list."
     },
     "spacr.qt.shortcuts.install": {
       "source_blocks_sha256": [
-        "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
-        "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e",
+        "6706ba544f6499a712531b101f6ef6451d48fabe2bf7cf327248d878bc005799",
+        "ebf9a5b54b8786da2529631c6a2bcef7aa60741987a6f6560e7e6b208c59d1fb",
         "b08af858cd0d8c067c44c081c63981367bc8f3fa8a6a7bebb3a54e6ecffba6ff"
       ],
-      "source_sha256": "b09fbe714a6e140410814ade3f871c789ff3075382e37a6bbded9195afc5e9e8",
-      "text": "Wire every shortcut in :data:`SHORTCUTS` onto ``window``.\n\nIdempotent — safe to call from within reload paths.\n\n:param window: the main window the application shortcuts are bound to."
+      "source_sha256": "cdb3b07462047e70feb574de143a810c46dc3f388d873a5c7bfecd4671005f94",
+      "text": "Bind the shortcuts returned by :func:`installed` on ``window``.\n\nExisting shortcut holders are reused. Menu-owned keys and the scroll\ngesture are installed elsewhere; this function also installs the\noptional window hooks and applies saved keymap overrides.\n\n:param window: the main window the application shortcuts are bound to."
     },
     "spacr.qt.shortcuts.installed": {
       "source_blocks_sha256": [
@@ -74069,12 +74063,13 @@
     },
     "spacr.qt.shortcuts.show_cheat_sheet": {
       "source_blocks_sha256": [
-        "2810962954712108ea36b2d3727f5a3025e7d87c9fccda12a3445dc5ff0d612e",
-        "278ba1d823e182486a8d9f53d9423fca337e013794b232fde3ccfbe690cdfb5b",
-        "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746"
+        "f7baa4bb84230f74777014892a2869b9e5cfca37f40292483e3b57abadc824c3",
+        "c0a54d6ea771ff1e9483058ecb3c2b147eeb06aebd306017db6902002f3069b8",
+        "7b5a6efddc8c0dd46f206c4bdba2f5df116a513c1055d50c3877807a7ff751bc",
+        "7ca3f41e238f8bf92047bfb151d45c774b0b582e92ce5224bdccd3e46d2f5f4f"
       ],
-      "source_sha256": "1f88687fba7e581dac3222bb3b4a8c675c45d0aadf21da91b6677a049f5ce734",
-      "text": "Show every registered shortcut, grouped by category.\n\nAn overlay when ``parent`` is a real window, so ``?`` answers and gets\nout of the way. A modal dialog remains the fallback for a parentless or\nzero-sized caller, where an overlay would have nothing to cover.\n\n:param parent: the window to cover. A :class:`QWidget` with a non-zero size\n    gets the overlay, replacing any overlay it already has; anything else\n    gets a modal dialog parented to it."
+      "source_sha256": "a1a5b879411753c5b7350f8d401a083248a13b1f6ba970bf91bd77471700a898",
+      "text": "Show shortcut help as an overlay or a fallback dialog.\n\nA nonzero-sized widget gets :class:`ShortcutOverlay`, which includes\ndeclared screen scopes, saved bindings and additional child sequences.\nA parentless or zero-sized caller gets a modal dialog containing the\ndefault window-wide :data:`SHORTCUTS` table instead.\n\n:param parent: the window to cover. A :class:`QWidget` with a non-zero size\n    gets the overlay, replacing any overlay it already has. Otherwise,\n    ``None`` or a zero-sized widget parents the fallback dialog.\n:returns: the overlay when one is shown, or ``None`` after the fallback\n    dialog closes."
     },
     "spacr.qt.shutdown": {
       "source_blocks_sha256": [
@@ -104255,13 +104250,13 @@
     },
     "spacr.qt.widgets.picture_export": {
       "source_blocks_sha256": [
-        "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
-        "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
-        "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+        "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+        "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+        "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+        "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438"
       ],
-      "source_sha256": "e3cf46c60a811ef1693d93a5d2811ce3a4e57d35a14002f4d5ac22396eb68af2",
-      "text": "Right-click a picture and save it, as a PNG or as a PDF.\n\nA picture on screen is often the thing somebody wants in a slide an hour\nlater, and the route to it was a screenshot of a window, at the window's\nresolution, with the surrounding chrome in it. This saves THE PICTURE, at\nthe resolution it was rendered at rather than the size it happens to be\nshown at, into a file of the user's choosing.\n\nTWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster\ndropped into a PDF satisfies the file name and nothing else; a figure panel\nis a page, and a page has a size in millimetres. :func:`save_picture` gives\nthe PDF a page the image's own shape and tells the writer the resolution\nPreferences carries, so the picture lands at the size it was measured at and\nprints at that resolution.\n\nThe resolution and the default format are the ones the Figures preferences\nalready own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and\n:func:`spacr.qt.preferences.get_figure_format` -- so a user who has already\nsaid \"300 DPI, PDF\" is not asked a second time in different words."
+      "source_sha256": "98d11f91777723d4f06f53afec8a33736804e167b61ec424928ab4cd1ce5417b",
+      "text": "Save a rendered picture as a PNG or a one-page PDF.\n\nExports use the supplied ``QImage`` or ``QPixmap`` rather than capturing\nthe surrounding widget. PNG preserves the image's pixel dimensions and\nrecords the selected resolution as dots-per-metre metadata. PDF embeds\nthe raster image on a page; it does not convert pixels into vector artwork.\n\nPDF page dimensions are computed from the image's pixel dimensions and\nexport DPI, with a minimum of one millimetre for each dimension. The image\nfills the page with zero margins. This sets the printed size without using\nmicroscope pixel calibration.\n\nDefault resolution and filename suffix come from\n:func:`spacr.qt.preferences.get_figure_png_dpi` and\n:func:`spacr.qt.preferences.get_figure_format`. The right-click menu's\nexplicit PNG or PDF choice determines the final export format."
     },
     "spacr.qt.widgets.picture_export.as_image": {
       "source_blocks_sha256": [
@@ -104274,13 +104269,13 @@
     },
     "spacr.qt.widgets.picture_export.ask_where_to_save": {
       "source_blocks_sha256": [
-        "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-        "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
+        "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+        "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
         "e175adca6ea08d81b58e711b99e753b361c04d1455b2a7349e342e757ed2ba3d",
         "0b061d8659b19ef97e93a58012aceb5a4dafc2b4534ffdb7ac0a5df49c840dbe"
       ],
-      "source_sha256": "7af4cf1145ea9001e03ad52f3acdc74f66b8735a954f65f7259e7ac2317c4781",
-      "text": "Ask for a path. ``\"\"`` when the user walked away.\n\nTHE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one\nwould otherwise be written as a PNG whatever filter was selected, which\nis how \"save as PDF\" quietly produces a raster.\n\n:param parent: the widget the save dialog is parented to.\n:param stem: the file name offered, without a suffix; cleaned by\n    :func:`suggested_name`."
+      "source_sha256": "2880b071c16629d1e930dd95d63f52a61bc1b2908a78b0919db9111cd79aa21d",
+      "text": "Ask for an output path; return ``\"\"`` when the dialog is cancelled.\n\nIf the chosen name has no suffix, append ``.pdf`` or ``.png`` according\nto the selected file filter. An existing suffix is retained here;\n:func:`save_as` subsequently enforces the format chosen in the menu.\n\n:param parent: the widget the save dialog is parented to.\n:param stem: the file name offered, without a suffix; cleaned by\n    :func:`suggested_name`."
     },
     "spacr.qt.widgets.picture_export.build_menu": {
       "source_blocks_sha256": [
@@ -104307,13 +104302,13 @@
       "source_blocks_sha256": [
         "8b5861219280651cceec81a976745180d537938171b370bc5a6d28a0391f2ed7",
         "f31cbdfee2ec61110b20536bb1bd9e3f33c53c02c78b4b6025786d2ca047d33b",
-        "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
-        "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
+        "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+        "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
         "ba2b8e6f8d41436b57d345131c416e8dc38d90383f75c6c5c5f333a0f256ed11",
         "90be78060899965463fd2f87be06b3657c739b9f648678078efa8c1e6afb359a"
       ],
-      "source_sha256": "d18f03786ef1513c840affd97c5b7d39e6fe7b9bd2cdbe2f1fec21da3afcb5ef",
-      "text": "Give ``view`` a right-click menu that saves what it is showing.\n\n:param view: the widget the user right-clicks.\n:param picture: called when the menu is used; returns the ``QPixmap`` or\n    ``QImage`` to write. Called AT SAVE TIME rather than now, so the\n    menu always writes the picture currently on screen.\n:param stem: the file name offered, without a suffix. A callable is\n    asked at save time, so a view whose contents change -- Overlay one\n    moment, Flows the next -- offers the name of what is on it now.\n:param unless: asked first; ``True`` means the right button belongs to\n    something else at this moment and no menu is shown. The live\n    preview's ruler is cleared with a right-click while it is active,\n    and a menu appearing over that would take a tool away to add a file\n    dialog nobody asked for.\n:returns: whether the menu was installed."
+      "source_sha256": "75d1d33693e0b475928bfec28e99c4c4c76cb80e7369ee6aaef9f9c2fb49dad1",
+      "text": "Give ``view`` a right-click menu that saves what it is showing.\n\n:param view: the widget the user right-clicks.\n:param picture: called before the context menu opens; returns the\n    ``QPixmap`` or ``QImage`` to write. The returned image is used after\n    the format and path dialogs; the callback is not called again\n    immediately before writing.\n:param stem: the file name offered, without a suffix. A callable is\n    called after the format is selected and before the path dialog opens.\n:param unless: asked first; ``True`` means the right button belongs to\n    something else at this moment and no menu is shown. The live\n    preview's ruler is cleared with a right-click while it is active,\n    and a menu appearing over that would take a tool away to add a file\n    dialog nobody asked for.\n:returns: whether the menu was installed."
     },
     "spacr.qt.widgets.picture_export.install_picture_save._menu": {
       "source_blocks_sha256": [
@@ -112422,30 +112417,30 @@
         "457e69c96245b55fdbbdd60292d19a02453919646aab895ba67861a46e795490",
         "813c19959fbc284ab6e632f2339ab6e3e4d666df3e51ce25261c25dc12196481",
         "e86316fb33392961bd71630ade8e9a4f0ca018edca168ffab52c4dc6686b39ab",
-        "4b9b132532590a97ab0f0e507fe40d78bb1ed499850892493388af963343e363",
-        "49e2df421677335ff6dfa1ed545f6eeb1a4ca6e009c31eb1edd86b0d15520482"
+        "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+        "722c5e2b36795b20cf594924d7d1cfd0164a7e9fcbf8dc6f876430462fb4ed92"
       ],
-      "source_sha256": "4bcaf64be8c468786f816f3e8adbc9bfb1d522afec46956ec126062542708f3e",
-      "text": "Every Image UMAP setting, live-editable against the STATIC figure.\n\nThe live explorer has a settings window whose display options apply to the\nfigure on screen. This module provides the equivalent for\nthe screen -- the ordinary, non-live figure the run leaves in\n:class:`spacr.qt.widgets.figure_queue.FigureQueue`::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nTHE COST OF A SETTING IS NOT UNIFORM, and pretending it is would make the\npanel unusable. Three tiers, and every field declares which one it is in:\n\n``TIER_STYLE``\n    settable on artists that already exist -- dot size, dot colour, opacity,\n    outline width. Microseconds; nothing is re-read from disk.\n``TIER_REDRAW``\n    needs the figure replotted, but **from the same embedding** -- image\n    count, image zoom, figure size, which layers are drawn. Tenths of a\n    second, because the thumbnails are re-read, so these are debounced.\n``TIER_RERUN``\n    changes the embedding itself -- ``n_neighbors``, ``min_dist``, the metric,\n    the feature filter. There is no honest way to apply one of these to a\n    finished figure: recomputing moves every point, and the arrangement the\n    user was reading is the whole value of the projection. They are editable\n    and propagated, and the panel says they land on the next run.\n\nThe tier is a fact about the artists and the data, not a policy, which is why\nit lives beside the field rather than in the caller."
+      "source_sha256": "f5b591231b6da111821280a3ed8f98f3119a01f4d9bd0be5f6090294c90aa5de",
+      "text": "Every Image UMAP setting, live-editable against the STATIC figure.\n\nThe live explorer has a settings window whose display options apply to the\nfigure on screen. This module provides the equivalent for\nthe screen -- the ordinary, non-live figure the run leaves in\n:class:`spacr.qt.widgets.figure_queue.FigureQueue`::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nTHE COST OF A SETTING IS NOT UNIFORM, and pretending it is would make the\npanel unusable. Three tiers, and every field declares which one it is in:\n\n``TIER_STYLE``\n    settable on artists that already exist -- dot size, dot colour, opacity,\n    outline width. Microseconds; nothing is re-read from disk.\n``TIER_REDRAW``\n    needs the figure replotted, but **from the same embedding** -- image\n    count, image zoom, figure size, which layers are drawn. Tenths of a\n    second, because the thumbnails are re-read, so these are debounced.\n``TIER_RERUN``\n    kept for a later run rather than applied to the finished figure. This\n    tier includes ``n_neighbors``, ``min_dist``, the metric and feature filter,\n    along with clustering, view-layout and output options. Not every setting\n    in this tier changes embedding coordinates. The containing dialog can\n    copy these values to the module through its Propagate settings action\n    when a propagation callback is available.\n\nEach field declares how this panel applies its changes."
     },
     "spacr.qt.widgets.umap_figure_settings.Field": {
       "source_blocks_sha256": [
         "1bb1329bc6d2bb19af21d7613e66585089eae193b5bc24385cccef52c00b1221",
         "24b81051d00918cfe9d4e4cce66abe9c8ef8258fce7a12b9ddb155f693967368",
         "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
-        "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+        "8e99e65063d8835ea7d5bd47c1861f1543d131cd034dcaa622ed383fe20f795e",
         "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
         "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
         "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
         "23317f43478a669144bb78f73e1c3f23b0111a33eac48f038e22069c42073bc0"
       ],
-      "source_sha256": "217dfb18d0c5f7458ed254daaf1e8fff4fedda8a01297887b7b9406eca515cb2",
-      "text": "One editable Image UMAP setting.\n\n:param key: the settings key.\n:param label: the label shown beside the editor.\n:param kind: the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``,\n    ``\"text\"`` or ``\"choice\"``.\n:param low: lower bound for a numeric editor (unused otherwise).\n:param high: upper bound for a numeric editor (unused otherwise).\n:param tier: what applying it takes: :data:`TIER_STYLE`,\n    :data:`TIER_REDRAW` or :data:`TIER_RERUN`.\n:param choices: the options of a ``\"choice\"`` field."
+      "source_sha256": "1511c3172149c4cdc00131ecd1fe893d2c6ffa76eba9115ffa91fd60bec94f16",
+      "text": "One editable Image UMAP setting.\n\n:param key: the settings key.\n:param label: the label shown beside the editor.\n:param kind: the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``,\n    ``\"text\"``, ``\"choice\"`` or ``\"int_or_none\"``. The nullable integer\n    uses a text editor and the ``_int_or_none`` parser.\n:param low: lower bound for a numeric editor (unused otherwise).\n:param high: upper bound for a numeric editor (unused otherwise).\n:param tier: what applying it takes: :data:`TIER_STYLE`,\n    :data:`TIER_REDRAW` or :data:`TIER_RERUN`.\n:param choices: the options of a ``\"choice\"`` field."
     },
     "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings": {
       "source_blocks_sha256": [
         "584bea674fa725bc62607e48eedd993c200fd501812c1e1898aa3dc3b8ac8a92",
-        "cf38f19699f0fdfeb4645b36eca07b627472c6a4713001c7e624416193e2c41c",
+        "86371b840bf2432a4a221edd8fa2e7c60c74dec90e74579bc73563d598b7c3fe",
         "cd0bf5d8e47aef516471abd1fec22cb21061510ff19e146784e26a1057c9c7f4",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "4becb852ed5510f8145e36128baaef5c113efc1648850d7d2dd7adf45cbde1c7",
@@ -112453,8 +112448,8 @@
         "f222b0c4442c6f7fcffc31642b01fc43303e7432057ace43fdfd557b360fe0d7",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "94006c022b10299a6b096135e77f9a39dafabfd7a1682466f1789dbf80efc711",
-      "text": "Edit Image UMAP figure settings with debounced live application.\n\nEach change emits :attr:`settings_changed` with the complete settings\ndictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings\nwindow applies style and redraw tiers immediately; rerun-tier values are\nretained for the next embedding run. No separate Apply action is required.\n\n:param values: the settings to open on. ``None`` opens on the defaults.\n:param parent: parent widget.\nBuild the Image UMAP settings panel, grouped by when a change applies.\n\nThe three tiers are the point: settings that restyle the points already\ndrawn, settings that redraw the graph from the same embedding so no\npoint moves, and settings that only take effect on the next run.\n\n:param values: the settings to open with; ``None`` entries fall back to\n    the module defaults.\n:param parent: parent widget, or ``None``."
+      "source_sha256": "4ba8ef309eebaa71cfdc7ba1211494a664a438c6fecf65e80a0bdd8043846d32",
+      "text": "Edit Image UMAP figure settings with debounced live application.\n\nEach change emits :attr:`settings_changed` with the complete settings\ndictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings\nwindow applies style and redraw tiers without a separate Apply action.\nRerun-tier values do not update the current figure; the containing dialog\ncan propagate them to the module for a later run.\n\n:param values: the settings to open on. ``None`` opens on the defaults.\n:param parent: parent widget.\nBuild the Image UMAP settings panel, grouped by when a change applies.\n\nThe three tiers are the point: settings that restyle the points already\ndrawn, settings that redraw the graph from the same embedding so no\npoint moves, and settings that only take effect on the next run.\n\n:param values: the settings to open with; ``None`` entries fall back to\n    the module defaults.\n:param parent: parent widget, or ``None``."
     },
     "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings.flush": {
       "source_blocks_sha256": [

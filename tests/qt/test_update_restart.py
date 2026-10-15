@@ -61,6 +61,32 @@ def test_failed_state_save_leaves_the_application_open(messages, monkeypatch):
     assert "could not be saved" in messages[-1][1]
 
 
+@pytest.mark.parametrize('handoff', ['installed', 'pip_approval'])
+def test_altered_same_module_settings_prevent_shutdown_approval(messages, monkeypatch, handoff):
+    import json
+    from pathlib import Path
+
+    real_replace = restart_state.os.replace
+
+    def altered_replace(source, target):
+        real_replace(source, target)
+        target = Path(target)
+        document = json.loads(target.read_text())
+        document['settings']['src'] = '/different-input'
+        target.write_text(json.dumps(document, indent=2))
+
+    monkeypatch.setattr(restart_state.os, 'replace', altered_replace)
+    window = Window()
+    if handoff == 'installed':
+        window._restart_after_package_upgrade()
+        assert not getattr(window, '_restart_after_update', False)
+    else:
+        assert qt_app.MainWindow._save_pip_update_restart(window) is False
+        assert not getattr(window, '_frozen_update_restart_saved', False)
+    assert not window.closed
+    assert 'could not be saved' in messages[-1][1]
+
+
 def test_source_checkout_explanation_precedes_cleanup_or_install(messages, monkeypatch):
     monkeypatch.setattr(updater, "editable_install_location", lambda: "/source/spacr")
     window = Window()

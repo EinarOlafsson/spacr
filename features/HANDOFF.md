@@ -12943,3 +12943,48 @@ captions preserved). Two failures before/13PASS after; precise function/source
 receipt in features/data/562_535_caption_owners_2026-10-15/. F564 four-owner
 extraction already public4c8a696df01. No backend/source reviews/catalog edits;
 Original Home owns scoped normal generation and feature acceptance.
+
+## 2026-10-15 Home-B — picture and shortcut prose plus270 reviewed API targets
+
+Corrected picture-export raster/PDF/DPI and callback-timing descriptions, and
+shortcut declared/installed/discovered bindings, registry-index navigation and
+overlay/modal behavior. Executable AST is unchanged for both source files.
+Normal scoped generation refreshed30blocks in10symbols across9locales.
+Independent technical review accepted72picture targets and198shortcut targets;
+four peer-found Spanish/Swedish defects were corrected before final generation.
+Eight explicitly authorized shifted constructor targets were repaired, while
+the other10 remain exact. Old review text survives in precise retirement
+receipts (72picture/108shortcut rows). The coordinator independently verified
+peer source hashes, all10owned records and preservation of13,394 unrelated
+records per locale. Evidence: features/data/678_picture_shortcut_catalogs_2026-10-15/
+and its two independent peer-review directories. This closes this bounded
+N678 batch, not whole N678 or native-speaker acceptance. No runtime caption,
+immutable arrival baseline, validator, model decoding or finalCI changed.
+
+UMAP misleading prose/caption is the next coherent private source/API/runtime
+batch. N698 static web-caption extraction is delivered privately as owner
+commits d1fe28327d4+55b96d555ab (38focused checks); Original Home owns its
+178new canonical source reviews/normal generation before source publication.
+Exact source/hash list and newline normalization identities are in that
+branch's features/data/698_web_caption_extractor_2026-10-15/.
+
+## 2026-10-15 Home-B — coherent UMAP tier/editor prose and caption delivery
+
+Corrected the false claim that every rerun-tier setting changes embedding
+coordinates, documented nullable integers, and explained the optional actual
+Propagate settings action. Four changed blocks in three existing API symbols
+have36 independently reviewed targets; one literal-tr caption has9 targets.
+Normal scoped writers preserve13,401 unrelated API records and10,574 runtime
+entries per locale. Coordinator readback verifies exact owned records and
+all unrelated runtime assignments. The unchanged normal arrival tool refreshed
+892added/29changed/150retired with the immutable9,833baseline unchanged.
+Evidence: features/data/678_umap_runtime_catalogs_2026-10-15/,
+678_umap_api_catalogs_2026-10-15/,678_umap_api_peer_review_2026-10-15/.
+No embedding/clustering/scientific behavior changed, no validator/pin raised,
+and no global nine-language runtime audit/fullCI/release claim.
+
+Private dependencies sent to Original Home: F562 exact helper extractor
+7933c1772c6 (23focusedPASS), and F580 reference-plate owner UI1426878f095
+(baseline4FAIL/3PASS, after7PASS). Original owns coherent domain source,
+reviews and generation before publication. F580 normal guide localization
+is being prepared separately by Home-B; no adapter-only publication.

@@ -1,0 +1,1561 @@
+{
+  "scope": "Read all 1739 pre-change lines of shortcuts.py, including declarations, keymap editor, binders, handlers and overlay/fallback. Read actual Annotate, Make Masks, QC browser, Gate Editor and main-window binding call sites. This does not complete N678 or certify every shortcut on every native platform.",
+  "docstrings_reviewed": 72,
+  "docstrings_revised": 15,
+  "retained_scope_note": "Retained means no proven factual correction made in this bounded pass; it is not final stylistic/native acceptance of all text.",
+  "docstring_ledger": [
+    {
+      "symbol": "<module>",
+      "disposition": "revised",
+      "before": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Open the AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up.\n\nEvery window-wide key can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser) have separate\neditable rows and saved overrides, applied to both existing and new screens.",
+      "after": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.\n\nThe default window-wide actions include:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Open the corresponding app-registry entry if visible\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1            Show the shortcuts cheat sheet\n    ?             Use the active screen's help action, or show the cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Toggle the active module's AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n\n:func:`install` creates the bindings returned by :func:`installed`.\nOther actions in :data:`SHORTCUTS` are bound by the main window's menus;\nthe scroll gesture uses an event filter. Screen-owned bindings are included\nby :func:`mapped`, with their scope and saved overrides. Escape handling\nbelongs to the active screen, overlay or dialog rather than a binding\ninstalled here.\n\nDeclared window-wide key sequences can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate\neditable rows and saved overrides, applied to both existing and new screens.",
+      "after_line": 1,
+      "after_symbol_ast_sha256": "3afb923f91bcfeba03d02eaba2aae1f11f6a71f42fa4280f064c4a0375d0688f"
+    },
+    {
+      "symbol": "ShortcutSpec",
+      "disposition": "retained",
+      "before": "One shortcut declaration.\n\n:param keys: the binding, in Qt's portable spelling. It is PRINTED\n    through `QKeySequence.toString(NativeText)`, so `Ctrl` reads as the\n    Command symbol on macOS -- writing \"Ctrl+H\" into a label would\n    hard-code one platform into the help.\n:param label: what the key does.\n:param category: the group it is shown under.\n:param scope: where it works. The default is the whole window; a\n    per-screen binding names its screen.",
+      "after": "One shortcut declaration.\n\n:param keys: the binding, in Qt's portable spelling. It is PRINTED\n    through `QKeySequence.toString(NativeText)`, so `Ctrl` reads as the\n    Command symbol on macOS -- writing \"Ctrl+H\" into a label would\n    hard-code one platform into the help.\n:param label: what the key does.\n:param category: the group it is shown under.\n:param scope: where it works. The default is the whole window; a\n    per-screen binding names its screen.",
+      "after_line": 67,
+      "after_symbol_ast_sha256": "1fcf8bb129978abca1ea78c9a2275711109dd32680c815c4b8265ec5d5bbbd48"
+    },
+    {
+      "symbol": "_ValueEdit",
+      "disposition": "retained",
+      "before": "One undoable change of a value, replayed through a setter.\n\nThe change has already happened when it is recorded, so the first\n``redo`` that :meth:`QUndoStack.push` makes is skipped.",
+      "after": "One undoable change of a value, replayed through a setter.\n\nThe change has already happened when it is recorded, so the first\n``redo`` that :meth:`QUndoStack.push` makes is skipped.",
+      "after_line": 238,
+      "after_symbol_ast_sha256": "91bd1bdc4f135c3c93f225e75560f4f4fdbd21d7395841b12e95940f9d82a732"
+    },
+    {
+      "symbol": "_ValueEdit.__init__",
+      "disposition": "retained",
+      "before": "Remember both values and the setter that writes either back.\n\n:param text: what the step is called in an undo menu.\n:param apply: callable taking a value and writing it back.\n:param old: the value before the edit.\n:param new: the value after the edit.",
+      "after": "Remember both values and the setter that writes either back.\n\n:param text: what the step is called in an undo menu.\n:param apply: callable taking a value and writing it back.\n:param old: the value before the edit.\n:param new: the value after the edit.",
+      "after_line": 245,
+      "after_symbol_ast_sha256": "18bada579f51bd77871ffde09ab7ce6356a8539a3c35308a9fb1886cb0302f0d"
+    },
+    {
+      "symbol": "_ValueEdit.redo",
+      "disposition": "retained",
+      "before": "Write the new value back, unless it is already there.",
+      "after": "Write the new value back, unless it is already there.",
+      "after_line": 259,
+      "after_symbol_ast_sha256": "daf4c2130bf82eebe3dd1eb2c7797836855a6fb043ff0bb46ddef3da70ae801c"
+    },
+    {
+      "symbol": "_ValueEdit.undo",
+      "disposition": "retained",
+      "before": "Write the old value back.",
+      "after": "Write the old value back.",
+      "after_line": 266,
+      "after_symbol_ast_sha256": "597d2c5c0d382eb0626310f4cd5dd1335787c227894e777f91f6985590e8fe58"
+    },
+    {
+      "symbol": "_same",
+      "disposition": "retained",
+      "before": "Whether two recorded values are equal, tolerating odd comparisons.",
+      "after": "Whether two recorded values are equal, tolerating odd comparisons.",
+      "after_line": 271,
+      "after_symbol_ast_sha256": "5efb1d43c49b37c7aca535207c35c30ea564f9bfa1d59b01433e7b0904106927"
+    },
+    {
+      "symbol": "_record_edit",
+      "disposition": "retained",
+      "before": "Push one finished edit onto ``stack`` unless it changed nothing.\n\n:param stack: the editor's undo stack.\n:param text: what the step is called.\n:param apply: callable writing a value back.\n:param old: the value before the edit.\n:param new: the value after it.\n:returns: whether a step was pushed.",
+      "after": "Push one finished edit onto ``stack`` unless it changed nothing.\n\n:param stack: the editor's undo stack.\n:param text: what the step is called.\n:param apply: callable writing a value back.\n:param old: the value before the edit.\n:param new: the value after it.\n:returns: whether a step was pushed.",
+      "after_line": 279,
+      "after_symbol_ast_sha256": "7f15c1186708685fd2a6b32c996ce3c9837ca9beae672b0ec529a6d5e8aa5b96"
+    },
+    {
+      "symbol": "_bind_undo_keys",
+      "disposition": "revised",
+      "before": "Bind Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y on ``widget`` and its children.\n\nA text field that has the focus keeps its own Ctrl+Z, so typing is still\nundone a character at a time before the editor's steps are reached.\n\n:param widget: the editor that owns the keys.\n:param undo: a :class:`QUndoStack`, or a callable that undoes one step.\n:param redo: the callable that redoes one step; taken from ``undo`` when\n    that is a stack.\n:returns: the shortcuts made, parented to ``widget``.",
+      "after": "Bind Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y on ``widget`` and its children.\n\nA focused text field can handle Ctrl+Z through Qt's shortcut override.\nIts own undo history determines how typing is grouped; this helper\nbinds the editor-level undo and redo callbacks.\n\n:param widget: the editor that owns the keys.\n:param undo: a :class:`QUndoStack`, or a callable that undoes one step.\n:param redo: the callable that redoes one step; taken from ``undo`` when\n    that is a stack.\n:returns: the shortcuts made, parented to ``widget``.",
+      "after_line": 295,
+      "after_symbol_ast_sha256": "08c9efe024c498ba7a31731173e3121c1f7030b26e381beb61bebe11846778ca"
+    },
+    {
+      "symbol": "_is_a_gesture",
+      "disposition": "retained",
+      "before": "Whether ``keys`` describes a hand movement rather than a key sequence.\n\nRECOGNISED BY SHAPE, NOT BY A LIST OF EXCEPTIONS. A real accelerator is\n\"Ctrl+Shift+A\" with no spaces; a gesture is prose -- \"Z + scroll\" -- and\nthe spaces around the plus are what say so. A second gesture therefore\nneeds no edit here, and a mistyped sequence still fails rather than\nbeing quietly excused as a gesture.\n\nThe same rule is asserted from the other side in\n`tests/qt/test_shortcut_overlay.py`, which refuses any gesture it has\nnot been told about.",
+      "after": "Whether ``keys`` describes a hand movement rather than a key sequence.\n\nRECOGNISED BY SHAPE, NOT BY A LIST OF EXCEPTIONS. A real accelerator is\n\"Ctrl+Shift+A\" with no spaces; a gesture is prose -- \"Z + scroll\" -- and\nthe spaces around the plus are what say so. A second gesture therefore\nneeds no edit here, and a mistyped sequence still fails rather than\nbeing quietly excused as a gesture.\n\nThe same rule is asserted from the other side in\n`tests/qt/test_shortcut_overlay.py`, which refuses any gesture it has\nnot been told about.",
+      "after_line": 323,
+      "after_symbol_ast_sha256": "48c19b154d74f41319627f98c1dd666797ae0a3132c03193c28d38727d85ebc5"
+    },
+    {
+      "symbol": "installed",
+      "disposition": "retained",
+      "before": "The window-wide keys that :func:`install` is responsible for binding.\n\nGestures are not among them. A gesture is a modifier held while the\nmouse wheel turns, and it is caught by an event filter rather than by a\nkey sequence, so no shortcut object can express it and none is created\nfor it. Listing one here would promise a binding that cannot be made.\n\nEvery gesture is still listed on the shortcut map. :func:`mapped`\nreturns what the hands can do, and this returns what the shortcut\nobjects own.",
+      "after": "The window-wide keys that :func:`install` is responsible for binding.\n\nGestures are not among them. A gesture is a modifier held while the\nmouse wheel turns, and it is caught by an event filter rather than by a\nkey sequence, so no shortcut object can express it and none is created\nfor it. Listing one here would promise a binding that cannot be made.\n\nEvery gesture is still listed on the shortcut map. :func:`mapped`\nreturns what the hands can do, and this returns what the shortcut\nobjects own.",
+      "after_line": 339,
+      "after_symbol_ast_sha256": "32e48a5efff40bb6260cf975816657b5a89f5148677bdce8144480eaac7cc869"
+    },
+    {
+      "symbol": "mapped",
+      "disposition": "retained",
+      "before": "Every shortcut the map describes: window-wide, then per-screen.",
+      "after": "Every shortcut the map describes: window-wide, then per-screen.",
+      "after_line": 355,
+      "after_symbol_ast_sha256": "98db963be656ad1d732833712eaf89d8ab45dfc0256b3e3e9417de50c1a585c0"
+    },
+    {
+      "symbol": "native",
+      "disposition": "retained",
+      "before": "``keys`` in the spelling the user's own keyboard has.\n\n`Ctrl` is the Command symbol on macOS and Qt already knows; writing\n\"Ctrl+H\" into a label hard-codes one platform into the help.\n\n:param keys: a key sequence in Qt's portable spelling, such as\n    ``'Ctrl+H'``. Returned unchanged when Qt cannot convert it.",
+      "after": "``keys`` in the spelling the user's own keyboard has.\n\n`Ctrl` is the Command symbol on macOS and Qt already knows; writing\n\"Ctrl+H\" into a label hard-codes one platform into the help.\n\n:param keys: a key sequence in Qt's portable spelling, such as\n    ``'Ctrl+H'``. Returned unchanged when Qt cannot convert it.",
+      "after_line": 364,
+      "after_symbol_ast_sha256": "82e1abeb2bb265f6f282c00dd64d9f4105a60e0d23659a150196f5ce37316adf"
+    },
+    {
+      "symbol": "discover",
+      "disposition": "revised",
+      "before": "Every shortcut LIVE on ``window``, whether declared or not.\n\nThe declared table is what the map is drawn from, because a per-screen\nbinding does not exist until that screen is built and the map has to\ndescribe it anyway. This is the other half: a shortcut added at runtime\n-- a plugin, a menu action -- appears without anyone editing a list.\n\nAnything already in :data:`SHORTCUTS` is left to its declaration, which\nis where the label and the scope live.\n\n:param window: the widget whose child :class:`QShortcut` and\n    :class:`QAction` objects are searched; a widget that cannot be searched\n    yields an empty list.",
+      "after": "Find additional child shortcut and action sequences for the map.\n\nSequences already described by :func:`mapped`, including saved\nwindow-wide overrides, are excluded. Other nonempty sequences are\ndeduplicated by their native spelling. The scan includes existing\nholders regardless of whether they are enabled or currently visible;\nit does not determine which action would receive a key event.\n\nThe declared map supplies labels and scopes for known bindings even\nbefore their owning screens have been constructed.\n\n:param window: the widget whose child :class:`QShortcut` and\n    :class:`QAction` objects are searched; a widget that cannot be searched\n    yields an empty list.",
+      "after_line": 380,
+      "after_symbol_ast_sha256": "3dcedc58a845385789b15174f3fb9f036f13544928bb994ff4be70092af4a42c"
+    },
+    {
+      "symbol": "_screen_specs",
+      "disposition": "revised",
+      "before": "Declared bindings for one screen, including shared navigation keys.",
+      "after": "Declared bindings with navigation captions specific to the screen.",
+      "after_line": 468,
+      "after_symbol_ast_sha256": "0855cc77bde04bd389eba72d2c9cca1db99e1d3298ab4c996d723bb2758e5e5e"
+    },
+    {
+      "symbol": "_screen_label",
+      "disposition": "retained",
+      "before": "Translate scoped action captions from their canonical English source.",
+      "after": "Translate scoped action captions from their canonical English source.",
+      "after_line": 485,
+      "after_symbol_ast_sha256": "723d52f58a66101838e1845b528aa36c3993236f6d7d43c0f04bb8335ec23157"
+    },
+    {
+      "symbol": "_load_screen_keymap",
+      "disposition": "retained",
+      "before": "Read known single-key per-screen overrides from the preferences store.",
+      "after": "Read known single-key per-screen overrides from the preferences store.",
+      "after_line": 514,
+      "after_symbol_ast_sha256": "1de54e798e773c797c36b3a0545c42229ed8e5ee6eb3c420990715fbb5120e7b"
+    },
+    {
+      "symbol": "_bind_screen_key",
+      "disposition": "retained",
+      "before": "Bind a declared screen key with its saved value and retain its identity.\n\n:param widget: screen owning the shortcut.\n:param scope: screen category in the declaration table.\n:param default: original portable key, identifying this binding.\n:param callback: action invoked on activation.\n:returns: the owned, screen-scoped shortcut.",
+      "after": "Bind a declared screen key with its saved value and retain its identity.\n\n:param widget: screen owning the shortcut.\n:param scope: screen category in the declaration table.\n:param default: original portable key, identifying this binding.\n:param callback: action invoked on activation.\n:returns: the owned, screen-scoped shortcut.",
+      "after_line": 540,
+      "after_symbol_ast_sha256": "cf7c18af521628e3425999587b67817228fe2c267d681740a76d16f4d93fb188"
+    },
+    {
+      "symbol": "_apply_screen_keymaps",
+      "disposition": "retained",
+      "before": "Update built screens and independent browser dialogs after a save.",
+      "after": "Update built screens and independent browser dialogs after a save.",
+      "after_line": 564,
+      "after_symbol_ast_sha256": "17dfb32a4f52ebffa114a9da1aee241e3ed8ee46b1ace6d77fd3a3ea9c6df9e9"
+    },
+    {
+      "symbol": "_refresh_screen_hints",
+      "disposition": "retained",
+      "before": "Keep inline key legends synchronized without changing mouse gestures.",
+      "after": "Keep inline key legends synchronized without changing mouse gestures.",
+      "after_line": 585,
+      "after_symbol_ast_sha256": "bffb04ec4eaca45dea7d80c6eb322083c18145acdac7fde3598e53a35202a365"
+    },
+    {
+      "symbol": "_screen_event_key",
+      "disposition": "retained",
+      "before": "Resolve a real key event to its declared original screen action key.\n\nRebound and cleared defaults stop routing through fixed event handlers.\nUnmodified undeclared keys retain the screen's existing keyboard tools;\nunrelated modified keys remain available to their own shortcuts.",
+      "after": "Resolve a real key event to its declared original screen action key.\n\nRebound and cleared defaults stop routing through fixed event handlers.\nUnmodified undeclared keys retain the screen's existing keyboard tools;\nunrelated modified keys remain available to their own shortcuts.",
+      "after_line": 636,
+      "after_symbol_ast_sha256": "b63b849235335d206afd683ae9870f990de5ff5897a449c2184b415f73e3401c"
+    },
+    {
+      "symbol": "_portable",
+      "disposition": "retained",
+      "before": "``keys`` in Qt's portable spelling, or ``\"\"`` when Qt cannot read it.",
+      "after": "``keys`` in Qt's portable spelling, or ``\"\"`` when Qt cannot read it.",
+      "after_line": 673,
+      "after_symbol_ast_sha256": "778c360cc5bd620f372075a415fd4222d31415acea55ff463975f2ce8b88e9d0"
+    },
+    {
+      "symbol": "_rebindable",
+      "disposition": "retained",
+      "before": "The window-wide actions a user may rebind, one row per default key.\n\nGestures are left out, since no key sequence expresses them.",
+      "after": "The window-wide actions a user may rebind, one row per default key.\n\nGestures are left out, since no key sequence expresses them.",
+      "after_line": 682,
+      "after_symbol_ast_sha256": "65f8ed6a5172253118d070b0bbbb8071d95cd2b5b5fc06c8e977ef4c1b043a03"
+    },
+    {
+      "symbol": "_load_keymap",
+      "disposition": "revised",
+      "before": "The saved overrides, default key to chosen key.\n\nA chosen key of ``\"\"`` means the action has no key. Entries for keys that\nare no longer rebindable, and anything unreadable, are dropped.",
+      "after": "The saved overrides, default key to chosen key.\n\nA chosen key of ``\"\"`` means the action has no key. Unknown default keys\nare ignored, and stored values for known defaults are converted to\nstrings. Unreadable JSON or a top-level value that is not a mapping\nyields an empty mapping.",
+      "after_line": 697,
+      "after_symbol_ast_sha256": "aed8e8cd20109abef7539efdb4eb394c7e8a61c01f56cf5d3a04a87a6873bfd7"
+    },
+    {
+      "symbol": "_save_keymap",
+      "disposition": "revised",
+      "before": "Store ``keymap``, keeping only the entries that differ from the default.\n\n:param keymap: default key to chosen key; ``\"\"`` unbinds the action.\n:param screen_keymap: per-screen overrides; saved ones when omitted.\n:raises ValueError: when two actions would share one key.",
+      "after": "Store ``keymap``, keeping only the entries that differ from the default.\n\n:param keymap: default key to chosen key; ``\"\"`` unbinds the action.\n:param screen_keymap: per-screen overrides; saved ones when omitted.\n:raises ValueError: when a screen override is not a single valid key\n    sequence, or simultaneously active actions would share a key.",
+      "after_line": 719,
+      "after_symbol_ast_sha256": "a4f148caa32c8a803fc5408b17ba15f5a59d1282dacd39fed7a6d1c65ff8c2b5"
+    },
+    {
+      "symbol": "_effective",
+      "disposition": "retained",
+      "before": "The key the action whose default is ``default`` answers to now.\n\n:param default: the action's default key, which is also its identity.\n:param keymap: the overrides to read; the saved ones when omitted.",
+      "after": "The key the action whose default is ``default`` answers to now.\n\n:param default: the action's default key, which is also its identity.\n:param keymap: the overrides to read; the saved ones when omitted.",
+      "after_line": 758,
+      "after_symbol_ast_sha256": "745359a4eab840a4807eea9e97b04e13b7d1f3ad50a243ffe7d9f9d57566ee96"
+    },
+    {
+      "symbol": "_conflicts",
+      "disposition": "retained",
+      "before": "Conflicts among global actions and within each independently active screen.\n\n:param keymap: global default key to chosen key.\n:param screen_keymap: screen category to default-key overrides.\n:returns: conflicting portable keys and their action labels.",
+      "after": "Conflicts among global actions and within each independently active screen.\n\n:param keymap: global default key to chosen key.\n:param screen_keymap: screen category to default-key overrides.\n:returns: conflicting portable keys and their action labels.",
+      "after_line": 768,
+      "after_symbol_ast_sha256": "31e446bc287a082ded2826ee63a9017d29ba4cbb7638ac2b48e5bc79bcabd16e"
+    },
+    {
+      "symbol": "_describe_conflicts",
+      "disposition": "retained",
+      "before": "One sentence per shared key, naming the actions that share it.",
+      "after": "One sentence per shared key, naming the actions that share it.",
+      "after_line": 797,
+      "after_symbol_ast_sha256": "e1a7ad32c10194b30e7221e74c001e54f9bade3becdac1744ce98ee883c90d28"
+    },
+    {
+      "symbol": "_holders",
+      "disposition": "retained",
+      "before": "The shortcut or menu action holding each rebindable key on ``window``.\n\nRecorded once, while every key still holds its default, so a later rebind\ncan find the holder again whatever key it now answers to.",
+      "after": "The shortcut or menu action holding each rebindable key on ``window``.\n\nRecorded once, while every key still holds its default, so a later rebind\ncan find the holder again whatever key it now answers to.",
+      "after_line": 806,
+      "after_symbol_ast_sha256": "8c21884e6592b3f36d37a93be705106f295974df289e0690de668a8e787ffc2f"
+    },
+    {
+      "symbol": "_apply_keymap",
+      "disposition": "retained",
+      "before": "Put every rebindable key on ``window`` to its chosen value.\n\n:param window: the main window whose shortcuts and menu actions change.\n:param keymap: the overrides; the saved ones when omitted.\n:returns: how many holders were set.",
+      "after": "Put every rebindable key on ``window`` to its chosen value.\n\n:param window: the main window whose shortcuts and menu actions change.\n:param keymap: the overrides; the saved ones when omitted.\n:returns: how many holders were set.",
+      "after_line": 847,
+      "after_symbol_ast_sha256": "9516064b45e90b725c283d50e8b3bf5051ce73d08a66f124687b3eeef27d0490"
+    },
+    {
+      "symbol": "_KeymapDialog",
+      "disposition": "retained",
+      "before": "Rebind global and screen shortcuts, refusing simultaneously active conflicts.\n\nOne row per action: what it does, its default key, and an editor holding\nthe key it answers to now. Conflicts are listed under the table as they\nappear and keep Save disabled until they are resolved.\n\n:param window: the main window the new keys are applied to on Save.",
+      "after": "Rebind global and screen shortcuts, refusing simultaneously active conflicts.\n\nOne row per action: what it does, its default key, and an editor holding\nthe key it answers to now. Conflicts are listed under the table as they\nappear and keep Save disabled until they are resolved.\n\n:param window: the main window the new keys are applied to on Save.",
+      "after_line": 869,
+      "after_symbol_ast_sha256": "a8e1e1233c1c6d68fb8f03629cf1a312189dca382e0de88d835d5dd122e333df"
+    },
+    {
+      "symbol": "_KeymapDialog.__init__",
+      "disposition": "retained",
+      "before": "Build the table from the saved keymap.\n\n:param window: the main window; also the dialog's parent.",
+      "after": "Build the table from the saved keymap.\n\n:param window: the main window; also the dialog's parent.",
+      "after_line": 879,
+      "after_symbol_ast_sha256": "47a32d34412f0153765c054695000400a0de776f11d8bc19c17912f40bb116e4"
+    },
+    {
+      "symbol": "_KeymapDialog.keymap",
+      "disposition": "retained",
+      "before": "The keys in the table, default key to chosen key.",
+      "after": "The keys in the table, default key to chosen key.",
+      "after_line": 963,
+      "after_symbol_ast_sha256": "6afe6654198b6a94551fe75bbe9539521662f49db5abf7016309b932a8034ab9"
+    },
+    {
+      "symbol": "_KeymapDialog.set_key",
+      "disposition": "retained",
+      "before": "Put ``keys`` in the row whose default is ``default``.\n\n:param default: the action's default key.\n:param keys: the new key, in portable spelling; ``\"\"`` clears it.",
+      "after": "Put ``keys`` in the row whose default is ``default``.\n\n:param default: the action's default key.\n:param keys: the new key, in portable spelling; ``\"\"`` clears it.",
+      "after_line": 969,
+      "after_symbol_ast_sha256": "d56d0c35e6ceb5d68cde01ce1e62632e0e8a385d2ac503b1e9a14217689c8167"
+    },
+    {
+      "symbol": "_KeymapDialog._screen_keymap",
+      "disposition": "retained",
+      "before": "The screen overrides currently displayed in the editor.",
+      "after": "The screen overrides currently displayed in the editor.",
+      "after_line": 979,
+      "after_symbol_ast_sha256": "4a62ef2bda54f884a3fd7a2a3dad7d58daa4adccf025e7896bf658942fc47d94"
+    },
+    {
+      "symbol": "_KeymapDialog._set_screen_key",
+      "disposition": "retained",
+      "before": "Edit one scoped binding without changing another screen's action.",
+      "after": "Edit one scoped binding without changing another screen's action.",
+      "after_line": 987,
+      "after_symbol_ast_sha256": "0f79ceaf32bb9aa4ae6c43f7c03db0b64485cab8382a29a26c3833a2afee36b7"
+    },
+    {
+      "symbol": "_KeymapDialog.conflict_text",
+      "disposition": "retained",
+      "before": "The conflict line under the table, as the user reads it.",
+      "after": "The conflict line under the table, as the user reads it.",
+      "after_line": 993,
+      "after_symbol_ast_sha256": "874f4feb22a8d981b633b4705cf4eaaadf1df5fcb54550142c58e1e4cc371e99"
+    },
+    {
+      "symbol": "_KeymapDialog.restore_defaults",
+      "disposition": "retained",
+      "before": "Put every row back to its default key.",
+      "after": "Put every row back to its default key.",
+      "after_line": 997,
+      "after_symbol_ast_sha256": "13f337d5e1d1b4322a59f499b13361897e7f9c158fcd6a54a0477ddb23f1c6a7"
+    },
+    {
+      "symbol": "_KeymapDialog._refresh",
+      "disposition": "retained",
+      "before": "Show the current conflicts and allow Save only when there are none.",
+      "after": "Show the current conflicts and allow Save only when there are none.",
+      "after_line": 1005,
+      "after_symbol_ast_sha256": "20366d3147acef483e2d9a7e7b27748644e35cdec5def30d868d6349cc1924db"
+    },
+    {
+      "symbol": "_KeymapDialog.save",
+      "disposition": "retained",
+      "before": "Store the keymap, apply it to the window and close.\n\n:returns: ``False`` when a conflict kept it from being stored.",
+      "after": "Store the keymap, apply it to the window and close.\n\n:returns: ``False`` when a conflict kept it from being stored.",
+      "after_line": 1012,
+      "after_symbol_ast_sha256": "34aed76c1cba2340cd82a0f0120c12876ca71d3cb4420b319242a09400859578"
+    },
+    {
+      "symbol": "_open_keymap",
+      "disposition": "retained",
+      "before": "Open the shortcut editor over ``window`` and return it.\n\nONE EDITOR PER WINDOW, AND IT GOES WHEN IT CLOSES. Each open used to\nbuild a new editor parented to the window and only hide it on Save or\nCancel, so every visit left a dialog, its table, its key editors and\nits popup backdrop alive under the window for the rest of the session.\nAn editor already open is raised instead of doubled, and a closed one\nis deleted by Qt after its button's click has finished dispatching.",
+      "after": "Open the shortcut editor over ``window`` and return it.\n\nONE EDITOR PER WINDOW, AND IT GOES WHEN IT CLOSES. Each open used to\nbuild a new editor parented to the window and only hide it on Save or\nCancel, so every visit left a dialog, its table, its key editors and\nits popup backdrop alive under the window for the rest of the session.\nAn editor already open is raised instead of doubled, and a closed one\nis deleted by Qt after its button's click has finished dispatching.",
+      "after_line": 1028,
+      "after_symbol_ast_sha256": "d7f2c58d0f671f3ac40be40df924181b84aca45c908ce854d63228e6ce9f6f01"
+    },
+    {
+      "symbol": "install",
+      "disposition": "revised",
+      "before": "Wire every shortcut in :data:`SHORTCUTS` onto ``window``.\n\nIdempotent — safe to call from within reload paths.\n\n:param window: the main window the application shortcuts are bound to.",
+      "after": "Bind the shortcuts returned by :func:`installed` on ``window``.\n\nExisting shortcut holders are reused. Menu-owned keys and the scroll\ngesture are installed elsewhere; this function also installs the\noptional window hooks and applies saved keymap overrides.\n\n:param window: the main window the application shortcuts are bound to.",
+      "after_line": 1055,
+      "after_symbol_ast_sha256": "d9d70c1a402262e23c63af8e295eddb8f7c6cf2ae4eeef6bb78d854c01ea3d3d"
+    },
+    {
+      "symbol": "_install_window_hooks",
+      "disposition": "retained",
+      "before": "Let modules that own a menu entry or a global filter wire themselves.\n\nThis runs once from ``MainWindow.__init__``, after ``_build_menu_bar``,\nwhich makes it the first moment a module can reach a live menu bar — the\nsame route :mod:`spacr.qt.first_run` and :mod:`spacr.qt.command_palette`\ntake to find one. Each hook is guarded on its own: an optional help\nentry must never cost anyone a window.",
+      "after": "Let modules that own a menu entry or a global filter wire themselves.\n\nThis runs once from ``MainWindow.__init__``, after ``_build_menu_bar``,\nwhich makes it the first moment a module can reach a live menu bar — the\nsame route :mod:`spacr.qt.first_run` and :mod:`spacr.qt.command_palette`\ntake to find one. Each hook is guarded on its own: an optional help\nentry must never cost anyone a window.",
+      "after_line": 1087,
+      "after_symbol_ast_sha256": "22349e5fbd1fdd72c749e0191e7c115ed9896563280fc224fddb72b25fa646c7"
+    },
+    {
+      "symbol": "_bind",
+      "disposition": "retained",
+      "before": "Wire ``keys`` on ``window`` and hand the binding back to the caller.\n\nONCE PER KEY, which is what makes :func:`install` idempotent in the only\nsense that matters here: a second holder of one key makes it AMBIGUOUS,\nand an ambiguous shortcut fires neither handler -- so a reload path\ncalling `install` again would silence every key it re-bound.\n\nOnly the window's OWN shortcuts are consulted. `findChildren` reaches\nthe whole tree, and a console panel holding `Ctrl+End` deeper down would\notherwise look like this key was already wired.\n\nReturned rather than dropped because a key with a second holder\nsomewhere else needs its ambiguous activation connected too.",
+      "after": "Wire ``keys`` on ``window`` and hand the binding back to the caller.\n\nONCE PER KEY, which is what makes :func:`install` idempotent in the only\nsense that matters here: a second holder of one key makes it AMBIGUOUS,\nand an ambiguous shortcut fires neither handler -- so a reload path\ncalling `install` again would silence every key it re-bound.\n\nOnly the window's OWN shortcuts are consulted. `findChildren` reaches\nthe whole tree, and a console panel holding `Ctrl+End` deeper down would\notherwise look like this key was already wired.\n\nReturned rather than dropped because a key with a second holder\nsomewhere else needs its ambiguous activation connected too.",
+      "after_line": 1142,
+      "after_symbol_ast_sha256": "7515f8a98789a9c48abc3e3bee578b4404d8afee98ae6bd3a5edd9dfe9079bb9"
+    },
+    {
+      "symbol": "_help_key",
+      "disposition": "revised",
+      "before": "Handle bare ``?``: let the active screen claim it, else show the sheet.\n\nA ``Qt.ApplicationShortcut`` fires before the focused widget's\n``keyPressEvent``, so without this the global cheat sheet would preempt any\nscreen that wants ``?`` for itself — the Annotate screen uses it to toggle\nits inline key legend, and opening a modal sheet over a rapid-labelling\nsession is exactly the wrong response.\n\nA screen opts in by exposing ``handle_key`` and returning True from it.\n``F1`` remains an unconditional route to the cheat sheet everywhere.",
+      "after": "Handle bare ``?``: let the active screen claim it, else show the sheet.\n\nThe window shortcut fires before the focused widget's\n``keyPressEvent``, so without this the cheat sheet would preempt any\nscreen that wants ``?`` for itself — the Annotate screen uses it to toggle\nits inline key legend, and opening a modal sheet over a rapid-labelling\nsession is exactly the wrong response.\n\nA screen opts in by exposing ``handle_key`` and returning True from it.\n``F1`` invokes the cheat sheet directly when its window binding is active.",
+      "after_line": 1180,
+      "after_symbol_ast_sha256": "44082778e8b239705ffbd36a214aef8370144eadbe58769b46505fdd9dfee8f0"
+    },
+    {
+      "symbol": "_nav",
+      "disposition": "retained",
+      "before": "Navigate the window to a module.\n\n:param window: the main window; one without the navigation slot is\n    tolerated, so a shortcut cannot crash a bare dialog.\n:param key: the module to open.",
+      "after": "Navigate the window to a module.\n\n:param window: the main window; one without the navigation slot is\n    tolerated, so a shortcut cannot crash a bare dialog.\n:param key: the module to open.",
+      "after_line": 1206,
+      "after_symbol_ast_sha256": "66fa19088abeb6bee58513a0191ccfabfc258e119b8ff660cbeffdaaddfaf9fc"
+    },
+    {
+      "symbol": "_nav_by_index",
+      "disposition": "revised",
+      "before": "Navigate to the nth VISIBLE module, for the number-key shortcuts.\n\nAn index past the end, or one naming a module the user has hidden, does\nnothing -- a shortcut that jumps somewhere unexpected is worse than one\nthat does not fire.\n\n:param window: the main window.\n:param idx: the module's position in the registry.",
+      "after": "Open an app-registry entry by index if that entry is visible.\n\nAn index past the end, or one naming a module the user has hidden, does\nnothing -- a shortcut that jumps somewhere unexpected is worse than one\nthat does not fire.\n\n:param window: the main window.\n:param idx: the module's position in the registry.",
+      "after_line": 1217,
+      "after_symbol_ast_sha256": "2f1c3ce1205550db99b2c9b49a217fe368c41d04da06b964a951c00df7f19871"
+    },
+    {
+      "symbol": "_open_palette",
+      "disposition": "retained",
+      "before": "Open the command palette.\n\n:param window: the main window. A build without the palette logs and\n    does nothing rather than raising out of a key press. The palette is\n    released once it closes, so each Ctrl+K does not leave another\n    hidden palette, with its full command list, under the window.",
+      "after": "Open the command palette.\n\n:param window: the main window. A build without the palette logs and\n    does nothing rather than raising out of a key press. The palette is\n    released once it closes, so each Ctrl+K does not leave another\n    hidden palette, with its full command list, under the window.",
+      "after_line": 1235,
+      "after_symbol_ast_sha256": "0b0c494647c4d9016c7b0002a71154730af95e399a928d6db30b1a491c42e987"
+    },
+    {
+      "symbol": "_open_preferences",
+      "disposition": "retained",
+      "before": "Open the Preferences dialog.\n\n:param window: the main window.",
+      "after": "Open the Preferences dialog.\n\n:param window: the main window.",
+      "after_line": 1254,
+      "after_symbol_ast_sha256": "61962216feb6984700ac5f901420bb0e7220f424549c24c78b13bcc834973a9b"
+    },
+    {
+      "symbol": "_reset_every_scale",
+      "disposition": "retained",
+      "before": "Put GUI scale, font scale and every preview scale back to 100 %, now.\n\nThe backup way out of a scale too small to read (item 471): it needs no\nreading and asks nothing. Ctrl+Alt rather than Ctrl+Shift, which some\nWindows keyboard setups take for switching layout, and 0 rather than a\nletter, because Cmd+Option+0 is not one of the combinations macOS\nreserves.\n\n:param window: the main window.",
+      "after": "Put GUI scale, font scale and every preview scale back to 100 %, now.\n\nThe backup way out of a scale too small to read (item 471): it needs no\nreading and asks nothing. Ctrl+Alt rather than Ctrl+Shift, which some\nWindows keyboard setups take for switching layout, and 0 rather than a\nletter, because Cmd+Option+0 is not one of the combinations macOS\nreserves.\n\n:param window: the main window.",
+      "after_line": 1266,
+      "after_symbol_ast_sha256": "009a5f0542847e889d20f7677bf5952cbaf87576d758493bb52f67dd48f430ae"
+    },
+    {
+      "symbol": "_toggle_ai",
+      "disposition": "retained",
+      "before": "Toggle the AI switch on the currently active AppScreen.",
+      "after": "Toggle the AI switch on the currently active AppScreen.",
+      "after_line": 1284,
+      "after_symbol_ast_sha256": "59f01405a3f94a05e216168d003ef9eb857be34f961eff2145a4f59234fbdf70"
+    },
+    {
+      "symbol": "_consoles",
+      "disposition": "retained",
+      "before": "Every console panel living under ``window``, newest screens included.",
+      "after": "Every console panel living under ``window``, newest screens included.",
+      "after_line": 1301,
+      "after_symbol_ast_sha256": "5da75abf625e2ac1b8c151bfeec54c6d9b1b4382ca27d50418cb90673afae184"
+    },
+    {
+      "symbol": "_hand_ctrl_end_to_the_window",
+      "disposition": "retained",
+      "before": "Stand the consoles' own ``Ctrl+End`` down in favour of the window's.\n\nTwo live bindings for one key are not two chances to be heard: Qt calls\nthat ambiguous and fires NEITHER handler. A console panel binds the key\non itself so the gesture still works when the panel is used on its own,\nand inside a window that binds it too that copy is redundant -- the\nwindow's reaches the same panel and reaches it from every screen.\n\n:param panels: the consoles to sweep, when the caller has already found\n    them; otherwise they are looked up.",
+      "after": "Stand the consoles' own ``Ctrl+End`` down in favour of the window's.\n\nTwo live bindings for one key are not two chances to be heard: Qt calls\nthat ambiguous and fires NEITHER handler. A console panel binds the key\non itself so the gesture still works when the panel is used on its own,\nand inside a window that binds it too that copy is redundant -- the\nwindow's reaches the same panel and reaches it from every screen.\n\n:param panels: the consoles to sweep, when the caller has already found\n    them; otherwise they are looked up.",
+      "after_line": 1311,
+      "after_symbol_ast_sha256": "6ec0124890e25d76ceba9a8aaef74db060a0a44a0af52ea16118aef45d2115e9"
+    },
+    {
+      "symbol": "_watch_the_stack_for_consoles",
+      "disposition": "retained",
+      "before": "Sweep each screen as it is shown, since screens are built on demand.\n\nThe console of a module that has never been opened does not exist yet,\nso the stand-down cannot be done once at start-up and be finished.",
+      "after": "Sweep each screen as it is shown, since screens are built on demand.\n\nThe console of a module that has never been opened does not exist yet,\nso the stand-down cannot be done once at start-up and be finished.",
+      "after_line": 1334,
+      "after_symbol_ast_sha256": "8ced98c8746e1c32304df0ec014266c8d70e815ef2013061b5196ef983e06974"
+    },
+    {
+      "symbol": "_jump_to_the_newest_line",
+      "disposition": "revised",
+      "before": "Send the console on screen to its newest line.\n\nA long run writes thousands of lines and the one that matters is the\nlast; getting to it must not be a scroll through everything above it.\nScreens without a console are left alone rather than swallowing the key.",
+      "after": "Send the console on screen to its newest line.\n\nA long run writes thousands of lines and the one that matters is the\nlast; getting to it must not be a scroll through everything above it.\nIf there is no visible console, the shortcut performs no action.",
+      "after_line": 1348,
+      "after_symbol_ast_sha256": "aeed01defc9de64c3a96bd6698e9c3a540401bf988e662cd5388331b43b960a9"
+    },
+    {
+      "symbol": "_ShortcutCard",
+      "disposition": "retained",
+      "before": "Paint the rounded shortcut surface independently of global stylesheet timing.",
+      "after": "Paint the rounded shortcut surface independently of global stylesheet timing.",
+      "after_line": 1373,
+      "after_symbol_ast_sha256": "c621abce8f56c80d9bd2fbb53774dab0177dcb2590bd257977c76a725ac75c4f"
+    },
+    {
+      "symbol": "_ShortcutCard.paintEvent",
+      "disposition": "retained",
+      "before": "Keep the background 80-percent opaque and shortcut text fully opaque.",
+      "after": "Keep the background 80-percent opaque and shortcut text fully opaque.",
+      "after_line": 1376,
+      "after_symbol_ast_sha256": "876802307588433150d77e1e76f500746d5d58134d4e3020e1f92acee166de65"
+    },
+    {
+      "symbol": "ShortcutOverlay",
+      "disposition": "revised",
+      "before": "The ``?`` overlay — every shortcut, over the window, dismissed by any key.\n\nA modal dialog was the wrong shape for this. The question a user asks by\npressing ``?`` is \"what can I press *here*\", and the answer is worth\nabout two seconds; a dialog with a title bar and a close button makes\nthem commit to a mode, find the button, and leave it. An overlay dims\nwhat is behind, answers, and disappears on the next keystroke or click —\nincluding on ``?`` itself, so the key that opened it also closes it.\n\nLaid out in columns by category rather than one long list, because\nfifteen bindings in one column is a scroll and in three is a glance.\n\n:param window: the window to cover and to read the bindings from. The\n    overlay is drawn OVER it rather than as a dialog of its own, which is\n    the whole argument above -- so this is not a parent in the ordinary\n    sense but the thing being annotated.",
+      "after": "Show the declared shortcut map and additional child bindings over a window.\n\nThe translucent card groups actions by category and displays saved\noverrides and screen scopes. Its scroll area exposes content that does\nnot fit. Key presses and mouse presses handled by the overlay dismiss\nit; the Change shortcuts button closes it and opens the keymap editor.\n\n:param window: the parent widget to cover and inspect for bindings. The\n    overlay resizes with this widget and does not create a separate\n    top-level window.",
+      "after_line": 1390,
+      "after_symbol_ast_sha256": "288799249d0cadc5a5c8d2d509c69907905aef2812d56356256b7911c52671c3"
+    },
+    {
+      "symbol": "ShortcutOverlay.__init__",
+      "disposition": "retained",
+      "before": "Build the shortcut cheat sheet as a card over the window.\n\n:param window: the window it covers; the card is centred in it and\n    scrolls when the map does not fit.",
+      "after": "Build the shortcut cheat sheet as a card over the window.\n\n:param window: the window it covers; the card is centred in it and\n    scrolls when the map does not fit.",
+      "after_line": 1403,
+      "after_symbol_ast_sha256": "6b87e759dfe1eb4d5717bd4550f4ac12845a40f17e9f532102f055e814bb7654"
+    },
+    {
+      "symbol": "ShortcutOverlay.paintEvent",
+      "disposition": "retained",
+      "before": "Leave the main window visible around the translucent shortcut card.\n\n:param event: the paint event; ignored, so nothing is painted behind\n    the card.",
+      "after": "Leave the main window visible around the translucent shortcut card.\n\n:param event: the paint event; ignored, so nothing is painted behind\n    the card.",
+      "after_line": 1499,
+      "after_symbol_ast_sha256": "f25d2f92873e89a7fa1a3d2a67b05e5a0454653fb2c728faa90d0e22b1088b49"
+    },
+    {
+      "symbol": "ShortcutOverlay.resizeEvent",
+      "disposition": "retained",
+      "before": "Keep the card centred when the window resizes.\n\n:param event: the resize event; not read, the card is re-centred for\n    the overlay's current size.",
+      "after": "Keep the card centred when the window resizes.\n\n:param event: the resize event; not read, the card is re-centred for\n    the overlay's current size.",
+      "after_line": 1507,
+      "after_symbol_ast_sha256": "460a8e4cebf5406a50d990a1eea84a84ce60cd51af2ef8a3b77e0c1f169b7020"
+    },
+    {
+      "symbol": "ShortcutOverlay._reposition",
+      "disposition": "retained",
+      "before": "Centre the card and size it to its content, within the window.\n\nThe scrollbar's width is added only when the content is actually taller\nthan the space -- reserving it unconditionally would leave a gap beside\na map that fits.",
+      "after": "Centre the card and size it to its content, within the window.\n\nThe scrollbar's width is added only when the content is actually taller\nthan the space -- reserving it unconditionally would leave a gap beside\na map that fits.",
+      "after_line": 1515,
+      "after_symbol_ast_sha256": "bb60e26b8eecf8b0fa539df63837b7da3e741cc05db74517dde34725128b15a7"
+    },
+    {
+      "symbol": "ShortcutOverlay.eventFilter",
+      "disposition": "retained",
+      "before": "Track the window's size so the overlay stays full-bleed.\n\n:param obj: the watched object: the covered window or the card's scroll\n    viewport.\n:param event: the event delivered to it. A resize of the window resizes\n    the overlay to match; a mouse press on the scroll viewport\n    dismisses the overlay and is consumed.",
+      "after": "Track the window's size so the overlay stays full-bleed.\n\n:param obj: the watched object: the covered window or the card's scroll\n    viewport.\n:param event: the event delivered to it. A resize of the window resizes\n    the overlay to match; a mouse press on the scroll viewport\n    dismisses the overlay and is consumed.",
+      "after_line": 1539,
+      "after_symbol_ast_sha256": "07e02e582741727da5de9cca1ddc764f84ee860c526de9f046f01e006d067160"
+    },
+    {
+      "symbol": "ShortcutOverlay.keyPressEvent",
+      "disposition": "revised",
+      "before": "Any key closes it — that is the whole interaction.\n\n:param event: the key event; which key was pressed is not read.",
+      "after": "Dismiss the overlay when a key press reaches this handler.\n\n:param event: the key event; which key was pressed is not read.",
+      "after_line": 1560,
+      "after_symbol_ast_sha256": "1c9a56216dd6a9ff9a0f72fc3647aa1d88c99fff2d59a9f1eaa007f934fce65a"
+    },
+    {
+      "symbol": "ShortcutOverlay.mousePressEvent",
+      "disposition": "revised",
+      "before": "A click anywhere closes it too.\n\n:param event: the mouse press event; its button and position are not\n    read.",
+      "after": "Dismiss the overlay when a mouse press reaches this handler.\n\n:param event: the mouse press event; its button and position are not\n    read.",
+      "after_line": 1567,
+      "after_symbol_ast_sha256": "0276e6861751cd00875c7747a5fae4550d6b6471bec313c61c8bcb52f3598bfe"
+    },
+    {
+      "symbol": "ShortcutOverlay._on_edit",
+      "disposition": "retained",
+      "before": "Close the sheet and open the shortcut editor in its place.",
+      "after": "Close the sheet and open the shortcut editor in its place.",
+      "after_line": 1575,
+      "after_symbol_ast_sha256": "b6ab2afe111d3768e91fad2f8ca3e9f4c3a4a4c220173fa634fc0ee9e9f46975"
+    },
+    {
+      "symbol": "ShortcutOverlay.dismiss",
+      "disposition": "retained",
+      "before": "Close the overlay and let go of the window.",
+      "after": "Close the overlay and let go of the window.",
+      "after_line": 1581,
+      "after_symbol_ast_sha256": "d89d4df9de52b7202632475484e249f1533d67e091ef93fab05b24276f05f5d8"
+    },
+    {
+      "symbol": "_focus_settings_search",
+      "disposition": "revised",
+      "before": "Put the caret in the current module's settings search box.\n\nCtrl+F on a settings form should mean \"find a setting\", which is the\nonly thing on that screen anyone searches. Screens without a strip are\nleft alone rather than swallowing the key. A settings column collapsed to\nthe left is opened first (item 471): the caret cannot go into a box\nnobody can see.",
+      "after": "Put the caret in the current module's settings search box.\n\nIf the screen has a search strip, reveal its settings column, focus the\ninput and select its contents. If it has no search strip, the shortcut\nperforms no action.",
+      "after_line": 1591,
+      "after_symbol_ast_sha256": "786155fd94be2afe756934e307f828c628f59488901280c490173170d442170c"
+    },
+    {
+      "symbol": "_focus_help_search",
+      "disposition": "retained",
+      "before": "Put the caret in the search box beside the Help menu.\n\nCtrl+F already means \"find a setting on THIS module\", so the field that\nsearches the whole program needs its own key rather than a second\nmeaning for that one: a key that does two things depending on what is\non screen is a key nobody trusts.",
+      "after": "Put the caret in the search box beside the Help menu.\n\nCtrl+F already means \"find a setting on THIS module\", so the field that\nsearches the whole program needs its own key rather than a second\nmeaning for that one: a key that does two things depending on what is\non screen is a key nobody trusts.",
+      "after_line": 1618,
+      "after_symbol_ast_sha256": "2e544020fb2b08c439c4d5fb8666af9345b942457452cf3b44cd1cd475967689"
+    },
+    {
+      "symbol": "_open_recipes",
+      "disposition": "retained",
+      "before": "Open the recipe dialog for the module on screen.",
+      "after": "Open the recipe dialog for the module on screen.",
+      "after_line": 1634,
+      "after_symbol_ast_sha256": "c6156f5bcd0315b6c4a0d162ccfa6c711e3a6adc9a6979e68cbc818418897d0c"
+    },
+    {
+      "symbol": "show_cheat_sheet",
+      "disposition": "revised",
+      "before": "Show every registered shortcut, grouped by category.\n\nAn overlay when ``parent`` is a real window, so ``?`` answers and gets\nout of the way. A modal dialog remains the fallback for a parentless or\nzero-sized caller, where an overlay would have nothing to cover.\n\n:param parent: the window to cover. A :class:`QWidget` with a non-zero size\n    gets the overlay, replacing any overlay it already has; anything else\n    gets a modal dialog parented to it.",
+      "after": "Show shortcut help as an overlay or a fallback dialog.\n\nA nonzero-sized widget gets :class:`ShortcutOverlay`, which includes\ndeclared screen scopes, saved bindings and additional child sequences.\nA parentless or zero-sized caller gets a modal dialog containing the\ndefault window-wide :data:`SHORTCUTS` table instead.\n\n:param parent: the window to cover. A :class:`QWidget` with a non-zero size\n    gets the overlay, replacing any overlay it already has. Otherwise,\n    ``None`` or a zero-sized widget parents the fallback dialog.\n:returns: the overlay when one is shown, or ``None`` after the fallback\n    dialog closes.",
+      "after_line": 1643,
+      "after_symbol_ast_sha256": "34eec0842987281584a753235b0acf30261c7477dab821d4a1f90806f1a010e3"
+    },
+    {
+      "symbol": "_overlay_qss",
+      "disposition": "retained",
+      "before": "QSS for the ``?`` overlay, registered through the theme seam.",
+      "after": "QSS for the ``?`` overlay, registered through the theme seam.",
+      "after_line": 1706,
+      "after_symbol_ast_sha256": "6a636c6fc088434091a8f474add8aa8168dfa2b7145aa7d6e42191550c363276"
+    }
+  ],
+  "declared_shortcut_specs": [
+    {
+      "line": 86,
+      "args": [
+        "Ctrl+0",
+        "Go to home",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 87,
+      "args": [
+        "Ctrl+1",
+        "Switch to 1st app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 88,
+      "args": [
+        "Ctrl+2",
+        "Switch to 2nd app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 89,
+      "args": [
+        "Ctrl+3",
+        "Switch to 3rd app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 90,
+      "args": [
+        "Ctrl+4",
+        "Switch to 4th app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 91,
+      "args": [
+        "Ctrl+5",
+        "Switch to 5th app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 92,
+      "args": [
+        "Ctrl+6",
+        "Switch to 6th app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 93,
+      "args": [
+        "Ctrl+7",
+        "Switch to 7th app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 94,
+      "args": [
+        "Ctrl+8",
+        "Switch to 8th app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 95,
+      "args": [
+        "Ctrl+9",
+        "Switch to 9th app",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 96,
+      "args": [
+        "Ctrl+K",
+        "Open command palette",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 97,
+      "args": [
+        "Ctrl+P",
+        "Open preferences",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 98,
+      "args": [
+        "Ctrl+Shift+A",
+        "Show the full app list",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 99,
+      "args": [
+        "F11",
+        "Toggle full screen",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 100,
+      "args": [
+        "Ctrl+/",
+        "Toggle AI Console",
+        "Actions"
+      ]
+    },
+    {
+      "line": 101,
+      "args": [
+        "Ctrl+End",
+        "Jump to the newest console line",
+        "Console"
+      ]
+    },
+    {
+      "line": 103,
+      "args": [
+        "Ctrl+F",
+        "Search this module's settings",
+        "Actions"
+      ]
+    },
+    {
+      "line": 104,
+      "args": [
+        "Ctrl+Shift+R",
+        "Settings templates",
+        "Actions"
+      ]
+    },
+    {
+      "line": 105,
+      "args": [
+        "Ctrl+T",
+        "Pause or resume the background",
+        "Background"
+      ]
+    },
+    {
+      "line": 107,
+      "args": [
+        "Ctrl+R",
+        "Restart the background",
+        "Background"
+      ]
+    },
+    {
+      "line": 108,
+      "args": [
+        "Ctrl+Shift+F",
+        "Show the background full screen",
+        "Background"
+      ]
+    },
+    {
+      "line": 110,
+      "args": [
+        "Ctrl+B",
+        "Blank the background",
+        "Background"
+      ]
+    },
+    {
+      "line": 111,
+      "args": [
+        "Z + scroll",
+        "Resize the interface text",
+        "Background"
+      ]
+    },
+    {
+      "line": 113,
+      "args": [
+        "Ctrl+Alt+0",
+        "Reset GUI scale and font scale to 100%",
+        "Navigation"
+      ]
+    },
+    {
+      "line": 115,
+      "args": [
+        "F11",
+        "Full screen",
+        "Actions"
+      ]
+    },
+    {
+      "line": 116,
+      "args": [
+        "Ctrl+Shift+H",
+        "Search spaCR from the Help bar",
+        "Help"
+      ]
+    },
+    {
+      "line": 117,
+      "args": [
+        "F1",
+        "Show this cheat sheet",
+        "Help"
+      ]
+    },
+    {
+      "line": 118,
+      "args": [
+        "?",
+        "Show this cheat sheet",
+        "Help"
+      ]
+    },
+    {
+      "line": 134,
+      "args": [
+        "Left",
+        "Previous image",
+        "Annotate",
+        "the Annotate and Make Masks screens and the QC field browser"
+      ]
+    },
+    {
+      "line": 137,
+      "args": [
+        "Right",
+        "Next image",
+        "Annotate",
+        "the Annotate and Make Masks screens and the QC field browser"
+      ]
+    },
+    {
+      "line": 140,
+      "args": [
+        "PageUp",
+        "Previous image",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 142,
+      "args": [
+        "PageDown",
+        "Next image",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 144,
+      "args": [
+        "Alt+Left",
+        "Previous image",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 146,
+      "args": [
+        "Alt+Right",
+        "Next image",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 148,
+      "args": [
+        "Y",
+        "Confirm the suggested label",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 150,
+      "args": [
+        "N",
+        "Reject the suggested label",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 152,
+      "args": [
+        "Ctrl+Z",
+        "Undo",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 154,
+      "args": [
+        "Ctrl+Y",
+        "Redo",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 156,
+      "args": [
+        "Ctrl+Shift+Z",
+        "Redo",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 159,
+      "args": [
+        "B",
+        "Brush",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 161,
+      "args": [
+        "E",
+        "Erase",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 163,
+      "args": [
+        "X",
+        "Box tool",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 165,
+      "args": [
+        "W",
+        "Magic wand — add",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 167,
+      "args": [
+        "D",
+        "Draw an object",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 169,
+      "args": [
+        "V",
+        "Divide an object",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 171,
+      "args": [
+        "R",
+        "Recrop an object",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 173,
+      "args": [
+        "Z",
+        "Zoom",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 175,
+      "args": [
+        "M",
+        "Live magnifier",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 177,
+      "args": [
+        "Esc",
+        "Reset the zoom",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 179,
+      "args": [
+        "Ctrl+S",
+        "Save the mask",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 181,
+      "args": [
+        "Ctrl+Z",
+        "Undo",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 183,
+      "args": [
+        "Ctrl+Y",
+        "Redo",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 185,
+      "args": [
+        "Ctrl+Shift+Z",
+        "Redo",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 187,
+      "args": [
+        "PgUp",
+        "Previous 3D slice",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 189,
+      "args": [
+        "PgDown",
+        "Next 3D slice",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 191,
+      "args": [
+        "Shift+E",
+        "True 3D: edit anchors",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 193,
+      "args": [
+        "Shift+S",
+        "True 3D: spin",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 195,
+      "args": [
+        "Shift+D",
+        "True 3D: draw",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 197,
+      "args": [
+        "Shift+X",
+        "True 3D: X plane, or X spin after Shift+S",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 199,
+      "args": [
+        "Shift+Y",
+        "True 3D: Y plane, or Y spin after Shift+S",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 201,
+      "args": [
+        "Shift+Z",
+        "True 3D: Z plane, or Z spin after Shift+S",
+        "Make Masks",
+        "the Make Masks screen"
+      ]
+    },
+    {
+      "line": 204,
+      "args": [
+        "Q",
+        "Quarantine or restore this field",
+        "Field browser",
+        "the QC field browser"
+      ]
+    },
+    {
+      "line": 208,
+      "args": [
+        "Shift+E",
+        "Edit mode",
+        "Gate Editor",
+        "the Gate Editor screen"
+      ]
+    },
+    {
+      "line": 210,
+      "args": [
+        "Shift+S",
+        "Spin",
+        "Gate Editor",
+        "the Gate Editor screen"
+      ]
+    },
+    {
+      "line": 212,
+      "args": [
+        "Shift+D",
+        "Draw",
+        "Gate Editor",
+        "the Gate Editor screen"
+      ]
+    },
+    {
+      "line": 214,
+      "args": [
+        "Shift+X",
+        "X plane, or X spin after Shift+S",
+        "Gate Editor",
+        "the Gate Editor screen"
+      ]
+    },
+    {
+      "line": 216,
+      "args": [
+        "Shift+Y",
+        "Y plane, or Y spin after Shift+S",
+        "Gate Editor",
+        "the Gate Editor screen"
+      ]
+    },
+    {
+      "line": 218,
+      "args": [
+        "Shift+Z",
+        "Z plane, or Z spin after Shift+S",
+        "Gate Editor",
+        "the Gate Editor screen"
+      ]
+    },
+    {
+      "line": 442,
+      "args": [
+        "Up",
+        "Move focus up",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 443,
+      "args": [
+        "Down",
+        "Move focus down",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 444,
+      "args": [
+        "H",
+        "Move focus left",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 445,
+      "args": [
+        "J",
+        "Move focus down",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 446,
+      "args": [
+        "K",
+        "Move focus up",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 447,
+      "args": [
+        "L",
+        "Move focus right",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 448,
+      "args": [
+        "U",
+        "Undo",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 449,
+      "args": [
+        "Space",
+        "Skip forward one crop",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 450,
+      "args": [
+        "Backspace",
+        "Step back one crop",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 451,
+      "args": [
+        "Return",
+        "Save and load the next batch",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 452,
+      "args": [
+        "Enter",
+        "Save and load the next batch",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 453,
+      "args": [
+        "?",
+        "Toggle keyboard legend",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 454,
+      "args": [
+        "Esc",
+        "Close keyboard legend or zoom",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 455,
+      "args": [
+        "0",
+        "Clear the focused crop",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 456,
+      "args": [
+        "1",
+        "Assign class 1",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 457,
+      "args": [
+        "2",
+        "Assign class 2",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 458,
+      "args": [
+        "3",
+        "Assign class 3",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 459,
+      "args": [
+        "4",
+        "Assign class 4",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 460,
+      "args": [
+        "5",
+        "Assign class 5",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 461,
+      "args": [
+        "6",
+        "Assign class 6",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 462,
+      "args": [
+        "7",
+        "Assign class 7",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 463,
+      "args": [
+        "8",
+        "Assign class 8",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    },
+    {
+      "line": 464,
+      "args": [
+        "9",
+        "Assign class 9",
+        "Annotate",
+        "the Annotate screen"
+      ]
+    }
+  ],
+  "literal_tr_call_sources": [
+    {
+      "line": 489,
+      "source": "Move focus up"
+    },
+    {
+      "line": 490,
+      "source": "Move focus down"
+    },
+    {
+      "line": 491,
+      "source": "Move focus left"
+    },
+    {
+      "line": 492,
+      "source": "Move focus right"
+    },
+    {
+      "line": 493,
+      "source": "Previous page"
+    },
+    {
+      "line": 494,
+      "source": "Next page"
+    },
+    {
+      "line": 495,
+      "source": "Skip forward one crop"
+    },
+    {
+      "line": 496,
+      "source": "Step back one crop"
+    },
+    {
+      "line": 497,
+      "source": "Save and load the next batch"
+    },
+    {
+      "line": 498,
+      "source": "Toggle keyboard legend"
+    },
+    {
+      "line": 499,
+      "source": "Close keyboard legend or zoom"
+    },
+    {
+      "line": 500,
+      "source": "Clear the focused crop"
+    },
+    {
+      "line": 501,
+      "source": "Assign class 1"
+    },
+    {
+      "line": 502,
+      "source": "Assign class 2"
+    },
+    {
+      "line": 503,
+      "source": "Assign class 3"
+    },
+    {
+      "line": 504,
+      "source": "Assign class 4"
+    },
+    {
+      "line": 505,
+      "source": "Assign class 5"
+    },
+    {
+      "line": 506,
+      "source": "Assign class 6"
+    },
+    {
+      "line": 507,
+      "source": "Assign class 7"
+    },
+    {
+      "line": 508,
+      "source": "Assign class 8"
+    },
+    {
+      "line": 509,
+      "source": "Assign class 9"
+    },
+    {
+      "line": 630,
+      "source": "Move this merged .npy to merged_quarantined so later Measure runs skip it. Press {key} to quarantine or restore."
+    },
+    {
+      "line": 801,
+      "source": "{key} is used by: {actions}."
+    },
+    {
+      "line": 889,
+      "source": "Change shortcuts"
+    },
+    {
+      "line": 897,
+      "source": "Click a shortcut and press the new key. Clear it to leave the action without a key."
+    },
+    {
+      "line": 947,
+      "source": "Restore defaults"
+    },
+    {
+      "line": 952,
+      "source": "Cancel"
+    },
+    {
+      "line": 955,
+      "source": "Save"
+    },
+    {
+      "line": 1442,
+      "source": "Keyboard shortcuts"
+    },
+    {
+      "line": 1481,
+      "source": "Press any key to close."
+    },
+    {
+      "line": 1485,
+      "source": "Change shortcuts…"
+    },
+    {
+      "line": 905,
+      "source": "Action"
+    },
+    {
+      "line": 905,
+      "source": "Default"
+    },
+    {
+      "line": 905,
+      "source": "Shortcut"
+    },
+    {
+      "line": 905,
+      "source": "Scope"
+    },
+    {
+      "line": 744,
+      "source": "Shortcut {key} is not a single key sequence."
+    }
+  ],
+  "items": [
+    "N678"
+  ],
+  "source_base": "3eb0d319402181591b22e95a1c700cfaa82e42c0",
+  "source_file": "spacr/qt/shortcuts.py",
+  "before_sha256": "c2d3f0be532b268f14ff245063b79c3f12a59120baa1c562052775310bf48444",
+  "after_sha256": "2956073d782df3eeacc5fda277d24948e8dd795a49c60ac992519405802e3f38",
+  "executable_ast_identical": true,
+  "original_full_review_source_commit": "cc744e0d064fcd0a692a4b1aef1d4c281be8f14c",
+  "supporting_callsite_review_base": "c3b78f277dc7380a8718ef962d78637cfa7b264c",
+  "supporting_callsite_files": [
+    {
+      "path": "spacr/qt/screens/annotate.py",
+      "sha256": "37f6c5b631cff5bbea8b73752851fae971b4fb779db147fd8f27159a1586da5e"
+    },
+    {
+      "path": "spacr/qt/screens/make_masks.py",
+      "sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d"
+    },
+    {
+      "path": "spacr/qt/widgets/qc_field_browser.py",
+      "sha256": "9c1282e87208473b20992d76c153f446f0e78c1c6fcfcca3745d45f2f3e001d0"
+    },
+    {
+      "path": "spacr/qt/widgets/gate_editor.py",
+      "sha256": "84b94268efed23a09813410602c10c43170dca7accbb4741f0718b471a7d60de"
+    },
+    {
+      "path": "spacr/qt/app.py",
+      "sha256": "cbdc1833d5ee613c96df2c1099aed6caaecf570de45fe7a677cc94fac6c48d1d"
+    }
+  ],
+  "published_caption_fix_separate_commit": "3eb0d319402181591b22e95a1c700cfaa82e42c0",
+  "publication_dependencies": [
+    "Normal English API refresh and exact-source nine-locale paragraph review for changed prose; shared writer owned by coordinator"
+  ],
+  "full_N678_completion": false,
+  "native_platform_acceptance": false
+}

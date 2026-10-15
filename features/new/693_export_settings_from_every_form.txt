@@ -122,3 +122,21 @@ created. Native inode/hard-link/ownership/ACL/xattr semantics beyond mode bits,
 external concurrent writers and power-loss durability remain unverified.
 No model/network/GPU/fullCI or native other-OS acceptance. Evidence:
 data/693_atomic_pipeline_csv_2026-10-15/receipt.json.
+
+2026-10-15 — GUI/CLI export streams stage before replacing saved configurations
+The shared cli.write_settings_file behind every GUI Export and Distributed
+Jobs snapshot no longer truncates either saved output during serialization.
+Both CSV and JSON finish privately before any replacement; native partial
+streams, preparation permission failures and refused first publication retain
+previous files or leave new files absent. Format, returned paths, symlink
+targets, existing mode bits, normal new-file umask and metadata checks remain.
+Exact staged-file unlink/rmdir cleanup preserves the existing no-folder-listing
+contract: initial GUI26FAIL/57PASS exposed TemporaryDirectory's directory scan;
+the guard/assertions were not relaxed. Native baseline4FAIL/1PASS2.41s; final
+83PASS40.03s/exit0 under6G/shared lock includes every-form and DistributedJobs
+roundtrips. Independent domain peer accepted source design. Replacements remain
+independent, not a two-file transaction; second publication can fail after CSV
+completes. Atomic inode/ownership/ACL/xattr, external-writer and power-loss
+semantics are not claimed. Second-expansion paths that could escape staging
+refuse safely. No model/network/GPU, native other-OS or fullCI/release acceptance.
+Evidence: data/693_export_stream_staging_2026-10-15/.

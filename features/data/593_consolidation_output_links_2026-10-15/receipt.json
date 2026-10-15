@@ -1,0 +1,31 @@
+{
+  "scope": "N593 output-leaf symlink setup guards only",
+  "source_owner_grant": "Explicit output dangling-link guard and unused default candidate occupancy",
+  "baseline": {
+    "failed": 3,
+    "passed": 1,
+    "seconds": 0.89,
+    "reference": "f4705fca5ce immutable private tree",
+    "cause": "Explicit dangling output link resolved to missing outside target, which was created and populated; default broken candidate treated free and mkdir failed"
+  },
+  "owning": {
+    "passed": 34,
+    "new_native_cases": 4,
+    "seconds": 2.17,
+    "exit": 0,
+    "memory_cap": "2G",
+    "tiny_stdlib_file_cohort_outside_heavy_lock": true
+  },
+  "behavior": [
+    "Explicit preexisting output leaf symlinks refused before resolution through the same existing error caption",
+    "Broken default candidates count as occupied and next numbered folder selected",
+    "Normal path canonicalization, new-folder creation, filenames and existing occupied-target refusal retained",
+    "Native link, private target and original image bytes retained; missing link target never created"
+  ],
+  "limitations": [
+    "Output parent symlink components retain existing resolution behavior",
+    "External link replacement after setup checks is not serialized",
+    "Earlier copy/metadata/cleanup concurrency limitations remain",
+    "Native Linux temporary links only; no live data/model/network/GPU/full CI or native other-OS/scientific acceptance"
+  ]
+}

@@ -1,32 +1,34 @@
 """
-Keyboard-first shortcuts for the spaCR Qt GUI.
+Window-wide and screen-specific shortcuts for the spaCR Qt GUI.
 
-Registers global :class:`QShortcut` bindings on the main window so
-the whole app is usable without a mouse:
+The default window-wide actions include:
 
     Ctrl+0        Go home (Cmd+H is Hide on macOS)
-    Ctrl+1..9     Switch to the Nth app in the sidebar
+    Ctrl+1..9     Open the corresponding app-registry entry if visible
     Ctrl+K        Open the command palette
     Ctrl+Shift+H  Search spaCR from the field beside the Help menu
-    F1  / ?       Show the shortcuts cheat sheet
+    F1            Show the shortcuts cheat sheet
+    ?             Use the active screen's help action, or show the cheat sheet
     Ctrl+P        Open Preferences
     Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %
-    Ctrl+/        Open the AI Console
+    Ctrl+/        Toggle the active module's AI Console
     Ctrl+End      Jump to the newest console line
     F11           Toggle full screen
-    Esc           Close any open dialog / popup
 
-:func:`install` is called once from ``MainWindow.__init__``. Every
-binding is documented in :data:`SHORTCUTS` so the cheat-sheet
-dialog stays in sync with what's actually wired up.
+:func:`install` creates the bindings returned by :func:`installed`.
+Other actions in :data:`SHORTCUTS` are bound by the main window's menus;
+the scroll gesture uses an event filter. Screen-owned bindings are included
+by :func:`mapped`, with their scope and saved overrides. Escape handling
+belongs to the active screen, overlay or dialog rather than a binding
+installed here.
 
-Every window-wide key can be rebound. The cheat sheet carries a "Change
+Declared window-wide key sequences can be rebound. The cheat sheet carries a "Change
 shortcuts…" button that opens a table of the window-wide actions; a key
 typed there replaces the default, a key already taken by another action is
 named as a conflict and cannot be saved, and the overrides are kept in the
 Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a
 keymap saved on one platform reads the same on the others. Keys that belong
-to a single screen (Annotate, Make Masks, the field browser) have separate
+to a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate
 editable rows and saved overrides, applied to both existing and new screens.
 """
 from __future__ import annotations
@@ -293,8 +295,9 @@ def _record_edit(stack: QUndoStack, text: str, apply, old, new) -> bool:
 def _bind_undo_keys(widget: QWidget, undo, redo=None) -> List[QShortcut]:
     """Bind Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y on ``widget`` and its children.
 
-    A text field that has the focus keeps its own Ctrl+Z, so typing is still
-    undone a character at a time before the editor's steps are reached.
+    A focused text field can handle Ctrl+Z through Qt's shortcut override.
+    Its own undo history determines how typing is grouped; this helper
+    binds the editor-level undo and redo callbacks.
 
     :param widget: the editor that owns the keys.
     :param undo: a :class:`QUndoStack`, or a callable that undoes one step.
@@ -375,15 +378,16 @@ def native(keys: str) -> str:
 
 
 def discover(window) -> List[ShortcutSpec]:
-    """Every shortcut LIVE on ``window``, whether declared or not.
+    """Find additional child shortcut and action sequences for the map.
 
-    The declared table is what the map is drawn from, because a per-screen
-    binding does not exist until that screen is built and the map has to
-    describe it anyway. This is the other half: a shortcut added at runtime
-    -- a plugin, a menu action -- appears without anyone editing a list.
+    Sequences already described by :func:`mapped`, including saved
+    window-wide overrides, are excluded. Other nonempty sequences are
+    deduplicated by their native spelling. The scan includes existing
+    holders regardless of whether they are enabled or currently visible;
+    it does not determine which action would receive a key event.
 
-    Anything already in :data:`SHORTCUTS` is left to its declaration, which
-    is where the label and the scope live.
+    The declared map supplies labels and scopes for known bindings even
+    before their owning screens have been constructed.
 
     :param window: the widget whose child :class:`QShortcut` and
         :class:`QAction` objects are searched; a widget that cannot be searched
@@ -462,7 +466,7 @@ _ANNOTATE_SHORTCUTS = [
 
 
 def _screen_specs(scope: str) -> List[ShortcutSpec]:
-    """Declared bindings for one screen, including shared navigation keys."""
+    """Declared bindings with navigation captions specific to the screen."""
     specs = [spec for spec in SCREEN_SHORTCUTS
             if (spec.keys in ("Left", "Right") and scope in _ARROW_SCOPES)
             or spec.scope == _SCREEN_SCOPES.get(scope)]
@@ -693,8 +697,10 @@ def _rebindable() -> List[ShortcutSpec]:
 def _load_keymap() -> dict:
     """The saved overrides, default key to chosen key.
 
-    A chosen key of ``""`` means the action has no key. Entries for keys that
-    are no longer rebindable, and anything unreadable, are dropped.
+    A chosen key of ``""`` means the action has no key. Unknown default keys
+    are ignored, and stored values for known defaults are converted to
+    strings. Unreadable JSON or a top-level value that is not a mapping
+    yields an empty mapping.
     """
     import json
     try:
@@ -715,7 +721,8 @@ def _save_keymap(keymap: dict, screen_keymap: Optional[dict] = None) -> None:
 
     :param keymap: default key to chosen key; ``""`` unbinds the action.
     :param screen_keymap: per-screen overrides; saved ones when omitted.
-    :raises ValueError: when two actions would share one key.
+    :raises ValueError: when a screen override is not a single valid key
+        sequence, or simultaneously active actions would share a key.
     """
     import json
     clean = {}
@@ -1046,9 +1053,11 @@ def _open_keymap(window) -> "_KeymapDialog":
 
 
 def install(window: QMainWindow) -> None:
-    """Wire every shortcut in :data:`SHORTCUTS` onto ``window``.
+    """Bind the shortcuts returned by :func:`installed` on ``window``.
 
-    Idempotent — safe to call from within reload paths.
+    Existing shortcut holders are reused. Menu-owned keys and the scroll
+    gesture are installed elsewhere; this function also installs the
+    optional window hooks and applies saved keymap overrides.
 
     :param window: the main window the application shortcuts are bound to.
     """
@@ -1171,14 +1180,14 @@ def _bind(window: QMainWindow, keys: str,
 def _help_key(window: QMainWindow) -> None:
     """Handle bare ``?``: let the active screen claim it, else show the sheet.
 
-    A ``Qt.ApplicationShortcut`` fires before the focused widget's
-    ``keyPressEvent``, so without this the global cheat sheet would preempt any
+    The window shortcut fires before the focused widget's
+    ``keyPressEvent``, so without this the cheat sheet would preempt any
     screen that wants ``?`` for itself — the Annotate screen uses it to toggle
     its inline key legend, and opening a modal sheet over a rapid-labelling
     session is exactly the wrong response.
 
     A screen opts in by exposing ``handle_key`` and returning True from it.
-    ``F1`` remains an unconditional route to the cheat sheet everywhere.
+    ``F1`` invokes the cheat sheet directly when its window binding is active.
     """
     try:
         screen = window._stack.currentWidget()
@@ -1206,7 +1215,7 @@ def _nav(window: QMainWindow, key: str) -> None:
 
 
 def _nav_by_index(window: QMainWindow, idx: int) -> None:
-    """Navigate to the nth VISIBLE module, for the number-key shortcuts.
+    """Open an app-registry entry by index if that entry is visible.
 
     An index past the end, or one naming a module the user has hidden, does
     nothing -- a shortcut that jumps somewhere unexpected is worse than one
@@ -1341,7 +1350,7 @@ def _jump_to_the_newest_line(window) -> None:
 
     A long run writes thousands of lines and the one that matters is the
     last; getting to it must not be a scroll through everything above it.
-    Screens without a console are left alone rather than swallowing the key.
+    If there is no visible console, the shortcut performs no action.
     """
     panels = _consoles(window)
     _hand_ctrl_end_to_the_window(window, panels)
@@ -1379,22 +1388,16 @@ class _ShortcutCard(QWidget):
 
 
 class ShortcutOverlay(QWidget):
-    """The ``?`` overlay — every shortcut, over the window, dismissed by any key.
+    """Show the declared shortcut map and additional child bindings over a window.
 
-    A modal dialog was the wrong shape for this. The question a user asks by
-    pressing ``?`` is "what can I press *here*", and the answer is worth
-    about two seconds; a dialog with a title bar and a close button makes
-    them commit to a mode, find the button, and leave it. An overlay dims
-    what is behind, answers, and disappears on the next keystroke or click —
-    including on ``?`` itself, so the key that opened it also closes it.
+    The translucent card groups actions by category and displays saved
+    overrides and screen scopes. Its scroll area exposes content that does
+    not fit. Key presses and mouse presses handled by the overlay dismiss
+    it; the Change shortcuts button closes it and opens the keymap editor.
 
-    Laid out in columns by category rather than one long list, because
-    fifteen bindings in one column is a scroll and in three is a glance.
-
-    :param window: the window to cover and to read the bindings from. The
-        overlay is drawn OVER it rather than as a dialog of its own, which is
-        the whole argument above -- so this is not a parent in the ordinary
-        sense but the thing being annotated.
+    :param window: the parent widget to cover and inspect for bindings. The
+        overlay resizes with this widget and does not create a separate
+        top-level window.
     """
 
     def __init__(self, window: QWidget):
@@ -1555,14 +1558,14 @@ class ShortcutOverlay(QWidget):
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event) -> None:
-        """Any key closes it — that is the whole interaction.
+        """Dismiss the overlay when a key press reaches this handler.
 
         :param event: the key event; which key was pressed is not read.
         """
         self.dismiss()
 
     def mousePressEvent(self, event) -> None:
-        """A click anywhere closes it too.
+        """Dismiss the overlay when a mouse press reaches this handler.
 
         :param event: the mouse press event; its button and position are not
             read.
@@ -1588,11 +1591,9 @@ class ShortcutOverlay(QWidget):
 def _focus_settings_search(window: QMainWindow) -> None:
     """Put the caret in the current module's settings search box.
 
-    Ctrl+F on a settings form should mean "find a setting", which is the
-    only thing on that screen anyone searches. Screens without a strip are
-    left alone rather than swallowing the key. A settings column collapsed to
-    the left is opened first (item 471): the caret cannot go into a box
-    nobody can see.
+    If the screen has a search strip, reveal its settings column, focus the
+    input and select its contents. If it has no search strip, the shortcut
+    performs no action.
     """
     try:
         screen = window._stack.currentWidget()
@@ -1640,15 +1641,18 @@ def _open_recipes(window: QMainWindow) -> None:
 
 
 def show_cheat_sheet(parent) -> None:
-    """Show every registered shortcut, grouped by category.
+    """Show shortcut help as an overlay or a fallback dialog.
 
-    An overlay when ``parent`` is a real window, so ``?`` answers and gets
-    out of the way. A modal dialog remains the fallback for a parentless or
-    zero-sized caller, where an overlay would have nothing to cover.
+    A nonzero-sized widget gets :class:`ShortcutOverlay`, which includes
+    declared screen scopes, saved bindings and additional child sequences.
+    A parentless or zero-sized caller gets a modal dialog containing the
+    default window-wide :data:`SHORTCUTS` table instead.
 
     :param parent: the window to cover. A :class:`QWidget` with a non-zero size
-        gets the overlay, replacing any overlay it already has; anything else
-        gets a modal dialog parented to it.
+        gets the overlay, replacing any overlay it already has. Otherwise,
+        ``None`` or a zero-sized widget parents the fallback dialog.
+    :returns: the overlay when one is shown, or ``None`` after the fallback
+        dialog closes.
     """
     if isinstance(parent, QWidget) and parent.width() > 0 \
             and parent.height() > 0:

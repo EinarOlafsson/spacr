@@ -751,14 +751,20 @@
       "source": "Keyboard-first shortcuts for the spaCR Qt GUI.",
       "context": "Keyboard-first shortcuts for the spaCR Qt GUI.",
       "source_sha256": "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-      "translation": "Atajos orientados al teclado para la GUI Qt de spaCR."
+      "translation": "Atajos orientados al teclado para la GUI Qt de spaCR.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#1",
       "source": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
       "context": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
       "source_sha256": "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-      "translation": "Registra enlaces globales de :class:`QShortcut` en la ventana principal para que toda la aplicación pueda utilizarse sin ratón:"
+      "translation": "Registra enlaces globales de :class:`QShortcut` en la ventana principal para que toda la aplicación pueda utilizarse sin ratón:",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#2",
@@ -774,7 +780,10 @@
       "source": "Switch to the Nth app in the sidebar",
       "context": "Switch to the Nth app in the sidebar",
       "source_sha256": "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
-      "translation": "Cambiar a la enésima aplicación de la barra lateral"
+      "translation": "Cambiar a la enésima aplicación de la barra lateral",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#4",

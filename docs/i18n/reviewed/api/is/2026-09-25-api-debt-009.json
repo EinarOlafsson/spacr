@@ -4577,7 +4577,10 @@
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
       "context": "Right-click a picture and save it, as a PNG or as a PDF.",
       "translation": "Hægrismella á mynd og vista hana, sem PNG eða sem PDF.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#1",
@@ -4596,7 +4599,10 @@
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "Mynd á skjánum er oft það sem einhver vill hafa á glæru klukkutíma síðar, og leiðin að henni var skjámynd af glugga, í upplausn gluggans, með umgjörðinni í kring. Þetta vistar MYNDINA, í upplausninni sem hún var teiknuð í frekar en stærðinni sem hún er sýnd í, í skrá sem notandinn velur.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#2"
+      "rebound_from": "spacr.qt.widgets.picture_export#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#2",
@@ -4605,7 +4611,10 @@
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "TVÖ SNIÐ, OG PDF ER EKKI PNG MEÐ ANNARRI ENDINGU. Rastamynd sem er sett inn í PDF uppfyllir skráarheitið og ekkert annað; hlutamynd er síða, og síða hefur stærð í millimetrum. :func:`save_picture` gefur PDF-skránni síðu með eigin lögun myndarinnar og segir skrifaranum upplausnina sem Preferences geymir, svo myndin lendir í stærðinni sem hún var mæld í og prentast í þeirri upplausn.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#3"
+      "rebound_from": "spacr.qt.widgets.picture_export#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#3",
@@ -4614,7 +4623,10 @@
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "Upplausnin og sjálfgefna sniðið eru þau sem Figures-kjörstillingarnar eiga þegar -- :func:`spacr.qt.preferences.get_figure_png_dpi` og :func:`spacr.qt.preferences.get_figure_format` -- svo notandi sem hefur þegar sagt \"300 DPI, PDF\" er ekki spurður aftur með öðrum orðum.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#4"
+      "rebound_from": "spacr.qt.widgets.picture_export#4",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",
@@ -4646,7 +4658,10 @@
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
       "context": "Ask for a path. ``\"\"`` when the user walked away.",
       "translation": "Biðja um slóð. ``\"\"`` þegar notandinn gekk í burtu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
@@ -4654,7 +4669,10 @@
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "translation": "ENDINGIN ER SETT AFTUR EF NOTANDINN SLEPPIR HENNI. Heiti sem er slegið inn án hennar yrði annars skrifað sem PNG hvaða sía sem var valin, og þannig framleiðir \"save as PDF\" rastamynd í hljóði.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#2",

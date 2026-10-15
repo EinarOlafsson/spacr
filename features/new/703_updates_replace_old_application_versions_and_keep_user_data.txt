@@ -684,6 +684,18 @@ Actual GNU Bash3.2 built in WD on Linux reproduces this failure. Baseline3FAIL/
 installer-owner peer review accepted. No native macOS replay, package install,
 fullCI or release acceptance. Evidence: data/n703_bash32_runtime_verification_2026-10-15/.
 
+2026-10-15 — Verify complete restart state before update shutdown approval
+Same module name alone previously accepted altered settings, run folders,
+active-run summary, timestamp or schema: native baseline5FAIL/1PASS1.12s.
+The saver now serializes once and compares complete text read back, retaining
+the existing module diagnostic and None refusal path. Actual MainWindow update
+and pip-approval methods keep the window open and withhold approval when
+same-module settings change. Existing JSON conversions remain unchanged.
+Targeted native/Qt/restart cohort79PASS18.85s/exit0 under6G/shared lock.
+Installer owner independently reviewed source. No real package upgrade, live
+shutdown/relaunch, native other-OS, concurrency/power-loss or fullCI acceptance.
+Evidence: data/n703_complete_restart_readback_2026-10-15/.
+
 2026-10-15 01:35 EDT — Explicit Nightly private-runtime updates and stale-bytecode collision repair
 Actual predecessor1FAIL proves a selected valid1.5.1.5.dev1 update was refused
 by the legacy numeric-only parser. Dedicated POSIX pip and modeled macOS online
