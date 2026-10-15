@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -291,6 +291,10 @@ msgstr "Cada control tiene un nombre que anuncian los lectores de pantalla, toma
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr "Use :kbd:`Tab` o :kbd:`Shift+Tab` para llegar a **IA** o **En vivo**. Un contorno muestra qué etiqueta tiene el foco del teclado. Pulse :kbd:`Space`, :kbd:`Return` o :kbd:`Enter` del teclado numérico, sin mantener pulsadas otras teclas, para activarla o desactivarla. Mantener una tecla pulsada cambia el estado solo una vez. Si su lector de pantalla gestiona por sí mismo :kbd:`Enter` del teclado numérico, use :kbd:`Space` o :kbd:`Return`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "En **Preferencias**, use :kbd:`Tab` para enfocar el borde superior estrecho de la franja de ayuda; después pulse :kbd:`Up` o :kbd:`Down`, sin mantener pulsadas otras teclas, para aumentar o reducir su altura dentro de sus límites de tamaño; :kbd:`Tab` pasa al siguiente control."
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**Preferencias → Apariencia → Accesibilidad** reúne los ajustes que más ayudan:"

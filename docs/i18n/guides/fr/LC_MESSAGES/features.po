@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -291,6 +291,10 @@ msgstr "Chaque contrôle possède un nom annoncé par les lecteurs d’écran, t
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr "Utilisez :kbd:`Tab` ou :kbd:`Shift+Tab` pour atteindre **IA** ou **Direct**. Un contour indique quel libellé a le focus clavier. Appuyez sur :kbd:`Space`, :kbd:`Return` ou :kbd:`Enter` du pavé numérique, sans maintenir d’autres touches enfoncées, pour l’activer ou le désactiver. Maintenir une touche enfoncée ne fait basculer l’état qu’une seule fois. Si votre lecteur d’écran traite lui-même :kbd:`Enter` du pavé numérique, utilisez :kbd:`Space` ou :kbd:`Return`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "Dans **Préférences**, utilisez :kbd:`Tab` pour placer le focus sur le bord supérieur étroit de la zone d’aide, puis appuyez sur :kbd:`Up` ou :kbd:`Down`, sans maintenir d’autres touches, pour augmenter ou réduire sa hauteur dans les limites autorisées ; :kbd:`Tab` passe au contrôle suivant."
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**Préférences → Apparence → Accessibilité** rassemble les paramètres qui aident le plus :"

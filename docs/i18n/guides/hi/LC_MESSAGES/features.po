@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -291,6 +291,10 @@ msgstr "हर नियंत्रण का एक नाम होता ह
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr ":kbd:`Tab` या :kbd:`Shift+Tab` से **एआई** या **लाइव** पर जाएँ। रूपरेखा दिखाती है कि किस लेबल पर कीबोर्ड फ़ोकस है। उसे चालू या बंद करने के लिए, अन्य कुंजियाँ दबाए बिना :kbd:`Space`, :kbd:`Return` या संख्यात्मक कीपैड पर :kbd:`Enter` दबाएँ। कुंजी दबाए रखने पर स्थिति केवल एक बार बदलती है। यदि आपका स्क्रीन रीडर संख्यात्मक कीपैड के :kbd:`Enter` को स्वयं संभालता है, तो :kbd:`Space` या :kbd:`Return` उपयोग करें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "**प्राथमिकताएं** में :kbd:`Tab` से सहायता पट्टी के संकरे ऊपरी किनारे पर फ़ोकस लाएँ, फिर कोई अन्य कुंजी दबाए बिना :kbd:`Up` या :kbd:`Down` दबाकर उसकी आकार-सीमाओं के भीतर पट्टी की ऊँचाई बढ़ाएँ या घटाएँ; :kbd:`Tab` से अगले नियंत्रण पर जाएँ।"
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**प्राथमिकताएं → रूप-रंग → सुलभता** उन सेटिंग्स को एक जगह लाता है जो सबसे ज़्यादा मदद करती हैं:"

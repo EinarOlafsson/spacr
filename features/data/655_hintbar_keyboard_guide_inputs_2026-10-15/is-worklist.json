@@ -1,0 +1,10 @@
+[
+  {
+    "domain": "features",
+    "msgid": "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on.",
+    "source_sha256": "1668b4a0963cf0a363e117f9473f107423a7eb66fab4dfb0a1508174c94a7df8",
+    "msgstr": "Í **Kjörstillingar** notarðu :kbd:`Tab` til að færa fókus á mjóa efri brún hjálparreitsins. Ýttu síðan á :kbd:`Up` eða :kbd:`Down`, án þess að halda öðrum lyklum niðri, til að hækka eða lækka reitinn innan stærðarmarka hans; :kbd:`Tab` færir fókus áfram.",
+    "target_sha256": "a32ca8c0de0ed6e855f5b58d6897a90f1a4f8c3c9dd2e18b4ad6972a52cceda5",
+    "review_kind": "AI technical review; no native-speaker signoff"
+  }
+]

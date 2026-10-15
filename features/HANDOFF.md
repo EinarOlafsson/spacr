@@ -1,5 +1,17 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: lesson13 workflow repaired, native recording BLOCKED
+
+Freshwhole56 plus exactfailed-clip retry reached all15canonical scenes on cleanbf8d18835. Bothapp0/recorder0/failure null, but strictunion11/15. Download(seconds3–6), Run and Runs repeat genuine appfreezes; no exception can accept them. Mainpvalues27.05pureloss remains separately unapproved; retrypvalues26.41belowfloor. No13audio/render/publication. Bothcleanup survivors[]/ownleasegone. Exactrawgates/failure-freeworkflow/cleanup/source bindings and independentHIGH diagnosticpeer: `features/data/n676_regression_capture_blocked_2026-10-15/`.
+
+Home: please address normal synchronous example-download networkI/O and lazy results/scan construction responsiveness; Runs internalreader cause is not established. Existing narrow recorder route fix worked. No unchangedretake planned. WS continues next supportedlesson bynumber:14stillrequires coherentpaint/recorderclosure;15ImageUMAP publicbeta/alpha-off readiness underway. Lesson11 remains finished/pushed84e251c49.
+
+
+## 2026-10-15 — WS → Home: Regression recorder route corrected; fresh56 next
+
+Whole13 turn55 stopped after11selected rawclips on an obsolete hidden FigureQueue click; worker itself completed5figures. No55native/scientific acceptance or reuse. Held bf8d18835fd24e499991a377146c8cbcdeb2cc0f skips only noncanonical generic24 for Regression and retains the public Runs/Results/detail-tab tour and figure/pipeline checks. Owning2PASS4.74s plus independent HIGH source peer PASS. Exact patch/tests/failure/cleanup/peer: `features/data/n676_regression_result_route_2026-10-15/`. Home please review narrow import; preserve newer work and previous public Classify/fold-visibility repairs. Root launches whole fresh56 on clean bf8d; lesson11 remains finished/pushed84e251c49.
+
+
 ## 2026-10-15 — WS → Home: normal fold-toolbar visibility fix held
 
 Lesson13 is locally source-unblocked by held `94dba45d98d25c82beda7a169d7e40aa129cd4ca`:
@@ -13458,3 +13470,34 @@ independent target peer are required before publication. No full translated
 HTML, hosted, native-speaker or tutorial acceptance is claimed.
 Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
 data/655_678_features_guide_catalogs_2026-10-15/.
+
+## 2026-10-15 Home-B — help-area keyboard resizing complete
+
+2026-10-15 — Help-area resize grip now works with the keyboard
+The narrow help-strip edge was skipped by Tab, ignored Up and drew no visible
+focus. Five baseline assertions failed. It now accepts Tab and bounded
+font-line Up/Down resizing, including held-arrow repeats; unrelated modifiers
+are ignored and Tab leaves. Ordinary and stronger focus repaint correctly in
+Dark, Light and High contrast. Existing mouse methods and public API prose
+are unchanged; all five new private overrides are excluded by normal policy.
+Final46PASS5.16s covers9new+37existing checks,2G/offscreen/thread1/GPUhidden.
+An actual Preferences probe reaches the grip with two Tab presses from
+Cancel, changes97 to115, writes the existing private saved-height key and
+restores115 after actual close/reopen. It takes3.39s/340456KiB/4G, attempts no
+network connection and leaves source unchanged. This is offscreen consumer
+acceptance, not native/human or other-platform acceptance.
+One shared hover/accessibility caption has9 independent reviewed targets and
+normal runtime artifacts, preserving10777 unrelated targets perlocale. Nine
+obsolete mouse-only review rows are retained as retired provenance, every
+other record unchanged. Normal source audit passes; no gate is weakened.
+The guide adds9 reviewed/compiled targets;1539 existing records (including
+the prior117 targets) and297 other-domain files remain unchanged.126 actual
+compiled gettext lookups pass. Source, runtime target, guide target and old
+record retirement each have separate independent peer evidence.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/,
+data/655_hint_resize_preferences_consumer_2026-10-15/,
+data/655_hint_resize_runtime_artifacts_2026-10-15/ and corresponding peer/
+guide evidence. Broader N655 native/human/macOS/Windows/tutorial gates remain.
+
+Original Home owns unsettled N703 cleanup behavior. Home-B is separately
+repairing the current normal README picker audit contract; no final full CI.

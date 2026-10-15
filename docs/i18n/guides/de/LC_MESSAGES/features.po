@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -291,6 +291,10 @@ msgstr "Jedes Bedienelement hat einen Namen, den Screenreader ansagen und der au
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr "Erreichen Sie **KI** oder **Live** mit :kbd:`Tab` oder :kbd:`Shift+Tab`. Eine Umrandung zeigt, welches Label den Tastaturfokus hat. Drücken Sie :kbd:`Space`, :kbd:`Return` oder :kbd:`Enter` auf dem Ziffernblock, ohne andere Tasten gedrückt zu halten, um es ein- oder auszuschalten. Beim Gedrückthalten einer Taste wird nur einmal umgeschaltet. Wenn Ihr Screenreader :kbd:`Enter` auf dem Ziffernblock selbst verarbeitet, verwenden Sie :kbd:`Space` oder :kbd:`Return`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "Verwenden Sie in den **Einstellungen** :kbd:`Tab`, um den schmalen oberen Rand des Hilfebereichs zu fokussieren. Drücken Sie dann :kbd:`Up` oder :kbd:`Down`, ohne andere Tasten gedrückt zu halten, um den Bereich innerhalb seiner Größenbegrenzungen höher oder niedriger zu machen; mit :kbd:`Tab` wechseln Sie weiter."
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**Einstellungen → Erscheinungsbild → Barrierefreiheit** fasst die Einstellungen zusammen, die am meisten helfen:"

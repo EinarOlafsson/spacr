@@ -1,0 +1,10 @@
+[
+  {
+    "domain": "features",
+    "msgid": "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on.",
+    "source_sha256": "1668b4a0963cf0a363e117f9473f107423a7eb66fab4dfb0a1508174c94a7df8",
+    "msgstr": "在 **偏好** 中，使用 :kbd:`Tab` 将焦点移到帮助区域狭窄的上边缘，然后在不按住其他键的情况下按 :kbd:`Up` 或 :kbd:`Down`，在尺寸限制内增大或减小该区域的高度；按 :kbd:`Tab` 可移到下一个控件。",
+    "target_sha256": "a94f5d2911ff47fa13f3a4dfcb1feb2ffd7f000dd6e10071ac0daf3bdf3807c7",
+    "review_kind": "AI technical review; no native-speaker signoff"
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "reviewer": "Home-B coordinator, independent of caption author and implementation author",
+  "draft_file_sha256": "dd425fa35c41455f865e78444f401e32fd670331904989d4fbafa1c0b226f35b",
+  "source_sha256": "169cc6d96042851c27ca15505804bba3132235f348f6eff4918d1febe9ca682c",
+  "reviewed_targets_sha256": {
+    "sv": "ae309c5303189366fbceb04d3653938c05310dd09072a38db8d6b5da141281a4",
+    "de": "6be5f18aa5e319f1d851b50d71fc1952b3aa5a056e9d79c74fb5ece0965697ae",
+    "es": "ebb04e7e56c27dc0d0ef25b738617c099569ee99d39fd5253244f901b19bf35c",
+    "fr": "ce2ba5735e94705e30dc4e543abd8376871e307ef0e886932916f0ec8518ebef",
+    "pt": "27970c186359c83b00acd5567a7b435b21e55c542206bea50e23dc4d4c709756",
+    "is": "491fc9d7c5d00163d549041faae6c558de9e81fb5727b0eb6768f44ede0e41b4",
+    "zh_CN": "5024f31754a6ae551094e893fa614c8102d01f54238e90d92f1345b145d1d670",
+    "hi": "5720d3a95ea4e78f73cace440d133a53dfc50fd28fe084575baed60d6fe6e252",
+    "ko": "7849558eb2ce73060d26e9737480966287797d81471537977bc075256e4e2019"
+  },
+  "languages_reviewed": [
+    "sv",
+    "de",
+    "es",
+    "fr",
+    "pt",
+    "is",
+    "zh_CN",
+    "hi",
+    "ko"
+  ],
+  "result": "PASS9 technical semantic pairs",
+  "review": "Read all9 entire translations: each preserves dragging this edge as one option and Up/Down arrow keys as the other for resizing the help area. No changed action, keyboard-key omission, device/model claim, deletion or persistence promise. No source placeholders or markup to preserve. Explicit arrows in targets disambiguate the English key names.",
+  "limits": "Draft-target peer only; final source commit, normal source-bound review gates and generated catalogs remain pending. No native-speaker, GUI consumer or whole-item acceptance."
+}

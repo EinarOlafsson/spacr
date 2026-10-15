@@ -12042,7 +12042,7 @@ class PreferencesDialog:
         hints = HintBar(parent=dlg)
         hints.explain(
             hints._resize_handle,
-            "Drag this edge to make the help area taller or shorter.")
+            "Drag this edge or use Up and Down to resize the help area.")
         layout = dlg.layout()
         row_of_buttons = layout.indexOf(buttons)
         if row_of_buttons >= 0:
