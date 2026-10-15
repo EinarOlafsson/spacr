@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-15",
+  "public_base_commit": "f233129d079542f2f84720d01bdd4f694d0e7dab",
+  "source": "spacr/qt/widgets/sortable_table.py",
+  "before_sha256": "388c5226f078f1ba3400c0ca1a89da3a9cc70d624e1c3645ba85d39570158806",
+  "after_sha256": "cc971e65ef26b65a572376b43020b59047c4937802ceb487430469ccd44f2ec8",
+  "executable_ast_identical": true,
+  "ledger": [
+    {
+      "symbol": "spacr.qt.widgets.sortable_table.is_missing",
+      "before": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. Array-like values are not treated as individual missing cells.\n\n:param value: a cell value of any type.",
+      "after": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. After the ``None`` and string checks, the result of\n``pandas.isna`` is converted to ``bool``. A single-element array containing\na missing value can therefore return ``True``; ambiguous multi-element\nresults return ``False``.\n\n:param value: a cell value of any type."
+    },
+    {
+      "symbol": "spacr.qt.widgets.sortable_table.install_sorting",
+      "before": "Install three-state semantic sorting on ``view`` and return it.\n\nAccepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A\n``QTableView`` is wrapped in :class:`SortableProxyModel`; call this\nfunction immediately after ``setModel`` and obtain the view's selection\nmodel afterwards.\n\n:param view: the view to make sortable; a view with no header is\n    returned untouched, and one already installed only has its initial\n    order re-stamped.",
+      "after": "Install three-state semantic sorting on ``view`` and return it.\n\nAccepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A\n``QTableView`` with a non-proxy model is wrapped in\n:class:`SortableProxyModel`. An existing ``QSortFilterProxyModel`` is\npreserved with its own comparison behavior; a view without a model is\nnot wrapped. Call this function immediately after ``setModel`` and\nobtain the view's selection model afterwards.\n\n:param view: the view to make sortable; a view with no header is\n    returned untouched, and one already installed only has its initial\n    order re-stamped."
+    }
+  ],
+  "source_evidence": "install_sorting calls _wrap_in_proxy only for QTableView excluding QTableWidget; _wrap_in_proxy returns before constructing SortableProxyModel when model is None or isinstance(model,QSortFilterProxyModel). Existing proxy comparison behavior is retained. is_missing examples are in receipt.json.",
+  "validation": "Only these two docstrings differ from the public baseline; full executable AST unchanged. No behavior changes or new tests.",
+  "public_api_dependencies": [
+    "spacr.qt.widgets.sortable_table.is_missing",
+    "spacr.qt.widgets.sortable_table.install_sorting"
+  ],
+  "file_frozen_for_api_owner": true,
+  "limitations": [
+    "Bounded selected prose correction, not whole N678 completion.",
+    "API translation inputs and normal writer assigned to UI lane; this source author will independently review their targets."
+  ]
+}
