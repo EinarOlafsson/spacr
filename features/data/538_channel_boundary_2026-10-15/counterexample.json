@@ -1,0 +1,312 @@
+{
+  "source_pin": "41b7e452052",
+  "scope": "Declared8x8 synthetic2channel single-stain controls, actual normal preparation/estimation/application, no models/GPU/biological data.",
+  "input_file_sha256": {
+    "plate1_A01_1.npy": "e3e470a0d57c198cdd101fadb5ca126013978e6c68d203c409a52ebee1caaae1",
+    "plate1_B01_1.npy": "121363874d281f18a375cefccc069dd6f24e2fde0bbf2dfce6b57dd3291b3e27"
+  },
+  "all_input_files_and_apply_array_unchanged": true,
+  "cases": [
+    {
+      "case": "unique",
+      "input_channels": [
+        0,
+        1
+      ],
+      "accepted": true,
+      "planned_channels": [
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "single-stain linear unmixing",
+        "channels": [
+          0,
+          1
+        ],
+        "matrix": [
+          [
+            1.0,
+            0.025
+          ],
+          [
+            0.08333333333333333,
+            1.0
+          ]
+        ],
+        "background_percentile": 5.0,
+        "controls": {
+          "0": [
+            "A01"
+          ],
+          "1": [
+            "B01"
+          ]
+        },
+        "fields": {
+          "0": [
+            "plate1_A01_1"
+          ],
+          "1": [
+            "plate1_B01_1"
+          ]
+        }
+      }
+    },
+    {
+      "case": "fraction",
+      "input_channels": [
+        0.5,
+        1
+      ],
+      "accepted": true,
+      "planned_channels": [
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "single-stain linear unmixing",
+        "channels": [
+          0,
+          1
+        ],
+        "matrix": [
+          [
+            1.0,
+            0.025
+          ],
+          [
+            0.08333333333333333,
+            1.0
+          ]
+        ],
+        "background_percentile": 5.0,
+        "controls": {
+          "0": [
+            "A01"
+          ],
+          "1": [
+            "B01"
+          ]
+        },
+        "fields": {
+          "0": [
+            "plate1_A01_1"
+          ],
+          "1": [
+            "plate1_B01_1"
+          ]
+        }
+      }
+    },
+    {
+      "case": "bool",
+      "input_channels": [
+        false,
+        true
+      ],
+      "accepted": true,
+      "planned_channels": [
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "single-stain linear unmixing",
+        "channels": [
+          0,
+          1
+        ],
+        "matrix": [
+          [
+            1.0,
+            0.025
+          ],
+          [
+            0.08333333333333333,
+            1.0
+          ]
+        ],
+        "background_percentile": 5.0,
+        "controls": {
+          "0": [
+            "A01"
+          ],
+          "1": [
+            "B01"
+          ]
+        },
+        "fields": {
+          "0": [
+            "plate1_A01_1"
+          ],
+          "1": [
+            "plate1_B01_1"
+          ]
+        }
+      }
+    },
+    {
+      "case": "duplicate",
+      "input_channels": [
+        0,
+        0,
+        1
+      ],
+      "accepted": true,
+      "planned_channels": [
+        0,
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "single-stain linear unmixing",
+        "channels": [
+          0,
+          0,
+          1
+        ],
+        "matrix": [
+          [
+            1.0,
+            0.0,
+            0.025
+          ],
+          [
+            1.0,
+            1.0,
+            0.025
+          ],
+          [
+            0.08333333333333333,
+            0.0,
+            1.0
+          ]
+        ],
+        "background_percentile": 5.0,
+        "controls": {
+          "0": [
+            "A01"
+          ],
+          "1": [
+            "B01"
+          ]
+        },
+        "fields": {
+          "0": [
+            "plate1_A01_1"
+          ],
+          "1": [
+            "plate1_B01_1"
+          ]
+        }
+      }
+    },
+    {
+      "case": "integral_float",
+      "input_channels": [
+        0.0,
+        1.0
+      ],
+      "accepted": true,
+      "planned_channels": [
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "single-stain linear unmixing",
+        "channels": [
+          0,
+          1
+        ],
+        "matrix": [
+          [
+            1.0,
+            0.025
+          ],
+          [
+            0.08333333333333333,
+            1.0
+          ]
+        ],
+        "background_percentile": 5.0,
+        "controls": {
+          "0": [
+            "A01"
+          ],
+          "1": [
+            "B01"
+          ]
+        },
+        "fields": {
+          "0": [
+            "plate1_A01_1"
+          ],
+          "1": [
+            "plate1_B01_1"
+          ]
+        }
+      }
+    },
+    {
+      "case": "integral_string",
+      "input_channels": [
+        "0",
+        "1"
+      ],
+      "accepted": true,
+      "planned_channels": [
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "single-stain linear unmixing",
+        "channels": [
+          0,
+          1
+        ],
+        "matrix": [
+          [
+            1.0,
+            0.025
+          ],
+          [
+            0.08333333333333333,
+            1.0
+          ]
+        ],
+        "background_percentile": 5.0,
+        "controls": {
+          "0": [
+            "A01"
+          ],
+          "1": [
+            "B01"
+          ]
+        },
+        "fields": {
+          "0": [
+            "plate1_A01_1"
+          ],
+          "1": [
+            "plate1_B01_1"
+          ]
+        }
+      }
+    },
+    {
+      "case": "negative",
+      "input_channels": [
+        -1,
+        1
+      ],
+      "accepted": false,
+      "error": "ValueError: unmixing channel -1 is outside the 2 channels of plate1_A01_1.npy"
+    }
+  ],
+  "duplicate_selection_actual_effect": {
+    "channel0_max_absolute_difference_from_unique_selection": 179.5500030517578,
+    "unique_channel0_std": 55.418861389160156,
+    "duplicate_channel0_std": 1.9073486328125e-06
+  },
+  "limits": "Shows existing invalid physical-channel selectors truncate/duplicate rather than refusing. Does not establish real double-stain/PSF/registration or biological accuracy."
+}

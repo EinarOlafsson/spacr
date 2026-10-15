@@ -170,3 +170,22 @@ amounts and correction of registration/PSF mismatch and strong-spill clipping
 bias described above.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_spectral_unmixing.py, test_spectral_unmixing_alpha_gate.py, test_unmix_preview_f538.py pass.
+
+2026-10-15 — Explicit physical-channel selection boundary (Original Home).
+_prepare_unmixing validates/normalizes explicit selectors before loading
+single-stain controls: bool/fractional/nonfinite/complex/nonscalar, negative,
+duplicate and empty indices refuse. _prepare_measure_unmixing passes raw
+selectors instead of eagerly truncating them with int. Valid integral
+floats/int strings/scalars and selected order remain supported; None still
+selects all channels and unmix-off still returns immediately. No matrix,
+threshold, conditioning/rank, PSF, UI or API prose changes; alpha unchanged.
+Actual8x8 synthetic normal-control estimate/application accepted0.5/bool
+truncation and repeated[0,0,1]; repeatedchannel0 lost variation (std55.42 to
+~1.9e-6, maxdifference179.55). Source arrays/files remain exact. Actual35-case
+old-helper baseline26FAIL9PASS1.26s includes standardized pre-load refusal
+contracts, not26claims of silent scientific corruption. Final owning42PASS
+5.13s includes35new selection cases and7existing spectral matrix/control/
+Mask/Measure CPU cases. Nine later localized refusal callbacks and normal
+owner extractor/runtime closure remain pending at this source note.
+Evidence:data/538_channel_boundary_2026-10-15/. Real double-stain/PSF/
+registration and biological acceptance limits above remain unresolved.
