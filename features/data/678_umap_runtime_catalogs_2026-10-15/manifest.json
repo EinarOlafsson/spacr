@@ -1,0 +1,9 @@
+{
+  "current_sources": [
+    "These settings include embedding, clustering, view and output options. They do not update the current figure. Use Propagate settings, when available, to copy them to the module for the next run."
+  ],
+  "retired_sources": [],
+  "review_names": [
+    "2026-10-15-n678-umap-rerun-caption-home-b.json"
+  ]
+}

@@ -79,5 +79,55 @@
     }
   },
   "F535_API_source_scope_evidence": "Reused actual normal public_docstrings()/visibility/English inventory audit from named N698 private tree; raw script/log/sourcecommit retained. Documentation tool hash matches this tree. No rendered _phases_by_torch target; no orphan API reviews invented. Parent accepted canonical evidence.",
-  "pending": "Normal finalmerge/sourceidentity and push. No wholefeature/fullCI/release claim."
+  "pending": "Normal push; all owned source/runtime/actual locale callback closure complete. Parent F562/scientific/fullCI acceptance remains partial.",
+  "final_concurrent_merge": {
+    "normal_operation": "write_english, audit(sources,()), normal refresh_arrival_contract; source snapshot only caches repeated canonical lookups and original rechecked before/after",
+    "incoming": "93474c76ea0f2918b5990a1940f1da00a859b79d",
+    "locale_proof": {
+      "sv": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "de": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "es": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "zh_CN": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "pt": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "hi": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "ko": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "is": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "fr": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      }
+    },
+    "normal_arrivals": {
+      "baseline": 9833,
+      "added": 893,
+      "retired": 150,
+      "changed": 29
+    },
+    "reviewed_helper_AST_unchanged": true,
+    "full_nine_runtime_audit_scope": "Executed before this final incoming owner merge (7732UI); incoming targets preserved exactly, normal current English audit7733UI and normal current immutable arrivals refreshPASS893added150retired29changed. No repeated50cohort or globalCI claim."
+  }
 }

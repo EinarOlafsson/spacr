@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "source_commit": "f89541f9a4b6c3fbb6035aa36a9d8a52279872ea",
+  "scope": "Normal scoped API generation for four reviewed blocks in three symbols across nine locales, retaining all unrelated records and unchanged selected blocks.",
+  "collector_cache_source_files_verified": 669,
+  "source_docs_sha256": {
+    "spacr.qt.widgets.umap_figure_settings": "f5b591231b6da111821280a3ed8f98f3119a01f4d9bd0be5f6090294c90aa5de",
+    "spacr.qt.widgets.umap_figure_settings.Field": "1511c3172149c4cdc00131ecd1fe893d2c6ffa76eba9115ffa91fd60bec94f16",
+    "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings": "4ba8ef309eebaa71cfdc7ba1211494a664a438c6fecf65e80a0bdd8043846d32"
+  },
+  "normal_functions": [
+    "public_docstrings (cached with exact source-file verification; only three normal AST-rendered UMAP bodies replaced)",
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "d08fae269789fa4b70bda79e5338bd9b9236df266b9268eea13419586bb10e1b",
+      "unrelated_after_sha256": "d08fae269789fa4b70bda79e5338bd9b9236df266b9268eea13419586bb10e1b",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "3b43c14c610dba2edf135867cff5aa1f41c0d488c39b4a5b1e63a4fa3ed0b673"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "693dbd021f89aa0928e582ef71451673406e62b883845988c479d929c3a4ffec",
+      "unrelated_after_sha256": "693dbd021f89aa0928e582ef71451673406e62b883845988c479d929c3a4ffec",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "6f4ec66521fb523deeb07cab3f1bc3506f5444bfef4f9e0f9c45f2057104da89"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "12c7753fb95c8836cf3663c47a3c08c5dcce59bd493aae8cd3303e8496082a77",
+      "unrelated_after_sha256": "12c7753fb95c8836cf3663c47a3c08c5dcce59bd493aae8cd3303e8496082a77",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "8be299f4be09108e700e29a768c7a3a661e4b3ee12a3556d82deb18080959d06"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "071877ce7f24471c7d00c8470a50b5f4638d72c6102279ef4080e8f744c48f10",
+      "unrelated_after_sha256": "071877ce7f24471c7d00c8470a50b5f4638d72c6102279ef4080e8f744c48f10",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "d7dfd8fbd74b4e1f849074185d640c984cecc53ac671491c2b7e26a0790f5083"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "91d7ee9de8017d1ad09933de6483cf3acf854dc951721da5a4a2121027d81a2f",
+      "unrelated_after_sha256": "91d7ee9de8017d1ad09933de6483cf3acf854dc951721da5a4a2121027d81a2f",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "58ef24f719ecb27ecd73a39b2380f4ead3852cb22d8d45520f5dc53d9a36692a"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "5b38096efac0dd4fa36f114ab3bf4b229cf6c588cd9fc8b89f2d1f82fe56a07a",
+      "unrelated_after_sha256": "5b38096efac0dd4fa36f114ab3bf4b229cf6c588cd9fc8b89f2d1f82fe56a07a",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "b6dbcaaa909469fe835ba0f68b252020c90d2f6111ce0c2fcdd8102193550823"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "0de17960bb07d51d37479a28d0ee371273d68e6accaf7b32da68b6934313c027",
+      "unrelated_after_sha256": "0de17960bb07d51d37479a28d0ee371273d68e6accaf7b32da68b6934313c027",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "df2b82bfcf4f7192a38e9531f50d8a032eb4449e95e038a2d57c40b3216374f8"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "d393c970787b20cdb03e34eddfce9e0537e341bac42d793e1e9a88c280d9ffc2",
+      "unrelated_after_sha256": "d393c970787b20cdb03e34eddfce9e0537e341bac42d793e1e9a88c280d9ffc2",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "a313ce93645207420619b6273c82de455e1351184708d87b3155c6cdf750246b"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.widgets.umap_figure_settings",
+        "spacr.qt.widgets.umap_figure_settings.Field",
+        "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "e926b9c327688576e6699861d68557d4d13dfb63a07f95200ee284ff40dcf058",
+      "unrelated_after_sha256": "e926b9c327688576e6699861d68557d4d13dfb63a07f95200ee284ff40dcf058",
+      "unchanged_blocks_preserved": 17,
+      "reviewed_blocks_exact": 4,
+      "catalog_sha256": "9984bc5f2c5f1c154dd8a6b3474ada452cc6395935c94c23266e29f19fa57b03"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.widgets.umap_figure_settings",
+    "spacr.qt.widgets.umap_figure_settings.Field",
+    "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings"
+  ],
+  "unexpected_model_decoding": "Fails immediately; none needed. No validation guard patched.",
+  "limitations": [
+    "Technical translation review; no native-speaker claim.",
+    "No runtime/global arrivals, Sphinx or external publication."
+  ]
+}

@@ -695,3 +695,27 @@ Targeted native/Qt/restart cohort79PASS18.85s/exit0 under6G/shared lock.
 Installer owner independently reviewed source. No real package upgrade, live
 shutdown/relaunch, native other-OS, concurrency/power-loss or fullCI acceptance.
 Evidence: data/n703_complete_restart_readback_2026-10-15/.
+
+2026-10-15 01:35 EDT — Explicit Nightly private-runtime updates and stale-bytecode collision repair
+Actual predecessor1FAIL proves a selected valid1.5.1.5.dev1 update was refused
+by the legacy numeric-only parser. Dedicated POSIX pip and modeled macOS online
+updates now use canonical PEP440 ordering; explicit prerelease/dev/local targets
+are pinned and exactly verified. Downgrades refuse before shutdown approval.
+Stable N627 unpinned/minimum behavior and frozen Apple validators are retained.
+The first92-case run also exposed a real console-entry discrepancy: external
+old bytecode matched updated same-size sources within one integer-second mtime.
+Only changed staged Python sources with that collision receive a different
+whole-second mtime before verification. The active old runtime and external
+cache are not rewritten by the updater; unchanged source timestamps remain.
+Final source59 distinct checks PASS:57 transaction/Nightly cases plus2 corrected
+cache fixtures (4.81s); the initial fixture-cwd import failure remains recorded.
+Both local/external caches are exercised; complete external cache hash inventory
+is unchanged after activation before the real console naturally refreshes it.
+Retained old-runtime bytes are identical. First-run35 unchanged handshake/stable
+plan passes are separate evidence, not added to59 frozen-source acceptance.
+Actual offline tiny wheels/private subprocess venvs only; macOS uv is modeled
+by a subprocess adapter to real pip on Linux. No network/live install or native
+macOS/Windows acceptance; shared/Conda/Windows adapters and parent703 remain OPEN.
+Existing API prose/captions unchanged; two new private helper docs are present.
+Fatal Ruff/diff checks pass. Global owner API/caption holds/fullCI not certified.
+Evidence: features/data/n703_nightly_runtime_and_cache_2026-10-15/.

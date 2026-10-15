@@ -1170,12 +1170,43 @@ def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
     rows = [(str(key), _settings_csv_cell(value))
             for key, value in values.items()]
     frame = pd.DataFrame(rows, columns=["Key", "Value"])
-    written = tabular.write_table(frame, path, canonicalise=False)
+    import errno
+    import stat
+    import tempfile
+    from contextlib import ExitStack
+    from pathlib import Path
+
+    written = tabular.resolve_path(path)
     sibling = os.path.splitext(written)[0] + ".json"
-    with open(sibling, "w", encoding="utf-8") as out:
-        json.dump({str(k): _settings_json_value(v)
-                   for k, v in values.items()},
-                  out, indent=2, sort_keys=True)
+    Path(written).parent.mkdir(parents=True, exist_ok=True)
+    with ExitStack() as staging:
+        prepared = []
+        for name in (written, sibling):
+            target = Path(name)
+            if target.is_symlink():
+                target = target.resolve()
+            if target.exists() and not os.access(target, os.W_OK):
+                raise PermissionError(str(target))
+            directory = tempfile.mkdtemp(prefix=".spacr-settings-export-", dir=target.parent)
+            staging.callback(os.rmdir, directory)
+            staged = Path(directory) / ("settings" + "".join(Path(name).suffixes))
+            staging.callback(staged.unlink, missing_ok=True)
+            if name == written:
+                if os.fspath(tabular.resolve_path(staged)) != os.fspath(staged):
+                    raise OSError(errno.EINVAL, os.strerror(errno.EINVAL), str(target))
+                tabular.write_table(frame, staged, canonicalise=False)
+            else:
+                with open(staged, "w", encoding="utf-8") as out:
+                    json.dump({str(k): _settings_json_value(v)
+                               for k, v in values.items()},
+                              out, indent=2, sort_keys=True)
+            mode = stat.S_IMODE(target.stat().st_mode if target.exists() else staged.stat().st_mode)
+            with staged.open("rb") as stream:
+                os.fsync(stream.fileno())
+            staged.chmod(mode)
+            prepared.append((staged, target))
+        for staged, target in prepared:
+            os.replace(staged, target)
     return [written, sibling]
 
 
