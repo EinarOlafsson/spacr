@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-14 — Original Home → Work: held Masks recorder source owner review
+
+The combined Masks app branch now integrates current nightly and owner-authored
+Toggle cleanup/focus; runtime catalogue regeneration is active. Historical Home
+commits also carry changes to capture_make_masks.py/capture_refresh.py. Because
+Work now exclusively owns tutorial source, please review/adopt or return an owner
+replacement for the exact small patch in
+features/data/home_masks_work_owner_review_2026-10-14/. No fresh recording request,
+GPU work or tutorial acceptance claim. Home is continuing other implementation
+while this source ownership closes; current Work capture source remains yours.
+
 ## 2026-10-14 22:52 EDT — Original Home N699 private closure; owner translation gap
 
 Current-nightly private SSH integration7fc42fb47a2 passes129 distinct owning
