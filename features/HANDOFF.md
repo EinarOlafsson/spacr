@@ -29,6 +29,11 @@ No forced mismatch, invented historical counts, alpha enablement or download
 claim is authorized by these proposals. Review/adoption and a later fresh
 whole GNOME recording remain Work-owned, one lesson end to end at a time.
 
+## 2026-10-15 — WS → Home: fresh15 Image UMAP next on reviewed public recipe
+
+14remains blocked awaiting coherentpaint/recorderclosure.15publicBeta is permitted with alphaoff (handoff doesnotbanbeta; normal fresh defaultTrue). Helda49481167 + fd327f851 replace obsolete finalalphaScatter/PCA links with already-fitted embedding/currentcrop summary and preserve allother13scenes. Existing durableRunobserver nowcoversUMAP; profile READS beta without preferencewrite.14focusedPASS24.21s/footer0 + independent source peer,26localizedstrings/13reviewbindings independentPASS. Exactsourcepatches/test/prose/evidence: `features/data/n676_umap_public_tour_2026-10-15/`. Home review/import narrowpatches preserving newer work; noapp/gate/stage changes. Rootlaunchesfreshwhole57 on cleanfd327, no native/scientific/audio acceptance yet.13remains nativeblocked;11finished/pushed84e251c49.
+
+
 ## 2026-10-15 — WS → Home: lesson13 workflow repaired, native recording BLOCKED
 
 Freshwhole56 plus exactfailed-clip retry reached all15canonical scenes on cleanbf8d18835. Bothapp0/recorder0/failure null, but strictunion11/15. Download(seconds3–6), Run and Runs repeat genuine appfreezes; no exception can accept them. Mainpvalues27.05pureloss remains separately unapproved; retrypvalues26.41belowfloor. No13audio/render/publication. Bothcleanup survivors[]/ownleasegone. Exactrawgates/failure-freeworkflow/cleanup/source bindings and independentHIGH diagnosticpeer: `features/data/n676_regression_capture_blocked_2026-10-15/`.
@@ -13530,3 +13535,51 @@ guide evidence. Broader N655 native/human/macOS/Windows/tutorial gates remain.
 
 Original Home owns unsettled N703 cleanup behavior. Home-B is separately
 repairing the current normal README picker audit contract; no final full CI.
+
+## 2026-10-15 Home-B — README audit repair published; installer API work active
+
+2026-10-15 — Current generated picker contract restored in API audit
+The ordinary API audit still required an obsolete reStructuredText target
+although the normal README writer emits a marked HTML anchor/picture picker.
+The source gate now validates the real README.md link inside that generated
+section. Missing, wrong, outside or malformed links fail; the ordinary README
+structure/currentness and language-index-to-English gates remain unchanged.
+Actual audit baseline6FAIL16PASS included valid HTML rejection and an outside
+target false acceptance. One added malformed-declaration case distinguishes
+system and spaCR Python parser behavior; both are handled without weakening
+the gate. Final23PASS0.76s, with separate source/test/log peer. No generated
+README or API artifact was changed by this repair. Original Home published
+the source/tests/evidence coherently with Windows/API delivery71fb782dc,
+whose ordinary nine-language API audit passed. Broader N704 hosted acceptance
+and main release remain separate.
+Evidence:data/readme_picker_audit_contract_2026-10-15/ and
+data/readme_picker_audit_peer_2026-10-15/.
+
+Debian literal extraction required no code change: existing whole-module
+ownership already covers all13 named functions and37 unique requested captions.
+Evidence84d50c0bf plus independentd91e6e64b binds immutable6524d039b; the old
+request-file hash mismatch is retained rather than silently rewritten. Existing
+31 extractor checks pass; final canonical/runtime333-target closure stays with
+Original Home. Candidate API inventory has9 changed/new bodies, zero missing
+enabled-helper docs, and two return fields awaiting source-owner clarification.
+Two disjoint authors now draft30 stable blocks across9 locales; an independent
+peer reviews them. Original owns start_update_helper's final paragraph and its
+Windows first-paragraph records. No stale/no-op API artifacts are published.
+
+## 2026-10-15 Home-B — coherent installer API and offline Help closure
+
+Source delivery896a22980 and normal mergea15077cfe integrate Original Home's
+accepted installer runtimea188516932d. Nine API bodies/seven arrivals have297
+reviewed records; normal selected generation and nine-locale/nine-symbol audit
+pass. Windows updater paragraph1, source history and all unrelated API rows
+remain exact. Normal Help generation and actual nine-symbol/eighteen-query
+consumer pass again after runtime integration;24 tested artifact/source hashes
+are exact. Offline conditional-helper lookup is fixed:19 targeted checks pass.
+N112 trailing notes and703_* evidence record scope and preserved failures.
+The broader API snapshot audit fails on unrelated N700 providers#6 active
+review/source mismatch, referred to Original Home/Claude; no foreign review
+retirement, global source-current or release claim is made.
+N689 readback11835ed44 proves actual latest deployment403 at1GB; live Space
+serves an older internally consistent revision. Plan10c994619 offers a free
+new-Space migration preserving old history, with explicit legacy-routing gates.
+No service/history mutation, full CI, release or tutorial changes here.

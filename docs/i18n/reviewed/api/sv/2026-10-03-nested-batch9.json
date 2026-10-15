@@ -361,7 +361,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Show the installer consent, then start the tour after it closes.",
       "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
-      "translation": "Visar installationsmedgivandet och startar rundturen när det har stängts."
+      "translation": "Visar installationsmedgivandet och startar rundturen när det har stängts.",
+      "retired": true,
+      "retired_reason": "N703 final source1eabf4b498a7 replaces this exact selected source block; original review and target retained as historical evidence."
     },
     {
       "context": "Try the backdrop once more, if the application view is still alive.",

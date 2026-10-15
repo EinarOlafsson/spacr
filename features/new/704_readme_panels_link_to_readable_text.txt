@@ -121,3 +121,20 @@ The four checks pass with both installed renderer 44/Docutils 0.21.2 and the
 isolated renderer 43/Docutils 0.20.1 pair. These were Python 3.12 executions,
 not a claim of a new native Python 3.9 run. No runtime dependencies or minimum
 constraint files changed. Final receipts retain both actual-renderer cohorts.
+
+2026-10-15 — Current generated picker contract restored in API audit
+The ordinary API audit still required an obsolete reStructuredText target
+although the normal README writer emits a marked HTML anchor/picture picker.
+The source gate now validates the real README.md link inside that generated
+section. Missing, wrong, outside or malformed links fail; the ordinary README
+structure/currentness and language-index-to-English gates remain unchanged.
+Actual audit baseline6FAIL16PASS included valid HTML rejection and an outside
+target false acceptance. One added malformed-declaration case distinguishes
+system and spaCR Python parser behavior; both are handled without weakening
+the gate. Final23PASS0.76s, with separate source/test/log peer. No generated
+README or API artifact was changed by this repair. Original Home published
+the source/tests/evidence coherently with Windows/API delivery71fb782dc,
+whose ordinary nine-language API audit passed. Broader N704 hosted acceptance
+and main release remain separate.
+Evidence:data/readme_picker_audit_contract_2026-10-15/ and
+data/readme_picker_audit_peer_2026-10-15/.

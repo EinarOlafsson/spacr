@@ -38060,6 +38060,30 @@
         "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
       ]
     },
+    "spacr.install_cleanup.apply_optional_cleanup": {
+      "source_blocks_sha256": [
+        "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+        "3669ef371c87f57f9137ba998cae21396832c7835d1c71f2bfada45d24a2b764",
+        "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+        "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+        "667a22c5b8911720f538d6b4ce360c26e9d7d39c3b8d4d58218c60f89e758217",
+        "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+        "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ],
+      "source_sha256": "e3c1dee12fcee99f588fdaab46a2100eb098f7bbbd09000baec4c082820af651",
+      "text": "Appliquer une nouvelle action sur les caches sélectionnés sous la protection active des exécutions de l’application.\n\nSeule une fabrique fiable de gestionnaires de contexte Python peut autoriser l’exécution. L’appelant de l’application doit maintenir son verrou existant d’enregistrement des exécutions et refuser tout travail actif pendant tout le contexte. Il s’agit d’une protection locale à l’application, pas d’une preuve que tous les autres processus sont inactifs. Un auxiliaire séparé ou une correspondance clé-valeur enregistrée ne peut pas accorder cette autorisation.\n\nChaque instantané sélectionné est validé avant modification. Chaque identifiant d’action est consommé une seule fois dans ce processus. Les entrées du système de fichiers détachées qui sont modifiées, inconnues ou verrouillées restent dans une zone privée de préparation ; aucune suppression récursive ni restauration avec écrasement n’est effectuée. Les modèles, les données et les autres répertoires racines protégés ne peuvent pas être sélectionnés. Des descripteurs de répertoire pris en charge qui ne suivent pas les liens sont requis.\n\n:param preview: Résultat immuable de :func:`preview_optional_cleanup`.\n:param choices: Identifiant de l’opération en cours, identifiant de l’instantané et clés de cache enregistrées explicitement choisies, renvoyés par l’interface graphique (GUI).\n:param system: Adaptateur de machine isolé facultatif utilisé pour une nouvelle inspection.\n:param guard: Fabrique active et fiable de gestionnaires de contexte recevant des chemins dérivés ; elle produit ``None`` uniquement lorsque le nettoyage local à l’application est autorisé.\n:returns: Résultat de l’action indiquant un motif de refus ou des décomptes des éléments supprimés et les éventuels chemins privés conservés.",
+      "translation_source_blocks_sha256": [
+        "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+        "5d1a3f47cd47d91d83ec484ed6cbc71310e753fb75ef5dd44194333b7ed6cb17",
+        "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+        "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+        "945cc6316209bd04a5ed2f53f56394f32c6b1e568d8d71c00160c1797ff4f1eb",
+        "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+        "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ]
+    },
     "spacr.install_cleanup.find_old_installs": {
       "source_blocks_sha256": [
         "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
@@ -38074,6 +38098,60 @@
         "832ffd69766a0a4fa88579dddd6c0b6f0ef10919f7fe3f97490f47b30a0fa4c8",
         "a58b9ca29358e4e9dbfbfcd8e2d7e2e276fe3d1d2e9a5478cd0a77f33a222ec0",
         "e77e003f82e54621b2c59eb4cbc6524bfe54745a2965ba85106d1a53079d3d19"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup": {
+      "source_blocks_sha256": [
+        "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+        "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+        "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+        "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+        "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+        "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+        "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506"
+      ],
+      "source_sha256": "5b2ac4664ed0f5f19f720f1ea3a22f7da6aadfc0035d710abc71a94be6167bb0",
+      "text": "Inspecter les caches dédiés et ne proposer leur sélection que sous une protection active des exécutions.\n\nLe contenu des caches reconnus est inspecté uniquement sous le répertoire de base par défaut de spaCR. Un manifeste de déplacement de taille limitée peut aussi être lu depuis un répertoire de base de spaCR configuré afin d’afficher les chemins externes conservés. Le contenu des caches externes, liés symboliquement, inconnus et protégés reste indisponible. L’inspection est bornée et ne suit jamais les liens. Une protection active et de confiance de l’application peut rendre les candidats sélectionnables ; une sélection enregistrée ne peut pas autoriser une suppression. Cela n’établit pas que toutes les autres instances de l’application sont inactives.\n\n:param operation_id: Nouvelle identité fournie par le programme d’installation ou le coordinateur de mise à jour actuel, indépendamment des préférences de confidentialité enregistrées.\n:param system: Adaptateur de machine facultatif pour des vérifications isolées du système de fichiers.\n:param guard: Fabrique de gestionnaires de contexte active, facultative et de confiance, qui reçoit les chemins candidats dérivés et ne produit ``None`` que lorsque le nettoyage est autorisé.\n:returns: Aperçu immuable lié à l’opération, avec les chemins réels, les tailles du contenu et une identité d’instantané. Sans protection active, la suppression reste désactivée. Aucun fichier n’est modifié pendant l’inspection.\n:raises ValueError: L’identité de l’opération est vide ou invalide.",
+      "translation_source_blocks_sha256": [
+        "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+        "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+        "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+        "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+        "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+        "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+        "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup.normalized": {
+      "source_blocks_sha256": [
+        "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+        "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+        "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+        "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100"
+      ],
+      "source_sha256": "c4cbd6b616b3f113ccf27a627f1d0de2f6fa607ba7c3edc0394073e0e6081ad4",
+      "text": "Renvoyer un chemin absolu destiné à l’affichage selon la règle du tilde du composant qui écrit.\n\n:param value: Texte du chemin configuré ou du chemin par défaut.\n:param expand: Indique si le composant qui écrit développe un marqueur initial du répertoire personnel de l’utilisateur.\n:returns: Texte d’un chemin absolu sans inspection du contenu des caches.",
+      "translation_source_blocks_sha256": [
+        "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+        "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+        "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+        "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup.retained_path": {
+      "source_blocks_sha256": [
+        "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+        "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+        "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+        "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c"
+      ],
+      "source_sha256": "daedbfdecf79de9dfeca9697b125d07f5d36ec90a342c2ce78d241b5497dafd7",
+      "text": "Résoudre un chemin de cache conservé en donnant la priorité à une valeur de remplacement externe.\n\n:param variable: Nom enregistré de la variable d’environnement du cache.\n:param default: Valeur de repli lorsque ni l’environnement ni le déplacement n’en fournissent une.\n:returns: Chemin normalisé destiné à l’affichage ; son contenu protégé n’est pas parcouru.",
+      "translation_source_blocks_sha256": [
+        "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+        "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+        "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+        "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c"
       ]
     },
     "spacr.install_cleanup.remove_install": {
@@ -38142,10 +38220,10 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
+        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
       ],
-      "source_sha256": "1b3b99d8445c0b51ada6dd8d22c36032699cbdfd5a9f45ccd466e58bf3ade533",
-      "text": "Exécute une mise à jour de l’installation dans un processus qui survit à spaCR.\n\nLes copies créées par l’installateur et les environnements dédiés POSIX ou Windows avec pip pris en charge peuvent utiliser cet assistant. Il attend la fin du processus en cours avant de modifier l’installation ; l’adaptateur pip exige également une autorisation d’arrêt authentifiée.\n\nPour une installation macOS en ligne prise en charge, utilise le ``uv`` fourni existant et le Python privé pour mettre à niveau spaCR dans le même environnement. Conserve le répertoire de l’environnement, les fichiers d’amorçage, le lanceur de l’application et les paquets installés qui n’ont pas besoin de mise à jour. Redémarre seulement après avoir vérifié que la version installée est au moins ``version`` et plus récente que la version précédente, lorsque celle-ci est connue. Un échec de mise à niveau ou de vérification de version ne déclenche ni suppression ni programme d’installation de remplacement.\n\nLa procédure habituelle de remplacement télécharge et exécute le nouvel installateur qui prépare l’installation, vérifie son interpréteur réel et l’application importée, puis retire les autres copies et lance l’application. Un échec de l’installation ou de la vérification ne supprime pas la copie précédente qui fonctionnait. Un échec du retrait des autres copies est consigné sans relancer l’application.\n\n:param records: installations issues de :func:`find_old_installs`.\n:param version: la version à installer.\n:param ticked: racines des environnements cochés par l’utilisateur.\n:param pid: le processus à attendre ; ce processus-ci si la valeur est ``None``.\n:param workdir: le dossier du processus auxiliaire ; un nouveau dossier temporaire si la valeur est ``None``.\n:param system: l’ordinateur ; ``None`` désigne cet ordinateur-ci.\n:param spawn: remplace le lanceur du processus détaché.\n:returns: le plan tel qu’il a été écrit dans ``plan.json``. ``plan[\"command\"]`` est la commande du processus auxiliaire, ou ``None``, auquel cas ``plan[\"error\"]`` indique pourquoi rien n’a été démarré.\n\nUn paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur emploie son adaptateur de remplacement par DMG vérifié et conserve l’intégralité du paquet précédent. Les autres familles d’applications figées renvoient une erreur avant toute suppression ; le programme auxiliaire n’active pas de solution de repli par installateur en ligne pour ces applications.",
+      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
+      "text": "Exécute une mise à jour de l’installation dans un processus qui survit à spaCR.\n\nLes copies créées par l’installateur et les environnements dédiés POSIX ou Windows avec pip pris en charge peuvent utiliser cet assistant. Il attend la fin du processus en cours avant de modifier l’installation ; l’adaptateur pip exige également une autorisation d’arrêt authentifiée.\n\nPour une installation macOS en ligne prise en charge, utilise le ``uv`` fourni existant et le Python privé pour mettre à niveau spaCR dans le même environnement. Conserve le répertoire de l’environnement, les fichiers d’amorçage, le lanceur de l’application et les paquets installés qui n’ont pas besoin de mise à jour. Redémarre seulement après avoir vérifié que la version installée est au moins ``version`` et plus récente que la version précédente, lorsque celle-ci est connue. Un échec de mise à niveau ou de vérification de version ne déclenche ni suppression ni programme d’installation de remplacement.\n\nLa procédure habituelle de remplacement télécharge et exécute le nouvel installateur qui prépare l’installation, vérifie son interpréteur réel et l’application importée, puis retire les autres copies et lance l’application. Un échec de l’installation ou de la vérification ne supprime pas la copie précédente qui fonctionnait. Un échec du retrait des autres copies est consigné sans relancer l’application.\n\n:param records: installations issues de :func:`find_old_installs`.\n:param version: la version à installer.\n:param ticked: racines des environnements cochés par l’utilisateur.\n:param pid: le processus à attendre ; ce processus-ci si la valeur est ``None``.\n:param workdir: le dossier du processus auxiliaire ; un nouveau dossier temporaire si la valeur est ``None``.\n:param system: l’ordinateur ; ``None`` désigne cet ordinateur-ci.\n:param spawn: remplace le lanceur du processus détaché.\n:returns: le plan tel qu’il a été écrit dans ``plan.json``. ``plan[\"command\"]`` est la commande du processus auxiliaire, ou ``None``, auquel cas ``plan[\"error\"]`` indique pourquoi rien n’a été démarré.\n\nUn paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur utilise son adaptateur de remplacement DMG vérifié et conserve l’intégralité du paquet précédent. Un paquet Debian portant un marqueur de protocole utilise une autorisation graphique d’administrateur et un programme auxiliaire appartenant à root, situé hors de l’installation. Le paquet de remplacement et celui de retour à la version précédente exigent tous deux des sommes de contrôle publiées ; la vérification du paquet et de l’environnement d’exécution sans privilèges précède le redémarrage. Les familles d’applications figées non prises en charge renvoient une erreur avant toute suppression ; aucun recours à l’installateur en ligne n’est activé pour elles.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
         "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
@@ -38159,7 +38237,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
+        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
       ]
     },
     "spacr.install_profile": {
@@ -71530,12 +71608,26 @@
     },
     "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding": {
       "source_blocks_sha256": [
-        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+        "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+        "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca"
       ],
-      "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
-      "text": "Affiche le consentement de l'installateur, puis lance la visite après sa fermeture.",
+      "source_sha256": "ed916d5d9db3eb622a268aeffef15bc3372baccf9ca995e1ed007905563e93ae",
+      "text": "Afficher le consentement à l’installation, la vérification facultative des caches, l’avis sur les rapports et la visite guidée.\n\nL’inspection des caches en arrière-plan se termine avant l’ouverture des choix. La visite guidée attend la fermeture de l’avis sur les rapports anonymisés.",
       "translation_source_blocks_sha256": [
-        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+        "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+        "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca"
+      ]
+    },
+    "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply": {
+      "source_blocks_sha256": [
+        "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ],
+      "source_sha256": "47bd517bda8ec00d3ad35ac887a706596f5a06bd8b028dd16dc0406f23d64294",
+      "text": "Valider à nouveau et appliquer uniquement la sélection explicite de la boîte de dialogue actuelle.\n\n:returns: Résultat de l’action indiquant un motif de refus ou des décomptes des éléments supprimés et les éventuels chemins privés conservés.",
+      "translation_source_blocks_sha256": [
+        "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
       ]
     },
     "spacr.qt.app.MainWindow._retry_screen_backdrop.again": {
@@ -71546,6 +71638,32 @@
       "text": "Réessaie l'arrière-plan une fois de plus, si la vue est toujours vivante.",
       "translation_source_blocks_sha256": [
         "90eeefdafa9d6f5df95813d5f41226d1a9bac63bc9e3d9efdafb5012d705bfee"
+      ]
+    },
+    "spacr.qt.app.MainWindow._review_installation_caches.guard": {
+      "source_blocks_sha256": [
+        "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+        "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+        "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7"
+      ],
+      "source_sha256": "99b9424b66f5cb55d88d0303f0362f99fe1eb2feba8e1053a59271513ff48f94",
+      "text": "Maintenir le verrou d’exécution de l’application et refuser le nettoyage en présence de tâches actives enregistrées.\n\n:param paths: Répertoires candidats de cache dérivés indépendamment.\n:yields: ``None`` lorsque le nettoyage local à l’application est autorisé, ou le refus de cache existant. Cela ne prouve pas que les autres processus sont inactifs.",
+      "translation_source_blocks_sha256": [
+        "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+        "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+        "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7"
+      ]
+    },
+    "spacr.qt.app.MainWindow._review_installation_caches.prepare": {
+      "source_blocks_sha256": [
+        "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+        "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775"
+      ],
+      "source_sha256": "78cfb20f295d2d23216eda7463e6fd208fdd4d696d53cccb130f2dafae232b3e",
+      "text": "Inspecter les caches de la nouvelle opération dans le fil de travail en arrière-plan.\n\n:returns: Aperçu immuable préparé à l’aide de la protection active des exécutions locale à l’application.",
+      "translation_source_blocks_sha256": [
+        "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+        "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775"
       ]
     },
     "spacr.qt.app.MainWindow._show_about._line": {

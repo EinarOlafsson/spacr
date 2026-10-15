@@ -314,3 +314,25 @@ regeneration passes; precisely two summaries change, all unrelated API summaries
 are exact. Evidence:features/data/678_bridge_spinner_api_catalogs_2026-10-15/
 and features/data/678_bridge_spinner_coordinator_review_2026-10-15/. This closes
 these four contracts, not the wider semantic sweep or final CI/release.
+
+2026-10-15 — Final installer cleanup and updater API documentation closure
+Nine source-bound bodies (seven new, two changed) now have297 independently
+reviewed records across nine locales. All594 source/context and297 inline
+checks pass. Normal selected generation passes18.95s with no model, runtime
+canonical or full API collector request;13486 unrelated English records,
+all unrelated localized records, Windows updater paragraph1 and source
+history remain exact. Eighteen stale review rows retire with provenance.
+The nine-symbol unchanged normal API audit passes across all nine locales.
+Normal Help regeneration adds seven entries and changes the onboarding
+summary. All nine actual local docstrings, English/Korean links and eighteen
+production searches pass; unrelated Help rows/settings/preferences stay exact.
+An actual offline lookup defect for helpers within control-flow blocks is
+repaired: baseline12FAIL/2PASS, final19PASS, lexical scope boundaries retained.
+Evidence: features/data/703_cleanup_final_api_inputs_2026-10-15/,
+features/data/703_cleanup_api_catalogs_2026-10-15/,
+features/data/703_cleanup_help_consumer_2026-10-15/ and
+features/data/703_offline_helper_scope_2026-10-15/.
+A broader snapshot audit remains blocked by an unrelated N700 providers#6
+review/source mismatch; its failure is retained and referred to that owner.
+This closes these documentation/help scopes only, not the whole semantic
+sweep, N703 platform acceptance, final CI or release.

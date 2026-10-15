@@ -8,7 +8,9 @@
       "review_basis": "written from current English and technically reviewed by Codex",
       "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
       "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
-      "translation": "Frosinn macOS-forritapakki á stað þar sem notandinn hefur skrifheimild notar staðfestan DMG-skiptiaðlaga sinn og varðveitir allan fyrri forritapakkann. Aðrar gerðir frosinna forrita skila villu áður en nokkuð er fjarlægt; hjálparforritið virkjar ekki varaleið með netuppsetningarforriti fyrir þessi forrit."
+      "translation": "Frosinn macOS-forritapakki á stað þar sem notandinn hefur skrifheimild notar staðfestan DMG-skiptiaðlaga sinn og varðveitir allan fyrri forritapakkann. Aðrar gerðir frosinna forrita skila villu áður en nokkuð er fjarlægt; hjálparforritið virkjar ekki varaleið með netuppsetningarforriti fyrir þessi forrit.",
+      "retired": true,
+      "retired_reason": "N703 final source1eabf4b498a7 replaces this exact selected source block; original review and target retained as historical evidence."
     },
     {
       "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",

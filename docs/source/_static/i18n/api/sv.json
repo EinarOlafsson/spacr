@@ -38060,6 +38060,30 @@
         "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
       ]
     },
+    "spacr.install_cleanup.apply_optional_cleanup": {
+      "source_blocks_sha256": [
+        "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+        "3669ef371c87f57f9137ba998cae21396832c7835d1c71f2bfada45d24a2b764",
+        "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+        "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+        "667a22c5b8911720f538d6b4ce360c26e9d7d39c3b8d4d58218c60f89e758217",
+        "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+        "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ],
+      "source_sha256": "e3c1dee12fcee99f588fdaab46a2100eb098f7bbbd09000baec4c082820af651",
+      "text": "Utför en ny åtgärd för valda cacheminnen under programmets aktiva körningsskydd.\n\nEndast en betrodd Python-fabrik för kontexthanterare kan tillåta körning. Programmets anropare måste hålla sitt befintliga lås för registrering av körningar och avvisa aktivt arbete under hela kontexten. Detta är ett skydd inom programmet, inte ett bevis på att alla andra processer är inaktiva. En separat hjälpprocess eller en sparad nyckel-värde-mappning kan inte ge den behörigheten.\n\nVarje vald ögonblicksbild valideras före ändring. Varje åtgärdsidentitet förbrukas en gång i denna process. Ändrade, okända eller låsta frikopplade filsystemsposter ligger kvar i privat mellanlagring; ingen rekursiv radering eller återställning som skriver över något utförs. Modeller, data och andra skyddade rotkataloger kan inte väljas. Stödda katalogdeskriptorer som inte följer länkar krävs.\n\n:param preview: Oföränderligt resultat från :func:`preview_optional_cleanup`.\n:param choices: Aktuellt operations-ID, ögonblicksbilds-ID och uttryckligen valda registrerade cachenycklar som det grafiska gränssnittet (GUI) returnerar.\n:param system: Valfri isolerad maskinadapter som används för en ny inspektion.\n:param guard: Betrodd aktiv fabrik för kontexthanterare som tar emot härledda sökvägar; den ger ``None`` endast medan rensning inom programmet är tillåten.\n:returns: Åtgärdens resultat med ett skäl till att åtgärden nekades, eller antal borttagna objekt och eventuella bevarade privata sökvägar.",
+      "translation_source_blocks_sha256": [
+        "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+        "5d1a3f47cd47d91d83ec484ed6cbc71310e753fb75ef5dd44194333b7ed6cb17",
+        "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+        "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+        "945cc6316209bd04a5ed2f53f56394f32c6b1e568d8d71c00160c1797ff4f1eb",
+        "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+        "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ]
+    },
     "spacr.install_cleanup.find_old_installs": {
       "source_blocks_sha256": [
         "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
@@ -38074,6 +38098,60 @@
         "832ffd69766a0a4fa88579dddd6c0b6f0ef10919f7fe3f97490f47b30a0fa4c8",
         "a58b9ca29358e4e9dbfbfcd8e2d7e2e276fe3d1d2e9a5478cd0a77f33a222ec0",
         "e77e003f82e54621b2c59eb4cbc6524bfe54745a2965ba85106d1a53079d3d19"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup": {
+      "source_blocks_sha256": [
+        "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+        "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+        "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+        "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+        "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+        "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+        "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506"
+      ],
+      "source_sha256": "5b2ac4664ed0f5f19f720f1ea3a22f7da6aadfc0035d710abc71a94be6167bb0",
+      "text": "Inspektera dedikerade cacheminnen och erbjud val endast under ett aktivt körningsskydd.\n\nInnehållet i kända cacheminnen inspekteras endast under spaCR:s standardhemkatalog. Ett storleksbegränsat flyttmanifest kan också läsas från en konfigurerad spaCR-hemkatalog för att visa bevarade externa sökvägar. Innehåll i externa, symboliskt länkade, okända och skyddade cacheminnen förblir otillgängligt. Inspektionen är begränsad och följer aldrig länkar. Ett betrott aktivt programskydd kan göra kandidater valbara; ett sparat val kan inte ge tillstånd till borttagning. Detta fastställer inte att varje annan programinstans är inaktiv.\n\n:param operation_id: En ny identitet som tillhandahålls av det aktuella installationsprogrammet eller uppdateringssamordnaren, oberoende av sparade integritetsinställningar.\n:param system: Valfri maskinadapter för isolerade filsystemskontroller.\n:param guard: Valfri betrodd aktiv fabrik för kontexthanterare som tar emot härledda kandidatsökvägar och ger ``None`` endast medan rensning är tillåten.\n:returns: En oföränderlig förhandsvisning knuten till operationen, med faktiska sökvägar, innehållsstorlekar och en ögonblicksbildsidentitet. Utan ett aktivt skydd förblir borttagning avstängd. Ingen fil ändras under inspektionen.\n:raises ValueError: Operationens identitet är tom eller ogiltig.",
+      "translation_source_blocks_sha256": [
+        "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+        "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+        "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+        "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+        "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+        "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+        "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup.normalized": {
+      "source_blocks_sha256": [
+        "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+        "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+        "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+        "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100"
+      ],
+      "source_sha256": "c4cbd6b616b3f113ccf27a627f1d0de2f6fa607ba7c3edc0394073e0e6081ad4",
+      "text": "Returnera en absolut visningssökväg enligt den skrivande komponentens tilde-regel.\n\n:param value: Konfigurerad sökvägstext eller standardtext för sökvägen.\n:param expand: Om den skrivande komponenten expanderar en inledande markör för användarens hemkatalog.\n:returns: Absolut sökvägstext utan att undersöka cacheinnehåll.",
+      "translation_source_blocks_sha256": [
+        "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+        "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+        "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+        "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100"
+      ]
+    },
+    "spacr.install_cleanup.preview_optional_cleanup.retained_path": {
+      "source_blocks_sha256": [
+        "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+        "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+        "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+        "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c"
+      ],
+      "source_sha256": "daedbfdecf79de9dfeca9697b125d07f5d36ec90a342c2ce78d241b5497dafd7",
+      "text": "Bestäm sökvägen till ett bevarat cacheminne med företräde för en extern åsidosättning.\n\n:param variable: Registrerat namn på cacheminnets miljövariabel.\n:param default: Reservvärde när varken miljön eller omlokaliseringen tillhandahåller något.\n:returns: Normaliserad visningssökväg; dess skyddade innehåll genomsöks inte.",
+      "translation_source_blocks_sha256": [
+        "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+        "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+        "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+        "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c"
       ]
     },
     "spacr.install_cleanup.remove_install": {
@@ -38142,10 +38220,10 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
+        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
       ],
-      "source_sha256": "1b3b99d8445c0b51ada6dd8d22c36032699cbdfd5a9f45ccd466e58bf3ade533",
-      "text": "Kör en installationsuppdatering i en process som överlever spaCR.\n\nKopior skapade av installationsprogrammet och stödda dedikerade POSIX- eller Windows-miljöer med pip kan använda denna hjälpprocess. Den väntar tills den körande processen har avslutats innan installationen ändras; pip-adaptern kräver också autentiserat godkännande av avstängningen.\n\nFör en macOS-onlineinstallation som stöds används den befintliga medföljande ``uv`` och privata Python för att uppgradera spaCR i samma miljö. Bevara miljökatalogen, startfilerna, programstartaren och installerade paket som inte behöver uppdateras. Starta om först efter att ha verifierat att den installerade versionen är minst ``version`` och nyare än den tidigare versionen, när den tidigare versionen är känd. En misslyckad uppgradering eller versionskontroll utlöser varken borttagning eller ett ersättande installationsprogram.\n\nDen vanliga ersättningsproceduren laddar ned och kör det nya installationsprogrammet, som förbereder installationen, verifierar dess faktiska tolk och importerade program och tar sedan bort andra kopior och startar programmet. Om installationen eller verifieringen misslyckas tas den tidigare fungerande kopian inte bort. Misslyckad borttagning av andra kopior loggas utan att programmet startas igen.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.\n\nEtt fryst macOS-apppaket på en plats som användaren kan skriva till använder sin verifierade DMG-ersättningsadapter och behåller hela det tidigare apppaketet. Övriga familjer av frysta program returnerar ett fel innan något tas bort; hjälpprogrammet aktiverar ingen reservväg via ett onlineinstallationsprogram för dessa program.",
+      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
+      "text": "Kör en installationsuppdatering i en process som överlever spaCR.\n\nKopior skapade av installationsprogrammet och stödda dedikerade POSIX- eller Windows-miljöer med pip kan använda denna hjälpprocess. Den väntar tills den körande processen har avslutats innan installationen ändras; pip-adaptern kräver också autentiserat godkännande av avstängningen.\n\nFör en macOS-onlineinstallation som stöds används den befintliga medföljande ``uv`` och privata Python för att uppgradera spaCR i samma miljö. Bevara miljökatalogen, startfilerna, programstartaren och installerade paket som inte behöver uppdateras. Starta om först efter att ha verifierat att den installerade versionen är minst ``version`` och nyare än den tidigare versionen, när den tidigare versionen är känd. En misslyckad uppgradering eller versionskontroll utlöser varken borttagning eller ett ersättande installationsprogram.\n\nDen vanliga ersättningsproceduren laddar ned och kör det nya installationsprogrammet, som förbereder installationen, verifierar dess faktiska tolk och importerade program och tar sedan bort andra kopior och startar programmet. Om installationen eller verifieringen misslyckas tas den tidigare fungerande kopian inte bort. Misslyckad borttagning av andra kopior loggas utan att programmet startas igen.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.\n\nEtt fryst macOS-programpaket på en plats där användaren får skriva använder sin verifierade DMG-adapter för ersättning och behåller hela det föregående programpaketet. Ett Debian-programpaket med protokollmarkering använder grafisk administratörsauktorisering och ett root-ägt hjälpprogram utanför installationen. Både ersättningspaketet och paketet för återställning kräver publicerade kontrollsummor; paketet och körmiljön utan förhöjda rättigheter verifieras innan programmet startas igen. Frysta programfamiljer som inte stöds returnerar ett fel innan något tas bort; ingen reservväg via onlineinstallationsprogrammet är aktiverad för dem.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
         "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
@@ -38159,7 +38237,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
+        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
       ]
     },
     "spacr.install_profile": {
@@ -71530,12 +71608,26 @@
     },
     "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding": {
       "source_blocks_sha256": [
-        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+        "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+        "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca"
       ],
-      "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
-      "text": "Visar installationsmedgivandet och startar rundturen när det har stängts.",
+      "source_sha256": "ed916d5d9db3eb622a268aeffef15bc3372baccf9ca995e1ed007905563e93ae",
+      "text": "Visa installationssamtycke, valfri cachegranskning, rapportmeddelande och rundtur.\n\nCacheinspektionen i bakgrunden slutförs innan valen öppnas. Rundturen väntar tills meddelandet om anonymiserade rapporter stängs.",
       "translation_source_blocks_sha256": [
-        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+        "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+        "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca"
+      ]
+    },
+    "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply": {
+      "source_blocks_sha256": [
+        "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
+      ],
+      "source_sha256": "47bd517bda8ec00d3ad35ac887a706596f5a06bd8b028dd16dc0406f23d64294",
+      "text": "Validera på nytt och tillämpa endast det uttryckliga valet i den aktuella dialogrutan.\n\n:returns: Åtgärdens resultat med ett skäl till att åtgärden nekades, eller antal borttagna objekt och eventuella bevarade privata sökvägar.",
+      "translation_source_blocks_sha256": [
+        "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+        "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68"
       ]
     },
     "spacr.qt.app.MainWindow._retry_screen_backdrop.again": {
@@ -71546,6 +71638,32 @@
       "text": "Försöker med bakgrunden en gång till, om vyn fortfarande lever.",
       "translation_source_blocks_sha256": [
         "90eeefdafa9d6f5df95813d5f41226d1a9bac63bc9e3d9efdafb5012d705bfee"
+      ]
+    },
+    "spacr.qt.app.MainWindow._review_installation_caches.guard": {
+      "source_blocks_sha256": [
+        "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+        "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+        "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7"
+      ],
+      "source_sha256": "99b9424b66f5cb55d88d0303f0362f99fe1eb2feba8e1053a59271513ff48f94",
+      "text": "Håll programmets körningslås och avvisa rensning när registrerat aktivt arbete pågår.\n\n:param paths: Oberoende härledda kandidatmappar för cacheminnen.\n:yields: ``None`` medan programlokal rensning är tillåten, eller det befintliga avslaget för cacheåtgärden. Detta bevisar inte att andra processer är inaktiva.",
+      "translation_source_blocks_sha256": [
+        "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+        "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+        "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7"
+      ]
+    },
+    "spacr.qt.app.MainWindow._review_installation_caches.prepare": {
+      "source_blocks_sha256": [
+        "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+        "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775"
+      ],
+      "source_sha256": "78cfb20f295d2d23216eda7463e6fd208fdd4d696d53cccb130f2dafae232b3e",
+      "text": "Inspektera den nya operationens cacheminnen i bakgrundens arbetstråd.\n\n:returns: Oföränderlig förhandsvisning framtagen med det aktiva programlokala körningsskyddet.",
+      "translation_source_blocks_sha256": [
+        "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+        "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775"
       ]
     },
     "spacr.qt.app.MainWindow._show_about._line": {

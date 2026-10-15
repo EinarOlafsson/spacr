@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Source-bound technical review with independent semantic peer; no native-speaker signoff",
+  "note": "Exact final N703 nine-symbol closure:30 stable blocks,2 corrected return fields,1 Original Hard updater final paragraph. Windows updater paragraph1 is untouched. Historical draft provenance remains separately bound.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#0",
+      "source": "Apply a fresh selected-cache action under the application's live run guard.",
+      "context": "Apply a fresh selected-cache action under the application's live run guard.",
+      "source_sha256": "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+      "translation": "अनुप्रयोग के सक्रिय रन-गार्ड के अंतर्गत चुने हुए कैश पर नई कार्रवाई लागू करें।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#1",
+      "source": "Only a trusted Python context-manager factory can enable execution. The application's caller must hold its established run-registration lock and refuse active work throughout the context. This is an application-local safeguard, not proof that every other process is idle. A separate helper or saved dictionary cannot grant that authority.",
+      "context": "Only a trusted Python context-manager factory can enable execution. The application's caller must hold its established run-registration lock and refuse active work throughout the context. This is an application-local safeguard, not proof that every other process is idle. A separate helper or saved key-value mapping cannot grant that authority.",
+      "source_sha256": "3669ef371c87f57f9137ba998cae21396832c7835d1c71f2bfada45d24a2b764",
+      "translation": "केवल विश्वसनीय Python कॉन्टेक्स्ट-मैनेजर फ़ैक्टरी ही निष्पादन सक्षम कर सकती है। अनुप्रयोग के कॉलर को अपना मौजूदा रन-पंजीकरण लॉक पकड़े रखना होगा और पूरे कॉन्टेक्स्ट के दौरान सक्रिय काम से इनकार करना होगा। यह अनुप्रयोग के भीतर का सुरक्षा उपाय है, इस बात का प्रमाण नहीं कि अन्य सभी प्रक्रियाएँ निष्क्रिय हैं। अलग सहायक प्रोग्राम या सहेजी गई कुंजी-मूल्य मैपिंग यह अधिकार नहीं दे सकती।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#2",
+      "source": "Every selected snapshot is validated before mutation. Each action identity is consumed once in this process. Changed, unknown or locked detached entries remain in private staging; no recursive deletion or overwriting restoration is performed. Models, data and other protected roots cannot be selected. Supported no-follow directory descriptors are required.",
+      "context": "Every selected snapshot is validated before mutation. Each action identity is consumed once in this process. Changed, unknown or locked detached entries remain in private staging; no recursive deletion or overwriting restoration is performed. Models, data and other protected roots cannot be selected. Supported no-follow directory descriptors are required.",
+      "source_sha256": "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+      "translation": "बदलाव से पहले हर चुने हुए स्नैपशॉट का सत्यापन होता है। प्रत्येक कार्रवाई पहचान का इस प्रक्रिया में एक बार ही उपयोग होता है। बदली हुई, अज्ञात या लॉक की गई अलग की गई फ़ाइल-सिस्टम प्रविष्टियाँ निजी स्टेजिंग क्षेत्र में रहती हैं; न पुनरावर्ती रूप से हटाया जाता है और न मौजूदा सामग्री के ऊपर लिखकर बहाल किया जाता है। मॉडल, डेटा और अन्य संरक्षित मूल निर्देशिकाएँ नहीं चुनी जा सकतीं। लिंक का अनुसरण न करने वाले समर्थित निर्देशिका डिस्क्रिप्टर आवश्यक हैं।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#3",
+      "source": "Immutable result of :func:`preview_optional_cleanup`.",
+      "context": "Immutable result of :func:`preview_optional_cleanup`.",
+      "source_sha256": "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+      "translation": ":func:`preview_optional_cleanup` का अपरिवर्तनीय परिणाम।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#4",
+      "source": "Current operation ID, snapshot ID and explicitly chosen registered cache keys returned by the GUI.",
+      "context": "Current operation ID, snapshot ID and explicitly chosen registered cache structured-data names returned by the GUI.",
+      "source_sha256": "667a22c5b8911720f538d6b4ce360c26e9d7d39c3b8d4d58218c60f89e758217",
+      "translation": "GUI से प्राप्त वर्तमान ऑपरेशन ID, स्नैपशॉट ID और स्पष्ट रूप से चुनी गई पंजीकृत कैश कुंजियाँ।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#5",
+      "source": "Optional isolated machine adapter used for reinspection.",
+      "context": "Optional isolated machine adapter used for reinspection.",
+      "source_sha256": "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+      "translation": "दोबारा निरीक्षण के लिए उपयोग किया जाने वाला वैकल्पिक अलग-थलग मशीन अडैप्टर।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#6",
+      "source": "Trusted live context-manager factory receiving derived paths; it yields ``None`` only while application-local cleanup is permitted.",
+      "context": "Trusted live context-manager factory receiving derived paths; it yields ``None`` only while application-local cleanup is permitted.",
+      "source_sha256": "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+      "translation": "विश्वसनीय सक्रिय कॉन्टेक्स्ट-मैनेजर फ़ैक्टरी, जो निकाले गए पथ प्राप्त करती है; यह ``None`` केवल तब देती है जब अनुप्रयोग के भीतर सफ़ाई की अनुमति हो।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#7",
+      "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "context": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+      "translation": "कार्रवाई का परिणाम: अस्वीकार करने का कारण, या हटाए गए आइटमों की गिनती और बनाए रखे गए निजी पथ, यदि कोई हों।",
+      "review_basis": "Home-B coordinator author; independent corrected-returns peer8f6aec59f; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#0",
+      "source": "Inspect dedicated caches and offer selection only under a live run guard.",
+      "context": "Inspect dedicated caches and offer selection only under a live run guard.",
+      "source_sha256": "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+      "translation": "समर्पित कैशों का निरीक्षण करें और केवल सक्रिय रन गार्ड के तहत चयन उपलब्ध कराएँ।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#1",
+      "source": "Recognized cache contents are inspected only under the default spaCR home. A bounded relocation manifest may also be read from a configured spaCR home to display retained external paths. External, symlinked, unknown and protected cache contents remain unavailable. Inspection is bounded and never follows links. A trusted live application guard can enable candidates; a saved selection cannot authorize removal. This does not establish that every other application instance is idle.",
+      "context": "Recognized cache contents are inspected only under the default spaCR home. A bounded relocation manifest may also be read from a configured spaCR home to display retained external paths. External, symlinked, unknown and protected cache contents remain unavailable. Inspection is bounded and never follows links. A trusted live application guard can enable candidates; a saved selection cannot authorize removal. This does not establish that every other application instance is idle.",
+      "source_sha256": "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+      "translation": "पहचाने गए कैशों की सामग्री केवल spaCR की डिफ़ॉल्ट होम डायरेक्टरी के भीतर जाँची जाती है। सुरक्षित रखे गए बाहरी पथ दिखाने के लिए कॉन्फ़िगर की गई spaCR होम डायरेक्टरी से सीमित आकार वाला स्थानांतरण मैनिफ़ेस्ट भी पढ़ा जा सकता है। बाहरी, सिंबॉलिक लिंक वाले, अज्ञात और संरक्षित कैशों की सामग्री अनुपलब्ध रहती है। निरीक्षण सीमित है और कभी लिंक का अनुसरण नहीं करता। एप्लिकेशन का विश्वसनीय सक्रिय गार्ड उम्मीदवारों को चुनने योग्य बना सकता है; सहेजा गया चयन हटाने की अनुमति नहीं दे सकता। इससे यह सिद्ध नहीं होता कि एप्लिकेशन के सभी अन्य इंस्टेंस निष्क्रिय हैं।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#2",
+      "source": "Fresh identity supplied by the current installer or update coordinator, independent of saved privacy preferences.",
+      "context": "Fresh identity supplied by the current installer or update coordinator, independent of saved privacy preferences.",
+      "source_sha256": "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+      "translation": "वर्तमान इंस्टॉलर या अपडेट समन्वयक द्वारा दिया गया नया पहचानकर्ता, जो सहेजी गई गोपनीयता प्राथमिकताओं से स्वतंत्र है।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#3",
+      "source": "Optional machine adapter for isolated filesystem checks.",
+      "context": "Optional machine adapter for isolated filesystem checks.",
+      "source_sha256": "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+      "translation": "अलग-थलग फ़ाइल-सिस्टम जाँचों के लिए वैकल्पिक मशीन अडैप्टर।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#4",
+      "source": "Optional trusted live context-manager factory receiving derived candidate paths and yielding ``None`` only while cleanup is permitted.",
+      "context": "Optional trusted live context-manager factory receiving derived candidate paths and yielding ``None`` only while cleanup is permitted.",
+      "source_sha256": "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+      "translation": "वैकल्पिक विश्वसनीय सक्रिय कॉन्टेक्स्ट-मैनेजर फ़ैक्टरी, जो निर्धारित किए गए उम्मीदवार पथ प्राप्त करती है और केवल सफ़ाई की अनुमति रहने के दौरान ``None`` देती है।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#5",
+      "source": "An immutable operation-bound preview with actual paths, content sizes and a snapshot identity. Without a live guard, removal stays disabled. No file is changed during inspection.",
+      "context": "An immutable operation-bound preview with actual paths, content sizes and a snapshot identity. Without a live guard, removal stays disabled. No file is changed during inspection.",
+      "source_sha256": "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+      "translation": "ऑपरेशन से बँधा अपरिवर्तनीय पूर्वावलोकन, जिसमें वास्तविक पथ, सामग्री के आकार और स्नैपशॉट का पहचानकर्ता होता है। सक्रिय गार्ड के बिना हटाना अक्षम रहता है। निरीक्षण के दौरान कोई फ़ाइल नहीं बदली जाती।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#6",
+      "source": "The operation identity is empty or invalid.",
+      "context": "The operation identity is empty or invalid.",
+      "source_sha256": "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506",
+      "translation": "ऑपरेशन का पहचानकर्ता खाली या अमान्य है।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
+      "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
+      "translation": "उपयोगकर्ता द्वारा लिखे जा सकने वाले स्थान में स्थित फ़्रीज़ किया हुआ macOS अनुप्रयोग बंडल अपने सत्यापित DMG प्रतिस्थापन अडैप्टर का उपयोग करता है और पूरा पिछला बंडल बनाए रखता है। प्रोटोकॉल मार्कर वाला Debian बंडल ग्राफ़िकल प्रशासक अनुमति और स्थापना के बाहर स्थित, root के स्वामित्व वाले सहायक का उपयोग करता है। प्रतिस्थापन और रोलबैक, दोनों पैकेजों के लिए प्रकाशित चेकसम आवश्यक हैं; अनुप्रयोग को दोबारा शुरू करने से पहले पैकेज और बिना विशेषाधिकार वाले रनटाइम परिवेश का सत्यापन होता है। फ़्रीज़ किए हुए अनुप्रयोगों के असमर्थित परिवार कुछ भी हटाने से पहले त्रुटि लौटाते हैं; उनके लिए ऑनलाइन इंस्टॉलर का कोई वैकल्पिक मार्ग सक्षम नहीं है।",
+      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#0",
+      "source": "Show installer consent, optional cache review, report notice and tour.",
+      "context": "Show installer consent, optional cache review, report notice and tour.",
+      "source_sha256": "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+      "translation": "इंस्टॉलर की सहमति, वैकल्पिक कैश समीक्षा, रिपोर्ट सूचना और परिचय-भ्रमण दिखाएँ।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#1",
+      "source": "Background cache inspection finishes before the choices open. The tour waits for the anonymised-report notice to close.",
+      "context": "Background cache inspection finishes before the choices open. The tour waits for the anonymised-report notice to close.",
+      "source_sha256": "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca",
+      "translation": "विकल्प खुलने से पहले बैकग्राउंड में कैश का निरीक्षण पूरा होता है। परिचय-भ्रमण पहचान-मुक्त रिपोर्टों की सूचना बंद होने की प्रतीक्षा करता है।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#0",
+      "source": "Return an absolute display path using the writer's tilde rule.",
+      "context": "Return an absolute display path using the writer's tilde rule.",
+      "source_sha256": "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+      "translation": "लिखने वाले घटक के टिल्ड नियम के अनुसार प्रदर्शन के लिए एक निरपेक्ष पथ लौटाएँ।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#1",
+      "source": "Configured or default path text.",
+      "context": "Configured or default path text.",
+      "source_sha256": "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+      "translation": "कॉन्फ़िगर किए गए या डिफ़ॉल्ट पथ का पाठ।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#2",
+      "source": "Whether this writer expands a leading user-home marker.",
+      "context": "Whether this writer expands a leading user-home marker.",
+      "source_sha256": "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+      "translation": "क्या लिखने वाला यह घटक पथ के आरंभ में मौजूद उपयोगकर्ता की होम निर्देशिका के चिह्न का विस्तार करता है।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#3",
+      "source": "Absolute path text without inspecting cache contents.",
+      "context": "Absolute path text without inspecting cache contents.",
+      "source_sha256": "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100",
+      "translation": "कैश की सामग्री की जाँच किए बिना निरपेक्ष पथ का पाठ।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#0",
+      "source": "Resolve a retained cache path with external override precedence.",
+      "context": "Resolve a retained cache path with external override precedence.",
+      "source_sha256": "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+      "translation": "बाहरी ओवरराइड को प्राथमिकता देते हुए बनाए रखे गए कैश का पथ निर्धारित करें।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#1",
+      "source": "Registered cache environment-variable name.",
+      "context": "Registered cache environment-variable name.",
+      "source_sha256": "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+      "translation": "पंजीकृत कैश पर्यावरण चर का नाम।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#2",
+      "source": "Fallback when neither environment nor relocation supplies it.",
+      "context": "Fallback when neither environment nor relocation supplies it.",
+      "source_sha256": "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+      "translation": "जब पर्यावरण और स्थानांतरण कॉन्फ़िगरेशन दोनों कोई मान न दें, तब उपयोग होने वाला वैकल्पिक मान।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#3",
+      "source": "Normalized display path; its protected contents are not scanned.",
+      "context": "Normalized display path; its protected contents are not scanned.",
+      "source_sha256": "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c",
+      "translation": "प्रदर्शन के लिए सामान्यीकृत पथ; उसकी संरक्षित सामग्री स्कैन नहीं की जाती।",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.guard#0",
+      "source": "Hold the application's run lock and refuse registered active work.",
+      "context": "Hold the application's run lock and refuse registered active work.",
+      "source_sha256": "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+      "translation": "एप्लिकेशन का रन लॉक थामे रखें और पंजीकृत सक्रिय कार्य मौजूद होने पर सफ़ाई से इनकार करें।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.guard#1",
+      "source": "Independently derived candidate cache directories.",
+      "context": "Independently derived candidate cache directories.",
+      "source_sha256": "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+      "translation": "स्वतंत्र रूप से निर्धारित की गई उम्मीदवार कैश डायरेक्टरियाँ।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.guard#2",
+      "source": "``None`` while application-local cleanup is allowed, or the existing cache refusal. This does not prove other processes idle.",
+      "context": "``None`` while application-local cleanup is allowed, or the existing cache refusal. This does not prove other processes idle.",
+      "source_sha256": "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7",
+      "translation": "जब एप्लिकेशन के भीतर स्थानीय सफ़ाई की अनुमति हो तब ``None``, अन्यथा मौजूदा कैश अस्वीकृति। इससे अन्य प्रक्रियाओं के निष्क्रिय होने का प्रमाण नहीं मिलता।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.prepare#0",
+      "source": "Inspect the fresh operation's caches inside the background worker.",
+      "context": "Inspect the fresh operation's caches inside the background worker.",
+      "source_sha256": "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+      "translation": "नए ऑपरेशन के कैशों का निरीक्षण बैकग्राउंड वर्कर थ्रेड में करें।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.prepare#1",
+      "source": "Immutable preview with the live application-local run guard.",
+      "context": "Immutable preview with the live application-local run guard.",
+      "source_sha256": "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775",
+      "translation": "एप्लिकेशन के भीतर स्थानीय सक्रिय रन गार्ड का उपयोग करके तैयार किया गया अपरिवर्तनीय पूर्वावलोकन।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply#0",
+      "source": "Revalidate and apply only the explicit current-dialog selection.",
+      "context": "Revalidate and apply only the explicit current-dialog selection.",
+      "source_sha256": "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+      "translation": "दोबारा सत्यापित करें और केवल वर्तमान डायलॉग के स्पष्ट चयन को लागू करें।",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply#1",
+      "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "context": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+      "translation": "कार्रवाई का परिणाम: अस्वीकार करने का कारण, या हटाए गए आइटमों की गिनती और बनाए रखे गए निजी पथ, यदि कोई हों।",
+      "review_basis": "Home-B coordinator author; independent corrected-returns peer8f6aec59f; technical review only, no native-speaker claim."
+    }
+  ]
+}

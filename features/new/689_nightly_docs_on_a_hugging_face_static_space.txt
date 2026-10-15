@@ -155,3 +155,17 @@ tests pass5.06s. Independent code/evidence peer is0b7a9bb1. Evidence:
 features/data/689_hf_host_envelope_2026-10-15/ and the corresponding peer review.
 This closes this verifier defect only. No live deployment, current-source HF
 publication or Pages migration is claimed; those acceptance gates remain open.
+
+2026-10-15 — Home-B prepared a non-destructive free-host migration plan.
+Current403/readback proof is11835ed44; no deployment repeated. A fresh public
+sdk:static Space can hold the complete current~460MB artifact without rewriting
+the existing Space history, but it is a proposed recovery path, not durable
+quota management or completed deployment. Existing --space/--nightly-url/--url
+options support one coherent selected target. Workflow/token scope, main-only
+Pages /nightly/ redirects, the site-src link and two Work-owned tutorial URL
+consumers need coordinated cutover. Old direct HF bookmarks are a separate
+constraint: a new URL does not redirect them, and an old-Space small update may
+still hit quota. No rename, recreation, history deletion, paid plan, upload or
+dispatch was performed. Exact file/variable/URL map, ordered acceptance steps
+and limitations: data/689_quota_migration_plan_2026-10-15/plan.json. Final
+publication remains deferred; this note does not close N689.

@@ -1,0 +1,412 @@
+{
+  "schema": 1,
+  "source_head": "791fe29b779eb6f48acc961bbd86b961470c4593",
+  "source_commits": [
+    "1eabf4b498a7be2a7eb91385c1c5cb1ba7edf473"
+  ],
+  "published_base": "6c3e0e136706bdade0e84f432f6ab79257b0a6bf",
+  "scope": "Normal selected N703 nine-body API closure; no full current-source claim.",
+  "owned_source_files": {
+    "spacr/install_cleanup.py": "3448c838e77cb9a4fb6c95127fce2c733645c546124b86282f72a8ddcf100837",
+    "spacr/qt/app.py": "0d0c6109143feadec12a1dafaebae79839f1ccd46a9f918c5efaf89e6c2b81ca"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-n703-cleanup-final-home-b.json": "9128416c28f359e3c6715efd8ce916075afff11f0199cda0557ea83daeb0ecee",
+    "docs/i18n/reviewed/api/de/2026-10-15-n703-cleanup-final-home-b.json": "0745645245254e7f8f1052c19c5cb8d3376d0eae396b59251ed43094da389bcd",
+    "docs/i18n/reviewed/api/es/2026-10-15-n703-cleanup-final-home-b.json": "507214c7e2116a86595e2c09129bbab3d52c27076b77f5adf3872ffb643bfc15",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-n703-cleanup-final-home-b.json": "81556558a360faa2fd6bfed3ba5f0dd7424f6257cbe277956f9f6dad3cbf7846",
+    "docs/i18n/reviewed/api/pt/2026-10-15-n703-cleanup-final-home-b.json": "91ee09217233d99bf8df28b92f3d4ec03bc8555897276d96559a8a150adb64ea",
+    "docs/i18n/reviewed/api/hi/2026-10-15-n703-cleanup-final-home-b.json": "687c9adb85dcc2b264d506b4c8e99dd0bfe59189d0870a55e385eee4e97b3ec6",
+    "docs/i18n/reviewed/api/ko/2026-10-15-n703-cleanup-final-home-b.json": "202b2ee8c1628856dab3789597882452ef78bab1b0c62ac8c43b60ecedff48bc",
+    "docs/i18n/reviewed/api/is/2026-10-15-n703-cleanup-final-home-b.json": "e9f719ed513a10e68ee377749101171928705ca72d8421e6a6917fb6cc758a04",
+    "docs/i18n/reviewed/api/fr/2026-10-15-n703-cleanup-final-home-b.json": "a8eec219474cd0579e9bbc94f755ba15af1387946cc9942d0b92a1f96a7f392b",
+    "docs/i18n/reviewed/api/hi/2026-09-27-api-delta6-000.json": "557eaebbd0078c45a8e471e80525505ba833f1e5f930e94c000ce69b0d39f502",
+    "docs/i18n/reviewed/api/de/2026-10-03-nested-batch9.json": "bf2cd562fc750a83d6df8346488b961a3347617f352c073fd39bb7de9ffe17c8",
+    "docs/i18n/reviewed/api/de/2026-09-27-api-delta6-000.json": "071c8ce6ad396d61b8fc8a435d5192273b34f527c0b9233c9acf1cc174ff46e9",
+    "docs/i18n/reviewed/api/hi/2026-10-03-nested-batch9.json": "be95db203f02f759c9ba0a61da85634760e20b0eb5c451d3faf58170f995ca7e",
+    "docs/i18n/reviewed/api/is/2026-09-27-api-delta6-000.json": "3061c41291c7842055d3bc1533a15c5254fce6d17e31fb519d749ddf2b145f20",
+    "docs/i18n/reviewed/api/ko/2026-09-27-api-delta6-000.json": "83bdebe870fa590738e8a4ba0234d0c8a1891c606825208f406c7426583f91cb",
+    "docs/i18n/reviewed/api/sv/2026-10-03-nested-batch9.json": "dd8ca294b4a9e30fa7d49c37ad690f6ffbcb0da86a2e885fde18515b1bbe96c4",
+    "docs/i18n/reviewed/api/zh_CN/2026-09-27-api-delta6-000.json": "8096c21182233488ed82e8a419403a8f17092e0412d146263a6b31a44bebb90e",
+    "docs/i18n/reviewed/api/fr/2026-09-27-api-delta6-000.json": "e743028a5efb4f9a4ea6113c60718584540d0d9808bc74a3a8b74703431b440e",
+    "docs/i18n/reviewed/api/es/2026-09-27-api-delta6-000.json": "a4fce4c975509366bc1e43abdc38fa4f3df3aea8eb2e251dca95bab41a7f2972",
+    "docs/i18n/reviewed/api/sv/2026-09-27-api-delta6-000.json": "727e70e15ab5f1bf15d59c55d9f16126c330f3f26d7de8e1f81e546c4d3bec65",
+    "docs/i18n/reviewed/api/is/2026-10-03-nested-batch9.json": "acdf7d313d04e443bdf092ef04b9522c12bced313d106fd3dda5e9ef390a1e27",
+    "docs/i18n/reviewed/api/pt/2026-09-27-api-delta6-000.json": "c8553e1345626cf2418af5657d40bbaff027594a7b696d93411e4f6d552d109c",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-03-nested-batch9.json": "32875e416e1ca6d8a54ed062e06a805e0fee3e519c45cbf7e4089136d5ba0659",
+    "docs/i18n/reviewed/api/fr/2026-10-03-nested-batch9.json": "ff3c57c61c89b94eb8613a53626260e0651360b5057a4d1ae0d3d987b5a9d8b9",
+    "docs/i18n/reviewed/api/pt/2026-10-03-nested-batch9.json": "92fb6da9df53dd63613679a53fb19f90079f1a0b9900a07cf699938f4000ef39",
+    "docs/i18n/reviewed/api/es/2026-10-03-nested-batch9.json": "cdf518342ec97c457fee877cd6a9b0ada47fe6b2e83cdac70eabb9c0eb61c37b",
+    "docs/i18n/reviewed/api/ko/2026-10-03-nested-batch9.json": "d79acee379ef02e624155d3c1c073fb87726ddd02c372d254f034bed7020c41a",
+    "docs/i18n/reviewed/api/de/2026-10-15-n703-windows-private-pip.json": "a7232b8a1fa0542bfb92d9c291bbf148f5a5e30ac62482401b9fc56ebbe4749b",
+    "docs/i18n/reviewed/api/es/2026-10-15-n703-windows-private-pip.json": "b78d2a9898956143ace1ce31783b37d897a63349bdef92f2de989d6ff3358fc9",
+    "docs/i18n/reviewed/api/fr/2026-10-15-n703-windows-private-pip.json": "6a3f229ad347297832ebaabccae4cb3a64958b5fcea76d956dd643c61565604c",
+    "docs/i18n/reviewed/api/hi/2026-10-15-n703-windows-private-pip.json": "4bc5946171bb9a8b9b8060f3df505850c0e593270f215cb80861a3a81d537444",
+    "docs/i18n/reviewed/api/is/2026-10-15-n703-windows-private-pip.json": "c86b5c12bc91547f27b3cac0022aec27d27493df444a3b2b945ca13df624186f",
+    "docs/i18n/reviewed/api/ko/2026-10-15-n703-windows-private-pip.json": "1dfe5ab39c31d9f6d80e98cf9d28f41d92093d37edacd9d7d65aad644f07a480",
+    "docs/i18n/reviewed/api/pt/2026-10-15-n703-windows-private-pip.json": "78c63cc05f307464e4521be16169accf0a6b112426ca8d10ea7779fbf65f6f34",
+    "docs/i18n/reviewed/api/sv/2026-10-15-n703-windows-private-pip.json": "87460510e92601aac81a4176f182ca012b2463c653ba9928b075cd78dd815ca0",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-n703-windows-private-pip.json": "56dfea7533594b41decd1f72fb8487ebdc7e1f616ae078a0f1395c4b52fa1643"
+  },
+  "plan_sha256": "d3f727c48c800d676d79617b0ceb48ad7a1772fdaf9bc2f79574bba3db7b27f9",
+  "visibility_proof": {
+    "path": "/mnt/wd4tb/scratch/home-b-n703-final-api-package-20261015/visibility-proof.json",
+    "sha256": "0517da7ee1d53dd6db26b7b4100c4f875ae9de12177458323d22356b70ff781d",
+    "eligible_symbols": [
+      "spacr.install_cleanup.apply_optional_cleanup",
+      "spacr.install_cleanup.preview_optional_cleanup",
+      "spacr.install_cleanup.preview_optional_cleanup.normalized",
+      "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+      "spacr.install_cleanup.start_update_helper",
+      "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+      "spacr.qt.app.MainWindow._review_installation_caches.guard",
+      "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+    ],
+    "normal_helpers_used": [
+      "_module_scope_nodes",
+      "_clean_doc",
+      "_autoapi_class_doc",
+      "_additional_assignment_docs",
+      "_is_visible_function_name",
+      "_is_rendered_autoapi_entry",
+      "_merge_source_doc",
+      "nested_helper_docs.inventory",
+      "nested_helper_docs.entries"
+    ]
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "10ded3386fd0717ec88c1848871928108767c51dbfb070dd090afedc6d258742",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "9ff4335e09e3b0b80ec4a99740f9fd58030f2345dc99ef68182e0c9a60ae792b",
+      "unrelated_after_sha256": "9ff4335e09e3b0b80ec4a99740f9fd58030f2345dc99ef68182e0c9a60ae792b",
+      "catalog_sha256": "f583e4081ba9d5a22ae8bc9e5a1f98f00b44bf2cb842b01680794af26deea099"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "92dc1510dd4441b0c6d4997d443f732ae549b6f52d2e5890d051c5c6a0183feb",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "e3aac8d36fd5c5461d5a9e82bdcb3efdb559881e71af5fd1e2c7b680d07c607a",
+      "unrelated_after_sha256": "e3aac8d36fd5c5461d5a9e82bdcb3efdb559881e71af5fd1e2c7b680d07c607a",
+      "catalog_sha256": "72fe249d1c6a1d2ea79e4b91f386e5802316518397b0b9269b57642441bd1e45"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "fb537c2aefe971479d3883e5568a64ae94905f3c6105a9fa504eafc6b7caf0e3",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "58e6353712429807cf0d31c0bc3f57b22e687e25e27ea491621eac2c3364de5b",
+      "unrelated_after_sha256": "58e6353712429807cf0d31c0bc3f57b22e687e25e27ea491621eac2c3364de5b",
+      "catalog_sha256": "55cf05e826a665bff04976e1b4e0411efaf70c3e95608dd7aac5aa02d3233c80"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "fa043a0a4e5d680ceb80f8bfa4acff57a0cf7a20bb4bb3a05fb2f57a45ac92f5",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "2f6970e7f7a2babaf511ce702ff672164286e597af22885c0037f084e34b5792",
+      "unrelated_after_sha256": "2f6970e7f7a2babaf511ce702ff672164286e597af22885c0037f084e34b5792",
+      "catalog_sha256": "d09fbcd2951e5d81c6ad4f25c938065e4616c161fe0a56b0555bdf09ea7c5809"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "df5ddb82f42e43468980c99d7b8dbe4245cbe2140b9034a6c4c97920b835dddd",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "f8918aaf088230cdd909e40f2e8d30cb13158157a941eb3af279152469a35282",
+      "unrelated_after_sha256": "f8918aaf088230cdd909e40f2e8d30cb13158157a941eb3af279152469a35282",
+      "catalog_sha256": "e0da25ec8a8f162ee2898ea1b79ba638eb38f0dc8e81a6d7eaaca03ee8c3a9c9"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "4bf90aca8327f71633a5e03d95cf50373178e3d1e98503704fc081bba2c75bdf",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "95758c3e14cbb86e4720735a334550333294d53bb0c49829df382b0281558859",
+      "unrelated_after_sha256": "95758c3e14cbb86e4720735a334550333294d53bb0c49829df382b0281558859",
+      "catalog_sha256": "637999753571d82950e8bf4bd14dc07f9b9f63e9ebad742eb363dc0891e82a01"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "bfb00e3d688ac23405e87d978ee99f29ec11d2762b171ade4ab2eea9691a9beb",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "1735f777fcee1b28cb7900d6c7ddf3a991a27de43e4a9dbeb1ea1ce86cdb8413",
+      "unrelated_after_sha256": "1735f777fcee1b28cb7900d6c7ddf3a991a27de43e4a9dbeb1ea1ce86cdb8413",
+      "catalog_sha256": "79fa542a43c456209d3d548a45a6d82f7346a2716e3cc368ca4ec13132e2a2cb"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "74879132056e856d6f3550f00c47a9adb1d73bbc41ba12878020fcacb1f35b97",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "08215bb5ee0a3b59e35be4b32061bf542853509cd779cbe9b58417fa02289bac",
+      "unrelated_after_sha256": "08215bb5ee0a3b59e35be4b32061bf542853509cd779cbe9b58417fa02289bac",
+      "catalog_sha256": "98f8792414115830b1da2f415110517d1d9565bddac79e49a38304ecb63ebb25"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.install_cleanup.apply_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup",
+        "spacr.install_cleanup.preview_optional_cleanup.normalized",
+        "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+        "spacr.install_cleanup.start_update_helper",
+        "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+        "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+        "spacr.qt.app.MainWindow._review_installation_caches.guard",
+        "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+      ],
+      "reviewed_blocks_exact": 33,
+      "unchanged_blocks_preserved": 12,
+      "windows_updater_block_1_target_sha256": "d8a17bd8ff8e0f6bbd3021ba67850f3f6d1a6bf8902752c368030bd07914bc18",
+      "unrelated_records_preserved": 13412,
+      "unrelated_before_sha256": "6fbdaa822da5d82e4ed760a44c3cba84df9b065aa2267b1507dac92bebbd7778",
+      "unrelated_after_sha256": "6fbdaa822da5d82e4ed760a44c3cba84df9b065aa2267b1507dac92bebbd7778",
+      "catalog_sha256": "9da23a5bcfcd6baf867c2160f74a277aaa4601b940fb2ab34cc15fb4b52ceaf7"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.install_cleanup.apply_optional_cleanup",
+    "spacr.install_cleanup.preview_optional_cleanup",
+    "spacr.install_cleanup.preview_optional_cleanup.normalized",
+    "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+    "spacr.install_cleanup.start_update_helper",
+    "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+    "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+    "spacr.qt.app.MainWindow._review_installation_caches.guard",
+    "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+  ],
+  "new_symbols": [
+    "spacr.install_cleanup.apply_optional_cleanup",
+    "spacr.install_cleanup.preview_optional_cleanup",
+    "spacr.install_cleanup.preview_optional_cleanup.normalized",
+    "spacr.install_cleanup.preview_optional_cleanup.retained_path",
+    "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+    "spacr.qt.app.MainWindow._review_installation_caches.guard",
+    "spacr.qt.app.MainWindow._review_installation_caches.prepare"
+  ],
+  "new_or_changed_targets": 297,
+  "unchanged_english_records_preserved": 13486,
+  "api_source_history": {
+    "unchanged": true,
+    "retained_records_exact": 11,
+    "unreferenced_records_pruned": [],
+    "normal_required_prior_english_records_added": [],
+    "still_referenced_records_removed": [],
+    "before_sha256": "fd5bd1d696a341b0bebaf97258265ad9f960bf11e0deb45dc7a8e004edd50e95",
+    "after_sha256": "fd5bd1d696a341b0bebaf97258265ad9f960bf11e0deb45dc7a8e004edd50e95"
+  },
+  "exact_obsolete_onboarding_layout_replacements": {
+    "sv": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "e2a626da9567587f0d664bf2ad8435e774616a9e4e49996ce074907809a25c56",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "de": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "4994da21911e7b01fea7230c0e743d04fec51d08251f74927b8039e7c4e0ea14",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "es": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "5051f904b8e50d254378197bf837b5304b3f3745e5f7f7c07bb21d516747ca15",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "zh_CN": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "268b60064bc9032093342fe76c8218f0344827752f0ce2223afdcf9c8bc132d3",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "pt": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "abcf45109f7cf70b5fe5916f84d066774707f8819d493c7bdf81d3cc831b6192",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "hi": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "cbda57e34a1d3729011a88f14e0cf2613cdfe0df9ba00eaf38c1d2ac2cae088d",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "ko": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "f88579a994c813b18913316c725baf25c1a7eff6348e01765af9abf34286502b",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "is": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "fc2570bf86fdb4e5242432d696da53c68ed793b631280a7a565e03ed884bd4e3",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    },
+    "fr": {
+      "symbol": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding",
+      "old_record_sha256": "aec2bed131ee4969dfe4771571c455db410a63bbf2837aa9240c03ea6601599e",
+      "old_source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "published_english_source_sha256": "61062b99eb17fe98e20e6f0f2e683936d8fddef5310e10b7e94e2ff879197af1",
+      "old_target_blocks": 1,
+      "new_reviewed_blocks": 2,
+      "historical_target_reuse": false
+    }
+  },
+  "superseded_onboarding_evidence_sha256": "4fa80421acb16f460fdd2e44b4aa1bc8e867c59e23a2418f37e0d5af82562274",
+  "normal_functions": [
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "stats": {
+    "runtime_canonical_requests": 0,
+    "full_api_collection_requests": 0,
+    "model_decode_requests": 0,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "written_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ]
+  },
+  "limitations": [
+    "AI technical review, no native-speaker claim.",
+    "No model execution, runtime/full API collector, Help/Sphinx, installation, native or external publication acceptance."
+  ]
+}

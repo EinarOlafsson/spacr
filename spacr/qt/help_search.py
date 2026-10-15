@@ -387,11 +387,16 @@ def local_docstring(symbol: str) -> str:
         node = tree
         for name in parts[cut:]:
             found = None
-            for child in getattr(node, "body", []):
+            pending = list(reversed(getattr(node, "body", [])))
+            while pending:
+                child = pending.pop()
                 if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef,
-                                      ast.ClassDef)) and child.name == name:
-                    found = child
-                    break
+                                      ast.ClassDef)):
+                    if child.name == name:
+                        found = child
+                        break
+                    continue
+                pending.extend(reversed(list(ast.iter_child_nodes(child))))
             if found is None:
                 return ""
             node = found
