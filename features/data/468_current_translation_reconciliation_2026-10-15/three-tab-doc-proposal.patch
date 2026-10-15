@@ -1,0 +1,27 @@
+--- a/spacr/qt/widgets/plaque_preview.py
++++ b/spacr/qt/widgets/plaque_preview.py
+@@ -1573,20 +1573,20 @@
+ 
+ 
+ class PlaqueSettingsDialog(QDialog):
+-    """The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.
++    """The Plaque Assay preview's settings: Figure, Text detection and Plaque detection tabs.
+ 
+     The controls belong to the panel and are lent to this window while it is
+     open, so a value set here is the value the next pass uses, and it
+     survives the window being closed -- :meth:`give_back` returns them.
+ 
+-    In Plaque mode the Figure tab is hidden: nothing there applies to a
+-    folder of cropped plaque images.
++    In Plaque mode the Figure and Text detection tabs are hidden: neither
++    applies to a folder of cropped plaque images.
+ 
+     :param panel: the :class:`PlaquePreviewPanel` whose controls it shows.
+     """
+ 
+     def __init__(self, panel: "PlaquePreviewPanel"):
+-        """Lay the panel's controls out in two tabs.
++        """Lay the panel's controls out in three tabs.
+ 
+         :param panel: the preview panel; also the window's parent.
+         """
