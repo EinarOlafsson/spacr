@@ -3057,6 +3057,7 @@ def generate_activation_map(settings):
         transforms.ToTensor(),
         transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
     ]
+    stats = None
     if settings['normalize_input']:
         from .normalization import normalization_stats
         stats = normalization_stats(
@@ -3204,14 +3205,35 @@ def generate_activation_map(settings):
         print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Generating Activation Maps")
 
     if cf_limit:
+        description = None
+        if metadata.get('classes'):
+            description = {
+                'schema': 1,
+                'channel_ids': ['stored_rgb_plane_0', 'stored_rgb_plane_1',
+                                'stored_rgb_plane_2'],
+                'class_labels': list(metadata['classes']),
+                'condition_key': str(settings.get('counterfactual_condition') or 'class').lower(),
+                'preprocessing': {
+                    'pipeline': 'activation_map_model_input_v1',
+                    'crop_loading_policy': dataset.crop_loading_policy,
+                    'center_crop': [settings['image_size'], settings['image_size']],
+                    'normalization': None if stats is None else {
+                        'mean': list(stats[0]), 'std': list(stats[1])},
+                    'selected_channels_1based': list(settings['channels']),
+                    'selection_semantics': 'zero_unselected_stored_rgb_planes',
+                    'classifier_preprocessing': metadata.get('preprocessing'),
+                },
+            }
         _run_counterfactuals(settings, model, cf_crops, cf_names,
-                             os.path.join(save_dir, 'counterfactuals'), device)
+                             os.path.join(save_dir, 'counterfactuals'), device,
+                             input_contract=description)
     _empty_device_cache()
     gc.collect()
     print("Activation map generation complete.")
 
 
-def _run_counterfactuals(settings, model, crops, names, out_dir, device):
+def _run_counterfactuals(settings, model, crops, names, out_dir, device, *,
+                         input_contract=None):
     """Train the counterfactual generator on collected crops and write its report.
 
     The crops are split into a training and a held-out part; the held-out
@@ -3237,7 +3259,9 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
     :param crops: list of ``(B, C, H, W)`` tensors in model input space.
     :param names: one file name per crop.
     :param out_dir: folder for the tables and the figure.
-    :param device: torch device for training.
+    :param device: torch device for training or checkpoint reuse.
+    :param input_contract: actual preprocessing and ordered channel/class
+        metadata; required for verified explicit checkpoint reuse.
     :returns: the summary dict, or ``None`` when too few crops were collected.
     """
     from .attribution import _cf_condition_of, _counterfactual_report
@@ -3262,7 +3286,10 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
             epochs=int(settings.get('counterfactual_epochs') or 30),
             device=device, out_dir=out_dir, conditions=conditions,
             target=settings.get('counterfactual_target') or None,
-            generator=kind, generator_options=options)
+            generator=kind, generator_options=options,
+            checkpoint=settings.get('counterfactual_checkpoint') or None,
+            checkpoint_sha256=settings.get('counterfactual_checkpoint_sha256') or None,
+            input_contract=input_contract)
     except ValueError as exc:
         print(f"Counterfactuals skipped: {exc}")
         return None

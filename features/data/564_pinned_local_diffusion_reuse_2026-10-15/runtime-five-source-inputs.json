@@ -1,0 +1,43 @@
+{
+  "status": "Exact five scoped sources, no global canonical inventory run",
+  "scope": "5sources x9locales=45records. Actual normal setting_label and AST-extracted normal _strip_type_prefix; activation _label_for falls through to generic shared setting label.",
+  "sources": [
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source": "Counterfactual checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source": "Optional existing local diffusion checkpoint to reuse without training. Requires the diffusion generator and its expected SHA-256. The saved architecture, channels, preprocessing, classifier and condition identities must match the current run. Missing, legacy or incompatible metadata is refused; spaCR does not train a replacement. Blank keeps the existing training route. Default blank.",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source": "Counterfactual checkpoint sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source": "Expected 64-character hexadecimal SHA-256 of the selected local diffusion checkpoint. Required when a checkpoint is selected; ignored when the checkpoint path is blank. A matching checksum identifies the file but does not establish biological accuracy or independent validation. Default blank.",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d"
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0"
+    }
+  ],
+  "source_sha256": {
+    "spacr/settings.py": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5",
+    "spacr/qt/screens/settings_model.py": "97f14a0f2a6349d583cd82501d9939a8fb485377b6f209224f301e5a59703c7f",
+    "spacr/attribution.py": "108d9bd05a7fbfa09d73ec5cd7c18062c772c17cc97c46a10410e10f39e3804c",
+    "spacr/deep_spacr.py": "920cfff243175833e7a1234e327b56ed2c5da792897bfb7559764666e24bf950",
+    "tools/build_i18n_catalogs.py": "e9729ab5fbe53e74f57ee20e75947d9ce55773c9b87c5758e06c772e26772407"
+  }
+}
