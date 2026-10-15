@@ -1,0 +1,57 @@
+{
+  "source_pin": "686793f8642cbff9f9f6d3a25770864139e9089e",
+  "method": "Execute exact AST-extracted existing cache wrappers with only stdlib lru_cache/controlled desktop factory doubles. CPU/cuda strings are declared simulated contexts, not actual device probes.",
+  "counterexamples": [
+    {
+      "file": "tools/web_mask_generator/plaque.py",
+      "symbol": "_load_model",
+      "source_sha256": "c8b4d53d519a49a302bb7514ac57a668eb68ef6266b0450e584d630323be7bb9",
+      "factory_calls": [
+        {
+          "device": "cpu",
+          "args": [
+            "/operator/approved.pt"
+          ]
+        }
+      ],
+      "second_context": "cuda:0",
+      "second_model_device": "cpu",
+      "same_cached_instance": true,
+      "cache_key_args": [
+        "/operator/approved.pt",
+        "same-approved-hash"
+      ]
+    },
+    {
+      "file": "tools/web_mask_generator/masks.py",
+      "symbol": "_load_mask_model",
+      "source_sha256": "c1f1ddf533119004b06080b126820c07e8cee8e8ecc8079ce80bba5b2e47e8f0",
+      "factory_calls": [
+        {
+          "device": "cpu",
+          "args": [
+            "{'verbose': False, 'cell_model_name': '/operator/approved.pt', 'cell_channel': 0}",
+            "cell"
+          ]
+        }
+      ],
+      "second_context": "cuda:0",
+      "second_model_device": "cpu",
+      "same_cached_instance": true,
+      "cache_key_args": [
+        "/operator/approved.pt",
+        "same-approved-hash",
+        "cell"
+      ]
+    }
+  ],
+  "scope": "Actual wrapper caching ignores changed factory execution context; no actual model constructor/decoder, GPU, torch import, network, server or deployment was executed.",
+  "source_chain": [
+    "build_app(preload=zero_gpu) calls preload_default before defining spaces.GPU execute",
+    "preload_default warms plaque/mask loader outside request GPU context",
+    "same checkpoint/digest(/role) cache key reused inside inference",
+    "accelerator.resolve caches first probe unless refresh=True"
+  ],
+  "proposal": "Existing web files only: explicit hosted execution-context device binding/refresh before model construction and context-aware cache keys or controlled transfer. Do not mutate generic desktop accelerator defaults; preserve digest identity. Need native host contract before implementation.",
+  "acceptance": "Not a ZeroGPU failure reproduction or hosted acceptance. Deployment packaging still lacks a reviewed operator artifact/provisioned endpoint in this bounded source scope."
+}

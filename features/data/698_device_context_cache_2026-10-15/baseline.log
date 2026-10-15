@@ -1,0 +1,76 @@
+F.F...FF                                                                 [100%]
+=================================== FAILURES ===================================
+____ test_precision_context_change_does_not_reuse_previous_weights[plaque] _____
+
+context = ({'kind': 'cpu', 'device': 'cpu', 'bfloat16': True}, [], [namespace(kind='cpu', device='cpu', bfloat16=False)])
+family = 'plaque'
+
+    @pytest.mark.parametrize('family', ['plaque', 'mask'])
+    def test_precision_context_change_does_not_reuse_previous_weights(context, family):
+        state, refreshes, created = context
+        load = (lambda: plaque._load_model('/operator/checkpoint', 'a' * 64)) if family == 'plaque' else (
+            lambda: masks._load_mask_model('/operator/checkpoint', 'a' * 64, 'cell'))
+        first = load()
+        state['bfloat16'] = True
+        second = load()
+>       assert first is not second
+E       AssertionError: assert namespace(kind='cpu', device='cpu', bfloat16=False) is not namespace(kind='cpu', device='cpu', bfloat16=False)
+
+tests/test_web_model_device_context_n698.py:77: AssertionError
+_____ test_precision_context_change_does_not_reuse_previous_weights[mask] ______
+
+context = ({'kind': 'cpu', 'device': 'cpu', 'bfloat16': True}, [], [namespace(kind='cpu', device='cpu', bfloat16=False)])
+family = 'mask'
+
+    @pytest.mark.parametrize('family', ['plaque', 'mask'])
+    def test_precision_context_change_does_not_reuse_previous_weights(context, family):
+        state, refreshes, created = context
+        load = (lambda: plaque._load_model('/operator/checkpoint', 'a' * 64)) if family == 'plaque' else (
+            lambda: masks._load_mask_model('/operator/checkpoint', 'a' * 64, 'cell'))
+        first = load()
+        state['bfloat16'] = True
+        second = load()
+>       assert first is not second
+E       AssertionError: assert namespace(kind='cpu', device='cpu', bfloat16=False) is not namespace(kind='cpu', device='cpu', bfloat16=False)
+
+tests/test_web_model_device_context_n698.py:77: AssertionError
+_________ test_cpu_warmup_is_not_returned_in_later_gpu_context[plaque] _________
+
+context = ({'kind': 'cuda', 'device': 'cuda:0', 'bfloat16': True}, [], [namespace(kind='cpu', device='cpu', bfloat16=False)])
+family = 'plaque'
+
+    @pytest.mark.parametrize('family', ['plaque', 'mask'])
+    def test_cpu_warmup_is_not_returned_in_later_gpu_context(context, family):
+        state, refreshes, created = context
+        load = (lambda: plaque._load_model('/operator/checkpoint', 'a' * 64)) if family == 'plaque' else (
+            lambda: masks._load_mask_model('/operator/checkpoint', 'a' * 64, 'cell'))
+        cpu = load()
+        state.update(kind='cuda', device='cuda:0', bfloat16=True)
+        gpu = load()
+>       assert cpu is not gpu
+E       AssertionError: assert namespace(kind='cpu', device='cpu', bfloat16=False) is not namespace(kind='cpu', device='cpu', bfloat16=False)
+
+tests/test_web_model_device_context_n698.py:42: AssertionError
+__________ test_cpu_warmup_is_not_returned_in_later_gpu_context[mask] __________
+
+context = ({'kind': 'cuda', 'device': 'cuda:0', 'bfloat16': True}, [], [namespace(kind='cpu', device='cpu', bfloat16=False)])
+family = 'mask'
+
+    @pytest.mark.parametrize('family', ['plaque', 'mask'])
+    def test_cpu_warmup_is_not_returned_in_later_gpu_context(context, family):
+        state, refreshes, created = context
+        load = (lambda: plaque._load_model('/operator/checkpoint', 'a' * 64)) if family == 'plaque' else (
+            lambda: masks._load_mask_model('/operator/checkpoint', 'a' * 64, 'cell'))
+        cpu = load()
+        state.update(kind='cuda', device='cuda:0', bfloat16=True)
+        gpu = load()
+>       assert cpu is not gpu
+E       AssertionError: assert namespace(kind='cpu', device='cpu', bfloat16=False) is not namespace(kind='cpu', device='cpu', bfloat16=False)
+
+tests/test_web_model_device_context_n698.py:42: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_web_model_device_context_n698.py::test_precision_context_change_does_not_reuse_previous_weights[plaque]
+FAILED tests/test_web_model_device_context_n698.py::test_precision_context_change_does_not_reuse_previous_weights[mask]
+FAILED tests/test_web_model_device_context_n698.py::test_cpu_warmup_is_not_returned_in_later_gpu_context[plaque]
+FAILED tests/test_web_model_device_context_n698.py::test_cpu_warmup_is_not_returned_in_later_gpu_context[mask]
+4 failed, 4 passed in 6.87s
