@@ -1,0 +1,761 @@
+{
+  "reviewed_current_records_checked": 234,
+  "shifted_historical_records_checked": 45,
+  "issues": [
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "kind": "historical_shift",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "context": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string throws ``RuntimeError`` from torch.",
+      "target": "이 값은 :func:`torch.load`에 전달됩니다. 기본값 ``cpu`` 덕분에 GPU 에서 학습한 체크포인트를 GPU 가 없는 컴퓨터에서도 불러올 수 있습니다. 인식할 수 없는 장치 문자열이면 torch 가 ``RuntimeError``를 발생시킵니다.",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      }
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "kind": "historical_shift",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "context": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state key-value mapping records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "target": "``None``는 기록된 구성에서 아키텍처를 재구성합니다 - 유산 단지 상태 키 가치 맵링 기록이 없으므로 ``maxvit_t``는 조용히 가정됩니다. 여기서 통과 한 모듈은 위치에 로드되고 동일한 개체로 반환됩니다; 유산 전체 모듈 파일은 무시되고 파일 자체 모듈이 돌아옵니다.",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      }
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "kind": "historical_shift",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "context": "forwarded to ``load_state_dict``; ``True`` throws ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "target": "``load_state_dict``로 전송; ``True``는 ``RuntimeError``를 모든 키 오류에 던지며, ``False``는 실종되고 예기치 않은 키를 용납하여 오류가있는 아키텍처가 아직 우연히 시작된 부품으로 조용히 충전됩니다.",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      }
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "kind": "historical_shift",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "context": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state key-value mapping was found, or the config names no architecture and no ``model`` was supplied.",
+      "target": "파일은 모듈이나 체크 포인트 맵링이 아니며, ``artifact_version``는 지원되지 않으며, 상태 키 값 맵팅이 발견되지 않거나, 구성 이름은 아키텍처가 없으며 ``model``도 제공되지 않았습니다.",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      }
+    }
+  ],
+  "historical_shift_provenance": [
+    {
+      "language": "sv",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "försänds till :func:`torch.load`. ``cpu`` standardvärdet låter en GPU-tränad kontrollpunktsbelastning på en maskin utan GPU; en oidentifierad enhet sträng kastar ``RuntimeError`` från torch.",
+      "target_sha256": "650a5e62444cb485a7b4a72cc01429fa7e179dad0f59d23c914ac67a523122eb",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "5a132f336bfb87da8cd2efbe142b67458390b67f9aeb1ea2643ae3a41305af50"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` bygger om arkitekturen från den inspelade konfigurationen -- en äldre mappning med bara tillståndsnyckelvärden saknas, så ``maxvit_t`` antas tyst. En modul som skickas här laddas på plats och returneras som samma objekt; för äldre fullmodulsfiler ignoreras den och filens egen modul kommer tillbaka.",
+      "target_sha256": "33a0b22de694c237b0eb23e23226c0e5c331ebee9226fa68821dd15372fa1130",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "5a132f336bfb87da8cd2efbe142b67458390b67f9aeb1ea2643ae3a41305af50"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "vidarebefordras till ``load_state_dict``; ``True`` kastar ``RuntimeError`` på någon nyckel missmatchning, ``False`` tolererar saknade och oväntade nycklar så en obalans arkitektur laster tyst med delar fortfarande slumpmässigt initierade. Även ignoreras för äldre full modul filer.",
+      "target_sha256": "15f94498c5ab0f4420a259e6e19132a35d571dfa83ad6a4b71135ea48e4484d9",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "5a132f336bfb87da8cd2efbe142b67458390b67f9aeb1ea2643ae3a41305af50"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "Filen är varken en modul eller en kontrollpunktskartläggning, dess ``artifact_version`` är inte den som stöds, ingen kartläggning av statusnyckelvärden hittades eller konfigurationsnamnen ingen arkitektur och ingen ``model`` tillhandahölls.",
+      "target_sha256": "f7f20df5a654f56b5a8b510e4d2d30d98f33e764542ef845f4f539888340081d",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "5a132f336bfb87da8cd2efbe142b67458390b67f9aeb1ea2643ae3a41305af50"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "5a132f336bfb87da8cd2efbe142b67458390b67f9aeb1ea2643ae3a41305af50"
+    },
+    {
+      "language": "de",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "Weiterleitung an :func:`torch.load`. Der ``cpu``-Standard erlaubt eine GPU-trainierte Kontrollpunktlast auf einer Maschine ohne GPU; ein nicht erkannter Gerätestring wirft ``RuntimeError`` von torch.",
+      "target_sha256": "132d3d99c023f9549048b07678e41f04d60898ed5f58e3160f7492b3fe8dc738",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "e23d8f962ee25a0e1c0f1d1e55c3ed7bf4731b39cff0fccdccdae32655b720c5"
+    },
+    {
+      "language": "de",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` baut die Architektur aus der aufgezeichneten Konfiguration neu -- ein Legacy-Blanke-Status-Schlüsselwert-Mapping-Datensätze keine, so wird ``maxvit_t`` stillschweigend angenommen. Ein hier übergebenes Modul wird geladen und als dasselbe Objekt zurückgegeben; für Legacys-Vollmodul-Dateien wird es ignoriert und das eigene Modul der Datei kommt zurück.",
+      "target_sha256": "da0f9a377597d0aa58036908575bc054eae2f26d2745869808b3b8bd6988416d",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "e23d8f962ee25a0e1c0f1d1e55c3ed7bf4731b39cff0fccdccdae32655b720c5"
+    },
+    {
+      "language": "de",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "weitergeleitet an ``load_state_dict``; ``True`` wirft ``RuntimeError`` auf jede Schlüsselinkongruenz, ``False`` toleriert fehlende und unerwartete Schlüssel, so dass eine falsch aufeinander abgestimmte Architektur leise geladen wird mit Teilen, die noch zufällig initialisiert sind.",
+      "target_sha256": "0bed4c2da175e95cb17525e3d8579512cc076c091e0eab450ca5ad40ac1b8b8f",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "e23d8f962ee25a0e1c0f1d1e55c3ed7bf4731b39cff0fccdccdae32655b720c5"
+    },
+    {
+      "language": "de",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "die Datei ist weder ein Modul noch ein Checkpoint Mapping, ihr ``artifact_version`` ist nicht das unterstützte, kein Zustandsschlüssel-Wert-Mapping wurde gefunden, oder die Konfigurationsnamen keine Architektur und kein ``model`` wurde geliefert.",
+      "target_sha256": "6ae4f10aa90516c3518c16e543889a3a7c7dce3d91c3aadd1627061da50f0a24",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "e23d8f962ee25a0e1c0f1d1e55c3ed7bf4731b39cff0fccdccdae32655b720c5"
+    },
+    {
+      "language": "de",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "e23d8f962ee25a0e1c0f1d1e55c3ed7bf4731b39cff0fccdccdae32655b720c5"
+    },
+    {
+      "language": "es",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "reenviado a :func:`torch.load`. El valor predeterminado de ``cpu`` permite una carga de control entrenada con GPU en una máquina sin un GPU; una cadena de dispositivo no reconocida lanza ``RuntimeError`` desde torch.",
+      "target_sha256": "dff6088c85c8155405d54935ef776dbafe60c1a266f98b8c2004b781c5982e94",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "a9c4eab42f827ad907aca656afd7d2830323d5d9688177d2059064f6f8d0a42e"
+    },
+    {
+      "language": "es",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` reconstruye la arquitectura desde la configuración grabada -- una asignación de valor de clave de estado vacío legado no registra ninguna, por lo que ``maxvit_t`` se asume silenciosamente. Un módulo pasado aquí se carga en su lugar y se devuelve como el mismo objeto; para archivos de módulo completo heredado se ignora y el propio módulo del archivo vuelve.",
+      "target_sha256": "1ca45cb4d9739ea04d076686a094dabb6c5e96521aaa7173c957f49663ae7e93",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "a9c4eab42f827ad907aca656afd7d2830323d5d9688177d2059064f6f8d0a42e"
+    },
+    {
+      "language": "es",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "reenviado a ``load_state_dict``; ``True`` lanza ``RuntimeError`` en cualquier desajuste de teclas, ``False`` tolera las claves perdidas e inesperadas por lo que una arquitectura descompuesta carga silenciosamente con partes todavía inicializadas al azar.",
+      "target_sha256": "98d9d92ed7ddb70dd1fdb2bf95f3b4f197a6f5ef394dfaf8b07fe49a21309b35",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "a9c4eab42f827ad907aca656afd7d2830323d5d9688177d2059064f6f8d0a42e"
+    },
+    {
+      "language": "es",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "el archivo no es ni un módulo ni una asignación de puntos de control, su ``artifact_version`` no es el soportado, no se encontró ninguna asignación de valor de clave de estado, o los nombres de configuración no se proporcionaron arquitectura y no se proporcionó ``model`` .",
+      "target_sha256": "b6d49e3963de084f82b4dee502dc9920d2891ca07f8e4c46bbc698c48c24fd49",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "a9c4eab42f827ad907aca656afd7d2830323d5d9688177d2059064f6f8d0a42e"
+    },
+    {
+      "language": "es",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "a9c4eab42f827ad907aca656afd7d2830323d5d9688177d2059064f6f8d0a42e"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "转到 :func:`torch.load`。 默认 ``cpu`` 允许 GPU 训练的检查点负载在没有 GPU 的机器上; 一个未识别的设备链将从 torch 扔出 ``RuntimeError``。",
+      "target_sha256": "7b3c25186ce043b3a3d32f5d4d3596bb3004e4a50b15959b893cf0366e489577",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "f7970f88dde253745e41ebf055100a84d13db8466b2b55c5c2327e09cd93c6f0"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` 重建的建筑从记录的配置 - 一个遗产只是状态的关键值地图记录没有,所以 ``maxvit_t`` 被默默地假设. 通过这里的模块被加载到位置并返回为相同的对象; 遗产的完整模块文件它被忽视,文件的自己的模块回来。",
+      "target_sha256": "5752b2af5d57a7629e2b2863025301922d7a92986f607893aa8d7e409114124e",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "f7970f88dde253745e41ebf055100a84d13db8466b2b55c5c2327e09cd93c6f0"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "将转移到 ``load_state_dict``; ``True`` 将 ``RuntimeError`` 扔在任何密钥错误中, ``False`` 容忍缺失和意想不到的密钥,因此一个错误的架构安静地加载与部分仍然随机启动。",
+      "target_sha256": "db68adee112218be61a556176190048f09937b29457afbc29c1db8a46b3c3ba4",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "f7970f88dde253745e41ebf055100a84d13db8466b2b55c5c2327e09cd93c6f0"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "文件不是模块或检查点地图,其 ``artifact_version`` 不是支持的,没有状态关键值地图被发现,或配置名称没有建筑和没有 ``model`` 提供。",
+      "target_sha256": "b10092633fb8d97debaf9c4184cca3e9e36431a76927049b73e4c1d4bc41da3b",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "f7970f88dde253745e41ebf055100a84d13db8466b2b55c5c2327e09cd93c6f0"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "f7970f88dde253745e41ebf055100a84d13db8466b2b55c5c2327e09cd93c6f0"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "encaminhada para :func:`torch.load`. O padrão ``cpu`` permite uma carga de ponto de verificação treinada em GPU em uma máquina sem um GPU; uma cadeia de caracteres de dispositivo não reconhecida lança ``RuntimeError`` de torch.",
+      "target_sha256": "2f5cec8f3d6e7f15598851f5f925ba1c901cc0639af212a3ee9c239d1d5078c6",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "ec9707df1ca9f2da7987d2955a2a6912e831fde18d383fab660497f8edc4bfa0"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` reconstrói a arquitetura a partir da configuração gravada -- um mapeamento de chave-valor de estado nu legado não registra nenhum, então  ``maxvit_t`` é assumido silenciosamente. Um módulo passado aqui é carregado no lugar e retornado como o mesmo objeto; para arquivos de módulo completo legado é ignorado e o próprio módulo do arquivo retorna.",
+      "target_sha256": "bb12f7b9669e252feccd5495b71712c963b1690b57da7475807bed999b461f09",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "ec9707df1ca9f2da7987d2955a2a6912e831fde18d383fab660497f8edc4bfa0"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "encaminhada para ``load_state_dict``; ``True`` lança ``RuntimeError`` em qualquer incompatibilidade de teclas, ``False`` tolera chaves ausentes e inesperadas, então uma arquitetura incompatível carrega silenciosamente com peças ainda inicializadas aleatoriamente. Também ignorado para arquivos de módulo completo legado.",
+      "target_sha256": "8adb9b12bc3adf7ff7264f5b986958080c8bd9de10944cbb53342c20b6ed899e",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "ec9707df1ca9f2da7987d2955a2a6912e831fde18d383fab660497f8edc4bfa0"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "o arquivo não é nem um módulo nem um mapeamento de ponto de verificação, seu ``artifact_version`` não é o suportado, nenhum mapeamento de chave-valor de estado foi encontrado, ou os nomes de configuração nenhuma arquitetura e nenhum ``model`` foi fornecido.",
+      "target_sha256": "c6a57212ee9b29005600815b2050395c4e18d06fdee0df20365df175122a3d41",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "ec9707df1ca9f2da7987d2955a2a6912e831fde18d383fab660497f8edc4bfa0"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "ec9707df1ca9f2da7987d2955a2a6912e831fde18d383fab660497f8edc4bfa0"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": ":func:`torch.load` के लिए स्थानांतरित किया गया है। ``cpu`` डिफ़ॉल्ट GPU के बिना मशीन पर GPU प्रशिक्षित चेकपॉइंट लोड करने की अनुमति देता है; एक अज्ञात डिवाइस श्रृंखला torch से ``RuntimeError`` फेंक देती है।",
+      "target_sha256": "b1bc34002edc4e67acc79981748b8fde14ac4495bc564ef2cddf65c3f0ae078d",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "9574ad261325d33064810e570356fb2c7e75cef75e07a9f5543ef4437231a13f"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` रिकॉर्ड किए गए कॉन्फ़िग से आर्किटेक्चर को पुनर्निर्माण करता है - एक विरासत केवल राज्य कुंजी-मूल्य नक्शे कोई नहीं है, इसलिए ``maxvit_t`` चुपचाप माना जाता है. यहां पारित एक मॉड्यूल स्थान पर लोड किया जाता है और उसी वस्तु के रूप में वापस कर दिया जाता है; विरासत के लिए पूर्ण-मूडुल फ़ाइलों के लिए इसे अनदेखा की जाती है और फाइल के स्वयं के मॉड्यूल वापस आते हैं.",
+      "target_sha256": "05caaf3b7485ac4411d23dd84edbbc1feae2056a112bd71ed53372898622d127",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "9574ad261325d33064810e570356fb2c7e75cef75e07a9f5543ef4437231a13f"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "``load_state_dict`` के लिए स्थानांतरित; ``True`` किसी भी कुंजी असंगत पर ``RuntimeError`` फेंक देता है, ``False`` खोए हुए और अप्रत्याशित कीटों को सहन करता है ताकि एक असफल वास्तुकला अभी भी यादृच्छिक रूप से प्रारंभ किए गए भागों के साथ चुपचाप लोड हो।",
+      "target_sha256": "3fc9f97d814824beef0c7fb2d7c4fc8931eecc9844241a6c5ca1b27906bd48f2",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "9574ad261325d33064810e570356fb2c7e75cef75e07a9f5543ef4437231a13f"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "फ़ाइल न तो एक मॉड्यूल है और न ही एक चेकपॉइंट मैपिंग, इसका ``artifact_version`` समर्थित नहीं है, कोई स्थिति कुंजी-मॉपिंग नहीं पाई गई है, या कॉन्फ़िग नाम कोई वास्तुकला नहीं है और कोई ``model`` प्रदान नहीं किया गया है।",
+      "target_sha256": "7c54e63eb4710ba2fe58f4bc97b520e7b71621869ed35de320a45cfb29790cbc",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "9574ad261325d33064810e570356fb2c7e75cef75e07a9f5543ef4437231a13f"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "9574ad261325d33064810e570356fb2c7e75cef75e07a9f5543ef4437231a13f"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "이 값은 :func:`torch.load`에 전달됩니다. 기본값 ``cpu`` 덕분에 GPU 에서 학습한 체크포인트를 GPU 가 없는 컴퓨터에서도 불러올 수 있습니다. 인식할 수 없는 장치 문자열이면 torch 가 ``RuntimeError``를 발생시킵니다.",
+      "target_sha256": "c1f25eec7906330e25fd86e14d7b209bbd4000f4b7122e0ae9be6681bad9ecb6",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      },
+      "catalog_sha256": "4604728b1b6d7e9b078a9d9ade62845a6ce60f48846802f9faa49066a18d51be"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None``는 기록된 구성에서 아키텍처를 재구성합니다 - 유산 단지 상태 키 가치 맵링 기록이 없으므로 ``maxvit_t``는 조용히 가정됩니다. 여기서 통과 한 모듈은 위치에 로드되고 동일한 개체로 반환됩니다; 유산 전체 모듈 파일은 무시되고 파일 자체 모듈이 돌아옵니다.",
+      "target_sha256": "9a45d8b67f1c9d18306b5bf0cb91753b3e721dfb21c7db25880117bcfbe6e369",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      },
+      "catalog_sha256": "4604728b1b6d7e9b078a9d9ade62845a6ce60f48846802f9faa49066a18d51be"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "``load_state_dict``로 전송; ``True``는 ``RuntimeError``를 모든 키 오류에 던지며, ``False``는 실종되고 예기치 않은 키를 용납하여 오류가있는 아키텍처가 아직 우연히 시작된 부품으로 조용히 충전됩니다.",
+      "target_sha256": "c3da9f9da5fa106c96cd05992fefd7d1120c1e5f037525226ba85348da61dd9a",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      },
+      "catalog_sha256": "4604728b1b6d7e9b078a9d9ade62845a6ce60f48846802f9faa49066a18d51be"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "파일은 모듈이나 체크 포인트 맵링이 아니며, ``artifact_version``는 지원되지 않으며, 상태 키 값 맵팅이 발견되지 않거나, 구성 이름은 아키텍처가 없으며 ``model``도 제공되지 않았습니다.",
+      "target_sha256": "ad855d51fa6b2f57358b5d5387f20c0876fbb248840a02276daf1fff99fc593c",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": [
+          "Inline literal start-string without end-string.",
+          "literal spans do not render as written"
+        ]
+      },
+      "catalog_sha256": "4604728b1b6d7e9b078a9d9ade62845a6ce60f48846802f9faa49066a18d51be"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "4604728b1b6d7e9b078a9d9ade62845a6ce60f48846802f9faa49066a18d51be"
+    },
+    {
+      "language": "is",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "Ákvarðað til :func:`torch.load`. ``cpu`` staðsetningu leyfir GPU þjálfað stefnumót á vélinu án GPU; Óþekkt tæki rennur kasta ``RuntimeError`` frá torch.",
+      "target_sha256": "da1e873c097998f98f4bfea993212f3ba4d751dc4f808bbef8da717214b2e82e",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "222e33a6ce31da4988605041c7ddeec924fafd5205e5d452bd1d1d4de5248282"
+    },
+    {
+      "language": "is",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` endurbyggja arkitektúrinn frá skráðum skilgreiningu - öryggi bara stað key-value mapping rekstur ekki, þannig að ``maxvit_t`` er hugsað hljóðlega. Modul sem hefur farið hér er lendað í stað og aftur eins og sama hlut; fyrir öryggis full-modul skrifna það er yfirgefið og failsins eigin modul kemur aftur.",
+      "target_sha256": "35fc6436c1dca9a267ecb9e3570ee6a49708140d3f8b540b21c41031db02504f",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "222e33a6ce31da4988605041c7ddeec924fafd5205e5d452bd1d1d4de5248282"
+    },
+    {
+      "language": "is",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "að senda til ``load_state_dict``; ``True`` kasta ``RuntimeError`` á hvaða key mismatch, ``False`` þolir mistök og óþekkt lykill þannig að mismatched arkitektur laður þægilegt með hlutum enn slæmt innra. Einnig óþekkt fyrir öryggi fullmodule faðir.",
+      "target_sha256": "e08fce8eef45ec40f449f372218a64829ac212196dd75691eb69704abf0297c4",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "222e33a6ce31da4988605041c7ddeec924fafd5205e5d452bd1d1d4de5248282"
+    },
+    {
+      "language": "is",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "failið er ekki neitt samræmi né stefnumót, ``artifact_version`` er ekki stuðlað, engin staður key-value-mapping fannst, eða skilgreiningarnamur engin byggingu og engin ``model`` var veitt.",
+      "target_sha256": "408793e229c61963a3848d3b998ed44751da0e0c8977c14326050aeedfd0283f",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "222e33a6ce31da4988605041c7ddeec924fafd5205e5d452bd1d1d4de5248282"
+    },
+    {
+      "language": "is",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "222e33a6ce31da4988605041c7ddeec924fafd5205e5d452bd1d1d4de5248282"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.torch_artifacts.load_model_artifact#4",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
+      "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
+      "target": "transmis à :func:`torch.load`. La valeur par défaut ``cpu`` permet une charge de point de contrôle GPU entraînée sur une machine sans GPU; une chaîne de périphérique non reconnue lance ``RuntimeError`` à partir de torch.",
+      "target_sha256": "dd1aeb9fcd50d9ca17a7a776e02353060f282ca3327c5a3f8f3854a15e411d38",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "2834608ba868e1c933250841470491f9238854a32da019a34bf2b4ecc701249e"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.torch_artifacts.load_model_artifact#5",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#4",
+      "source": "``None`` rebuilds the architecture from the recorded config -- a legacy bare state dict records none, so ``maxvit_t`` is assumed silently. A module passed here is loaded in place and returned as the same object; for legacy full-module files it is ignored and the file's own module comes back.",
+      "source_sha256": "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
+      "target": "``None`` reconstruise l'architecture à partir de la config enregistrée -- un ancien fichier de mapping nu de la valeur de la clé n'est pas enregistré, donc ``maxvit_t`` est supposé silencieusement. Un module passé ici est chargé en place et renvoyé comme le même objet; pour les fichiers de modules complets hérités, il est ignoré et le propre module du fichier revient.",
+      "target_sha256": "c793348d46ce8ef5b2ae16d0264d2f46437eb99e04bfceae26fb34cc9aeef299",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "2834608ba868e1c933250841470491f9238854a32da019a34bf2b4ecc701249e"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.torch_artifacts.load_model_artifact#6",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#5",
+      "source": "forwarded to ``load_state_dict``; ``True`` raises ``RuntimeError`` on any key mismatch, ``False`` tolerates missing and unexpected keys so a mismatched architecture loads quietly with parts still randomly initialised. Also ignored for legacy full-module files.",
+      "source_sha256": "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
+      "target": "transmis à ``load_state_dict``; ``True`` lance ``RuntimeError`` sur n'importe quelle inadéquation des clés, ``False`` tolère les clés manquantes et inattendues, de sorte qu'une architecture mal adaptée se charge tranquillement avec des pièces toujours initialisées au hasard.",
+      "target_sha256": "723c4ccda4e282d0c0cd45e2529ae49cbb75985f5fe456f74943b938e6ca8dcc",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "2834608ba868e1c933250841470491f9238854a32da019a34bf2b4ecc701249e"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.torch_artifacts.load_model_artifact#7",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#6",
+      "source": "the file is neither a module nor a checkpoint mapping, its ``artifact_version`` is not the supported one, no state dictionary was found, or the config names no architecture and no ``model`` was supplied.",
+      "source_sha256": "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
+      "target": "le fichier n'est ni un module ni un point de contrôle, son ``artifact_version`` n'a pas été pris en charge, il n'y a pas de mappage de valeur clé d'état, ni les noms de configuration aucune architecture et aucun ``model`` a été fourni.",
+      "target_sha256": "da1e6325737fdcadf370e9db7bf421089fb965c637d30439cad58b49f949eadb",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "2834608ba868e1c933250841470491f9238854a32da019a34bf2b4ecc701249e"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.torch_artifacts.load_model_artifact#8",
+      "old_label": "spacr.torch_artifacts.load_model_artifact#7",
+      "source": "``(model, metadata)``.",
+      "source_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "target": "``(model, metadata)``.",
+      "target_sha256": "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5",
+      "flags": {
+        "source": true,
+        "context": true,
+        "markup": []
+      },
+      "catalog_sha256": "2834608ba868e1c933250841470491f9238854a32da019a34bf2b4ecc701249e"
+    }
+  ],
+  "normalization_count": 36,
+  "scope": "Normal pure source/context/inline gates, exact old English/locale layouts, no decoder/collector/writer or repository input changes."
+}

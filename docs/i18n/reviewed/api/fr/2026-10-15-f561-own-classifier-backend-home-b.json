@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical translation and self-review; no human/native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.Classifier.__init__#0",
+      "source": "Attach recorded scaling, teacher encoder and an untrained head.",
+      "context": "Attach recorded scaling, teacher encoder and an untrained head.",
+      "source_sha256": "5b2472abedb9eaaba48438ce717baa8ba507fc126f6295c7bab0f1b931c67435",
+      "translation": "Associer la mise à l’échelle enregistrée, l’encodeur teacher et une tête de classification non entraînée.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.Classifier.forward#0",
+      "source": "Scale selected raw NCHW planes and return class logits.",
+      "context": "Scale selected raw NCHW image layers and return class logits.",
+      "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+      "translation": "Mettre à l’échelle les plans bruts sélectionnés au format NCHW et renvoyer les logits des classes.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.Classifier.train#0",
+      "source": "Keep a frozen teacher in evaluation mode while training its head.",
+      "context": "Keep a frozen teacher in evaluation mode while training its head.",
+      "source_sha256": "1273266a542bf66cc8a46d2ffc2363c8909a437bd8b177d2297a42192c66ad53",
+      "translation": "Maintenir un teacher figé en mode évaluation pendant l’entraînement de sa tête de classification.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.refuse#0",
+      "source": "Refuse an incompatible own-DINO classifier contract.",
+      "context": "Refuse an incompatible own-DINO machine-learning classification model contract.",
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "translation": "Refuser un contrat incompatible du classificateur Own-DINO.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_finetune_classifier.refuse#0",
+      "source": "Refuse an incompatible own-DINO classifier contract.",
+      "context": "Refuse an incompatible own-DINO machine-learning classification model contract.",
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "translation": "Refuser un contrat incompatible du classificateur Own-DINO.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_finetune_classifier.stop_if_requested#0",
+      "source": "Stop between batches when the caller requests cancellation.",
+      "context": "Stop between batches when the caller requests cancellation.",
+      "source_sha256": "ec310f360d92289b41084c3d4cc0158201ba4b544939cb84ea378650a1058988",
+      "translation": "S’arrêter entre les lots lorsque l’appelant demande l’annulation.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.torch_artifacts.build_model_from_configuration#0",
+      "source": "Reconstruct a recorded classifier without pretrained downloads.",
+      "context": "Reconstruct a recorded machine-learning classification model without pretrained downloads.",
+      "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+      "translation": "Reconstruire un classificateur enregistré sans télécharger de poids préentraînés.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.torch_artifacts.load_model_artifact#2",
+      "source": "checkpoint to read. The legacy default unpickles trusted files.",
+      "context": "checkpoint to read. The legacy default unpickles trusted files.",
+      "source_sha256": "c896db38a418f2f6e70ef65df6f205891a529e8b769d91beee8c702947528613",
+      "translation": "Point de contrôle à lire. Le comportement par défaut historique désérialise les fichiers de confiance avec pickle.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The saved-classifier adapter accepts restricted seekable binary streams; exact replacement is in 2026-10-15-f561-classifier-application-backend-home-b.json. Original source/context/translation retained."
+    },
+    {
+      "label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "use restricted tensor-and-primitive decoding and local files only when true; unsupported pickles refuse without unsafe retry.",
+      "context": "use restricted tensor-and-primitive decoding and local files only when true; unsupported pickles refuse without unsafe retry.",
+      "source_sha256": "d9819ce6c6afcd220bb834fa7253f4f65ff98347b818515441caaa20fae17d56",
+      "translation": "Si vrai, utiliser uniquement des fichiers locaux et le décodage restreint des tenseurs et valeurs primitives ; refuser les données pickle non prises en charge sans nouvelle tentative non sécurisée.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    }
+  ],
+  "source_packet_provenance": {
+    "path": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/fr.json",
+    "sha256": "351f2181cd7bcee1e08492bcf5729ac7aeeb7c8f63757df073c6bcd57e6d9f5d",
+    "operation": "Copy original reviewed drafts; normalize exact current contexts only; retain superseded stream paragraph as retired historical evidence."
+  }
+}

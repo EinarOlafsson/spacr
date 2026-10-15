@@ -1,0 +1,362 @@
+[
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/sv.json",
+    "destination": "docs/i18n/reviewed/api/sv/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "Skala valda råa NCHW-bildplan och returnera klasslogiter.",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/sv.json",
+    "destination": "docs/i18n/reviewed/api/sv/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Avvisa ett inkompatibelt kontrakt för Own-DINO-klassificeraren.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/sv.json",
+    "destination": "docs/i18n/reviewed/api/sv/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Avvisa ett inkompatibelt kontrakt för Own-DINO-klassificeraren.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/sv.json",
+    "destination": "docs/i18n/reviewed/api/sv/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "Återskapa en registrerad klassificerare utan att ladda ned förtränade vikter.",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/de.json",
+    "destination": "docs/i18n/reviewed/api/de/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "Ausgewählte rohe NCHW-Bildebenen skalieren und Klassen-Logits zurückgeben.",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/de.json",
+    "destination": "docs/i18n/reviewed/api/de/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Einen inkompatiblen Vertrag des Own-DINO-Klassifikators zurückweisen.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/de.json",
+    "destination": "docs/i18n/reviewed/api/de/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Einen inkompatiblen Vertrag des Own-DINO-Klassifikators zurückweisen.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/de.json",
+    "destination": "docs/i18n/reviewed/api/de/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "Einen gespeicherten Klassifikator ohne Download vortrainierter Gewichte rekonstruieren.",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/es.json",
+    "destination": "docs/i18n/reviewed/api/es/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "Escalar los planos sin procesar seleccionados en formato NCHW y devolver los logits de clase.",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/es.json",
+    "destination": "docs/i18n/reviewed/api/es/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Rechazar un contrato incompatible del clasificador Own-DINO.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/es.json",
+    "destination": "docs/i18n/reviewed/api/es/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Rechazar un contrato incompatible del clasificador Own-DINO.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/es.json",
+    "destination": "docs/i18n/reviewed/api/es/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "Reconstruir un clasificador registrado sin descargar pesos preentrenados.",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/zh_CN.json",
+    "destination": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "缩放选定的原始 NCHW 图像平面并返回类别 logits。",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/zh_CN.json",
+    "destination": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "拒绝 Own-DINO 分类器不兼容的契约。",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/zh_CN.json",
+    "destination": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "拒绝 Own-DINO 分类器不兼容的契约。",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/zh_CN.json",
+    "destination": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "重建已记录的分类器，不下载预训练权重。",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/pt.json",
+    "destination": "docs/i18n/reviewed/api/pt/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "Escalonar os planos brutos selecionados no formato NCHW e retornar os logits das classes.",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/pt.json",
+    "destination": "docs/i18n/reviewed/api/pt/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Rejeitar um contrato incompatível do classificador Own-DINO.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/pt.json",
+    "destination": "docs/i18n/reviewed/api/pt/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Rejeitar um contrato incompatível do classificador Own-DINO.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/pt.json",
+    "destination": "docs/i18n/reviewed/api/pt/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "Reconstruir um classificador registrado sem baixar pesos pré-treinados.",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/hi.json",
+    "destination": "docs/i18n/reviewed/api/hi/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "चुने गए कच्चे NCHW इमेज प्लेन को स्केल करें और क्लास लॉजिट लौटाएँ।",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/hi.json",
+    "destination": "docs/i18n/reviewed/api/hi/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Own-DINO वर्गीकारक के असंगत अनुबंध को अस्वीकार करें।",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/hi.json",
+    "destination": "docs/i18n/reviewed/api/hi/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Own-DINO वर्गीकारक के असंगत अनुबंध को अस्वीकार करें।",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/hi.json",
+    "destination": "docs/i18n/reviewed/api/hi/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "प्रीट्रेन्ड वेट डाउनलोड किए बिना दर्ज वर्गीकारक का पुनर्निर्माण करें।",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/ko.json",
+    "destination": "docs/i18n/reviewed/api/ko/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "선택한 원시 NCHW 이미지 평면을 스케일링하고 클래스 로짓을 반환합니다.",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/ko.json",
+    "destination": "docs/i18n/reviewed/api/ko/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Own-DINO 분류기의 호환되지 않는 계약을 거부합니다.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/ko.json",
+    "destination": "docs/i18n/reviewed/api/ko/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Own-DINO 분류기의 호환되지 않는 계약을 거부합니다.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/ko.json",
+    "destination": "docs/i18n/reviewed/api/ko/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "사전 학습 가중치를 다운로드하지 않고 기록된 분류기를 재구성합니다.",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/is.json",
+    "destination": "docs/i18n/reviewed/api/is/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "Skala valdar hráar NCHW-myndrásir og skila logit-gildum flokka.",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/is.json",
+    "destination": "docs/i18n/reviewed/api/is/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Hafna ósamrýmanlegum samningi Own-DINO flokkarans.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/is.json",
+    "destination": "docs/i18n/reviewed/api/is/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Hafna ósamrýmanlegum samningi Own-DINO flokkarans.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/is.json",
+    "destination": "docs/i18n/reviewed/api/is/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "Endurgera skráðan flokkara án þess að sækja forþjálfaðar vogir.",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/fr.json",
+    "destination": "docs/i18n/reviewed/api/fr/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 1,
+    "source": "Scale selected raw NCHW planes and return class logits.",
+    "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+    "translation": "Mettre à l’échelle les plans bruts sélectionnés au format NCHW et renvoyer les logits des classes.",
+    "before": "Scale selected raw NCHW planes and return class logits.",
+    "after": "Scale selected raw NCHW image layers and return class logits."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/fr.json",
+    "destination": "docs/i18n/reviewed/api/fr/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 3,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Refuser un contrat incompatible du classificateur Own-DINO.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/fr.json",
+    "destination": "docs/i18n/reviewed/api/fr/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 4,
+    "source": "Refuse an incompatible own-DINO classifier contract.",
+    "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+    "translation": "Refuser un contrat incompatible du classificateur Own-DINO.",
+    "before": "Refuse an incompatible own-DINO classifier contract.",
+    "after": "Refuse an incompatible own-DINO machine-learning classification model contract."
+  },
+  {
+    "original_packet": "features/data/561_own_dino_classifier_backend_2026-10-15/api-drafts/fr.json",
+    "destination": "docs/i18n/reviewed/api/fr/2026-10-15-f561-own-classifier-backend-home-b.json",
+    "record_index": 6,
+    "source": "Reconstruct a recorded classifier without pretrained downloads.",
+    "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+    "translation": "Reconstruire un classificateur enregistré sans télécharger de poids préentraînés.",
+    "before": "Reconstruct a recorded classifier without pretrained downloads.",
+    "after": "Reconstruct a recorded machine-learning classification model without pretrained downloads."
+  }
+]
