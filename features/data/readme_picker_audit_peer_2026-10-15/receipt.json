@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "review_kind": "Independent technical source/test review; reviewer authored neither production helper nor regression module.",
+  "source_commits": [
+    "9f386d9c0ebe9d48a2598c694f45ddbe360f6908",
+    "2110397d4144797b6141088fbd348196ac264abe",
+    "c5caf0f95078c04d4bdc09d14dfc14050179bc3b"
+  ],
+  "test_commits": [
+    "dbbaaf7bbb6e48b27f112853fad23760529e7d69",
+    "f527a77a0845a22014cfdae48bb17680ff886eda"
+  ],
+  "evidence_commit": "4f9aa643be7fc38ceb9a6828aa8635b3dd5f424d",
+  "tested_head": "1aa947ae71c7f150cba43ee7787d9069a9e6241f",
+  "source_file": "tools/build_documentation_i18n.py",
+  "source_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "test_file": "tests/test_readme_picker_audit_contract.py",
+  "test_sha256": "f6d887ddf1f2da72752b3616c66b08c167ce9c6c9f7e77f3393637aec576228a",
+  "baseline_base": "633429b3fb3ea7418b3b6eaa6f57ab658bebd733",
+  "outside_scope_ast_proof": "Removing the HTMLParser import/helper and restoring only the previous audit conditional yields complete module AST equality to the source parent. Existing API gates, image structure/currentness checks and index-to-English requirement are unchanged.",
+  "writer_contract": "Read actual build_readme_images.draw_generated/picture_html: a raw HTML div contains one anchor targeting README.md around the language-picker picture. The new audit recognizes this normal writer contract inside exactly one ordered standalone marker pair.",
+  "reviewed_boundaries": [
+    "Requires the picker raw HTML body, unique exact README.md href and balanced div→a→picture structure containing one real img.",
+    "Rejects missing/wrong/duplicate href, substring/data-href and outside-marker anchor/RST decoys.",
+    "Rejects missing/duplicate/reversed/malformed marker pairs, non-raw or escaped HTML and missing closing tags.",
+    "Existing index→English gate still runs after a valid picker.",
+    "Malformed marked sections reject across both observed parser behaviors: unknown_decl callback sets invalid, and parsing AssertionError returnsFalse."
+  ],
+  "actual_counterexample": "Independent system-Python AST-only helper probe found AssertionError for <![unexpected]>. UI then reproduced false acceptance through actual audit on spaCR Python3.12.13. Both behaviors are retained in evidence; final source handles both.",
+  "independent_observation_sha256": "75666ae5afb8d1dab233f701866d8e941efce645780aaca5316c9cd5e86c0864",
+  "author_test_evidence": {
+    "initial": "6 failures/16 passes on stale gate",
+    "intermediate": "22 owning cases pass after normal HTML fix",
+    "malformed_case": "1 failure/22 deselected on parser with unknown_decl default acceptance",
+    "final": "23 passed in0.76s; exit0",
+    "logs": {
+      "before.log.gz": {
+        "compressed_sha256": "d6218d5ece549797fc1fa72c437f183ed8cd9168deaca104d50ef897dbfb89d3",
+        "raw_sha256": "1e5be21fee05017a4995d8383b86cf19c3ded2301926fb73d6e0652d7263db67",
+        "last_line": "6 failed, 16 passed in 1.11s"
+      },
+      "malformed-before.log.gz": {
+        "compressed_sha256": "d067add0a55b5afba82935624a4da00455be5e5559aaed899827e5a25542e501",
+        "raw_sha256": "d3b24e3e6e56d43e2d82582bde8ac405d566f50a278183c5f7c82b439cfe2662",
+        "last_line": "1 failed, 22 deselected in 0.92s"
+      },
+      "after.log.gz": {
+        "compressed_sha256": "756e2ff77ccb9c3362a2d53671b7d1bb86130dd14fb95b36216b241d6772bf1a",
+        "raw_sha256": "c0e69ce52e4f3a02942b6f29633f9e3eb8f4519496f5980d860f8301b0e98e31",
+        "last_line": "22 passed in 0.85s"
+      },
+      "final.log.gz": {
+        "compressed_sha256": "cf98e1ac29112367a549fec85da9b67f0a290bb14cdcfd80f5c7fc8f5d82b824",
+        "raw_sha256": "ceb17225ca04dc578c8c660b269b0c293f1cc08f1197b0826e84c7fc9e3584be",
+        "last_line": "23 passed in 0.76s"
+      }
+    },
+    "python": "3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]"
+  },
+  "test_boundary": "Tests exercise actual audit with actual generated Swedish README; unrelated API catalogs/review/image inventory are isolated by explicit fixtures. Final23 is owning finite coverage, not the ordinary complete nine-language audit.",
+  "limits": [
+    "No existing test cohort, canonical collector, README generator, model or full API audit repeated by reviewer.",
+    "No generated artifact or audit ratchet changed by this repair.",
+    "Ordinary source-current nine-language audit remains the Original owner acceptance after integration."
+  ]
+}
