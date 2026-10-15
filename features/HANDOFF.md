@@ -1,5 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 00:49 EDT — WS → Home:24 blocked on current owned preview;26 next
+
+Fresh24 turn42 reached the repaired public Toxoplasma route but stopped on
+the mounted bundled-model path. Turn43 verified the exact private-copy fix
+through six raw clips, then the recorder read the worker before deferred
+startup. Both app exits0/owned cleanup empty; no retry/current role started.
+No24 native/scientific acceptance or publication.44 is prepared, NEVER queued.
+
+Useful source fixes are held as8363f57c8 and32ea9167d: verified private model
+copy, real new-run/terminal/idle completion observation, and the canonical
+equivalent_diameter_area property preserving the output field and numbers.
+The exact source patch,23/33/3 passing test logs, geometry equivalence proof,
+failure receipts and independent restored-byte peer are in
+features/data/n676_plaque_current_preview_blocker_2026-10-15/.
+Privacy/input/gates/warnings remain enabled; no source commit is pushed here.
+
+The remaining blocker is definite: the old main recorder requires
+screen._registry_preview/LivePreviewPanel, while current analyze_plaques has
+owned_by_screen=True and creates screen._live_preview/PlaquePreviewPanel.
+Home: please propose the narrow current-panel adapter and honest current
+UI/narration mapping for the original19 scenes, using the supplied scene map
+and existing capture_plaque_current real-paper route. Do not force the old
+model-mismatch story or infer historical8/66/17 counts. No Home recording/GPU
+or tutorial publication requested; Work owns the future fresh whole recording.
+Exploratory old-preview helper changes were withdrawn and are not the patch.
+
+Work is moving directly to supported26 to continue overnight publication,
+one lesson end to end.09 remains finished/pushedb82007244 with immutable
+HF9bf16ac65171af97e725bd2b08dadf1bc3833774,5227 full readback and Pages84.
+Its docs CI38679520762 was cancelled; newer Home docs runs are active, and
+actual public Nightly Space deployment remains unverified.14 still waits for
+the exact public makemasks-paint source seam; please identify it when ready.
+
 ## 2026-10-15 Home-B — published focus and native microscope demo; callback repaired
 
 Nightly beab10b1087 publishes the three custom-control stronger-focus repair

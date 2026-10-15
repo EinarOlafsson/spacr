@@ -1,0 +1,266 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_scope": "Claude AI technical review (Opus 5.5); translated directly from the English for item 700's anonymised error reports, spaCR AI (free) and usage bar; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "AI Error report",
+      "source": "AI Error report",
+      "source_sha256": "4eeedd1ad1beec3499b28d58f181c829fa1fd4a04ae6c01ad15dfc436f8fa529",
+      "translation": "Rapport d’erreur IA"
+    },
+    {
+      "table": "ui",
+      "key": "Anonymised error reports",
+      "source": "Anonymised error reports",
+      "source_sha256": "d6615619be7af5b612649e62db4e5915e8049464dcf7c9c0415011ab5934b861",
+      "translation": "Rapports d’erreur anonymisés"
+    },
+    {
+      "table": "ui",
+      "key": "Best-model questions used today · {light} of {total} lighter-model questions left · resets at {time}",
+      "source": "Best-model questions used today · {light} of {total} lighter-model questions left · resets at {time}",
+      "source_sha256": "e105175cc996019b05ca83a57344dd36b2ea811e508e630cf95ceac81e993c2b",
+      "translation": "Questions au meilleur modèle épuisées pour aujourd’hui · {light} questions sur {total} restantes au modèle plus léger · réinitialisation à {time}"
+    },
+    {
+      "table": "ui",
+      "key": "Daily share used. Errors are still reported without an AI summary.",
+      "source": "Daily share used. Errors are still reported without an AI summary.",
+      "source_sha256": "c80988a9bd2fede335d680e3da8d41feea216f9d8217e461e1de2fa093b2004e",
+      "translation": "Part quotidienne utilisée. Les erreurs sont toujours signalées, sans résumé IA."
+    },
+    {
+      "table": "ui",
+      "key": "Each report is a public GitHub issue on EinarOlafsson/spacr, filed by spaCR's relay, so you need no GitHub account. It holds only the fields below. The message is scrubbed of paths, file names, user and host names, e-mail and IP addresses and tokens, and the call stack names files without their folders. Logs, settings, environment variables and images are never sent. The random install id is not derived from this computer; it only lets the relay share its free allowance fairly. Below is the report spaCR would send for a made-up error.",
+      "source": "Each report is a public GitHub issue on EinarOlafsson/spacr, filed by spaCR's relay, so you need no GitHub account. It holds only the fields below. The message is scrubbed of paths, file names, user and host names, e-mail and IP addresses and tokens, and the call stack names files without their folders. Logs, settings, environment variables and images are never sent. The random install id is not derived from this computer; it only lets the relay share its free allowance fairly. Below is the report spaCR would send for a made-up error.",
+      "source_sha256": "400e6516de71457a19320cec0a8f8d01a02a61b6cbd6d27de923dfc7f08c4c91",
+      "translation": "Chaque rapport est un ticket GitHub public sur EinarOlafsson/spacr, déposé par le relais de spaCR : vous n’avez donc besoin d’aucun compte GitHub. Il ne contient que les champs ci-dessous. Le message est expurgé des chemins, noms de fichiers, noms d’utilisateur et d’hôte, adresses e-mail et IP et jetons, et la pile d’appels nomme les fichiers sans leurs dossiers. Les journaux, réglages, variables d’environnement et images ne sont jamais envoyés. L’identifiant d’installation aléatoire n’est pas dérivé de cet ordinateur ; il permet seulement au relais de partager équitablement son quota gratuit. Ci-dessous figure le rapport que spaCR enverrait pour une erreur fictive."
+    },
+    {
+      "table": "ui",
+      "key": "For unlimited use, connect your own Claude, Codex or Gemini CLI under Preferences → AI → Providers.",
+      "source": "For unlimited use, connect your own Claude, Codex or Gemini CLI under Preferences → AI → Providers.",
+      "source_sha256": "81ef0dd75c142869761ee0e4fd7fa1e24091b17dac800e7beaac28b487796365",
+      "translation": "Pour un usage illimité, connectez votre propre CLI Claude, Codex ou Gemini dans Préférences → IA → Fournisseurs."
+    },
+    {
+      "table": "ui",
+      "key": "Free capacity is low, so everyone gets the lighter model now · {light} questions left today · resets at {time}",
+      "source": "Free capacity is low, so everyone gets the lighter model now · {light} questions left today · resets at {time}",
+      "source_sha256": "107a40de53482f3cee085d5f8c219b792c9d7dd26e71fcbf6b914226e75d89c9",
+      "translation": "La capacité gratuite est faible : tout le monde reçoit désormais le modèle plus léger · {light} questions restantes aujourd’hui · réinitialisation à {time}"
+    },
+    {
+      "table": "ui",
+      "key": "Free every day: {best} questions on the best model, then {light} on a lighter model. Resets at {time}.",
+      "source": "Free every day: {best} questions on the best model, then {light} on a lighter model. Resets at {time}.",
+      "source_sha256": "a32bf9a8e82f314a1e5ec1adb558ec904ae8d27857c2186fc8a67aa91084001f",
+      "translation": "Gratuit chaque jour : {best} questions au meilleur modèle, puis {light} à un modèle plus léger. Réinitialisation à {time}."
+    },
+    {
+      "table": "ui",
+      "key": "Generated advice from spaCR hosted AI ({model}). It can be wrong; check it before you act on it.",
+      "source": "Generated advice from spaCR hosted AI ({model}). It can be wrong; check it before you act on it.",
+      "source_sha256": "0aa46b972264f44eb4579e010e5e923b0b43af6fd35d959189d41c320f43343e",
+      "translation": "Conseil généré par l’IA hébergée par spaCR ({model}). Il peut être erroné ; vérifiez-le avant d’agir."
+    },
+    {
+      "table": "ui",
+      "key": "No free spaCR AI questions left today · resets at {time}",
+      "source": "No free spaCR AI questions left today · resets at {time}",
+      "source_sha256": "5c804dec820d8782df6e67152721bbe90f11065ffe2e67a0d1690a08afcdf5b5",
+      "translation": "Plus de questions gratuites à spaCR AI aujourd’hui · réinitialisation à {time}"
+    },
+    {
+      "table": "ui",
+      "key": "Not set up on this computer yet: press Providers… to install it and sign in. Until then spaCR AI (free) answers.",
+      "source": "Not set up on this computer yet: press Providers… to install it and sign in. Until then spaCR AI (free) answers.",
+      "source_sha256": "72e40fb606a0eef2bba43c1c49c76d6b1ada2512fb4fb532165e5bf2f4077ac5",
+      "translation": "Pas encore configuré sur cet ordinateur : appuyez sur Fournisseurs… pour l’installer et vous connecter. D’ici là, spaCR AI (gratuit) répond."
+    },
+    {
+      "table": "ui",
+      "key": "What an anonymised error report holds",
+      "source": "What an anonymised error report holds",
+      "source_sha256": "1f535ef90a2efe04df63e55c49660834fe5c40c37868b2a432ef1dd277ac9fbf",
+      "translation": "Ce que contient un rapport d’erreur anonymisé"
+    },
+    {
+      "table": "ui",
+      "key": "What happens when a run fails or spaCR crashes, including a setting or validation error found before a run starts. \"Summarize\" has the AI chosen above explain the error in the console. \"Send\" files an anonymised report as a public GitHub issue on EinarOlafsson/spacr through spaCR's relay, with no GitHub account. \"Faults\" are unexpected errors in spaCR, not settings the user can fix. Code context adds the line of spaCR's own code at each step, never yours. Logs, settings, file names and paths are never sent. Default: summarize and send all errors.",
+      "source": "What happens when a run fails or spaCR crashes, including a setting or validation error found before a run starts. \"Summarize\" has the AI chosen above explain the error in the console. \"Send\" files an anonymised report as a public GitHub issue on EinarOlafsson/spacr through spaCR's relay, with no GitHub account. \"Faults\" are unexpected errors in spaCR, not settings the user can fix. Code context adds the line of spaCR's own code at each step, never yours. Logs, settings, file names and paths are never sent. Default: summarize and send all errors.",
+      "source_sha256": "bb3c53024b4fbf0e05a79d0f24408f592f74b31d40bcf0bffc411c4de6502bc4",
+      "translation": "Ce qui se passe lorsqu’une exécution échoue ou que spaCR plante, y compris une erreur de réglage ou de validation détectée avant le début d’une exécution. \"Summarize\" fait expliquer l’erreur dans la console par l’IA choisie ci-dessus. \"Send\" dépose un rapport anonymisé sous forme de ticket GitHub public sur EinarOlafsson/spacr via le relais de spaCR, sans compte GitHub. Les \"Faults\" sont des erreurs inattendues dans spaCR, et non des réglages que l’utilisateur peut corriger. Le contexte de code ajoute la ligne du code de spaCR lui-même à chaque étape, jamais du vôtre. Les journaux, réglages, noms de fichiers et chemins ne sont jamais envoyés. Par défaut : résumer et envoyer toutes les erreurs."
+    },
+    {
+      "table": "ui",
+      "key": "What is sent…",
+      "source": "What is sent…",
+      "source_sha256": "8ed183336894065cf0288852c212b99f6de32b9c039a41d4fb10d333c1343f26",
+      "translation": "Ce qui est envoyé…"
+    },
+    {
+      "table": "ui",
+      "key": "Which assistant the AI switch routes through. spaCR AI (free) needs no account and answers within a daily allowance; Claude, GPT (Codex) and Gemini use your own CLI login. A switch takes effect at once.",
+      "source": "Which assistant the AI switch routes through. spaCR AI (free) needs no account and answers within a daily allowance; Claude, GPT (Codex) and Gemini use your own CLI login. A switch takes effect at once.",
+      "source_sha256": "1584abc3dd98e998bcedef36a9c3956683133075e61a385e358cdfd268509834",
+      "translation": "L’assistant par lequel passe le commutateur IA. spaCR AI (gratuit) ne demande aucun compte et répond dans la limite d’un quota quotidien ; Claude, GPT (Codex) et Gemini utilisent votre propre connexion CLI. Un changement prend effet immédiatement."
+    },
+    {
+      "table": "ui",
+      "key": "You've used today's free spaCR AI questions. They reset at {time}.",
+      "source": "You've used today's free spaCR AI questions. They reset at {time}.",
+      "source_sha256": "51ad733a0c6ada4796b51d7ce2bf3163d1e86321fd45f63b480e517d46255399",
+      "translation": "Vous avez utilisé les questions gratuites du jour à spaCR AI. Elles seront réinitialisées à {time}."
+    },
+    {
+      "table": "ui",
+      "key": "[report] Reported anonymously as issue #{number}. {url}",
+      "source": "[report] Reported anonymously as issue #{number}. {url}",
+      "source_sha256": "b74f52a6858134daaf4432dc6e7701971563edf1c128f9af7646d0b679dfe66e",
+      "translation": "[report] Signalé anonymement sous le ticket #{number}. {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[report] Reported anonymously: this error already has issue #{number}, which now counts it again. {url}",
+      "source": "[report] Reported anonymously: this error already has issue #{number}, which now counts it again. {url}",
+      "source_sha256": "acb971ceb6d8edaac5546b738cd5cd00c588f19e7d5b215c28e243fd410986f0",
+      "translation": "[report] Signalé anonymement : cette erreur a déjà le ticket #{number}, qui la compte maintenant une fois de plus. {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[report] Reported as issue #{number} (with AI summary). {url}",
+      "source": "[report] Reported as issue #{number} (with AI summary). {url}",
+      "source_sha256": "ee898c0c2c95a3152e9cbd7384ee427615eb30046ed924643b12aa88eef2c359",
+      "translation": "[report] Signalé sous le ticket #{number} (avec résumé IA). {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[report] Reported as issue #{number} (without AI summary). {url}",
+      "source": "[report] Reported as issue #{number} (without AI summary). {url}",
+      "source_sha256": "c328bc88e0df5b661a750a3031091c317d2fc44632a780af2b087f47d39e24f6",
+      "translation": "[report] Signalé sous le ticket #{number} (sans résumé IA). {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[report] Reported as issue #{number} (without AI summary: daily AI allowance used). {url}",
+      "source": "[report] Reported as issue #{number} (without AI summary: daily AI allowance used). {url}",
+      "source_sha256": "1a1729e1bb663a9ddd7bf650dd439c49641e09965f80b9375fccfa3d017de3fd",
+      "translation": "[report] Signalé sous le ticket #{number} (sans résumé IA : quota IA quotidien épuisé). {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[report] The anonymised report could not be sent now. spaCR will retry later.",
+      "source": "[report] The anonymised report could not be sent now. spaCR will retry later.",
+      "source_sha256": "7432de90930bc38dd872632494eecb36c325eb400969151cbd93a7c4511602eb",
+      "translation": "[report] Le rapport anonymisé n’a pas pu être envoyé pour l’instant. spaCR réessaiera plus tard."
+    },
+    {
+      "table": "ui",
+      "key": "[report] Will report after the daily limit resets.",
+      "source": "[report] Will report after the daily limit resets.",
+      "source_sha256": "f68aff5488bdee6fc5b772f955d140063509ee1938b59b98e543bff0df36bd23",
+      "translation": "[report] Le signalement aura lieu après la réinitialisation de la limite quotidienne."
+    },
+    {
+      "table": "ui",
+      "key": "[report] spaCR's relay did not accept the anonymised report: {detail}",
+      "source": "[report] spaCR's relay did not accept the anonymised report: {detail}",
+      "source_sha256": "36950d9efc94691b1b53ec81f78c59b509137f1eb5c9ceccb0696cf706494361",
+      "translation": "[report] Le relais de spaCR n’a pas accepté le rapport anonymisé : {detail}"
+    },
+    {
+      "table": "ui",
+      "key": "free model",
+      "source": "free model",
+      "source_sha256": "14c97c135d3974e04cb8ab459867ae6343a32a9dfed58811c3388294310f4094",
+      "translation": "modèle gratuit"
+    },
+    {
+      "table": "ui",
+      "key": "lighter model",
+      "source": "lighter model",
+      "source_sha256": "57edd0e00c83795cd0ae4830800f8130abd2f3303452bb97d4e91dfb9cfa5901",
+      "translation": "modèle plus léger"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR AI could not explain this error this time.",
+      "source": "spaCR AI could not explain this error this time.",
+      "source_sha256": "9518ffd7b53af67e3de19b54e937cbafea3c4977a36f5a32f395bef3f1ed8b10",
+      "translation": "spaCR AI n’a pas pu expliquer cette erreur cette fois-ci."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR AI: today's free AI is used up, so this error is not explained. It is still handled as Preferences → AI → AI Error report says.",
+      "source": "spaCR AI: today's free AI is used up, so this error is not explained. It is still handled as Preferences → AI → AI Error report says.",
+      "source_sha256": "eb4ff9b536c5961a1681a769ad6254e00bd339221d2692f24b5382520e718fa1",
+      "translation": "spaCR AI : l’IA gratuite du jour est épuisée, cette erreur n’est donc pas expliquée. Elle est toujours traitée comme l’indique Préférences → IA → Rapport d’erreur IA."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR AI: {text}{light}",
+      "source": "spaCR AI: {text}{light}",
+      "source_sha256": "21e5c7246bf8a03643f7c868f6294130892a18fca7be470b5b7daddac9b7bddd",
+      "translation": "spaCR AI : {text}{light}"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR hosted AI could not answer this time. Try again later.",
+      "source": "spaCR hosted AI could not answer this time. Try again later.",
+      "source_sha256": "317c9bd06c71953f84f3ca5865b0ca5273091aeb7edd3323b9b22031e26d0c33",
+      "translation": "L’IA hébergée par spaCR n’a pas pu répondre cette fois-ci. Réessayez plus tard."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR hosted AI could not be reached. Check the network connection and try again later.",
+      "source": "spaCR hosted AI could not be reached. Check the network connection and try again later.",
+      "source_sha256": "6f7d3c8110a4e2eddac554906c4e024e005deed68aaa313d4d1c142cd09f1f44",
+      "translation": "L’IA hébergée par spaCR est injoignable. Vérifiez la connexion réseau et réessayez plus tard."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR sends an anonymised summary when a run fails, is refused for its settings, or spaCR crashes, so problems get fixed without you having to report them. This is on by default. The summary holds versions, the operating system, the GPU type, the module, the error type, a scrubbed message and the call stack without paths. It goes through spaCR's relay to a public GitHub issue on EinarOlafsson/spacr, up to {reports} reports a day. Each report includes an AI-written summary of the likely cause, made with your own AI when one is connected, and the AI also explains every error in the console. You can turn reports off here, or choose what is explained and sent under Preferences → AI → AI Error report.\n\nspaCR AI is free with no account, within a daily share of spaCR's free capacity: about {best} questions a day on the best model, then {light} more on a lighter model. Connect your own Claude, Codex or Gemini CLI for unlimited use.",
+      "source": "spaCR sends an anonymised summary when a run fails, is refused for its settings, or spaCR crashes, so problems get fixed without you having to report them. This is on by default. The summary holds versions, the operating system, the GPU type, the module, the error type, a scrubbed message and the call stack without paths. It goes through spaCR's relay to a public GitHub issue on EinarOlafsson/spacr, up to {reports} reports a day. Each report includes an AI-written summary of the likely cause, made with your own AI when one is connected, and the AI also explains every error in the console. You can turn reports off here, or choose what is explained and sent under Preferences → AI → AI Error report.\n\nspaCR AI is free with no account, within a daily share of spaCR's free capacity: about {best} questions a day on the best model, then {light} more on a lighter model. Connect your own Claude, Codex or Gemini CLI for unlimited use.",
+      "source_sha256": "fa94f9e8bd77b230a8276d439ae84f218e349362cf8794a171c551c8818fa15d",
+      "translation": "spaCR envoie un résumé anonymisé lorsqu’une exécution échoue, est refusée à cause de ses réglages, ou que spaCR plante, afin que les problèmes soient corrigés sans que vous ayez à les signaler. Cette option est activée par défaut. Le résumé contient les versions, le système d’exploitation, le type de GPU, le module, le type d’erreur, un message expurgé et la pile d’appels sans chemins. Il passe par le relais de spaCR vers un ticket GitHub public sur EinarOlafsson/spacr, à raison de {reports} rapports par jour au maximum. Chaque rapport comprend un résumé de la cause probable rédigé par une IA, avec votre propre IA lorsqu’elle est connectée, et l’IA explique aussi chaque erreur dans la console. Vous pouvez désactiver les rapports ici, ou choisir ce qui est expliqué et envoyé dans Préférences → IA → Rapport d’erreur IA.\n\nspaCR AI est gratuit et sans compte, dans la limite d’une part quotidienne de la capacité gratuite de spaCR : environ {best} questions par jour au meilleur modèle, puis {light} de plus à un modèle plus léger. Connectez votre propre CLI Claude, Codex ou Gemini pour un usage illimité."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's free AI capacity is used up for today · resets at {time}",
+      "source": "spaCR's free AI capacity is used up for today · resets at {time}",
+      "source_sha256": "093cf3dd1bac9b2083046304b8627ece0665432786aa8a562bffc4356558b67f",
+      "translation": "La capacité IA gratuite de spaCR est épuisée pour aujourd’hui · réinitialisation à {time}"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's free AI capacity is used up for today. Try again after {time}.",
+      "source": "spaCR's free AI capacity is used up for today. Try again after {time}.",
+      "source_sha256": "a357363951c5a0821ba75179c47c88e674db2d5b053d9aa5dda0650c48e00683",
+      "translation": "La capacité IA gratuite de spaCR est épuisée pour aujourd’hui. Réessayez après {time}."
+    },
+    {
+      "table": "ui",
+      "key": "{best} of {total} best-model questions left today · then {light} on the lighter model · resets at {time}",
+      "source": "{best} of {total} best-model questions left today · then {light} on the lighter model · resets at {time}",
+      "source_sha256": "46815c2ace9597e09a2b5ad3acc77d8444b487479dc1e0726e15d92e478f03b3",
+      "translation": "{best} questions sur {total} restantes aujourd’hui au meilleur modèle · puis {light} au modèle plus léger · réinitialisation à {time}"
+    },
+    {
+      "table": "ui",
+      "key": "{pct}% of your share left · {n} users sharing today · resets {time}",
+      "source": "{pct}% of your share left · {n} users sharing today · resets {time}",
+      "source_sha256": "e6c5018d7548501ec2f43b2a9e8ea874a85907b2ef396f7303151a02f4211fb7",
+      "translation": "{pct}% de votre part restante · {n} utilisateurs se partagent la capacité aujourd’hui · réinitialisation {time}"
+    },
+    {
+      "table": "ui",
+      "key": "✗ The run did not start: {message}",
+      "source": "✗ The run did not start: {message}",
+      "source_sha256": "d38aa9e0bdceb6ed6a2f429c3f83dffe65f9130e3cf6fb647a538f725dfa1df4",
+      "translation": "✗ L’exécution n’a pas démarré : {message}"
+    }
+  ]
+}
