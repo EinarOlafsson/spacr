@@ -1,0 +1,25 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "created_utc": "2026-10-15T13:19:33.922595+00:00",
+  "sdk_version": "0.36.2",
+  "sdk_file": "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/huggingface_hub/hf_api.py",
+  "sdk_sha256": "444326f4016052dca2cc8ead904cba8255f601aefe4c7efeb96865865d2ad1f1",
+  "finding": "Same-byte README CommitOperationAdd is removed by the actual SDK no-op filter; create_commit returns repo_info without submitting the commit endpoint. Current mocked create_commit fixtures do not exercise this branch.",
+  "precision": "A preupload POST occurs earlier, but this review does not establish that endpoint as write-permission authority; no claim that a real read-only token was tested.",
+  "source_lines": {
+    "remove_noop": [
+      4248,
+      4273
+    ],
+    "return_existing_commit": [
+      4275,
+      4300
+    ],
+    "actual_commit_post": [
+      4321,
+      4323
+    ]
+  },
+  "recommendation": "Bind acceptance to an actual write-specific endpoint and test the no-op SDK boundary; retain exact README/parent and complete unchanged-tree proof.",
+  "execution": "Read-only SDK/source/tests; no network calls, tests, catalog changes or service writes."
+}
