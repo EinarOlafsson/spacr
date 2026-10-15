@@ -436,7 +436,6 @@ Five added direct methods of the private class are excluded by actual public
 API policy calls; no public docstrings or nested helper arrivals were added.
 Evidence:data/655_hint_resize_keyboard_2026-10-15/. Broader N655 gates stay open.
 
-<<<<<<< HEAD
 2026-10-15 — Help-area resize grip now works with the keyboard
 The narrow help-strip edge was skipped by Tab, ignored Up and drew no visible
 focus. Five baseline assertions failed. It now accepts Tab and bounded
@@ -483,7 +482,7 @@ declarations include all newly imported accessibility classes and the Python
 factory hook; this is availability evidence, not an older-runtime test.
 This closes this role/state/action defect only. No audible Orca, human-user,
 other-platform, provider/reporting or whole-N655 acceptance is claimed.
-=======
+
 2026-10-15 — Home-B dock collapse accessibility semantics repaired
   The DockEdge control previously appeared as a generic Client with only
   Set Focus, without its collapse action or expanded/collapsed state. A
@@ -498,4 +497,3 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   scoped helper inventory is empty. This is bounded software acceptance,
   not native reader/human/macOS/Windows or whole-item acceptance.
   Proof: data/655_dock_accessible_state_2026-10-15/receipt.json.
->>>>>>> e53212443 (Expose dock collapse action and expansion state to assistive clients)
