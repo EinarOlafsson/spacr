@@ -44,5 +44,11 @@
     "normal_locked_baseline_and_owning_afterwards": true
   },
   "root_source_peer": "Parent root approved exact proposed-source.patch before publication; no additional tests requested",
-  "publication": "pending normal source-identical reconcile/push after parent window"
+  "publication": "Normal source-identical merge completed; push follows this evidence commit",
+  "normal_reconciliation": {
+    "merged_public": "694070a9c0c",
+    "own_source_byte_identical_to_tested": "41bad4432dd",
+    "unchanged_native_cases_not_repeated": true,
+    "no_generated_API_or_runtime_source_change": true
+  }
 }
