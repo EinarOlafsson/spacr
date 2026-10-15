@@ -4171,8 +4171,9 @@ def _apply_cache_locations() -> int:
     A variable already set in the environment wins over the record.
     """
     applied = 0
+    cache_variables = {variable for _key, _label, variable in _CACHE_ROWS if variable}
     for name, folder in _read_cache_locations().items():
-        if name and folder and not os.environ.get(name):
+        if name in cache_variables and folder and not os.environ.get(name):
             os.environ[name] = folder
             applied += 1
     return applied

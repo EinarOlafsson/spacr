@@ -76,3 +76,17 @@ GUI/shared-widget changes or artifact edits. This is in-process journal/run
 protection, not cross-process cache ownership or native macOS/Windows proof.
 No live cache/user data/GPU/fullCI operation.
 Evidence: data/644_active_worker_cache_guard_2026-10-14/receipt.json.
+
+2026-10-14 — cache records cannot set unrelated process environment variables:
+Applying cache_locations.json previously copied arbitrary unrelated/forward
+metadata keys into the process environment. Two native regressions reproduced
+that mutation. Application now uses only the cache manager's five registered
+cache variables. Opaque unknown rows stay unchanged in the file; all supported
+cache values still apply, externally supplied environment values still win,
+and repeat application remains idempotent. No caption/signature changes.
+Eight new native cases and finite storage owning tests passed62cases in
+2.10seconds, exit0. The older precedence fixture now uses supported
+TORCH_HOME/HF_HOME names instead of arbitrary CI variables; its precedence
+assertions remain intact. Fatal Ruff/index/diff checks pass. No live cache,
+user data, GPU or fullCI operation.
+Evidence: data/644_cache_environment_allowlist_2026-10-14/receipt.json.

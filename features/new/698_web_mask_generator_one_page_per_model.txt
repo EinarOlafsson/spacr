@@ -224,3 +224,72 @@ acceptance inferred. N698 site/service interface request for Home-B is committed
 in features/data/698_site_interface_2026-10-14/coordination.md. Parentpartial;
 actual Gradio/Space runtime, remaining model adapters, website and both GPU paths
 still need implementation/acceptance. Receipt:features/data/698_service_jobs_2026-10-14/.
+
+2026-10-14 — Original Home: actual Gradio/Space service UI source implemented.
+The dedicated tools/web_mask_generator/app.py constructs all eight current
+family/version/provenance tabs; only the implemented plaque adapter executes.
+Consent enables the file picker; real header choices populate ordered channels,
+series/T/Z/PDF controls and explicit effective diameter. Named model/segmentation
+API routes, one-worker/eight-pending queue, pending cancellation, true result ZIP
+and display-only red-boundary preview are wired to the service. Consent/header/
+diameter checks precede the decorated ZeroGPU call. Gradio's upload/download
+cache is configured to reap one-hour-old files every five minutes, while private
+job staging is removed after cache transfer. Retention on actual hosting remains
+an acceptance requirement. Public share/run-history are disabled; upload limit
+and strictCORS are set. SDK file entry and pinned optional UI requirements ship.
+ActualGradio6.30.0+spaces0.51.3 in a NEW privateWDvenv:12PASS,actualexit0,10.32s.
+Actual UI graph, callbacks, real header/PDF choices, package/cache/preview and
+Space decorator construction executed without a server/model/GPU. App128/131
+statements26/30arcs covered. A real dropdown-mode warning was fixed by preserving
+multiselect updates. The Space file entry and explicit launch policy are checked;
+launch was replaced by a recorder, not run. No global environment modified.
+Whole N698 remains partial: no hosted endpoint/account eligibility, real GPU/
+checkpoint/desktop-WebGPU parity, remaining class adapters, approved random HF
+samples, full UI localization/style/accessibility or browser exports accepted.
+Official eligibility/startup guidance and source-only free setup steps are in
+README; no paid resources or account changes. Home-B site interface ack remains
+required. Receipt:features/data/698_gradio_source_2026-10-14/.
+
+2026-10-14 — Original Home: explicit REST selection correctness repair.
+Review found infer() truncated fractional series/T/Z/page/DPI values with int().
+The actual Gradio Number(precision=0) preprocessor also rounded REST values
+before the callback. Index controls now preserve incoming precision, and strict
+validation rejects fractions, NaN/Inf, booleans and negative indices before GPU
+entry. Exact integer-valued REST floats are retained as their same explicit
+integer selection; ordered channels are validated too. Header choices share the
+strict validator. No silent frame/page substitution remains on these controls.
+Validation34distinctactualGradio cases:33PASS/actualexit0/25.53s (including20cases
+using real Number.preprocess then callback with a recorded GPU boundary), plus
+1PASS/actualexit0/7.17s for successful exact REST-float selection. No model/GPU
+or server launched. Original32PASS/1stale negative-index wording failure retained,
+then expectation corrected to the new strict validation wording. Source UI is
+still partialN698; no hosted/parity/fullfeature acceptance inferred. Receipt:
+features/data/698_explicit_rest_indices_2026-10-14/.
+
+2026-10-14 — Original Home: actual desktop well-detector backend implemented.
+Verified local checkpoint bytes reach spacr.plaque.detect_wells, preserving
+its RGB/BGR conversion, confidence/default image size, reading order and well
+axis-ratio filter. One grey or three RGB channels are accepted; other channel
+counts refuse. The result contains actual boxes/confidences/desktopWellgeometry,
+rectangle-labelled CSV measurements, original upload/selected TIFF and provenance
+hashes. Masks/flowvectors/per-pixel probabilities are explicitly unavailable,
+never synthesized; rectangular geometry is not presented as segmented wellarea
+or physical calibration. Segmentation and detection share the same atomic ZIP
+publisher; original segmentation payload semantics remain unchanged.
+Validation24detector cases+35segmentation-package regressions PASS, actualexit0,
+3.00s; detector80/80statements32/32arcs, sharedresults125/125statements62/62arcs.
+The actual desktop detect_wells body executes; predictor construction/output are
+injected CPU fakes, so no actualweights/GPU/scientific detector parity accepted.
+Malformed output geometry/provenance, badsettings, checksum failure, CSV/rename/
+predictor failures preserve prior outputs. Service/UI detector enablement remains
+open, and parentN698 partial. Receipt:features/data/698_well_detector_2026-10-14/.
+
+2026-10-14 — root dedicated GUI/detector source integration:
+Published actual Gradio component source with consent, private result caching,
+strict whole-number selections before GPU entry, and an independent desktop
+well-detection adapter with honest box-only ZIP export. The combined final
+source passed93 owning tests, actual exit0. Plaque is the executable GUI route
+in this source step; other families remain provenance listings pending their
+next adapter integration. No hosting, weights, GPU or scientific acceptance.
+Full localization/browser WebGPU/whole698 remain open.
+Evidence: data/698_gui_detector_integration_2026-10-14/receipt.json.
