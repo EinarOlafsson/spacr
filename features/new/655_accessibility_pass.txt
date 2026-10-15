@@ -574,3 +574,20 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   578968KiB peak. These establish actual Dark/Light/High contrast palettes;
   the earlier45 result remains evidence at its original narrower scope.
   Evidence:data/655_plate_well_focus_2026-10-15/palette-fixture-followup.json.
+
+2026-10-15 — Shared panel height grip honors Stronger focus outlines
+  HeightGrip already supported keyboard resizing, but its hardcoded 1 px
+  focus line ignored the stronger-focus preference. Actual Tab-focus pixels
+  were identical with the preference on/off in Dark, Light and High contrast:
+  three baseline failures. It now caches the existing policy at construction
+  and style/palette/font changes, overlaying its 3 px outline while focused.
+  Ordinary hover/drag/focus painting, target bounds, resize/persistence signals
+  and all original mouse/key handlers remain unchanged. No preference read
+  is introduced during painting, and the painter ends in finally.
+  Final18PASS2.52s: four new rendered/Tab/cache cases, thirteen existing
+  pointer/keyboard/reset cases, and the existing actual paint-cache check.
+  The three actual application palettes and live preference toggling are
+  covered. No new definitions, captions or API prose; scoped normal helper
+  inventory remains exact. Evidence:
+  data/655_height_grip_strong_focus_2026-10-15/receipt.json.
+  No native reader/other-OS or whole-item completion claim is added.
