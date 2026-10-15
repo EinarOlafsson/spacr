@@ -1,0 +1,9 @@
+{
+  "output": "/mnt/wd4tb/spacr-worktrees/codex-home-b-n180-graph-api-20261015/features/data/704_current_main_owner_packet_2026-10-15",
+  "files": 738,
+  "patch_bytes": 1392897,
+  "patch_gzip_bytes": 235522,
+  "patch_sha256": "1af8dc31ea5938a95742af1de430d15b7b518dd541a44b160200d0fbc5477d9d",
+  "promotion_tree": "7aab6b60a3925efff264a11143f4925c1c4ab147",
+  "checks": "PASS"
+}
