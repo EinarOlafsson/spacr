@@ -1,0 +1,102 @@
+{
+  "base_commit": "10b6ea64c8697d5418d5cc03642544995ba0e976",
+  "source_path": "spacr/qt/widgets/figure_queue.py",
+  "source_sha256": "eae762279c014d6fe27c1374f87de010960e4fb7fc1fa70061b23c5a4638894e",
+  "baseline_source_sha256": "d718f67355b30421e34e718b1a08f5df7bb644a6c0fa726a991ccf0cda7df8c2",
+  "test_path": "tests/qt/test_655_clear_figures_accessible_action.py",
+  "test_sha256": "f94750a83d9ed950e093d233bfdc8b081aa5db9e57889809a31216a101b7bbd3",
+  "baseline": {
+    "session": 23048,
+    "exit": 1,
+    "result": "2 failed, 4 deselected in 1.73s",
+    "observed": "Actual control exposed StaticText and Set Focus only, with no Press action."
+  },
+  "final": {
+    "session": 53662,
+    "exit": 0,
+    "result": "25 passed, 6 warnings in 4.82s",
+    "new_cases": 6,
+    "existing_cases": 19,
+    "cap": "2G",
+    "thread_count": 1,
+    "platform": "offscreen",
+    "warnings": "Existing deprecated QMouseEvent construction/pos usage; source/mouse behavior unchanged."
+  },
+  "repair": "Private ordinary QAccessibleWidget Button adapter with enabled Press calling existing flash and clicked signal. Class-restricted factory retains Python wrapper; Qt owns cache. No raw pointer or value interface.",
+  "acceptance": [
+    "Button role, focusable/noncheckable state, current translated or explicit name.",
+    "Enabled Press emits the existing click once and activates its existing flash; unknown action does not clear.",
+    "Disabled client Press exposes no actions and cannot click or flash.",
+    "Parent navigation and Qt cache identity survive collection; interface retires after real deferred widget deletion.",
+    "Ordinary QLabel/QPushButton accessibility unchanged.",
+    "Existing Tab/keyboard/mouse/queue clear/flash and destructive colour checks pass."
+  ],
+  "scope": {
+    "source_sha256": "eae762279c014d6fe27c1374f87de010960e4fb7fc1fa70061b23c5a4638894e",
+    "before_sha256": "d718f67355b30421e34e718b1a08f5df7bb644a6c0fa726a991ccf0cda7df8c2",
+    "remove_only_private_adapter_factory_registration_and_imports_restores_entire_original_AST": true,
+    "all_original_docstrings_comments_and_methods_unchanged": true,
+    "actual_public_symbol_calls": {
+      "spacr.qt.widgets.figure_queue._AccessibleClearFigures": false,
+      "spacr.qt.widgets.figure_queue._AccessibleClearFigures.__init__": false,
+      "spacr.qt.widgets.figure_queue._AccessibleClearFigures.text": false,
+      "spacr.qt.widgets.figure_queue._AccessibleClearFigures.actionNames": false,
+      "spacr.qt.widgets.figure_queue._AccessibleClearFigures.doAction": false,
+      "spacr.qt.widgets.figure_queue._clear_figures_accessible_factory": false
+    },
+    "normal_scoped_nested_helper_inventory_semantics_unchanged": true,
+    "existing_enabled_helpers": 4,
+    "no_runtime_caption_changes": true
+  },
+  "limits": [
+    "In-process Qt6.12/offscreen acceptance only; no new native bridge/reader, audible speech, other-OS or whole-N655 claim.",
+    "No runtime/API caption arrivals or global generator/test replay."
+  ],
+  "artifacts": [
+    {
+      "path": "before.sh",
+      "sha256": "06d75ea5f333ab294fe07c83a64c85c03505eb6fa6482a929635ae7dd052b365",
+      "raw_sha256": "06d75ea5f333ab294fe07c83a64c85c03505eb6fa6482a929635ae7dd052b365"
+    },
+    {
+      "path": "before.log.gz",
+      "sha256": "3fc0a0fca82fbd925ddcb86406788b1d824301bc094083767168d929a9227cdf",
+      "raw_sha256": "47a3e8681f5b64d45ac9066e73e49634d2fcd51275061e221862c265b08c4989"
+    },
+    {
+      "path": "before.time",
+      "sha256": "4c120bd597e331fa61815ca025d948166f4144339b2fe57086b86cc6c5f9922c",
+      "raw_sha256": "4c120bd597e331fa61815ca025d948166f4144339b2fe57086b86cc6c5f9922c"
+    },
+    {
+      "path": "before.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "final.sh",
+      "sha256": "be734629c2636060cf30051b20f427a313c075e9163934c5958d45e070e8f709",
+      "raw_sha256": "be734629c2636060cf30051b20f427a313c075e9163934c5958d45e070e8f709"
+    },
+    {
+      "path": "final.log.gz",
+      "sha256": "1b7ebc43aad72bb0c2b42d0afba4a1b399b552738101544f15075a2b4ae0c247",
+      "raw_sha256": "992f01def85cd9d438867dd8e3787fef2bf67b0db4938f3fc961ab9685dbeb04"
+    },
+    {
+      "path": "final.time",
+      "sha256": "d37e7c6c45d736cb58f8c36c345cac0ffc7d6a1a10bb31c100205d73eeae3fce",
+      "raw_sha256": "d37e7c6c45d736cb58f8c36c345cac0ffc7d6a1a10bb31c100205d73eeae3fce"
+    },
+    {
+      "path": "final.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "scope.json",
+      "sha256": "3cbf8ffcbcf0eefffe7d626b0bd0bd17bbb611173d696df6585b72a552b203d8",
+      "raw_sha256": "3cbf8ffcbcf0eefffe7d626b0bd0bd17bbb611173d696df6585b72a552b203d8"
+    }
+  ]
+}
