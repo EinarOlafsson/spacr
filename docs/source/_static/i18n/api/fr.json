@@ -166906,21 +166906,21 @@
     },
     "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog": {
       "source_blocks_sha256": [
-        "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
         "454b8f46ba6445bbf962000489850fe82a69c0f8cf660e64edc53cc1d76ee247",
-        "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
         "9f63659f35b8820b79ea6ea97cbb2dda6f3c82076bd6ab21c85391c7617bb7d4",
-        "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
         "3449b452e415b0d6c94d2ac45fa887d7a56e23b5b885a1d879f6657e1fcac495"
       ],
-      "source_sha256": "7652c44a68f3e04c04f98fb8f6a07bcfdac9dad0608061aeece7c68b39d80c95",
-      "text": "Les réglages de l’aperçu Plaque Assay : un onglet Figure et un onglet Plaque detection.\n\nLes contrôles appartiennent au panneau et sont prêtés à cette fenêtre tant qu’elle est ouverte, de sorte qu’une valeur définie ici est celle qu’utilise la passe suivante, et qu’elle survit à la fermeture de la fenêtre -- :meth:`give_back` les rend.\n\nEn mode Plaque, l’onglet Figure est masqué : rien de ce qu’il contient ne s’applique à un dossier d’images de plages recadrées.\n\n:param panel: le :class:`PlaquePreviewPanel` dont elle affiche les contrôles.\nDispose les contrôles du panneau dans deux onglets.\n\n:param panel: le panneau d’aperçu ; également le parent de la fenêtre.",
+      "source_sha256": "1757647e54c36da773fa7d324bd235355a11b607a6407b750f5e4f1a28f6c2d5",
+      "text": "Les paramètres de l’aperçu de Plaque Assay : onglets Figure, Détection de texte et Détection des plages de lyse.\n\nLes contrôles appartiennent au panneau et sont prêtés à cette fenêtre tant qu’elle est ouverte, de sorte qu’une valeur définie ici est celle qu’utilise la passe suivante, et qu’elle survit à la fermeture de la fenêtre -- :meth:`give_back` les rend.\n\nEn mode Plaque, les onglets Figure et Détection de texte sont masqués : aucun des deux ne s’applique à un dossier d’images de plages de lyse recadrées.\n\n:param panel: le :class:`PlaquePreviewPanel` dont elle affiche les contrôles.\nDisposer les commandes du panneau dans trois onglets.\n\n:param panel: le panneau d’aperçu ; également le parent de la fenêtre.",
       "translation_source_blocks_sha256": [
-        "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
         "454b8f46ba6445bbf962000489850fe82a69c0f8cf660e64edc53cc1d76ee247",
-        "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
         "9f63659f35b8820b79ea6ea97cbb2dda6f3c82076bd6ab21c85391c7617bb7d4",
-        "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
         "3449b452e415b0d6c94d2ac45fa887d7a56e23b5b885a1d879f6657e1fcac495"
       ]
     },

@@ -1,0 +1,6 @@
+{
+  "source_unchanged": true,
+  "only_fixture_change": "Before READY, use the existing scroll-to-top helper on the isolated run heading. Original _is_raised assertion remains; no clear/fold state or action is directly changed.",
+  "prior_startup_failure": "attempt-1-initial-scroll/failure.json",
+  "scope": "One actual external reader/action attempt; the first startup failed before reader invocation."
+}

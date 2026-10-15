@@ -1,0 +1,138 @@
+{
+  "item": "F554",
+  "date": "2026-10-15",
+  "status": "Actual strict OPS replay gate resolved; coordinator whole-item review/publication pending",
+  "implementation_changed": false,
+  "executed_checkout_head": "2a48457c9538923d5c1a3a62def34f2e0e18da7c",
+  "public_ops_source_equivalent": "6e4d131624f005afb8ddd7fa73911ca06922408f",
+  "evidence_base": "2d5dd8788d542e9d98929d90a59c69235bfaee65",
+  "result": {
+    "exit": 0,
+    "strict_complete": true,
+    "failures": [],
+    "detectors": [
+      "native",
+      "spotnet",
+      "spotiflow"
+    ],
+    "fields_each": [
+      331,
+      332
+    ],
+    "library_prefixes": 20445,
+    "explicit_planes": 88,
+    "hashed_inputs_models_sources": 107,
+    "source_and_input_hashes_unchanged": true,
+    "exact_original_metric_fields": {
+      "native": {
+        "spots": 22733,
+        "reads_owned": 17668,
+        "spots_library_exact": 18194,
+        "objects_with_a_read": 7870,
+        "objects_assigned": 3476,
+        "objects_assigned_library_exact": 3314,
+        "assigned_library_exact_rate": 0.9534
+      },
+      "spotnet": {
+        "spots": 18555,
+        "reads_owned": 15288,
+        "spots_library_exact": 13174,
+        "objects_with_a_read": 7600,
+        "objects_assigned": 2523,
+        "objects_assigned_library_exact": 2405,
+        "assigned_library_exact_rate": 0.9532
+      },
+      "spotiflow": {
+        "spots": 13244,
+        "reads_owned": 10270,
+        "spots_library_exact": 11105,
+        "objects_with_a_read": 5644,
+        "objects_assigned": 1994,
+        "objects_assigned_library_exact": 1903,
+        "assigned_library_exact_rate": 0.9544
+      }
+    },
+    "agreement": {
+      "native_reads_matched_by_spotnet": 0.6926,
+      "spotnet_reads_matched_by_native": 0.7961,
+      "native_reads_matched_by_spotiflow": 0.5531,
+      "spotiflow_reads_matched_by_native": 0.9347
+    },
+    "seconds": {
+      "native": 15.9,
+      "spotnet": 494.4,
+      "spotiflow": 50.2
+    },
+    "workers": {
+      "spotnet": "cpu",
+      "spotiflow": "cpu"
+    }
+  },
+  "readonly": "Four actual original database connections forced mode=ro/query_only, no original DB migration/copy; detector workers receive image inputs only. No WAL/SHM at initial inspection and normal strict final WAL refusal did not trigger.",
+  "resource_scope": "Actual run_capped child scope run-u64915.scope cap8GiB zeroSwap CPUQuota100%; inherited AF_INET/AF_INET6 kernel refusal. Separate verified-PID/start/scope deadline guard contained child scope; timer stopped only after actual success/scope inactive. See launch correction, no hidden cancellation/restart.",
+  "sampled_resource_limits": "During run MemoryPeak reached8GiB including reclaim; sampled memory.events max190/oom0/oom_kill0. Final cgroup already collected, so no fabricated terminal peak/event receipt.",
+  "safety": "No download/install/GPU/protected-job/annotation/NAS mutation or data/model copy. Exact named local historical fields and known existing isolated backends only.",
+  "limitations": [
+    "Original historical comparison had no source/image/model hashes, so this is a new strict current-input replay with exact observed metrics, not retrospective proof of old byte identity.",
+    "Library agreement and native coordinate agreement are detector comparisons, not biological accuracy or an independent holdout.",
+    "Observed single-pass timings are not a universal speed guarantee.",
+    "Prior2026-10-05 real paired CPU/GPU MERFISH and installation/object-prefix receipts retained; no replay/quality claim added to those historical results."
+  ],
+  "files": {
+    "sandbox-control.py": {
+      "bytes": 785,
+      "sha256": "017ae7a19f68caa2c4f345d951d679f122b738d63951d44ed2b9695e11603839"
+    },
+    "launch-packet.json": {
+      "bytes": 1935,
+      "sha256": "0cefd781f03162504939a5df8a77555a273fdaca20595b5c17f685c06e0525cb"
+    },
+    "sandbox-control.exit": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "strict-real-ops.exit": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "strict-real-ops.json": {
+      "bytes": 43600,
+      "sha256": "6fdd0e92e3fabe359e1fc2b564476ed2841bd64e3f9a69de4b63863ce6c651b7"
+    },
+    "readonly-replay.py": {
+      "bytes": 1768,
+      "sha256": "d09c43a18d25cac22e8ce344e232e8568385d97d6c5d91b4382815c2a177a4cc"
+    },
+    "path-provenance-packet.json": {
+      "bytes": 30963,
+      "sha256": "e4ca5c184d8ea9d563fec1f35b5f6632eb628fa69710da4679f2de863495cf62"
+    },
+    "run-strict-replay.sh": {
+      "bytes": 1094,
+      "sha256": "44743cd57b1b584f44498353fa4c1171a83feed081ce6240df30c3514e568663"
+    },
+    "strict-real-ops.log.gz": {
+      "bytes": 7243,
+      "sha256": "3b1ab4704afdf601f2abbca5a7dd79ae4fec1b6cd9f048a817d7cd5a9bd7eef4"
+    },
+    "sandbox-control.log.gz": {
+      "bytes": 79,
+      "sha256": "9bc8f21defd123206c3c581bea0b215593587d276d121ae1bdbb219e2d279e62"
+    },
+    "run-sandbox-control.sh": {
+      "bytes": 357,
+      "sha256": "f28cdcb0ecfd0e56d50bfbe333abd7d3fb795b5010c77dba8ffd410e55aa92ae"
+    },
+    "scope-deadline.py": {
+      "bytes": 442,
+      "sha256": "db7e845a86ca362a0518c78b9a4546c082c17b81f89abb8e3abab8a59574d1fb"
+    }
+  },
+  "extra_actual_code_hashes_after": {
+    "tools/compare_spotnet_ops.py": "745e9709624c2511da4415c80b128b101d5d562bdc42b48f27e3ae625aefba55",
+    "spacr/ops_engine.py": "1204e07044bdcc2d7bf698f81a5f16b929ada69f2b6f7791ec332a67266fdc02",
+    "spacr/ops_sbs.py": "b69bd54a5df9d57685fb64d711d1d77897f6664e6504e064d05f298b9ff40aa6",
+    "spacr/ops_store.py": "93129962605035eff04a5b8424d0518480a2393cc8bcbc6955409fb2de4cd2cb",
+    "spacr/_segmentation_backends.py": "2983a658487b63c1dfcf7929d8dfa386402267fb0a1b28e9b729580cccbaab68"
+  }
+}

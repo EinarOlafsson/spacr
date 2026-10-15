@@ -1,0 +1,6 @@
+{
+  "source_unchanged": true,
+  "only_reader_change": "After native Clear, re-enumerate the same private process tree and locate the current named push-button header before GetActions/Press. This mirrors the existing after-fold refresh.",
+  "assertions_preserved": "Exactly one clear, one existing fold handler call, saved collapsed state, native expanded state transition, and both disabled refusals remain unchanged.",
+  "prior_partial_failure": "attempt-2-stale-header/failure.json"
+}

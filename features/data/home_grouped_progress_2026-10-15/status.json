@@ -6,6 +6,33 @@
   "historical_scope_ledger": "/mnt/wd4tb/scratch/original-home-today-completion-scopes-20261015.json",
   "rows": [
     {
+      "item": "N468",
+      "title": "plaque assay has plaque and figure modes",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: Plaque/Figure workflow, all original captions in nine languages, factual three-tab API prose and offline Help.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "N94",
+      "title": "train test splits must group by well",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: shared strict cell/field/well/plate splitting, default well, refusal and durable group/cell split reports across all callers.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "F554",
+      "title": "spotiflow spot detection",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: isolated Spotiflow installation, real-field/object-prefix comparisons, paired CPU/GPU evidence and strict original OPS replay.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
       "item": "N448",
       "title": "keep or discard a field in make masks",
       "percent_done": "✅",
@@ -200,7 +227,7 @@
       "percent_done": 70,
       "time_left_hours": "12–24+",
       "owner": "Home / assigned owner",
-      "description": "Configuration live; managed launch16/import9 checks published. Explicit immutable-weight provisioning in progress; hosted GPU/browser acceptance remains.",
+      "description": "Configuration live; free ZeroGPU source uploaded and1182files verified. Actual managed build exposed requirements-before-source packaging defect; repair active. Hosted inference/browser parity remain.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -229,15 +256,6 @@
       "owner": "Home / assigned owner",
       "description": "Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed.",
       "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
-      "item": "N94",
-      "title": "train test splits must group by well",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "Latest source/translation owner acceptance and broader scientific/release acceptance not established by this ledger;27 targeted cases are not a whole-package proof.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
       "item": "N112",
@@ -402,15 +420,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N468",
-      "title": "plaque assay has plaque and figure modes",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Easy / Home",
-      "description": "Plaque/Figure original contract and59-caption debt being reconciled against current source/catalogs.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F470",
       "title": "object crops from the cross channel ground truth to judge every label",
       "percent_done": 80,
@@ -498,15 +507,6 @@
       "time_left_hours": "1–3",
       "owner": "Home / assigned owner",
       "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "F554",
-      "title": "spotiflow spot detection",
-      "percent_done": 95,
-      "time_left_hours": "Unknown",
-      "owner": "Home / assigned owner",
-      "description": "Strict historical OPS replay still needs unavailable original tiles, measurements.db and pool10library. Real Spotiflow install, MERFISH comparison and CPU/GPU timing are recorded complete; no surrogate or invented truth.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -713,17 +713,17 @@
       "percent_done": 90,
       "time_left_hours": "2–6",
       "owner": "Home-B",
-      "description": "Deployed; first hosted audit has15 valid samples, one home performance79 below90. Actual cold WebGL initialization cause under repair; physical60fps acceptance remains.",
+      "description": "Deployed; all15 hosted audit routes pass90/95/<1MB thresholds. Physical60fps acceptance remains.",
       "completion_basis": "Planning estimate; whole item remains open"
     },
     {
       "item": "N687",
       "title": "Website v2 and release synchronization",
-      "percent_done": 85,
-      "time_left_hours": "3–8",
+      "percent_done": "✅",
+      "time_left_hours": "0",
       "owner": "Home-B",
-      "description": "Showcase/release synchronization deployed;15 valid hosted samples expose one home performance failure, with97–100 accessibility and<402KB transfer. Narrow fallback repair active.",
-      "completion_basis": "Planning estimate; whole item remains open"
+      "description": "Complete: flow theme, fonts, real model showcase, papers, release sync and prominent localized Website links; all15 hosted audit routes pass.",
+      "completion_basis": "Home-B whole eight-clause owner acceptance public2d5dd8788d; Original reviewed contract and independent receipt."
     },
     {
       "item": "N688",
@@ -780,7 +780,11 @@
     "N691",
     "N511",
     "F556",
-    "N692"
+    "N692",
+    "N468",
+    "N94",
+    "F554",
+    "N687"
   ],
   "coordination_reconciliation": "Added seven still-open Home-B items missing from earlier Original subset; authoritative item files and owner receipts retained. Historical pre-today completions need not all be printed."
 }

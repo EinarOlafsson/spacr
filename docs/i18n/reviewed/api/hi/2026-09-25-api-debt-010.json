@@ -326,12 +326,12 @@
     {
       "context": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The application view calls this when either setting changes. The folder's file names are read off the main GUI execution path, and nothing is decoded.",
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.regroup_the_folder#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The screen calls this when either setting changes. The folder's file names are read off the GUI thread, and nothing is decoded.",
       "source_sha256": "ba35ba6afb40c27af59767dfe437c665f3c50ef78d7c29d0e1a9a3715c269301",
-      "translation": "फ़ोल्डर लोड होने पर तालिका समूहित की जाती है, उस ``metadata_type`` और ``custom_regex`` के साथ जो उस क्षण Mask फ़ॉर्म में थे। पहले लोड करने और बाद में नामकरण चुनने से हर फ़ाइल तब तक एक ही कॉलम में रहती थी जब तक कोई और चीज़ फ़ोल्डर को फिर से लोड न करे। जब भी दोनों में से कोई सेटिंग बदलती है, पेज इसे बुलाता है। फ़ोल्डर के फ़ाइल नाम GUI थ्रेड से अलग पढ़े जाते हैं, और कुछ भी डिकोड नहीं किया जाता।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "फ़ोल्डर लोड होने पर तालिका समूहित की जाती है, उस ``metadata_type`` और ``custom_regex`` के साथ जो उस क्षण Mask फ़ॉर्म में थे। पहले लोड करने और बाद में नामकरण चुनने से हर फ़ाइल तब तक एक ही कॉलम में रहती थी जब तक कोई और चीज़ फ़ोल्डर को फिर से लोड न करे। जब भी दोनों में से कोई सेटिंग बदलती है, पेज इसे बुलाता है। फ़ोल्डर के फ़ाइल नाम GUI थ्रेड से अलग पढ़े जाते हैं, और कुछ भी डिकोड नहीं किया जाता।"
     },
     {
       "context": "``True`` when a regrouping was started, ``False`` when no image is loaded.",
@@ -410,12 +410,12 @@
     {
       "context": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "label": "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT#0",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "source_sha256": "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c",
-      "translation": "इस सत्र के कितने मास्क तुलना पैनल एक-दूसरे पर रख सकता है: अंतिम आठ, सबसे पुराना पहले हटाया जाता है। प्रत्येक पूर्ण-आकार का लेबल ऐरे है, और जो पैनल पूरी दोपहर का हर रन रखता, वह उन सभी को एक ऐसे पॉपअप के लिए मेमोरी में रखता जो आराम से आठ सूचीबद्ध करता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "इस सत्र के कितने मास्क तुलना पैनल एक-दूसरे पर रख सकता है: अंतिम आठ, सबसे पुराना पहले हटाया जाता है। प्रत्येक पूर्ण-आकार का लेबल ऐरे है, और जो पैनल पूरी दोपहर का हर रन रखता, वह उन सभी को एक ऐसे पॉपअप के लिए मेमोरी में रखता जो आराम से आठ सूचीबद्ध करता है।"
     },
     {
       "context": "Direct image files are returned unchanged. Directory traversal stops as soon as the first sorted match is found instead of materialising and sorting every image in a potentially enormous plate. Files whose names start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes on exFAT and network volumes, sorts before every image and holds none.",
@@ -574,32 +574,32 @@
     {
       "context": "Two halves. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its microscope field of view, and draws the answer.",
       "label": "spacr.qt.widgets.mask_comparison#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its field, and draws the answer.",
       "source_sha256": "5e6a4bd9dede1be7f833f2b0c7dc1b3ecff48da39d4ec0c8de4e080d9463c093",
-      "translation": "दो हिस्से। :func:`composite` अंकगणित है, सादे ऐरे पर, ताकि उपयोगकर्ता जो चित्र देखता है उसे हाथ से की गई गणना के सापेक्ष पिक्सेल-दर-पिक्सेल जाँचा जा सके। :class:`MaskComparisonDialog` वह पॉपअप है जो चुनता है कि इसमें क्या जाता है। दोनों में से कोई Mask मॉड्यूल के बारे में नहीं जानता; लाइव प्रीव्यू अपने सत्र के मास्क और अपना फ़ील्ड सौंपता है, और उत्तर बनाता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "दो हिस्से। :func:`composite` अंकगणित है, सादे ऐरे पर, ताकि उपयोगकर्ता जो चित्र देखता है उसे हाथ से की गई गणना के सापेक्ष पिक्सेल-दर-पिक्सेल जाँचा जा सके। :class:`MaskComparisonDialog` वह पॉपअप है जो चुनता है कि इसमें क्या जाता है। दोनों में से कोई Mask मॉड्यूल के बारे में नहीं जानता; लाइव प्रीव्यू अपने सत्र के मास्क और अपना फ़ील्ड सौंपता है, और उत्तर बनाता है।"
     },
     {
       "context": "The arithmetic is \"OVER\", layer by layer, from the bottom. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "label": "spacr.qt.widgets.mask_comparison#3",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE ARITHMETIC IS \"OVER\", LAYER BY LAYER, FROM THE BOTTOM. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "source_sha256": "c3a684d93217b9a8bdc51ea11f6020da2c46a2d803e8dcec666dc35769ab475f",
-      "translation": "अंकगणित \"OVER\" है, परत-दर-परत, नीचे से। कैनवस काले से शुरू होता है। प्रत्येक चिह्नित परत, नीचे वाली पहले, अपनी अपारदर्शिता ``a`` के साथ रखी जाती है: जहाँ वह ढकती है, ``out = out * (1 - a) + colour * a``; जहाँ नहीं ढकती, ``out`` को अकेला छोड़ दिया जाता है। इमेज हर पिक्सेल को ढकती है; मास्क केवल अपने ऑब्जेक्ट को ढकता है, इसलिए मास्क की पृष्ठभूमि कभी उसके नीचे की चीज़ को धुंधला नहीं करती। परिणाम को निकटतम पूर्ण ग्रे स्तर पर पूर्णांकित किया जाता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "अंकगणित \"OVER\" है, परत-दर-परत, नीचे से। कैनवस काले से शुरू होता है। प्रत्येक चिह्नित परत, नीचे वाली पहले, अपनी अपारदर्शिता ``a`` के साथ रखी जाती है: जहाँ वह ढकती है, ``out = out * (1 - a) + colour * a``; जहाँ नहीं ढकती, ``out`` को अकेला छोड़ दिया जाता है। इमेज हर पिक्सेल को ढकती है; मास्क केवल अपने ऑब्जेक्ट को ढकता है, इसलिए मास्क की पृष्ठभूमि कभी उसके नीचे की चीज़ को धुंधला नहीं करती। परिणाम को निकटतम पूर्ण ग्रे स्तर पर पूर्णांकित किया जाता है।"
     },
     {
       "context": "The stacking order reads like a layer list. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "label": "spacr.qt.widgets.mask_comparison#4",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "source_sha256": "c70b490aeb3a412244c1ea00715da87239a8b9fc3e90abcf63c19fff5e865406",
-      "translation": "स्टैकिंग क्रम परत सूची की तरह पढ़ा जाता है। पॉपअप स्टैक का शीर्ष पहले सूचीबद्ध करता है, जैसा हर ड्रॉइंग प्रोग्राम करता है, और :meth:`chosen` परतें नीचे वाली पहले लौटाता है, उसी क्रम में जिसमें :func:`composite` उन्हें रखता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "स्टैकिंग क्रम परत सूची की तरह पढ़ा जाता है। पॉपअप स्टैक का शीर्ष पहले सूचीबद्ध करता है, जैसा हर ड्रॉइंग प्रोग्राम करता है, और :meth:`chosen` परतें नीचे वाली पहले लौटाता है, उसी क्रम में जिसमें :func:`composite` उन्हें रखता है।"
     },
     {
       "context": "One thing the comparison can draw.",
@@ -668,12 +668,12 @@
     {
       "context": "the choices, top of the stack first.",
       "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the choices, TOP OF THE STACK FIRST.",
       "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
-      "translation": "विकल्प, स्टैक का शीर्ष पहले।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "विकल्प, स्टैक का शीर्ष पहले।"
     },
     {
       "context": "parent widget; ownership only.",
@@ -694,12 +694,12 @@
     {
       "context": "The ticked layers, bottom first, ready for :func:`composite`.",
       "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.chosen#0",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ticked layers, BOTTOM FIRST, ready for :func:`composite`.",
       "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
-      "translation": "चिह्नित परतें, नीचे वाली पहले, :func:`composite` के लिए तैयार।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "चिह्नित परतें, नीचे वाली पहले, :func:`composite` के लिए तैयार।"
     },
     {
       "context": "Every layer as the popup has it now, top of the stack first.",
@@ -864,22 +864,22 @@
     {
       "context": "Split from :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the independent execution path that paints.",
       "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
       "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
-      "translation": ":meth:`add_paths` से अलग किया गया, और यह अलगाव ही एक जमे हुए ऐप्लिकेशन का सुधार है। यहाँ सब कुछ स्ट्रिंग की सूची है; जो ``isdir`` और ``listdir`` छोड़े गए फ़ोल्डर को फ़ाइलों में बदलते हैं, वे इस विजेट के अपने वर्कर (:func:`files_under`) पर चलते हैं, क्योंकि ड्रॉप उपयोगकर्ता द्वारा चुना गया पथ है और माइक्रोस्कोप रिग पर वही वह साझा फ़ोल्डर है जिस पर इमेज रहती हैं -- सोए हुए ``autofs`` माउंट के अंतर्गत एक stat को बीस सेकंड से अधिक का मापा गया, उसी थ्रेड पर जो पेंट करता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": ":meth:`add_paths` से अलग किया गया, और यह अलगाव ही एक जमे हुए ऐप्लिकेशन का सुधार है। यहाँ सब कुछ स्ट्रिंग की सूची है; जो ``isdir`` और ``listdir`` छोड़े गए फ़ोल्डर को फ़ाइलों में बदलते हैं, वे इस विजेट के अपने वर्कर (:func:`files_under`) पर चलते हैं, क्योंकि ड्रॉप उपयोगकर्ता द्वारा चुना गया पथ है और माइक्रोस्कोप रिग पर वही वह साझा फ़ोल्डर है जिस पर इमेज रहती हैं -- सोए हुए ``autofs`` माउंट के अंतर्गत एक stat को बीस सेकंड से अधिक का मापा गया, उसी थ्रेड पर जो पेंट करता है।"
     },
     {
       "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
-      "translation": "इसके लौटने तक कुछ भी नहीं जोड़ा गया होता, और यही उद्देश्य है। तालिका :attr:`table_changed` से पढ़ें, इसके बाद की पंक्ति से नहीं।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "इसके लौटने तक कुछ भी नहीं जोड़ा गया होता, और यही उद्देश्य है। तालिका :attr:`table_changed` से पढ़ें, इसके बाद की पंक्ति से नहीं।"
     },
     {
       "context": "files and folders from a drop or a file dialog.",
@@ -1180,12 +1180,12 @@
     {
       "context": "Not for the main GUI execution path. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it executes this on a worker. Looked up through the module global so a test can replace it and see which independent execution path it ran on.",
       "label": "spacr.qt.widgets.measure_input_table.files_under#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it runs this on a worker. Looked up through the module global so a test can replace it and see which thread it ran on.",
       "source_sha256": "f36bfc3c1a31cb756f70b118386083e32bffffcc67e99586f5b44c22d22d446c",
-      "translation": "GUI थ्रेड के लिए नहीं। यहाँ हर पथ उपयोगकर्ता का चुना हुआ है, जिसका माइक्रोस्कोप रिग पर अर्थ है नेटवर्क शेयर, और ``isdir`` ही ऑटोमाउंट को जगाता है। :meth:`MeasureInputTable.add_dropped` एकमात्र कॉलर है और यह इसे वर्कर पर चलाता है। मॉड्यूल ग्लोबल के माध्यम से खोजा जाता है ताकि परीक्षण इसे बदल सके और देख सके कि यह किस थ्रेड पर चला।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "GUI थ्रेड के लिए नहीं। यहाँ हर पथ उपयोगकर्ता का चुना हुआ है, जिसका माइक्रोस्कोप रिग पर अर्थ है नेटवर्क शेयर, और ``isdir`` ही ऑटोमाउंट को जगाता है। :meth:`MeasureInputTable.add_dropped` एकमात्र कॉलर है और यह इसे वर्कर पर चलाता है। मॉड्यूल ग्लोबल के माध्यम से खोजा जाता है ताकि परीक्षण इसे बदल सके और देख सके कि यह किस थ्रेड पर चला।"
     },
     {
       "context": "what was dropped or chosen.",
@@ -1590,22 +1590,22 @@
     {
       "context": "One helper, not one copy per screen. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "label": "spacr.qt.widgets.measurements_example#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "ONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
-      "translation": "एक सहायक, हर पेज के लिए एक प्रति नहीं। कैश-या-डाउनलोड का निर्णय, बटन की व्यस्त स्थिति और विफलता संदेश Plate Viewer, Tabulate, Graph Builder और बाकी सभी के लिए समान हैं; अंतर केवल इतना है कि कौन-सा फ़ील्ड भरा जाता है और कौन-सी विधि उसे खोलती है। इसलिए पेज केवल वही एक अंतर कॉलबैक के रूप में देता है, और कुछ नहीं।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "एक सहायक, हर पेज के लिए एक प्रति नहीं। कैश-या-डाउनलोड का निर्णय, बटन की व्यस्त स्थिति और विफलता संदेश Plate Viewer, Tabulate, Graph Builder और बाकी सभी के लिए समान हैं; अंतर केवल इतना है कि कौन-सा फ़ील्ड भरा जाता है और कौन-सी विधि उसे खोलती है। इसलिए पेज केवल वही एक अंतर कॉलबैक के रूप में देता है, और कुछ नहीं।"
     },
     {
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "label": "spacr.qt.widgets.measurements_example#3",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
-      "translation": "डाउनलोड वही मौजूदा डाउनलोड है। कुछ भी नया प्रकाशित नहीं होता: आर्काइव, वर्कर और प्रगति डायलॉग :func:`spacr.qt.hf_download.download_annotate_example` हैं, वही कॉल जो Classify का बटन करता है, और इनमें से किसी के भी पहले से खोले गए प्लेट का नेटवर्क छुए बिना दोबारा उपयोग होता है।",
-      "retired": "2026-10-10",
-      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
+      "translation": "डाउनलोड वही मौजूदा डाउनलोड है। कुछ भी नया प्रकाशित नहीं होता: आर्काइव, वर्कर और प्रगति डायलॉग :func:`spacr.qt.hf_download.download_annotate_example` हैं, वही कॉल जो Classify का बटन करता है, और इनमें से किसी के भी पहले से खोले गए प्लेट का नेटवर्क छुए बिना दोबारा उपयोग होता है।"
     },
     {
       "context": "The example plate's ``measurements/measurements.db``, present or not.",
@@ -1746,12 +1746,12 @@
     {
       "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
       "label": "spacr.qt.widgets.model_share#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY THERE IS NO BUILT-IN TOKEN. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is running it:",
       "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
-      "translation": "कोई अंतर्निहित टोकन क्यों नहीं है। हर उपयोगकर्ता की मशीन से एक ही खाते में अपलोड करने का अर्थ होता spaCR के भीतर एक राइट टोकन भेजना। राइट टोकन केवल अपलोड की अनुमति नहीं है: यह उस खाते के हर मॉडल को फिर से लिख भी सकता है और हटा (DELETE) भी सकता है, और spaCR इंस्टॉल करने वाला कोई भी व्यक्ति उसे पैकेज से पढ़ सकता है। इसलिए अपलोड उसी का टोकन उपयोग करता है जो इसे चला रहा है:",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "कोई अंतर्निहित टोकन क्यों नहीं है। हर उपयोगकर्ता की मशीन से एक ही खाते में अपलोड करने का अर्थ होता spaCR के भीतर एक राइट टोकन भेजना। राइट टोकन केवल अपलोड की अनुमति नहीं है: यह उस खाते के हर मॉडल को फिर से लिख भी सकता है और हटा (DELETE) भी सकता है, और spaCR इंस्टॉल करने वाला कोई भी व्यक्ति उसे पैकेज से पढ़ सकता है। इसलिए अपलोड उसी का टोकन उपयोग करता है जो इसे चला रहा है:"
     },
     {
       "context": "`huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN environment variable.",
@@ -1828,12 +1828,12 @@
     {
       "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "label": "spacr.qt.widgets.model_share.central_upload#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
-      "translation": "Gradio HTTP API से सीधे urllib के माध्यम से बात करता है, न कि gradio_client के माध्यम से, क्योंकि वह पैकेज spaCR की निर्भरता नहीं है: जब वह अनुपस्थित था तो यह त्रुटि उठाता था, कॉलर अपलोड करने वाले के अपने टोकन पर लौट जाता था, और मॉडल ऐसी जगह चला जाता था जहाँ कोई उसे खोज नहीं रहा था। जो प्रकाशन पथ किसी वैकल्पिक इम्पोर्ट पर निर्भर है, वह ऐसा प्रकाशन पथ है जो चुपचाप कुछ और कर देता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "Gradio HTTP API से सीधे urllib के माध्यम से बात करता है, न कि gradio_client के माध्यम से, क्योंकि वह पैकेज spaCR की निर्भरता नहीं है: जब वह अनुपस्थित था तो यह त्रुटि उठाता था, कॉलर अपलोड करने वाले के अपने टोकन पर लौट जाता था, और मॉडल ऐसी जगह चला जाता था जहाँ कोई उसे खोज नहीं रहा था। जो प्रकाशन पथ किसी वैकल्पिक इम्पोर्ट पर निर्भर है, वह ऐसा प्रकाशन पथ है जो चुपचाप कुछ और कर देता है।"
     },
     {
       "context": "local checkpoint file to upload.",
@@ -1958,12 +1958,12 @@
     {
       "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
-      "translation": "हर जगह खाली छोड़ने की अनुमति है: जो कार्ड \"not recorded\" कहता है वह ईमानदार है, और संख्या के बिना सबमिट करने से मना करने वाले फ़ॉर्म का उत्तर एक गढ़ी हुई संख्या से दिया जाता। ``filename`` साझा करने के लिए फ़ॉर्म बनाएँ।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "हर जगह खाली छोड़ने की अनुमति है: जो कार्ड \"not recorded\" कहता है वह ईमानदार है, और संख्या के बिना सबमिट करने से मना करने वाले फ़ॉर्म का उत्तर एक गढ़ी हुई संख्या से दिया जाता। ``filename`` साझा करने के लिए फ़ॉर्म बनाएँ।"
     },
     {
       "context": "the checkpoint being shared, named in the title.",
@@ -2000,12 +2000,12 @@
     {
       "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "label": "spacr.qt.widgets.model_zoo_picker#4",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on screen and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
-      "translation": "सूची में एक बूलियन के बजाय पाँच शीर्षक क्यों हैं। पहले यह एक सूची थी जिसके बगल में \"show unvetted community uploads\" था -- एक ऐसा नियंत्रण जो कैटलॉग के पाँच स्रोतों में से ठीक एक को मोड़कर छिपा सकता था। यहाँ प्रशिक्षित दस मॉडल, चार मानक Cellpose-SAM बैकबोन, bioimage.io का संग्रह, Cellpose 3 बैकएंड के अपने चार और एक साझा कैटलॉग होने पर, जो उपयोगकर्ता केवल वे दस चाहता था और बाकी नहीं, उसके पास यह कहने का कोई तरीका नहीं था। :class:`SourceStrip` पाँच स्रोत हैं, पाँच क्लिक करने योग्य नामों के रूप में, प्रत्येक नीला जब उसकी पंक्तियाँ दिखाई दे रही हों और धूमिल जब वे मोड़कर छिपाई गई हों, और यह स्थिति एक बार खोलने से अगली बार तक याद रखी जाती है। बूलियन जो चेतावनी देता था वह अपरिवर्तित है और अब भी पहली असत्यापित पंक्ति से पहले आती है -- :meth:`ModelZooPicker._may_show_source` देखें।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "सूची में एक बूलियन के बजाय पाँच शीर्षक क्यों हैं। पहले यह एक सूची थी जिसके बगल में \"show unvetted community uploads\" था -- एक ऐसा नियंत्रण जो कैटलॉग के पाँच स्रोतों में से ठीक एक को मोड़कर छिपा सकता था। यहाँ प्रशिक्षित दस मॉडल, चार मानक Cellpose-SAM बैकबोन, bioimage.io का संग्रह, Cellpose 3 बैकएंड के अपने चार और एक साझा कैटलॉग होने पर, जो उपयोगकर्ता केवल वे दस चाहता था और बाकी नहीं, उसके पास यह कहने का कोई तरीका नहीं था। :class:`SourceStrip` पाँच स्रोत हैं, पाँच क्लिक करने योग्य नामों के रूप में, प्रत्येक नीला जब उसकी पंक्तियाँ दिखाई दे रही हों और धूमिल जब वे मोड़कर छिपाई गई हों, और यह स्थिति एक बार खोलने से अगली बार तक याद रखी जाती है। बूलियन जो चेतावनी देता था वह अपरिवर्तित है और अब भी पहली असत्यापित पंक्ति से पहले आती है -- :meth:`ModelZooPicker._may_show_source` देखें।"
     },
     {
       "context": "Install, or uninstall, one segmentation backend, with progress and Cancel.",
@@ -2018,22 +2018,22 @@
     {
       "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
-      "translation": "यह क्या बदलता है, बदलने से पहले ही बताया जाता है। बैकएंड ``~/.spacr/backends`` के अंतर्गत अपने अलग एनवायरनमेंट में इंस्टॉल होता है; spaCR का अपना एनवायरनमेंट कभी नहीं छुआ जाता, इसलिए यहाँ कुछ भी spaCR को शुरू होने से नहीं रोक सकता। Install दबाने से पहले डायलॉग बताता है कि यह कहाँ जाता है, क्या डाउनलोड करता है, कितना बड़ा है और किस लाइसेंस के अंतर्गत है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "यह क्या बदलता है, बदलने से पहले ही बताया जाता है। बैकएंड ``~/.spacr/backends`` के अंतर्गत अपने अलग एनवायरनमेंट में इंस्टॉल होता है; spaCR का अपना एनवायरनमेंट कभी नहीं छुआ जाता, इसलिए यहाँ कुछ भी spaCR को शुरू होने से नहीं रोक सकता। Install दबाने से पहले डायलॉग बताता है कि यह कहाँ जाता है, क्या डाउनलोड करता है, कितना बड़ा है और किस लाइसेंस के अंतर्गत है।"
     },
     {
       "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it runs and a console can say why it failed after the dialog has gone.",
       "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
-      "translation": "इसके पीछे का पेज इसका अनुसरण कर सकता है। :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` और :attr:`job_cancelled` डायलॉग खोलने वाले विजेट को बताते हैं कि इंस्टॉल क्या कर रहा है, ताकि चलते समय कोई बटन \"installing\" कह सके और डायलॉग जाने के बाद कोई कंसोल बता सके कि वह क्यों विफल हुआ।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "इसके पीछे का पेज इसका अनुसरण कर सकता है। :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` और :attr:`job_cancelled` डायलॉग खोलने वाले विजेट को बताते हैं कि इंस्टॉल क्या कर रहा है, ताकि चलते समय कोई बटन \"installing\" कह सके और डायलॉग जाने के बाद कोई कंसोल बता सके कि वह क्यों विफल हुआ।"
     },
     {
       "context": "It belongs to the window, not the widget that asked (item 521). A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
@@ -2048,22 +2048,22 @@
     {
       "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#12",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE BAR SITS ON THE BUTTONS. The progress line is the last thing above the buttons and the status keeps four lines' room while a job runs, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
-      "translation": "बार बटनों पर टिकी रहती है। प्रगति पंक्ति बटनों के ऊपर की अंतिम चीज़ है और जॉब चलते समय स्थिति चार पंक्तियों की जगह बनाए रखती है, इसलिए स्थिति पंक्ति के बढ़ने-घटने पर बार हिलती नहीं। बैकएंड का वर्णन करें और बटन की प्रतीक्षा करें।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "बार बटनों पर टिकी रहती है। प्रगति पंक्ति बटनों के ऊपर की अंतिम चीज़ है और जॉब चलते समय स्थिति चार पंक्तियों की जगह बनाए रखती है, इसलिए स्थिति पंक्ति के बढ़ने-घटने पर बार हिलती नहीं। बैकएंड का वर्णन करें और बटन की प्रतीक्षा करें।"
     },
     {
       "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for minutes -- runs on a worker thread; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
-      "translation": "विंडो प्रतिक्रिया देती रहती है। इंस्टॉल -- पहले एक venv, फिर pip, अक्सर कई मिनट तक -- वर्कर थ्रेड पर चलता है; डायलॉग दिखाता है कि यह किस चरण पर है और pip की नवीनतम पंक्ति, और Cancel pip को और उसके द्वारा शुरू की गई हर चीज़ को रोकता है और आधे बने एनवायरनमेंट को हटा देता है। विफलता पर विफल कमांड का अपना आउटपुट ज्यों-का-त्यों दिखाया जाता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "विंडो प्रतिक्रिया देती रहती है। इंस्टॉल -- पहले एक venv, फिर pip, अक्सर कई मिनट तक -- वर्कर थ्रेड पर चलता है; डायलॉग दिखाता है कि यह किस चरण पर है और pip की नवीनतम पंक्ति, और Cancel pip को और उसके द्वारा शुरू की गई हर चीज़ को रोकता है और आधे बने एनवायरनमेंट को हटा देता है। विफलता पर विफल कमांड का अपना आउटपुट ज्यों-का-त्यों दिखाया जाता है।"
     },
     {
       "context": "the backend, e.g. ``'cellpose3'``.",
@@ -2350,12 +2350,12 @@
     {
       "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
-      "translation": "शब्द सेवानिवृत्त चेकबॉक्स के अपने ही हैं, अपरिवर्तित। गलत वह नियंत्रण था जो उन्हें ले जाता था; वाक्य नहीं। इसे केवल लेबल करने के बजाय कहा जाता है, क्योंकि समीक्षित और असमीक्षित मॉडल के बीच का अंतर तालिका में दिखाई नहीं देता।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "शब्द सेवानिवृत्त चेकबॉक्स के अपने ही हैं, अपरिवर्तित। गलत वह नियंत्रण था जो उन्हें ले जाता था; वाक्य नहीं। इसे केवल लेबल करने के बजाय कहा जाता है, क्योंकि समीक्षित और असमीक्षित मॉडल के बीच का अंतर तालिका में दिखाई नहीं देता।"
     },
     {
       "context": "the widget the dialog belongs to.",
@@ -3138,13 +3138,13 @@
     {
       "context": "Right-click a picture and save it, as a PNG or as a PDF.",
       "label": "spacr.qt.widgets.picture_export#0",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Right-click a picture and save it, as a PNG or as a PDF.",
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-      "translation": "किसी चित्र पर राइट-क्लिक करके उसे PNG या PDF के रूप में सहेजें।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "किसी चित्र पर राइट-क्लिक करके उसे PNG या PDF के रूप में सहेजें।"
     },
     {
       "context": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
@@ -3160,37 +3160,37 @@
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "label": "spacr.qt.widgets.picture_export#1",
       "rebound_from": "spacr.qt.widgets.picture_export#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
-      "translation": "डिस्प्ले पर दिखाई देने वाला चित्र अक्सर वही चीज़ होती है जिसे कोई एक घंटे बाद किसी स्लाइड में चाहता है, और वहाँ तक पहुँचने का रास्ता विंडो की एक कैप्चर की गई तस्वीर थी, विंडो के रिज़ॉल्यूशन पर, आसपास के क्रोम सहित। यह चित्र को ही सहेजता है, उस रिज़ॉल्यूशन पर जिस पर वह रेंडर हुआ था, न कि उस आकार पर जिस पर वह संयोग से दिखाया जा रहा है, उपयोगकर्ता की चुनी हुई फ़ाइल में।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "डिस्प्ले पर दिखाई देने वाला चित्र अक्सर वही चीज़ होती है जिसे कोई एक घंटे बाद किसी स्लाइड में चाहता है, और वहाँ तक पहुँचने का रास्ता विंडो की एक कैप्चर की गई तस्वीर थी, विंडो के रिज़ॉल्यूशन पर, आसपास के क्रोम सहित। यह चित्र को ही सहेजता है, उस रिज़ॉल्यूशन पर जिस पर वह रेंडर हुआ था, न कि उस आकार पर जिस पर वह संयोग से दिखाया जा रहा है, उपयोगकर्ता की चुनी हुई फ़ाइल में।"
     },
     {
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "label": "spacr.qt.widgets.picture_export#2",
       "rebound_from": "spacr.qt.widgets.picture_export#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
-      "translation": "दो फ़ॉर्मेट, और PDF अलग एक्सटेंशन वाला PNG नहीं है। PDF में डाला गया रास्टर केवल फ़ाइल नाम को संतुष्ट करता है और कुछ नहीं; फ़िगर पैनल एक पेज है, और पेज का आकार मिलीमीटर में होता है। :func:`save_picture` PDF को इमेज की अपनी आकृति का पेज देता है और राइटर को वह रिज़ॉल्यूशन बताता है जो Preferences में है, ताकि चित्र उसी आकार पर आए जिस पर वह मापा गया था और उसी रिज़ॉल्यूशन पर छपे।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "दो फ़ॉर्मेट, और PDF अलग एक्सटेंशन वाला PNG नहीं है। PDF में डाला गया रास्टर केवल फ़ाइल नाम को संतुष्ट करता है और कुछ नहीं; फ़िगर पैनल एक पेज है, और पेज का आकार मिलीमीटर में होता है। :func:`save_picture` PDF को इमेज की अपनी आकृति का पेज देता है और राइटर को वह रिज़ॉल्यूशन बताता है जो Preferences में है, ताकि चित्र उसी आकार पर आए जिस पर वह मापा गया था और उसी रिज़ॉल्यूशन पर छपे।"
     },
     {
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "label": "spacr.qt.widgets.picture_export#3",
       "rebound_from": "spacr.qt.widgets.picture_export#4",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
-      "translation": "रिज़ॉल्यूशन और डिफ़ॉल्ट फ़ॉर्मेट वही हैं जिनकी स्वामी पहले से Figures प्राथमिकताएँ हैं -- :func:`spacr.qt.preferences.get_figure_png_dpi` और :func:`spacr.qt.preferences.get_figure_format` -- इसलिए जिस उपयोगकर्ता ने पहले ही \"300 DPI, PDF\" कह दिया है, उससे दूसरी बार अलग शब्दों में नहीं पूछा जाता।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "रिज़ॉल्यूशन और डिफ़ॉल्ट फ़ॉर्मेट वही हैं जिनकी स्वामी पहले से Figures प्राथमिकताएँ हैं -- :func:`spacr.qt.preferences.get_figure_png_dpi` और :func:`spacr.qt.preferences.get_figure_format` -- इसलिए जिस उपयोगकर्ता ने पहले ही \"300 DPI, PDF\" कह दिया है, उससे दूसरी बार अलग शब्दों में नहीं पूछा जाता।"
     },
     {
       "context": "Whatever was handed over, as a :class:`QImage`, or ``None``.",
@@ -3219,24 +3219,24 @@
     {
       "context": "Ask for a path. ``\"\"`` when the user walked away.",
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Ask for a path. ``\"\"`` when the user walked away.",
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-      "translation": "पथ के लिए पूछें। ``\"\"`` जब उपयोगकर्ता बिना चुने चला गया।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "पथ के लिए पूछें। ``\"\"`` जब उपयोगकर्ता बिना चुने चला गया।"
     },
     {
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
-      "translation": "यदि उपयोगकर्ता प्रत्यय हटा दे तो उसे वापस लगाया जाता है। बिना प्रत्यय के टाइप किया गया नाम अन्यथा PNG के रूप में लिखा जाता, चाहे कोई भी फ़िल्टर चुना गया हो, और इसी तरह \"save as PDF\" चुपचाप एक रास्टर बना देता है।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "यदि उपयोगकर्ता प्रत्यय हटा दे तो उसे वापस लगाया जाता है। बिना प्रत्यय के टाइप किया गया नाम अन्यथा PNG के रूप में लिखा जाता, चाहे कोई भी फ़िल्टर चुना गया हो, और इसी तरह \"save as PDF\" चुपचाप एक रास्टर बना देता है।"
     },
     {
       "context": "the widget the save dialog is parented to.",
@@ -3345,24 +3345,24 @@
     {
       "context": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called at save time rather than now, so the menu always writes the picture currently on application view.",
       "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
-      "translation": "मेनू उपयोग होने पर बुलाया जाता है; लिखने के लिए ``QPixmap`` या ``QImage`` लौटाता है। अभी के बजाय सहेजने के समय बुलाया जाता है, ताकि मेनू हमेशा वही चित्र लिखे जो इस समय दिखाई दे रहा है।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "मेनू उपयोग होने पर बुलाया जाता है; लिखने के लिए ``QPixmap`` या ``QImage`` लौटाता है। अभी के बजाय सहेजने के समय बुलाया जाता है, ताकि मेनू हमेशा वही चित्र लिखे जो इस समय दिखाई दे रहा है।"
     },
     {
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
-      "translation": "प्रस्तुत फ़ाइल नाम, बिना प्रत्यय के। कॉल करने योग्य से सहेजने के समय पूछा जाता है, ताकि जिस व्यू की सामग्री बदलती है -- एक पल Overlay, अगले पल Flows -- वह उसी का नाम प्रस्तुत करे जो उस पर अभी है।",
-      "retired": true,
-      "retired_date": "2026-10-15",
-      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
+      "translation": "प्रस्तुत फ़ाइल नाम, बिना प्रत्यय के। कॉल करने योग्य से सहेजने के समय पूछा जाता है, ताकि जिस व्यू की सामग्री बदलती है -- एक पल Overlay, अगले पल Flows -- वह उसी का नाम प्रस्तुत करे जो उस पर अभी है।"
     },
     {
       "context": "asked first; ``True`` means the right button belongs to something else at this moment and no menu is shown. The live preview's ruler is cleared with a right-click while it is active, and a menu appearing over that would take a tool away to add a file dialog nobody asked for.",
@@ -3705,12 +3705,12 @@
     {
       "context": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "label": "spacr.qt.widgets.plaque_preview#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
-      "translation": "Plaque Assay दो प्रकार के फ़ोल्डर पढ़ता है, और जो Mask पूर्वावलोकन यह पहले उधार लेता था वह दोनों में से किसी के अनुकूल नहीं था:",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "Plaque Assay दो प्रकार के फ़ोल्डर पढ़ता है, और जो Mask पूर्वावलोकन यह पहले उधार लेता था वह दोनों में से किसी के अनुकूल नहीं था:"
     },
     {
       "context": "**Plaque mode** -- a folder of cropped plaque images. The processing session segments every image and writes one table of per-image values and one of per-plaque values. All there is to check before executing is the mask, so the preview segments one image with the model and thresholds the processing session will use and draws the plaque outlines, with the count and mean area.",
@@ -3755,12 +3755,12 @@
     {
       "context": "The box weight that means: pick one from the figure's size.",
       "label": "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS#0",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The box weight that means: pick one from the figure's size.",
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
-      "translation": "वह बॉक्स मोटाई जिसका अर्थ है: फ़िगर के आकार से एक चुनें।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "वह बॉक्स मोटाई जिसका अर्थ है: फ़िगर के आकार से एक चुनें।"
     },
     {
       "context": "The views of the plaque picture, the ones Mask generation's live preview offers: :data:`spacr.qt.widgets.segmentation_views.VIEWS`.",
@@ -3789,12 +3789,12 @@
     {
       "context": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
-      "translation": "इसे बदलने से पहले से सेगमेंट किया गया फिर से बनता है; कुछ भी दोबारा नहीं चलाया जाता। हर चौड़ाई छवि पिक्सेल में है: रूपरेखाएँ छवि ऐरे पर बढ़ाई जाती हैं और बॉक्स दिखाए जाने से पहले pixmap में पेंट किए जाते हैं, ताकि व्यू ज़ूम होने पर और सहेजे गए चित्र में रेखा चित्र में अपना हिस्सा बनाए रखे, जैसे रूपरेखाएँ हमेशा करती थीं।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "इसे बदलने से पहले से सेगमेंट किया गया फिर से बनता है; कुछ भी दोबारा नहीं चलाया जाता। हर चौड़ाई छवि पिक्सेल में है: रूपरेखाएँ छवि ऐरे पर बढ़ाई जाती हैं और बॉक्स दिखाए जाने से पहले pixmap में पेंट किए जाते हैं, ताकि व्यू ज़ूम होने पर और सहेजे गए चित्र में रेखा चित्र में अपना हिस्सा बनाए रखे, जैसे रूपरेखाएँ हमेशा करती थीं।"
     },
     {
       "context": "``'outlines'`` or ``'fill'``.",
@@ -4273,12 +4273,12 @@
     {
       "context": "Non-modal, because what it answers is how the picture beside it looks.",
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Non-modal, because what it answers is how the picture beside it looks.",
       "source_sha256": "781131914582d812dc5057d3b0f345d1488386f956032fe3126cd766b3e058e8",
-      "translation": "नॉन-मोडल, क्योंकि यह जिस प्रश्न का उत्तर देता है वह है कि इसके बगल का चित्र कैसा दिखता है।",
-      "retired": true,
-      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
+      "translation": "नॉन-मोडल, क्योंकि यह जिस प्रश्न का उत्तर देता है वह है कि इसके बगल का चित्र कैसा दिखता है।"
     },
     {
       "context": "the dialog, shown.",
@@ -4675,6 +4675,8 @@
     {
       "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
       "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "retired": true,
+      "retired_reason": "2026-10-15: actual Plaque settings has three tabs; Figure and Text detection are both hidden in Plaque mode. Exact current source-bound replacement recorded separately; original review/history retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
       "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
@@ -4691,6 +4693,8 @@
     {
       "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
       "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "retired": true,
+      "retired_reason": "2026-10-15: actual Plaque settings has three tabs; Figure and Text detection are both hidden in Plaque mode. Exact current source-bound replacement recorded separately; original review/history retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
       "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
@@ -4707,6 +4711,8 @@
     {
       "context": "Lay the panel's controls out in two tabs.",
       "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "retired": true,
+      "retired_reason": "2026-10-15: actual Plaque settings has three tabs; Figure and Text detection are both hidden in Plaque mode. Exact current source-bound replacement recorded separately; original review/history retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Lay the panel's controls out in two tabs.",
       "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",

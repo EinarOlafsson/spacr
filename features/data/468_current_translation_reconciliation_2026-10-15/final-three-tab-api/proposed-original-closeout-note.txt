@@ -1,0 +1,27 @@
+2026-10-15 — Original Plaque/Figure contract and nine-language debt reconciled
+Original two-mode behavior was already accepted; source-bound inspection now
+reconciles its outstanding 59-caption obligation with the current implementation.
+The historical English inventory separates the already-reviewed preview
+description from the 59 owed entries. Current setting labels/tooltips, all live
+original UI captions and nine explicit replacement captions pass 540 ordinary
+scoped review/compiled-source checks across nine locales. Every live UI caption
+uses the actual owning tr call. The actual owning test file and its236 assertion
+ASTs match hosted8fc; the retained hosted log supplies66 unique owning PASS nodes.
+No model inference or tutorial was repeated or newly certified.
+
+The API audit found135 eligible symbols/460 blocks per locale with current
+source/context hashes. Six correct DOI/PMID/PMC identifier paragraphs now carry
+explicit source-bound technical reviews; ordinary selected audit and normal
+no-op writing preserve all ten existing API artifacts. A real remaining factual
+error described two settings tabs although the implementation constructs three.
+Only class/constructor prose now names Figure, Text detection and Plaque
+detection and states that both irrelevant tabs hide in Plaque mode. Executable
+AST, public signatures, runtime captions and scientific behavior are identical.
+Twenty-seven reviewed translations replace exactly27 retired original review
+rows, retaining their provenance/history; all other class paragraphs and foreign
+records are preserved. Normal selected nine-locale API audit and Help generation
+are required terminal evidence in the accompanying final receipt.
+
+This reconciles the original item rather than certifying later model-quality,
+coverage, tutorial-publication or native-platform requirements belonging to other
+items. Evidence: data/468_current_translation_reconciliation_2026-10-15/.
