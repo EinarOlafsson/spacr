@@ -1,0 +1,31 @@
+{
+  "commit": "f2ba788d6eeb6348e995d9b2eff05ec895714d42",
+  "item": "F564",
+  "tree": "/mnt/wd4tb/spacr-worktrees/codex-home-b-attribution-captions-20261014",
+  "validation": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "8",
+    "time": "0.987",
+    "timestamp": "2026-10-14T23:54:36.375161-04:00",
+    "hostname": "olafsson"
+  },
+  "scope": [
+    "tools/build_i18n_catalogs.py",
+    "tests/test_runtime_backend_caption_owners.py"
+  ],
+  "source_owner_commit": "d78d36ae2ce",
+  "named_functions": [
+    "_cf_preserved_channels",
+    "_cf_preserve_reference_channels",
+    "_counterfactual_sequences",
+    "_counterfactual_report"
+  ],
+  "source_owner_tr_calls": 8,
+  "source_owner_unique_literals": 6,
+  "change": "Extract literal runtime captions only from four named top-level attribution functions; preserve existing model and installer extraction owners.",
+  "catalog_generation": false,
+  "runtime_source_changes": false
+}
