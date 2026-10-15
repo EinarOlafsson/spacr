@@ -1,0 +1,102 @@
+{
+  "source_pin": "9e49e23fe2debfc19e52720a6eb53e3ccd6b4242",
+  "result": "PASS",
+  "events": [
+    "unvisited actual screen collection remains deferred",
+    "explicit user-equivalent deferred panel and Graph construction",
+    "all actual providers collected and saved through normal workspace APIs",
+    "screen closure unregisters all regression providers",
+    "restoring to unvisited screen reports missing built contributors without construction",
+    "explicit user-equivalent deferred panel and Graph construction",
+    "visited real contributors restore exact Graph controls, queued regression run views and figure-grid size",
+    "screen closure unregisters all regression providers"
+  ],
+  "provider_injection": false,
+  "provider_filtering": false,
+  "render_join_read_guard_calls": [],
+  "setup_refresh_suppression_count": 2,
+  "visited_restored": [
+    "regression:settings",
+    "regression:figures",
+    "regression:montage",
+    "regression:regression"
+  ],
+  "unvisited_report": {
+    "restored": [
+      "regression:settings"
+    ],
+    "skipped": [
+      {
+        "section": "regression:figures",
+        "why": "cannot take a workspace state back"
+      },
+      {
+        "section": "regression:montage",
+        "why": "cannot take a workspace state back"
+      },
+      {
+        "section": "regression:regression",
+        "why": "cannot take a workspace state back"
+      }
+    ],
+    "files": []
+  },
+  "source_hashes": {
+    "spacr/qt/screens/app_screen.py": "9d8a9c714c461ab46171cfdd5eea3c345553c55e737813f12f67f47ec28ab37c",
+    "spacr/workspace.py": "155c19eb811efe9ff42fb972dd602d7fea1e23a920a3c49779f8784165065e45",
+    "spacr/qt/widgets/cell_montage_view.py": "fe39247d4cff1d270152b6762c248443df7e901b588b503b1ef34afc9b9b540e",
+    "spacr/qt/widgets/measurement_compare_dialog.py": "96209de2cadc2df2f71bcecc8bbf63a6a686ea2e5e3e5c101b090055fc45b836",
+    "spacr/qt/widgets/regression_results.py": "5a6d4bd10d4325e8952ea33bf96c2f72935b8548384443603ecad2808dac8c4a",
+    "spacr/qt/widgets/figure_grid_view.py": "60d4b7ed0e90eccfdfa9fc762c1395fa3facf298a97da58e14f86c0db59f7af8"
+  },
+  "limits": [
+    "Registry bridge only; already-tested loaded data/render consumers are not rerun.",
+    "Regression run views intentionally have no live data path; restoration retains them without file loading.",
+    "Actual comparison controls use a tiny in-memory object fixture; constructor refresh is suppressed and no comparison/canvas is computed.",
+    "All real providers and full settings are used without mapping injection/filtering.",
+    "No scientific inference, image loading, graph rendering, join, pipeline or native desktop acceptance."
+  ],
+  "kind": "source-bound actual Qt workspace provider bridge acceptance",
+  "changed_product_source": false,
+  "test_inventory_read": [
+    "tests/qt/test_app_workspace_databases_180.py",
+    "tests/qt/test_the_panels_contribute_to_a_saved_run.py",
+    "tests/qt/test_a_workspace_save_never_builds_a_panel.py"
+  ],
+  "existing_coverage_gap": "Existing actual AppScreen tests cover database relocation and provider registration, while Graph controls and full regression selection/colour payloads previously round-tripped through direct widget mappings. This probe exercises the complete real registry and settings path.",
+  "terminal_exit": 0,
+  "elapsed_seconds": 6.78,
+  "peak_rss_kib": 390652,
+  "resource_policy": {
+    "cap": "4G",
+    "heavy_lock": "/mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock",
+    "cuda_visible_devices": "",
+    "qt_qpa_platform": "offscreen",
+    "thread_limits": 1
+  },
+  "input_settings": "fresh isolated XDG configuration; default regression settings, full registry providers",
+  "repeat_scientific_tests": false,
+  "native_acceptance": false,
+  "artifacts": {
+    "probe.py": {
+      "sha256": "97563adb06123867c322ee11b274e9ebfc7a8d008c7506ad4e738c5fdbc547fd",
+      "bytes": 8374
+    },
+    "probe.log": {
+      "sha256": "e1045c0e5274987576aeb6ee2e549b74a935fbe109681497f757e1c937f7ef6e",
+      "bytes": 790
+    },
+    "time.txt": {
+      "sha256": "cd76ad282f4113cc05d227c9574f4c51d40db5cd004f4be68481be1df7d88d9c",
+      "bytes": 1180
+    },
+    "result.json": {
+      "sha256": "6ccde241142901c9c82bf810005e63718d1f6c6d8639b663b17fc3f114c0e212",
+      "bytes": 2678
+    },
+    "saved-workspace/workspace.json": {
+      "sha256": "9eb3ea9b858c14815633e7814d1600aa83e05f74a42206766cf2080a7b4a3bc4",
+      "bytes": 5424
+    }
+  }
+}

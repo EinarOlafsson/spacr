@@ -13220,3 +13220,18 @@ website worker alone cell_montage_view.py workspace/lazy pending handoff;
 readme worker API reviews/normal artifacts only. Root reviews/publishes. No
 render/join/inference during restore or deferred-panel creation during collect.
 Original Home owns N594 coherent publication after this exact runtime baseline.
+
+2026-10-15 Home-B — provider bridge evidence and one Icelandic repair
+Actual full AppScreen provider collect/save/load/restore bridge passes6.78s:
+Graph controls, queued regression state and grid size retained; unvisited
+providers stay deferred with named reports; close unregisters. No source edit,
+render/join/data loading or whole N180/native acceptance. Executed script,
+source hashes and explicit constructor/no-live-path limits are recorded under
+features/data/180_actual_provider_bridge_2026-10-15/. One independently reviewed
+Icelandic JobRunner paragraph is also corrected through normal generation;
+other172 reviewed targets and every unrelated catalog/history byte are retained.
+Source/English/Help inputs unchanged; no repeated Help build is needed.
+Separate next work: exact three retained Icelandic technical corrections,
+docstring-only path_probe wait/cache contracts. Different authors/peers own
+these scopes; Original Home core/installer/scientific and Work tutorials remain
+untouched. Final full CI/release are still deferred until implementation settles.
