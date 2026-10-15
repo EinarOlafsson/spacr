@@ -208,3 +208,12 @@ The guarded metadata-only27-target writer measured22.72s/582256KiB with zero
 full-canonical requests or model decoding. This closes these bounded batches,
 not whole N678. Evidence:678_volume_column_api_catalogs_2026-10-15/ and
 678_training_sorting_api_catalogs_2026-10-15/ underfeatures/data/.
+
+2026-10-15 — Stored section title documentation closure
+The CollapsibleSection.title getter description now states the constructor's
+stored str value, independently of later header text changes. All 18 changed
+API translation targets passed independent technical review and normal scoped
+generation. Coordinator readback verifies every peer binding, exact owned
+records in all ten catalogs, unchanged unrelated records and executable AST.
+Evidence: features/data/678_collapsible_title_api_catalogs_2026-10-15/.
+No widget behavior, caption or signature changed; broad N678 remains open.
