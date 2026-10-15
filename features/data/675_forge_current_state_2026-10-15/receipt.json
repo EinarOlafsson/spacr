@@ -1,0 +1,118 @@
+{
+  "checked_at": "2026-10-15T05:44:24.117283+00:00",
+  "pr": {
+    "state": "open",
+    "draft": false,
+    "merged": false,
+    "updated_at": "2026-10-12T12:33:18Z"
+  },
+  "head": "3b4fd83a52fecc001f87240ce9ad010405d08fa7",
+  "labels": [
+    "review-requested",
+    "python"
+  ],
+  "checks": [
+    {
+      "name": "staged-recipes",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "staged-recipes (build status)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "staged-recipes (build osx osx_64)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "staged-recipes (build win_64 win)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "staged-recipes (build linux_64)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "staged-recipes (build fast finish)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "staged-recipes (check skip)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "linter",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "statuses": {
+    "state": "pending",
+    "contexts": [
+      {
+        "context": "conda-forge-linter",
+        "state": "pending"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "author": "ocefpaf",
+      "state": "COMMENTED",
+      "submitted_at": "2026-10-11T13:52:39Z"
+    }
+  ],
+  "comments": [
+    {
+      "author": "ocefpaf",
+      "path": "recipes/pyfixest/recipe.yaml",
+      "line": 49,
+      "body": "Don't hardcode this. Either use the variable or check if it is different than 0.",
+      "url": "https://github.com/conda-forge/staged-recipes/pull/35101#discussion_r4241817420"
+    }
+  ],
+  "prepared_original_byte_identical": true,
+  "recipe_sha256": "0118c1911e9e51715ff95a0177f14305d0d6fb2d813f7cb3f24af492e69e4f6e",
+  "no_external_mutations": true,
+  "pyfixest_channel": {
+    "url": "https://api.anaconda.org/package/conda-forge/pyfixest",
+    "status": 404,
+    "latest_version": null,
+    "error": null
+  },
+  "spacr_channel": {
+    "url": "https://api.anaconda.org/package/conda-forge/spacr",
+    "status": 200,
+    "latest_version": "1.5.0.8",
+    "error": null
+  },
+  "spacr_pypi": {
+    "version": "1.5.1.4",
+    "sdist": [
+      {
+        "filename": "spacr-1.5.1.4.tar.gz",
+        "sha256": "32113621263f931862d5ab63fb507819d2172276edb3bfdf42210bf3e7eea7bb"
+      }
+    ]
+  },
+  "spacr_pr7": {
+    "state": "open",
+    "merged": false,
+    "head": "448bbf8e0ae3628abfe59de6ba9342ca55ceea09"
+  },
+  "links": {
+    "pyfixest_pr": "https://github.com/conda-forge/staged-recipes/pull/35101",
+    "recipe": "https://github.com/EinarOlafsson/staged-recipes/blob/3b4fd83a52fecc001f87240ce9ad010405d08fa7/recipes/pyfixest/recipe.yaml",
+    "spacr_pr7": "https://github.com/conda-forge/spacr-feedstock/pull/7",
+    "spacr_pypi": "https://pypi.org/pypi/spacr/json"
+  },
+  "existing_correction": "features/data/675_pyfixest_review_correction_prepared_2026-10-14/pyfixest-version-variable.patch",
+  "interpretation": "External prerequisite unchanged. Existing one-line reviewer correction is not on current PR branch; normal updated CI/review/merge/feedstock publication, then clean published-channel spaCR installation remain outstanding. Read-only audit does not authorize/post external changes or constitute whole-item completion."
+}
