@@ -3998,3 +3998,23 @@ Earlier source-bound generic failure is retained, not rerun or relabeled.
 Whole N700/N43 and final CI/release remain open. Evidence:
 data/ci_three_client_outcome_assertions_2026-10-15/ and
 data/ci_three_client_outcome_assertions_independent_peer_2026-10-15/.
+
+2026-10-15 — Strict reviewed vocabulary and six compiled consumers pass.
+Six existing Choose folder… targets now preserve the source Unicode ellipsis
+in the shared authoritative table, review rows and normally generated catalogs.
+Only the six suffixes changed; all unrelated values/source hashes, English,
+API, Help, arrival fixture and three unaffected locales remain exact. Ordinary
+all-nine preflights, full runtime audit and fresh source equality passed.
+The strict inverse reconstructs the unchanged historical99 count/source/content
+digests from56 named arrivals/one retirement; its original Unicode negative
+assertion is untouched. Six corrected new-fixture values have archived old
+bytes; no bad translation, historical hash or raised ceiling is frozen in.
+Original vocabulary check plus six real persisted-INI compiled tr consumers
+PASS7/5.72s, zero skips/network events, all24 inputs/catalog/source pins exact.
+Fallback tripwires ensure compiled output; translations/tr were not mocked.
+First producer stopped before writes on an overbroad subprocess guard; only
+exact read-only ldconfig -p was allowed after peer review. Original failure
+and successful unchanged-gate retry are retained; no model was requested.
+No N699 implementation/item or fullCI/release completion is claimed. Evidence:
+data/reviewed_folder_ellipsis_normal_closure_2026-10-15/ and
+data/ci_reviewed_folder_ellipsis_consumers_2026-10-15/.

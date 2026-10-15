@@ -11,6 +11,26 @@
 
 
 
+## 2026-10-15 Original Home — six shared punctuation targets/vocabulary closed
+
+Ordinary all9 preflights, six normal catalog writes, full runtime audit and
+fresh source equality PASS. Exactly six approved suffix lines change; each
+affected locale preserves11003 foreign values and every source hash; English,
+API, Help, arrival and three unaffected catalogs remain exact. Initial runner
+refusal was before writes; peer-approved exact read-only ldconfig allowance
+fixed that guard only. Both attempt logs are retained, no model/network call.
+Strict vocabulary inverse preserves original99 count/source/content hashes,
+56 named arrivals/one retirement and original Unicode-ellipsis assertion.
+Original node plus actual six persisted-INI compiled consumers PASS7/5.72s;
+no fallback or mocked translations, all24 input/source/catalog pins exact.
+Independent input/producer/test peers accepted. This supersedes old unresolved
+six-ellipsis owner relay; N699 implementation/item remains untouched.
+Evidence:data/reviewed_folder_ellipsis_normal_closure_2026-10-15/ and
+data/ci_reviewed_folder_ellipsis_consumers_2026-10-15/.
+Global writer lock is released; await terminal public SHA for shared baseline.
+Whole numbered items/finalCI/release remain open; no new whole-item tick.
+
+
 ## 2026-10-15 Original Home — generic callback hygiene gate now passes
 
 Adopted the exact prepared three outcome assertions in one test file under
