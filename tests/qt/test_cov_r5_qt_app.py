@@ -382,6 +382,8 @@ def test_a_backdrop_that_will_not_install_costs_only_the_backdrop(
     monkeypatch.setattr(preferences_mod, "get_ambient_enabled", lambda: True)
     monkeypatch.setattr(preferences_mod, "get_ambient_theme", lambda: "aurora")
     monkeypatch.setattr(ambient_mod, "install_ambient", _install)
+    monkeypatch.setattr(win, "window_backdrop", lambda: None)
+    monkeypatch.setattr(ambient_mod, "_the_heavy_import_lock_is_free", lambda: True)
 
     screen = QWidget()
     with caplog.at_level(logging.ERROR, logger="spacr.qt.app"):
