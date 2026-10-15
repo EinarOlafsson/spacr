@@ -1,0 +1,15 @@
+{
+  "original_sha256": "d76be1ceb647fb3db120458c0d56e1d17bbb24632d7ce2d1f9479dd48d9c077d",
+  "proposed_sha256": "bdd844bff84b82f4210ed3a6ecbb758e29345bad57a66f24809bec5e562f3bda",
+  "patch_sha256": "753a21a3d0f3c93b041933a96c1fca4b59bbedc942d0beffdac6ba11405e3b2d",
+  "actual_baseline": "3 unknown refusals FAIL,4 known/default controls PASS8.42s; controlled empty catalogue and stock declaration, no model constructor or download",
+  "prior_collection": "Reserved pytest parameter request caused initial collection error/no cases; raw before.log retained; corrected parameter only then actual baseline run",
+  "runtime_reachability": "No pin =>object._pinned_object_model returns supplied name; CLI only eagerly resolves actual model_metadata; force bypasses validation. _choose_model calls resolver before accelerator/model constructor.",
+  "new_caption": "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
+  "required_test_changes": [
+    "Old no_such_model fallback tests must now expect exact unresolved refusal before fake constructor and no stock-substitution notice.",
+    "Keep all installed,LEGACY,default,existing file and exact catalogue cases; explicit sam shorthand preserved.",
+    "Cover bare key,CP_model filename,Windows unknown path,actual constructor boundary and controls with no network."
+  ],
+  "remaining_dependencies": "Normal exact owner caption extraction, nine technical target reviews/writer/locale callbacks; unchanged normal API visibility disposition for both documented private helpers; no publication yet."
+}

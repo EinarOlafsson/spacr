@@ -144,12 +144,20 @@ its own disclosed download cache before context exit. This component does not
 claim that a future framework's upload/download caches are already configured.
 
 `preload_default()` is an explicit operator startup action, not an import side
-effect. It verifies the current default's exact published weight bytes and
-warms a two-entry digest-keyed desktop model cache, supporting the documented
-ZeroGPU startup-placement pattern. Replacing a path with different weight bytes
-cannot reuse the old cached model under the new digest. Plaque requests with
-more than three selected channels are refused before loading, preventing
-Cellpose from silently ignoring additional channels.
+effect. It validates every configured public key and its exact published weight
+checksum before constructing any model. It warms at most one configured
+segmentation model: the current plaque default when provisioned, otherwise the
+first supported configured segmentation key in lexical order. The existing
+plaque or Mask digest-keyed cache retains that model; no other family is eagerly
+loaded. An empty or detector-only configuration returns `None` without loading
+an unrelated plaque model. Detectors keep their request-scoped desktop loader.
+An unknown key, missing checkpoint or wrong checksum refuses startup before
+any warm-up. This policy does not change request defaults: an unprovisioned
+current default still refuses instead of using a warmed older version. It does
+not certify actual ZeroGPU placement or cache lifetime; those require checks
+on the intended host. Plaque requests with more than three selected channels
+are refused before loading, preventing Cellpose from silently ignoring
+additional channels.
 
 `app.build_app(...)` constructs a real Gradio interface and named `models` /
 `segment_plaque` API routes without starting a server or loading weights.
@@ -193,9 +201,11 @@ Source-only Space launch preparation (no deployment has occurred):
 5. With free ZeroGPU actually selected in the Space settings, set
    `SPACR_WEB_ZERO_GPU=1`. This requests startup verification/preload, then a
    `spaces.GPU(duration=120)` call for execution. Basic consent/header/diameter
-   checks happen before entering the decorated function. Startup model placement
-   follows the linked official guidance. Quota/queue/execution availability is
-   not guaranteed and must be tested on the actual account.
+   checks happen before entering the decorated function. Startup validates all
+   configured identities and warms at most one segmentation model as described
+   above; detector-only startup does not preload a model. Actual model placement,
+   quota, queue and execution availability must be tested on the intended account
+   against the linked official guidance.
 6. Launch only after the source/configuration review. `main()` keeps public
    Gradio sharing off, hides backend tracebacks, disables run history, retains
    strict CORS, and limits uploads. No server was launched while implementing

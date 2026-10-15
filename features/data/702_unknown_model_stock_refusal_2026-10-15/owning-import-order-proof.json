@@ -1,0 +1,8 @@
+{
+  "path": "tests/test_n702_unknown_cellpose_model_refusal.py",
+  "before_sha256": "3741b15d5237ec68974193ad17013ad8306216352b0f593f284d30ec0e97ae1e",
+  "after_sha256": "d5e44cbb5f6f7a5ec7cacb108b377fd3d5fc7f56a7e4f5430b3e2612c2d8c65c",
+  "non_import_AST_identical": true,
+  "normal_tool": "ruff check --select I --fix on only two new test files; final ordinary Ruff PASS",
+  "test_disposition": "No unchanged25-case model/helper rerun; all fixture and assertion bodies identical"
+}

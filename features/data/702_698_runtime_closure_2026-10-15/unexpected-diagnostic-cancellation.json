@@ -1,0 +1,10 @@
+{
+  "state": "Unexpected recursive diagnostic terminated, no gates or artifacts modified",
+  "cause": "_has_expected_script calls _reviewed_translation, which starts full reviewed runtime lookup. This was not a pure validator-only call as anticipated.",
+  "actual_python_pid": 2143880,
+  "termination": "SIGTERM to exact Python PID; unified exec session40184 returned143/Terminated; subsequent ps proved PID absent",
+  "duration_observed": "31seconds when identified",
+  "output": "No diagnostic result JSON or stdout produced; no raw log file was created by that heredoc command. Tool transcript records command, PID and termination.",
+  "subsequent": "Pure _syntax_preserved/_semantic_false_friends/_looks_degenerate diagnosis completed0.2seconds without canonical/review lookup.",
+  "ordinary_generator": "Original normal attempt1 independently exited1 on Swedish protected-token target; no writes or callbacks ran."
+}

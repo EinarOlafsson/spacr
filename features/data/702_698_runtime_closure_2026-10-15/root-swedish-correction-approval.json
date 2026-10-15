@@ -1,0 +1,8 @@
+{
+  "kind": "Parent independent exact target technical approval communicated through collaboration",
+  "reviewer": "root",
+  "target_sha256": "d867c02710f4ce1d0e6b986d03b9028c61bc74452270a26480e71e72a91ee8f9",
+  "source_sha256": "3223dd3f18a2b1363d0f8e6e559f9dad501be5cf6eeedd447a17dd6424beb4b1",
+  "accepted_wording": "Automatiska modellnedladdningar är avstängda via SPACR_MODEL_DOWNLOAD. Standardmodellen {model} för Cellpose finns inte i cachen på {path}. Ange dess befintliga kontrollpunkt eller ladda ned den innan du kör offline.",
+  "scope": "Only protected product-token rephrasing; original immutable draft and peer retained. No native/human signoff or gate alteration."
+}

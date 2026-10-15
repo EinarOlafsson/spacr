@@ -611,3 +611,49 @@ close failures remain outside this narrow rename rollback; no blanket atomic
 concurrency or native Windows acceptance. No API prose/caption, actual model/
 network/GPU/live data/fullCI or whole702 acceptance. Evidence:
 data/702_claim_reservation_rollback_2026-10-15/receipt.json.
+
+
+2026-10-15 — private unknown Cellpose stock-substitution refusal
+    Actual runtime helper returnedstock for unknown bare keys, CP_model
+    filenames and missing Windows paths. It now refuses unresolved explicit
+    names before model construction. Installed stock, every declared legacy
+    alias, blank defaults and exact local/catalogue identity routes remain;
+    existing sam shorthand is used only after local/exact lookup. Root caught
+    the initial proposed alias placement before apply; actual named-sam file
+    and catalogue controls verify priority. Baseline3FAIL4PASS8.42s and final
+    owning25PASS9.49s. Old tests deliberately expecting unknown fallback now
+    enforce N702 refusal; no assertion silently removed to retain wrong output.
+    PRIVATE until exact runtime owner plus nine reviewed targets/generation
+    and actual localized refusals close. Two private doc changes have normal
+    visibility/zero-nested/committed-English absence evidence, no API targets.
+    No real model/network/GPU/nativecluster/fullCI or whole702 acceptance.
+    Evidence:data/702_unknown_model_stock_refusal_2026-10-15/.
+
+2026-10-15 — private stock offline constructor boundary
+    Actual installed Cellpose4.2.1.1 cache helper reached a replaced downloader
+    under SPACR_MODEL_DOWNLOAD=0 after the stock resolver returned cpsam.
+    No transport, constructor or checkpoint decode occurred. The constructor
+    boundary now refuses missing/nonregular native cache under0/off/false/no,
+    preserving explicit relative checkpoint precedence, cached stock, blank/
+    legacy/sam defaults and online behavior. Baseline8FAIL10PASS10.17s; final
+    owning18PASS8.35s. Existence-only preflight, not checksum verification or
+    safety against another process deleting cached files during construction.
+    PRIVATE pending exact owner/nine reviewed targets/normal generation and
+    actual localized refusal closure. No whole702/nativecluster/fullCI claim.
+    Evidence:data/702_stock_offline_constructor_guard_2026-10-15/receipt.json.
+
+2026-10-15 — verified coherent model refusal components
+    Unknown explicit Cellpose requests now refuse stock substitution, retaining
+    exact file/catalogue priority and existing default/legacy/sam identities.
+    _choose_model additionally refuses uncached installed stock when automatic
+    downloads are disabled; cached/native local files and online behavior pass.
+    Owning25 and18 checks remain source-bound; no replay. Normal three-source
+    runtime closure passed all9 languages and actual27 callbacks6.67s (18 for
+    these two diagnostics). All10,873 unrelated current rows/locale preserved;
+    fresh original source/hash checks and normal arrival refresh passed.
+    Swedish protected product-name inflection was refused before writes and
+    corrected through independent review; failed attempt retained. Existence-
+    only _choose_model boundary, not checksum/cross-process safety or coverage
+    of direct object/training constructors; that follow-up is separately held.
+    No whole702/nativecluster/model/fullCI/release acceptance. Evidence:
+    data/702_698_runtime_closure_2026-10-15/receipt.json.

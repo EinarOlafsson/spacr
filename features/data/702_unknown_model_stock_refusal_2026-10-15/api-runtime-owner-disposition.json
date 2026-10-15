@@ -1,0 +1,27 @@
+{
+  "scope": "Exact unchanged normal visibility predicate executed for two functions, actual parent AST proves no nested helpers, committed English symbols absence; no full public_docstrings census or artifact generation claimed",
+  "api_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "source_sha256": "e6915ca7153bd132a591f1455d1bf6202eb1ec115258f66023da42e33c3a33eb",
+  "english_manifest_sha256": "c3a5f4f2c4d755ecc88e24d24394b2584bfec75f6f0894fb79e9a3dc535ca745",
+  "symbols": {
+    "spacr.utils._resolve_cellpose_pretrained": {
+      "normal_visibility_predicate": false,
+      "nested_definitions": [],
+      "committed_english_manifest_contains_key": false,
+      "doc_sha256": "5ad1942ad570fd99cf47f7fd97cf72ffc9afe1d0df87e8e225189b6b7e7c0ad9"
+    },
+    "spacr.utils._choose_model": {
+      "normal_visibility_predicate": false,
+      "nested_definitions": [],
+      "committed_english_manifest_contains_key": false,
+      "doc_sha256": "2eca3aa8602eb8e0c93d99dddf697999a76fbb51dcfafacf9ea6c2fccdd6c069"
+    }
+  },
+  "runtime_owner_required": {
+    "path": "spacr/utils.py",
+    "function": "_resolve_cellpose_pretrained",
+    "literal_tr_calls": 1,
+    "source": "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
+    "note": "Current collector path allowlist excludes utils.py; owner must add only this exact function and preserve other owners."
+  }
+}

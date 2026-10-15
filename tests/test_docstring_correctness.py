@@ -2137,6 +2137,49 @@ def _validated_prior_701_callables(callables):
             if item.symbol in additions else item for item in callables]
 
 
+def _validated_prior_699_callables(callables):
+    """Validate both SSH options before reproducing the historical signature."""
+    profile = next(item for item in callables
+                   if item.symbol == "spacr.remote_execution.ExecutionProfile")
+    tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
+                      / "spacr/remote_execution.py").read_text())
+    declaration = next(node for node in tree.body
+                       if isinstance(node, ast.ClassDef)
+                       and node.name == "ExecutionProfile")
+    fields = {
+        node.target.id: (ast.unparse(node.annotation),
+                         ast.unparse(node.value) if node.value is not None else None)
+        for node in declaration.body
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name)
+    }
+    expected_fields = {
+        **{name: ("str", "''") for name in (
+            "host", "workdir", "local_root", "remote_root", "scheduler_options",
+            "submit_command", "status_command", "cancel_command", "log_command",
+            "job_id_pattern")},
+        "name": ("str", None), "backend": ("str", None),
+        "runner": ("str", "'spacr-run'"), "poll_seconds": ("int", "10"),
+        "ssh_options": ("Dict[str, str]", "field(default_factory=dict)"),
+        "ssh_interactive": ("bool", "False"),
+    }
+    assert fields == expected_fields
+    assert profile.category == "dataclass_constructor"
+    assert profile.exposure == "autoapi"
+    assert profile.parameters == expected_fields.keys()
+    assert profile.required_parameters == {"name", "backend"}
+    assert profile.accepted_documented_parameters == profile.parameters
+    assert _documented_parameter_names(profile.docstring) == profile.parameters
+    assert profile.variant_count == 1
+    assert profile.docless_variant_count == profile.constructor_prose_variant_count == 0
+    assert not profile.accepts_arbitrary_keywords
+    additions = {"ssh_options", "ssh_interactive"}
+    assert not additions & profile.required_parameters
+    prior = replace(profile, parameters=profile.parameters - additions,
+                    accepted_documented_parameters=(
+                        profile.accepted_documented_parameters - additions))
+    return [prior if item.symbol == profile.symbol else item for item in callables]
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2151,7 +2194,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
             _validated_prior_radius_callables(
                 _validated_prior_worker_callables(
                     list(_public_callables()), replay_dialog_signature=True))))
-    callables = _validated_prior_701_callables(callables)
+    callables = _validated_prior_699_callables(
+        _validated_prior_701_callables(callables))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -2559,7 +2603,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
-                     "parascape_launcher_api_arrivals_2026-10-12.json"):
+                     "parascape_launcher_api_arrivals_2026-10-12.json",
+                     "699_ssh_connection_worker_api_arrival_2026-10-14.json",
+                     "reviewed_api_surface_arrivals_2026-10-15.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
@@ -2568,6 +2614,33 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
+    late_sources = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text())
+    late_parameters = {
+        "spacr.install_cleanup.apply_optional_cleanup": (
+            {"choices", "guard", "preview", "system"}, {"choices", "preview"},
+            "function"),
+        "spacr.install_cleanup.preview_optional_cleanup": (
+            {"guard", "operation_id", "system"}, {"operation_id"}, "function"),
+        **{f"spacr.qt.widgets.ai_toggle_label.AiToggleLabel.{name}": (
+            {"event"}, {"event"}, "method") for name in (
+                "focusInEvent", "focusOutEvent", "keyPressEvent", "paintEvent")},
+        "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": (
+            {"state"}, {"state"}, "method"),
+        "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": (
+            set(), set(), "method"),
+    }
+    assert late_parameters.keys() == late_sources.keys() & by_symbol.keys()
+    for symbol, (parameters, required, category) in late_parameters.items():
+        item = by_symbol[symbol]
+        assert item.parameters == item.accepted_documented_parameters == parameters
+        assert item.required_parameters == required
+        assert item.category == category and item.exposure == "autoapi"
+        assert item.variant_count == 1
+        assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == late_sources[symbol]
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -4141,6 +4214,19 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in launcher_additions} == launcher_additions
     assert not launcher_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **launcher_additions}
+    late_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text())
+    assert len(late_additions) == 20
+    assert {key: docs[key] for key in late_additions} == late_additions
+    assert not late_additions.keys() & zoo_additions.keys()
+    ssh_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text())
+    assert len(ssh_additions) == 1
+    assert {key: docs[key] for key in ssh_additions} == ssh_additions
+    assert not ssh_additions.keys() & (zoo_additions.keys() | late_additions.keys())
+    zoo_additions = {**zoo_additions, **late_additions, **ssh_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4525,7 +4611,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
-                     "parascape_launcher_api_arrivals_2026-10-12.json"):
+                     "parascape_launcher_api_arrivals_2026-10-12.json",
+                     "699_ssh_connection_worker_api_arrival_2026-10-14.json",
+                     "reviewed_api_surface_arrivals_2026-10-15.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4569,7 +4657,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
-                     "parascape_launcher_api_arrivals_2026-10-12.json"):
+                     "parascape_launcher_api_arrivals_2026-10-12.json",
+                     "699_ssh_connection_worker_api_arrival_2026-10-14.json",
+                     "reviewed_api_surface_arrivals_2026-10-15.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent

@@ -8,6 +8,19 @@ estimate in HOURS. Reprint the full grouped table only when a whole item closes,
 not on component delivery. Earlier component ledgers are evidence only. Check
 and update HANDOFF and dated item notes for away-at-work messages; continue
 useful owned implementation without questions or waiting for the final release.
+## 2026-10-15 — Maintainer progress-table format supersedes component totals
+
+The maintainer requests ONE row per numbered item (for example N689), with
+remaining-time estimates in hours. Reprint the complete grouped table only
+when every remaining task for a whole item is finished. Component fixes,
+translation batches and test repairs must not be counted as separate finished
+items. Earlier182 component scopes remain evidence, not182 completed features.
+The repo-readable current grouped tracker is
+`features/data/home_grouped_progress_2026-10-15/PROGRESS.txt`
+(with status.json alongside it). Please report changes through this handoff
+and the individual item files; the scratch copy is only a local convenience.
+Continue implementation, targeted checks and immediate nightly publication;
+this changes reporting, not ownership or the release/final-CI sequencing.
 
 ## 2026-10-15 Home-B — live mask configuration and README route; docs-token probe
 

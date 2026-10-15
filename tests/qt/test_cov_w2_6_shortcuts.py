@@ -54,8 +54,18 @@ def test_the_map_is_the_window_wide_keys_plus_the_per_screen_ones():
     assert everything[:len(sc.SHORTCUTS)] == sc.SHORTCUTS
     # 656: a key shared by several screens (Left/Right) is listed once per
     # screen, because each screen now holds its own rebindable copy of it.
-    assert {(spec.keys, spec.label) for spec in sc.SCREEN_SHORTCUTS} <= {
+    annotate_navigation = {
+        "Left": "Move focus left", "Right": "Move focus right",
+        "PageUp": "Previous page", "Alt+Left": "Previous page",
+        "PageDown": "Next page", "Alt+Right": "Next page",
+    }
+    assert {(spec.keys, annotate_navigation.get(spec.keys, spec.label)
+             if spec.category == "Annotate" else spec.label)
+            for spec in sc.SCREEN_SHORTCUTS} <= {
         (spec.keys, spec.label) for spec in everything}
+    assert set(annotate_navigation.items()) <= {
+        (spec.keys, spec.label) for spec in everything
+        if spec.category == "Annotate"}
     for scope in ("Annotate", "Make Masks", "Field browser"):
         assert {"Left", "Right"} <= {
             spec.keys for spec in everything[len(sc.SHORTCUTS):]
