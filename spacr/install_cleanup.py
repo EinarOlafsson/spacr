@@ -4932,8 +4932,10 @@ def _optional_cleanup_tree(descriptor, key):
 def preview_optional_cleanup(operation_id, *, system=None, guard=None):
     """Inspect dedicated caches and offer selection only under a live run guard.
 
-    Only the default spaCR home and recognized cache entries are inspected.
-    External, symlinked, unknown and protected locations remain unavailable.
+    Recognized cache contents are inspected only under the default spaCR home.
+    A bounded relocation manifest may also be read from a configured spaCR home
+    to display retained external paths. External, symlinked, unknown and
+    protected cache contents remain unavailable.
     Inspection is bounded and never follows links. A trusted live application
     guard can enable candidates; a saved selection cannot authorize removal.
     This does not establish that every other application instance is idle.
@@ -4962,6 +4964,12 @@ def preview_optional_cleanup(operation_id, *, system=None, guard=None):
                  "sounds": "SPACR_SOUND_CACHE", "icons": "SPACR_ICON_CACHE"}
 
     def normalized(value, *, expand=True):
+        """Return an absolute display path using the writer's tilde rule.
+
+        :param value: Configured or default path text.
+        :param expand: Whether this writer expands a leading user-home marker.
+        :returns: Absolute path text without inspecting cache contents.
+        """
         if expand and (value == "~" or value.startswith("~/") or value.startswith("~\\")):
             value = machine.home + value[1:]
         elif expand:
@@ -5025,6 +5033,12 @@ def preview_optional_cleanup(operation_id, *, system=None, guard=None):
     cache = normalized(machine.env("XDG_CACHE_HOME").strip() or os.path.join(machine.home, ".cache"), expand=False)
 
     def retained_path(variable, default):
+        """Resolve a retained cache path with external override precedence.
+
+        :param variable: Registered cache environment-variable name.
+        :param default: Fallback when neither environment nor relocation supplies it.
+        :returns: Normalized display path; its protected contents are not scanned.
+        """
         value = machine.env(variable) or locations.get(variable, "")
         return normalized(value.strip() if value else default)
 
