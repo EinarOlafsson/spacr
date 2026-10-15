@@ -1,0 +1,164 @@
+{
+  "status": "READY_FOR_INDEPENDENT_N687_CLOSEOUT_REVIEW_AFTER_COORDINATOR_PUBLICATION",
+  "site_source": "652f833c36b7eef0f503465031038f2a7ab89aec",
+  "public_revision": "fe6f4f46a10f04c3133848874b9d1d87049dc4ac",
+  "item_sources": {
+    "N686": {
+      "path": "features/new/686_a_free_project_website_with_rich_effects.txt",
+      "sha256": "de8584992bb26c82973e5e28650f01d278d13a4188fa7ccc4f6a1ae93eaa7c41",
+      "dated_notes_used": [
+        "2026-10-10 initial build/deployment and later maintainer changes",
+        "2026-10-11 rounds 3–8",
+        "2026-10-12 current project/public naming changes",
+        "2026-10-14 release/startup/reduced-motion repairs and deployment"
+      ]
+    },
+    "N687": {
+      "path": "features/new/687_website_v2_flow_theme_model_showcase_and_release_sync.txt",
+      "sha256": "8ead1d7ee691ce6959e72ccf5b010727c4f57aa6f7cd22e0d7ff972a55f14dd3",
+      "dated_notes_used": [
+        "2026-10-10 initial build/deployment and later maintainer changes",
+        "2026-10-11 rounds 3–8",
+        "2026-10-12 current project/public naming changes",
+        "2026-10-14 release/startup/reduced-motion repairs and deployment"
+      ]
+    }
+  },
+  "unchanged_source_bindings": {
+    "src/assets/js/fx/field.js": {
+      "sha256": "7fd5dc75aad004be1e3a70f1fbc707ba2065bc8018bb8bc856b713715317bf8d",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "data/models.json": {
+      "sha256": "630eb0f5f7bda70df48f7ac61181b6d10a5c130cc55df6941566c27dd84c7b4b",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "data/showcase.json": {
+      "sha256": "4bf9254a8f36540c5f824d8fbc0700fcac588715b2d2d551ab6d64d8e216ed89",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "data/papers.json": {
+      "sha256": "1986d938ad24748e0e5fa3e6b38a8951cf401f3f160695390d617e9c46c5283f",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "tools/models/collect.py": {
+      "sha256": "6732c89be0890e9ba3f4bc1c4734dc7313fb3bc58103722a7292ccc8e21cd5a4",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "tools/releases.mjs": {
+      "sha256": "29f44eb21f587e7c5bdbe53857a3075a1ff75e51f311b41e164d7d8fb69d8008",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "tools/check_release.mjs": {
+      "sha256": "406e15b800fe981f76d0e0d0ae8db0a5603fb26e387115454f1fe99187989dbc",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    ".github/workflows/deploy.yml": {
+      "sha256": "fd95591f6d8edefa32f8a3733d12b605ef9ee2efadd4fc084bc3c047bc1985cb",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "src/assets/fonts/open-sans-300.woff2": {
+      "sha256": "3274190eae9c9164c179bdc72f4885462b309c156a51edf39dda4943e1a3f7a4",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "src/assets/fonts/open-sans-400.woff2": {
+      "sha256": "d01cc2e1ec6c3920bde709238c9943b206c2c897e7abf2413f3159b01fe60e3d",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "src/assets/fonts/open-sans-italic-300.woff2": {
+      "sha256": "095db4e85e913e8e5ebdfdb4567a9fdca20f3722e91ac0bdeb6ebf107a0e91f2",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    },
+    "src/assets/fonts/open-sans-italic-400.woff2": {
+      "sha256": "86bf93592600ae2a349c570202e4e56966900aed708f1f75dbe5d9b0d817cec1",
+      "exact_since_deployed_source": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22"
+    }
+  },
+  "prior_receipt_hashes": {
+    "features/data/687_release_asset_sync_2026-10-14/receipt.json": "cd7178867920adba6b5b5f3ab7cdbcf734fee819d88a1209d19067005bf6f14c",
+    "features/data/687_startup_loading_2026-10-14/receipt.json": "a1f8209815fdd2a221de41126c82c766a35740d942d91f1b5c65e5ffd3344272",
+    "features/data/687_reduced_motion_2026-10-14/receipt.json": "b32d682e479764b73a12bc02fd67a22eee4c80e6561ff566bd50aa090153a73f"
+  },
+  "N687_original_eight_clauses": [
+    {
+      "clause": 1,
+      "requirement": "spaCR flow/advection theme, pointer response, pause/reduced-motion/CSS fallback",
+      "basis": [
+        "N687 2026-10-10 build note and original91 browser checks",
+        "2026-10-14 reduced-motion23 and startup19 checks",
+        "2026-10-15 six production-context Node and four real software-browser checks"
+      ],
+      "current_source": "field.js exact since deployed e33; fx.js only independently reviewed early software fallback change, preserving explicit always and accelerated behavior"
+    },
+    {
+      "clause": 2,
+      "requirement": "self-hosted Open Sans400 headings/300 body and AA contrast in both themes",
+      "basis": [
+        "N687 2026-10-10 computed style/contrast and four-width/two-theme review",
+        "unchanged font assets and global font rules"
+      ],
+      "current_source": "CSS changes since e33 only isolated N698 mask controls; global h1–h4 and body declarations unchanged",
+      "limits": "No new human readability or physical-display claim"
+    },
+    {
+      "clause": 3,
+      "requirement": "real Hoechst/cell-mask cross-channel and plaque examples with labels/model/version/counts/source",
+      "basis": [
+        "2026-10-10 real published-weight CPU model outputs and four cross-channel enumeration",
+        "2026-10-11 plaque-v4 replacement; actual100 vs98 reference, F1.960"
+      ],
+      "current_source": "data/models.json, data/showcase.json and model collector byte-identical since deployed e33; outputs not regenerated or inferred"
+    },
+    {
+      "clause": 4,
+      "requirement": "verified DOI papers and refreshed candidates with curated allowlist",
+      "basis": [
+        "2026-10-10 six full-text verifications, later maintainer removal of cite-only cp_measure",
+        "subsequent published five-paper allowlist"
+      ],
+      "current_source": "data/papers.json byte-identical since deployed e33; no new scientific/citation inference"
+    },
+    {
+      "clause": 5,
+      "requirement": "plain factual site copy",
+      "basis": [
+        "original N687 editorial rewrite and dated accepted followups",
+        "N698504 independently reviewed additions and source peer"
+      ],
+      "limits": "Technical review, not human read-aloud usability certification"
+    },
+    {
+      "clause": 6,
+      "requirement": "four viewport sizes/both themes and mobile performance>=90/accessibility>=95",
+      "basis": [
+        "historical four-size/two-theme layout acceptance retained for unchanged layout",
+        "2026-10-15 current immutable public audit38755788985 all15 cold samples; no best-sample selection"
+      ],
+      "current_evidence": "features/data/687_hosted_mobile_after_fallback_2026-10-15/receipt.json",
+      "scope": "five primary public routes including locked protected-page entrances; historical decrypted functional checks remain historical, not new decrypted performance measurements"
+    },
+    {
+      "clause": 7,
+      "requirement": "automatic release sync by hourly poll, optional dispatch, measured dry-run latency",
+      "basis": [
+        "2026-10-10 real dry-run63s and unchanged hourly:23/daily06:17 workflow",
+        "2026-10-14 real eleven release-asset/source tests and deployed manifest validation",
+        "2026-10-15 successful normal production38755493027"
+      ],
+      "current_source": "deploy.yml/releases.mjs/check_release.mjs exact since e33; no new release or faster-than-cron promise"
+    },
+    {
+      "clause": 8,
+      "requirement": "prominent badge plus plain Website line in ten READMEs, Website metadata and docs landing link",
+      "basis": [
+        "Website badges already first; previously reviewed2026-10-10 exact nine translations reused",
+        "current assigned raw-header source fix plus normal generation/metadata verification"
+      ],
+      "status": "PASS privately: normal ten-language generation, rendered link assertions, exact prior artwork/panel preservation and actual setuptools metadata; coordinator publication pending"
+    }
+  ],
+  "N686_remaining_original_requirement": "60fps on a mid-range physical laptop; no such current acceptance exists. Hosted Lighthouse and software-renderer functional proof do not substitute for it.",
+  "N687_physical_frame_rate_requirement": false,
+  "scope_boundary": "No paid hosting, new release/full CI, protected-page decrypt, model rerun, tutorial modification, human/native-speaker or physical-device acceptance is claimed. Parent independently reviews and owns final item state.",
+  "current_readme_proof": "features/data/687_readme_homepage_2026-10-15/verification.json"
+}
