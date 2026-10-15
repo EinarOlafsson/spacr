@@ -1,0 +1,9 @@
+{
+  "source": "3c078191bd521aca9d0c7498aed94d9c292b9156",
+  "failed_hosted_source": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+  "both_source_files_byte_identical": true,
+  "sha256": {
+    "spacr/qt/widgets/file_list.py": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
+    "tests/test_regression_workbench.py": "c5883914fd3be46e0a45388e93484f257c0c509e6125d3bcae36e9d9190451c7"
+  }
+}

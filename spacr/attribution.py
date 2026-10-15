@@ -2596,6 +2596,74 @@ class _CfResBlock(nn.Module):
         return h + self.skip(x)
 
 
+def _cf_structure_weight(value: float) -> float:
+    """Validate the nonnegative optional layout-objective coefficient.
+
+    :param value: finite coefficient; zero retains the denoising-only path.
+    :returns: the coefficient as a float.
+    :raises ValueError: for a negative, nonnumeric or nonfinite coefficient.
+    """
+    try:
+        weight = float(value)
+    except (TypeError, ValueError, OverflowError):
+        weight = float('nan')
+    if not np.isfinite(weight) or weight < 0:
+        from .qt.i18n import tr
+        raise ValueError(tr("The counterfactual structure weight must be finite and nonnegative."))
+    return weight
+
+
+def _cf_diffusion_strength(value: float) -> float:
+    """Validate a finite fraction of the diffusion inversion schedule.
+
+    :param value: noise-schedule fraction from zero to one, inclusive.
+    :returns: the validated fraction.
+    :raises ValueError: for a nonnumeric, nonfinite or out-of-range fraction.
+    """
+    try:
+        strength = float(value)
+    except (TypeError, ValueError, OverflowError):
+        strength = float('nan')
+    if not np.isfinite(strength) or not 0 <= strength <= 1:
+        from .qt.i18n import tr
+        raise ValueError(tr("The counterfactual diffusion strength must be between zero and one."))
+    return strength
+
+
+def _cf_structure_loss(edited: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
+    """Compare per-channel spatial differences at three spatial scales.
+
+    Uniform channel offsets have zero cost, while displaced edges contribute
+    at full resolution and after twofold and fourfold average pooling. This
+    is a geometric training regularizer, not evidence of biological identity.
+
+    :param edited: finite floating-point NCHW reconstruction.
+    :param reference: matching source tensor, detached from differentiation.
+    :returns: mean squared spatial-difference discrepancy across valid scales.
+    :raises ValueError: for incompatible or nonfinite input tensors.
+    """
+    if (not isinstance(edited, torch.Tensor) or not isinstance(reference, torch.Tensor)
+            or edited.ndim != 4 or edited.shape != reference.shape
+            or min(edited.shape) < 1 or min(edited.shape[-2:]) < 2
+            or not edited.is_floating_point() or not reference.is_floating_point()
+            or edited.device != reference.device or edited.dtype != reference.dtype
+            or not torch.isfinite(edited).all() or not torch.isfinite(reference).all()):
+        from .qt.i18n import tr
+        raise ValueError(tr("Structure preservation requires matching finite floating-point NCHW tensors."))
+    reference = reference.detach()
+    losses = []
+    for scale in (1, 2, 4):
+        if min(edited.shape[-2:]) // scale < 2:
+            continue
+        left = edited if scale == 1 else F.avg_pool2d(edited, scale)
+        right = reference if scale == 1 else F.avg_pool2d(reference, scale)
+        losses.append(F.mse_loss(left[..., 1:, :] - left[..., :-1, :],
+                                 right[..., 1:, :] - right[..., :-1, :]))
+        losses.append(F.mse_loss(left[..., :, 1:] - left[..., :, :-1],
+                                 right[..., :, 1:] - right[..., :, :-1]))
+    return torch.stack(losses).mean()
+
+
 class _CounterfactualDiffusion(nn.Module):
     """A class-conditional denoising diffusion model with the generator's API.
 
@@ -2627,7 +2695,7 @@ class _CounterfactualDiffusion(nn.Module):
     def __init__(self, channels: int, side: int, n_classes: int,
                  width: int = 64, timesteps: int = 1000,
                  strength: float = 0.95, sample_steps: int = 50,
-                 guidance_scale: float = 4.0):
+                 guidance_scale: float = 4.0, structure_weight: float = 0.0):
         """Build the U-Net and the noise schedule.
 
         :param side: crop side the model works at; a multiple of 4.
@@ -2642,14 +2710,17 @@ class _CounterfactualDiffusion(nn.Module):
         :param sample_steps: DDIM steps over the whole schedule; inversion
             and sampling use the share of them below ``strength``.
         :param guidance_scale: classifier-free guidance weight at sampling.
+        :param structure_weight: optional nonnegative training-layout penalty,
+            retained with the configuration; zero is the original objective.
         """
         super().__init__()
+        self.structure_weight = _cf_structure_weight(structure_weight)
         self.side = int(side)
         self.n_classes = int(n_classes)
         self.channels = int(channels)
         self.width = int(width)
         self.timesteps = int(timesteps)
-        self.strength = float(strength)
+        self.strength = _cf_diffusion_strength(strength)
         self.sample_steps = int(sample_steps)
         self.guidance_scale = float(guidance_scale)
         w, emb = self.width, 4 * self.width
@@ -2767,7 +2838,8 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
                                     seed: int = 0, device: Any = 'cpu',
                                     labels: Optional[torch.Tensor] = None,
                                     target_probs: Optional[torch.Tensor] = None,
-                                    augment: bool = True):
+                                    augment: bool = True,
+                                    structure_weight: float = 0.0):
     """Train a class-conditional diffusion generator on crops.
 
     The classifier only LABELS the crops (its predicted class, or the given
@@ -2779,12 +2851,20 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
     crops are randomly flipped and rotated by multiples of 90 degrees, which
     is a symmetry of a centred single-cell crop.
 
+    :param structure_weight: optional nonnegative coefficient for multiscale
+        spatial-difference error between the predicted clean crop and the
+        source. The error is weighted by the step's retained signal fraction
+        to avoid amplification at near-pure-noise steps. It can be combined
+        with a lower inversion ``strength`` but does not establish phenotype
+        success or identity preservation. Zero preserves the original path.
+
     :returns: ``(generator, history)`` as :func:`_train_counterfactual_generator`
         gives them. The last history entry also holds ``reconstruction``:
         the mean squared error of decoding a crop's inversion under its own
         class, on up to 256 training crops, which is how far the round trip
         alone moves a crop.
     """
+    structure_weight = _cf_structure_weight(structure_weight)
     device = torch.device(device)
     torch.manual_seed(int(seed))
     rng = torch.Generator().manual_seed(int(seed))
@@ -2797,7 +2877,8 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
     gen = _CounterfactualDiffusion(crops.shape[1], side, n_codes, width=width,
                                    timesteps=timesteps, strength=strength,
                                    sample_steps=sample_steps,
-                                   guidance_scale=guidance_scale)
+                                   guidance_scale=guidance_scale,
+                                   structure_weight=structure_weight)
     gen.mean.copy_(small_all.mean(dim=(0, 2, 3), keepdim=True))
     gen.std.copy_(small_all.std(dim=(0, 2, 3), keepdim=True).clamp_min(1e-6))
     gen = gen.to(device)
@@ -2808,6 +2889,8 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
         gen.train()
         order = torch.randperm(n, generator=rng)
         total = 0.0
+        total_structure = 0.0
+        total_objective = 0.0
         for start in range(0, n, int(batch_size)):
             idx = order[start:start + int(batch_size)]
             x = ((small_all[idx].to(device) - gen.mean) / gen.std)
@@ -2822,12 +2905,22 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
             noise = torch.randn(x.shape, generator=rng).to(device)
             a = gen.abar[t][:, None, None, None]
             noisy = a.sqrt() * x + (1 - a).sqrt() * noise
-            loss = F.mse_loss(gen(noisy, t, code, drop=drop), noise)
+            prediction = gen(noisy, t, code, drop=drop)
+            denoising = F.mse_loss(prediction, noise)
+            loss = denoising
+            if structure_weight:
+                clean = (noisy - (1 - a).sqrt() * prediction) / a.sqrt()
+                structural = _cf_structure_loss(a.sqrt() * clean, a.sqrt() * x)
+                loss = denoising + structure_weight * structural
+                total_structure += structural.item() * len(idx) / n
             optimiser.zero_grad()
             loss.backward()
             optimiser.step()
-            total += loss.item() * len(idx) / n
+            total += denoising.item() * len(idx) / n
+            total_objective += loss.item() * len(idx) / n
         history.append({'denoising': total})
+        if structure_weight:
+            history[-1].update(structure=total_structure, objective=total_objective)
     gen.eval()
     probe = small_all[:256].to(device)
     with torch.no_grad():
@@ -3471,6 +3564,8 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
     }
     if preserved:
         summary["preserved_channels"] = ";".join(str(value) for value in preserved)
+    if kind == 'diffusion' and generator.structure_weight:
+        summary['structure_weight'] = generator.structure_weight
     if out_dir:
         _write_counterfactual_outputs(out_dir, summary, rows, frames)
         if kind == 'diffusion':
@@ -3483,7 +3578,9 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                                    'timesteps': generator.timesteps,
                                    'strength': generator.strength,
                                    'sample_steps': generator.sample_steps,
-                                   'guidance_scale': generator.guidance_scale},
+                                   'guidance_scale': generator.guidance_scale,
+                                   **({'structure_weight': generator.structure_weight}
+                                      if generator.structure_weight else {})},
                         'levels': list(levels)},
                        os.path.join(out_dir, 'counterfactual_diffusion.pt'))
     return summary, rows, frames

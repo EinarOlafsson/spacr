@@ -192,32 +192,78 @@ def test_a_reason_can_be_looked_up_for_any_decision():
 # that: what a module nobody has looked at reads as, and that it can never
 # be the top one.
 
-def test_no_module_reads_stable_without_somebody_having_said_so():
-    """The bug, stated directly.
 
-    Eight apps — the seven core-pipeline modules and Recruitment — were
-    reading "stable" because ``APP_STAGE.get(key, STAGE_STABLE)`` says so
-    for a key nobody ever wrote down, not because anybody signed them off.
-    After ``apply()`` every app reading stable is one this file names.
-    """
+def _explicitly_declared_stable_builtins():
+    """Read explicit author signoffs from the actual builtin registration source."""
+    import ast
+    from pathlib import Path
+    from spacr.qt import app
+
+    tree = ast.parse(Path(app.__file__).read_text(encoding="utf-8"))
+    loops = [node for node in tree.body if isinstance(node, ast.For)
+             and isinstance(node.target, ast.Name) and node.target.id == "_row"
+             and isinstance(node.iter, ast.Name) and node.iter.id == "_BUILTIN_APPS"]
+    assert len(loops) == 1
+    declared = set()
+    for call in ast.walk(loops[0]):
+        if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Name)
+                and call.func.id == "register_app"):
+            continue
+        assert len(call.args) == 1 and isinstance(call.args[0], ast.Starred)
+        assert isinstance(call.args[0].value, ast.Name) and call.args[0].value.id == "_row"
+        stages = [item.value for item in call.keywords if item.arg == "stage"]
+        if not stages or (isinstance(stages[0], ast.Name) and stages[0].id == "STAGE_ALPHA"):
+            continue
+        assert len(stages) == 1 and isinstance(stages[0], ast.IfExp)
+        value = stages[0]
+        assert isinstance(value.body, ast.Name) and value.body.id == "STAGE_STABLE"
+        assert isinstance(value.orelse, ast.Name) and value.orelse.id == "STAGE_ALPHA"
+        assert isinstance(value.test, ast.Compare) and len(value.test.comparators) == 1
+        key = value.test.comparators[0]
+        assert isinstance(key, ast.Constant) and isinstance(key.value, str)
+        expected = ast.parse(f"_row[0] == {key.value!r}", mode="eval").body
+        assert ast.dump(value.test) == ast.dump(expected)
+        assert key.value in {row[0] for row in app._BUILTIN_APPS}
+        declared.add(key.value)
+    return frozenset(declared)
+
+
+def test_no_module_reads_stable_without_somebody_having_said_so():
+    """Stable requires a recorded assessment or a source-bound author declaration."""
     import spacr.qt
-    from spacr.qt.app import APPS, app_stage
+    from spacr.qt.app import (APPS, APP_STAGE, SECTION_DATA, STAGE_STABLE,
+                              app_stage, register_app, unregister_app)
     spacr.qt.register_self_registering_modules()
-    silent = [key for key, *_rest in APPS
-              if app_stage(key) == "stable"
-              and key not in maturity.assessed_keys()]
-    assert not silent, (
-        f"these modules read as stable and nobody assessed them: {silent}")
+    declared = _explicitly_declared_stable_builtins()
+
+    def unexplained_stable():
+        return [key for key, *_rest in APPS
+                if app_stage(key) == "stable"
+                and key not in maturity.assessed_keys() and key not in declared]
+
+    assert not unexplained_stable(), (
+        f"these modules read as stable without an assessment or declaration: {unexplained_stable()}")
+    probe = "maturity_unknown_stable_probe"
+    assert probe not in {row[0] for row in APPS}
+    register_app(probe, "Unknown Probe", "No stage declaration", SECTION_DATA)
+    try:
+        assert app_stage(probe) == STAGE_STABLE
+        assert unexplained_stable() == [probe]
+        APP_STAGE[probe] = STAGE_STABLE
+        assert unexplained_stable() == [probe]
+    finally:
+        unregister_app(probe)
 
 
 def test_an_unassessed_module_never_reads_stable():
-    """The same rule from the other side, over the live registry."""
+    """Only an explicit author declaration can exempt an unassessed stable app."""
     import spacr.qt
     from spacr.qt.app import app_stage
     spacr.qt.register_self_registering_modules()
+    declared = _explicitly_declared_stable_builtins()
     for key in maturity.unassessed_apps():
-        assert app_stage(key) in ("alpha", "beta"), (
-            f"{key} is unassessed and reads {app_stage(key)!r}")
+        assert app_stage(key) in ("alpha", "beta") or key in declared, (
+            f"{key} is unassessed and reads {app_stage(key)!r} without a declaration")
 
 
 def test_a_module_that_declares_nothing_lands_on_alpha():

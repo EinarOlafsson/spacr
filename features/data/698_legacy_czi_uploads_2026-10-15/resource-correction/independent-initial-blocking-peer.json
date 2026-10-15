@@ -1,0 +1,30 @@
+{
+  "decision": "REQUEST narrow pre-metadata-expansion bounds correction; all other reviewed bounded semantics accepted",
+  "reviewed_source_sha256": {
+    "tools/web_mask_generator/inputs.py": "193fe80827eae31b3c57da1058915f6637cd358c12236489afce7706dbbaa5a3",
+    "tools/web_mask_generator/README.md": "d7dab513ce3d83f3711c7fb71a492fa24c2f9f55d1dda40a48f3a8a302140bd0",
+    "tests/test_web_mask_vendor_uploads_n698.py": "20fa9847603b38cf065a8744df8ead03da64f71ce9341f4c3ddbbf33710a6f90",
+    "tests/test_web_mask_legacy_czi_n698.py": "c500d88659e10d67efcc378a6f19124d47be3c3bde0ee6bbdc40800444dad152"
+  },
+  "reviewed_patch_sha256": "387938ff31c143ae29913474131fe9ddbdd4102d9619f6c7b03493ebe9424f40",
+  "findings": [
+    {
+      "severity": "concrete resource preflight flaw",
+      "symbol": "tools.web_mask_generator.inputs._legacy_czi_entries",
+      "trace": "Subblock loop checks integer/positive coordinate metadata but not containment; then _legacy_czi_series expands range(Sstart,Sstart+Ssize) into scene dictionaries; only subsequently are scene/global bounds checked.",
+      "counterexample": "Global STCZYX0 canvas declares2 scenes; a malformed subblock declares Ssize10**12. Source enters massive range before detecting scenes outside canvas. Existing X-bound negative does not expose ordering.",
+      "required": "Validate every raw subblock axis interval against the declared global canvas before invoking desktop _legacy_czi_series, including S; retain no-decode failclosed behavior and current pixel/provenance semantics. Add finite helper-not-called regression for invalid Sspan (never execute huge expansion).",
+      "scope_limit": "No broader codec/cache/global converter changes proposed; owner makes correction, peer does not edit."
+    }
+  ],
+  "accepted_semantics": [
+    "Global header dtype/axes/start/shape and raw subblock coordinate types validated without silent fractional/bool casts.",
+    "Whole legacy decoded canvas byte-size guard precedes handle.asarray, explicit selected series/T/Z/channels/maxpixels remain before decode.",
+    "Absolute origins including negative spatial offsets retained; scene selection subtracts global origin; only known omitted singleton axis indexed.",
+    "Actual decoded shape/dtype and scene shape checked; no projections/channel blending/rescaling or returned provenance changes.",
+    "Modern scene-aware path retained; strict old-format metadata absence refusal retained."
+  ],
+  "identity_and_receipts": "All4 final source pins match actual owner tree. All25 literal tr source values exactly identical to base; no new/retired runtime sources. legacy-final actual21PASS1.35s; old-harness actual2PASS0.59s. Old reader2019.7.2.2 loaded from isolated official-wheel extraction; receipt binds source and unchanged real fixture, JXRcalls0.",
+  "honest_limits": "Actual older-reader evidence is Python3.12.13/imagecodecs2026.8.16 with explicitly rejecting jxr_decode import alias; raw unmodified import2FAIL retained. Not nativePython3.9/allcodec/platform acceptance. README claims limited scene/subblock metadata and whole-canvas preflight rather than universal support.",
+  "peer_runtime_or_tests": false
+}

@@ -1,0 +1,16 @@
+{
+  "source_commit": "752d4aad7",
+  "tests": "11 passed in 0.89s",
+  "command": "CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python -m pytest -q tests/test_docs_space_tree.py",
+  "scope": "Complete expected local-file paths, sizes and Git/LFS content identities at an immutable Space revision; remote-only .gitattributes exempt; stable disposable local artifact required. Not public host freshness or downloaded remote payload acceptance.",
+  "files": {
+    "test.log": {
+      "sha256": "adfdbcf50164fc8c73f45676041344b26fdd9690d7cc3bea925cc367c3ba25ea",
+      "bytes": 99
+    },
+    "test.time": {
+      "sha256": "26f14f905e4635a907c13238adede062cc69ae89d49c9bfba59492c7f74e1efe",
+      "bytes": 815
+    }
+  }
+}

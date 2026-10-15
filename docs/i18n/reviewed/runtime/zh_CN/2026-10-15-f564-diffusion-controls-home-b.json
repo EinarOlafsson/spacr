@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source": "Counterfactual strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "translation": "反事实强度"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source": "Counterfactual structure weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "translation": "反事实结构权重"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source": "Fraction of the diffusion noise schedule used for inversion, from 0 to 1. Lower values retain more of the source but may change the phenotype less. Zero leaves the crop unchanged. Used only by the diffusion counterfactual generator. Default 0.95.",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "translation": "用于反演的扩散噪声调度比例，范围为 0 到 1。较低的值保留更多源图像内容，但对表型的改变可能较小。零表示保持裁剪图像不变。仅用于扩散反事实生成器。默认值为 0.95。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source": "Nonnegative weight of the diffusion training penalty for changes in spatial gradients at several scales. Uniform channel offsets are not penalized. This encourages layout retention but does not guarantee biological identity or phenotype success. Zero keeps denoising-only training. Used only by the diffusion counterfactual generator. Default 0.",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "translation": "扩散训练中对多个尺度的空间梯度变化施加惩罚的非负权重。通道数值的均匀偏移不受惩罚。这有助于保留空间布局，但不保证生物学身份不变或表型改变成功。零表示保留仅去噪的训练方式。仅用于扩散反事实生成器。默认值为 0。"
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "translation": "反事实结构权重必须为有限的非负数。"
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "translation": "反事实扩散强度必须介于零和一之间。"
+    },
+    {
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "translation": "结构保留要求使用相互匹配、具有有限浮点数值的 NCHW 张量。"
+    }
+  ]
+}
