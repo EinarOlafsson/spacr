@@ -63856,6 +63856,20 @@
       "source_sha256": "0615d08c4ae670b2f273364bb116726caf2607921167711964a18835d3ad87b3",
       "text": "Read the pages on a worker thread.\n\n``emit`` is a bound signal and the only thing here that reaches\nthe GUI: Qt queues it onto the receiving thread, so the progress\nline moves without this function ever touching a widget."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done": {
+      "source_blocks_sha256": [
+        "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b"
+      ],
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "text": "Accept only a completion belonging to this screen's current run."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress": {
+      "source_blocks_sha256": [
+        "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b"
+      ],
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "text": "Relay backend reports without touching widgets on the worker thread."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
       "source_blocks_sha256": [
         "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"

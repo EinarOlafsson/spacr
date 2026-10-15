@@ -101396,6 +101396,26 @@
         "0be5de8c5d7c6e5d352f07b3a727c2f9614e68469165a910905ca1af71550d25"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done": {
+      "source_blocks_sha256": [
+        "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b"
+      ],
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "text": "Samþykkja aðeins verklok sem tilheyra núverandi keyrslu þessa skjás.",
+      "translation_source_blocks_sha256": [
+        "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress": {
+      "source_blocks_sha256": [
+        "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b"
+      ],
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "text": "Áframsenda skýrslur frá bakenda án þess að snerta viðmótshluti á vinnuþræðinum.",
+      "translation_source_blocks_sha256": [
+        "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
       "source_blocks_sha256": [
         "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"
