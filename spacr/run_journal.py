@@ -4263,7 +4263,7 @@ def _read_cache_locations() -> Dict[str, str]:
     """Return ``{environment variable: folder}`` for every relocated cache."""
     try:
         data = json.loads(_cache_locations_path().read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RecursionError):
         return {}
     if not isinstance(data, dict):
         return {}
