@@ -55,3 +55,24 @@ failure. No live cache, user dataset, GPU or physical macOS/Windows test.
 This note records an actual implementation repair; it does not independently
 reclassify the historical translation/native acceptance notes above.
 Evidence: features/data/644_cache_relocation_failure_2026-10-14/receipt.json.
+
+2026-10-14 — active worker runs protect cache files and relocation metadata:
+The GUI's earlier busy check could become stale while a confirmation dialog
+was open: core cache clear still deleted files during an actual worker-thread
+run, and relocation with an absent source wrote new location metadata. Both
+native regressions failed before the repair. Mutation entry points now hold
+the process-wide run-registration lock, refuse active runs through finalization
+with the existing shipped busy caption, and check relocation even when its
+source is absent. No recursive lock acquisition occurs. A new run waits to
+register/enter its pipeline until an already-started cache mutation ends; the
+GUI continues to dispatch that operation to its existing storage worker.
+
+Fifteen new native cases include actual worker body/finalization refusal,
+byte/metadata preservation, success after closing, deterministic registration
+ordering under a non-reentrant lock and all nine actual locale error paths.
+The finite owning storage cohort passed69tests in4.92seconds, exit0; fatal
+Ruff, generated index and diff checks pass. No public signatures, new captions,
+GUI/shared-widget changes or artifact edits. This is in-process journal/run
+protection, not cross-process cache ownership or native macOS/Windows proof.
+No live cache/user data/GPU/fullCI operation.
+Evidence: data/644_active_worker_cache_guard_2026-10-14/receipt.json.

@@ -1,0 +1,46 @@
+{
+  "scope": "N644 active worker-thread runs block cache deletion/relocation through finalization",
+  "base": "d3544c5b436",
+  "baseline": {
+    "failed": 2,
+    "seconds": 2.95,
+    "exit": 1,
+    "observed": [
+      "Cache clear deleted one entry during actual active worker run",
+      "Absent-source relocation wrote cache metadata during active run"
+    ]
+  },
+  "owning": {
+    "passed": 69,
+    "seconds": 4.92,
+    "exit": 0,
+    "new_native_cases": 15,
+    "actual_shipped_locale_paths": 9
+  },
+  "claims": [
+    "Cache mutations refuse active process-wide journal run even from different thread and during finalization",
+    "Absent-source relocation refuses before writing metadata or target directories",
+    "Cache bytes/metadata preserved on refusal; clear/move succeed after run closes",
+    "Registration lock held through mutation so newly starting run waits before entering pipeline",
+    "Non-reentrant lock fixture proves no recursive lock acquisition",
+    "Existing shipped busy caption reused with nine actual localized refusals"
+  ],
+  "checks": [
+    "Fatal Ruff passed",
+    "Generated feature index check passed",
+    "git diff --check passed"
+  ],
+  "limits": [
+    "In-process registered journal runs and native temporary folders only",
+    "GUI already dispatches cache mutation to worker; new run registration may wait until that operation ends",
+    "Other-process cache users and physical macOS/Windows not covered",
+    "No live cache/data/GPU/full CI"
+  ],
+  "sha256": {
+    "spacr/run_journal.py": "1c96357af49419fb92bd772a46304eb8d5c94a6fc7c83b24162c1a9107813ab9",
+    "tests/test_n644_active_run_cache_mutations.py": "da86ccefbc401ad349c14f4a224e369a9727112130e88d5b7505f46e4066d9ed",
+    "/mnt/wd4tb/scratch/n644-active-cache-20261014/baseline.log": "e20b3ce5bcf6ceacd7b1ad202ae144f51e7f70a41d644407925f62f5313b5893",
+    "/mnt/wd4tb/scratch/n644-active-cache-20261014/owning.log": "4fbfa0b2779beb3390cbec19f18285bf032d7b773d7bc1359fac704582b3e94e",
+    "/mnt/wd4tb/scratch/n644-active-cache-20261014/owning.xml": "8132ed3967984fde6961a1121d781a1d755ac3efdf65fba920f571192cf4003b"
+  }
+}
