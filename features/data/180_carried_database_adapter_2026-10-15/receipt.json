@@ -1,0 +1,19 @@
+{
+  "baseline": "Two actual copied/relocated SQLite adapter cases failed against published widget source in 4.07s.",
+  "core_prerequisite": "4ace1c5a86c (published as fd3655e74556d6371cc9d7918602b9f6cabe5e1a)",
+  "source_sha256": "6ae4b89dbfcb8b276e8579fbe0b073dea2ae647283a76619c444b75f6b8df8fa",
+  "validation": "Expanded 13 cases pass in2.98s; combined owning three modules 40 PASS in15.44s, CPU/offscreen, capped2G, one thread.",
+  "scope": [
+    "Explicit aligned saved database associations only; original present database wins.",
+    "Actual SQLite read after bundle relocation and original folder or database deletion.",
+    "Core digest refusal for corrupt/unverified/escaping copies remains authoritative.",
+    "Per-source version snapshots preserve other pending carried rows when one row is removed; stale removal/re-add, replacement, clear, close and addition covered.",
+    "Filesystem probes run on existing presence JobRunner, deterministic blocked-probe thread identity checked.",
+    "No added runtime string, production comment, new module, backend/model operation or validator change."
+  ],
+  "limitations": [
+    "Logical source roots returned by get_value remain original. Database association restoration does not reconstruct the project folder or independently enable a new UMAP pipeline run.",
+    "Normal API lifecycle documentation reviews/generated artifacts remain pending before owner publication.",
+    "No native platform or whole N180 acceptance claim."
+  ]
+}
