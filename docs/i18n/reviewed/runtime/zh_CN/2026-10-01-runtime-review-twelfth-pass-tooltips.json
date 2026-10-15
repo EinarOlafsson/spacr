@@ -2386,13 +2386,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "tables",
-      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
-      "source_sha256": "44096ea3a7b8d7e090e0212cca3a4d967d9e997c3bf214063dc3b195bc410828",
-      "translation": "从每块板的数据库读取并合并为一个分析数据框的测量表。只有 'cell'、'nucleus'、'pathogen'、'cytoplasm' 和 'png_list' 会被合并。任何其他表（包括 'organelle'）会被加载，但会在不警告的情况下从合并结果中略去。默认值 ['cell', 'nucleus', 'pathogen', 'cytoplasm']。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "channel_of_interest",
       "source": "Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combination of measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere.",
       "source_sha256": "3284ef8d112789fb79ee98a8a88a035af49a501f2eb474c87bfab889a11bf6d8",
