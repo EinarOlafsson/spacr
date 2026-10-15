@@ -1,0 +1,4 @@
+{
+  "reason": "A header and its text QLabel share a run name. Select the actionable push-button node rather than unrelated decorative text; all independent role/state/action assertions remain.",
+  "execution": "Corrected while the shared-lock waiter had not created an app process or any owned-pids file. No native attempt or source changed."
+}
