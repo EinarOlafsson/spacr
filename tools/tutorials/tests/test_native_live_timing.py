@@ -117,3 +117,40 @@ def test_changed_native_inputs_and_duration_gaps_fail_closed(frozen_native_stage
         path.write_text(json.dumps(value))
         assert not plan(stage,'05_home')['coverage']['accepted']
     with pytest.raises(ValueError):checked_native_timing(stage,'05_home')
+
+
+def test_complete_capture_clock_does_not_round_container_milliseconds_up_to_a_fake_frame():
+    from native_live_timing import complete_native_duration
+    receipt = {'duration': 13.534, 'encoded_fps': '30/1',
+               'frames': [{'pts': index} for index in range(406)]}
+    assert complete_native_duration(receipt, 30) == 406 / 30
+
+
+@pytest.mark.parametrize('mutation', ['missing', 'gap', 'rate', 'duration'])
+def test_incomplete_or_inconsistent_native_frame_evidence_fails(mutation):
+    from native_live_timing import complete_native_duration
+    receipt = {'duration': 1.0, 'encoded_fps': '30/1',
+               'frames': [{'pts': index} for index in range(30)]}
+    if mutation == 'missing': receipt.pop('frames')
+    elif mutation == 'gap': receipt['frames'][10]['pts'] = 11
+    elif mutation == 'rate': receipt['encoded_fps'] = '60/1'
+    else: receipt['duration'] = 2
+    with pytest.raises(ValueError): complete_native_duration(receipt, 30)
+
+
+
+@pytest.mark.parametrize('fps,encoded_fps,duration,accepted', [
+    (0, '30/1', 1.0, False),
+    (30, 'not-a-rate', 1.0, False),
+    (30, '30/1', 1.0019, True),
+    (30, '30/1', 1.0021, False),
+])
+def test_complete_capture_duration_boundary_is_explicit(fps, encoded_fps, duration, accepted):
+    from native_live_timing import complete_native_duration
+    receipt = {'duration': duration, 'encoded_fps': encoded_fps,
+               'frames': [{'pts': index} for index in range(30)]}
+    if accepted:
+        assert complete_native_duration(receipt, fps) == 1.0
+    else:
+        with pytest.raises(ValueError):
+            complete_native_duration(receipt, fps)

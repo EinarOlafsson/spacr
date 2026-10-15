@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import math
+from fractions import Fraction
 from pathlib import Path
 import sys
 from stage_lesson import read, write
@@ -41,6 +42,20 @@ def longest_scene_timing(lesson, tracks, native_scenes, *, fps=30):
     return {'schema': 1, 'kind': 'native_visual_timing', 'native_live_video': True,
             'lesson': lesson['id'], 'fps': fps, 'total_duration': elapsed,
             'scenes': scenes, 'playback_speed': 1, 'looped_or_stretched': False}
+
+
+def complete_native_duration(receipt, fps):
+    """Use decoded frames, avoiding the container's rounded millisecond duration."""
+    frames = receipt.get('frames')
+    if (fps <= 0 or Fraction(receipt.get('encoded_fps', '0')) != fps
+            or not isinstance(frames, list) or not frames
+            or any(frame.get('pts') != index for index, frame in enumerate(frames))):
+        raise ValueError('Native capture requires contiguous decoded frames at the visual frame rate')
+    duration = len(frames) / fps
+    recorded = float(receipt['duration'])
+    if not math.isfinite(recorded) or abs(recorded - duration) > .002:
+        raise ValueError('Native capture duration differs from its decoded frame clock')
+    return duration
 
 
 def plan(stage, identity):
