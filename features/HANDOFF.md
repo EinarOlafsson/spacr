@@ -1,5 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — published focus and native microscope demo; callback repaired
+
+Nightly beab10b1087 publishes the three custom-control stronger-focus repair
+(68 targeted checks), exact F470/F536 diagnostic extraction (17 checks), and
+F549 finite-coordinate/conflicting-field validation (37 checks). F549 now has
+an actual native C++ MMCore/DemoCamera acceptance replay: two persisted queued
+events, four verified TIFFs, exact final XYZ, skipped missing positions, empty
+second drain and owned-backend cleanup. Evidence is in
+features/data/549_micromanager_demo_2026-10-15/. No physical-device, calibration,
+scientific-event-detection or vendor-workflow acceptance is claimed.
+
+The missing preferences relocation.finished docstring is repaired in3385aea;
+this supersedes the callback blocker below. download_bundled_models now
+correctly describes staged whole-pack publication and retained checksum/cache
+trust limitations. Nine-locale exact API reviews27blocks passed; normal scoped
+API generation is in progress. The two F549 runtime captions passed the normal
+nine-locale writer preserving all10,514 unrelated targets per locale; its
+separate generated receipt/commit follows. Global N700 arrivals/CI/release are
+not certified by either scoped writer.
+
+All115 assigned requirements have source-bound dispositions:32documentation,
+29regression/gates,43otherUI plus N655,10analysis. These are not fresh whole-item
+completion ticks. Current actionable owned work includes bounded N678/N112
+factual prose corrections and their normal derived artifacts. Original Home,
+Claude N700 and Work tutorial ownership remains unchanged; final comment
+stripping, full CI and release stay deferred until other source work settles.
+
+The local watchdog is active and its7transition/cooldown checks pass. It watches
+session activity and can queue a reminder after15minutes; it cannot detect,
+dismiss or bypass the ChatGPT safety banner. Explicitly restricted/unavailable
+items are deferred with automatic_retry=false while independent authorized
+software work continues. It does not retry/rephrase the restricted request.
+
 ## 2026-10-15 Original Home — SSH/model source publication and Masks validation
 
 N702 legacy/offline exact model loading is public in61ea1120036:287 owning
