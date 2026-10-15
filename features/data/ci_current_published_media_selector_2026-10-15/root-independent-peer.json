@@ -1,0 +1,13 @@
+{
+  "source_commit": "ee8930d7500694c75ed3d321249784db61330570",
+  "review": "ACCEPT",
+  "reviewer": "Original Home Root independent source read",
+  "test_sha256": "2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5",
+  "checks": [
+    "exact Work-owned two-selector patch/preimages independently compared",
+    "completed02 immutable b62 checkpoint, no04 candidate substitution",
+    "all98 assertion ASTs and historical/current media/player/receipt bytes retained",
+    "actual2FAIL1.18s to2PASS1.08s zero skips, no media changes"
+  ],
+  "tests_rerun_by_peer": false
+}

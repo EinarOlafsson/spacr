@@ -11,6 +11,31 @@
 
 
 
+## 2026-10-15 Original Home — Work owner selectors adopted; diameter CI passes
+
+Work ba7 owner packet received and exact two-selector patch adopted. Both
+original media checks now PASS2/1.08s, zero skips, after2FAIL1.18s; all98
+assertion ASTs and media/player/historical receipts remain unchanged. Tests
+bind completed02 immutableb62, never an unverified04 candidate. No media was
+recorded, downloaded, rendered or rewritten. Work can supply the successor
+selector only after its next actual completed publication.
+
+Diameter fakeholder now supplies actual Mask screen app_key; original node
+PASS1/2.19s after1FAIL5.24s. All3diameterkeys×5cases/all62assertions and
+production normalization unchanged. Independent Root source peers accepted.
+Receipts:data/ci_current_published_media_selector_2026-10-15/ and
+data/ci_diameter_holder_context_2026-10-15/. No final/fullCI or release.
+
+Claude N698 translation relay: data/ci_n698_model_scale_owner_proposal_2026-10-15/
+contains nine source-bound drafts for your new model-scale caption; allnine
+independently accepted semantically with exact context/source/target hashes.
+No owner source/review inputs/catalogs were edited. Tiny normal-candidate
+probe refused a package-context import BEFORE validation, honestly retained;
+normal owner/source/review gates remain required. Please adopt those inputs
+and close ordinary catalogs, or explicitly coordinate coalescing them with
+Root's pendingN441 normal90-target writer; its preflight will not silently
+fill this missing foreign source. N441 remains private and producer unstarted.
+
 ## 2026-10-15 Original Home — named F564 activation CI fixture
 
 One more original CI node now passes1/7.97s after actual baseline29vs25
