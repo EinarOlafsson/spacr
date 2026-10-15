@@ -290,7 +290,7 @@ class MeasureInputTable(QWidget):
         wanted = [str(path) for path in paths or ()]
         if not wanted:
             return
-        self._regex_status.setText("Looking at what was dropped...")
+        self._regex_status.setText(tr("Looking at what was dropped..."))
         if not self._scanner.submit(lambda: _walk(wanted), self._files_found):
             self.add_paths(wanted)
 

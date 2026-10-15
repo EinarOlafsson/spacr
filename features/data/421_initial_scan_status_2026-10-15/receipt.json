@@ -1,0 +1,17 @@
+{
+  "source_base": "54a57a07ccbdd940ae04015b7ea9e5d1eee67a38",
+  "baseline": "9 FAIL,3 deselected,7.38s; all nine actual widgets retained English",
+  "final": "12 PASS7.05s; nine actual scanner statuses plus three existing measurement/scan callbacks",
+  "production_delta": "Only translation lookup around existing literal; original module AST restored after unwrapping exactly this call",
+  "catalogs": "Existing exact nine targets and source identity already compiled; no generated artifact changed",
+  "raw_evidence_sha256": {
+    "before.log": "b2e2262f8cdcc737465893cec220c557c7261d05b5ec2f98c18de42a9a108903",
+    "before.xml": "a4bb9804252d3e1085fe5ab17e43d90fe9081a5ee18cf13af9abde1585450618",
+    "before.sh": "ff8f64a35d97a153c380b2dee16fd613d6b393f45447af3dfff660ced5e19b84",
+    "before.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "final.log": "b7ab73bb2d827cc21486cfb974a5068f8497c1c8d8c371e2616c6102e78d9477",
+    "final.xml": "f015f27ef4d3172de6aabfe4372e1354feb88e22029c2f722b3ce741557b7672",
+    "final.sh": "05feaaec01941ab78a0cbb6322b6ed452a7a9f4fe98e5952d92a4afaf0a6b6d1",
+    "final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}

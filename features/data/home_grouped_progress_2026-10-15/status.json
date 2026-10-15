@@ -6,6 +6,24 @@
   "historical_scope_ledger": "/mnt/wd4tb/scratch/original-home-today-completion-scopes-20261015.json",
   "rows": [
     {
+      "item": "N421",
+      "title": "capture measurements from hand drawn masks",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: hand-drawn measurement contract, superseding Organize route and final nine-language/runtime/API closure.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; actual12Qt status cases and normal selectedAPI audit"
+    },
+    {
+      "item": "N597",
+      "title": "Home widget width and text sizing",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B",
+      "description": "Complete: corrected handle/text-slider layout, live scaling, refresh persistence and extremes;12 owning checks pass.",
+      "completion_basis": "Owner whole-contract acceptance public9de; root verified five exact source/test pins"
+    },
+    {
       "item": "N691",
       "title": "mitonet tem backend alpha",
       "percent_done": "✅",
@@ -318,15 +336,6 @@
       "time_left_hours": "Unknown",
       "owner": "Home / assigned owner",
       "description": "Actual vendor authentication/browser/account and native Windows installer/login acceptance still require their real platform/user. No more arbitrary transport feature work.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N421",
-      "title": "capture measurements from hand drawn masks",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "Latest item-local remaining obligation is nine-language runtime/API closure delegated to consolidated411; later global-artifact closure is not individually established in this read-only report.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -701,6 +710,8 @@
   ],
   "source_snapshot": "67de758e4590c3d037e9df6fb885c21d5975e3e7",
   "whole_items_closed_today": [
+    "N421",
+    "N597",
     "N691",
     "N511",
     "F556",

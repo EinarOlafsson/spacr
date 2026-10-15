@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-15",
+  "base_public": "67de758e4590c3d037e9df6fb885c21d5975e3e7",
+  "decision": "Exact two remaining copied-English API paragraphs corrected normally; whole N421 original-contract closure remains parent-owned pending separate scanner-status source repair/acceptance.",
+  "normal_producer": {
+    "sv": {
+      "blocks_repaired": 1,
+      "unchanged_blocks": 4,
+      "foreign_symbols_preserved": 13439,
+      "foreign_symbols_sha256": "22474f0a3cdc48799e0e5ca72369dae7daf885385824473df2d4dafa66df28a2",
+      "review_path": "docs/i18n/reviewed/api/sv/2026-10-15-hand-drawn-drop-worker.json",
+      "review_sha256": "d418f8add001311458b1b698bcf52957bd0458a95f2a425f575969c611ee0e02",
+      "source_context_normal_review_gates": true,
+      "generic_source_context_valid": true
+    },
+    "hi": {
+      "blocks_repaired": 1,
+      "unchanged_blocks": 4,
+      "foreign_symbols_preserved": 13439,
+      "foreign_symbols_sha256": "ebf87266ed81d92194c4161506225cab9557be24d57f91b6c4a6a404db1728ca",
+      "review_path": "docs/i18n/reviewed/api/hi/2026-10-15-hand-drawn-drop-worker.json",
+      "review_sha256": "7f72c4417ad15688a596c79538ce463a0e228c158d907e92207eb80c4efa270f",
+      "source_context_normal_review_gates": true,
+      "generic_source_context_valid": true
+    }
+  },
+  "ordinary_selected_API_audit": {
+    "result": 0,
+    "languages": 2,
+    "symbols": 1,
+    "actual_normal_runtime_context_collections": 2,
+    "fresh_original_context_equal": true,
+    "current_source_pins_unchanged": 1373,
+    "scope": "Actual full add_dropped symbol on exact EN/SV/HI catalog-record/header snapshot. SUBSET audit only, no fullAPI/currentwholelocale audit claimed."
+  },
+  "preservation": "Four other target blocks and13,439 foreignsymbolrecords preserved ineach repairedlocale; headers+model provenance+history unchanged. All8otherAPIcatalogfiles byte-identical; no source/runtime/Help change.",
+  "current_api_inventory_before_repair": "47eligible symbols/154blocks perlocale×9 current source+context hashes; only2unreviewedcopiedEnglishblocks found. Fullscopebaseline and35uniquehistoricalowningtests/87PASSline raw proof preserved in parentdirectory.",
+  "independent_review": "Exact root approval message captured author-side with frozen draft/target hashes, clearly not parent-authoredfile/native review. Ordinary source/context/markup/semantic gates plus generic source/contextgates pass both.",
+  "remaining_parent_integration": "Root independently confirmed initial scanner QLabel caption still untranslated; root owns add_dropped single tr wrapper/actual9locale regression. No scanner source/test edits by this lane. That source-only display fix leaves this API docbody/context unchanged; verify exact doc/sourceblockhashes on integration without repeating successful API writer/audit.",
+  "limits": "No models/network/weights/training/GPU/tests/fullAPIcollector; normal runtime context collection only for authentic selected API audit, not claimed runtimewideaudit. No feature/index/tracker edits or public push.",
+  "evidence_hashes": {
+    "normal-producer.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "produce-two.py": "f32e3b755f105c5ada205c28da0f0a17928cde3256751c0bce3a04d2af734383",
+    "normal-selected-actual.log": "90cc5d495f64fa25853f2ede1aac6d8368a9d272fb0642eabdf2ac5994b976f8",
+    "run-producer.sh": "8bf726d64d49003c0d0259216c028bcf38e1a5f23dc1156d008efd2620786fec",
+    "audit-selected-api.py": "df6176aa34a75c63d3371c4e511821a311ee8b798364b9d722a44bd1ed3e3123",
+    "normal-producer-receipt.json": "9a815f24b1dda6bb9037ba6c706074582df185280667b1baf8766bfd359811b6",
+    "root-independent-two-target-peer.json": "6d0fa092ebe49a0f44164247c1bb2f341717d834d93b85835721d112c60ddf9b",
+    "normal-selected-audit-actual.json": "15ee3bd70cb09e1c6e6109d2eb586f6b4b1234301fb106c017a8b2321f733575",
+    "normal-selected-actual.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "normal-producer.log": "d60e90e03828dcc403c00833f0213b2cfc656e5469c9819eb7c54d3b4a9c795d",
+    "run-audit-context.sh": "7cbb2de8215e2314d06a527fc73ca6d0cdf46e489f0519285903a6a260cc3501"
+  }
+}

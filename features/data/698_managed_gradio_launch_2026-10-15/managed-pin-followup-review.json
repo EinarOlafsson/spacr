@@ -1,0 +1,70 @@
+{
+  "source_commit": "637759f08f947dfdeb52f3f48686a16528826965",
+  "checked": "Read-only official HF docs plus preserved primary package metadata and source staging manifest; no tests/imports/install or service mutation.",
+  "official_zerogpu": {
+    "url": "https://huggingface.co/docs/hub/spaces-zerogpu",
+    "python": [
+      "3.12.12",
+      "3.10.13"
+    ],
+    "torch_explicit_supported": [
+      "2.8.0",
+      "2.9.1",
+      "2.10.0",
+      "2.11.0",
+      "2.12.1",
+      "2.13.0"
+    ],
+    "gradio": "4+;Gradio SDK only",
+    "proposed_python": "3.12.12",
+    "proposed_torch": "2.13.0",
+    "proposed_gradio": "6.17.3",
+    "pin_mismatch_found": false
+  },
+  "package_ranges": {
+    "project_hub": "huggingface-hub<1.0,>=0.25",
+    "candidate_gradio_hub": "huggingface-hub>=0.33.5,<2.0",
+    "hub_pin": "0.36.2",
+    "torchvision": "0.28.0 requires torch==2.13.0",
+    "spaces_latest_metadata": "0.51.3 requires Python>=3.10,<3.15 and unversioned gradio; supplied by managed runtime, not pinned in requirements",
+    "pdf": "pypdfium2==5.13.0 already verified Python>=3.6"
+  },
+  "staging_checks": {
+    "required_packaging_and_dynamic_tools_present": [
+      "README.md",
+      "requirements.txt",
+      "README.rst",
+      "LICENSE",
+      "setup.py",
+      "pyproject.toml",
+      "MANIFEST.in",
+      "tools/web_mask_generator/space_app.py",
+      "tools/build_model_cards.py",
+      "tools/build_score_cards.py",
+      "packaging/linux/io.github.olafssonlab.spacr.desktop",
+      "packaging/linux/icons/hicolor/16x16/apps/io.github.olafssonlab.spacr.png",
+      "packaging/linux/icons/hicolor/32x32/apps/io.github.olafssonlab.spacr.png",
+      "packaging/linux/icons/hicolor/48x48/apps/io.github.olafssonlab.spacr.png",
+      "packaging/linux/icons/hicolor/64x64/apps/io.github.olafssonlab.spacr.png",
+      "packaging/linux/icons/hicolor/128x128/apps/io.github.olafssonlab.spacr.png",
+      "packaging/linux/icons/hicolor/256x256/apps/io.github.olafssonlab.spacr.png",
+      "packaging/linux/icons/hicolor/512x512/apps/io.github.olafssonlab.spacr.png"
+    ],
+    "root_config_destination_copies_present": true,
+    "managed_requirements_have_no_gradio_or_spaces_override": true,
+    "checkpoint_provisioner_present": false,
+    "checkpoint_provisioner_status": "Known explicit remaining deployment step; existing app accepts only verified local paths. All17 immutable public metadata identities are separately preserved."
+  },
+  "scope_limits": [
+    "No complete managed-image resolution or import/inference claim",
+    "No fresh environment/server/GPU/weights acquisition",
+    "Hard early spaces-import wrapper change must be integrated and source manifest rebound before actual deployment",
+    "Ultralytics transitive opencv-python requires actual managed image native-library verification; docs enumerate only some defaults, so no absent-libGL claim is made",
+    "Latest Cellpose4.2.1.1 metadata includes imagecodecs, so it is not an omitted direct requirement; latest metadata is not a locked resolver result",
+    "No new incompatible pin or omitted mandatory source file demonstrated by this follow-up"
+  ],
+  "evidence_sha256": {
+    "source_staging_final": "26223cb98ad6fca5e83ebedac18bfcc069d5c4f041a037270685c8108449f77d",
+    "managed_dependency_followup_metadata": "e1a3438ffeddb6779951a68ea66ab57eab5795fac2be40dd08c6325c86d2b2c5"
+  }
+}

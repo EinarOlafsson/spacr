@@ -275,3 +275,18 @@ merge and border/background switches have ordinary controls under
 “Normalization and object filters”. Blank numbers and “Desktop default” keep
 the canonical role settings; explicit controls take precedence over optional
 JSON values. The detector also exposes a strictly integral image-size control.
+
+### Managed ZeroGPU deployment candidate
+
+`space/README.md` and `space/requirements.txt` are the files to stage at the
+root of a **new**, reviewed managed Space bundle; they are not an existing
+service. They pin managed Gradio 6.17.3 / Python 3.12.12 and compatible Hub 0.36.2,
+Torch 2.13.0 / Torchvision 0.28.0 without widening the project's Hub bound. The
+managed SDK supplies Gradio/spaces; do not combine these with the local-development
+`requirements-space.txt` pins. Gradio 6.30 requires Hub >=1.16 whereas spaCR
+requires <1, so that earlier launch preparation does not describe a resolvable
+managed environment. Only the exact 6.17.3 launch omits its unsupported
+`run_history` argument; every other version retains `run_history=False`. All
+other sharing, consent, upload, error and CORS safeguards remain the same.
+Weight provisioning, actual free-hardware selection, hosted execution and
+scientific acceptance remain explicit deployment work.
