@@ -362,6 +362,33 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
     return info.oid
 
 
+def space_refusal_reason(error) -> str | None:
+    """Classify a hosting refusal into a fixed, non-secret reason.
+
+    The server text is only matched, never echoed, so a refusal that quotes a
+    request URL or credential cannot leak it into a CI log.
+    """
+    response = getattr(error, "response", None)
+    headers = getattr(response, "headers", None) or getattr(error, "headers", None) or {}
+    texts = [str(headers.get("X-Error-Message", "") or "")]
+    if response is not None:
+        try:
+            texts.append(str(response.text)[:4096])
+        except Exception:
+            pass
+    elif hasattr(error, "read"):
+        try:
+            texts.append(error.read(4096).decode("utf-8", "replace"))
+        except Exception:
+            pass
+    text = " ".join(texts).lower()
+    if "storage limit" in text:
+        return "storage-limit"
+    if re.search(r"don't have the rights|not authori[sz]ed|permission|invalid (user )?token", text):
+        return "not-authorized"
+    return None
+
+
 def verify_space_access(space: str) -> dict:
     """Prove token write access while retaining every current Space file byte.
 
@@ -627,12 +654,26 @@ def main(argv=None) -> int:
             print(json.dumps(verify_space_access(args.space)))
         except Exception as error:
             response = getattr(error, "response", None)
-            print(json.dumps({"space": args.space, "error": type(error).__name__,
-                              "status": getattr(response, "status_code", getattr(error, "code", None)),
-                              "operation": getattr(error, "spacr_space_access_operation", "validation")}), file=sys.stderr)
+            failure = {"space": args.space, "error": type(error).__name__,
+                       "status": getattr(response, "status_code", getattr(error, "code", None)),
+                       "operation": getattr(error, "spacr_space_access_operation", "validation")}
+            reason = space_refusal_reason(error)
+            if reason:
+                failure["reason"] = reason
+            print(json.dumps(failure), file=sys.stderr)
             return 1
     else:
-        print(upload_nightly(args.site, args.space))
+        try:
+            print(upload_nightly(args.site, args.space))
+        except Exception as error:
+            reason = space_refusal_reason(error)
+            if reason == "storage-limit":
+                print(f"::error::Hugging Face refused {args.space}: its storage limit is "
+                      "reached. See features/new/689_* for the maintainer steps.", file=sys.stderr)
+            elif reason == "not-authorized":
+                print(f"::error::HF_DOCS_TOKEN cannot write {args.space}: give the "
+                      "fine-grained token write access to this Space.", file=sys.stderr)
+            raise
     return 0
 
 
