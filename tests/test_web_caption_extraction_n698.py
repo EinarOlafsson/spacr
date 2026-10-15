@@ -101,6 +101,7 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
+        "psf_pipeline.py",
     ):
         (source_root / filename).write_text("")
     monkeypatch.setattr(builder, "_indirect_runtime_ui_sources", set)

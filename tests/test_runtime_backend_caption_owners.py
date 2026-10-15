@@ -17,6 +17,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
+        "psf_pipeline.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -148,6 +149,12 @@ def test_mil_bag_identity_caption_enters_only_through_its_owner(extract_backend_
         f'def _mil_bags():\n    raise ValueError(tr({caption!r}, well="plate_1_A_1"))\n') == {caption}
 
 
+def test_unmixing_selector_caption_enters_only_through_its_owner(extract_backend_sources):
+    caption = "Spectral unmixing requires distinct nonnegative integer channel indices."
+    assert extract_backend_sources('psf_pipeline.py',
+        f'def _prepare_unmixing():\n    raise ValueError(tr({caption!r}))\n') == {caption}
+
+
 @pytest.mark.parametrize('owner', ['_phases_by_xgboost', '_phases_by_torch'])
 def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, owner):
     caption = "The requested acquisition groups cannot place every class in both training and held-out data."
@@ -160,6 +167,7 @@ def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, own
     ('embeddings.py', '_mil_bags'),
     ('measure.py', '_phases_by_xgboost'),
     ('measure.py', '_phases_by_torch'),
+    ('psf_pipeline.py', '_prepare_unmixing'),
 ])
 def test_new_backend_owners_do_not_admit_unrelated_diagnostics(
         extract_backend_sources, filename, owner):
