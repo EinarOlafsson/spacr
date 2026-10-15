@@ -16,22 +16,25 @@ from packaging.requirements import Requirement
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PIN = '66ac681d3040aab1823aed0bf16b4ed5c89589f7'
+PIN = '85b41cf7084471679f8c1076df8ee4f0b18b09b6'
+SOURCE_SHA256 = 'a2068b97a8973a64fa13febbd81b87e933befb7684779be50d356fe969ce457f'
 
 
-def test_managed_project_requirement_uses_the_immutable_public_source_and_extra():
+def test_managed_project_requirement_uses_the_immutable_archive_and_extra():
     rows = (ROOT / 'tools/web_mask_generator/space/requirements.txt').read_text().splitlines()
     project = Requirement(rows[0])
     assert project.name == 'spacr' and project.extras == {'plaque'}
-    assert project.url == 'git+https://huggingface.co/spaces/einarolafsson/spacr-mask-generator@' + PIN
-    parsed = urlsplit(project.url.removeprefix('git+'))
+    assert project.url == ('https://huggingface.co/spaces/einarolafsson/spacr-mask-generator/resolve/'
+                           + PIN + '/source-artifacts/' + SOURCE_SHA256
+                           + '/spacr-1.5.1.4.tar.gz#sha256=' + SOURCE_SHA256)
+    parsed = urlsplit(project.url)
     assert parsed.scheme == 'https' and parsed.hostname == 'huggingface.co'
     assert parsed.username is None and parsed.password is None
-    assert parsed.query == parsed.fragment == ''
+    assert parsed.query == '' and parsed.fragment == 'sha256=' + SOURCE_SHA256
     assert rows[1:] == ['huggingface-hub==0.36.2', 'torch==2.13.0',
                         'torchvision==0.28.0', 'pypdfium2==5.13.0']
     readme = (ROOT / 'tools/web_mask_generator/space/README.md').read_text()
-    assert PIN in readme and '`git lfs install`' in readme
+    assert PIN in readme and SOURCE_SHA256 in readme
 
 
 def _dependency_wheel(destination):

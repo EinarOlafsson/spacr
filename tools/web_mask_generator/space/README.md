@@ -15,20 +15,28 @@ Linux desktop/icon data inputs. Do not upload development-repository history,
 private data, tutorials or credentials.
 
 The managed build installs requirements before copying the Space source into
-`/app`, so a local `.[plaque]` requirement cannot resolve there. The requirements
-instead use the immutable public source snapshot
-`einarolafsson/spacr-mask-generator@66ac681d3040aab1823aed0bf16b4ed5c89589f7`
-as an ordinary noneditable Git dependency with the `plaque` extra and normal
-dependency resolution. That reviewed snapshot contains the required package
-inputs and excludes the legacy checkpoint; it does not read this managed
-requirements file from its setup/build backend. The small public Space source
-is used instead of the multi-gigabyte development repository. The observed managed
-base image installs Git and Git LFS and runs `git lfs install` before Python
-requirements, so ordinary Git checkout can resolve the snapshot's package data.
-The required finite Git metadata and package assets are fetched during the build;
-checkpoint weights are absent from that snapshot. No runtime pip invocation,
-dependency bypass, visitor URL or credential is involved. A future source or
-dependency change requires a new immutable reviewed source pin.
+`/app`, so a local `.[plaque]` requirement cannot resolve there. Its pip Git
+partial clone also failed against the public Hub. Requirements therefore use the
+ordinary spaCR source distribution at immutable public Space revision
+`85b41cf7084471679f8c1076df8ee4f0b18b09b6`, with independent SHA-256
+`a2068b97a8973a64fa13febbd81b87e933befb7684779be50d356fe969ce457f`.
+The HTTPS URL keeps the `plaque` extra and normal dependency resolution, with no
+Git checkout, runtime pip invocation or dependency bypass. Normal pip validates
+the archive's hash before building it; changed or unavailable bytes refuse.
+
+The source archive was produced by ordinary `setuptools.build_meta.build_sdist`
+from the reviewed minimal public source snapshot `66ac681d3040aab1823aed0bf16b4ed5c89589f7`
+(code `35aeaa9ddc1f09cbd85fe75617a68df81adade0f`). It contains all 664 runtime
+Python files, 969 unchanged original package files and eight normal generated
+metadata files. Existing distribution policy prunes review generators, installer
+copies and other nonpackage inputs; the archive inventory records those choices.
+It contains no repository history or checkpoint weights. Its setup/build backend
+does not read the old managed requirements file included by normal distribution
+policy, so installation does not recurse. Required setup/README/pyproject and Linux
+packaging data are included. The package metadata retains its actual version
+1.5.1.4; the source snapshot is explicit and does not imply a release or hosted
+acceptance. A future source/dependency change requires another reviewed archive,
+immutable uploaded revision and checksum; do not replace the URL with a branch.
 
 The Space's managed SDK supplies Gradio and spaces. Do not also include the
 local-development `requirements-space.txt`, which targets a different SDK.
