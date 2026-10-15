@@ -1,0 +1,856 @@
+[
+  {
+    "line": 57619,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_every_scalar_regionprop_is_offered_and_nothing_else",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3485198Z [gw1] [ 83%] PASSED tests/test_object_filters_are_any_regionprop.py::test_every_scalar_regionprop_is_offered_and_nothing_else"
+  },
+  {
+    "line": 57621,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3517781Z [gw1] [ 83%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area]"
+  },
+  {
+    "line": 57623,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_bbox]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3541931Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_bbox]"
+  },
+  {
+    "line": 57625,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_convex]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3591693Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_convex]"
+  },
+  {
+    "line": 57627,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_filled]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3621249Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_filled]"
+  },
+  {
+    "line": 57629,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_major_length]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3652594Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_major_length]"
+  },
+  {
+    "line": 57631,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_minor_length]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3682580Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_minor_length]"
+  },
+  {
+    "line": 57633,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[eccentricity]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3712411Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[eccentricity]"
+  },
+  {
+    "line": 57635,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[equivalent_diameter_area]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3736133Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[equivalent_diameter_area]"
+  },
+  {
+    "line": 57637,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[euler_number]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3767046Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[euler_number]"
+  },
+  {
+    "line": 57639,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[extent]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3791675Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[extent]"
+  },
+  {
+    "line": 57641,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[feret_diameter_max]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3852105Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[feret_diameter_max]"
+  },
+  {
+    "line": 57643,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[num_pixels]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3878867Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[num_pixels]"
+  },
+  {
+    "line": 57645,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[orientation]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3909380Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[orientation]"
+  },
+  {
+    "line": 57647,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3939063Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter]"
+  },
+  {
+    "line": 57649,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter_crofton]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.3969126Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter_crofton]"
+  },
+  {
+    "line": 57651,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[solidity]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4018617Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[solidity]"
+  },
+  {
+    "line": 57653,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_max]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4044017Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_max]"
+  },
+  {
+    "line": 57655,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_mean]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4068869Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_mean]"
+  },
+  {
+    "line": 57657,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_min]",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4094841Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_min]"
+  },
+  {
+    "line": 57659,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_property_spacr_never_hard_coded_filters_objects",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4126373Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_property_spacr_never_hard_coded_filters_objects"
+  },
+  {
+    "line": 57661,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_intensity_property_without_an_intensity_image_is_refused",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4162508Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_intensity_property_without_an_intensity_image_is_refused"
+  },
+  {
+    "line": 57663,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_removing_a_filter_restores_the_objects_it_hid",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4201733Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_removing_a_filter_restores_the_objects_it_hid"
+  },
+  {
+    "line": 57665,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_old_hard_coded_bounds_migrate_into_the_list",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4239866Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_old_hard_coded_bounds_migrate_into_the_list"
+  },
+  {
+    "line": 57667,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_filter_list_is_checked_when_it_is_read",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4260840Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_filter_list_is_checked_when_it_is_read"
+  },
+  {
+    "line": 57669,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_setting_is_per_object_type",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4281331Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_setting_is_per_object_type"
+  },
+  {
+    "line": 57671,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_regionprops_table_runs_once_per_mask",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4326751Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_regionprops_table_runs_once_per_mask"
+  },
+  {
+    "line": 57673,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_mask_generation_gives_the_labels_make_masks_gives",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4398584Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_mask_generation_gives_the_labels_make_masks_gives"
+  },
+  {
+    "line": 57675,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_retired_bounds_are_no_longer_mask_settings",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4445460Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_retired_bounds_are_no_longer_mask_settings"
+  },
+  {
+    "line": 57677,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_old_settings_file_is_migrated_into_rows_on_load",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4478912Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_old_settings_file_is_migrated_into_rows_on_load"
+  },
+  {
+    "line": 57679,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_mask_defaults_fold_a_script_that_still_passes_the_old_names",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4501042Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_mask_defaults_fold_a_script_that_still_passes_the_old_names"
+  },
+  {
+    "line": 57681,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_row_the_file_already_has_wins_over_a_retired_bound",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4520223Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_row_the_file_already_has_wins_over_a_retired_bound"
+  },
+  {
+    "line": 57683,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_unusable_retired_bound_is_left_for_the_run_to_refuse",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4541115Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_unusable_retired_bound_is_left_for_the_run_to_refuse"
+  },
+  {
+    "line": 57685,
+    "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_migrated_file_filters_exactly_as_the_old_bounds_did",
+    "raw": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:31:26.4574707Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_migrated_file_filters_exactly_as_the_old_bounds_did"
+  },
+  {
+    "line": 82722,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_every_scalar_regionprop_is_offered_and_nothing_else",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:45.9309555Z [gw0] [ 45%] PASSED tests/test_object_filters_are_any_regionprop.py::test_every_scalar_regionprop_is_offered_and_nothing_else"
+  },
+  {
+    "line": 82724,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:45.9397169Z [gw0] [ 45%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area]"
+  },
+  {
+    "line": 82726,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_bbox]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:45.9465892Z [gw0] [ 45%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_bbox]"
+  },
+  {
+    "line": 82728,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_convex]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:45.9564434Z [gw0] [ 45%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_convex]"
+  },
+  {
+    "line": 82730,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_filled]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:45.9639865Z [gw0] [ 45%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_filled]"
+  },
+  {
+    "line": 82732,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_major_length]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:45.9817364Z [gw0] [ 45%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_major_length]"
+  },
+  {
+    "line": 82734,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_minor_length]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:45.9986518Z [gw0] [ 45%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_minor_length]"
+  },
+  {
+    "line": 82736,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[eccentricity]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0155172Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[eccentricity]"
+  },
+  {
+    "line": 82738,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[equivalent_diameter_area]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0224205Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[equivalent_diameter_area]"
+  },
+  {
+    "line": 82740,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[euler_number]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0318095Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[euler_number]"
+  },
+  {
+    "line": 82742,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[extent]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0388780Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[extent]"
+  },
+  {
+    "line": 82744,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[feret_diameter_max]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0526831Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[feret_diameter_max]"
+  },
+  {
+    "line": 82746,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[num_pixels]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0594480Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[num_pixels]"
+  },
+  {
+    "line": 82748,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[orientation]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0761395Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[orientation]"
+  },
+  {
+    "line": 82750,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0846682Z [gw0] [ 46%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter]"
+  },
+  {
+    "line": 82752,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter_crofton]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.0940364Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter_crofton]"
+  },
+  {
+    "line": 82754,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[solidity]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1039437Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[solidity]"
+  },
+  {
+    "line": 82756,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_max]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1112314Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_max]"
+  },
+  {
+    "line": 82758,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_mean]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1182783Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_mean]"
+  },
+  {
+    "line": 82760,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_median]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1255158Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_median]"
+  },
+  {
+    "line": 82762,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_min]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1323330Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_min]"
+  },
+  {
+    "line": 82764,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_std]",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1393368Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_std]"
+  },
+  {
+    "line": 82766,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_property_spacr_never_hard_coded_filters_objects",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1528139Z [gw0] [ 47%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_property_spacr_never_hard_coded_filters_objects"
+  },
+  {
+    "line": 82768,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_intensity_property_without_an_intensity_image_is_refused",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1646067Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_intensity_property_without_an_intensity_image_is_refused"
+  },
+  {
+    "line": 82770,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_removing_a_filter_restores_the_objects_it_hid",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1794159Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_removing_a_filter_restores_the_objects_it_hid"
+  },
+  {
+    "line": 82772,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_old_hard_coded_bounds_migrate_into_the_list",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1893689Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_old_hard_coded_bounds_migrate_into_the_list"
+  },
+  {
+    "line": 82774,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_filter_list_is_checked_when_it_is_read",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.1981650Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_filter_list_is_checked_when_it_is_read"
+  },
+  {
+    "line": 82776,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_setting_is_per_object_type",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.2049414Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_setting_is_per_object_type"
+  },
+  {
+    "line": 82778,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_regionprops_table_runs_once_per_mask",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.2192576Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_regionprops_table_runs_once_per_mask"
+  },
+  {
+    "line": 82780,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_mask_generation_gives_the_labels_make_masks_gives",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.4558277Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_mask_generation_gives_the_labels_make_masks_gives"
+  },
+  {
+    "line": 82782,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_retired_bounds_are_no_longer_mask_settings",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.4725764Z [gw0] [ 48%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_retired_bounds_are_no_longer_mask_settings"
+  },
+  {
+    "line": 82784,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_old_settings_file_is_migrated_into_rows_on_load",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.4818962Z [gw0] [ 49%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_old_settings_file_is_migrated_into_rows_on_load"
+  },
+  {
+    "line": 82786,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_mask_defaults_fold_a_script_that_still_passes_the_old_names",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.4898060Z [gw0] [ 49%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_mask_defaults_fold_a_script_that_still_passes_the_old_names"
+  },
+  {
+    "line": 82788,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_row_the_file_already_has_wins_over_a_retired_bound",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.4963051Z [gw0] [ 49%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_row_the_file_already_has_wins_over_a_retired_bound"
+  },
+  {
+    "line": 82790,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_unusable_retired_bound_is_left_for_the_run_to_refuse",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.5024672Z [gw0] [ 49%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_unusable_retired_bound_is_left_for_the_run_to_refuse"
+  },
+  {
+    "line": 82792,
+    "job": "Coverage shard 11 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_migrated_file_filters_exactly_as_the_old_bounds_did",
+    "raw": "Coverage shard 11 of 12\tUNKNOWN STEP\t2026-10-15T08:13:46.5119313Z [gw0] [ 49%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_migrated_file_filters_exactly_as_the_old_bounds_did"
+  },
+  {
+    "line": 120486,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_without_an_image_only_shape_properties_are_offered",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:11.4756519Z [gw1] [ 78%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_without_an_image_only_shape_properties_are_offered"
+  },
+  {
+    "line": 120490,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_open_field_offers_every_scalar_regionprop",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:12.3856872Z [gw1] [ 80%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_open_field_offers_every_scalar_regionprop"
+  },
+  {
+    "line": 120492,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_add_a_filter_adds_one_row_with_min_max_and_remove",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:13.3046396Z [gw1] [ 80%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_add_a_filter_adds_one_row_with_min_max_and_remove"
+  },
+  {
+    "line": 120494,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_a_never_hard_coded_property_hides_objects_and_remove_restores",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:14.2268948Z [gw1] [ 81%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_a_never_hard_coded_property_hides_objects_and_remove_restores"
+  },
+  {
+    "line": 120496,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_removing_one_of_two_rows_restores_only_what_it_hid",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:15.1749871Z [gw1] [ 81%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_removing_one_of_two_rows_restores_only_what_it_hid"
+  },
+  {
+    "line": 120499,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_edit_made_between_filter_runs_survives_removing_a_row",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:16.1169981Z [gw1] [ 82%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_edit_made_between_filter_runs_survives_removing_a_row"
+  },
+  {
+    "line": 120507,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_editor_and_a_mask_run_agree_on_the_same_list",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:17.8519404Z [gw1] [ 84%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_editor_and_a_mask_run_agree_on_the_same_list"
+  },
+  {
+    "line": 120531,
+    "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_old_four_bounds_open_as_rows",
+    "raw": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)\tUNKNOWN STEP\t2026-10-15T08:26:18.8140105Z [gw1] [ 92%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_old_four_bounds_open_as_rows"
+  },
+  {
+    "line": 145136,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_without_an_image_only_shape_properties_are_offered",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:31.5230052Z [gw0] [ 81%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_without_an_image_only_shape_properties_are_offered"
+  },
+  {
+    "line": 145138,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_open_field_offers_every_scalar_regionprop",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:33.4578580Z [gw0] [ 81%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_open_field_offers_every_scalar_regionprop"
+  },
+  {
+    "line": 145140,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_add_a_filter_adds_one_row_with_min_max_and_remove",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:35.4078478Z [gw0] [ 82%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_add_a_filter_adds_one_row_with_min_max_and_remove"
+  },
+  {
+    "line": 145142,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_a_never_hard_coded_property_hides_objects_and_remove_restores",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:37.3398753Z [gw0] [ 82%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_a_never_hard_coded_property_hides_objects_and_remove_restores"
+  },
+  {
+    "line": 145144,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_removing_one_of_two_rows_restores_only_what_it_hid",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:39.3151466Z [gw0] [ 82%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_removing_one_of_two_rows_restores_only_what_it_hid"
+  },
+  {
+    "line": 145146,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_edit_made_between_filter_runs_survives_removing_a_row",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:41.2688194Z [gw0] [ 82%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_an_edit_made_between_filter_runs_survives_removing_a_row"
+  },
+  {
+    "line": 145148,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_editor_and_a_mask_run_agree_on_the_same_list",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:43.2510320Z [gw0] [ 83%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_editor_and_a_mask_run_agree_on_the_same_list"
+  },
+  {
+    "line": 145150,
+    "job": "Coverage shard 6 of 12",
+    "state": "PASSED",
+    "nodeid": "tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_old_four_bounds_open_as_rows",
+    "raw": "Coverage shard 6 of 12\tUNKNOWN STEP\t2026-10-15T07:54:45.1781472Z [gw0] [ 83%] PASSED tests/qt/test_make_masks_filters_are_any_regionprop.py::test_the_old_four_bounds_open_as_rows"
+  },
+  {
+    "line": 240731,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_every_scalar_regionprop_is_offered_and_nothing_else",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.4979575Z [gw1] [ 83%] PASSED tests/test_object_filters_are_any_regionprop.py::test_every_scalar_regionprop_is_offered_and_nothing_else"
+  },
+  {
+    "line": 240733,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5021328Z [gw1] [ 83%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area]"
+  },
+  {
+    "line": 240735,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_bbox]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5053160Z [gw1] [ 83%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_bbox]"
+  },
+  {
+    "line": 240737,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_convex]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5103171Z [gw1] [ 83%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_convex]"
+  },
+  {
+    "line": 240739,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_filled]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5138750Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[area_filled]"
+  },
+  {
+    "line": 240741,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_major_length]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5187680Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_major_length]"
+  },
+  {
+    "line": 240743,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_minor_length]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5256130Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[axis_minor_length]"
+  },
+  {
+    "line": 240745,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[eccentricity]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5304267Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[eccentricity]"
+  },
+  {
+    "line": 240748,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[equivalent_diameter_area]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5336497Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[equivalent_diameter_area]"
+  },
+  {
+    "line": 240751,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[euler_number]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5377533Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[euler_number]"
+  },
+  {
+    "line": 240753,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[extent]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5406720Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[extent]"
+  },
+  {
+    "line": 240755,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[feret_diameter_max]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5479042Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[feret_diameter_max]"
+  },
+  {
+    "line": 240757,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[num_pixels]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5507760Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[num_pixels]"
+  },
+  {
+    "line": 240759,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[orientation]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5550678Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[orientation]"
+  },
+  {
+    "line": 240761,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5585435Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter]"
+  },
+  {
+    "line": 240763,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter_crofton]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5624904Z [gw1] [ 84%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[perimeter_crofton]"
+  },
+  {
+    "line": 240765,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[solidity]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5673303Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[solidity]"
+  },
+  {
+    "line": 240767,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_max]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5703681Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_max]"
+  },
+  {
+    "line": 240769,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_mean]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5733870Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_mean]"
+  },
+  {
+    "line": 240771,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_median]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5764891Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_median]"
+  },
+  {
+    "line": 240773,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_min]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5795131Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_min]"
+  },
+  {
+    "line": 240775,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_std]",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5827034Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_each_property_judges_objects_as_regionprops_measures_them[intensity_std]"
+  },
+  {
+    "line": 240777,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_property_spacr_never_hard_coded_filters_objects",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5872449Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_property_spacr_never_hard_coded_filters_objects"
+  },
+  {
+    "line": 240779,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_intensity_property_without_an_intensity_image_is_refused",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5915250Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_intensity_property_without_an_intensity_image_is_refused"
+  },
+  {
+    "line": 240781,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_removing_a_filter_restores_the_objects_it_hid",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.5964961Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_removing_a_filter_restores_the_objects_it_hid"
+  },
+  {
+    "line": 240783,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_old_hard_coded_bounds_migrate_into_the_list",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6007489Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_old_hard_coded_bounds_migrate_into_the_list"
+  },
+  {
+    "line": 240785,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_filter_list_is_checked_when_it_is_read",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6034523Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_filter_list_is_checked_when_it_is_read"
+  },
+  {
+    "line": 240787,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_setting_is_per_object_type",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6061066Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_setting_is_per_object_type"
+  },
+  {
+    "line": 240789,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_regionprops_table_runs_once_per_mask",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6111206Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_regionprops_table_runs_once_per_mask"
+  },
+  {
+    "line": 240791,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_mask_generation_gives_the_labels_make_masks_gives",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6187698Z [gw1] [ 85%] PASSED tests/test_object_filters_are_any_regionprop.py::test_mask_generation_gives_the_labels_make_masks_gives"
+  },
+  {
+    "line": 240793,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_retired_bounds_are_no_longer_mask_settings",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6243020Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_retired_bounds_are_no_longer_mask_settings"
+  },
+  {
+    "line": 240795,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_old_settings_file_is_migrated_into_rows_on_load",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6283642Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_old_settings_file_is_migrated_into_rows_on_load"
+  },
+  {
+    "line": 240797,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_the_mask_defaults_fold_a_script_that_still_passes_the_old_names",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6314109Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_the_mask_defaults_fold_a_script_that_still_passes_the_old_names"
+  },
+  {
+    "line": 240799,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_row_the_file_already_has_wins_over_a_retired_bound",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6341865Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_row_the_file_already_has_wins_over_a_retired_bound"
+  },
+  {
+    "line": 240801,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_an_unusable_retired_bound_is_left_for_the_run_to_refuse",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6368752Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_an_unusable_retired_bound_is_left_for_the_run_to_refuse"
+  },
+  {
+    "line": 240803,
+    "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+    "state": "PASSED",
+    "nodeid": "tests/test_object_filters_are_any_regionprop.py::test_a_migrated_file_filters_exactly_as_the_old_bounds_did",
+    "raw": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3\tUNKNOWN STEP\t2026-10-15T08:28:39.6404629Z [gw1] [ 86%] PASSED tests/test_object_filters_are_any_regionprop.py::test_a_migrated_file_filters_exactly_as_the_old_bounds_did"
+  }
+]
