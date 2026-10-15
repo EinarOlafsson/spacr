@@ -508,3 +508,40 @@ already_running captions are reused in all installer languages. Fatal Ruff,
 Bash syntax and diff checks pass. Native Windows/macOS, interrupted-lease GUI
 recovery, global caption arrival/full CI and parentN703 acceptance remain OPEN.
 Evidence: features/data/n703_installer_transaction_lease_2026-10-15/.
+
+
+2026-10-15 00:27 EDT — Lease-aware retirement protects a different active installer
+Closed the cross-root retirement race left explicit by the preceding component.
+Before removing an online installation or uninstalling the package from a
+selected environment, the remover atomically acquires that target's existing
+installer/runtime lease protocol. It does not merely check whether a lease
+exists and then delete. Active/interrupted/unknown leases refuse before removal;
+partial acquisition releases only its own lease. Kept/running copies retain
+their prior behavior. Cleanup checks inode identity, preserves other owners'
+replacement leases and never relabels a core mutation error as a no-change
+refusal. It prunes an empty lease-only root only after the original root policy
+and protected user/shared-folder rules permit it, and never deletes a symlink's
+empty user-directory target. Native Windows behavior remains unverified.
+
+Final frozen source:193 owning checks PASS/actualexit0/118.08s with normal branch
+coverage enabled under2GiB. This includes192 retirement/cleanup/uninstaller
+cases and the separately delivered purge-ordering node. Actual shell processes
+exercise both directions of the installer/remover race. All9 locale refusals
+use actual generated catalogs and exact reviewed targets. The real standalone
+python -I -S helper succeeds without site packages. Three preexisting N703
+contract mismatches were reproduced at predecessor a4bdbf5ec83 and updated to
+assert optional translation fallback, delegated data-preserving Windows removal
+and explicit unsupported-Conda refusal. Core assertions were preserved.
+
+Normal nine-locale runtime generation passed, preserving every unrelated target;
+one exact new refusal caption has9 authored source-bound AI technical reviews.
+The first review schema refusal and corrected-input proof are retained. Existing
+module/public API prose is exactly unchanged; new private helpers are documented.
+Scoped coverage is public wrapper100%, removal core96.39%, lease helper87.67%;
+rare acquisition/release error-cleanup paths remain unexecuted. This is not a
+whole-module/global coverage acceptance claim. No baseline/exclusion was changed.
+Fatal Ruff and diff checks pass. Native OS acceptance, full NSIS wrapper lease
+handoff, interrupted-lease recovery UI, global N700 caption hold, current full
+hosted CI and parentN703 remain OPEN. No live install/account/package operation,
+network, user data or GPU was used. Evidence:
+features/data/n703_retirement_transaction_lease_2026-10-15/.

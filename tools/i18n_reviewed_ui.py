@@ -48,6 +48,16 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    'This installation could not be locked for removal. Nothing was removed.': _row(
+        'Den här installationen kunde inte låsas för borttagning. Ingenting togs bort.',
+        'Diese Installation konnte nicht zum Entfernen gesperrt werden. Es wurde nichts entfernt.',
+        'No se pudo bloquear esta instalación para eliminarla. No se eliminó nada.',
+        '无法锁定此安装以执行卸载。未删除任何内容。',
+        'Não foi possível bloquear esta instalação para a remoção. Nada foi removido.',
+        'इस इंस्टॉलेशन को हटाने के लिए लॉक नहीं किया जा सका। कुछ भी नहीं हटाया गया।',
+        '이 설치를 제거하기 위한 잠금을 확보하지 못했습니다. 아무것도 제거하지 않았습니다.',
+        'Ekki tókst að læsa þessari uppsetningu til fjarlægingar. Ekkert var fjarlægt.',
+        'Impossible de verrouiller cette installation pour la supprimer. Aucun élément n’a été supprimé.'),
     'preserve or restore installer-owned metadata': _row(
         'bevara eller återställ installationsprogrammets egna metadata',
         'installereigene Metadaten beibehalten oder wiederherstellen',

@@ -57,6 +57,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field, replace
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -1381,6 +1382,72 @@ def _reason(exc: BaseException, reason_on_denied: str) -> str:
     return str(getattr(exc, "strerror", "") or exc)
 
 
+class _RemovalLeaseUnavailable(OSError):
+    """Removal was refused before mutation because its transaction leases could not be acquired."""
+
+
+@contextmanager
+def _removal_transaction_lease(record, machine):
+    """Hold the installer and private-runtime leases while removing one online installation or selected environment."""
+    root = os.path.realpath(record.root)
+    if record.kind == "environment":
+        paths = [os.path.join(os.path.dirname(root), "." + os.path.basename(root) + ".spacr-update-lock")]
+    else:
+        paths = [os.path.join(os.path.dirname(root), "." + os.path.basename(root) + ".spacr-installer-lock")]
+        if os.path.isdir(root):
+            paths.append(os.path.join(root, ".venv.spacr-update-lock"))
+    owned = []
+    completed = False
+    result = {"remove_empty_root": False}
+    linked_root = os.path.islink(record.root)
+    root_identity = _identity(root)
+    try:
+        for path in paths:
+            descriptor = None
+            try:
+                if machine.platform == "windows":
+                    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                    identity = os.fstat(descriptor)
+                else:
+                    os.mkdir(path, 0o700)
+                    identity = os.lstat(path)
+            except OSError as error:
+                if descriptor is not None:
+                    os.close(descriptor)
+                raise _RemovalLeaseUnavailable(path) from error
+            owned.append((path, descriptor, identity.st_dev, identity.st_ino))
+        yield result
+        completed = True
+    finally:
+        for path, descriptor, device, inode in reversed(owned):
+            try:
+                current = os.lstat(path)
+                matches = (current.st_dev, current.st_ino) == (device, inode)
+                if descriptor is not None:
+                    os.close(descriptor)
+                    descriptor = None
+                    if matches:
+                        os.unlink(path)
+                elif matches:
+                    os.rmdir(path)
+            except OSError:
+                pass
+            finally:
+                if descriptor is not None:
+                    try:
+                        os.close(descriptor)
+                    except OSError:
+                        pass
+        protected = (any(_norm(root) == _norm(path) for path in _never_delete(machine))
+                     or any(_inside(root, path) for path in _user_data(machine)))
+        if (completed and result["remove_empty_root"] and record.kind == "installer"
+                and not linked_root and not protected and _identity(root) == root_identity):
+            try:
+                os.rmdir(root)
+            except OSError:
+                pass
+
+
 def remove_install(record: InstallRecord, *, ticked: bool = False,
                    keep: Sequence[str] = (), system=None) -> RemovalReport:
     """Remove one installation, without running its own uninstaller.
@@ -1405,6 +1472,27 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
     :param system: the computer; ``None`` means this one.
     :returns: what was removed, what could not be, and why.
     """
+    machine = system or _Machine()
+    online = record.kind == "installer" and record.layout in {
+        "linux-online", "macos-online", "macos-runtime", "windows-online"}
+    selected_environment = record.kind == "environment" and ticked
+    kept = any(_norm(path) == _norm(record.root) for path in keep)
+    if (online or selected_environment) and not record.running and not kept:
+        try:
+            with _removal_transaction_lease(record, machine) as lease:
+                lease["remove_empty_root"] = _refusal(record.root, machine, record) is None
+                return _remove_install_unleased(record, ticked=ticked, keep=keep, system=machine)
+        except _RemovalLeaseUnavailable:
+            report = RemovalReport(record)
+            report.failed.append((record.root, tr(
+                "This installation could not be locked for removal. Nothing was removed.")))
+            return report
+    return _remove_install_unleased(record, ticked=ticked, keep=keep, system=machine)
+
+
+def _remove_install_unleased(record: InstallRecord, *, ticked: bool = False,
+                   keep: Sequence[str] = (), system=None) -> RemovalReport:
+    """Apply the existing removal procedure after the caller has protected any applicable transaction roots."""
     machine = system or _Machine()
     report = RemovalReport(record)
     if record.kind == "checkout":

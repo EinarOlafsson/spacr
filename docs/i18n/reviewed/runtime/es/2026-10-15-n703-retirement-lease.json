@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Codex), exact source; no human/native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "This installation could not be locked for removal. Nothing was removed.",
+      "source": "This installation could not be locked for removal. Nothing was removed.",
+      "source_sha256": "53067672cd60a617a281997d538263f65db69522dcc109500fe8f65a6bf83383",
+      "translation": "No se pudo bloquear esta instalación para eliminarla. No se eliminó nada."
+    }
+  ],
+  "review_basis": "Preserves failure to obtain the removal transaction lock and the explicit guarantee that nothing was removed on this refusal path."
+}
