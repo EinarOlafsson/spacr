@@ -148,6 +148,39 @@ def test_counterfactual_reference_diagnostics_reach_the_runtime_inventory(
     assert extract_backend_sources('attribution.py', source) == selected
 
 
+
+@pytest.mark.parametrize('owner,caption', [
+    ('_cf_structure_weight', 'The counterfactual structure weight must be finite and nonnegative.'),
+    ('_cf_diffusion_strength', 'The counterfactual diffusion strength must be between zero and one.'),
+    ('_cf_structure_loss', 'Structure preservation requires matching finite floating-point NCHW tensors.'),
+])
+def test_diffusion_structure_diagnostics_enter_exact_owners(
+        extract_backend_sources, owner, caption):
+    assert extract_backend_sources('attribution.py',
+        f'def {owner}():\n    raise ValueError(tr({caption!r}))\n') == {caption}
+
+
+@pytest.mark.parametrize('owner', [
+    '_cf_structure_weight', '_cf_diffusion_strength', '_cf_structure_loss',
+])
+def test_diffusion_structure_owner_excludes_unrelated_and_nested_scopes(
+        extract_backend_sources, owner):
+    source = f'''
+tr("An unrelated module diagnostic.")
+def unrelated():
+    def {owner}():
+        return tr("An unrelated nested same-name function.")
+    return tr("An unrelated backend diagnostic.")
+class Unrelated:
+    def {owner}(self):
+        return tr("An unrelated same-name method.")
+def {owner}():
+    """Internal diffusion documentation is not a runtime caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources('attribution.py', source) == set()
+
+
 def test_counterfactual_scope_excludes_unrelated_and_untranslated_diagnostics(
     extract_backend_sources,
 ):
