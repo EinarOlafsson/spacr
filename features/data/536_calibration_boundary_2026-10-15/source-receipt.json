@@ -1,0 +1,34 @@
+{
+  "scope": "Optional wound spatial/time calibration boundary, source prepared privately; extractor/independent runtime peer/ordinary nine-locale generation and actual18callbacks remain pending, no standalone source publication.",
+  "source_sha256": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
+  "test_sha256": "0756d1fdefd60f215f87221b24e803c10effcd35c425674927be9a696f557e8b",
+  "actual_counterexample": "Actual preview40px becomes-20um at pixel size-.5; zero/nonfinite physical values and negative/nonfinite/zero hours accepted with statusok. Positive and None controls normal; synthetic array and private files unchanged.",
+  "baseline": "23FAIL5PASS18locale deselected3.55s, untouched source.",
+  "owning": "30PASS18locale deselected2.00s;28direct/preflight/preview/table/positive+blank cases plus2existing actual preview/settings controls. Two pre-existing morphology deprecation warnings retained.",
+  "normal_API_eligibility": {
+    "normal_callable": "tools.build_documentation_i18n.public_docstrings(), actual unchanged full API canonical inventory",
+    "source_sha256": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
+    "tool_sha256": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+    "english_manifest_sha256": "02297213551624abce3d92fba8f5edcda0809da68b3d61104f4ffab4a830579e",
+    "normal_inventory_symbols": 13484,
+    "separate_symbol_decisions": {
+      "_wound_calibration": {
+        "normal_visibility_predicate": false,
+        "actual_matching_api_symbols": [],
+        "committed_english_manifest_has_symbol": false,
+        "actual_docstring": "Resolve an optional positive finite wound scale before reading images.\n\n:param value: Spatial size or hours per frame; None or an empty string\n    leaves the corresponding measurement uncalibrated.\n:param name: The setting or argument named in an invalid-value diagnostic.\n:returns: A positive finite float, or None for an unspecified scale.\n:raises ValueError: When a supplied scale is nonnumeric, nonfinite or\n    not greater than zero.",
+        "decision": "Actual unchanged normal API collector excludes this ordinary private function; no rendered target or orphan API records/generation. This disposition independently covers the new helper and prose-changed checker."
+      },
+      "_wound_settings_check": {
+        "normal_visibility_predicate": false,
+        "actual_matching_api_symbols": [],
+        "committed_english_manifest_has_symbol": false,
+        "actual_docstring": "Validate the wound-closure settings before a run starts.\n\n:param settings: Measure settings.\n:returns: the resolved source.\n:raises ValueError: for an unknown source, ``masks`` without a cell\n    mask, a negative or non-numeric ``wound_threshold``, or a\n    ``wound_conditions`` entry that is not a well, or an optional\n    spatial/time calibration that is not positive and finite.",
+        "decision": "Actual unchanged normal API collector excludes this ordinary private function; no rendered target or orphan API records/generation. This disposition independently covers the new helper and prose-changed checker."
+      }
+    },
+    "limits": "API eligibility only, no runtime translation/global CI or biological acceptance."
+  },
+  "API_disposition": "Actual unchanged normal public_docstrings inventory13,484 symbols independently excludes BOTH documented newhelper and prose-changed checker. Neither has committed English target, so no orphan API reviews/generator. Historical inventory source/tool/English file hashes recorded exactly; current-source runtime generation remains separate.",
+  "limits": "Input/calibration metadata correctness on declared synthetic masks and existing preview control only; no biological calibration/assay accuracy, native model, GPU, whole F536, global CI or release acceptance."
+}

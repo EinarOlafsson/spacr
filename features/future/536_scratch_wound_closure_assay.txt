@@ -404,3 +404,17 @@ source-current target are preserved. Full writer actually refuses two later
 foreign F549 microscope_positions targets; raw failure and per-locale missing
 lists are retained. This source publication leaves global caption/release
 acceptance open; unchanged121 are not needlessly rerun.
+
+2026-10-15 Original Home — wound calibration source prepared privately
+Optional spatial pixel size and hours per frame now require positive finite
+values before preview/table image I/O; direct wound-series physical scale uses
+the same documented private helper. None/empty retain uncalibrated units and
+valid positive numerical results stay unchanged. The untouched source had
+23 failing boundary cases and five passing valid/blank controls; final owning
+cohort30PASS,18runtime-locale cases deliberately pending. Actual normal API
+inventory13,484 independently excludes both the new helper and prose-changed
+settings checker, so no orphan API target is created. Runtime caption extraction,
+independent nine-locale target peer, ordinary writer/audit/arrival and actual
+locale callbacks remain pending; this is not standalone publication acceptance.
+Evidence: data/536_calibration_boundary_2026-10-15/. Biological calibration,
+whole F536 and final global CI/release limits remain separate.
