@@ -1,0 +1,147 @@
+{
+  "source_base": "6f71275b59848ad457c1ba15e0d61318d29a4275",
+  "source_pins": {
+    "spacr/model_zoo.py": "614c7056fdcbbe2e935592b759a268984da853a225f6a900b42f0ead45ef76f8",
+    "spacr/qt/screens/distributed_jobs.py": "b1363c8a97c6e4fe15e99215f469087ce812ad4fc007d5084f7ace3a4eb76717",
+    "spacr/remote_execution.py": "83df8aba52b036f2edc81f4950a610119fd9a5d569d3485d2c9aaa6f64b342c5"
+  },
+  "executable_AST_unchanged_after_removing_docstrings": true,
+  "three_added_docstrings": [
+    "spacr.model_zoo._bad_model_metadata",
+    "spacr.qt.screens.distributed_jobs._SSHAuthBroker.__init__",
+    "spacr.remote_execution._SSHSessionPool.__init__"
+  ],
+  "normal_public_visibility": "Top-level underscore helper excluded by normal visible-name predicate; both constructors belong to top-level underscore classes excluded by normal class rule.",
+  "normal_nested_inventory": "Actual unchanged normal inventory on exact3file source snapshot contains no target; none has an enclosing function ancestor.",
+  "no_new_API_targets": true,
+  "runtime_captions": "No runtime literals changed; docstrings only.",
+  "published_N699_existing_two_symbol_provenance": [
+    {
+      "locale": "de",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "es",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "fr",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "hi",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "is",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "ko",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "pt",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "sv",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    },
+    {
+      "locale": "zh_CN",
+      "normal_selected_review_and_existing_catalog_source_bindings": "PASS",
+      "reviewed_blocks_per_symbol": {
+        "spacr.remote_execution.ExecutionProfile": {
+          "actual_new_reviewed_blocks": 2,
+          "total_current_blocks": 19
+        },
+        "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+          "actual_new_reviewed_blocks": 1,
+          "total_current_blocks": 1
+        }
+      }
+    }
+  ],
+  "no_generator_or_full_collector_or_runtime_test_in_this_check": true
+}

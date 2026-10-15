@@ -503,6 +503,10 @@
 
    <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/fr/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/fr/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/fr/generated-model-zoo-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/generated-model-zoo-3.desktop.svg"><img src="../../readme_images/fr/generated-model-zoo-3.svg" alt="Générateur de masques"></picture></a></div>
+
 .. spacr-model-zoo-end
 
 .. raw:: html

@@ -149,3 +149,11 @@ docstrings; the longer N678 prose review stays separate. Eighteen reviewed
 inputs cover the two new page captions across nine locales. Root's batched
 normal runtime writer is pending; no native-platform acceptance is claimed.
 Proof: features/data/197_annotation_shortcut_captions_2026-10-15/receipt.json.
+
+2026-10-15 — Current shortcut contract acceptance reconciled.
+Two original CI failures now pass against published Annotate page/focus labels
+and the current declared-window-wide-keys paragraph. Exact six Annotate
+navigation key/label pairs, global ordering, per-screen Left/Right coverage and
+keyboard-versus-mapping semantic controls remain checked. No production
+shortcut, prose or generated artifact changed. Evidence:
+data/ci_shortcut_current_contracts_2026-10-15/ (2FAIL44.40s to2PASS36.35s).

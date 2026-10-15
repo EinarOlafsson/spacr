@@ -86,6 +86,7 @@ class _SSHAuthBroker(QObject):
     requested = Signal(object)
 
     def __init__(self, app):
+        """Hold pending SSH challenges and connect GUI delivery and shutdown."""
         super().__init__(app)
         self._notices = []
         self._workers = []

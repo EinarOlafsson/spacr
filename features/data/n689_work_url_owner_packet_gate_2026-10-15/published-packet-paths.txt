@@ -1,0 +1,9 @@
+features/data/689_free_static_candidate_2026-10-15/artifact.json
+features/data/689_free_static_candidate_2026-10-15/assembly.json
+features/data/689_free_static_candidate_2026-10-15/creation.json
+features/data/689_free_static_candidate_2026-10-15/limits.json
+features/data/689_free_static_candidate_2026-10-15/site-publication-receipt.json
+features/data/689_free_static_candidate_2026-10-15/site-receipt.json
+features/data/689_free_static_candidate_2026-10-15/space-revision.txt
+features/data/689_free_static_candidate_2026-10-15/tree-verification.json
+features/data/689_free_static_candidate_2026-10-15/verified-source.txt

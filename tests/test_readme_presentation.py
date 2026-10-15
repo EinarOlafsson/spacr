@@ -722,6 +722,43 @@ def test_the_readme_lists_the_default_model_of_each_family():
         os.environ.pop(CATALOGUE_ENV_VAR, None)
 
 
+def test_model_zoo_links_to_the_matching_site_mask_generator():
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    labels = {
+        "en": "Mask generator", "sv": "Maskgenerator",
+        "de": "Maskengenerator", "es": "Generador de máscaras",
+        "fr": "Générateur de masques", "pt": "Gerador de máscaras",
+        "is": "Grímugerð", "zh_CN": "掩膜生成器",
+        "ko": "마스크 생성기", "hi": "मास्क जनरेटर",
+    }
+    for language, label in labels.items():
+        route = "" if language == "en" else language.replace("_", "-") + "/"
+        target = (
+            "https://einarolafsson.github.io/projects/spacr/"
+            f"{route}#mask-generator"
+        )
+        prefix = "docs/models/" if language == "en" else "../../models/"
+        source = generator._readme_model_zoo_block(prefix, language)
+        assert source.rstrip().endswith(f"`{label} <{target}>`__"), language
+        pages = {}
+        markup = generator.build_readme_images.convert_generated(
+            source, language, "model-zoo", render=False, pages=pages)
+        linked_pages = [name for name, text in pages.items()
+                        if f"[{label}](<{target}>)" in text]
+        assert linked_pages == ["generated-model-zoo-3"], language
+        page_prefix = "docs/readme_text/" if language == "en" else "../../readme_text/"
+        assert markup.count(
+            f'href="{page_prefix}{language}/{linked_pages[0]}.md"') == 1, language
+        assert f'alt="{label}"' in markup, language
+        for entry in generator._published_models():
+            key = generator.build_model_cards.key_of(entry)
+            card = generator.build_model_cards.card_file(key)
+            assert f'href="{prefix}{card}"' in markup, (language, key)
+
+
 def test_every_readme_carries_the_same_model_zoo_block():
     import importlib.util
 

@@ -2969,9 +2969,9 @@ def test_window_wide_shortcut_keys_keep_keyboard_sense():
 
     source = builder.public_docstrings()["spacr.qt.shortcuts"]
     blocks, _layout = builder.translatable_blocks(source)
-    shortcut = next(block for block in blocks if block.startswith("Every window-wide key"))
+    shortcut = next(block for block in blocks if block.startswith("Declared window-wide key sequences"))
     context = builder._api_translation_source(shortcut)
-    assert "Every window-wide key can be rebound." in context
+    assert "Declared window-wide key sequences can be rebound." in context
     assert "a key typed there" in context
     assert "structured-data name" not in context
     assert _syntax_preserved(shortcut, context)
