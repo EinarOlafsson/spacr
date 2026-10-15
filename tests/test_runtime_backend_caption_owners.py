@@ -66,6 +66,44 @@ def _ensure_catalogue_model_file(entry, *, download=True):
     assert sources == set()
 
 
+@pytest.mark.parametrize("owner,captions", [
+    ("_curated_scorecard_rows", {
+        "F1 @ IoU 0.5", "Boundary F1 (2 px)", "Precision", "Recall", "AJI", "Dice",
+    }),
+    ("_curated_scorecard_lines", {
+        "Evaluation: {dataset}; {fields} fields, {objects} objects; "
+        "boundary tolerance {pixels} px; stock {stock}.",
+        "{metric}: {value:.4f}",
+        "{metric}: {value:.4f} (stock {stock:.4f}, difference {delta:+.4f})",
+    }),
+])
+def test_curated_scorecard_captions_enter_only_through_declared_owners(
+        extract_backend_sources, owner, captions):
+    """Keep prose and formats, while the existing identifier gate preserves AJI."""
+    source = f"def {owner}():\n" + "".join(
+        f"    tr({caption!r})\n" for caption in sorted(captions))
+    assert extract_backend_sources("model_zoo.py", source) == captions - {"AJI"}
+
+
+@pytest.mark.parametrize("owner", ["_curated_scorecard_rows", "_curated_scorecard_lines"])
+def test_curated_scorecard_scope_excludes_unrelated_and_nested_owner_names(
+        extract_backend_sources, owner):
+    source = f'''
+tr("Unrelated model metadata.")
+def unrelated():
+    def {owner}():
+        return tr("A nested same-name function must remain outside this scope.")
+    return tr("An unrelated backend diagnostic.")
+class Unrelated:
+    def {owner}(self):
+        return tr("An unrelated same-name method.")
+def {owner}():
+    """A scorecard helper docstring is not a runtime caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources("model_zoo.py", source) == set()
+
+
 def test_install_cleanup_cli_literals_enter_runtime_sources(
     extract_backend_sources,
 ):
