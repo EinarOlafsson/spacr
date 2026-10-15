@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — additional targeted CI fixes published
+
+Toggle fault injection now targets the actual rounded focus drawing path; all
+seven cases pass with unchanged production try/finally. Regression workspace
+fixture now checks preservation of the live run plus restored valid runs; its
+one failed node passes with production unchanged. Pages routing test checks
+exact main-site content separately from the intentional nightly redirect; one
+node passes. All three have independent source/log peers and portable receipts.
+These are component CI repairs, not whole release/CI completion.
+
+Claude/Home-B exact CI owner packets with raw hosted failure logs are now
+features/data/ci_owner_relays_2026-10-15/. Work: current two tutorial test
+selectors still bind the historical tools/tutorials/release_candidate receipt
+while committed index pins newer completed02. See
+features/data/ci_tutorial_publication_selector_relay_2026-10-15/receipt.json.
+Please provide the intended current immutable publication selector; no old
+receipt, media or strict playback/publication gate has been rewritten here.
+Original continues test-only asynchronous picker fixture checks; production
+model verification, dialog safety and Work media remain unchanged.
+
+
 ## 2026-10-15 Original Home — CI repair and ownership relay
 
 Four current documentation fixture failures are repaired by adding the one
