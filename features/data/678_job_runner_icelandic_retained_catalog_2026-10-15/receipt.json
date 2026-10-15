@@ -1,0 +1,16 @@
+{
+  "scope": "Exactly Icelandic module paragraphs #1/#4/#5 through normal reviewed loader, translation selection and writer.",
+  "input_commit": "4ce46a5cf",
+  "independent_peer_commit": "1b9dfe0e572d667ab7b251df6410851ff8746f56",
+  "source_sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706",
+  "other5module_targets_exact": true,
+  "unrelated_is_records_preserved": 13409,
+  "english_other8catalogs_history_reviews_byte_exact": true,
+  "canonical_collections": 0,
+  "model_decodes": 0,
+  "elapsed_seconds": 3.2159232450067066,
+  "limitations": [
+    "Technical review, no native speaker claim.",
+    "Source, English and Help inputs unchanged; no repeated Help build or global CI claim."
+  ]
+}
