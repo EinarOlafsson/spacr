@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — further targeted CI repair publication
+
+Archive cancellation now tests the actual worker with offline streamed chunks:
+a real partial file exists before cancellation, and after run returns no
+archive, staging or partial remains; unrelated bytes are retained. The obsolete
+literal-source assertion is removed;1PASS and independent peer. Two preview
+model fixtures use the current dialog seam;2PASS and independent peer.
+Channel-role refusal test retains all role/duplicate assertions and checks the
+current full translated diagnostic;1PASS and independent peer.
+
+Docstring audit now models real private dataclass constructor fields instead of
+misreporting ModelEntry._curated_card as a ghost. Existing synthetic test proves
+the actual stdlib signature accepts private init fields and refuses init=False;
+2PASS. All ratchet counts, digests, historical debt and namedtuple defaults are
+unchanged; independent source/evidence peer accepted. Backdrop failure/recovery
+fixture explicitly selects its intended optional-install branch;1PASS with
+original assertions, real shared backdrop and production source unchanged.
+
+No full CI/release or whole-item completion claim; no global runtime/API writer.
+All receipts and failed first attempts are preserved in features/data/ci_* .
+
+
 ## 2026-10-15 Original Home — sorting, picker fixtures and normal notebook repair
 
 Installer cleanup tree now uses the existing shared sorting/cell factories;
