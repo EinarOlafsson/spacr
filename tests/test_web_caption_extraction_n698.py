@@ -123,3 +123,9 @@ def test_no_web_source_directory_is_safe_for_small_source_fixtures(web_sources):
     builder, _write, root = web_sources
     (root / "tools" / "web_mask_generator").rmdir()
     assert builder._web_mask_generator_ui_sources() == set()
+
+
+def test_web_sources_use_existing_canonical_whitespace_normalization(web_sources):
+    builder, write, _root = web_sources
+    write("results.py", 'tr("Result package: {name}\\n", name=name)')
+    assert builder._web_mask_generator_ui_sources() == {"Result package: {name}"}
