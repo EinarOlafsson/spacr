@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "source_commit": "27fc0217977bc8a57da8a523e3aae7d272a0c112",
+  "origin_nightly": "d3812e82ddec327abbd8ad1364476d1c9c57a8c2",
+  "scope": "Normal API generation for3 reviewed blocks in2 symbols across9locales, preserving all unrelated locale records. Normal full English-source manifest refresh retains required source history.",
+  "normal_functions": [
+    "public_docstrings",
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "decoding": "Any unexpected model decode raises immediately; none was needed. No guard/validator patched.",
+  "source_docs_sha256": {
+    "spacr.model_zoo.download_bundled_models": "ce4bf62fa42aaf4eaa1bdb8eca89a0abb4823633c1b62f4bdb2ea16296676f37",
+    "spacr.qt.preferences._StoragePage.relocate.finished": "669fadd144339fe5af2da4fe8046188c8998d2589b7591522647ff2661d5e0cf"
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "672a7266ec43f0421cd641ff105b08177645d7aad6ca6d4c1ca7f86c4416a4bf",
+      "unrelated_after_sha256": "672a7266ec43f0421cd641ff105b08177645d7aad6ca6d4c1ca7f86c4416a4bf",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "76e1e4f237c42edb8115b45a952ea9872387618d60998581307c717914106d22"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "73e4addadec1267bf7e8c598426d310ab133aedb4629300355dd328528927b12",
+      "unrelated_after_sha256": "73e4addadec1267bf7e8c598426d310ab133aedb4629300355dd328528927b12",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "19a6bb367d89d8d9a377fe02dfb07de3712d86d5979ee1eb4efdb52b48b6efe5"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "3a2c3b0100f5ef77e0bd8b3ebaed73d8d853a8cf544568929d4ba4d79f3a7d15",
+      "unrelated_after_sha256": "3a2c3b0100f5ef77e0bd8b3ebaed73d8d853a8cf544568929d4ba4d79f3a7d15",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "752680719aaaf03fe10c456559920374492c82ab35b763926d0304ff9c7decf6"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "71346b6fabbeef51a386dd96b56f832b115e93706dc3b33c50268e3066d68ffb",
+      "unrelated_after_sha256": "71346b6fabbeef51a386dd96b56f832b115e93706dc3b33c50268e3066d68ffb",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "53e4ad69f0aa8ebb50c3dc0a916549eda11fe17745d176841464a88c6ef53c4d"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "2eadfa343f62b2fb71bccd3cd38728942fcd906bab6f396a391209d9ca4361bc",
+      "unrelated_after_sha256": "2eadfa343f62b2fb71bccd3cd38728942fcd906bab6f396a391209d9ca4361bc",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "8414fef8a25634ddece4bba8d6da134d602ee58abb5b82c9e01b44c24c466ddf"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "6dbf395d142da73048f0ff422a713eee8c1e29eca4ab0eec2964377ddd2b30ed",
+      "unrelated_after_sha256": "6dbf395d142da73048f0ff422a713eee8c1e29eca4ab0eec2964377ddd2b30ed",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "9011e69abd7a875b9e160b304eacd30199c673e0f57b770302f80490816c1750"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "badf62033075a2901f0c2dd192769af88c31fe60d4d9796223bd2c7022d2d05b",
+      "unrelated_after_sha256": "badf62033075a2901f0c2dd192769af88c31fe60d4d9796223bd2c7022d2d05b",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "45283f467e0001b750f67aa3ff38cfe6bd680687c123db8d4dac87c9cccf04e1"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "6d882cd84b7afff51c140fd0937a7f7b9b1c4ded014d4dc2303551df2e221bf1",
+      "unrelated_after_sha256": "6d882cd84b7afff51c140fd0937a7f7b9b1c4ded014d4dc2303551df2e221bf1",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "6cf257e44258a4d319ba991e774915f4d423b9b564b2b1c6ac97f5b87422e3a4"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.model_zoo.download_bundled_models",
+        "spacr.qt.preferences._StoragePage.relocate.finished"
+      ],
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "62c873e407e1fe0ccf57a2591381692b7afd25fe5bee082b9845f5935fde6fde",
+      "unrelated_after_sha256": "62c873e407e1fe0ccf57a2591381692b7afd25fe5bee082b9845f5935fde6fde",
+      "unchanged_pack_paragraphs_preserved": 5,
+      "three_reviewed_blocks_exact": true,
+      "catalog_sha256": "51baf8db43713333fcdd0d1a45e5326cbef27d156c9a6000099c903391028e39"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.model_zoo.download_bundled_models",
+    "spacr.qt.preferences._StoragePage.relocate.finished"
+  ],
+  "english_symbol_count": 13478,
+  "history_records_before": 14,
+  "history_records_after": 13,
+  "limitations": [
+    "AI technical review with parent peer review; no native-speaker claim.",
+    "No runtime catalog, global caption arrival, Sphinx build or external publication performed."
+  ]
+}

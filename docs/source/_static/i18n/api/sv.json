@@ -51112,17 +51112,17 @@
       "source_blocks_sha256": [
         "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
         "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
-        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+        "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
         "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
         "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
         "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
       ],
-      "source_sha256": "9f02bf48144c1d1c1ca3fd9c6705d7bac19afef67d3c89f754b8ee431a02da92",
-      "text": "Dra medföljande Hugging Face-modell pack via den befintliga downloader.\n\nTunna, avsiktliga omslag över :func:`spacr.utils.download_models` – nedladdningsvägen spaCR redan fartyg och den :func:`spacr.submodules.analyze_plaques` beror på. Det är *inte* som återinförs här, så det finns en kodsökväg som fyller ``resources/models`` och en plats att fixa när repoflödet flyttas.\n\nDet är också den overifierade sökvägen: den funktionen har ingen checksumma, skriver direkt till destinationens filnamn och hoppar över hela dragningen när katalogen inte är tom. Föredrar en katalogpost med en hash och :func:`install`; den här funktionen låter djurparken erbjuda det äldre paketet också.\n\n``spacr.utils`` importerar torch, så det importeras här och inte på modulnivå. Inget annat i den här modulen sträcker sig efter den.\n\n:param kwargs: vidarebefordrad till :func:`spacr.utils.download_models`.\n:returns: den lokala katalogen som förpackningen landade i.",
+      "source_sha256": "ce4bf62fa42aaf4eaa1bdb8eca89a0abb4823633c1b62f4bdb2ea16296676f37",
+      "text": "Dra medföljande Hugging Face-modell pack via den befintliga downloader.\n\nTunna, avsiktliga omslag över :func:`spacr.utils.download_models` – nedladdningsvägen spaCR redan fartyg och den :func:`spacr.submodules.analyze_plaques` beror på. Det är *inte* som återinförs här, så det finns en kodsökväg som fyller ``resources/models`` och en plats att fixa när repoflödet flyttas.\n\nNedladdaren förbereder hela paketet i en tillfällig syskonkatalog och byter atomärt namn på den färdiga katalogen till målplatsen när alla nedladdningar har lyckats. Den verifierar inga publicerade kontrollsummor och litar på en befintlig cache som inte är tom utan att kontrollera dess fullständighet eller ursprung. Använd helst en katalogpost med ett hashvärde och :func:`install` när verifiering med kontrollsumma krävs.\n\n``spacr.utils`` importerar torch, så det importeras här och inte på modulnivå. Inget annat i den här modulen sträcker sig efter den.\n\n:param kwargs: vidarebefordrad till :func:`spacr.utils.download_models`.\n:returns: den lokala katalogen som förpackningen landade i.",
       "translation_source_blocks_sha256": [
         "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
         "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
-        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+        "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
         "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
         "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
         "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
@@ -89578,6 +89578,18 @@
       "text": "Ett textfält med sitt verktygstips och sin platshållare.",
       "translation_source_blocks_sha256": [
         "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2"
+      ]
+    },
+    "spacr.qt.preferences._StoragePage.relocate.finished": {
+      "source_blocks_sha256": [
+        "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+        "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2"
+      ],
+      "source_sha256": "669fadd144339fe5af2da4fe8046188c8998d2589b7591522647ff2661d5e0cf",
+      "text": "Peka om en matchande sparad modellcache och rapportera sedan flytten.\n\n:param result: Arbetarens par ``(moved, detail)``. Om åtgärden lyckas är ``detail`` målsökvägen; annars beskriver det felet. Ett saknat resultat behandlas som en misslyckad flytt.",
+      "translation_source_blocks_sha256": [
+        "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+        "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2"
       ]
     },
     "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
