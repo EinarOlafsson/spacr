@@ -333,3 +333,13 @@ existing growing-sample preservation path. Parent DB/crop bytes remain exact.
 Receipt: features/data/470_sample_provenance_2026-10-15/. No live curation was
 run. Historical pixels judged by legacy annotations remain unproven; this
 preparatory sample hash is not retrospective proof or F470 acceptance.
+
+2026-10-15 — Annotation-reader integrity implementation prepared (partial):
+The existing private reader now opens input tables read-only without migration,
+checks any supplied sample-creation SHA-256/size before returning training
+inputs, coalesces repeated exact crop identities and refuses conflicting
+labels/acquisition groups. Legacy rows with no stored fingerprint retain their
+old unverified behavior; no labels are transferred and no annotation-time proof
+is asserted. Two diagnostics have eighteen source-bound AI technical review
+inputs. Finite before/after owning regressions, owner-scoped extraction and
+normal runtime generation are pending; this note claims no acceptance yet.
