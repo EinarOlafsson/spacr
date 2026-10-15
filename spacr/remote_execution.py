@@ -931,6 +931,7 @@ class _SSHSessionPool:
     """Keep verified SSH transports for this application session only."""
 
     def __init__(self):
+        """Initialize the prompt hook, verified-session cache and reentrant lock."""
         self.prompt = None
         self._sessions = {}
         self._lock = threading.RLock()

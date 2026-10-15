@@ -1,0 +1,15 @@
+{
+  "base": "6f71275b59848ad457c1ba15e0d61318d29a4275",
+  "all_prior_assertion_ASTs_retained_exactly": true,
+  "historical_counts_and_signature_digest_unchanged": true,
+  "only_existing_test_functions_changed": [
+    "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+    "test_callable_boundary_is_cross_checked_with_i18n_extractor"
+  ],
+  "new_test_helper": "_validated_prior_699_callables",
+  "new_helper_purpose": "Require actual16-field typed/default/source/documented constructor contract then project only two named optional SSH fields for historical equality.",
+  "baseline_test_sha256": "9ad75ea5dedf15e8f78fba0cc9ce479ba7f6039d5c6f505c6faf0ec3b6062953",
+  "final_test_sha256": "a46334c871b58355ac5498870c0d9b82fc56649e21ad09ceb43bc6a70a33ef77",
+  "three_private_source_changes": "Only one accurate docstring per granted function; executable AST equal.",
+  "no_tool_config_generated_or_ceiling_changes": true
+}
