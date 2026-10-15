@@ -356,3 +356,16 @@ cohort passed19tests in6.46seconds, exit0. Constructors are intercepted;
 spatial input is a native private Xenium fixture. Legacy unpinned acquisition
 behavior is unchanged; no real model/network/GPU/fullCI. Parent702 partial.
 Evidence: data/702_other_registered_pinned_consumers_2026-10-14/receipt.json.
+
+2026-10-14 — native journal acceptance for the CLI pin verification component:
+Two actual CLI runs (cached and newly acquired native fixture bytes) now
+exercise the real open_run and journal file writers. Written settings.json
+and parsed settings.csv retain the exact original laptop request, version
+'001' and pin. Actual manifest model_files carries the effective absolute
+checkpoint path, full SHA256 and byte count; the historic short model label
+stays intact. The input payload remains unchanged. This closes the earlier
+journal-spy-only evidence gap without a new application implementation.
+The finite native CLI/resolver/journal cohort passed34tests in3.74seconds,
+exit0. Pipeline is a native stand-in; no scientific models/network/GPU/fullCI.
+Parent702 remains partial.
+Evidence: data/702_native_cli_model_provenance_2026-10-14/receipt.json.

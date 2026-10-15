@@ -1,0 +1,27 @@
+{
+  "scope": "N702 native CLI journal closure for existing runtime verification component",
+  "implementation": "57a9e87911d",
+  "owning": {
+    "passed": 34,
+    "seconds": 3.74,
+    "exit": 0,
+    "native_cli_journal_cases": 2
+  },
+  "claims": [
+    "Actual CLI pipeline/open_run/journal writers execute for cached and newly acquired native fixture bytes",
+    "Both settings.json and parsed settings.csv retain exact original laptop request and opaque pin",
+    "Actual manifest model_files records effective absolute checkpoint path/fullSHA256/size",
+    "Journal historic short model_hash label preserved; original input payload unchanged"
+  ],
+  "limits": [
+    "Verification-only delivery, not a separately implemented feature",
+    "Pipeline callable is native stand-in; no scientific model inference/GPU/network/full CI"
+  ],
+  "sha256": {
+    "spacr/cli.py": "821bb2d6364cd94cebcee542b06e04ab186fc2fb7e8c2adc6f543feaea485368",
+    "spacr/run_journal.py": "8c5cbc4bd6c442abca3f93049fe26ef3d3e7ff1fe21a5af821a9df561e0b6702",
+    "tests/test_n702_native_cli_model_provenance.py": "9afe70d78b5f4fe262029057b86d6683db65cd1d80df890916cff796e0f104e1",
+    "/mnt/wd4tb/scratch/n702-native-provenance-20261014/owning.log": "dfdd4e955112a12bb5558ec783ba98fe7754e6a9eac3ef74f4d9aaa175319fb9",
+    "/mnt/wd4tb/scratch/n702-native-provenance-20261014/owning.xml": "2ccc2e7fe52b7bf40323b2999567256a4fb2e13c6a37198068f9373a23d6b1de"
+  }
+}
