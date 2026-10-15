@@ -129151,23 +129151,23 @@
     "spacr.qt.widgets.column_aligned_row.align_row_to_columns": {
       "source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ],
-      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
-      "text": "Re-lay ``strip`` los widgets de fuera sobre las secciones de ``header``.\n\nIdempotente: una tira que ya está siguiendo esta cabecera se devuelve sin cambios, por lo que una presentación repetida no cuesta nada y no puede apilar dos diseños.\n\n:param strip: el widget que sostiene los botones. Su diseño existente se vacía y se destruye -- los widgets sobreviven, se vuelve a reproducir en ``strip``.\n:param header: el ``QHeaderView`` cuyas columnas son seguidas.\n:param columns: ``(widget, column index or None)`` en el orden en que los no alineados deben seguir.\n:param on_invalidate: pasado al diseño; llamado cuando cambia el tamaño de la pista de un widget administrado, para que el propietario del encabezado pueda ajustar la columna a un título que ha sido traducido desde entonces.\n:returns: el diseño instalado, o ``None`` cuando no había nada que hacer.",
+      "source_sha256": "0722ce2688299ab6c18c7c0d9d5cc4bd500decc63cf288e05cfcbb007aa0af94",
+      "text": "Re-lay ``strip`` los widgets de fuera sobre las secciones de ``header``.\n\nSi la banda ya tiene un ``ColumnAlignedRow``, se devuelve sin cambios. Su cabecera, las asignaciones entre widgets y columnas y la función de retorno de invalidación no se comparan con los nuevos argumentos ni se sustituyen por ellos.\n\n:param strip: el widget que sostiene los botones. Su diseño existente se vacía y se destruye -- los widgets sobreviven, se vuelve a reproducir en ``strip``.\n:param header: el ``QHeaderView`` cuyas columnas son seguidas.\n:param columns: ``(widget, column index or None)`` en el orden en que los no alineados deben seguir.\n:param on_invalidate: pasado al diseño; llamado cuando cambia el tamaño de la pista de un widget administrado, para que el propietario del encabezado pueda ajustar la columna a un título que ha sido traducido desde entonces.\n:returns: el diseño existente o recién instalado, incluido un diseño vacío cuando ``columns`` está vacío. Devuelve ``None`` si falta la banda o la cabecera, o si su objeto Qt se ha eliminado.",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ]
     },
     "spacr.qt.widgets.column_picker": {
@@ -178222,16 +178222,16 @@
     },
     "spacr.qt.widgets.volume_view.angles_from_axes": {
       "source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ],
-      "source_sha256": "ac06b42f4c9804397a8f2e18f0b0e6fc091789b769026df49a8a3c9c5db055b6",
-      "text": "Los ``(elev, azim, roll)`` que hacen que matplotlib dibuje este sistema de referencia.\n\n``elev`` se mantiene dentro de ``[-90, 90]`` para que la vertical nunca se voltee; el alabeo recoge entonces cualquier giro alrededor de la línea de visión que tenga el sistema de referencia. Mirando justo hacia abajo (o hacia arriba) el azimut es libre, así que se elige para que el alabeo sea cero.\n\n:param u: el eje de la pantalla que apunta a la derecha.\n:param w: el eje que apunta hacia fuera de la pantalla.",
+      "source_sha256": "5f1609b1291db5475f47f6c54cf52403943a7e25e88338ae2e0a126a5b855f58",
+      "text": "Devuelve ``(elev, azim, roll)`` en grados para los ejes de pantalla proporcionados.\n\n``elev`` se mantiene dentro de ``[-90, 90]`` para que la vertical nunca se invierta; el ángulo de giro sobre la línea de visión representa entonces la rotación del marco alrededor de esa línea. Cerca de cualquiera de los polos, donde ``abs(w[2]) > 1.0 - 1e-9`` tras la normalización, la elevación devuelta es de ``89.9999`` o ``-89.9999`` grados. El acimut se elige a partir de ``u`` y el giro sobre la línea de visión es cero. Esta rama aproxima deliberadamente el marco proporcionado en lugar de devolver un polo exacto.\n\n:param u: el eje de la pantalla que apunta a la derecha.\n:param w: el eje que apunta hacia fuera de la pantalla.",
       "translation_source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ]
