@@ -156,3 +156,21 @@ acceptance skips where unavailable, without a network fallback. Installed reader
 cannot read the other cached ND2 version's spatial metadata; that version remains
 explicitly unsupported. No new module under spacr/, UI route, inference or GPU
 claim. N698 still partial. Receipt: features/data/698_vendor_inputs_2026-10-14/.
+
+2026-10-14 — Original Home: plaque reader/inference/download path wired.
+tools/web_mask_generator/plaque.py now verifies an operator-provisioned trusted
+checkpoint SHA before delegating to the existing desktop model loader and
+spacr.plaque.segment_plaque_image. The actual desktop eval result supplies masks,
+raw vector fields and cell-score logits to the result ZIP in one inference call;
+RGB flow visualizations are not mislabeled as vectors and missing arrays are
+not fabricated. Explicit resolved diameter/thresholds and upload selection are
+recorded. No network weight resolution, alternative model/default selection or
+segmentation/postprocessing implementation was introduced. Future hosting must
+restrict model paths to the operator's registry and keep limits server-owned.
+Owning closure: 17 adapter contracts +83 package/decoder regressions PASS,
+actual exit0,10.49s; adapter58/58statements28/28branch arcs covered. Constructor/eval
+are injected CPU fakes; real existing desktop segmentation helper executes.
+This does NOT prove actual checkpoint availability, scientific accuracy, hosted
+GPU behavior, N696 default resolution or desktop/WebGPU parity. No actualmodel
+inference, HomeGPU or deployment was performed. ParentN698 remains partial.
+Source-bound receipt: features/data/698_plaque_adapter_2026-10-14/.

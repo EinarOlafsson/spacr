@@ -63,3 +63,26 @@ without declared X/Y dimensions is refused, and legacy czifile APIs without
 scene metadata are refused rather than guessing scene identity. CPU acceptance
 uses repository CZI fixtures and an already-cached public OME ND2 fixture;
 CI skips the latter if unavailable, and never downloads it implicitly.
+
+`plaque.run_plaque_download` wires the readers and packager to the actual
+existing desktop plaque loader and `spacr.plaque.segment_plaque_image`.
+An operator must provide a trusted local checkpoint, its expected SHA-256,
+model identity/version, and already-resolved effective `diameter`,
+`flow_threshold` and `CP_prob`. Weight bytes are verified before loading; no
+weight download or alternate default selection is implemented. `diameter=None`
+explicitly selects native scale; the caller must resolve the N696
+magnification/Auto choice before invoking this adapter.
+
+The existing desktop path performs inference once; the adapter captures its
+actual raw vector field and cell-score logits from that same return value for
+the ZIP. It does not substitute the RGB flow visualization for vectors, create
+missing outputs, or alter labels. Input-selection/effective-setting provenance
+is included. A future HTTP/Gradio layer must select trusted operator-controlled
+checkpoints and enforce server limits itself; do not accept visitor filesystem
+paths or forward arbitrary request dictionaries as loader/limit settings.
+
+CPU adapter tests inject model construction/evaluation and exercise the real
+desktop segmentation helper and ZIP path. They prove call/format/integration
+contracts only. Actual trusted checkpoint availability, hosted GPU behavior,
+scientific segmentation accuracy and desktop/browser IoU parity remain
+unverified and required for N698 acceptance.
