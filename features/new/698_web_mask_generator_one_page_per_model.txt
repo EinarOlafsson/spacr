@@ -380,3 +380,20 @@ new functions11PASS (70 unrelated deselected),4.85/3.92s,exit1/0. No model
 substitution, scientific or hosted-service acceptance is implied. Receipt:
 data/698_preview_example_edges_2026-10-15/. Source integration still excludes
 the private nine-file N696 backend prerequisite; public N696 is authoritative.
+
+2026-10-15 — Original Home: reviewed all-eight-family source integrated against
+actual public N696 desktop backend (3335cf1), without the private nine-file
+backend dependency. Six segmentation families, plaque and well detection now
+have trusted service dispatch, dedicated Gradio callbacks and operator CLI.
+Shared desktop normalization, native/explicit/Auto diameter, role settings and
+filters remain canonical. Approved immutable HF example records are supported;
+none are fabricated or silently downloaded. Preview boxes clip/floor/ceil before
+indexing; NUL example filenames refuse before URL/network.
+Actual combined six-module CPU compatibility:162PASS44.83s, exit0; source hashes
+unchanged. Model construction/predictions injected, not eight-family scientific
+acceptance. Separate published native well-v2 receipt proves only that explicit
+installed checkpoint's synthetic grey/RGB CPU parity. Remaining171 tool tr()
+sources require scoped extractor/nine-locale closure (owner requested); actual
+free hosting, browser WebGPU/site integration, all approved checkpoints and
+biological parity remain open. No shared website/translation-tool edits.
+Evidence:data/698_public_backend_integration_2026-10-15/. Parent698 stays partial.
