@@ -1,0 +1,397 @@
+{
+  "source": "686793f8642cbff9f9f6d3a25770864139e9089e",
+  "method": "Read-only public unauthenticated Hub JSON metadata; no file/weight download, import, GPU or inference. LFS comparison only, no independent byte verification.",
+  "models": [
+    {
+      "key": "toxoplasma_pv_v1",
+      "default": false,
+      "sha256": "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+      "filename": "cpsam_v2_toxo_r2",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam",
+      "revision": "3cee4f5a0b59c79d9b4e23f00cb4565e9c8126b3",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "mit",
+      "file_metadata": {
+        "size": 1218643463,
+        "lfs": {
+          "sha256": "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+          "size": 1218643463,
+          "pointerSize": 135
+        },
+        "blobId": "18add258d8587b78ec12ff144f1d4ea859c26a70"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_plaque_v1",
+      "default": false,
+      "sha256": "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+      "filename": "cpsam_plaque_r3",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam",
+      "revision": "dee8a33b6de8f7df05a3095def77aa2435575816",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "mit",
+      "file_metadata": {
+        "size": 1218643107,
+        "lfs": {
+          "sha256": "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+          "size": 1218643107,
+          "pointerSize": 135
+        },
+        "blobId": "f6274d1359f37d8fe7b18e1b0279b843df78e15d"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_plaque_v2",
+      "default": false,
+      "sha256": "0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600",
+      "filename": "weights/cpsam_plaque_r5",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
+      "revision": "3dd09e1a1128c89157eefe112ee7887736298ec4",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 1218643107,
+        "lfs": {
+          "sha256": "0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600",
+          "size": 1218643107,
+          "pointerSize": 135
+        },
+        "blobId": "ff6160931b877410cf0f38793dd5bb67dcd160a1"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_well_detector_v1",
+      "default": false,
+      "sha256": "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+      "filename": "yolo_welldetect_v3.pt",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11",
+      "revision": "cf5b56ddfb558426f3d59815289d9ba1a7c9dac1",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "mit",
+      "file_metadata": {
+        "size": 5474458,
+        "lfs": {
+          "sha256": "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+          "size": 5474458,
+          "pointerSize": 132
+        },
+        "blobId": "0d60d3a41d9b97783900b1b61b5f2685541499d4"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_well_detector_v2",
+      "default": false,
+      "sha256": "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7",
+      "filename": "weights/best.pt",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo26",
+      "revision": "c15a1f03207adcbd3e32c64f21175781170fa4fa",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 5382085,
+        "lfs": {
+          "sha256": "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7",
+          "size": 5382085,
+          "pointerSize": 132
+        },
+        "blobId": "cb3e5810252fe603d88b45d93ebd5d1ce80ce330"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_from_cellmask_v1",
+      "default": true,
+      "sha256": "481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab",
+      "filename": "toxoplasma_from_cellmask_pv",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-from-cellmask-cpsam",
+      "revision": "4169ff46e3b31d9743920c492e33d8c1685f02a4",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "mit",
+      "file_metadata": {
+        "size": 1218647443,
+        "lfs": {
+          "sha256": "481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab",
+          "size": 1218647443,
+          "pointerSize": 135
+        },
+        "blobId": "42c4db5eb746f6b05d87b7c84e57fa4cd230ebd1"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_pv_v2",
+      "default": false,
+      "sha256": "17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f",
+      "filename": "cpsam_v2_toxo_r5",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r5",
+      "revision": "2cefad046d5f4c4d915a164e8c29dbf9ace3346a",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "mit",
+      "file_metadata": {
+        "size": 1218643463,
+        "lfs": {
+          "sha256": "17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f",
+          "size": 1218643463,
+          "pointerSize": 135
+        },
+        "blobId": "63ff3b5e8ddccbf915c431bfead01d8c81a3a914"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_pv_v3",
+      "default": false,
+      "sha256": "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
+      "filename": "weights/cpsam_v2_toxo_r6",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r6",
+      "revision": "f51fc8cdf7c857b88e166163e5317bb470a524be",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 1218643463,
+        "lfs": {
+          "sha256": "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
+          "size": 1218643463,
+          "pointerSize": 135
+        },
+        "blobId": "a41dd901f9a5c2f816c28daa84a7074fc058dbcb"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_pv_v4",
+      "default": true,
+      "sha256": "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+      "filename": "weights/cpsam_v2_toxo_r7",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r7",
+      "revision": "01b1083f61b1a004c6d9ef4975777580f9379007",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 1218643463,
+        "lfs": {
+          "sha256": "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+          "size": 1218643463,
+          "pointerSize": 135
+        },
+        "blobId": "1602e1cded7ab102d339ad09cdcbc2ef0550d67d"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_pv_v5",
+      "default": false,
+      "sha256": "a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c",
+      "filename": "weights/cpsam_v2_toxo_r8",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r8",
+      "revision": "7d7cebb1487a26a085246a3e838d748c627b1f9b",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 1218639811,
+        "lfs": {
+          "sha256": "a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c",
+          "size": 1218639811,
+          "pointerSize": 135
+        },
+        "blobId": "6aad4903f7e9f6fd2e6134eb0dc22355644b62ed"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "live_cell_v1",
+      "default": true,
+      "sha256": "7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090",
+      "filename": "weights/live_cell_v1",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/live-cell-segmentation-cpsam",
+      "revision": "9b8b759eaf01318c61eeec77bb85455feff9de1b",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-nc-4.0",
+      "file_metadata": {
+        "size": 1218642395,
+        "lfs": {
+          "sha256": "7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090",
+          "size": 1218642395,
+          "pointerSize": 135
+        },
+        "blobId": "05b0343ead48d1c98025d142604978dc5ed5e317"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "nuclei_from_cellmask_v1",
+      "default": true,
+      "sha256": "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+      "filename": "weights/nuclei_from_cellmask_best",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/cross-channel-nuclei-from-cellmask-cpsam",
+      "revision": "04d1784878261494a5a43e2cc4851d985b49024b",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "mit",
+      "file_metadata": {
+        "size": 1218648931,
+        "lfs": {
+          "sha256": "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+          "size": 1218648931,
+          "pointerSize": 135
+        },
+        "blobId": "1e07c22d5de50b3dd45428498172ebe917b4991f"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "cell_from_hoechst_v1",
+      "default": true,
+      "sha256": "d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb",
+      "filename": "weights/cell_from_hoechst_best",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/cross-channel-cell-from-hoechst-cpsam",
+      "revision": "397320ba0471ae9752ee3b36acc79788fbc0ad79",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 1218647799,
+        "lfs": {
+          "sha256": "d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb",
+          "size": 1218647799,
+          "pointerSize": 135
+        },
+        "blobId": "5b2d8c8ed78ca3b4c9c0ad3bcb5dddf73350e480"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_from_hoechst_v1",
+      "default": true,
+      "sha256": "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+      "filename": "toxoplasma_from_hoechst_pv",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-from-hoechst-cpsam",
+      "revision": "ce4177fa614ce5ab761fe4ffb0f928e158581304",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "mit",
+      "file_metadata": {
+        "size": 1218651067,
+        "lfs": {
+          "sha256": "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+          "size": 1218651067,
+          "pointerSize": 135
+        },
+        "blobId": "c748a6bce99cd11ae0541b514e03f3d48f237ed0"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_plaque_v3",
+      "default": false,
+      "sha256": "8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c",
+      "filename": "weights/cpsam_plaque_r5_geldoc",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc",
+      "revision": "6b8c40324fc3b5ac89e779e90096214fd14f72a3",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 1218645663,
+        "lfs": {
+          "sha256": "8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c",
+          "size": 1218645663,
+          "pointerSize": 135
+        },
+        "blobId": "e77dca0da27986d3ddd3ce9481520edfce7b40eb"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_plaque_v4",
+      "default": true,
+      "sha256": "744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f",
+      "filename": "weights/cpsam_plaque_r6",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6",
+      "revision": "b1ee8b3df96615ec5eee983e196472a7ab96b9e0",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "cc-by-4.0",
+      "file_metadata": {
+        "size": 1218641683,
+        "lfs": {
+          "sha256": "744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f",
+          "size": 1218641683,
+          "pointerSize": 135
+        },
+        "blobId": "478f682e3572b4effec7ff44cb81aaa09b3366ae"
+      },
+      "catalog_sha_matches_lfs": true
+    },
+    {
+      "key": "toxoplasma_well_detector_v3",
+      "default": true,
+      "sha256": "046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18",
+      "filename": "weights/yolo_welldetect_v4_geldoc.pt",
+      "uri_repo_type": "model",
+      "uri_repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc",
+      "revision": "a31e978758b7f8f4d98b6007d3d6e52e874cd618",
+      "public_metadata_error": null,
+      "private": false,
+      "gated": false,
+      "license": "agpl-3.0",
+      "file_metadata": {
+        "size": 5478042,
+        "lfs": {
+          "sha256": "046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18",
+          "size": 5478042,
+          "pointerSize": 132
+        },
+        "blobId": "f72e1d10a2e71d5bc7685c31244b2949508dbf61"
+      },
+      "catalog_sha_matches_lfs": true
+    }
+  ]
+}

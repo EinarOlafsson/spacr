@@ -1,0 +1,351 @@
+{
+  "source": "686793f8642cbff9f9f6d3a25770864139e9089e",
+  "gradio": "6.17.3",
+  "component_constructor_checks": [
+    {
+      "line": 98,
+      "class": "Blocks",
+      "unsupported": [],
+      "kwargs": true
+    },
+    {
+      "line": 100,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 101,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 102,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 103,
+      "class": "JSON",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 104,
+      "class": "Button",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 266,
+      "class": "Tabs",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 107,
+      "class": "Tab",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 109,
+      "class": "Dropdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 112,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 120,
+      "class": "Checkbox",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 121,
+      "class": "File",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 125,
+      "class": "Button",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 126,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 135,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 140,
+      "class": "Dropdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 150,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 162,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 163,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 164,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 165,
+      "class": "Button",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 166,
+      "class": "Button",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 167,
+      "class": "Image",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 168,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 169,
+      "class": "File",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 136,
+      "class": "Row",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 137,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 138,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 139,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 141,
+      "class": "Row",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 142,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 143,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 144,
+      "class": "Row",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 145,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 147,
+      "class": "Checkbox",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 148,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 149,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 151,
+      "class": "Accordion",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 152,
+      "class": "Markdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 158,
+      "class": "Radio",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 159,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 160,
+      "class": "Radio",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 161,
+      "class": "Textbox",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 123,
+      "class": "File",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 153,
+      "class": "Row",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 154,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 155,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 156,
+      "class": "Number",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 186,
+      "class": "Dropdown",
+      "unsupported": [],
+      "kwargs": false
+    },
+    {
+      "line": 173,
+      "class": "Dropdown",
+      "unsupported": [],
+      "kwargs": false
+    }
+  ],
+  "component_constructor_count": 50,
+  "all_component_keywords_present_or_supported_kwargs": true,
+  "gradio630_blocks_sha256": "0787a851ce70f6ad8c15e34257f2a42f64b9d56e49e015addfe380b8d36371ae",
+  "gradio630_history_source_lines": [
+    {
+      "line": 1392,
+      "text": "self.run_history = True"
+    },
+    {
+      "line": 2838,
+      "text": "\"run_history\": getattr(self, \"run_history\", True),"
+    },
+    {
+      "line": 3069,
+      "text": "run_history: bool | None = None,"
+    },
+    {
+      "line": 3122,
+      "text": "footer_links: The links to display in the footer of the app. Accepts a list, where each element of the list must be one of \"api\", \"gradio\", \"settings\", or \"runs\" corresponding to the API docs, \"built with Gradio\", the settings page, and the run history page respectively. The \"runs\" link only appears if `run_history` is True and the browser has at least one saved run for this app. If None, all four links will be shown in the footer. An empty list means that no footer is shown."
+    },
+    {
+      "line": 3123,
+      "text": "run_history: If True, users can review and reload calls from the run history page at /gradio_api/runs. Runs are saved privately in the browser by default; from that page, a user can instead connect a Hugging Face bucket and save future runs there. Browser history is scoped to the logged-in user if the app uses `auth`. If False, nothing is recorded, the run history page is disabled, and any runs previously saved by this app are deleted from the browser. If None, will use the GRADIO_RUN_HISTORY environment variable or default to True."
+    },
+    {
+      "line": 3227,
+      "text": "self.run_history = ("
+    },
+    {
+      "line": 3229,
+      "text": "if run_history is None"
+    },
+    {
+      "line": 3230,
+      "text": "else run_history"
+    },
+    {
+      "line": 3237,
+      "text": "if not self.run_history:"
+    }
+  ],
+  "gradio6173_tag_tree_sha": "254f1b834819be0b70ef171ac4c49748234e01f9",
+  "gradio6173_tag_tree_raw_sha256": "ce1fc1ac6c6abdeb8beba5916c26ee5d825f15224423d15c2ad0ef54a94ccd03",
+  "gradio6173_history_named_paths": [],
+  "limits": "Static constructor checks are not a runtime import, browser privacy test, transitive dependency resolution or ZeroGPU acceptance."
+}
