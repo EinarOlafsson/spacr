@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "root_launch_approved": true,
+  "owner_deadline_supersession_confirmed": true,
+  "native_phase_timeout_seconds": 180,
+  "action_timeout_seconds": 20,
+  "cleanup_grace_seconds": 30,
+  "native_term_grace_seconds": 5,
+  "total_max_seconds": 210,
+  "recording": false,
+  "owner_reply": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_preferences_native_diagnostic_deadline_reply_2026-10-15/WORK_OWNER_ADDENDUM.txt",
+    "bytes": 2663,
+    "sha256": "bdc0f0565c8189e9dd9821a99f9d13516b1bde6cfc069fb25eb1a57aa4f46776"
+  },
+  "source_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/preparation-manifest.json",
+    "bytes": 4171,
+    "sha256": "001e4a8f1ad1d474cb3f91daa8b9ec37374f2124aa40fad98aa3c3b742e59ec1"
+  },
+  "independent_source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-v6-independent-source-peer.json",
+    "bytes": 4336,
+    "sha256": "3e15f6c35022e1d38f03f88465de9e04e2de1667b5c7ddea7ecb03d3600b6434"
+  },
+  "prior_attempt": "v5 stopped before Apply at custom menu reachability; v6 uses exact production Escape/pointer placement and static reachability helper. Prior results preserved; no automatic retry or tutorial retake.",
+  "helpers_stopped": true
+}
