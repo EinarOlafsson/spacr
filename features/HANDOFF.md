@@ -23,6 +23,15 @@ README routes alone do not close it. N328/N384 are historical closed items,
 omitted from today's/open display rather than counted as new completions.
 
 
+## 2026-10-15T12:00:15.035623-04:00 — Work: ordered review 01 KEEP; 02 next
+
+Reviewed tutorial 01 component by component under the new maintainer instruction. Root decision: **KEEP video, audio and captions**. No media regenerated, audio synthesized or narration/captions changed. Evidence is in `features/data/n676_ordered_tutorial_reviews_2026-10-15/01_pypi_github/`; the adjacent `PROGRESS.csv` tracks all 84 current routes.
+
+All eight sections were sampled at start/middle/end (24 video frames); required links, commands and installer types remain correct/readable against dated official package/release metadata. Pictured release-number aging does not change an instruction or fixed-version promise. All 13 reviews and 14 catalogs align; all 50 audio tracks decoded with exact published hashes and 712 cached utterance identities. The bounded two-track follow-up found a constant 5ms lag and one unclassified waveform difference, not evidence for clipping. This is sampled visual and technical audio preservation evidence, not full watching or human/native-language hearing approval. Existing unchanged 01 route playback passed in completed 23 verification.
+
+Continue numerically to 02 after this review commit. No new HF upload is needed for a KEEP decision; original media remain intact. The separate 05 diagnostic and 25 preparation remain parked.
+
+
 ## 2026-10-15T11:50:16.804806-04:00 — Work: Agreement 23 completed; ordered selective review next
 
 This commit publishes the completed Agreement 23 Pages tree and exact evidence packet: `features/data/n676_agreement_completed_publication_2026-10-15/` (217 files; packet manifest `278ec23782de58e831b16b1e57a6ba7ac2af307c2d26270654c5e0d56e3d5132`). Independent final peer is the adjacent `-peer.json`, SHA `02949c5182f3bd3d6ce0cfbb0fdb92520b066e844d37c5476da83e8288960b74`. All 148 exported checkpoint files and 13 official reviews are preserved. Home retains ownership of source integration; the exact native-arrival audit patch and 33 passing checks are included separately.

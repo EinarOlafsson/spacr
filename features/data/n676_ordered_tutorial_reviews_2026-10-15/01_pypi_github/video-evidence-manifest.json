@@ -1,0 +1,489 @@
+{
+  "schema": 1,
+  "root_head": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "video": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/video/01_pypi_github_silent.mp4",
+    "bytes": 3410065,
+    "sha256": "614eaed2f5491bee3a4f5465039afda699c4798df2190adf1a8e254dde4adf12"
+  },
+  "web_video": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/web/01_pypi_github_silent.mp4",
+    "bytes": 4708382,
+    "sha256": "1e25211f91cd297e3ee7124378b2ef9e58a1683263ae432591a91404e98510b6"
+  },
+  "canonical": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/01_pypi_github.json",
+    "bytes": 3357,
+    "sha256": "a9b2c6286ca623128da907ed39bd1e1e4a11689695a3f8285a9e9cadf09e990f"
+  },
+  "reference_audio_sidecar_timing_only": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_heart.json",
+    "bytes": 32270,
+    "sha256": "a7154ba6a8eade607c34efeb224bb75d919b2918f06ef97694c46c75d78b542a"
+  },
+  "catalog": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_en.json",
+    "bytes": 674671,
+    "sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112"
+  },
+  "probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 3840,
+        "height": 2160,
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "duration": "107.200000",
+        "nb_frames": "3216"
+      }
+    ],
+    "format": {
+      "duration": "107.200000",
+      "size": "3410065"
+    }
+  },
+  "samples": [
+    {
+      "scene": 1,
+      "visual": "01_pypi_current_release",
+      "position": "start",
+      "requested_seconds": 0.35,
+      "frame": 10,
+      "frame_seconds": 0.3333333333333333,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/001.png",
+        "bytes": 742016,
+        "sha256": "2a63f55252ef992de0905927bd36bef88db98cdb33ed8d5dbd860c50e29df7e6"
+      }
+    },
+    {
+      "scene": 1,
+      "visual": "01_pypi_current_release",
+      "position": "middle",
+      "requested_seconds": 6.85,
+      "frame": 206,
+      "frame_seconds": 6.866666666666666,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/002.png",
+        "bytes": 742012,
+        "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+      }
+    },
+    {
+      "scene": 1,
+      "visual": "01_pypi_current_release",
+      "position": "end",
+      "requested_seconds": 13.35,
+      "frame": 400,
+      "frame_seconds": 13.333333333333334,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/003.png",
+        "bytes": 713618,
+        "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+      }
+    },
+    {
+      "scene": 2,
+      "visual": "01_pypi_current_release",
+      "position": "start",
+      "requested_seconds": 14.049999999999999,
+      "frame": 421,
+      "frame_seconds": 14.033333333333333,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/004.png",
+        "bytes": 742016,
+        "sha256": "2a63f55252ef992de0905927bd36bef88db98cdb33ed8d5dbd860c50e29df7e6"
+      }
+    },
+    {
+      "scene": 2,
+      "visual": "01_pypi_current_release",
+      "position": "middle",
+      "requested_seconds": 20.99,
+      "frame": 630,
+      "frame_seconds": 21.0,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/005.png",
+        "bytes": 742012,
+        "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+      }
+    },
+    {
+      "scene": 2,
+      "visual": "01_pypi_current_release",
+      "position": "end",
+      "requested_seconds": 27.929999999999996,
+      "frame": 838,
+      "frame_seconds": 27.933333333333334,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/006.png",
+        "bytes": 713618,
+        "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+      }
+    },
+    {
+      "scene": 3,
+      "visual": "02_pypi_project_links",
+      "position": "start",
+      "requested_seconds": 28.63,
+      "frame": 859,
+      "frame_seconds": 28.633333333333333,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/007.png",
+        "bytes": 742020,
+        "sha256": "a3b312ed633a210d3800978ca1000322f34a70a3669ea5b7c896e77e3a83f3c6"
+      }
+    },
+    {
+      "scene": 3,
+      "visual": "02_pypi_project_links",
+      "position": "middle",
+      "requested_seconds": 33.9675,
+      "frame": 1019,
+      "frame_seconds": 33.96666666666667,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/008.png",
+        "bytes": 742012,
+        "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+      }
+    },
+    {
+      "scene": 3,
+      "visual": "02_pypi_project_links",
+      "position": "end",
+      "requested_seconds": 39.305,
+      "frame": 1179,
+      "frame_seconds": 39.3,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/009.png",
+        "bytes": 713618,
+        "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+      }
+    },
+    {
+      "scene": 4,
+      "visual": "03_github_main_branch",
+      "position": "start",
+      "requested_seconds": 40.005,
+      "frame": 1200,
+      "frame_seconds": 40.0,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/010.png",
+        "bytes": 992016,
+        "sha256": "77e6f8dbeb59ed4ad592a5636f2238fd773e8a3a553cf1e8d7939da01ce896dc"
+      }
+    },
+    {
+      "scene": 4,
+      "visual": "03_github_main_branch",
+      "position": "middle",
+      "requested_seconds": 45.972500000000004,
+      "frame": 1379,
+      "frame_seconds": 45.96666666666667,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/011.png",
+        "bytes": 992068,
+        "sha256": "d3293b7c2d066b61a56df091aa2accdc0abd6dbec8304f001cb500ba51b5e993"
+      }
+    },
+    {
+      "scene": 4,
+      "visual": "03_github_main_branch",
+      "position": "end",
+      "requested_seconds": 51.940000000000005,
+      "frame": 1558,
+      "frame_seconds": 51.93333333333333,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/012.png",
+        "bytes": 954300,
+        "sha256": "668f4094594e216678cdda9dfc98c4448c22be7cf9f0c9aa4490265f2999effa"
+      }
+    },
+    {
+      "scene": 5,
+      "visual": "04_github_current_assets",
+      "position": "start",
+      "requested_seconds": 52.64000000000001,
+      "frame": 1579,
+      "frame_seconds": 52.63333333333333,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/013.png",
+        "bytes": 595844,
+        "sha256": "7dad355dc4d7802f4cadd1e048c939b44af1b77f71b2a6f51a40b681211e288d"
+      }
+    },
+    {
+      "scene": 5,
+      "visual": "04_github_current_assets",
+      "position": "middle",
+      "requested_seconds": 58.77,
+      "frame": 1763,
+      "frame_seconds": 58.766666666666666,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/014.png",
+        "bytes": 595861,
+        "sha256": "1ee8206608773453c5f5ffee0ffc3e853a678d7864f6b310ee5669331628abcc"
+      }
+    },
+    {
+      "scene": 5,
+      "visual": "04_github_current_assets",
+      "position": "end",
+      "requested_seconds": 64.9,
+      "frame": 1947,
+      "frame_seconds": 64.9,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/015.png",
+        "bytes": 576703,
+        "sha256": "bab14f50da049a7d4fd301a8917aaa055bf6764da50c049a074d2b47c4280615"
+      }
+    },
+    {
+      "scene": 6,
+      "visual": "05_conda_current_package",
+      "position": "start",
+      "requested_seconds": 65.6,
+      "frame": 1968,
+      "frame_seconds": 65.6,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/016.png",
+        "bytes": 638714,
+        "sha256": "1f36974834966570bd874af1656f2e8649b07c90edad41c232d98f858ba41224"
+      }
+    },
+    {
+      "scene": 6,
+      "visual": "05_conda_current_package",
+      "position": "middle",
+      "requested_seconds": 70.99000000000001,
+      "frame": 2130,
+      "frame_seconds": 71.0,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/017.png",
+        "bytes": 638714,
+        "sha256": "830e87b2aee48740156f3ba2966d8880a3b1c00df7a0704c8a7b6f1966bbf43b"
+      }
+    },
+    {
+      "scene": 6,
+      "visual": "05_conda_current_package",
+      "position": "end",
+      "requested_seconds": 76.38000000000001,
+      "frame": 2291,
+      "frame_seconds": 76.36666666666666,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/018.png",
+        "bytes": 610988,
+        "sha256": "ff5d23a5098adaaa661763f90244bd41fc276de58f0e8dae6daa11e07360eddd"
+      }
+    },
+    {
+      "scene": 7,
+      "visual": "05_conda_current_package",
+      "position": "start",
+      "requested_seconds": 77.08,
+      "frame": 2312,
+      "frame_seconds": 77.06666666666666,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/019.png",
+        "bytes": 638714,
+        "sha256": "1f36974834966570bd874af1656f2e8649b07c90edad41c232d98f858ba41224"
+      }
+    },
+    {
+      "scene": 7,
+      "visual": "05_conda_current_package",
+      "position": "middle",
+      "requested_seconds": 84.1075,
+      "frame": 2523,
+      "frame_seconds": 84.1,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/020.png",
+        "bytes": 638701,
+        "sha256": "136da353d27112c7e4bd2f7c275ca8f06da180d4014f6764bcbf080b0c966b41"
+      }
+    },
+    {
+      "scene": 7,
+      "visual": "05_conda_current_package",
+      "position": "end",
+      "requested_seconds": 91.135,
+      "frame": 2734,
+      "frame_seconds": 91.13333333333334,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/021.png",
+        "bytes": 610988,
+        "sha256": "ff5d23a5098adaaa661763f90244bd41fc276de58f0e8dae6daa11e07360eddd"
+      }
+    },
+    {
+      "scene": 8,
+      "visual": "01_pypi_current_release",
+      "position": "start",
+      "requested_seconds": 91.835,
+      "frame": 2755,
+      "frame_seconds": 91.83333333333333,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/022.png",
+        "bytes": 742016,
+        "sha256": "2a63f55252ef992de0905927bd36bef88db98cdb33ed8d5dbd860c50e29df7e6"
+      }
+    },
+    {
+      "scene": 8,
+      "visual": "01_pypi_current_release",
+      "position": "middle",
+      "requested_seconds": 99.35,
+      "frame": 2980,
+      "frame_seconds": 99.33333333333333,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/023.png",
+        "bytes": 742012,
+        "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+      }
+    },
+    {
+      "scene": 8,
+      "visual": "01_pypi_current_release",
+      "position": "end",
+      "requested_seconds": 106.865,
+      "frame": 3206,
+      "frame_seconds": 106.86666666666666,
+      "file": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/024.png",
+        "bytes": 713618,
+        "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+      }
+    }
+  ],
+  "extraction_argv": [
+    "/usr/bin/ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-v",
+    "warning",
+    "-hwaccel",
+    "none",
+    "-threads",
+    "2",
+    "-i",
+    "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/video/01_pypi_github_silent.mp4",
+    "-an",
+    "-vf",
+    "select=eq(n\\,10)+eq(n\\,206)+eq(n\\,400)+eq(n\\,421)+eq(n\\,630)+eq(n\\,838)+eq(n\\,859)+eq(n\\,1019)+eq(n\\,1179)+eq(n\\,1200)+eq(n\\,1379)+eq(n\\,1558)+eq(n\\,1579)+eq(n\\,1763)+eq(n\\,1947)+eq(n\\,1968)+eq(n\\,2130)+eq(n\\,2291)+eq(n\\,2312)+eq(n\\,2523)+eq(n\\,2734)+eq(n\\,2755)+eq(n\\,2980)+eq(n\\,3206)",
+    "-vsync",
+    "0",
+    "-frames:v",
+    "24",
+    "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/%03d.png"
+  ],
+  "software_only": true,
+  "primary_api_checks": [
+    {
+      "url": "https://pypi.org/pypi/spacr/json",
+      "final_url": "https://pypi.org/pypi/spacr/json",
+      "checked_utc": "2026-10-15T15:54:44.516280+00:00",
+      "status": 200,
+      "response": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/primary-pypi.json",
+        "bytes": 104015,
+        "sha256": "3f2b1ef0d17b99fc2ad1bd8cf769d193686855087db358670de25f93806d6cc4"
+      },
+      "facts": {
+        "version": "1.5.1.4",
+        "project_urls": {
+          "Documentation": "https://einarolafsson.github.io/spacr/",
+          "Homepage": "https://github.com/EinarOlafsson/spacr",
+          "Issues": "https://github.com/EinarOlafsson/spacr/issues",
+          "Source": "https://github.com/EinarOlafsson/spacr"
+        },
+        "requires_python": "!=3.14.1,<3.15,>=3.9"
+      }
+    },
+    {
+      "url": "https://api.github.com/repos/EinarOlafsson/spacr/releases/latest",
+      "final_url": "https://api.github.com/repos/EinarOlafsson/spacr/releases/latest",
+      "checked_utc": "2026-10-15T15:54:44.572944+00:00",
+      "status": 200,
+      "response": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/primary-github-latest.json",
+        "bytes": 12047,
+        "sha256": "e4748b8f0151711114092d5a8cd18aaace7e23fab105f21b57d3a02a97205bf5"
+      },
+      "facts": {
+        "tag_name": "v1.5.1.4",
+        "html_url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.1.4",
+        "published_at": "2026-10-09T15:47:23Z",
+        "prerelease": false,
+        "draft": false,
+        "assets": [
+          {
+            "name": "SHA256SUMS.txt",
+            "bytes": 500,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/SHA256SUMS.txt"
+          },
+          {
+            "name": "spaCR-1.5.1.4-Linux-x86_64-Online.run",
+            "bytes": 236185,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Linux-x86_64-Online.run"
+          },
+          {
+            "name": "spaCR-1.5.1.4-macOS-Universal-Online.pkg",
+            "bytes": 389726,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-macOS-Universal-Online.pkg"
+          },
+          {
+            "name": "spacr-1.5.1.4-py3-none-any.whl",
+            "bytes": 43282807,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spacr-1.5.1.4-py3-none-any.whl"
+          },
+          {
+            "name": "spaCR-1.5.1.4-Windows-Online-Setup.exe",
+            "bytes": 243842,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Windows-Online-Setup.exe"
+          },
+          {
+            "name": "spacr-1.5.1.4.tar.gz",
+            "bytes": 51922212,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spacr-1.5.1.4.tar.gz"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://api.anaconda.org/package/conda-forge/spacr",
+      "final_url": "https://api.anaconda.org/package/conda-forge/spacr",
+      "checked_utc": "2026-10-15T15:54:45.052029+00:00",
+      "status": 200,
+      "response": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/primary-conda-forge.json",
+        "bytes": 14038,
+        "sha256": "1d8013a287bb7da24571343f932485adcde7de79a9522a4a8848be174a65a00e"
+      },
+      "facts": {
+        "name": "spacr",
+        "full_name": "conda-forge/spacr",
+        "latest_version": "1.5.0.8",
+        "public": true,
+        "home": "https://github.com/EinarOlafsson/spacr",
+        "dev_url": "https://github.com/EinarOlafsson/spacr",
+        "doc_url": "https://einarolafsson.github.io/spacr/",
+        "versions": [
+          "1.5.0.4",
+          "1.5.0.6",
+          "1.5.0.7",
+          "1.5.0.8"
+        ],
+        "modified_at": "2026-09-19 21:32:03.565000+00:00"
+      }
+    }
+  ],
+  "scope": "24 sampled frames, three per canonical narration scene; no audio audition or full-motion viewing claim"
+}
