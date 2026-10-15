@@ -987,8 +987,8 @@ class _Thumb(QLabel):
     """Display a clickable crop with the annotation app's tile styling.
 
     Shared tile chrome supplies rounded clipping and the resting, state, and
-    hover rings. Activating the thumbnail opens the provenance details already
-    summarized by its tooltip.
+    hover rings. Mouse or keyboard activation opens the provenance details
+    already summarized by its tooltip and accessible name.
     """
 
     #: (tooltip). Emitted on a left click so the view can show the detail.
@@ -1013,6 +1013,8 @@ class _Thumb(QLabel):
         super().__init__(parent)
         self._pixmap = pixmap
         self.setToolTip(tooltip)
+        self.setAccessibleName(tooltip)
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setAlignment(Qt.AlignCenter)
         self.setFixedSize(int(size or THUMBNAIL_PX), int(size or THUMBNAIL_PX))
         self.setFrameShape(QFrame.NoFrame)
@@ -1040,12 +1042,12 @@ class _Thumb(QLabel):
         return (self.highlight or resting_border_color()), current_ring_color()
 
     def paintEvent(self, event):            # noqa: N802 - Qt naming
-        """Draw the crop with one ring, recoloured on hover rather than doubled.
+        """Draw one ring, recoloured while hovered or keyboard focused.
 
         ``current=False`` and the colour swapped instead: a picked cell keeps
-        its blue everywhere the cursor is not, which is the whole of show-all --
-        the point there is to compare the cells carrying the inference against
-        the ones that do not.
+        its blue when neither hovered nor focused. This preserves the
+        distinction between cells carrying the inference and those that do
+        not when they are at rest.
 
         :param event: the paint event.
         """
@@ -1056,7 +1058,8 @@ class _Thumb(QLabel):
         try:
             paint_tile(painter, float(self.width()), float(self.height()),
                        self._pixmap,
-                       border_colour=(hover if self._hovered else ring),
+                       border_colour=(hover if self._hovered or self.hasFocus()
+                                      else ring),
                        ring_colour="", current=False)
         finally:
             painter.end()
@@ -1090,6 +1093,25 @@ class _Thumb(QLabel):
             self.clicked.emit(self.toolTip())
         else:
             super().mousePressEvent(event)
+
+    def focusInEvent(self, event):
+        """Show the existing current-cell ring on keyboard focus."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Restore the resting ring when focus leaves this crop."""
+        super().focusOutEvent(event)
+        self.update()
+
+    def keyPressEvent(self, event):
+        """Open the focused crop's provenance with Enter or Space."""
+        if (self.hasFocus() and event.modifiers() == Qt.NoModifier
+                and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)):
+            self.clicked.emit(self.toolTip())
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
 
 class _WellTab(QWidget):

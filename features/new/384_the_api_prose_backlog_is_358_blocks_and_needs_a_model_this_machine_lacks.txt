@@ -288,3 +288,17 @@ SO THE REAL BLOCKER IS REVIEW CAPACITY, NOT A CHECKPOINT. Two honest routes:
 RENAME THIS FILE when either is taken up. The current name asserts something
 false, and a file that is wrong in its own title is worse than one nobody
 has opened.
+
+2026-10-15 — machine-report type validation repaired; closed policy unchanged:
+The compatibility reporter coerced API text through str(), so matching source
+hashes could make JSON null, booleans, numbers, arrays or objects appear source-
+compatible. Nine direct malformed-value cases and the actual null-text report
+CLI failed before the fix; empty/whitespace controls already passed. API text
+now must be a nonempty string and otherwise keeps the existing empty_or_malformed
+diagnostic. The CLI records source_compatible=false while still allowing valid
+English publication. This does not reopen the maintainer-closed prose backlog,
+change report-only fallback policy, or claim linguistic review/translation gains.
+The focused report/publication-policy cohort passes21cases in4.93seconds under
+a2G cap; fatal Ruff and diff checks pass. No API generation, Sphinx, catalog or
+review edits, models, GPU, network or fullCI. Evidence:
+data/384_api_report_text_types_2026-10-15/receipt.json.
