@@ -2061,7 +2061,7 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
 
                 if 'sliceID' in match.groupdict():
                     sliceID = match.group('sliceID')
-                    if sliceID[0].isdigit():
+                    if sliceID is not None and sliceID[0].isdigit():
                         sliceID = _int_or_token(sliceID)
                 else:
                     sliceID = None

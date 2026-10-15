@@ -1,0 +1,4 @@
+{"pid": 3062762, "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68571.scope", "memory_max": "4294967296", "memory_swap_max": "0", "cpus_allowed": [0], "pyside6": "6.12.0", "qt": "6.12.0"}
+.............................                                            [100%]
+- generated xml file: /mnt/wd4tb/scratch/n441-evos-optional-z-run-20261015/final.xml -
+29 passed in 7.54s

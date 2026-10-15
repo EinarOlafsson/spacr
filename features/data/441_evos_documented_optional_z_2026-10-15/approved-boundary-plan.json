@@ -1,0 +1,135 @@
+{
+  "status": "PROPOSAL ONLY: documented no-Z EVOS variant needs two narrowly coordinated safety dependencies",
+  "source_reference": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "source_pins": {
+    "spacr/regex_infer.py": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "spacr/convert.py": "d70cc4f94f5bf1132cf72d816d3428c5afd12367f6393c42e452f71d7e46d22c",
+    "spacr/io.py": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+    "tests/test_a_metadata_type_for_every_common_microscope.py": "b9bc482ac13720956f2fc67c0469c8067cd23751a1afee493e3dc94e47655bc5",
+    "features/new/441_a_metadata_type_for_every_common_microscope.txt": "c1f6998b716de673e70a4fe9ddf043d9aaf79b293c75ffe160a869c20aff99b9"
+  },
+  "evidence": {
+    "primary_vendor_url": "https://documents.thermofisher.com/TFS-Assets/LSG/manuals/MAN0018326-EVOSM7000ImagingSystem-UG.pdf",
+    "retained_pdf_sha256": "9151b27411afe0171f81770b90ab773dcee8e5e8eecf2dd3abeeffd0b60aec5c",
+    "examples": [
+      {
+        "name": "scan_R_p2_z1_0_B03f01d0.tif",
+        "source": "M7000 printed page198 filename diagram, PDF page200; explanatory vendor-documented literal"
+      },
+      {
+        "name": "image_0002_Top Slide_R_p00_0_A01f00d0.TIF",
+        "source": "M7000 printed page41 Next filename screenshot, PDF page43; vendor save-dialog literal, not proof pixels were saved"
+      }
+    ],
+    "original_contract": "Confirmed means matched against real files OR vendor documentation; at least two traceable real example filenames. Downloaded acquisition images are not an additional original prerequisite.",
+    "classification_proposal": "CONFIRMED for this narrowly described FL Auto2/M7000 documented filename family after both literals and safe downstream handling pass; no claim of acquired-dataset/native-device testing, M5000 remains untested.",
+    "group_meaning": "R/D/M format; p time token; optional z plane token; grid is laserID compatibility field, not actual laser identity; A01 well, f field, d zero-based channel. Do not invent missing Z or change existing zero-basing."
+  },
+  "metadata_only_regex_observations": [
+    {
+      "filename": "scan_R_p2_z1_0_B03f01d0.tif",
+      "current_evos_groups": {
+        "plateID": "scan",
+        "AID": "R",
+        "timeID": "2",
+        "sliceID": "1",
+        "laserID": "0",
+        "wellID": "B03",
+        "fieldID": "01",
+        "chanID": "0"
+      },
+      "proposed_evos_groups": {
+        "plateID": "scan",
+        "AID": "R",
+        "timeID": "2",
+        "sliceID": "1",
+        "laserID": "0",
+        "wellID": "B03",
+        "fieldID": "01",
+        "chanID": "0"
+      },
+      "current_arrayscan_groups": null,
+      "proposed_arrayscan_groups": null
+    },
+    {
+      "filename": "image_0002_Top Slide_R_p00_0_A01f00d0.TIF",
+      "current_evos_groups": null,
+      "proposed_evos_groups": {
+        "plateID": "image_0002_Top Slide",
+        "AID": "R",
+        "timeID": "00",
+        "sliceID": null,
+        "laserID": "0",
+        "wellID": "A01",
+        "fieldID": "00",
+        "chanID": "0"
+      },
+      "current_arrayscan_groups": {
+        "wellID": "A01",
+        "fieldID": "00",
+        "chanID": "0"
+      },
+      "proposed_arrayscan_groups": null
+    }
+  ],
+  "required_boundaries": [
+    {
+      "path": "spacr/regex_infer.py",
+      "symbol": "_METADATA_CONVENTIONS EVOS record",
+      "change": "Make only the entire _z<digits> segment optional, append the exact vendor save-dialog literal; document Z unknown when absent and precise two vendor pages; amend status only after acceptance.",
+      "before": "(?P<plateID>.+)_(?P<AID>[RDM])_p(?P<timeID>\\d+)_z(?P<sliceID>\\d+)_(?P<laserID>\\d+)_(?P<wellID>[A-Z]\\d{2})f(?P<fieldID>\\d{2})d(?P<chanID>\\d)\\.(?i:{ext})$",
+      "proposal": "(?P<plateID>.+)_(?P<AID>[RDM])_p(?P<timeID>\\d+)(?:_z(?P<sliceID>\\d+))?_(?P<laserID>\\d+)_(?P<wellID>[A-Z]\\d{2})f(?P<fieldID>\\d{2})d(?P<chanID>\\d)\\.(?i:{ext})$"
+    },
+    {
+      "path": "spacr/regex_infer.py",
+      "symbol": "_METADATA_CONVENTIONS ArrayScan negative lookahead",
+      "change": "Make only the anti-EVOS lookahead Z segment optional, preserving ArrayScan grammar and every old example. Otherwise new EVOS name is silently also claimed by ArrayScan.",
+      "before": "(?!.*_[RDM]_p\\d+_z\\d+_\\d+_)(?:.*_)?(?P<wellID>[A-Z]\\d{2})f(?P<fieldID>\\d{2,3})d(?P<chanID>\\d)\\.(?i:{ext})$",
+      "proposal": "(?!.*_[RDM]_p\\d+(?:_z\\d+)?_\\d+_)(?:.*_)?(?P<wellID>[A-Z]\\d{2})f(?P<fieldID>\\d{2,3})d(?P<chanID>\\d)\\.(?i:{ext})$"
+    },
+    {
+      "path": "spacr/utils.py",
+      "symbol": "_extract_filename_metadata",
+      "change": "Guard only sliceID numeric conversion with `if sliceID is not None and sliceID[0].isdigit():`; preserve None in tuple key. Existing empty-string IndexError behavior and other groups unchanged. Requires Root scope grant before source edit.",
+      "current_failure": "groupdict contains sliceID=None on no-Z match, and current sliceID[0] raises TypeError; existing code catches only IndexError."
+    },
+    {
+      "path": "tests/test_a_metadata_type_for_every_common_microscope.py",
+      "symbol": "test_every_example_fills_every_group_the_importer_reads + targeted native-reader cases",
+      "change": "Permit ONLY named EVOS sliceID omission for exact documented no-Z literal and assert it is None; every required field/time/channel/other convention remains strict. Preserve all four original pattern/legacy tests and overlap set."
+    }
+  ],
+  "existing_downstream_none_support": [
+    "regex_infer._metadata_match filters nonparticipating None groups; no synthetic slice added.",
+    "convert._from_convention `_number(sliceID)` returns None for absent group; no plane0 invented.",
+    "io.convert_separate_files_to_yokogawa reads None slice explicitly and excludes it from numeric slice IDs.",
+    "io.preprocess raw key grouping uses key[5] only as metadata; plane ingestion iterates actual TIFF planes and current projection behavior is unchanged."
+  ],
+  "proposed_acceptance": [
+    "Actual original current no-Z literal rejection baseline; proposed literal matches exact expected groups with sliceID None.",
+    "Actual _extract_filename_metadata preserves no-Z None and z1 integer1, exact time00\u21920/grid and channel handling unchanged.",
+    "Optional-Z ArrayScan anti-collision negative; full current table own-example and cross-convention overlap controls, no expanded allowed overlaps.",
+    "Reject malformed optional Z segment, negative Z, missing grid, missing channel; preserve numeric zero text accepted by original grammar.",
+    "Original cellvoyager/cq1/auto/custom patterns character-for-character and existing legacy settings unchanged.",
+    "Native disposable tiny TIFF route can establish no invented plane at actual Import/Mask seam if Root grants, no models/science/GPU needed."
+  ],
+  "regex_negative_controls": [
+    "image_0002_Top Slide_R_p00_z_0_A01f00d0.TIF",
+    "image_0002_Top Slide_R_p00_z-1_0_A01f00d0.TIF",
+    "image_0002_Top Slide_R_p00_z1_A01f00d0.TIF",
+    "image_0002_Top Slide_R_p00_0_A01f00.TIF",
+    "A01f01d2.TIF"
+  ],
+  "original_four_record_sha256": {
+    "cellvoyager": "85f5f314425d2df53a22c41a4719d41041914689b936176463080176f7d2f56c",
+    "cq1": "eb016c6d0cda7495030aa5a1ef43d433791cbebb580828b581170fdd8bf5a14a",
+    "auto": "7e1aad331a468fb16f4251a2e79f1b6015bcfe72c3240a3f1be8a52ce82efd35",
+    "custom": "002eb53b1000bdddc77f2ce39a17b68d7a42b1133b0f74ea1cfc1993e9baf631"
+  },
+  "limits": [
+    "No source/test edits, imports of application, pytest, pixel/model inference, network, downloads, writer or collector performed.",
+    "Metadata-only stdlib AST/literal/regex reasoning is not product acceptance or a whole N441 completion.",
+    "Cannot safely ship EVOS regex alone until parser None handling and ArrayScan exclusion are granted and checked."
+  ]
+}

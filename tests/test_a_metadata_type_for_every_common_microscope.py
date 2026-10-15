@@ -24,12 +24,13 @@ THREE PROPERTIES ARE WORTH A TEST AND THEY ARE NOT THE OBVIOUS ONE.
   `<well>f<field>d<dye>` tail, so `scan_R_p2_z1_0_B03f01d0.tif` matched
   `arrayscan` as well as `evos` until a negative lookahead was added.
 
-* NO CAPTURING GROUP MAY BE OPTIONAL. `spacr.utils._extract_filename_metadata`
+* REQUIRED IMAGE IDENTIFIERS MAY NOT BE OPTIONAL. `spacr.utils._extract_filename_metadata`
   reads `match.group('fieldID')[0]` to decide whether to strip zero padding.
   A group that did not participate returns None and that subscript raises
   TypeError, which nothing up the stack catches. A group that matched the
   empty string raises IndexError, which IS caught -- and silently skips the
-  file. Both are worse than not matching at all.
+  file. Both are worse than not matching at all. A documented absent EVOS Z
+  plane is explicitly preserved as None; it does not identify a synthetic Z0.
 """
 from __future__ import annotations
 
@@ -143,7 +144,7 @@ def test_every_convention_parses_every_example_it_claims(record):
 @pytest.mark.parametrize("record", _METADATA_CONVENTIONS,
                          ids=[r["key"] for r in _METADATA_CONVENTIONS])
 def test_every_example_fills_every_group_the_importer_reads(record):
-    """No group may be absent, None, or empty -- see this file's header."""
+    """Required groups participate; only the documented EVOS slice may be absent."""
     required = {"wellID", "fieldID", "chanID"}
     must_not_be_empty = required | {"timeID", "sliceID"}
     for example in record["examples"]:
@@ -151,11 +152,16 @@ def test_every_example_fills_every_group_the_importer_reads(record):
                                     custom_regex=r"(?P<wellID>[A-H]\d\d)")
         match = re.compile(pattern).match(example)
         groups = match.groupdict()
+        absent = ({"sliceID"} if record["key"] == "evos" and example ==
+                  "image_0002_Top Slide_R_p00_0_A01f00d0.TIF" else set())
+        if absent:
+            assert groups["sliceID"] is None
         if record["key"] != "custom":
             assert required <= set(groups), (
                 f"{record['key']} must capture {sorted(required)}; "
                 f"{example!r} captured {sorted(groups)}")
-        assert not [name for name, value in groups.items() if value is None], (
+        assert not [name for name, value in groups.items()
+                    if value is None and name not in absent], (
             f"{record['key']}: a group did not participate on {example!r} -- "
             f"_extract_filename_metadata raises TypeError on that")
         assert not [name for name, value in groups.items()
@@ -197,7 +203,8 @@ def test_every_record_carries_the_evidence_for_itself(record):
     CONFIRMED NEEDS TWO EXAMPLES AND PROVISIONAL NEEDS ONE. One filename
     proves a pattern can parse something; two proves it parses a FAMILY, and
     that is the difference between a convention and a screenshot. Where only
-    one could be sourced -- EVOS and ScanR -- the record says provisional.
+    one could be sourced -- ScanR -- the record says provisional. EVOS has
+    two exact vendor-documented literals, including the no-Z save dialog.
     Cytation also remains provisional because its additional upstream
     real-world-derived names disclose sanitization. The dropdown shows this
     evidence limit rather than treating a matching example as confirmation.
