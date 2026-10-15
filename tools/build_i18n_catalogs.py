@@ -4131,6 +4131,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "model_zoo.py")
     paths.add(ROOT / "spacr" / "attribution.py")
     paths.add(ROOT / "spacr" / "measure.py")
+    paths.add(ROOT / "spacr" / "object_classifier.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
     source_root = ROOT / "spacr"
@@ -4163,7 +4164,11 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         if path == source_root / "measure.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name == "_phases_by_xgboost"]
+                         and node.name in {"_phases_by_xgboost", "_wound_plane"}]
+        if path == source_root / "object_classifier.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_annotated_real_crops"]
         is_preferences = path == preferences_path
         filename = path.name
         helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")
