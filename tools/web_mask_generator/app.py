@@ -198,9 +198,12 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                 series.change(choices, inputs=[upload, series], outputs=[channels, dimensions], api_visibility="private", queue=False)
 
                 def execute(path, request):
-                    with controller.job(path, request) as artifact:
-                        cached = save_file_to_cache(artifact["result_zip"], demo.GRADIO_CACHE)
-                        overlay = _preview(cached)
+                    try:
+                        with controller.job(path, request) as artifact:
+                            cached = save_file_to_cache(artifact["result_zip"], demo.GRADIO_CACHE)
+                            overlay = _preview(cached)
+                    except ValueError as error:
+                        raise gr.Error(str(error)) from error
                     return cached, overlay
                 gpu_execute = execute
                 if zero_gpu:
