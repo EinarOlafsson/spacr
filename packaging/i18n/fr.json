@@ -76,5 +76,6 @@
   "gui_retry": "Réessayer",
   "gui_cancelled": "Installation annulée. Consultez le journal avant de réessayer.",
   "gui_failed": "Échec de l’installation ou du lancement. Consultez le journal et réessayez dans cette fenêtre.",
-  "gui_stopping": "Arrêt de l’installation et restauration de l’environnement précédent…"
+  "gui_stopping": "Arrêt de l’installation et restauration de l’environnement précédent…",
+  "nsis_uninstall_failed": "spaCR n’a pas pu terminer la désinstallation en toute sécurité. Consultez les détails ci-dessus ; vos données ont été conservées."
 }

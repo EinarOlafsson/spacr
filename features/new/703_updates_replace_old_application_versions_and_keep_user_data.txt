@@ -322,3 +322,34 @@ Fatal Ruff, shell syntax and diff checks passed. No real installer/environment,
 user data, model cache or network was touched. This is Linux uninstaller behavior;
 it does not certify installer launch/update or native Windows/macOS acceptance.
 Windows NSIS's default root-recursive deletion still needs equivalent safe wiring.
+
+
+2026-10-14 23:14 EDT — Home Windows NSIS preservation wiring (native pending)
+Replaced the online NSIS uninstaller's recursive installation-root deletion with
+an extracted, noninteractive PowerShell helper. The installed interpreter first
+copies only its own installer-managed base Python and stdlib cleanup module into
+a private outside temporary folder. Shared/external Python, wrong interpreter or
+prefix, linked runtime content, nonempty/inside folders and declared data inside
+the base runtime refuse preparation. The copied helper requires its interpreter,
+prefix and cleanup module to resolve outside the selected installation before
+using the same targeted shared remover as Linux. No package download/install,
+account setup or terminal question occurs in this default removal path.
+
+The shared remover lists retained folders in NSIS's details pane, preserves data,
+cache/model and unknown folders and handles only matching launchers/registrations.
+NSIS removes the leftover root only when empty; it no longer independently wipes
+all Start Menu/desktop/registry entries or recursively removes the whole root.
+A safe failure message has exact-source AI technical review in all9 installer
+locales; the normal installer renderer emits every native LangString. Review:
+features/evidence/n703_windows_uninstall_20261014/locale-review.json.
+
+85 PASS, actualexit0/3.18s:11 new copy/refusal/outside-guard/NSIS routing/locale
+renderer contracts,5 actual Linux disposable-tree subprocess cases and69 existing
+online-installer contracts. Fixtures contain tiny fake managed runtime files;
+no real Python environment, user data, model cache or network was copied/changed.
+Fatal Ruff and diff checks passed. PowerShell and NSIS are unavailable on this
+Linux host: native syntax parsing, actual managed-Windows-Python relocation,
+active desktop/file-lock behavior and native uninstall/data retention remain
+PENDING. This is implemented wiring with CPU contracts, not Windows acceptance,
+installer/update success, current hosted full-CI green or parent N703 completion.
+Raw evidence: /mnt/wd4tb/scratch/n703-windows-uninstall-20261014/delivery-receipt.json.

@@ -3698,6 +3698,41 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
     return _finish(0)
 
 
+def _prepare_windows_uninstall(root, workdir, *, machine=None, base_prefix=None):
+    """Copy only this installer's private Windows Python outside the root before removal."""
+    machine = machine or _Machine()
+    root, workdir = os.path.abspath(root), os.path.abspath(workdir)
+    base = os.path.realpath(base_prefix if base_prefix is not None else sys.base_prefix)
+    expected = os.path.join(root, "venv", "Scripts", "python.exe")
+    if (machine.platform != "windows" or os.path.realpath(root) != root
+            or _norm(machine.executable) != _norm(expected)
+            or _norm(machine.running_prefix or "") != _norm(os.path.join(root, "venv"))
+            or not _inside(base, os.path.join(root, "python"))
+            or not os.path.isfile(os.path.join(base, "python.exe"))
+            or os.path.realpath(workdir) != workdir or _inside(workdir, root)
+            or not os.path.isdir(workdir) or os.listdir(workdir)):
+        raise ValueError("uninstall preparation requires this installer's private Python and a fresh outside folder")
+    if os.name != "nt":
+        details = os.stat(workdir)
+        if details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077:
+            raise ValueError("uninstall preparation requires its private owner folder")
+    if any(_exists(path) and _inside(os.path.realpath(path), base) for path in _user_data(machine)):
+        raise ValueError("user data inside the managed Python must remain untouched")
+    junction = getattr(os.path, "isjunction", None)
+    for directory, folders, files in os.walk(base, followlinks=False):
+        for name in folders + files:
+            path = os.path.join(directory, name)
+            if os.path.islink(path) or (junction is not None and junction(path)):
+                raise ValueError("linked managed Python content cannot be copied for uninstall")
+    runtime = os.path.join(workdir, "runtime")
+    shutil.copytree(base, runtime)
+    module = os.path.join(workdir, "install_cleanup.py")
+    shutil.copy2(__file__, module)
+    command = [os.path.join(runtime, "python.exe"), "-I", module, "remove",
+               "--only-root", root, "--require-outside"]
+    return {"schema": 1, "workdir": workdir, "root": root, "command": command}
+
+
 def _main(argv: Optional[Sequence[str]] = None) -> int:
     """Command line used by the installers and by the update helper.
 
@@ -3721,6 +3756,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     remove = commands.add_parser("remove", help="remove every installer-made copy")
     remove.add_argument("--keep", action="append", default=[])
     remove.add_argument("--only-root", help="remove only this recognized installation, preserving its data")
+    remove.add_argument("--require-outside", action="store_true", help="require an interpreter outside the selected root")
     remove.add_argument("--sudo", action="store_true")
     remove.add_argument("--root", default="/", help=argparse.SUPPRESS)
     remove.add_argument("--purge", action="store_true",
@@ -3742,7 +3778,18 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     runtime_recover = commands.add_parser("recover-runtime", help="restore one unchanged retained private POSIX runtime")
     runtime_recover.add_argument("transaction")
     runtime_recover.add_argument("--pid", type=int, required=True, help="previous desktop process that must have exited")
+    prepare_uninstall = commands.add_parser("prepare-windows-uninstall", help="copy the private managed Python outside this installation")
+    prepare_uninstall.add_argument("--install-root", required=True)
+    prepare_uninstall.add_argument("--workdir", required=True)
     args = parser.parse_args(argv)
+    if args.command == "prepare-windows-uninstall":
+        try:
+            receipt = _prepare_windows_uninstall(args.install_root, args.workdir)
+        except Exception as error:
+            print(f"Uninstall preparation stopped: {error}")
+            return 1
+        print(json.dumps(receipt, sort_keys=True))
+        return 0
     if args.command == "recover-runtime":
         try:
             receipt = _recover_runtime_update(args.transaction, args.pid)
@@ -3786,6 +3833,11 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     if args.command == "purge":
         return _purge_command(machine, yes=args.yes, dry_run=args.dry_run)
     machine.running_prefix = None
+    if args.command == "remove" and args.require_outside:
+        if (not args.only_root or any(_inside(os.path.realpath(path), os.path.realpath(args.only_root))
+                                     for path in (sys.prefix, sys.executable, __file__))):
+            print("Uninstall requires a helper and interpreter outside the selected installation.")
+            return 1
     records = find_old_installs(system=machine)
     if args.command == "remove" and args.only_root:
         requested = os.path.abspath(args.only_root)
