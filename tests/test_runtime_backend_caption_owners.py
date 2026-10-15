@@ -142,15 +142,17 @@ def test_existing_encoder_entry_captions_remain_inventoried(extract_backend_sour
         f'def encoder_entry():\n    return tr({caption!r})\n') == {caption}
 
 
-def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources):
+@pytest.mark.parametrize('owner', ['_phases_by_xgboost', '_phases_by_torch'])
+def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, owner):
     caption = "The requested acquisition groups cannot place every class in both training and held-out data."
     assert extract_backend_sources('measure.py',
-        f'def _phases_by_xgboost():\n    return tr({caption!r})\n') == {caption}
+        f'def {owner}():\n    return tr({caption!r})\n') == {caption}
 
 
 @pytest.mark.parametrize('filename,owner', [
     ('embeddings.py', '_mil_frame_from_db'),
     ('measure.py', '_phases_by_xgboost'),
+    ('measure.py', '_phases_by_torch'),
 ])
 def test_new_backend_owners_do_not_admit_unrelated_diagnostics(
         extract_backend_sources, filename, owner):
