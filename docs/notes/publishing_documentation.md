@@ -76,6 +76,33 @@ error, never labeled compatible.
 Sphinx warnings/errors, broken English links and malformed publication inputs
 still fail a build. A failed build leaves the previously deployed site intact.
 
+## Check the existing CI token without rebuilding documentation
+
+The nightly workflow can verify `HF_DOCS_TOKEN` against the accepted static
+Space independently of a documentation build:
+
+```bash
+gh workflow run docs.yml --ref nightly \
+  -f mode=verify-host-access \
+  -f access_space=einarolafsson/spacr-docs-nightly-v2
+```
+
+This mode skips the normal resolve/build/deploy chain. It reads the current
+immutable Space tree and its existing README, verifies the README's Git content
+identity, then makes an authenticated commit-endpoint request with only those
+same README bytes and that exact parent commit. The returned immutable tree
+must match every original file identity and size. A no-content-change history
+commit may be recorded; no site file is removed, old history rewritten or paid
+hardware requested. The normal SDK upload shortcut is deliberately bypassed
+because it can skip unchanged files without reaching the commit endpoint.
+
+The job uses only the existing repository secret, serializes with nightly
+publication, and records public repository/commit identities rather than token
+or exception contents. A denied write or changed tree fails the job. Success
+proves this token could access that target at the checked time; it does not
+change the canonical host variables, deploy main Pages or verify CDN contents.
+This check does not require copying a broader local token into GitHub.
+
 ## Tutorials follow their branch's committed catalog
 
 Each channel uses `docs/source/_extra/tutorials` from its pinned checkout.

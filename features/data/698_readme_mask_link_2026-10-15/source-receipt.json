@@ -1,0 +1,51 @@
+{
+  "status": "SOURCE_READY_ARTIFACT_GENERATION_PENDING",
+  "baseline": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+  "scope": "Append localized Mask generator panel through existing normal generator; preserve N704 readable-panel routing and all model links.",
+  "initial_missing_link": {
+    "exit": 1,
+    "result": "1 failed in 1.64s"
+  },
+  "new_test_fixture_corrections": [
+    {
+      "result": "1 failed in 1.24s",
+      "cause": "New assertion incorrectly required direct website button; established N704 renderer correctly opens readable text."
+    },
+    {
+      "result": "1 failed in 1.36s",
+      "cause": "New readable-Markdown assertion omitted existing angle-bracket URL delimiters; actual renderer preserved."
+    }
+  ],
+  "corrected_source_check": {
+    "exit": 0,
+    "result": "1 passed in 1.13s",
+    "languages": 10
+  },
+  "first_normal_generation": {
+    "exit": 1,
+    "cause": "Existing spacr environment lacks uharfbuzz; normal tool wrote only partial README formatting before refusal. Subsequent normal rendering uses existing base Anaconda dependencies, no installation."
+  },
+  "source_scope": {
+    "baseline": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+    "status": "PASS",
+    "files": {
+      "packaging/generate_readme_visuals.py": {
+        "before_sha256": "bf04a481156343c2fbdf78d356de0c3581be97ee416cce370c9a1840c2459fbd",
+        "after_sha256": "58616bef94baecb1761c5c03bdd049aa9b51273470b502c3a887c21c4b15ec77",
+        "unrelated_AST_exact": true
+      },
+      "tools/readme_i18n.py": {
+        "before_sha256": "9e25f56d3a8e1f941bbbed6c05f39baf65f539f5e887d05fe4a1a02ff2a5d677",
+        "after_sha256": "047c8fefa0b4df049e18d33520f1bd1c9453b311c40fb601c046961589f2989c",
+        "unrelated_AST_exact": true
+      },
+      "tests/test_readme_presentation.py": {
+        "before_sha256": "63c3673dc581006d72072b13d0d9de3b2bfb005a65a74f5e7ff2a98c098e84d0",
+        "after_sha256": "6228ca607335bc07a892cfe733bf175a06f7601b9d20de397e3038b1c7f4f8b1",
+        "unrelated_AST_exact": true
+      }
+    }
+  },
+  "runtime_API_arrivals": "None: only packaging/tool generator dictionaries, no spacr runtime or API source modified.",
+  "publication": "Private; generated artifacts and owner-controlled live deployment gate must close before publication."
+}
