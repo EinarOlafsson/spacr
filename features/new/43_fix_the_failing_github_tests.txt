@@ -3868,3 +3868,11 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     is not inferred. Nine existing ad hoc lint findings remain; no fullCI,
     native model, training or release acceptance is claimed.
     Evidence:data/43_cellpose_signature_doubles_2026-10-15/.
+
+
+2026-10-15 — DINO diameter test follows current shared contract
+    The old empty-settings expectation incorrectly required nativeNone despite
+    supplying a30px magnification default. Test now requires30.0 and separately
+    verifies explicitauto retainsNone; explicit40px and other assertions remain.
+    Actual old node fails, changed node1PASS4.80s. No production/model/scientific
+    or fullCI claim. Evidence:data/43_dino_default_diameter_contract_2026-10-15/.
