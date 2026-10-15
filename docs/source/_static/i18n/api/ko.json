@@ -128296,16 +128296,14 @@
     },
     "spacr.qt.widgets.collapsible_section.CollapsibleSection.title": {
       "source_blocks_sha256": [
-        "9494e6657eaeca144cba17b1d12dd8209f5ab85b9b1c8f167868c04f16d83ad2",
-        "cf07f01591fdd20844821e9ede21fc4a43d725986129a596603904bba3498a1d",
-        "37e574be560d96919185ec77c38ae19db625b7c3fc20961837c0a1d64b5a7e4f"
+        "c1c72df8068cdbbc0e191475e25f7617baa8eac2ade3f8d027b665e2cbb4c708",
+        "a4e8495ff87c99b9d090c6bde8fff42700a6100524dd93fa6a1e357cdf56caa4"
       ],
-      "source_sha256": "a1349207febf679a00836c1730b544db77409f938d75845f448b224a2596b409",
-      "text": "섹션의 코멘트, 표시된 대신 작성된 것처럼.\n\n헤더는 그것을 업그레이드하고 성숙 표지판을 붙일 수 있습니다; 이것은 카탈로그 또는 설정 파일이 열려있는 링크입니다.\n\n:returns: 제목에 해당되는 글 1건",
+      "source_sha256": "970faf0b2c10cd931e18ea3e963660f381746381d143fd4c650cb94da49102d8",
+      "text": "생성자에 전달된 제목을 ``str`` 형식으로 변환하여 반환합니다.\n\n:returns: 저장된 제목이며, 머리글 버튼의 텍스트를 변경해도 이 값은 바뀌지 않습니다.",
       "translation_source_blocks_sha256": [
-        "9494e6657eaeca144cba17b1d12dd8209f5ab85b9b1c8f167868c04f16d83ad2",
-        "cf07f01591fdd20844821e9ede21fc4a43d725986129a596603904bba3498a1d",
-        "37e574be560d96919185ec77c38ae19db625b7c3fc20961837c0a1d64b5a7e4f"
+        "c1c72df8068cdbbc0e191475e25f7617baa8eac2ade3f8d027b665e2cbb4c708",
+        "a4e8495ff87c99b9d090c6bde8fff42700a6100524dd93fa6a1e357cdf56caa4"
       ]
     },
     "spacr.qt.widgets.collapsible_splitter": {

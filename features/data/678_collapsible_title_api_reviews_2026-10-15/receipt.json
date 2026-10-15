@@ -3,7 +3,7 @@
   "source_commits": [
     "7b1379559ca3adb151b6e30ad064bc09647db9db"
   ],
-  "published_base": "b3fbd1839d52f150f628838d23719b1f318eb520",
+  "published_base": "f260582a63a81e957f22a3bd348baa1e06184a90",
   "source_files": {
     "spacr/qt/widgets/collapsible_section.py": "e73b9f05b98d080ec64559f506ac268fb7e90454b3d5213912affa8cb7edcb9e"
   },
@@ -161,5 +161,10 @@
       "target_sha256": "808644aaf1dab51a7d40ceefbf2fea27b96e3df8e8ec0b133a8b5c6cdea6d19c"
     }
   ],
-  "review_claim": "AI technical translation review; no native-speaker claim."
+  "review_claim": "AI technical translation review; no native-speaker claim.",
+  "baseline_provenance_correction": {
+    "observed_remote_ref_at_input_write": "b3fbd1839d52f150f628838d23719b1f318eb520",
+    "pinned_private_baseline": "f260582a63a81e957f22a3bd348baa1e06184a90",
+    "reason": "Other sessions update shared remote refs; private baseline and exact English bytes remain pinned. Corrected receipt only; no catalog or target changes."
+  }
 }
