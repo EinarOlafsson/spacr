@@ -13,6 +13,7 @@ library. On Windows the caller falls back to opening a terminal, as before.
 """
 from __future__ import annotations
 
+import codecs
 import os
 import queue
 import re
@@ -107,6 +108,7 @@ class PtySession:
 
     def _pump(self) -> None:
         """Move the terminal's output to the queue until it closes."""
+        decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
         while True:
             try:
                 chunk = os.read(self._master, 4096)
@@ -114,7 +116,12 @@ class PtySession:
                 break
             if not chunk:
                 break
-            self._queue.put(chunk.decode("utf-8", "replace"))
+            text = decoder.decode(chunk)
+            if text:
+                self._queue.put(text)
+        remaining = decoder.decode(b"", final=True)
+        if remaining:
+            self._queue.put(remaining)
 
     def read(self) -> str:
         """Everything the command has written since the last call.
@@ -188,6 +195,7 @@ class SignInDialog(QDialog):
         self.setWindowTitle(tr("Sign in to {name}", name=title))
         self._open_url = open_url or (lambda url: QDesktopServices.openUrl(QUrl(url)))
         self._urls: List[str] = []
+        self._url_pending = ""
         self.succeeded: Optional[bool] = None
         layout = QVBoxLayout(self)
         self._intro = QLabel(tr(
@@ -239,13 +247,20 @@ class SignInDialog(QDialog):
         if text:
             self.log.moveCursor(QTextCursor.End)
             self.log.insertPlainText(text)
-            for url in find_urls(text):
-                if url not in self._urls:
-                    self._urls.append(url)
-                    self._link.setText(url)
-                    self.open_btn.setEnabled(True)
-                    if len(self._urls) == 1:
-                        self._open_url(url)
+        pending = self._url_pending + text
+        if code is None:
+            parts = re.split(r"(\s+)", pending)
+            self._url_pending = parts.pop()
+            complete = "".join(parts)
+        else:
+            complete, self._url_pending = pending, ""
+        for url in find_urls(complete):
+            if url not in self._urls:
+                self._urls.append(url)
+                self._link.setText(url)
+                self.open_btn.setEnabled(True)
+                if len(self._urls) == 1:
+                    self._open_url(url)
         if code is not None:
             self._timer.stop()
             self.succeeded = code == 0

@@ -1,0 +1,28 @@
+{
+  "baseline_source_pin": "d25e03edf027cf9133b0e5e4e1603fdea1fba701",
+  "baseline": {
+    "passed": 2,
+    "failed": 16,
+    "seconds": 1.9
+  },
+  "patched_owning": {
+    "passed": 61,
+    "deselected": 4,
+    "seconds": 6.93,
+    "actual_new_real_sqlite_cases": 18,
+    "existing_reader_and_direct_mil_cases": 43,
+    "training_tests_excluded": true
+  },
+  "source_sha256": "58f14f3771639bb8fc7ca29a17d5d47fba48becc791b78d34b8df1cfebbeaa34",
+  "later_locale_callbacks": {
+    "added": 18,
+    "status": "NOT RUN until normal reviewed runtime installation"
+  },
+  "limits": [
+    "All synthetic private SQLite databases; actual normal read-only reader, unchanged DB bytes.",
+    "No actual training, model construction, GPU, biological or global CI acceptance.",
+    "Locale targets and normal generated catalogs remain pending."
+  ],
+  "current_test_file_sha256": "fca4637d4c85777a3bbf23947720bdd6e19290466b79be4e98869cddc740e842",
+  "test_source_lifecycle": "61-case owning run preceded addition of only the18locale callback cases. Existing18numeric/identity/path test functions were not edited;18newlocale cases remain NOT RUN until normal catalog installation."
+}

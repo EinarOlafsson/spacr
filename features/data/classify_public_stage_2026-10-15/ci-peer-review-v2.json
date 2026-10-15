@@ -1,0 +1,13 @@
+{
+  "decision": "ACCEPT corrected absence-of-entry stable convention; supersedes initial explicit-STAGE_STABLE proposal",
+  "reviewer": "Original Home CI lane independent AI static peer; no runtime/scientific claim",
+  "source_sha256": "3cfcbae7eb6497d41c5a2db0a1b0b0f2f09f1b049b18a86ae722c8c227892022",
+  "baseline": "15938ddbb6fd431d59f45eb90840d903177b3dd5",
+  "test_sha256": "f6140fc6ec926433de90df8859d4d67bf0f80365ce6461d76c99d2b4e9c3955f",
+  "existing_invariant_sha256": "d532b3f7a37aeae6b8103ae4516afb38b2ae2899fcf2b5550b4dcf3120fb88be",
+  "exact_delta": "Only APP_STAGE[classify_merged] key/value removed, replaced with blank source line. All other AST and every source line position retained.",
+  "reason": "Existing test_home_v2 invariant explicitly permits alpha/beta values only. app_stage fallback already means stable, and AFFIRMED assesses merged Classify stable, so removal aligns both existing contracts without another policy branch.",
+  "tests": "Root owns3actual routes plus existing global stage invariant; new test asserts key absent. Prior5 unrelated maturity cases may be reused if actual inputs unchanged. No tests run by reviewer.",
+  "prior_review": "Initial explicit-stable static acceptance did not cover existing absence-of-entry invariant and is superseded, not treated as sufficient current evidence.",
+  "limits": "No future/species gate, module function, metrics, model/backend, caption/docstring or scientific acceptance changes."
+}

@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Technical source-bound review and explicit unchanged-target rebinding; no native-speaker claim.",
+  "note": "Four changed source blocks plus ten shifted source-identical blocks for existing generate_ml_scores from source68ebc796b4d. Only one historic Korean markup target changed with explicit authorization/evidence. No global source-currency claim.",
+  "records": [
+    {
+      "label": "spacr.ml.generate_ml_scores#1",
+      "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges the object feature tables selected by ``tables`` using their existing parent-object joins, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
+      "context": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges the object feature tables selected by ``tables`` using their existing parent-object joins, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` under the first source folder.",
+      "source_sha256": "482658054fa87d77e6922dc37d405cf4ab19822fbc0e58483ba3325d600fdd61",
+      "previous_same_source_indexes": [],
+      "translation": "Lit le stockage de mesures sélectionné par ``measurement_backend`` provenant de :func:`spacr.measure.measure_crop`, fusionne les tables de caractéristiques d’objets sélectionnées par ``tables`` avec leurs jointures existantes vers les objets parents, utilise les puits marqués ``positive_control`` / ``negative_control`` (ou une colonne d’annotations) comme étiquettes d’entraînement, délègue l’ajustement à :func:`ml_analysis` et écrit les prédictions par objet, les tables de permutation et d’importance des caractéristiques ainsi qu’une carte thermique de la plaque dans ``results/`` sous le premier dossier source.",
+      "review_basis": "Exact-source technical translation review: selected measurement backend and object tables, retained parent-object joins and limits, unique registered tables with an object anchor, exact four-table default order, channel selection for recruitment ratio only and documented error conditions. No native-speaker claim."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#5",
+      "source": "``tables`` (list or tuple) — unique registered object-table names, optionally including ``png_list``; at least one object table is required. When absent, reads ``cell``, ``nucleus``, ``pathogen`` and ``cytoplasm`` in that order. Selected tables retain the shared reader's existing joins and nucleus/pathogen limits.",
+      "context": "``tables`` (list or tuple) — unique registered object-table names, optionally including ``png_list``; at least one object table is required. When absent, reads ``cell``, ``nucleus``, ``pathogen`` and ``cytoplasm`` in that order. Selected tables retain the shared reader's existing joins and nucleus/pathogen limits.",
+      "source_sha256": "4006b318c00561a4f1d837e2825547b18c1f2b25c22f0949d258aced488d883d",
+      "previous_same_source_indexes": [],
+      "translation": "``tables`` (liste ou tuple) — noms uniques de tables d’objets enregistrées, avec éventuellement ``png_list`` ; au moins une table d’objets est requise. En l’absence de ce paramètre, lit ``cell``, ``nucleus``, ``pathogen`` et ``cytoplasm`` dans cet ordre. Les tables sélectionnées conservent les jointures existantes et les limites de noyaux/pathogènes du lecteur partagé.",
+      "review_basis": "Exact-source technical translation review: selected measurement backend and object tables, retained parent-object joins and limits, unique registered tables with an object anchor, exact four-table default order, channel selection for recruitment ratio only and documented error conditions. No native-speaker claim."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#6",
+      "source": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature.",
+      "context": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature.",
+      "source_sha256": "ab17de3c8627c52e5c7afd7e75f1a8f992831754dead0524ad106a77619f45b8",
+      "previous_same_source_indexes": [],
+      "translation": "``channel_of_interest`` — canal indexé à partir de 0 pour la caractéristique de rapport de recrutement.",
+      "review_basis": "Exact-source technical translation review: selected measurement backend and object tables, retained parent-object joins and limits, unique registered tables with an object anchor, exact four-table default order, channel selection for recruitment ratio only and documented error conditions. No native-speaker claim."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#15",
+      "source": "if ``tables`` is empty, duplicated, contains an unknown table or has no object table; or if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "context": "if ``tables`` is empty, duplicated, contains an unknown table or has no object table; or if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "source_sha256": "5a470148591a6c5b5d4ada5c0c37f6e9a5f846af39454a28bca135366411ebf5",
+      "previous_same_source_indexes": [],
+      "translation": "si ``tables`` est vide, comporte des doublons, contient une table inconnue ou ne contient aucune table d’objets ; ou si ``annotation_column`` est défini mais que la table ``png_list`` ne possède pas ``prcfo`` / cette colonne, que ses identifiants d’objet ne peuvent pas être joints aux mesures, qu’elle contient moins de deux classes observées, ou si ``heatmap_feature`` ne figure pas parmi les caractéristiques utilisées pour l’entraînement.",
+      "review_basis": "Exact-source technical translation review: selected measurement backend and object tables, retained parent-object joins and limits, unique registered tables with an object anchor, exact four-table default order, channel selection for recruitment ratio only and documented error conditions. No native-speaker claim."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#7",
+      "source": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "context": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "source_sha256": "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
+      "previous_same_source_indexes": [
+        6
+      ],
+      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 62,
+      "previous_label": "spacr.ml.generate_ml_scores#6",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#8",
+      "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
+      "previous_same_source_indexes": [
+        7
+      ],
+      "translation": "``positive_control`` / ``negative_control`` — ID de puits (par exemple ``'c2'`` / ``'c1'``) utilisés comme étiquettes d’entraînement.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 63,
+      "previous_label": "spacr.ml.generate_ml_scores#7",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#9",
+      "source": "``annotation_column`` — override controls with a PNG-level annotation column.",
+      "context": "``annotation_column`` — override controls with a PNG-level annotation column.",
+      "source_sha256": "3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723",
+      "previous_same_source_indexes": [
+        8
+      ],
+      "translation": "``annotation_column`` — remplace les contrôles par une colonne d’annotation au niveau PNG.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 64,
+      "previous_label": "spacr.ml.generate_ml_scores#8",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#10",
+      "source": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "context": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "source_sha256": "ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6",
+      "previous_same_source_indexes": [
+        9
+      ],
+      "translation": "``location_column`` — ``'columnID'`` ou ``'rowID'``.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-09-22-reference-alternatives.json",
+      "previous_review_index": 0,
+      "previous_label": "spacr.ml.generate_ml_scores#9",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#11",
+      "source": "``heatmap_feature`` — feature plotted on the plate heatmap.",
+      "context": "``heatmap_feature`` — feature plotted on the plate heatmap.",
+      "source_sha256": "cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd",
+      "previous_same_source_indexes": [
+        10
+      ],
+      "translation": "``heatmap_feature`` — caractéristique représentée sur la carte thermique de la plaque.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 66,
+      "previous_label": "spacr.ml.generate_ml_scores#10",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#12",
+      "source": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "context": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "source_sha256": "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
+      "previous_same_source_indexes": [
+        11
+      ],
+      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 67,
+      "previous_label": "spacr.ml.generate_ml_scores#11",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#13",
+      "source": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "context": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "source_sha256": "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
+      "previous_same_source_indexes": [
+        12
+      ],
+      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 68,
+      "previous_label": "spacr.ml.generate_ml_scores#12",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#14",
+      "source": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "context": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "source_sha256": "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
+      "previous_same_source_indexes": [
+        13
+      ],
+      "translation": "La liste à deux éléments ``[output, plate_heatmap]``, où ``output`` est la liste de résultats à 10 éléments de :func:`ml_analysis` et ``plate_heatmap`` est la figure ``matplotlib`` de la carte thermique de la plaque. Les CSV et les figures sont écrits dans ``results/`` comme effet secondaire ; leurs chemins ne sont pas renvoyés.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 69,
+      "previous_label": "spacr.ml.generate_ml_scores#13",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#16",
+      "source": "Example:",
+      "context": "Example:",
+      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+      "previous_same_source_indexes": [
+        15
+      ],
+      "translation": "Exemple :",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 71,
+      "previous_label": "spacr.ml.generate_ml_scores#15",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#17",
+      "source": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.",
+      "context": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.",
+      "source_sha256": "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d",
+      "previous_same_source_indexes": [
+        16
+      ],
+      "translation": "Voir aussi : :func:`ml_analysis` — la routine sous-jacente d’ajustement et d’évaluation. :func:`perform_regression` — la régression à effets mixtes sur les scores ML par puits.",
+      "previous_review_path": "docs/i18n/reviewed/api/fr/2026-08-30-db-gate-upstream-semantic-review.json",
+      "previous_review_index": 72,
+      "previous_label": "spacr.ml.generate_ml_scores#16",
+      "review_basis": "Exact unchanged source/context and prior source-proven reviewed target rebound to shifted paragraph index; prior review identity retained. No new semantic or native-speaker claim for unchanged target."
+    }
+  ]
+}

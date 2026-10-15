@@ -228,3 +228,55 @@ original source collection before/after; no handbinary merge or ratchet edit.
 Normal current English audit7733UI PASS; prior full9audit7732UI and50owning
 callbacks remain recorded at their actual source scope. Exact reviewed helper
 AST unchanged fromd2826a4ae76. No globalCI or wholefeature acceptance claim.
+
+2026-10-15 — Finite numerical feature boundary in _mil_bags.
+Retained per-cell feature values must remain finite after float32 conversion;
+positive/negative infinity and finite float64 overflow now refuse before any
+bags or training. Existing NaN-row dropping, finite float32 extrema, labels,
+original input frames, algorithms and alpha gating remain unchanged. Actual
+old-source counterexample:5FAIL1PASS9deselected; final owning cohort42PASS
+20deselected4.55s, including6numeric cases,9actual localized new refusals and
+27existing direct-MIL cases. No training or model construction occurred.
+Nine exact-source technical targets independently reviewed by parent; normal
+writer preserves10,757 unrelated source-current targets per locale. Actual
+full nine-locale runtime audit PASS; normal immutable arrivals PASS with
+9833baseline/1076added/151retired/30changed. Source hashes unchanged throughout.
+Evidence:data/562_finite_features_2026-10-15/. Scientific efficacy, actual model
+training, fullCI/release and whole-feature acceptance remain separate/open.
+
+2026-10-15 — FINITE-CONVERSION GUARD COHERENT PUBLICATION
+The exact42-case checked source/reviews are normal-merged with N594's existing
+table selection. One ordinary combined two-scope runtime writer validates
+both reviewed rows in all nine locales and preserves10,768 unrelated rows
+per locale, including178 web and12 DINO captions. Normal arrival refresh
+reports9833 baseline/1088 added/151 retired/31 changed. Source and review
+hashes remain exact to d25e03edf02; no unchanged42-case/model/training run
+was repeated. Whole F562 scientific/feature acceptance remains separate.
+Combined evidence: features/data/594_existing_table_selection_2026-10-15/.
+
+2026-10-15 — Stored-object join cardinality and acquisition identity (alpha).
+The read-only _mil_frame_from_db boundary refuses contradictory known
+plate/row/column/field metadata for one object key and contradictory stored
+embedding or provenance rows. Exact duplicate stored rows coalesce into one
+cell; legitimate alternative crop views retain the first valid path. Later
+known metadata survives an earlier blank and retains authority over parsed
+key metadata. No DB writes/migration, renaming, training or algorithm changes.
+Actual old-source18-case counterexample16FAIL2PASS1.90s; patched owning
+61PASS4deselected6.93s includes18new real SQLite cases and43existing reader/
+direct-MIL cases, with all4training tests excluded. Every private source DB
+remains byte-exact. Evidence:data/562_db_cardinality_2026-10-15/. Two new
+literal diagnostic targets drafted in9locales; normal review/writer closure
+and18actual localized refusal callbacks remain pending at this source note.
+No biological efficacy, native model training or whole-feature/fullCI claim.
+
+2026-10-15 — Stored-object join coherent runtime closure.
+Parent independently reviewed exact helper source and all18technical targets.
+One normal writer installs2diagnostics in9locales while preserving
+10,770 unrelated source-current rows per locale; actual full9runtimeaudit
+and normal immutable-arrival refresh PASS (9833baseline/1090added/
+151retired/31changed). Only18newactual localized read-only
+SQLite refusals were run after installation:18PASS,zero skips. The unchanged
+61-case helper cohort was not repeated. Original collector and4source/tool/
+test file hashes rechecked across normal closure; no catalog rows hand-edited.
+Raw scripts/logs/source hashes and peer evidence retained in the same folder.
+No training, biological efficacy, wholefeature or fullCI/release acceptance.

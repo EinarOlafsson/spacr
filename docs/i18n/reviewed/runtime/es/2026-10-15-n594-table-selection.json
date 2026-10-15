@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "es",
+  "draft_author": "Original Home easy_overnight",
+  "review_kind": "Direct AI technical draft plus independent root AI technical peer approval; no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "tables",
+      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation": "Tablas de mediciones que se leen de la base de datos de cada placa y se fusionan en un único marco de datos para el análisis. Se admiten los roles de objeto registrados, incluidos los orgánulos, y png_list. Para Classify tabular, elija una lista no vacía de tablas admitidas distintas que incluya al menos una tabla de un rol de objeto. Valor predeterminado: ['cell', 'nucleus', 'pathogen', 'cytoplasm']."
+    }
+  ],
+  "peer_receipt": {
+    "path": "features/data/594_existing_table_selection_2026-10-15/root-tooltip-peer-review.json",
+    "sha256": "ec502b7c070a0dd5e83fc7d80bf6d13be555801cc1b6da0ca2e34e1ef233fb9a",
+    "approved_translation_sha256": "b2a5a09d214eb5d44361ab68699631909d93e3c45eafc533a2e90978bed7a394"
+  }
+}

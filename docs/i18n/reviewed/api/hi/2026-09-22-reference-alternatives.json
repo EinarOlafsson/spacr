@@ -6,7 +6,10 @@
       "label": "spacr.ml.generate_ml_scores#9",
       "source": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
       "source_sha256": "ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6",
-      "translation": "``location_column`` — ``'columnID'`` या ``'rowID'``."
+      "translation": "``location_column`` — ``'columnID'`` या ``'rowID'``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     }
   ],
   "review": {

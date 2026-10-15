@@ -6,7 +6,10 @@
       "label": "spacr.ml.generate_ml_scores#1",
       "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
       "source_sha256": "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
-      "translation": "读取由 ``measurement_backend`` 从 :func:`spacr.measure.measure_crop` 中选定的测量存储，合并细胞/细胞核/病原体/ 细胞质特征表，将标记为 ``positive_control`` / ``negative_control`` 的孔（或某个注释列）用作训练标签，把拟合委托给 :func:`ml_analysis`，并将逐对象预测、置换表和特征重要性表以及一张板热图写入第一个源文件夹下的 ``results/``。"
+      "translation": "读取由 ``measurement_backend`` 从 :func:`spacr.measure.measure_crop` 中选定的测量存储，合并细胞/细胞核/病原体/ 细胞质特征表，将标记为 ``positive_control`` / ``negative_control`` 的孔（或某个注释列）用作训练标签，把拟合委托给 :func:`ml_analysis`，并将逐对象预测、置换表和特征重要性表以及一张板热图写入第一个源文件夹下的 ``results/``。",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "context": "``src`` (str or list) — folder(s) containing the measurements.",
