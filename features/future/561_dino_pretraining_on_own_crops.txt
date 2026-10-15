@@ -122,3 +122,19 @@ dino_scratch_resnet18_64_gpu.pt next to it.
     normal source recheck plus English audit (91.27s,491,068KiB peak). Evidence:
     features/data/561_dino_runtime_catalogs_2026-10-15/. API lifecycle artifacts
     remain with the documentation owner; publish the coherent group together.
+
+2026-10-15 — Own-checkpoint, epoch and progress controls completed.
+The alpha control group selects an existing own spaCR DINO checkpoint without
+loading it, accepts an explicit total epoch count (default20), and displays
+worker progress. Dedicated runner/token handling restores controls after
+success, errors or cancellation and rejects stale reports after retry/close.
+The actual alpha registry gates the whole group. Source33 targeted Qt checks
+PASS; independent code review caught and verified the cancellation repair.
+All108 runtime and45 API translation targets are independently technically
+reviewed and normally generated. Coordinator merged all incoming web captions,
+verified exact unrelated preservation and normal arrival refresh; immutable
+9,833 baseline unchanged. Final current-source English audit passes after the
+published N641 source merge. No training/model/GPU/quality acceptance claimed.
+Evidence: features/data/561_dino_controls_2026-10-15/ and related runtime/API
+review/catalog directories. This closes the described software-control gap;
+scientific acceptance is not inferred from fake-backend Qt checks.

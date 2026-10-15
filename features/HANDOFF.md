@@ -13088,3 +13088,26 @@ features/data/678_file_pair_runtime_catalogs_2026-10-15/. This closes the bounde
 batch, not the complete N678 review. Original Home owns the separate N641
 FilePathListWidget asynchronous-drop implementation; our paired-table helpers
 and the plate-map scope remain separate.
+
+## 2026-10-15 Home-B — coherent DINO, carried database and memory delivery
+
+F561 software controls: own checkpoint selection, explicit epochs, progress,
+actual alpha group, error/cancel/retry/close handling;33 owning Qt checks,
+108 runtime targets and45 API targets. N180 folder-mode carried adapter:
+actual relocated SQLite/order/stale association validation,41 checks,36 API
+targets; Graph/comparison state remains explicitly active with Home-B.
+Memory/laptop prose:261 new targets plus9 unchanged literal provenance rows,
+full executable AST unchanged. Independent source/translation receipts retained.
+
+Normal merged runtime generation preserves all incoming N698 web targets and
+adds exactly12 owned captions; arrival baseline9,833 unchanged with1,087 added,
+151 retired and30 changed bodies. Incoming902630/15938 archive/drop source and
+API artifacts are retained. Fresh original canonical comparison after that
+source merge exactly matches generated snapshot; English-only audit is labeled
+languages0, not a nine-language audit. Final CI/release remain deferred.
+
+Next: UI worker alone measurement_compare_dialog.py control-state protocol;
+website worker alone cell_montage_view.py workspace/lazy pending handoff;
+readme worker API reviews/normal artifacts only. Root reviews/publishes. No
+render/join/inference during restore or deferred-panel creation during collect.
+Original Home owns N594 coherent publication after this exact runtime baseline.

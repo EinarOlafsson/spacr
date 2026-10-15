@@ -1,0 +1,64 @@
+{
+  "baseline": "c98f0cd6bd7",
+  "owned_symbols_expected_artifact": {
+    "spacr.qt.laptop_mode": "fc84b9137e4",
+    "spacr.qt.laptop_mode.apply": "fc84b9137e4",
+    "spacr.qt.laptop_mode.describe": "fc84b9137e4",
+    "spacr.qt.laptop_mode.measure": "fc84b9137e4",
+    "spacr.qt.laptop_mode.override": "fc84b9137e4",
+    "spacr.qt.laptop_mode.usable_cores": "fc84b9137e4",
+    "spacr.qt.laptop_mode.wanted": "fc84b9137e4",
+    "spacr.qt.laptop_mode.what_it_turns_down": "fc84b9137e4",
+    "spacr.qt.memory_budget": "fc84b9137e4",
+    "spacr.qt.memory_budget.free_megabytes": "fc84b9137e4",
+    "spacr.qt.memory_budget.headroom_is_short": "fc84b9137e4",
+    "spacr.qt.memory_budget.what_to_drop": "fc84b9137e4",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": "aa6609057b1",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": "aa6609057b1",
+    "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state": "78933b737a4"
+  },
+  "source_and_review_hashes_verified": true,
+  "locales": {
+    "en": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13463
+    },
+    "de": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "es": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "fr": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "hi": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "is": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "ko": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "pt": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "sv": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    },
+    "zh_CN": {
+      "owned_symbols_exact": 15,
+      "unrelated_records_preserved": 13389
+    }
+  },
+  "scope": "Combined normal artifact readback for memory/laptop, DINO lifecycle and carried database restoration."
+}
