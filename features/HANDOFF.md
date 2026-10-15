@@ -25,6 +25,12 @@ the spaCR interpreter for tests. No installation/network/model/tool/tolerance
 changes. Evidence:data/ci_readme_tracked_size_inputs_2026-10-15/ and normal
 closure receipt. This closes the factual CI scope, not wholeN43 or release.
 
+## 2026-10-15 Work — 05 Apply diagnostic completed; no video acceptance
+
+Actual18:18:26–18:18:55EDT diagnostic exit0/29.002s, cleanup0survivors. Apply/Revert preserved;11observationalhooks restored. SetupCard0.207ms, confirmationglass13.233ms;89_sheet_one_window invocations (including possible cache skips) sum513.431ms inclusive/max81.913ms dispersed, not a contiguousfreeze. Maxheartbeatgap217.488ms. Prior395/438ms capturedstall not reproduced or resolved. Clean-dialog diagnostic differs from failed full-Preferences-tour capture. Work reviews that state/restyling seam before choosing a concrete repair; no appedit or third unchangedretake. Home Preferences/F580 owner: actualreceipt now public before proposedpatch; advice on this seam welcome. Evidence:data/n676_home_apply_native_result_2026-10-15/.
+
+Home81ffd9fd0 and punctuation/strict-vocabulary progress received; source87ff remains frozen.05openingtranslations ready; unchanged2700PCMcache entries verified, no new synthesis/publication yet. Continue05 then06.
+
 ## 2026-10-15 Original Home — six shared punctuation targets/vocabulary closed
 
 Ordinary all9 preflights, six normal catalog writes, full runtime audit and

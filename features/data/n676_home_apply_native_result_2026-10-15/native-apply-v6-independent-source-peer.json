@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "preparation_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/preparation-manifest.json",
+    "bytes": 4171,
+    "sha256": "001e4a8f1ad1d474cb3f91daa8b9ec37374f2124aa40fad98aa3c3b742e59ec1"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/LAUNCH_RECIPE.txt",
+      "bytes": 5070,
+      "sha256": "3be7865677386991f26f007c43e997069d378dbe363774b035c081b22360ccce"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/apply_observer.py",
+      "bytes": 7426,
+      "sha256": "560bfd6e4ae2f6b6a7ea9105f0d2879e19560ff8e032a7fd2eccab0c9684fc35"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/deadline_regression.py",
+      "bytes": 3575,
+      "sha256": "a4a8adc11a43ffe00da225eb9c0c587984fcefe6508b29b57caecda846c44264"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/native_driver.py",
+      "bytes": 13934,
+      "sha256": "d9bc92e785f15c5e48718e40e2a71c05acf4c7a491b0270092e83da1984c916d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/native_job.py",
+      "bytes": 6246,
+      "sha256": "4af7afa2d40bd22a30285a6b9f4104cdf01749b274013f448d7ec5b3b1a4e06b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/native_once.sh",
+      "bytes": 411,
+      "sha256": "b08a1cebec45c64bfa36dbbed42d88d02c659410e3e025328060dcca06c8bf98"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/preparation-manifest.before-root-bootstrap.json",
+      "bytes": 5345,
+      "sha256": "51fea500de762626502a15cbedcc846a5e2eb4a6a6ac9910bc9272b98228bce1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/run.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/run_with_lease.sh",
+      "bytes": 3312,
+      "sha256": "de3681598bde19b270ad78e576f22c204a93b1cd98bd80df2abb78dfa5fef498"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v6/supervise_once.py",
+      "bytes": 7479,
+      "sha256": "3d3e081d1e867a169bd8eed1f2296f3eef9d50890fb2f68796db9233c0a2ca0d"
+    }
+  ],
+  "production_source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py",
+      "bytes": 36136,
+      "sha256": "2fd766f89893da6bea35f1e99b35369c0ff358f6819ab35eed7e62adb480a2fb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py",
+      "bytes": 24274,
+      "sha256": "b1a2aaa643787f87ec5a1166a0205a0b9f88cf4bc17440e30de04f88513b43ba"
+    }
+  ],
+  "prior_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-v5-independent-source-peer.json",
+    "bytes": 4535,
+    "sha256": "9f31780970f270b33c3ad7f88c99cbc1c3c7a407e947511a48127053e70e6c32"
+  },
+  "checks": {
+    "Escape_warp_before_GuiCaller_matches_production_startup": true,
+    "only_static_production_reachable_geometry_called": true,
+    "visible_enabled_real_input_guards_retained": true,
+    "no_QTest_input_adapter_instance_EventPump_or_application_import_sideeffects": true,
+    "all_deadline_approval_profile_observer_logic_unchanged_except_stage_names": true
+  },
+  "limits": [
+    "Narrow source-only parity review; no tests/import/app/native/GPU execution.",
+    "V5 hit nature and shell Overview cause remain unproven; no Apply/product cause or runtime readiness accepted."
+  ]
+}
