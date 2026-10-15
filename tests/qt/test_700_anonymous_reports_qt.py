@@ -319,16 +319,16 @@ class TestDailyAllowanceDisplay:
     def test_the_allowance_line(self):
         text = providers.hosted_allowance_text(self.ALLOWANCE)
         assert text == (f"4 of 5 best-model questions left today · then 10 "
-                        f"on the light model · resets at {self._when()}")
+                        f"on the lighter model · resets at {self._when()}")
 
     def test_best_used_then_light(self):
         allowance = dict(self.ALLOWANCE, ai={"best_left": 0, "light_left": 7})
         assert providers.hosted_allowance_text(allowance).startswith(
-            "Best-model questions used today · 7 of 10 light-model")
+            "Best-model questions used today · 7 of 10 lighter-model")
 
     def test_a_low_pool_serves_the_light_model(self):
         allowance = dict(self.ALLOWANCE, pool="light")
-        assert "everyone gets the light model" in \
+        assert "everyone gets the lighter model" in \
             providers.hosted_allowance_text(allowance)
 
     def test_nothing_left(self):
@@ -372,7 +372,7 @@ class TestDailyAllowanceDisplay:
         hosted = providers.hosted_provider()
         reply = "".join(hosted.stream_chat([{"role": "user",
                                              "content": "why?"}]))
-        assert "[light model]" in reply
+        assert "[lighter model]" in reply
         assert hosted.last_allowance["ai"] == {"best_left": 0,
                                                "light_left": 9}
 
@@ -381,7 +381,7 @@ class TestDailyAllowanceDisplay:
                                 "tier": "best"})]
         reply = "".join(providers.hosted_provider().stream_chat(
             [{"role": "user", "content": "why?"}]))
-        assert "[light model]" not in reply
+        assert "[lighter model]" not in reply
 
     def test_the_console_fetches_the_allowance_on_open(self, qtbot,
                                                        qt_theme_applied,
@@ -448,7 +448,7 @@ class TestDailyAllowanceDisplay:
         text = " ".join(label.text() for label in notice.findChildren(QLabel))
         assert "up to 5 reports a day" in text
         assert "about 5 questions a day on the best model" in text
-        assert "10 more on a light model" in text
+        assert "10 more on a lighter model" in text
 
 
 
@@ -891,7 +891,7 @@ class TestTheUsageBar:
         allowance = json.loads(json.dumps(self.DYNAMIC))
         allowance["ai"]["tier_now"] = "light"
         assert providers.usage_bar(providers.HOSTED_PROVIDER_NAME,
-                                   allowance)[1].endswith(" · light model")
+                                   allowance)[1].endswith(" · lighter model")
 
     def test_an_empty_share(self):
         allowance = json.loads(json.dumps(self.DYNAMIC))
