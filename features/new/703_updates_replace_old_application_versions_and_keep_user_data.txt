@@ -598,3 +598,14 @@ Normal English audit records existing foreign model_zoo/preferences staleness
 at public base021fd; current owner API closure/re-audit remains pending.
 Native desktop acceptance, all other parentN703 gaps and finalCI remain OPEN.
 Evidence: features/data/n703_online_no_downgrade_2026-10-15/.
+
+2026-10-15 00:48 EDT — Current-public non-downgrade source integration
+Normal current-public merge preserves the actual44PASS source/test bytes.
+The manifest-only re-audit clears earlier model_zoo/storage callback drift but
+records10 later foreign startup-animation/theme/montage/figure API symbols;
+none belongs to install_cleanup. Exact actualexit1/refusals are retained in
+the component receipt; no global English gate pass is claimed and no foreign
+API artifacts were edited. Source peer review accepted the bounded repair.
+Legacy runtimes without _version.py use installed metadata/package ownership
+identity only; an unavailable previous interpreter still refuses recoverably.
+ParentN703/native/fullCI acceptance stays OPEN.

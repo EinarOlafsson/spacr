@@ -43,5 +43,25 @@
     ],
     "foreign_source_and_manifest_unchanged_from_base": true,
     "pending": "Normal merge of published owner API closure and re-audit; no own API prose artifact generation needed"
-  }
+  },
+  "current_public_merge_commit": "279edd41ac9b344b067f9861b6a4031d2c79238b",
+  "current_english_audit": {
+    "exit": 1,
+    "foreign_stale_symbols": [
+      "spacr.qt.preferences.get_startup_animation",
+      "spacr.qt.theme.focus_ring_qss",
+      "spacr.qt.widgets.cell_montage_view",
+      "spacr.qt.widgets.figure_queue",
+      "spacr.qt.widgets.figure_queue.FigureQueue",
+      "spacr.qt.widgets.figure_queue.figure_text_items",
+      "spacr.qt.widgets.loading_screen",
+      "spacr.qt.widgets.loading_screen.LoadingScreen",
+      "spacr.qt.widgets.loading_screen.replay_startup_animation",
+      "spacr.qt.widgets.loading_screen.startup_animation_allowed"
+    ],
+    "own_install_cleanup_symbols_flagged": false,
+    "policy": "Current foreign source/API owner integration hold; do not regenerate or hand-merge other owner artifacts. Actual refusal retained, not a global audit pass."
+  },
+  "old_identity_limit": "If legacy _version.py is absent, the private installed distribution metadata and resolved package ownership supply version identity; no claim of a shipped-code version comparison then. An unavailable old interpreter refuses recoverably.",
+  "source_and_owning_tests_unchanged_after_merge": true
 }
