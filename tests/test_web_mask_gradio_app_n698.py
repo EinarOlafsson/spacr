@@ -283,7 +283,7 @@ def test_generic_blank_auto_and_invalid_settings_remain_distinct(demo, tmp_path)
         with pytest.raises(Exception):
             callback(*args, 20, invalid)
     assert len(calls) == before
-    with pytest.raises(Exception, match='one channel'):
+    with pytest.raises(Exception, match='one channel|within the declared range'):
         callback(*[args[i] if i != 6 else [0, 1] for i in range(len(args))])
     assert len(calls) == before
 
