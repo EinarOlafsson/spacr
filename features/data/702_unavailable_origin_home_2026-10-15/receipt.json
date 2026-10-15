@@ -1,0 +1,27 @@
+{
+  "item": 702,
+  "scope": "Unavailable named user home does not block exact model identity resolution",
+  "baseline": {
+    "failed": 7,
+    "seconds": 1.56
+  },
+  "owning": {
+    "passed": 49,
+    "seconds": 2.45,
+    "memory_cap": "2G"
+  },
+  "new_cases": 7,
+  "behavior": [
+    "Native Path.expanduser RuntimeError for an unavailable origin account is treated as absent local bytes.",
+    "Pinned exact trusted identity can plan/acquire despite changed old laptop basename.",
+    "Legacy only unique exact basename can plan/acquire; unknown/ambiguous identifiers still refuse.",
+    "Original requested strings/settings/pins unchanged.",
+    "download=False planning never fetches or discovers providers.",
+    "Actual private file:// acquisition verifies downloaded fixture bytes."
+  ],
+  "limitations": [
+    "Native named-user expansion proof is POSIX-only; other OS tests explicitly skip this native contract.",
+    "No model loading, real network/provider access, GPU, full CI or native cluster acceptance.",
+    "Existing wrong-local-byte hard refusals remain passing."
+  ]
+}
