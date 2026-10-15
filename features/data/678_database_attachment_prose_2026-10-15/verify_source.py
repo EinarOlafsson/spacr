@@ -6,7 +6,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE = 'spacr/qt/widgets/file_list.py'
-BASE = 'f419206a0ed40ee50dd7a0f06413d028d8c11e63'
+BASE = '348c63b842a18663a364a746f3b277bcef5efdc8'
 OLD = " It is the first row with no database: nothing in the file's path named a plate."
 NEW = ('This row was the first without a database. Filename matching '
        'did not attach the database to a plate row.')

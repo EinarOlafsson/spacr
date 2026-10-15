@@ -71,5 +71,7 @@
     "evidence": "widget-probe.json",
     "same_attachment_and_anchor": true,
     "counterexample": "Database path names plate2; unique matching fails against plate1, then existing fallback attaches to the first empty database row."
-  }
+  },
+  "public_reproduction_base": "348c63b842a18663a364a746f3b277bcef5efdc8",
+  "pinned_widget_method_identical_to_public_base": true
 }

@@ -1,0 +1,9 @@
+{
+  "current_sources": [
+    "This row was the first without a database. Filename matching did not attach the database to a plate row."
+  ],
+  "retired_sources": [],
+  "review_names": [
+    "2026-10-15-database-pair-fallback.json"
+  ]
+}

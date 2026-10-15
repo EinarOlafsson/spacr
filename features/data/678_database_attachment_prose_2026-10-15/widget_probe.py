@@ -15,7 +15,7 @@ from spacr.qt.widgets import file_list as fl
 
 app = QApplication.instance() or QApplication([])
 source = subprocess.check_output([
-    'git', 'show', 'f419206a0ed40ee50dd7a0f06413d028d8c11e63:spacr/qt/widgets/file_list.py'], cwd=ROOT)
+    'git', 'show', '348c63b842a18663a364a746f3b277bcef5efdc8:spacr/qt/widgets/file_list.py'], cwd=ROOT)
 owner = next(node for node in ast.parse(source).body if isinstance(node, ast.ClassDef)
              and node.name == 'PairedFileTableWidget')
 method = next(node for node in owner.body if isinstance(node, ast.FunctionDef)
