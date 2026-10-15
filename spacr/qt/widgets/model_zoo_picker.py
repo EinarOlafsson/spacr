@@ -499,6 +499,38 @@ class _DownloadWorker(QObject):
             self.finished.emit(str(path))
 
 
+
+class _ModelReferenceWorker(QObject):
+    """Verify one selected file on a worker, with cooperative cancellation."""
+
+    succeeded = Signal(int, object)
+    failed = Signal(int, str)
+    cancelled = Signal(int)
+
+    def __init__(self, generation, entry, path, requested):
+        """Capture an immutable selection generation and its actual local path."""
+        super().__init__()
+        self._generation = generation
+        self._entry = entry
+        self._path = path
+        self._requested = requested
+
+    def run(self):
+        """Hash trusted bytes off the GUI thread and return separate evidence."""
+        from ... import model_zoo
+
+        try:
+            result = model_zoo._verified_model_reference(
+                self._entry, self._path, requested_value=self._requested,
+                cancelled=QThread.currentThread().isInterruptionRequested)
+        except model_zoo.DownloadCancelled:
+            self.cancelled.emit(self._generation)
+        except Exception as exc:
+            self.failed.emit(self._generation, str(exc))
+        else:
+            self.succeeded.emit(self._generation, result)
+
+
 def _human_bytes_local(size: float) -> str:
     """A byte count a person can read.
 
@@ -1203,6 +1235,13 @@ class ModelZooPicker(QDialog):
         self._kinds = tuple(kinds) if kinds else None
         self._entries: List = []
         self._chosen_path: Optional[str] = None
+        self._chosen_reference = None
+        self._reference_generation = 0
+        self._reference_thread = None
+        self._reference_worker = None
+        self._reference_request = None
+        self._completed_paths = {}
+        self._download_entry = None
 
         layout = QVBoxLayout(self)
 
@@ -1766,6 +1805,9 @@ class ModelZooPicker(QDialog):
         Checks the entry's own recorded path first -- a locally discovered
         model has one -- then the chosen download folder.
         """
+        completed = self._completed_paths.get(self._entry_identity(entry))
+        if completed and os.path.isfile(completed):
+            return completed
         recorded = getattr(entry, "path", "") or ""
         if recorded and os.path.isfile(recorded):
             return recorded
@@ -1795,6 +1837,13 @@ class ModelZooPicker(QDialog):
         knowingly.
         """
         entry = self.selected_entry()
+        request = self._reference_request
+        if request is not None:
+            if (self._entry_identity(entry) != request[0]
+                    or self._local_path(entry) != request[1]):
+                self._stop_reference_check()
+            else:
+                return
         refused = _cannot_run(entry) if entry is not None else ""
         local = self._local_path(entry) if entry and not refused else None
         installs = entry is not None and not refused and _needs_install(entry)
@@ -1922,6 +1971,7 @@ class ModelZooPicker(QDialog):
                 self.status.setText("Download cancelled.")
                 return
         self._folder_for_download = folder
+        self._download_entry = entry
         self._started_at = time.monotonic()
         self._last_emit = 0.0
 
@@ -1982,6 +2032,7 @@ class ModelZooPicker(QDialog):
                        getattr(self, "_worker", None), 5000)
         self._thread = None
         self._worker = None
+        self._download_entry = None
         self.refresh()
         if outcome:
             self.status.setText(outcome)
@@ -1991,6 +2042,12 @@ class ModelZooPicker(QDialog):
 
         :param path: where the checkpoint landed.
         """
+        sender = self.sender()
+        if sender is not None and sender is not self._worker:
+            return
+        entry = self._download_entry
+        if entry is not None:
+            self._completed_paths[self._entry_identity(entry)] = str(path)
         _remember_model_dir(getattr(self, "_folder_for_download", "") or path)
         self._finish_download(f"Downloaded to {path}")
 
@@ -2037,9 +2094,89 @@ class ModelZooPicker(QDialog):
             from ..._segmentation_backends import _prefixed_value
 
             local = _prefixed_value(_prefixed_kind(entry), local)
-        self._chosen_path = local
-        self.model_chosen.emit(local)
+        self._start_reference_check(entry, self._local_path(entry), local)
+
+    @staticmethod
+    def _entry_identity(entry):
+        """Distinguish selected records without inferring identity from filenames."""
+        return tuple(getattr(entry, name, None) for name in
+                     ("source", "key", "name", "kind", "uri", "sha256",
+                      "version", "path"))
+
+    def _start_reference_check(self, entry, path, requested):
+        """Keep the dialog responsive while verifying the exact selected file."""
+        self._stop_reference_check()
+        self._chosen_reference = None
+        self._chosen_path = None
+        if getattr(entry, "source", "") == "stock" or not entry.sha256:
+            self._chosen_path = requested
+            self.model_chosen.emit(requested)
+            self.accept()
+            return
+        self._reference_generation += 1
+        generation = self._reference_generation
+        self._reference_request = (self._entry_identity(entry), path, requested)
+        self.progress.setRange(0, 0)
+        self.progress.setVisible(True)
+        self.status.setText(tr("Checking the selected model file…"))
+        for control in (self.table, self.sources, self.folder_edit,
+                        self.use_button, self.download_button,
+                        self.uninstall_button):
+            control.setEnabled(False)
+        thread = QThread(self)
+        worker = _ModelReferenceWorker(generation, entry, path, requested)
+        self._reference_thread = thread
+        self._reference_worker = worker
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.succeeded.connect(self._reference_ready)
+        worker.failed.connect(self._reference_failed)
+        worker.cancelled.connect(self._reference_cancelled)
+        for signal in (worker.succeeded, worker.failed, worker.cancelled):
+            signal.connect(thread.quit, Qt.DirectConnection)
+        thread.finished.connect(worker.deleteLater)
+        thread.start()
+
+    def _stop_reference_check(self):
+        """Cancel and drain verification without waiting for file reads on the GUI."""
+        self._reference_generation += 1
+        thread, worker = self._reference_thread, self._reference_worker
+        self._reference_thread = self._reference_worker = None
+        self._reference_request = None
+        _retire_thread(thread, worker, 0)
+        self.progress.setVisible(False)
+        for control in (self.table, self.sources, self.folder_edit):
+            control.setEnabled(True)
+        self._selection_changed()
+
+    def _reference_ready(self, generation, verified):
+        """Accept only the still-current selection and its separately verified result."""
+        if generation != self._reference_generation:
+            return
+        request = self._reference_request
+        entry = self.selected_entry()
+        current = (self._entry_identity(entry), self._local_path(entry))
+        self._stop_reference_check()
+        if request is None or current != request[:2]:
+            return
+        self._chosen_path = request[2]
+        self._chosen_reference = verified
+        self.model_chosen.emit(request[2])
         self.accept()
+
+    def _reference_failed(self, generation, message):
+        """Keep the selection open and report the actual verifier refusal."""
+        if generation != self._reference_generation:
+            return
+        self._stop_reference_check()
+        self.status.setText(message)
+
+    def _reference_cancelled(self, generation):
+        """Discard a cancelled check without treating it as an empty error."""
+        if generation != self._reference_generation:
+            return
+        self._stop_reference_check()
+        self.status.setText("")
 
     def _stop_any_download(self) -> None:
         """Stop and join a running download thread.
@@ -2062,11 +2199,13 @@ class ModelZooPicker(QDialog):
         :param event: the close event; passed on to the base class after any
             download is stopped.
         """
+        self._stop_reference_check()
         self._stop_any_download()
         super().closeEvent(event)
 
     def reject(self) -> None:
         """Cancel closes the dialog; it must not leave a thread behind."""
+        self._stop_reference_check()
         self._stop_any_download()
         super().reject()
 
@@ -2080,6 +2219,10 @@ class ModelZooPicker(QDialog):
         work never waits for HTTP, and discarded results cannot refresh
         this dialog.
         """
+        self._stop_reference_check()
+        if result != QDialog.Accepted:
+            self._chosen_path = None
+            self._chosen_reference = None
         self._stop_any_download()
         runner = getattr(self, "_catalogue_job", None)
         if runner is not None:
