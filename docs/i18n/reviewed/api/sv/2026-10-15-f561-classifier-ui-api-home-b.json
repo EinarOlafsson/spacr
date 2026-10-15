@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Om inläsning av bildutsnitt, inbäddning eller någon av de två egna DINO-träningsåtgärderna pågår.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Inkluderar båda träningsjobbkörarna tills deras arbetstrådar har avvecklats, även efter att deras slutliga resultat har nått skärmen.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+      "source": "Discard pending results and drain all runners before the widget goes.",
+      "context": "Discard pending results and drain all runners before the widget goes.",
+      "source_sha256": "95d43d42dd769dd22770b9adce4fe31be10d4aa987ac334486a359f19e9c433b",
+      "previous_same_source_indexes": [],
+      "translation": "Kasta väntande resultat och avveckla alla jobbkörarna innan widgeten tas bort.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed GUI view; it is not forcibly terminated.",
+      "context": "Extracted image region loading and machine-learning classification model training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed GUI view; it is not forcibly terminated.",
+      "source_sha256": "b7a7ceb67d5f33f86e3f369fcbcb42d48fa0c4117d270e6777184c857a1192aa",
+      "previous_same_source_indexes": [],
+      "translation": "Inläsning av bildutsnitt och klassificerarträning ombeds först att stoppa; ytterligare träningsförlopp ignoreras. Varje ``shutdown`` väntar en begränsad tid och parkerar sedan arbetstrådar som fortfarande körs. En parkerad träningsarbetstråd kan slutföra skrivningen av sin kontrollpunkt utan att uppdatera den stängda GUI-vyn; den tvångsavslutas inte.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table#0",
+      "source": "Choose an explicit row-aligned label and acquisition-group table.",
+      "context": "Choose an explicit row-aligned label and acquisition-group table.",
+      "source_sha256": "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d",
+      "previous_same_source_indexes": [],
+      "translation": "Välj uttryckligen en tabell med etiketter och insamlingsgrupper där raderna är inbördes anpassade.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.start#0",
+      "source": "Retain the form when a path or metadata validation refuses the run.",
+      "context": "Retain the form when a path or metadata validation refuses the run.",
+      "source_sha256": "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c",
+      "previous_same_source_indexes": [],
+      "translation": "Behåll formuläret när en sökväg eller metadatavalidering hindrar körningen.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.cancelled#0",
+      "source": "Honor both the application's worker cancellation and the local stop.",
+      "context": "Honor both the application's worker cancellation and the local stop.",
+      "source_sha256": "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481",
+      "previous_same_source_indexes": [],
+      "translation": "Respektera både programmets avbrytning av arbetstråden och den lokala stoppbegäran.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.done#0",
+      "source": "Publish actual artifact metadata only to the run's original crop selection.",
+      "context": "Publish actual artifact metadata only to the processing session's original extracted image region selection.",
+      "source_sha256": "5025d1ff47db522f1ebb91376a6025b03e3fca7a92b9c7e8a8277dd7a749c465",
+      "previous_same_source_indexes": [],
+      "translation": "Publicera faktisk artefaktmetadata endast till körningens ursprungliga urval av bildutsnitt.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.progress#0",
+      "source": "Relay worker progress without reading or changing GUI widgets.",
+      "context": "Relay worker progress without reading or changing GUI widgets.",
+      "source_sha256": "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab",
+      "previous_same_source_indexes": [],
+      "translation": "Vidarebefordra arbetstrådens förlopp utan att läsa eller ändra GUI-widgetar.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.work#0",
+      "source": "Filter the frozen row selection before calling the real trainer on raw planes.",
+      "context": "Filter the frozen row selection before calling the real trainer on raw image layers.",
+      "source_sha256": "aa52ccaceed27f154d2135f659fca029345f06b601276b12bb6dd3362b3a84ad",
+      "previous_same_source_indexes": [],
+      "translation": "Filtrera det låsta radurvalet innan den verkliga tränaren anropas på råa bildplan.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    }
+  ],
+  "review_kind": "Exact-source technical translation with independent coordinator semantic review; no native-speaker signoff",
+  "note": "F561 classifier training controls source09e53ecd80 with doc-context clarificationac47b32b60. Ten changed/new blocks in eight UI-owned symbols; six are new enabled nested helpers. Unchanged closeEvent#2 and all backend81 API records remain unchanged. Catalog generation is separate."
+}

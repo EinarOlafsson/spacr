@@ -1,0 +1,89 @@
+{
+  "source_commit": "ac47b32b6074a5c7373d94b77de6ca00b885f9ff",
+  "source_sha256": "717e43a6a76aceae0be48e714f961b9f7f0e5705f1a36ad5ce8cbe5e7eab2ddc",
+  "new_review_files": {
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-f561-classifier-ui-runtime-home-b.json": "59207d1d84ccfb589ab2ed6a61e39bc42e011df04c220dd6384550892b3ccde0",
+    "docs/i18n/reviewed/api/sv/2026-10-15-f561-classifier-ui-api-home-b.json": "77e6900ee6bd435ef5fedeebc877ce52651b78de5e464b68d2d293a06f08cf18",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-f561-classifier-ui-runtime-home-b.json": "50adbaa1e0d2e9bef747bdf75652392b93e710073dc826168fe7ce922f204fe6",
+    "docs/i18n/reviewed/api/de/2026-10-15-f561-classifier-ui-api-home-b.json": "9f611cfbe10757fdfc16d59a0d6a321964e3e4ad42f5cc1a169b4fbf5be2c499",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-f561-classifier-ui-runtime-home-b.json": "52dbce00e1ee698252e63168208bc26eeaf787e72f9ffcf47492d6d7e6810cce",
+    "docs/i18n/reviewed/api/es/2026-10-15-f561-classifier-ui-api-home-b.json": "f06658e08f4693df413c22c44a283aa28dc0ddcd0c8cccbf5d8227091954dda2",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-f561-classifier-ui-runtime-home-b.json": "02d1cf45fc19dd586376ae54cf3d5e62b86fc5617a403503b87983150212aabf",
+    "docs/i18n/reviewed/api/fr/2026-10-15-f561-classifier-ui-api-home-b.json": "7825941fe58de7c47c34d876d3b8ec576ff54e5d082c3cb7e9ce8ea2aa0ca3a3",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-f561-classifier-ui-runtime-home-b.json": "a1fdba117b9837235ea3d7c2c9fb0b738f2e6ea26ccbfc8994c1391a67c314a2",
+    "docs/i18n/reviewed/api/pt/2026-10-15-f561-classifier-ui-api-home-b.json": "a4da038cd2e6a404de4a91341a4d5360c4dce122d3aaf839880d130b8c39aef5",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-f561-classifier-ui-runtime-home-b.json": "37c143f1a06dea379aff7656b6d23f9209d400d7866569de73a7ded7bae229d5",
+    "docs/i18n/reviewed/api/is/2026-10-15-f561-classifier-ui-api-home-b.json": "98bea41e3caaaab3cb4cf5ab94aa5e62e88493144c8fa49d4b60abd7e079aed9",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f561-classifier-ui-runtime-home-b.json": "432fc8913411d59bdda38750f62e09f6bdf630d7b5dd4d4a52312e0b2ce2a3b9",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-classifier-ui-api-home-b.json": "6e6a69becd9fe4662e26197bf521718510ed421c2266941e9ce6031caec64a7e",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-f561-classifier-ui-runtime-home-b.json": "637f14dfd73efd0ccdbdf71138fb3a5026e69286dd03ac601cde7ade92cdd7b4",
+    "docs/i18n/reviewed/api/hi/2026-10-15-f561-classifier-ui-api-home-b.json": "4b7c9c89f5a6424383aad82eb58c11210bfc113be1012d9986a1756906542dbd",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-f561-classifier-ui-runtime-home-b.json": "424a0a46f71a80233b939a54422c22316ab7207746a5ea87e57de073e302293f",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f561-classifier-ui-api-home-b.json": "e8594b87cccf82ba0936a49679f7c242a1883233e85f35c4e76659ed008ebc5b"
+  },
+  "records": {
+    "runtime": 306,
+    "api": 90,
+    "authored_runtime": 279,
+    "exact_existing_runtime_reuse": 27,
+    "retired_api": 36,
+    "unchanged_closeEvent_api_preserved": 9
+  },
+  "normal_scoped_api_review_loader": {
+    "sv": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "de": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "es": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "fr": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "pt": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "is": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "zh_CN": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "hi": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    },
+    "ko": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 10,
+      "unchanged_block_preserved": 1
+    }
+  },
+  "pure_gate_counts": {
+    "runtime": 306,
+    "api_source_context": 180,
+    "api_inline": 90
+  },
+  "canonical_collection": false,
+  "catalog_writes": false,
+  "backend_api_scope": "Original Hard81 records untouched",
+  "generation_gate": "Await final independent source/target input binding and integration; normal runtime/API source-currency, scoped writers and full audits remain required.",
+  "final_target_followup": "korean-particle-followup.json; one target revalidated after the full initial input-only gates, no replay of unchanged checks."
+}

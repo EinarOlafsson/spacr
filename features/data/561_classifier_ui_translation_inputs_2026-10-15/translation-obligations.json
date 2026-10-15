@@ -1,0 +1,1279 @@
+{
+  "source_commit": "ac47b32b6074a5c7373d94b77de6ca00b885f9ff",
+  "source_sha256": "717e43a6a76aceae0be48e714f961b9f7f0e5705f1a36ad5ce8cbe5e7eab2ddc",
+  "scope": "Read-only plan using committed scoped API visibility, normal pure eligibility/context helpers, AST-only existing catalog/compact maps, exact active review inputs. No canonical/public collector, model decoding, review mutation or writer. Full normal source-currency review/write/audit must still run after integrated source freeze.",
+  "runtime_counts": {
+    "new_ui_entry_with_exact_other_table_provenance": 3,
+    "existing_generated_ui_keep": 1,
+    "new_ui_source_requires_nine_targets": 31
+  },
+  "runtime_expected_ui_additions": 34,
+  "runtime_genuinely_new_source_targets": 279,
+  "runtime_reusable_same_source_targets": 27,
+  "runtime_existing_CPU_targets_preserved": 9,
+  "runtime": [
+    {
+      "source": "Batch size",
+      "source_sha256": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+      "occurrences": [
+        {
+          "line": 1418,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_entry_with_exact_other_table_provenance",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": [
+        [
+          "SETTING_LABELS",
+          "batch_size"
+        ]
+      ],
+      "reusable_targets": {
+        "sv": "Batchstorlek",
+        "de": "Batch-Größe",
+        "es": "Tamaño del lote",
+        "zh_CN": "批大小",
+        "pt": "Tamanho do lote",
+        "hi": "बैच आकार",
+        "ko": "배치 크기",
+        "is": "Lotustærð",
+        "fr": "Taille de lot"
+      }
+    },
+    {
+      "source": "CPU",
+      "source_sha256": "db9a4c7d4c195ebf80068dd04120accce1cbfbef342bb43a53cbd651eb96e37b",
+      "occurrences": [
+        {
+          "line": 1443,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "existing_generated_ui_keep",
+      "normal_looks_translatable": false,
+      "existing_same_source_tables": [],
+      "preserved_targets": {
+        "sv": "CPU",
+        "de": "CPU",
+        "es": "CPU",
+        "zh_CN": "CPU",
+        "pt": "CPU",
+        "hi": "CPU",
+        "ko": "CPU",
+        "is": "CPU",
+        "fr": "CPU"
+      }
+    },
+    {
+      "source": "Choose a new classifier file; existing files are not replaced.",
+      "source_sha256": "1d7ba2e7d472240d5a9052cd62b74d8a1f1b0226652ae51ee89d09ab54626cfd",
+      "occurrences": [
+        {
+          "line": 1608,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Choose a table with one row per loaded crop, in the same order, and columns 'label' and 'acquisition_group'. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation.",
+      "source_sha256": "ff88277701895de799e8bc6d372c4a014bb0f58e50354637429725a2a9c83328",
+      "occurrences": [
+        {
+          "line": 1374,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Choose an existing own-DINO teacher checkpoint first.",
+      "source_sha256": "31c69a6a08d7016f4fad30b4484dff93f9906245333da92d13147a5fa2441a83",
+      "occurrences": [
+        {
+          "line": 1564,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Choose labelled crops from at least two classes and two acquisition groups.",
+      "source_sha256": "070154ca08adf393dbd5fd6fc325b2454e7e203f1d0ba38b30d5c2b01b7f0fd2",
+      "occurrences": [
+        {
+          "line": 1597,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Choose the training label and acquisition-group table.",
+      "source_sha256": "4c71d035dc03d9ca159b1a5a3cf450dc44a685003ba1c7a13bcc478af5c31bfb",
+      "occurrences": [
+        {
+          "line": 1576,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Choose training labels and acquisition groups",
+      "source_sha256": "298342b1a2d1e6f1c622890d53a7d65a9e9804e7390fe1ca9450bf9ae8d29fff",
+      "occurrences": [
+        {
+          "line": 1392,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Classifier saved to {path}. Classes: {classes}.",
+      "source_sha256": "725ee8ac639f3bdbcf89530d648bcbdaa6700af7b44f59fa73e1e0d821a49717",
+      "occurrences": [
+        {
+          "line": 1654,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.done"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Classifier training progress",
+      "source_sha256": "75b0afb317bac13439818cf934d1344ec9fd0eaf46fa073271463c660ef607bc",
+      "occurrences": [
+        {
+          "line": 1211,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._add_dino_button"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Classifier training stopped.",
+      "source_sha256": "0a7e05d4ac88ff2057d651ccf0c1c0442e0604f514f9e3494c3f7a0ed09f160e",
+      "occurrences": [
+        {
+          "line": 1523,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._on_classifier_finished"
+        },
+        {
+          "line": 1515,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._on_classifier_failed"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Enter unique physical channel indices in the teacher's saved order.",
+      "source_sha256": "f22e3157cf11fc3ac0b9f1d1f142f37ebe148288280605aa52a404458a1678fc",
+      "occurrences": [
+        {
+          "line": 1572,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Enter unique zero-based physical crop channels, separated by commas, in the order represented by the teacher's saved scaling. This order must be known; historical teacher checkpoints do not prove it.",
+      "source_sha256": "d21c93efba99b553af250cf8f7e76f6afde5feb8ecb37a37e7f692df206b9962",
+      "occurrences": [
+        {
+          "line": 1404,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Epoch {epoch}/{total} — training {train:.3f}, validation {validation:.3f}",
+      "source_sha256": "e34fbe4caa8c5cca87854270167c32f609d07915391097730caf7d8af519ad74",
+      "occurrences": [
+        {
+          "line": 1505,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._on_classifier_progress"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Every labelled crop needs a known acquisition-group identity.",
+      "source_sha256": "68591905e07869966e9cac47e2b9b9a03d2add1fcc662be5c4bd054249104fe8",
+      "occurrences": [
+        {
+          "line": 1592,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Freeze the encoder; train only the classifier head",
+      "source_sha256": "ced6a1ee3c510982d5912c51c441da35cfaf10ff0b47f3740726c1e68756fd49",
+      "occurrences": [
+        {
+          "line": 1435,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Learning rate",
+      "source_sha256": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+      "occurrences": [
+        {
+          "line": 1424,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_entry_with_exact_other_table_provenance",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": [
+        [
+          "SETTING_LABELS",
+          "learning_rate"
+        ]
+      ],
+      "reusable_targets": {
+        "sv": "Inlärningstakt",
+        "de": "Lernrate",
+        "es": "Tasa de aprendizaje",
+        "zh_CN": "学习率",
+        "pt": "Taxa de aprendizado",
+        "hi": "सीखने की दर",
+        "ko": "학습률",
+        "is": "Lærdómshraði",
+        "fr": "Taux d’apprentissage"
+      }
+    },
+    {
+      "source": "Normalize features before the classifier head",
+      "source_sha256": "857bb3e5357ef649535056978d6fcac4dc7956327ad92bac82617c74d0ae95c6",
+      "occurrences": [
+        {
+          "line": 1439,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Save the trained classifier as",
+      "source_sha256": "045e784c8a6abbd369ba7438e393f3d5ec52f071e16854513cd3d59027e6ac7d",
+      "occurrences": [
+        {
+          "line": 1603,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Split and training seed",
+      "source_sha256": "082ac50a477b3365752e87f332a094d7be834d7ce6a8494bb1c8dde438a293f1",
+      "occurrences": [
+        {
+          "line": 1434,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Starting classifier training…",
+      "source_sha256": "839e51da63f86cbc405dbed89eb221fc69ae76ec43e8d8e45ffd1b7b82752247",
+      "occurrences": [
+        {
+          "line": 1620,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Stop classifier",
+      "source_sha256": "2a2238be01272ea4a0e2019771bb44214d8643e6ee2d92a20f2ec29611b02548",
+      "occurrences": [
+        {
+          "line": 1204,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._add_dino_button"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Stopping classifier training…",
+      "source_sha256": "22f72952fc09150dbe70a7a85e7a78dd928c4a154edaa9413b1025436e6a497c",
+      "occurrences": [
+        {
+          "line": 1494,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._cancel_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Supervised epochs",
+      "source_sha256": "8073523c69407aafe1c0b0d0fb843c3acbc5f28c402ae6f348d9bf72c4139e0d",
+      "occurrences": [
+        {
+          "line": 1413,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Teacher channel order",
+      "source_sha256": "f1ad2ad6025a97fc564d5946591089dd642aecb9f4283a95a979ce692b56b1c4",
+      "occurrences": [
+        {
+          "line": 1403,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        },
+        {
+          "line": 1408,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "The training table must have one row per loaded crop, in crop order.",
+      "source_sha256": "31aba64bee37b6d3f6bad35c5d9b1cbf51e45a237c5d1c8f70318554fe49ce6c",
+      "occurrences": [
+        {
+          "line": 1585,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "The training table needs 'label' and 'acquisition_group' columns.",
+      "source_sha256": "921e32d8c3ec184ec54add52d9c05a69ba79fe75c134c8413529a3a2a634c7cf",
+      "occurrences": [
+        {
+          "line": 1583,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Train",
+      "source_sha256": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+      "occurrences": [
+        {
+          "line": 1451,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_entry_with_exact_other_table_provenance",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": [
+        [
+          "SETTING_LABELS",
+          "train"
+        ]
+      ],
+      "reusable_targets": {
+        "sv": "Träna",
+        "de": "Trainieren",
+        "es": "Entrenar",
+        "zh_CN": "训练",
+        "pt": "Treinar",
+        "hi": "प्रशिक्षण",
+        "ko": "학습",
+        "is": "Þjálfa",
+        "fr": "Entraîner"
+      }
+    },
+    {
+      "source": "Train an own-DINO classifier",
+      "source_sha256": "710cdb709abbef9cf8ca9d4643786028a3badd829df852ee17caededdbe90af9",
+      "occurrences": [
+        {
+          "line": 1372,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Train classifier…",
+      "source_sha256": "3db9915e61b40891f208f2af3425aee275c5b462827a3f5e7fa9045a2bbd666f",
+      "occurrences": [
+        {
+          "line": 1200,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._add_dino_button"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Training device",
+      "source_sha256": "0e41f01f0d8b9ba1681cfd9c2ebc78fcf2a4d70a3dfbbb70e3721ad789cab628",
+      "occurrences": [
+        {
+          "line": 1443,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Training labels and acquisition groups",
+      "source_sha256": "576ead88f1d03fc3ec3e8da762dcc41aa894169f565a9aad2faf04d2aa8d9d8b",
+      "occurrences": [
+        {
+          "line": 1385,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Training on {n} labelled crops…",
+      "source_sha256": "9c8f183793b1ecd927119558105168a03fbb8a7ebe06869a7fd619363c13d6ec",
+      "occurrences": [
+        {
+          "line": 1621,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Training table",
+      "source_sha256": "10dff176dcbd099f1e672787a25a4fdcc27e927a836dc2a3a57378b826d905a5",
+      "occurrences": [
+        {
+          "line": 1400,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    },
+    {
+      "source": "Validation fraction",
+      "source_sha256": "668042891aa2808f3b5399bffb6e0d51e47974eff4c7b79cc0f4b6dc594b48e6",
+      "occurrences": [
+        {
+          "line": 1430,
+          "owner": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog"
+        }
+      ],
+      "predicted_disposition": "new_ui_source_requires_nine_targets",
+      "normal_looks_translatable": true,
+      "existing_same_source_tables": []
+    }
+  ],
+  "api_changed_bodies": 8,
+  "api_selected_total_blocks": 11,
+  "api_changed_or_new_blocks": 10,
+  "api_new_target_records": 90,
+  "api_unchanged_same_label_records": 9,
+  "api_new_nested_symbols": 6,
+  "api": [
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "disposition": "changed_existing_block",
+      "context_sha256": "8e2e6b6a738bf4d5d34e3b1171a1bf06dcc47fa26a6a1f87a28f78a0b9b458be"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "disposition": "changed_existing_block",
+      "context_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+      "source": "Discard pending results and drain all runners before the widget goes.",
+      "source_sha256": "95d43d42dd769dd22770b9adce4fe31be10d4aa987ac334486a359f19e9c433b",
+      "context": "Discard pending results and drain all runners before the widget goes.",
+      "disposition": "changed_existing_block",
+      "context_sha256": "95d43d42dd769dd22770b9adce4fe31be10d4aa987ac334486a359f19e9c433b"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+      "source": "Crop loading and classifier training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed GUI view; it is not forcibly terminated.",
+      "source_sha256": "b7a7ceb67d5f33f86e3f369fcbcb42d48fa0c4117d270e6777184c857a1192aa",
+      "context": "Extracted image region loading and machine-learning classification model training are asked to stop first; further training progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed GUI view; it is not forcibly terminated.",
+      "disposition": "changed_existing_block",
+      "context_sha256": "a8910fd2c3cceb76b3437bb11591ff061516e790fb1188d2d461645a763d0582"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+      "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+      "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+      "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+      "disposition": "unchanged_same_label_keep",
+      "context_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table#0",
+      "source": "Choose an explicit row-aligned label and acquisition-group table.",
+      "source_sha256": "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d",
+      "context": "Choose an explicit row-aligned label and acquisition-group table.",
+      "disposition": "new_nested_block",
+      "context_sha256": "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.start#0",
+      "source": "Retain the form when a path or metadata validation refuses the run.",
+      "source_sha256": "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c",
+      "context": "Retain the form when a path or metadata validation refuses the run.",
+      "disposition": "new_nested_block",
+      "context_sha256": "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.cancelled#0",
+      "source": "Honor both the application's worker cancellation and the local stop.",
+      "source_sha256": "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481",
+      "context": "Honor both the application's worker cancellation and the local stop.",
+      "disposition": "new_nested_block",
+      "context_sha256": "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.done#0",
+      "source": "Publish actual artifact metadata only to the run's original crop selection.",
+      "source_sha256": "5025d1ff47db522f1ebb91376a6025b03e3fca7a92b9c7e8a8277dd7a749c465",
+      "context": "Publish actual artifact metadata only to the processing session's original extracted image region selection.",
+      "disposition": "new_nested_block",
+      "context_sha256": "f7f628b5dd285973c4fc528c101c21b7619c7240082d84ffb2a106e57cd69a26"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.progress#0",
+      "source": "Relay worker progress without reading or changing GUI widgets.",
+      "source_sha256": "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab",
+      "context": "Relay worker progress without reading or changing GUI widgets.",
+      "disposition": "new_nested_block",
+      "context_sha256": "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.work#0",
+      "source": "Filter the frozen row selection before calling the real trainer on raw planes.",
+      "source_sha256": "aa52ccaceed27f154d2135f659fca029345f06b601276b12bb6dd3362b3a84ad",
+      "context": "Filter the frozen row selection before calling the real trainer on raw image layers.",
+      "disposition": "new_nested_block",
+      "context_sha256": "d7eda7faf5f18f5bcbfe72ae2c6357b8ea8f618049ad7d3215070c42cf2186c3"
+    }
+  ],
+  "precise_old_api_records_requiring_retirement": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "0a49ff800d145eec5b131a65e9490c95a05026879f5a1d78fb25442cb487bd93",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "Om inläsning av bildutsnitt, ett inbäddningsjobb eller DINO-förträning pågår.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "0a49ff800d145eec5b131a65e9490c95a05026879f5a1d78fb25442cb487bd93",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "Inkluderar den separata DINO-jobbköraren tills dess arbetstråd har avslutats, även efter att dess slutliga resultat har nått skärmen.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "0a49ff800d145eec5b131a65e9490c95a05026879f5a1d78fb25442cb487bd93",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "Kasta väntande resultat och avveckla båda jobbkörarna innan widgeten tas bort.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "0a49ff800d145eec5b131a65e9490c95a05026879f5a1d78fb25442cb487bd93",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "Stoppflaggan för bildutsnitt sätts först och ytterligare DINO-förlopp ignoreras. Varje ``shutdown`` väntar en begränsad tid och parkerar sedan arbetstrådar som fortfarande körs. En parkerad träningsarbetstråd kan slutföra skrivningen av sin kontrollpunkt utan att uppdatera den stängda skärmen; den tvångsavslutas inte.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "149520876a91303052643e60b7bbf8209a63aa5a70fbc18c58ab9da6c9c53f92",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "Ob das Laden von Bildausschnitten, ein Einbettungsauftrag oder ein DINO-Vortraining läuft.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "149520876a91303052643e60b7bbf8209a63aa5a70fbc18c58ab9da6c9c53f92",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "Berücksichtigt den separaten DINO-Auftragsausführer, bis dessen Arbeitsthread beendet ist, auch nachdem sein Endergebnis den Bildschirm erreicht hat.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "149520876a91303052643e60b7bbf8209a63aa5a70fbc18c58ab9da6c9c53f92",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "Ausstehende Ergebnisse verwerfen und beide Auftragsausführer abwickeln, bevor das Widget entfernt wird.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "149520876a91303052643e60b7bbf8209a63aa5a70fbc18c58ab9da6c9c53f92",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "Zuerst wird das Stoppflag für Bildausschnitte gesetzt; weitere DINO-Fortschrittsmeldungen werden ignoriert. Jeder Aufruf von ``shutdown`` wartet eine begrenzte Zeit und parkt dann noch laufende Arbeitsthreads. Ein geparkter Trainingsthread kann seinen Prüfpunkt fertig schreiben, ohne diesen geschlossenen Bildschirm zu aktualisieren; er wird nicht zwangsweise beendet.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "878fe1845aa2031aedb200ee0decb3dc4b3f27806c24d51dffc203dab5b9c6f9",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "Indica si está en curso una carga de recortes de imagen, una tarea de embeddings o un preentrenamiento DINO.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "878fe1845aa2031aedb200ee0decb3dc4b3f27806c24d51dffc203dab5b9c6f9",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "Incluye el ejecutor independiente de DINO hasta que su hilo de trabajo haya finalizado, incluso después de que su resultado final haya llegado a la pantalla.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "878fe1845aa2031aedb200ee0decb3dc4b3f27806c24d51dffc203dab5b9c6f9",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "Descartar los resultados pendientes y finalizar la gestión de ambos ejecutores antes de eliminar el widget.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "878fe1845aa2031aedb200ee0decb3dc4b3f27806c24d51dffc203dab5b9c6f9",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "Primero se activa la bandera de parada de los recortes y se ignoran los avisos posteriores de progreso de DINO. Cada ``shutdown`` espera un tiempo limitado y luego deja aparcados los hilos de trabajo que sigan activos. Un hilo de entrenamiento aparcado puede terminar de escribir su punto de control sin actualizar esta pantalla cerrada; no se termina a la fuerza.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "7113903f238607a019e24ad6de1d17dbb24ee452cf0ebc9b8171bd712435d4f3",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "是否正在加载图像裁剪区域、执行嵌入任务或进行 DINO 预训练。",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "7113903f238607a019e24ad6de1d17dbb24ee452cf0ebc9b8171bd712435d4f3",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "包括独立的 DINO 任务运行器，直到其工作线程结束；即使最终结果已送达此界面，也仍计入。",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "7113903f238607a019e24ad6de1d17dbb24ee452cf0ebc9b8171bd712435d4f3",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "在控件销毁前丢弃待处理的结果，并完成两个任务运行器的收尾。",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "7113903f238607a019e24ad6de1d17dbb24ee452cf0ebc9b8171bd712435d4f3",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "先设置图像裁剪区域的停止标志，并忽略后续 DINO 进度。每次 ``shutdown`` 都只等待有限的时间，随后将仍在运行的工作线程交由后台托管。托管中的训练线程可以完成检查点写入，而不更新这个已关闭的界面；不会强制终止该线程。",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "819e6c3996694677d7702f0683c99e24fa241135040c77b60082323a533c8439",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "Indica se está em curso um carregamento de recortes de imagem, uma tarefa de embeddings ou um pré-treino DINO.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "819e6c3996694677d7702f0683c99e24fa241135040c77b60082323a533c8439",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "Inclui o executor DINO separado até a sua thread de trabalho terminar, mesmo depois de o resultado final ter chegado ao ecrã.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "819e6c3996694677d7702f0683c99e24fa241135040c77b60082323a533c8439",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "Descartar os resultados pendentes e concluir a gestão de ambos os executores antes de remover o widget.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "819e6c3996694677d7702f0683c99e24fa241135040c77b60082323a533c8439",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "O sinalizador de paragem dos recortes é ativado primeiro e o progresso DINO posterior é ignorado. Cada ``shutdown`` espera durante um tempo limitado e depois mantém à parte as threads de trabalho que continuem ativas. Uma thread de treino assim mantida à parte pode terminar de escrever o seu ponto de controlo sem atualizar este ecrã fechado; não é terminada à força.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "2048b735bd1e16e5ad8c19da940378cb3d21425595a98b9f696e48600049381d",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "क्या छवि के निकाले हुए क्षेत्रों को लोड करना, एम्बेडिंग कार्य या DINO पूर्व-प्रशिक्षण चल रहा है।",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "2048b735bd1e16e5ad8c19da940378cb3d21425595a98b9f696e48600049381d",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "अलग DINO कार्य-संचालक को उसके वर्कर थ्रेड के समाप्त होने तक शामिल करता है, भले ही उसका अंतिम परिणाम स्क्रीन तक पहुँच चुका हो।",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "2048b735bd1e16e5ad8c19da940378cb3d21425595a98b9f696e48600049381d",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "विजेट हटने से पहले लंबित परिणामों को छोड़ दें और दोनों कार्य-संचालकों का समापन प्रबंधन पूरा करें।",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "2048b735bd1e16e5ad8c19da940378cb3d21425595a98b9f696e48600049381d",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "छवि के निकाले हुए क्षेत्रों का रोक फ़्लैग पहले सेट किया जाता है और आगे की DINO प्रगति अनदेखी की जाती है। प्रत्येक ``shutdown`` सीमित समय तक प्रतीक्षा करता है, फिर अभी भी चल रहे वर्कर थ्रेड को अलग रखता है। इस तरह अलग रखा गया प्रशिक्षण थ्रेड इस बंद स्क्रीन को अपडेट किए बिना अपना चेकपॉइंट लिखना पूरा कर सकता है; उसे जबरन समाप्त नहीं किया जाता।",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "de5abc07ea9b53f8fbeb06cc8982ee2be3744b8e85806b089c31acd7dee55569",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "잘라낸 이미지 영역 로드, 임베딩 작업 또는 DINO 사전 학습이 진행 중인지 여부입니다.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "de5abc07ea9b53f8fbeb06cc8982ee2be3744b8e85806b089c31acd7dee55569",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "별도의 DINO 작업 실행기는 최종 결과가 화면에 도착한 뒤에도 해당 작업 스레드가 종료될 때까지 포함됩니다.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "de5abc07ea9b53f8fbeb06cc8982ee2be3744b8e85806b089c31acd7dee55569",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "위젯이 제거되기 전에 대기 중인 결과를 버리고 두 작업 실행기의 종료 처리를 마칩니다.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "de5abc07ea9b53f8fbeb06cc8982ee2be3744b8e85806b089c31acd7dee55569",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "잘라낸 이미지 영역의 중지 플래그를 먼저 설정하고 이후 DINO 진행 알림은 무시합니다. 각 ``shutdown`` 호출은 제한된 시간 동안 기다린 뒤 계속 실행 중인 작업 스레드를 별도로 관리합니다. 이렇게 별도로 관리되는 학습 스레드는 닫힌 화면을 갱신하지 않고 체크포인트 쓰기를 마칠 수 있으며, 강제로 종료되지 않습니다.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "fe934080d9ebc0a69f4f8f118aa53f96885c705db6b56f726dca43f906c4188d",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "Hvort hleðsla myndútsniða, innfellingarverk eða DINO-forþjálfun sé í gangi.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "fe934080d9ebc0a69f4f8f118aa53f96885c705db6b56f726dca43f906c4188d",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "Tekur með aðskilda DINO-verkkeyrsluna þar til vinnsluþráður hennar hefur lokið störfum, jafnvel eftir að lokaniðurstaðan hefur borist á skjáinn.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "fe934080d9ebc0a69f4f8f118aa53f96885c705db6b56f726dca43f906c4188d",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "Henda niðurstöðum sem bíða og ljúka frágangi beggja verkkeyrslna áður en viðmótshlutinn hverfur.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "fe934080d9ebc0a69f4f8f118aa53f96885c705db6b56f726dca43f906c4188d",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "Stöðvunarflaggi myndútsniða er fyrst stillt og frekari framvindutilkynningar frá DINO eru hunsaðar. Hvert ``shutdown`` bíður í takmarkaðan tíma og leggur síðan vinnsluþræði sem enn eru virkir til hliðar. Þjálfunarþráður sem er lagður til hliðar getur lokið við að skrifa varðveislupunkt sinn án þess að uppfæra þennan lokaða skjá; hann er ekki stöðvaður með valdi.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "74e62d2b1296d20367ce002e19ca89255f27d52f7cbc4fc6183c11cc7f7c9364",
+      "record_index": 0,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+        "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+        "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+        "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "previous_same_source_indexes": [],
+        "translation": "Indique si un chargement de régions d’image, une tâche de plongement ou un préentraînement DINO est en cours.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "74e62d2b1296d20367ce002e19ca89255f27d52f7cbc4fc6183c11cc7f7c9364",
+      "record_index": 1,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+        "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+        "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+        "previous_same_source_indexes": [],
+        "translation": "Inclut l’exécuteur DINO distinct jusqu’à la fin de son thread de travail, même après que son résultat final est parvenu à l’écran.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "74e62d2b1296d20367ce002e19ca89255f27d52f7cbc4fc6183c11cc7f7c9364",
+      "record_index": 2,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+        "source": "Discard pending results and drain both runners before the widget goes.",
+        "context": "Discard pending results and drain both runners before the widget goes.",
+        "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "previous_same_source_indexes": [],
+        "translation": "Abandonner les résultats en attente et achever la gestion des deux exécuteurs avant la suppression du widget.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-lifecycle-contracts.json",
+      "file_sha256": "74e62d2b1296d20367ce002e19ca89255f27d52f7cbc4fc6183c11cc7f7c9364",
+      "record_index": 3,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+        "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+        "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "previous_same_source_indexes": [],
+        "translation": "Le drapeau d’arrêt des régions d’image est d’abord activé et toute progression DINO ultérieure est ignorée. Chaque ``shutdown`` attend pendant une durée limitée, puis met de côté les threads de travail encore actifs. Un thread d’entraînement ainsi mis de côté peut terminer l’écriture de son point de contrôle sans mettre à jour cet écran fermé ; il n’est pas arrêté de force.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    }
+  ],
+  "preserve_api_records": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Qt:s stängningshändelse, som skickas oförändrad till basklassen. Stängningen accepteras även om en arbetstråd måste parkeras.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Das Schließereignis von Qt, das unverändert an die Basisklasse übergeben wird. Das Schließen wird auch dann akzeptiert, wenn ein Arbeitsthread geparkt werden muss.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Evento de cierre de Qt, que se pasa sin cambios a la clase base. El cierre se acepta aunque sea necesario aparcar un hilo de trabajo.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Qt 关闭事件，原样传递给基类。即使必须将工作线程交由后台托管，也接受关闭。",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Evento de fecho do Qt, passado sem alterações à classe base. O fecho é aceite mesmo que seja necessário manter uma thread de trabalho à parte.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Qt का बंद करने का इवेंट, जिसे बिना बदलाव बेस क्लास को भेजा जाता है। वर्कर थ्रेड को अलग रखना पड़े, तब भी बंद करना स्वीकार किया जाता है।",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "기본 클래스에 변경 없이 전달되는 Qt 닫기 이벤트입니다. 작업 스레드를 별도로 관리해야 하는 경우에도 닫기를 허용합니다.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Lokunaratvik Qt, sent óbreytt til grunnklasans. Lokunin er samþykkt þótt leggja þurfi vinnsluþráð til hliðar.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-lifecycle-contracts.json",
+      "record_index": 4,
+      "record": {
+        "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+        "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+        "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+        "previous_same_source_indexes": [],
+        "translation": "Événement de fermeture de Qt, transmis sans modification à la classe de base. La fermeture est acceptée même si un thread de travail doit être mis de côté.",
+        "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      }
+    }
+  ],
+  "normal_obligations": [
+    "Runtime: confirm actual integrated canonical arrival set exactly34 selected UI additions after compact registrations; expected31 unique new texts+3 exact existing setting-label source matches. Do not insert CPU review record or alter identity/eligibility policy.",
+    "Runtime: author31×9 targets, reuse only exact source-current Batch size/Learning rate/Train targets with provenance and technical review of new control context; normal source/schema/context/placeholder/script gates retained.",
+    "API: author10×9 current source/context targets; four replaced public blocks require36 exact active-record retirements preserving historical bytes. Six new enabled nested helper symbols need normal English/API/Help index generation.",
+    "API: preserve unchanged closeEvent#2 in every locale and all unrelated source-current records/history/metadata; no backend81 target authorship.",
+    "Freeze source with parent review and actual consumer backend boundary before normal generation; source changes invalidate this plan rather than being silently rebased."
+  ],
+  "catalog_file_sha256": {
+    "spacr/qt/i18n_catalogs/en.py": "d1b37adb0f81d1f8d57992ceedd86bcb4aabcc4d902df79a41e7168e2d76725a",
+    "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "spacr/qt/i18n_catalogs/sv.py": "4fff438d2239f6fab9d5b3d6eecb200d6d70ab0221271b9d30148bd29ee879c5",
+    "spacr/qt/i18n_catalogs/de.py": "f5341f2867350f813360a23511f9a226ab18f22fc62188d6762770f950f90689",
+    "spacr/qt/i18n_catalogs/es.py": "308c724d35310277e30d601b1598687df7a86914f13b678a8a62902cbbd6ce17",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "1405435e74dd650c02bc5052f40b8e267591160248debd24562be7aba92fa47d",
+    "spacr/qt/i18n_catalogs/pt.py": "6bd765b489a61eefe058c38322b12d7928abb79e993596aa331dc4731c626365",
+    "spacr/qt/i18n_catalogs/hi.py": "394c60cb6cf393898addce596145d8c5b7c40c2b327aff7d3fa1fe8f9cf640e2",
+    "spacr/qt/i18n_catalogs/ko.py": "395e9d36f00a04324f9eb5e49dada155268bcca502e3b098bd366b678af3f656",
+    "spacr/qt/i18n_catalogs/is.py": "84744306674f2ef5ab83b1d7a82aad2be8865f1e3ea258ec168ee3625fe21725",
+    "spacr/qt/i18n_catalogs/fr.py": "a85dc41507444367212e9bd8f0e1f265154fe8673f490c33e3762735ff0e4bcd"
+  }
+}
