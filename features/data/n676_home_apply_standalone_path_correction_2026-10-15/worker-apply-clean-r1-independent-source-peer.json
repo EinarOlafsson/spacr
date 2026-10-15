@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "preparation_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/preparation-manifest.json",
+    "bytes": 5878,
+    "sha256": "ef17cc40b936e75e5f5e4357569f9b29ff4c41576307e09c4beb9586b77e8cb2"
+  },
+  "prior_lifecycle_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-r3-independent-source-peer.json",
+    "bytes": 4060,
+    "sha256": "71a10bcd45dfb2338f65f276bbe21788e1fe074bac1de3fac26765d353415cf7"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/USAGE.txt",
+      "bytes": 2993,
+      "sha256": "e28d85a885e6a1810c4573fe8563d0f894f8562e222a19a36b754c363b7c64c7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/capture_driver.py",
+      "bytes": 22616,
+      "sha256": "ade7ef3c16543aecc6e25a8b46ae5fbbc6150e35d6669bd3450e8c79f253150d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/capture_job.py",
+      "bytes": 5730,
+      "sha256": "fab749b543c1baebad87944c5b15aa392f229f3c0769b3f4073164500caad31d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/captured-live-pre-apply-prefix.py.txt",
+      "bytes": 6481,
+      "sha256": "8316d8ba61d0518e7e7cadcbec28bd6d316fc49dc554bde75ade1750c84c280d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/captured-prefix-source.json",
+      "bytes": 1345,
+      "sha256": "5989eb2d5be0d920df8b9c1acc777409536c1a06c68be080b46c0330a49ba6db"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/native_once.sh",
+      "bytes": 325,
+      "sha256": "bcef83f6cbc4df8e53e47583028380b3957b0744e7b363d5467e98fc8180938c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/run.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/run_with_lease.sh",
+      "bytes": 3301,
+      "sha256": "b1122cc19cfc860604208fbb1139745bc14b69ed6aa63eab7d6bf35312748e5d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1/supervise_once.py",
+      "bytes": 5791,
+      "sha256": "681c9dbd6ee1da189af89e940ca715bf6300713f4b11e2978910ec85a71d5855"
+    }
+  ],
+  "findings": [
+    "Clean one-dialog Preferences\u2192Appearance\u2192Theme route removes Performance/General/Animation tours; Theme reveal/opacity edit occurs inside complete selected clip.",
+    "Exact13h narration supported: physical opacity60to55/Apply, visible WindowModal Keep-or-Revert/defaultRevert, button hover, late physicalRevert, actual saved60/draft55/Preferences-visible readback.",
+    "Unchanged fullminimum968/30seconds, owning GUI sampler/stall watch/compositor/strict gates/full postprocess and realpointer; no app/source/gate/input bypass changes.",
+    "Provenance explicitly states clean standalone context, historical prefix not executed, no prior-tour equivalence or causal repair claim.",
+    "Exact87ff/privateprofile/source/externalhash protections, unique clean-r1stage, root standalone authorization required,300+shared30 cleanup/no automaticretry retained."
+  ],
+  "validation": "Source-only actual diff/hash/AST/bash-n; no tests/app/native/GPU/encoding.",
+  "limitations": [
+    "Actual public-route/gate success unobserved until root execution.",
+    "Selective replacement only; earlier failures remain failed and no performance cause/fix claimed."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

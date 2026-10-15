@@ -1,0 +1,14 @@
+{
+  "status": "private_GNOME_startup_failed_before_app",
+  "actual_start_detroit": "2026-10-15T19:21:09-04:00",
+  "actual_finish_detroit": "2026-10-15T19:21:12-04:00",
+  "shell_exit": 133,
+  "failure": "Wayland UNIX socket path plus NUL exceeds108bytes",
+  "original_socket_bytes_including_NUL": 109,
+  "short_socket_bytes_including_NUL": 91,
+  "app_started": false,
+  "Apply_executed": false,
+  "recording_started": false,
+  "cleanup_survivors": [],
+  "repair": "short stage d05-clean-r2 and early os.fsencode+NUL byteguard; no app/gate change"
+}

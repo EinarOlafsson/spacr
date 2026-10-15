@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "preparation_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-clean-r2/preparation-manifest.json",
+    "bytes": 5824,
+    "sha256": "72153c452449fa9f985afd41b7d1b8362b30cada86c92bce302486c909392fee"
+  },
+  "prior_source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-clean-r1-independent-source-peer.json",
+    "bytes": 4191,
+    "sha256": "2174ae7215f3f6146d1fff7b9f7cd3d258f8b4642dd40b67ba4e10f26b31ad3c"
+  },
+  "compared_files": [
+    "USAGE.txt",
+    "capture_driver.py",
+    "capture_job.py",
+    "captured-live-pre-apply-prefix.py.txt",
+    "captured-prefix-source.json",
+    "native_once.sh",
+    "run.lock",
+    "run_with_lease.sh",
+    "supervise_once.py"
+  ],
+  "findings": [
+    "Nine listed files differ only externaldirectory/stage substitutions, plus single early os.fsencode socket-byte assertion in capture_job.",
+    "Socket pathname plusNUL is91bytes\u2264108; guard occurs beforecleanup/stagecreation/check-only, hence beforelease/GPUqueue.",
+    "Source/realUI/clip/sampler/gate/postprocess/deadline semantics unchanged; oldcleanr1runtime evidence untouched.",
+    "Earlier root-approved usage environment-example correction retained; no tests/runtime invoked."
+  ],
+  "socket_bytes_including_nul": 91,
+  "validation": "Exactdiff/hash/AST/bash-n only; no app/native/tests/GPU.",
+  "owned_jobs_or_leases_remaining": false
+}
