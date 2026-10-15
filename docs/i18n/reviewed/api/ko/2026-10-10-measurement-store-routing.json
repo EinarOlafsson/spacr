@@ -6,7 +6,10 @@
       "label": "spacr.ml.generate_ml_scores#1",
       "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
       "source_sha256": "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
-      "translation": "``measurement_backend``로 선택한, :func:`spacr.measure.measure_crop`의 측정 저장소를 읽고, 세포/핵/병원체/ 세포질 특징 테이블을 병합하며, ``positive_control`` / ``negative_control``로 표시된 웰(또는 주석 열)을 학습 레이블로 사용하고, 적합은 :func:`ml_analysis`에 위임한 뒤, 객체별 예측, 순열 및 특징 중요도 테이블과 플레이트 히트맵을 첫 번째 소스 폴더 아래의 ``results/``에 기록합니다."
+      "translation": "``measurement_backend``로 선택한, :func:`spacr.measure.measure_crop`의 측정 저장소를 읽고, 세포/핵/병원체/ 세포질 특징 테이블을 병합하며, ``positive_control`` / ``negative_control``로 표시된 웰(또는 주석 열)을 학습 레이블로 사용하고, 적합은 :func:`ml_analysis`에 위임한 뒤, 객체별 예측, 순열 및 특징 중요도 테이블과 플레이트 히트맵을 첫 번째 소스 폴더 아래의 ``results/``에 기록합니다.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "context": "``src`` (str or list) — folder(s) containing the measurements.",
