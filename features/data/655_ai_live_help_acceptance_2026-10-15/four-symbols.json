@@ -1,0 +1,80 @@
+{
+  "result": "PASS",
+  "exact_tested_commit": "17e8d8ced5f85d5cc9909fe19bb8a16953101821",
+  "checked_symbols": [
+    {
+      "symbol": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent",
+      "summary": "Repaint the outline when keyboard focus enters the toggle.",
+      "local_doc_sha256": "69a9364e8a0229bb8a073f8627aa7ae69d31f3a7d9610398ae9b38cb749f57a6",
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html?lang=ko#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent"
+    },
+    {
+      "symbol": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent",
+      "summary": "Remove the outline when keyboard focus leaves the toggle.",
+      "local_doc_sha256": "64ee22fd609b5f1d712cc397752c4c96d2edce27a80723669b2619e600787634",
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html?lang=ko#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent"
+    },
+    {
+      "symbol": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent",
+      "summary": "Toggle once on unmodified Space, Return or numeric Enter while focused.",
+      "local_doc_sha256": "ce756b8b94078aea7902d8e002322345ca4281a01d774b7683533b224ad37638",
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html?lang=ko#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent"
+    },
+    {
+      "symbol": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent",
+      "summary": "Paint the label and its cached outline while it has keyboard focus.",
+      "local_doc_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/ai_toggle_label/index.html?lang=ko#spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent"
+    }
+  ],
+  "production_search_queries": [
+    {
+      "query": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent",
+      "result_count": 1
+    },
+    {
+      "query": "AiToggleLabel.focusInEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent",
+      "result_count": 1
+    },
+    {
+      "query": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent",
+      "result_count": 1
+    },
+    {
+      "query": "AiToggleLabel.focusOutEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent",
+      "result_count": 1
+    },
+    {
+      "query": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent",
+      "result_count": 1
+    },
+    {
+      "query": "AiToggleLabel.keyPressEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent",
+      "result_count": 1
+    },
+    {
+      "query": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent",
+      "result_count": 1
+    },
+    {
+      "query": "AiToggleLabel.paintEvent",
+      "first_result": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent",
+      "result_count": 1
+    }
+  ],
+  "production_index_row_count": 14283,
+  "help_index_sha256": "fb0ab7eda845610e06591c6fc21cd044ba56288d327d7f1ab1af778440807544",
+  "widget_source_sha256": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+  "scope": "Four generated arrivals, English summaries, AST-only local prose without target import, English/Korean method URLs and eight full/qualified queries against the real production index. Consumer acceptance only; no generator, helper census, source review, network or rendered-HTML claim."
+}

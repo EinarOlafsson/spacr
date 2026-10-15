@@ -1,0 +1,439 @@
+{
+  "schema": 1,
+  "item": "N655",
+  "result": "PASS at the stated native keyboard/AT-SPI scope",
+  "source_commit": "e1f97a89a0e1270d8842e5a71f91db651d7b1cb8",
+  "source_file": "spacr/qt/widgets/ai_toggle_label.py",
+  "source_sha256": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+  "source_root": "/mnt/wd4tb/spacr-worktrees/codex-home-b-n655-ai-toggle-probe-20261015",
+  "source_isolation": "Author-owned clean tree used read-only by explicit coordination; source hashes before and after match; all203 process-time spaCR source hashes remain exact; PYTHONDONTWRITEBYTECODE=1; harness executed from WD scratch.",
+  "fixture": "Actual AiToggleLabel AI and Live instances in a real xcb QWidget between Before/After buttons. Initial state comes from constructor. No direct target setFocus or setChecked; initial focus is on Before only.",
+  "atspi": {
+    "reader": "Separate /usr/bin/python3 Gio D-Bus calls with1s RPC deadlines and18s alarm; all same-PID roots considered",
+    "nodes": 7,
+    "controls": [
+      {
+        "bus": ":1.3",
+        "path": "/org/a11y/atspi/accessible/2147483650",
+        "name": "AI",
+        "depth": 2,
+        "role": "label",
+        "states": [
+          "enabled",
+          "focusable",
+          "sensitive",
+          "showing",
+          "visible",
+          "read-only"
+        ]
+      },
+      {
+        "bus": ":1.3",
+        "path": "/org/a11y/atspi/accessible/2147483651",
+        "name": "Live",
+        "depth": 2,
+        "role": "label",
+        "states": [
+          "enabled",
+          "focusable",
+          "sensitive",
+          "showing",
+          "visible",
+          "read-only"
+        ]
+      }
+    ],
+    "focus": [
+      {
+        "action": "Tab from Before",
+        "control": "AI",
+        "states": [
+          "enabled",
+          "focusable",
+          "focused",
+          "sensitive",
+          "showing",
+          "visible",
+          "read-only"
+        ]
+      },
+      {
+        "action": "Tab from AI",
+        "control": "Live",
+        "states": [
+          "enabled",
+          "focusable",
+          "focused",
+          "sensitive",
+          "showing",
+          "visible",
+          "read-only"
+        ]
+      },
+      {
+        "action": "Shift+Tab from Live",
+        "control": "AI",
+        "states": [
+          "enabled",
+          "focusable",
+          "focused",
+          "sensitive",
+          "showing",
+          "visible",
+          "read-only"
+        ]
+      },
+      {
+        "action": "Tab from Live",
+        "control": "After controls",
+        "states": [
+          "enabled",
+          "focusable",
+          "focused",
+          "sensitive",
+          "showing",
+          "visible"
+        ]
+      }
+    ],
+    "state_limit": "Actual native role is label with read-only state and no checked/checkable exposure, even after activation. This is retained and is not presented as complete screen-reader control semantics."
+  },
+  "activation": [
+    {
+      "control": "AI",
+      "native_key": "space",
+      "actual_qt_event": {
+        "control": "AI",
+        "key": 32,
+        "modifiers": 0,
+        "auto_repeat": false
+      },
+      "checked": true,
+      "signal_count": 1,
+      "atspi_states": [
+        "enabled",
+        "focusable",
+        "focused",
+        "sensitive",
+        "showing",
+        "visible",
+        "read-only"
+      ]
+    },
+    {
+      "control": "AI",
+      "native_key": "Return",
+      "actual_qt_event": {
+        "control": "AI",
+        "key": 16777220,
+        "modifiers": 0,
+        "auto_repeat": false
+      },
+      "checked": false,
+      "signal_count": 2,
+      "atspi_states": [
+        "enabled",
+        "focusable",
+        "focused",
+        "sensitive",
+        "showing",
+        "visible",
+        "read-only"
+      ]
+    },
+    {
+      "control": "AI",
+      "native_key": "KP_Enter",
+      "actual_qt_event": {
+        "control": "AI",
+        "key": 16777221,
+        "modifiers": 536870912,
+        "auto_repeat": false
+      },
+      "checked": true,
+      "signal_count": 3,
+      "atspi_states": [
+        "enabled",
+        "focusable",
+        "focused",
+        "sensitive",
+        "showing",
+        "visible",
+        "read-only"
+      ]
+    },
+    {
+      "control": "Live",
+      "native_key": "space",
+      "actual_qt_event": {
+        "control": "Live",
+        "key": 32,
+        "modifiers": 0,
+        "auto_repeat": false
+      },
+      "checked": true,
+      "signal_count": 4,
+      "atspi_states": [
+        "enabled",
+        "focusable",
+        "focused",
+        "sensitive",
+        "showing",
+        "visible",
+        "read-only"
+      ]
+    },
+    {
+      "control": "Live",
+      "native_key": "Return",
+      "actual_qt_event": {
+        "control": "Live",
+        "key": 16777220,
+        "modifiers": 0,
+        "auto_repeat": false
+      },
+      "checked": false,
+      "signal_count": 5,
+      "atspi_states": [
+        "enabled",
+        "focusable",
+        "focused",
+        "sensitive",
+        "showing",
+        "visible",
+        "read-only"
+      ]
+    },
+    {
+      "control": "Live",
+      "native_key": "KP_Enter",
+      "actual_qt_event": {
+        "control": "Live",
+        "key": 16777221,
+        "modifiers": 536870912,
+        "auto_repeat": false
+      },
+      "checked": true,
+      "signal_count": 6,
+      "atspi_states": [
+        "enabled",
+        "focusable",
+        "focused",
+        "sensitive",
+        "showing",
+        "visible",
+        "read-only"
+      ]
+    }
+  ],
+  "native_keypad_proof": {
+    "x11_keysym": "KP_Enter",
+    "x11_keycode": 104,
+    "actual_qt_key": 16777221,
+    "actual_qt_modifiers": 536870912,
+    "meaning": "Qt.Key_Enter + Qt.KeypadModifier, observed independently on both controls before their handlers."
+  },
+  "signals": [
+    {
+      "control": "AI",
+      "checked": true
+    },
+    {
+      "control": "AI",
+      "checked": false
+    },
+    {
+      "control": "AI",
+      "checked": true
+    },
+    {
+      "control": "Live",
+      "checked": true
+    },
+    {
+      "control": "Live",
+      "checked": false
+    },
+    {
+      "control": "Live",
+      "checked": true
+    }
+  ],
+  "final_checked": {
+    "AI": true,
+    "Live": true
+  },
+  "no_api_activation_substitute": "XTestFakeKeyEvent injects native key press/release on isolated Xvfb. Event filter only records and returns False. Signal observer and isChecked readback record actual control behavior; they never activate the controls.",
+  "attempts": [
+    {
+      "number": 1,
+      "session": 20121,
+      "terminal_exit": 1,
+      "wall_seconds": 4.2,
+      "maximum_rss_kib": 301280,
+      "result": "Harness interference retained: Orca desktop Where Am I binding consumed KP_Enter; AI Space/Return passed and no keypad event reached Qt. Not an application-key failure or Orca-keypad acceptance.",
+      "orca_evidence": [
+        "05:18:53.458162 - GRABS ADDED: ENABLED BINDING for 'Perform the basic Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=1 grab ids=[0]",
+        "05:18:53.458206 - GRABS ADDED: ENABLED BINDING for 'Perform the detailed Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=2 grab ids=[0]",
+        "05:18:55.917109 - GRABS REMOVED: ENABLED BINDING for 'Perform the basic Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=1 grab ids=[]",
+        "05:18:55.917116 - GRABS REMOVED: ENABLED BINDING for 'Perform the detailed Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=2 grab ids=[]",
+        "05:18:55.922068 - GRABS ADDED: ENABLED BINDING for 'Perform the basic Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=1 grab ids=[165]",
+        "05:18:55.922080 - GRABS ADDED: ENABLED BINDING for 'Perform the detailed Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=2 grab ids=[166]",
+        "05:18:56.639163 - KEYBINDINGS: 'KP_Enter' (KP_Enter) mods: 0 key-pressed-event fallback candidates [ENABLED BINDING for 'Perform the basic Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=1 grab ids=[165], ENABLED BINDING for 'Perform the detailed Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=2 grab ids=[166]]",
+        "vvvvv PROCESS ATSPI_KEY_PRESSED_EVENT: 'KP_Enter' (104) vvvvv",
+        "05:18:56.639797 - CONSUMED: True Will be consumed",
+        "^^^^^ PROCESS ATSPI_KEY_PRESSED_EVENT: 'KP_Enter' (104) ^^^^^",
+        "05:18:56.640382 - KEYBINDINGS: 'KP_Enter' (KP_Enter) mods: 0 key-released-event fallback candidates [ENABLED BINDING for 'Perform the basic Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=1 grab ids=[165], ENABLED BINDING for 'Perform the detailed Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=2 grab ids=[166]]",
+        "05:18:56.641391 - KEYBOARD EVENT: Handler is Perform the basic Where Am I operation (enabled: True)",
+        "05:18:56.974206 - GRABS REMOVED: ENABLED BINDING for 'Perform the basic Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=1 grab ids=[]",
+        "05:18:56.974211 - GRABS REMOVED: ENABLED BINDING for 'Perform the detailed Where Am I operation (enabled: True)': KP_Enter mods=0 clicks=2 grab ids=[]"
+      ]
+    },
+    {
+      "number": 2,
+      "session": 2443,
+      "terminal_exit": 0,
+      "wall_seconds": 5.68,
+      "maximum_rss_kib": 349768,
+      "result": "PASS with external AT-SPI reader and no Orca process; all original state/signal/keypad assertions unchanged."
+    }
+  ],
+  "correction": "Parent approved exactly one retry after removing only private Orca startup. Failed-run scripts/logs/observations are preserved. Application/source and external reader assertions were not modified.",
+  "environment": {
+    "qt": "6.12.0",
+    "platform": "Linux xcb on private Xvfb1000x800",
+    "cap": "4G",
+    "computational_threads": 1,
+    "timeout_seconds": 40,
+    "shared_heavy_lock": true,
+    "gpu": "CUDA hidden; SPACR_NO_GL=1; software rendering",
+    "settings": "Private QSettings Native/Ini, XDG runtime/config/cache/data/state, SPACR home/network/log paths; GSettings memory backend",
+    "desktop_services_installed_or_reconfigured": false
+  },
+  "cleanup": {
+    "commit": "e1f97a89a0e1270d8842e5a71f91db651d7b1cb8",
+    "clean": true,
+    "source_sha256": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+    "all_process_time_sources_unchanged": 203,
+    "changed_sources": {},
+    "remaining_owned_processes": []
+  },
+  "limits": [
+    "No audible speech or human screen-reader usability acceptance.",
+    "No Orca keypad activation claim; its desktop default binding intercepts that key as demonstrated.",
+    "Native AT-SPI label role/check-state semantics remain limited and require separate work if stronger screen-reader behavior is needed.",
+    "No native held-key repeat or command-modifier test in this probe; those cases belong the separately recorded source-owner tests.",
+    "No provider/reporting/routing request, data/model workload, GPU or network workflow; no full N655/N700 completion or other-platform claim."
+  ],
+  "reuse": "Adapted the previously successful isolated native figure-heading Xvfb/D-Bus/XTest harness. No installation, new environment or worktree was created.",
+  "payload": {
+    "controls-app.py": {
+      "sha256": "c7ee6a93b8e4ed78451adbc0573b6e8005ea8d8d53ac8891a5ec00d69c813693"
+    },
+    "read-controls.py": {
+      "sha256": "16540896dfcbeb3fecdcf7a813b01d4393a3e5da1daebc90eeb2c0d760d9633d"
+    },
+    "inner.sh": {
+      "sha256": "b4aeee72a8c141f82ec9efb2e183fbb6866983fde5faa86600efe2c67a7755df"
+    },
+    "run.sh": {
+      "sha256": "56828e841ed79bc7bce07a903f512cae6965c71c507d3fb0ca3c848567706388"
+    },
+    "run.log.gz": {
+      "uncompressed_sha256": "3a835238392d1cae9e58f3af83c8f53d95c89a8fbd89340e3c4c99eb0494c548",
+      "gzip_sha256": "96516901a20e656d66a677cfb58ea9075ec7947d31cc57250fcf9f39b2442026"
+    },
+    "app.log.gz": {
+      "uncompressed_sha256": "069c81144d0177941250930b0da39030adfc2396199b07e6f7bff0e8e0f05f83",
+      "gzip_sha256": "81b25e76644d536e38412df5dc0bc6b5a61b3cd996d674f4d144dbd3bd875a17"
+    },
+    "reader.json.gz": {
+      "uncompressed_sha256": "b21d5b4296a4d283e0b997798d9b53952d431a8d8796344663e388bbdd431286",
+      "gzip_sha256": "52d8a79af36d00935c8e098759d47cf3dfecdf8127225d5c5e505a31df56aca1"
+    },
+    "time.txt.gz": {
+      "uncompressed_sha256": "ddf3e4f03dd3351a1a0317a5890c146dd87dfef888780e8c9f5bae9e87c661f5",
+      "gzip_sha256": "28e4fe24d2deb779fea9b6d2cf736d670c26395a46bed6226172ed5823a42a82"
+    },
+    "process-source.json.gz": {
+      "uncompressed_sha256": "4ad6753e3e18be21b10d22a0b7328dd01440e581ab34c5a4a07384ab5ffd2413",
+      "gzip_sha256": "74fd6813d2a0d41b2b19f5bf25134c0696b40c9b1867a121d4fc459db38b61fa"
+    },
+    "app-observations.json.gz": {
+      "uncompressed_sha256": "b941ee5fc444514d8a434f022f8f7d3da73ac753782573f97ada64c8c4639af0",
+      "gzip_sha256": "7058a467f2ed8e97685996034e2620f320bc1e92bc7a1255f418c3104d721a11"
+    },
+    "owned-pids.json.gz": {
+      "uncompressed_sha256": "412c471197abb3484e57988d7f528582e0ddc7f2bb6ae653cb2168e000f3ba30",
+      "gzip_sha256": "9af75288360ef42819a3bf32205ab15ff30a4066f09f0ecdf74e9c31a9ba9e8c"
+    },
+    "before-source.json.gz": {
+      "uncompressed_sha256": "8b04478120d1971c51757aa8ef6d93266e2ea3c6893ed818a572e7f7510d7746",
+      "gzip_sha256": "a9dce7aca52bd1c71b0fbe119356c3bfc9f6a23f6bf5c49989fdb14cf177705d"
+    },
+    "after-source.json.gz": {
+      "uncompressed_sha256": "adab5d45a1a20f5f62cf12f09a767c545bc9b2133bb9030a70531d27c15f2465",
+      "gzip_sha256": "9472791733762694fe0480c923ee8840ae6218d2d979353b61c6f05151ec50e4"
+    },
+    "retry-correction.json.gz": {
+      "uncompressed_sha256": "a57f58aef6d85460df8b29686c9f0c8688ee260d1f67028d3582c93547829331",
+      "gzip_sha256": "c6f87c8e52c59ba0f1dc9789c67ecdc42de7ff6d42ce4b0024a3b8d4257bf06c"
+    },
+    "attempt-1-orca-interference/app-observations.json.gz": {
+      "uncompressed_sha256": "84c1d6cf31847e158e4fac1371984e0eb66b9c694efa7c437166e3ca5719dab4",
+      "gzip_sha256": "9f813bf0592784c3f330095bd0bd62187710501489b90c83ccf8f70a20ba4aba"
+    },
+    "attempt-1-orca-interference/app.log.gz": {
+      "uncompressed_sha256": "634a76ccdc9693604380eb3daaadd7993b293579b109179965b1a9925860c624",
+      "gzip_sha256": "81a082e94726eaa982f3900fe1d1ac03cf828c53bad42a9db2279e3de0537a41"
+    },
+    "attempt-1-orca-interference/before-source.json.gz": {
+      "uncompressed_sha256": "8b04478120d1971c51757aa8ef6d93266e2ea3c6893ed818a572e7f7510d7746",
+      "gzip_sha256": "a9dce7aca52bd1c71b0fbe119356c3bfc9f6a23f6bf5c49989fdb14cf177705d"
+    },
+    "attempt-1-orca-interference/controls-app.py.gz": {
+      "uncompressed_sha256": "c7ee6a93b8e4ed78451adbc0573b6e8005ea8d8d53ac8891a5ec00d69c813693",
+      "gzip_sha256": "ff0848b6659675d6bc2678e3bf734203df8a1bf4306811bf1f39bb2fffbf90bd"
+    },
+    "attempt-1-orca-interference/inner.sh.gz": {
+      "uncompressed_sha256": "f96ed9927d5fd78ba5fe17fccf5924d7b1696ab685447638dc3580ef1a955c54",
+      "gzip_sha256": "7cb9602dfb4cee6e616a03b1ed42d702bcb661fe5c09eecbcbcad309dadccf03"
+    },
+    "attempt-1-orca-interference/orca-debug.log.gz": {
+      "uncompressed_sha256": "82c40e751f776a9672e8a7542d45e939dcbb96cc1c538b53feea9bf6015aabf3",
+      "gzip_sha256": "b6324d74459d8bfc65e0fa216f33a5c7068d27f18ac9e5d51da55ab7156293eb"
+    },
+    "attempt-1-orca-interference/orca.log.gz": {
+      "uncompressed_sha256": "2c421c009c67273c78f979e12e2742ecfa82a8104da8d2b58530b3323dec6732",
+      "gzip_sha256": "bf912807f0e17eab7067964ceb7ec59ff1b59e8cb8c9c22f0ad7129ecd889932"
+    },
+    "attempt-1-orca-interference/owned-pids.json.gz": {
+      "uncompressed_sha256": "f1ec8726465a5138217c209b3cf2714458e983f41d3c9aa336fba9794abdf44a",
+      "gzip_sha256": "7aeb0363f2e981eb87f411a4e49db1b2d8f90be82225cf69774a576398474adf"
+    },
+    "attempt-1-orca-interference/process-source.json.gz": {
+      "uncompressed_sha256": "4ad6753e3e18be21b10d22a0b7328dd01440e581ab34c5a4a07384ab5ffd2413",
+      "gzip_sha256": "74fd6813d2a0d41b2b19f5bf25134c0696b40c9b1867a121d4fc459db38b61fa"
+    },
+    "attempt-1-orca-interference/read-controls.py.gz": {
+      "uncompressed_sha256": "16540896dfcbeb3fecdcf7a813b01d4393a3e5da1daebc90eeb2c0d760d9633d",
+      "gzip_sha256": "9e3ce712784561643452da5033bd4202c09ee7d4f6eed6e92998a409600abca2"
+    },
+    "attempt-1-orca-interference/reader.json.gz": {
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    "attempt-1-orca-interference/run.log.gz": {
+      "uncompressed_sha256": "f2c226f516c4adf77f40dee52ec85ca1186830fa69b2503f513aeadd0dbbdfe7",
+      "gzip_sha256": "aa93403f51cdf0221a9f460354b8dd079cbc3a3d53fc4676ca508b3ac5024543"
+    },
+    "attempt-1-orca-interference/run.sh.gz": {
+      "uncompressed_sha256": "56828e841ed79bc7bce07a903f512cae6965c71c507d3fb0ca3c848567706388",
+      "gzip_sha256": "5fc855918359f3879b41058f3f6d731a0848753bb4a92b992dd7d7c99ede6cd5"
+    },
+    "attempt-1-orca-interference/time.txt.gz": {
+      "uncompressed_sha256": "6a687c417433ee26212d27d3fb303ca71a20bbbc2f43dd14c6bcf88e80170536",
+      "gzip_sha256": "e53ec8e329f08fe55e666e9fbfc394f767959020d8f747c4f47ec309acc56a76"
+    }
+  }
+}
