@@ -756,4 +756,3 @@
 | Item | Percent done | Time left | Owner | Detailed description |
 |---|---|---|---|---|
 | N700 | P | — | C | Anonymous error reporting/free AI: Claude implementation published; live acceptance open |
-
