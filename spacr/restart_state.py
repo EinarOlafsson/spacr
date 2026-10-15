@@ -168,12 +168,15 @@ def save(*, module: str, settings: Optional[Mapping[str, Any]] = None,
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(document, indent=2, default=str),
-                       encoding="utf-8")
+        serialized = json.dumps(document, indent=2, default=str)
+        tmp.write_text(serialized, encoding="utf-8")
         os.replace(tmp, path)
-        read_back = json.loads(path.read_text(encoding="utf-8"))
+        persisted = path.read_text(encoding="utf-8")
+        read_back = json.loads(persisted)
         if read_back.get("module") != document["module"]:
             raise ValueError("the state read back as a different module")
+        if persisted != serialized:
+            raise ValueError("the state read back with different contents")
     except Exception as exc:                              # noqa: BLE001
         LOG.warning("could not save the restart state: %s", exc)
         return None
