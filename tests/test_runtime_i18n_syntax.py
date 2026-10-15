@@ -551,10 +551,11 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     retired_hashes = {
         "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
         "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478",
+        "a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527",
     }
     retired = [record for record in original
                if record["source_sha256"] in retired_hashes]
-    assert len(retired) == 2
+    assert len(retired) == 3
     assert {record["source_sha256"] for record in retired} == retired_hashes
     assert all(hashlib.sha256(record["source"].encode()).hexdigest()
                == record["source_sha256"] for record in retired)
@@ -572,7 +573,18 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert reviewed[replacement[0]["source"]] == replacement[0]["translation"]
     from tools.build_i18n_catalogs import canonical_sources
 
-    current_timelapse = canonical_sources()["setting_tooltips"]["timelapse_events"]
+    diameter_reviews = json.loads((folder / "2026-10-14-magnification-default-and-auto-diameter.json").read_text())["records"]
+    diameter = [record for record in diameter_reviews
+                if record["table"] == "setting_tooltips"
+                and record["key"] == "robustness_diameter_factors"]
+    assert len(diameter) == 1
+    diameter = diameter[0]
+    assert diameter["source_sha256"] == "872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1"
+    assert hashlib.sha256(diameter["source"].encode()).hexdigest() == diameter["source_sha256"]
+    assert reviewed[diameter["source"]] == diameter["translation"]
+    current_tooltips = canonical_sources()["setting_tooltips"]
+    assert current_tooltips["robustness_diameter_factors"] == diameter["source"]
+    current_timelapse = current_tooltips["timelapse_events"]
     assert current_timelapse.startswith("After the run, detect events on every tracked object")
     assert "optional videomae encoder" in current_timelapse
     assert current_timelapse in reviewed
