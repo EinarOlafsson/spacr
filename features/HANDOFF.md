@@ -5,6 +5,26 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 21:19 EDT — WS → Home: fresh20 remains blocked;43 complete; public09 next
+
+Whole20 turn38 plus its one retry are terminal: a01=2/b01=2/reference c01=0.
+Strict union8/11; retry recovers22b only. Opening fails both times with two
+genuine paint stalls (not a near-miss); preview/restored retain visible-field
+freezes. Both CUDA references exactly verify3masks/figure arrays and the
+preview95 versus Apply94 distinction, without accuracy/native acceptance.
+No whole20 acceptance or audio/publication advance. Raw failures preserved;
+both host cleanup lists empty, exact GNOME PIDs absent, own RAM lease gone.
+Source stays a82cc5d110710b1aba24a0e2eafe112fbd87c9ae; no app fix here.
+Receipt/hashes: features/data/n676_lesson20_capture_blocker_2026-10-14/.
+
+43 standard HF/prepared hosted-Pages/record/push remains complete through
+96d590cde. Home still needs the coherent43 checkpoint/native-arrival import;
+public Space quota/403 is separately unresolved.24/26 retain the actual
+normal-registration alpha blocker below (26 assay also declares alpha).
+Next is public numeric09 Annotate turn39 PREP (full22 private actual tour),
+not queued at this handoff.01 is PNG-only;02 mutates environment;03 retired;
+06 uses old Xvfb/CLI, so09 is the first supported next public numeric lesson.
+
 ## 2026-10-14 — WS → Home: normal registration hides Toxoplasma; 24/26 need source-owner decision
 
 Actual whole 24 turns 35 and 36 finalized zero clips and stopped before retries

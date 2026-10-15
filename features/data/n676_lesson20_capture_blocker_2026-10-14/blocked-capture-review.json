@@ -1,0 +1,1252 @@
+{
+  "schema_version": 1,
+  "lesson": "20_cellpose_masks",
+  "reviewed_at": "2026-10-15T01:24:00.973604+00:00",
+  "turn": 38,
+  "terminal_at": "2026-10-14T21:19:21-04:00",
+  "job_exit_codes": {
+    "a01": 2,
+    "b01": 2,
+    "c01": 0
+  },
+  "native_acceptance": false,
+  "publication_accepted": false,
+  "whole_lesson_accepted": false,
+  "strict_union": {
+    "passed": 8,
+    "required": 11,
+    "passing_clips": [
+      "04_setting_src",
+      "05_setting_model_name",
+      "15_actual_mask_and_flow_figures",
+      "17_actual_preview_image_picker",
+      "14_actual_inference_outcome",
+      "20a_actual_zoomed_preview",
+      "22_native_filter_reduces_objects",
+      "22b_actual_zoomed_filtered_preview"
+    ],
+    "unresolved_clips": [
+      "02_actual_train_and_apply_tabs",
+      "20_actual_preview_result",
+      "23b_actual_zoomed_restored_preview"
+    ],
+    "retry_recovered_only": "22b_actual_zoomed_filtered_preview"
+  },
+  "decision": "BLOCKED: opening fails twice with two genuine recorded paint stalls; preview and restored-preview retain minimum-rate-of-stably-visible-fields freezes. No near-miss override or gate relaxation. Scientific reference success cannot override native failure.",
+  "source_revision": "a82cc5d110710b1aba24a0e2eafe112fbd87c9ae",
+  "main_retry_source_inventories_identical": true,
+  "source_evidence_scope": "Read sealed exact-source inventories/provenance and fresh reference dependency receipts; no app execution, new tests, source changes or rehash of bulk video/image data in this review. Artifact report hashes below are independently read from existing files. Mask/input hashes are explicitly reported independent-reference evidence.",
+  "runs": [
+    {
+      "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38",
+      "source_revision": "a82cc5d110710b1aba24a0e2eafe112fbd87c9ae",
+      "source_file_count": 502,
+      "provenance": {
+        "commit": "a82cc5d110710b1aba24a0e2eafe112fbd87c9ae",
+        "version": "1.5.1.4",
+        "module": "cellpose_masks",
+        "download_requested": false,
+        "dataset_cache": "/tmp/spacr-tutorial-current/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": false,
+        "selected_scenes": "02_actual_train_and_apply_tabs,04_setting_src,05_setting_model_name,14_actual_inference_outcome,15_actual_mask_and_flow_figures,17_actual_preview_image_picker,20_actual_preview_result,20a_actual_zoomed_preview,22_native_filter_reduces_objects,22b_actual_zoomed_filtered_preview,23b_actual_zoomed_restored_preview",
+        "status": "gate_failed",
+        "gate_failed_clips": [
+          "02_actual_train_and_apply_tabs",
+          "20_actual_preview_result",
+          "22b_actual_zoomed_filtered_preview",
+          "23b_actual_zoomed_restored_preview"
+        ]
+      },
+      "host_process_outcome": {
+        "app_exit_code": 0,
+        "recorder_rc": 0,
+        "failure": null,
+        "gate_failed": [
+          "02_actual_train_and_apply_tabs",
+          "20_actual_preview_result",
+          "22b_actual_zoomed_filtered_preview",
+          "23b_actual_zoomed_restored_preview"
+        ]
+      },
+      "strict_pass_count": 7,
+      "strict_clip_count": 11,
+      "gates": {
+        "02_actual_train_and_apply_tabs": {
+          "summary": {
+            "passed": false,
+            "reasons": [
+              "choppy (app freeze + capture loss): 27.8 distinct fps < 27.9 [app freeze in second(s) [4, 8, 9]; capture loss in second(s) [0, 5, 7]; 25 of 59 unchanged frames fall in the app's 2 paint stalls]"
+            ],
+            "distinct_fps": 27.76,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 49.7,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 183.42,
+            "app_freeze_seconds": [
+              4,
+              8,
+              9
+            ],
+            "capture_loss_seconds": [
+              0,
+              5,
+              7
+            ],
+            "loadavg": [
+              4.09521484375,
+              5.68115234375
+            ],
+            "file": "02_actual_train_and_apply_tabs.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [
+            [
+              4.076,
+              4.474
+            ],
+            [
+              8.282,
+              9.04
+            ]
+          ],
+          "app_stall_windows_s": [
+            [
+              4.076,
+              4.474
+            ],
+            [
+              8.282,
+              9.04
+            ]
+          ],
+          "unchanged_frames": 59,
+          "unchanged_frames_in_app_stalls": 25,
+          "adapter_bypasses": []
+        },
+        "04_setting_src": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 29.68,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 36.2,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 261.78,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [],
+            "loadavg": [
+              5.68115234375,
+              6.79638671875
+            ],
+            "file": "04_setting_src.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 9,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "05_setting_model_name": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 29.64,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 30.4,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 254.62,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [
+              0
+            ],
+            "loadavg": [
+              6.79638671875,
+              6.53076171875
+            ],
+            "file": "05_setting_model_name.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 11,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "15_actual_mask_and_flow_figures": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 28.91,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 34.7,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 255.51,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [
+              0,
+              4,
+              6,
+              7,
+              10
+            ],
+            "loadavg": [
+              6.31396484375,
+              6.537109375
+            ],
+            "file": "15_actual_mask_and_flow_figures.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 31,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "17_actual_preview_image_picker": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 28.9,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 45.8,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 181.64,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [
+              10,
+              13
+            ],
+            "loadavg": [
+              6.537109375,
+              6.04931640625
+            ],
+            "file": "17_actual_preview_image_picker.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [
+            15
+          ],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 35,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "14_actual_inference_outcome": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 29.23,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 41.0,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 206.14,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [
+              21,
+              25,
+              41
+            ],
+            "loadavg": [
+              6.1845703125,
+              6.515625
+            ],
+            "file": "14_actual_inference_outcome.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 33,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "20_actual_preview_result": {
+          "summary": {
+            "passed": false,
+            "reasons": [
+              "app freeze: second(s) [7] (paint scope: minimum_rate_of_stably_visible_fields)"
+            ],
+            "distinct_fps": 28.89,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 37.2,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 178.22,
+            "app_freeze_seconds": [
+              7
+            ],
+            "capture_loss_seconds": [],
+            "loadavg": [
+              6.04931640625,
+              6.57763671875
+            ],
+            "file": "20_actual_preview_result.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [
+            0,
+            12
+          ],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 28,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "20a_actual_zoomed_preview": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 29.44,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 37.0,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 213.84,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [],
+            "loadavg": [
+              6.57763671875,
+              6.84326171875
+            ],
+            "file": "20a_actual_zoomed_preview.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 11,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "22_native_filter_reduces_objects": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 28.81,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 36.2,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 168.44,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [],
+            "loadavg": [
+              6.84326171875,
+              6.52197265625
+            ],
+            "file": "22_native_filter_reduces_objects.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [
+            3,
+            11
+          ],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 28,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "22b_actual_zoomed_filtered_preview": {
+          "summary": {
+            "passed": false,
+            "reasons": [
+              "app freeze: second(s) [0] (paint scope: minimum_rate_of_stably_visible_fields)"
+            ],
+            "distinct_fps": 29.41,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 36.4,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 217.26,
+            "app_freeze_seconds": [
+              0
+            ],
+            "capture_loss_seconds": [],
+            "loadavg": [
+              6.52197265625,
+              6.2919921875
+            ],
+            "file": "22b_actual_zoomed_filtered_preview.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 16,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "23b_actual_zoomed_restored_preview": {
+          "summary": {
+            "passed": false,
+            "reasons": [
+              "app freeze: second(s) [3, 5] (paint scope: minimum_rate_of_stably_visible_fields)"
+            ],
+            "distinct_fps": 28.97,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 36.2,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 205.43,
+            "app_freeze_seconds": [
+              3,
+              5
+            ],
+            "capture_loss_seconds": [
+              0,
+              8,
+              20
+            ],
+            "loadavg": [
+              6.2919921875,
+              6.17431640625
+            ],
+            "file": "23b_actual_zoomed_restored_preview.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 29,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        }
+      },
+      "cleanup": {
+        "exit_code": 2,
+        "survivors_after_cleanup": []
+      },
+      "science": {
+        "verification_exit_code": 0,
+        "reference_absent_at_start": true,
+        "dependencies_unchanged": true,
+        "reference_scope": "input/output attribution, not segmentation accuracy",
+        "reference_accepted": true,
+        "model_checkpoint": "/home/carruthers/.cellpose/models/cpsam",
+        "model_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+        "batch_masks": [
+          {
+            "name": "cell_pair_01.tif",
+            "checked_pixels": 262144,
+            "objects": 9,
+            "exact_mask_equal": true,
+            "source_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+            "saved_mask_sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa"
+          },
+          {
+            "name": "cell_pair_02.tif",
+            "checked_pixels": 262144,
+            "objects": 94,
+            "exact_mask_equal": true,
+            "source_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+            "saved_mask_sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8"
+          },
+          {
+            "name": "cell_pair_03.tif",
+            "checked_pixels": 262144,
+            "objects": 46,
+            "exact_mask_equal": true,
+            "source_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+            "saved_mask_sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89"
+          }
+        ],
+        "figure_checks": [
+          {
+            "file": "batch_figure_00_arrays.npz",
+            "source_image": "cell_pair_03.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          },
+          {
+            "file": "batch_figure_01_arrays.npz",
+            "source_image": "cell_pair_02.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          },
+          {
+            "file": "batch_figure_02_arrays.npz",
+            "source_image": "cell_pair_01.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          }
+        ],
+        "preview": {
+          "checked_pixels": 262144,
+          "objects": 95,
+          "exact_mask_equal": true,
+          "differs_from_batch": true,
+          "meaning": "Matches raw-image Cellpose defaults, not the Apply preprocessing settings."
+        },
+        "filter": {
+          "before": 95,
+          "cutoff": 1838,
+          "after": 47,
+          "checked_pixels": 262144,
+          "raw_unchanged": true,
+          "restored": true
+        },
+        "original_inputs_preserved": true,
+        "private_inputs_preserved": true,
+        "accuracy_validated": false,
+        "ground_truth_used": false,
+        "driver_scientific_acceptance": false
+      }
+    },
+    {
+      "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b",
+      "source_revision": "a82cc5d110710b1aba24a0e2eafe112fbd87c9ae",
+      "source_file_count": 502,
+      "provenance": {
+        "commit": "a82cc5d110710b1aba24a0e2eafe112fbd87c9ae",
+        "version": "1.5.1.4",
+        "module": "cellpose_masks",
+        "download_requested": false,
+        "dataset_cache": "/tmp/spacr-tutorial-current/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": false,
+        "selected_scenes": "02_actual_train_and_apply_tabs,20_actual_preview_result,22b_actual_zoomed_filtered_preview,23b_actual_zoomed_restored_preview",
+        "status": "gate_failed",
+        "gate_failed_clips": [
+          "20_actual_preview_result",
+          "02_actual_train_and_apply_tabs",
+          "23b_actual_zoomed_restored_preview"
+        ]
+      },
+      "host_process_outcome": {
+        "app_exit_code": 0,
+        "recorder_rc": 0,
+        "failure": null,
+        "gate_failed": [
+          "20_actual_preview_result",
+          "02_actual_train_and_apply_tabs",
+          "23b_actual_zoomed_restored_preview"
+        ]
+      },
+      "strict_pass_count": 1,
+      "strict_clip_count": 4,
+      "gates": {
+        "20_actual_preview_result": {
+          "summary": {
+            "passed": false,
+            "reasons": [
+              "app freeze: second(s) [7] (paint scope: minimum_rate_of_stably_visible_fields)"
+            ],
+            "distinct_fps": 28.82,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 37.0,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 168.76,
+            "app_freeze_seconds": [
+              7
+            ],
+            "capture_loss_seconds": [
+              0,
+              18
+            ],
+            "loadavg": [
+              6.35693359375,
+              7.29150390625
+            ],
+            "file": "20_actual_preview_result.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 30,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "02_actual_train_and_apply_tabs": {
+          "summary": {
+            "passed": false,
+            "reasons": [
+              "choppy (app freeze + capture loss): 27.8 distinct fps < 27.9 [app freeze in second(s) [4, 8, 9]; capture loss in second(s) [5]; 25 of 59 unchanged frames fall in the app's 2 paint stalls]"
+            ],
+            "distinct_fps": 27.76,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 50.0,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 173.76,
+            "app_freeze_seconds": [
+              4,
+              8,
+              9
+            ],
+            "capture_loss_seconds": [
+              5
+            ],
+            "loadavg": [
+              9.49267578125,
+              8.16455078125
+            ],
+            "file": "02_actual_train_and_apply_tabs.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [
+            [
+              4.055,
+              4.414
+            ],
+            [
+              8.346,
+              9.018
+            ]
+          ],
+          "app_stall_windows_s": [
+            [
+              4.055,
+              4.414
+            ],
+            [
+              8.346,
+              9.018
+            ]
+          ],
+          "unchanged_frames": 59,
+          "unchanged_frames_in_app_stalls": 25,
+          "adapter_bypasses": []
+        },
+        "22b_actual_zoomed_filtered_preview": {
+          "summary": {
+            "passed": true,
+            "reasons": [],
+            "distinct_fps": 29.38,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 36.8,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 195.88,
+            "app_freeze_seconds": [],
+            "capture_loss_seconds": [
+              10
+            ],
+            "loadavg": [
+              6.9326171875,
+              6.7138671875
+            ],
+            "file": "22b_actual_zoomed_filtered_preview.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 17,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        },
+        "23b_actual_zoomed_restored_preview": {
+          "summary": {
+            "passed": false,
+            "reasons": [
+              "app freeze: second(s) [3] (paint scope: minimum_rate_of_stably_visible_fields)"
+            ],
+            "distinct_fps": 28.97,
+            "fps": 30,
+            "min_fps": 27.9,
+            "cursor_max_step_px": 39.0,
+            "cursor_bound_px": 76.8,
+            "cursor_found_fraction": 1.0,
+            "top_bar_hidden": true,
+            "app_painted_fps": 191.64,
+            "app_freeze_seconds": [
+              3
+            ],
+            "capture_loss_seconds": [],
+            "loadavg": [
+              6.7138671875,
+              6.14404296875
+            ],
+            "file": "23b_actual_zoomed_restored_preview.gate.json"
+          },
+          "paint_counter_scope": "sum_of_observed_visible_widget_deltas",
+          "diagnostic_paint_scope": "minimum_rate_of_stably_visible_fields",
+          "app_slow_seconds": [],
+          "app_unknown_seconds": [],
+          "app_gui_sampler_gaps_s": [],
+          "app_stall_windows_s": [],
+          "unchanged_frames": 29,
+          "unchanged_frames_in_app_stalls": 0,
+          "adapter_bypasses": []
+        }
+      },
+      "cleanup": {
+        "exit_code": 2,
+        "survivors_after_cleanup": []
+      },
+      "science": {
+        "verification_exit_code": 0,
+        "reference_absent_at_start": true,
+        "dependencies_unchanged": true,
+        "reference_scope": "input/output attribution, not segmentation accuracy",
+        "reference_accepted": true,
+        "model_checkpoint": "/home/carruthers/.cellpose/models/cpsam",
+        "model_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+        "batch_masks": [
+          {
+            "name": "cell_pair_01.tif",
+            "checked_pixels": 262144,
+            "objects": 9,
+            "exact_mask_equal": true,
+            "source_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+            "saved_mask_sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa"
+          },
+          {
+            "name": "cell_pair_02.tif",
+            "checked_pixels": 262144,
+            "objects": 94,
+            "exact_mask_equal": true,
+            "source_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+            "saved_mask_sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8"
+          },
+          {
+            "name": "cell_pair_03.tif",
+            "checked_pixels": 262144,
+            "objects": 46,
+            "exact_mask_equal": true,
+            "source_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+            "saved_mask_sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89"
+          }
+        ],
+        "figure_checks": [
+          {
+            "file": "batch_figure_00_arrays.npz",
+            "source_image": "cell_pair_02.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          },
+          {
+            "file": "batch_figure_01_arrays.npz",
+            "source_image": "cell_pair_03.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          },
+          {
+            "file": "batch_figure_02_arrays.npz",
+            "source_image": "cell_pair_01.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          }
+        ],
+        "preview": {
+          "checked_pixels": 262144,
+          "objects": 95,
+          "exact_mask_equal": true,
+          "differs_from_batch": true,
+          "meaning": "Matches raw-image Cellpose defaults, not the Apply preprocessing settings."
+        },
+        "filter": {
+          "before": 95,
+          "cutoff": 1838,
+          "after": 47,
+          "checked_pixels": 262144,
+          "raw_unchanged": true,
+          "restored": true
+        },
+        "original_inputs_preserved": true,
+        "private_inputs_preserved": true,
+        "accuracy_validated": false,
+        "ground_truth_used": false,
+        "driver_scientific_acceptance": false
+      }
+    }
+  ],
+  "cleanup_verification": {
+    "checked_at": "2026-10-15T01:24:00.973615+00:00",
+    "recorded_gnome_pids": [
+      209062,
+      215733
+    ],
+    "exact_ps_command": [
+      "ps",
+      "-p",
+      "209062,215733",
+      "-o",
+      "pid=,stat=,comm="
+    ],
+    "ps_returncode": 1,
+    "ps_stdout": "",
+    "recorded_pids_absent": true,
+    "both_cleanup_survivor_lists_empty": true,
+    "own_lease_prefix": "codex-ws-turn38-lesson20 | ",
+    "own_lease_rows_present": false,
+    "scope": "Exact recorded GNOME PIDs plus saved cleanup receipts and own lease only; no global scan, kill or daemon/config action."
+  },
+  "preserved_raw_artifacts": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/exact-source.json",
+      "bytes": 54675,
+      "sha256": "bb8dba53ea33cc367f177c08f95ced09b3f9b2469f380c21f781a0e1ecfe40cd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/host-run.json",
+      "bytes": 6735,
+      "sha256": "d0045efe8106b5869806d393ce9962ee33106756038c780c874dcdb243785f59"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/runtime_inventory.json",
+      "bytes": 20848,
+      "sha256": "8f3075d82ff6d5a2e131fc3cfc1fab87862b337586bd86b28e015e755bb342da"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/capture-profile.json",
+      "bytes": 638,
+      "sha256": "8bcfc00c69ebe0d81582333dd46df6a6d5004b8c54b260b5ba5e36b05eb960a5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/gnome-host/host.json",
+      "bytes": 600,
+      "sha256": "79c5d97896f391b8e62d48ceeb76f1561c8621154e22878647874f3029203433"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/gnome-host/cleanup.json",
+      "bytes": 54,
+      "sha256": "bd4837aa7cdce60801cc20ae4c6aae320f0a034f7af0b649ab1ec953ef76631e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/host_gate_summary.json",
+      "bytes": 6688,
+      "sha256": "3670bcc821d523d1ae0914190740b813aa27693ef1bab44f21be63409e14cb19"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/scientific_acceptance.json",
+      "bytes": 7557,
+      "sha256": "aa31167aaa006a38c4857e33f0ee4c6e5fb4630011efc42616a8ac4e55361a60"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/configured_settings.json",
+      "bytes": 585,
+      "sha256": "b6f8ca7e8bdf7b5fcc8b83dbf989a7c4a336a353e0c9585ce43547dbdbff8a4a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/provenance.json",
+      "bytes": 858,
+      "sha256": "305f0714b7a22f0fc1fdc7b72b0ac94ef167b55773cc7f287e8d92c8c5ae5c7f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/frames.json",
+      "bytes": 220148,
+      "sha256": "f3b2a6cf336f8cc8718a92449a6524174f480dd7aa44a2ad42793317bb3e0aad"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/verification_run.json",
+      "bytes": 3546,
+      "sha256": "3f3a2a2ceb84f69bb0b4d18cf0cb3cb3999a294bf78c13ed4189f9a86bd89055"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/independent_reference.json",
+      "bytes": 2117,
+      "sha256": "b2ea553343ad6a5c0c32e96af79fb5b775a0e88a249810cac29fe0ba0498d720"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/02_actual_train_and_apply_tabs.gate.json",
+      "bytes": 2962,
+      "sha256": "8e5b0d91fee1215cbb44d968d78ac6e3dbcc7ac46e7cbbb1faa0e624f7c049e8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/04_setting_src.gate.json",
+      "bytes": 2556,
+      "sha256": "d7ec0d12e8b5f8835bdc139f51940fd5fb99ef036a27f4e4048dfbdde7927896"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/05_setting_model_name.gate.json",
+      "bytes": 2658,
+      "sha256": "004d192b770caa7725e59b88297765b256939bba8453344776bdc4d8c2356fdf"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/14_actual_inference_outcome.gate.json",
+      "bytes": 3036,
+      "sha256": "f14802d7489412934c1885a5706d91606269a7864eeb7b4e5acf6fd90fd9bb2f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/15_actual_mask_and_flow_figures.gate.json",
+      "bytes": 2638,
+      "sha256": "b41fb1cff12816a7d2843c9aaac9a853600d18321e5a13f45c7a6a9f478454b9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/17_actual_preview_image_picker.gate.json",
+      "bytes": 2717,
+      "sha256": "f3805f87fc3b5009fe295aaa286daaf124c49258f3b5e9ee248e45d2705a5377"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/20_actual_preview_result.gate.json",
+      "bytes": 2624,
+      "sha256": "e293b9e50781c7f8d0fe9f1805f6dc2de5e5157681a864dba7071e530a0a8132"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/20a_actual_zoomed_preview.gate.json",
+      "bytes": 2336,
+      "sha256": "928a037cc44869acf87b1d135cb8416a6c52eee039d577eae6b4332b61d271e7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/22_native_filter_reduces_objects.gate.json",
+      "bytes": 2477,
+      "sha256": "f65d4e1f8882dbd5ecd4831ebb6cbd68583d66deb80af9abb0f674f1c1d08ad3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/22b_actual_zoomed_filtered_preview.gate.json",
+      "bytes": 2675,
+      "sha256": "01084ab11dbb719a182930f2fcf25edcc6fbc558d03a8eca48b9ecae4f3b81d1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/23b_actual_zoomed_restored_preview.gate.json",
+      "bytes": 2739,
+      "sha256": "271892a7722e3ee536246f2201ff7589963fad23505ea5b067235f8a8631555b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/02_actual_train_and_apply_tabs.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/04_setting_src.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/05_setting_model_name.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/14_actual_inference_outcome.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/15_actual_mask_and_flow_figures.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/17_actual_preview_image_picker.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/20_actual_preview_result.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/20a_actual_zoomed_preview.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/22_native_filter_reduces_objects.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/22b_actual_zoomed_filtered_preview.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/23b_actual_zoomed_restored_preview.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/02_actual_train_and_apply_tabs.stalls.txt",
+      "bytes": 16610,
+      "sha256": "d0dc36f6d29c68d24a4403695778b4367e23927e718479413f3aba1e4c92566f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/04_setting_src.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/05_setting_model_name.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/14_actual_inference_outcome.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/15_actual_mask_and_flow_figures.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/17_actual_preview_image_picker.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/20_actual_preview_result.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/20a_actual_zoomed_preview.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/22_native_filter_reduces_objects.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/22b_actual_zoomed_filtered_preview.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38/captures/cellpose_masks/23b_actual_zoomed_restored_preview.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/exact-source.json",
+      "bytes": 54675,
+      "sha256": "bb8dba53ea33cc367f177c08f95ced09b3f9b2469f380c21f781a0e1ecfe40cd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/host-run.json",
+      "bytes": 2830,
+      "sha256": "046e259e9fc620c17fbde51aade65e5f278ee4d1865a0af861637b531b98b4ab"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/runtime_inventory.json",
+      "bytes": 20848,
+      "sha256": "8f3075d82ff6d5a2e131fc3cfc1fab87862b337586bd86b28e015e755bb342da"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/capture-profile.json",
+      "bytes": 638,
+      "sha256": "8bcfc00c69ebe0d81582333dd46df6a6d5004b8c54b260b5ba5e36b05eb960a5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/gnome-host/host.json",
+      "bytes": 604,
+      "sha256": "a1742c994762f39dba24cfe60a3e8f4908f6bc60cc9801a01cf5a00b8d9161a1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/gnome-host/cleanup.json",
+      "bytes": 54,
+      "sha256": "bd4837aa7cdce60801cc20ae4c6aae320f0a034f7af0b649ab1ec953ef76631e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/host_gate_summary.json",
+      "bytes": 2783,
+      "sha256": "958548c1671f980de9b91a675e1e1f5557962fa1958ef9fe4488240159c2bf38"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/scientific_acceptance.json",
+      "bytes": 7557,
+      "sha256": "17c0e7aadfab37561e04cbffe35a817770cd00cd810c1510893a21695cce3c0c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/configured_settings.json",
+      "bytes": 585,
+      "sha256": "70ee5d7ade5278f6c54833fead0941e90ce6b8289e510756caa1cda6b8e544a8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/provenance.json",
+      "bytes": 629,
+      "sha256": "09e511e520deac187aac88a9a39f0ea7ec03e448c52855c87e1fa218a7b44afd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/frames.json",
+      "bytes": 82233,
+      "sha256": "71c57af725ba79ee888d21a308c01e4109f26515ce281a14a09629107908d4c2"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/verification_run.json",
+      "bytes": 3574,
+      "sha256": "a5a319990067e5347c3831014487e665cdeb964f99784a65f2c379fd3f0f2d3c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/independent_reference.json",
+      "bytes": 2117,
+      "sha256": "61df56f9325b7404001d05bcb346886dcbac6ad97362e2898bb6350032b51b91"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/02_actual_train_and_apply_tabs.gate.json",
+      "bytes": 2942,
+      "sha256": "96fee124452dd40566ed9b084caaabbe6fc891ecc4faa18418d34636e408b5f6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/20_actual_preview_result.gate.json",
+      "bytes": 2627,
+      "sha256": "9798ba89bc6ab7ec3bc8f2f9bf791059ced84f620a3b01716fd695139c9ecf38"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/22b_actual_zoomed_filtered_preview.gate.json",
+      "bytes": 2587,
+      "sha256": "060281e3b6d3c008f627a236d15629021c3ea2456bb44c76f9db9f0393cadc33"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/23b_actual_zoomed_restored_preview.gate.json",
+      "bytes": 2705,
+      "sha256": "20349ed2eebadaa08a512a97817e9fb851bbbd4a43ab55e0fde86889e7639c55"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/02_actual_train_and_apply_tabs.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/20_actual_preview_result.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/22b_actual_zoomed_filtered_preview.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/23b_actual_zoomed_restored_preview.gate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/02_actual_train_and_apply_tabs.stalls.txt",
+      "bytes": 5026,
+      "sha256": "66aa61eb61547847a5f950a936f6e82cd6f173e57bcbe76afa4be4f3bcd6d5a8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/20_actual_preview_result.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/22b_actual_zoomed_filtered_preview.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson20-r38-b/captures/cellpose_masks/23b_actual_zoomed_restored_preview.stalls.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn38/runner38.status",
+      "bytes": 231,
+      "sha256": "f40f757611a81525261817eaf3b2c32f868f93f8ae2ff6f23776d4c03193c6b9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn38/output/a01.rc",
+      "bytes": 2,
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn38/output/b01.rc",
+      "bytes": 2,
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn38/output/c01.rc",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  ],
+  "limits": [
+    "No segmentation accuracy or ground-truth claim. Preview defaults produce 95 objects versus Apply preprocessing 94 on cell_pair_02; both references explicitly verify this distinction.",
+    "No accepted whole20, narration/audio/render/publication advancement. Raw failed observations remain unchanged.",
+    "No source-owner fix proposed or app/human_input/alpha/gate changes in this packet."
+  ],
+  "next_work": "Root prepares first supported public numeric lesson09 Annotate, turn39 full22 private actual tour; not queued at packet preparation.01 inputs are PNG-only,02 mutates environment,03 retired,06 old Xvfb/CLI. Lesson43 standard pipeline complete/pushed96d590cde;24/26 retain normal-registration alpha-route blocker."
+}
