@@ -1,0 +1,41 @@
+--- GUI thread stalled 0.39 s at clip second 4.58 ---
+Current thread 0x0000748bb39fd640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py", line 350 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x0000748cf9dff640 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/ambient.py", line 7701 in _frame_impulse_lens
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/ambient.py", line 7224 in _shade
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/ambient.py", line 7235 in shade
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/ambient.py", line 9311 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x0000748d3fd834c0 (most recent call first):
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py", line 131 in once
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py", line 136 in run
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py", line 377 in mouseClick
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py", line 75 in click
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py", line 538 in steps
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py", line 274 in _run
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py", line 265 in <lambda>
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/app.py", line 4583 in show_preferences_on
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/app.py", line 4536 in _open_preferences
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py", line 131 in once
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py", line 136 in run
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py", line 377 in mouseClick
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py", line 75 in click
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py", line 348 in open_preferences
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py", line 662 in record_preferences_live
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py", line 801 in main
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py", line 638 in driver
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/human_input.py", line 537 in run
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/app.py", line 8061 in launch
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/__init__.py", line 425 in run
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py", line 669 in run_child
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/run_native_capture.py", line 262 in gnome_child
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/run_native_capture.py", line 194 in main
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/run_native_capture.py", line 270 in <module>

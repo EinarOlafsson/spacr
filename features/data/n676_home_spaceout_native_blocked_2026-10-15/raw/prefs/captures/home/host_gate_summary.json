@@ -1,0 +1,214 @@
+{
+  "clips": {
+    "13_preferences_general": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.77,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 37.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 55.18,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        8.025390625,
+        7.8818359375
+      ],
+      "file": "13_preferences_general.gate.json"
+    },
+    "09_performance": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.43,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 45.7,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 51.59,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        8.01025390625,
+        8.025390625
+      ],
+      "file": "09_performance.gate.json"
+    },
+    "13b_preferences_appearance": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.54,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 60.4,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 54.06,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        7.8818359375,
+        7.1044921875
+      ],
+      "file": "13b_preferences_appearance.gate.json"
+    },
+    "13c_appearance_theme": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.73,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 52.68,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        7.1044921875,
+        7.57763671875
+      ],
+      "file": "13c_appearance_theme.gate.json"
+    },
+    "13h_preferences_apply": {
+      "passed": false,
+      "reasons": [
+        "app freeze: second(s) [4] (paint scope: minimum_rate_of_stably_visible_fields)"
+      ],
+      "distinct_fps": 28.57,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 37.5,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 45.02,
+      "app_freeze_seconds": [
+        4
+      ],
+      "capture_loss_seconds": [
+        6,
+        22
+      ],
+      "loadavg": [
+        6.95947265625,
+        6.46923828125
+      ],
+      "file": "13h_preferences_apply.gate.json"
+    },
+    "13i_preferences_kept": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.3,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.6,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 49.69,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        2
+      ],
+      "loadavg": [
+        6.46923828125,
+        6.4462890625
+      ],
+      "file": "13i_preferences_kept.gate.json"
+    },
+    "13e_session_updates": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.9,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 30.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 58.44,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.296875,
+        6.58544921875
+      ],
+      "file": "13e_session_updates.gate.json"
+    },
+    "13f_storage": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.67,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.8,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 51.87,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.4580078125,
+        6.123046875
+      ],
+      "file": "13f_storage.gate.json"
+    },
+    "13d_appearance_animation": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.32,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.7,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 48.94,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        30,
+        46
+      ],
+      "loadavg": [
+        7.57763671875,
+        6.95947265625
+      ],
+      "file": "13d_appearance_animation.gate.json"
+    },
+    "13g_storage_prune": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.9,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 26.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 45.03,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        7,
+        12
+      ],
+      "loadavg": [
+        6.123046875,
+        5.927734375
+      ],
+      "file": "13g_storage_prune.gate.json"
+    }
+  },
+  "failed": [
+    "13h_preferences_apply"
+  ],
+  "passed": false
+}
