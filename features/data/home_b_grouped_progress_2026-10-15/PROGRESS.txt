@@ -6,6 +6,7 @@ Original shared77-row tracker plus current Home-B lane updates; broader689-file 
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N691 — mitonet tem backend alpha | ✅ | 0 | Home | Complete alpha contract accepted by Original Home; final Portuguese API repair, normal producer and selected audit passed. Published54a57a07cc. |
 | N597 — Home dock resizing and text scale | ✅ | 0 | Home-B | Complete original corrected contract: arrow/drag width control, one text slider, live scaling, persistence/restore and no overlap at extremes; actual System Refresh regression fixed. Twelve current owning checks pass. |
 | N511 — filters are any regionprop the user adds | ✅ | 0 | CI / Home | Complete: arbitrary scalar filters, provenance and exact removal restoration; twelve-key catalog retirement verified. |
 | F556 — sam2 timelapse propagation | ✅ | 0 | Easy / Home | Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure. |
@@ -70,7 +71,6 @@ Original shared77-row tracker plus current Home-B lane updates; broader689-file 
 | N675 — conda forge update to latest spacr release | 90% | 1–3 + review | Home | Publish existing correction via authorized external owner, normal PR checks/review/feedstock merge/package release, then clean current-channel install. No duplicate patch/build; no account/PR mutation in this audit. |
 | N685 — make masks curation controls and alpha vvvv export | 95% | Unknown | Home | Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted. |
 | N690 — make masks for tem images | 95% | 1–3 | Home | TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today. |
-| N691 — mitonet tem backend alpha | 95% | 1–3 | Home | Actual MitoNet CPU/tiled evidence andalpha UI built. Sixnew runtime strings and current API/runtime artifact closure remain recorded pending in item; oldN678/globalinventory failures are historical, not rerun/current failures. |
 | N686 — Free project website | 90% | 2–6 | Home-B | Deployed; first hosted audit has15 valid samples, one home performance79 below90. Actual cold WebGL initialization cause under repair; physical60fps acceptance remains. |
 | N687 — Website v2 and release synchronization | 85% | 3–8 | Home-B | Showcase/release synchronization deployed;15 valid hosted samples expose one home performance failure, with97–100 accessibility and<402KB transfer. Narrow fallback repair active. |
 | N688 — Codecov integration | 95% | 1–3 after main promotion | Home-B | Nightly upload and all README badges work; first main upload remains. |

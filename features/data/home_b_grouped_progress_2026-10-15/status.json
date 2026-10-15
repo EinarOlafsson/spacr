@@ -5,6 +5,15 @@
   "latest_home_b_public": "9de217e24c",
   "rows": [
     {
+      "item": "N691",
+      "title": "mitonet tem backend alpha",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home",
+      "description": "Complete alpha contract accepted by Original Home; final Portuguese API repair, normal producer and selected audit passed. Published54a57a07cc.",
+      "completion_basis": "Whole alpha contract independently accepted2026-10-15; Original terminal public54a57a07cc and completion report."
+    },
+    {
       "item": "N597",
       "title": "Home dock resizing and text scale",
       "percent_done": "✅",
@@ -578,15 +587,6 @@
       "time_left_hours": "1–3",
       "owner": "Home",
       "description": "TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N691",
-      "title": "mitonet tem backend alpha",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home",
-      "description": "Actual MitoNet CPU/tiled evidence andalpha UI built. Sixnew runtime strings and current API/runtime artifact closure remain recorded pending in item; oldN678/globalinventory failures are historical, not rerun/current failures.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
