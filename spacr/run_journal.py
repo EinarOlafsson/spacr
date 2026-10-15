@@ -4162,7 +4162,10 @@ def _read_cache_locations() -> Dict[str, str]:
         data = json.loads(_cache_locations_path().read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
-    return {str(k): str(v) for k, v in data.items()} if isinstance(data, dict) else {}
+    if not isinstance(data, dict):
+        return {}
+    return {key: value for key, value in data.items()
+            if isinstance(value, str) and value.strip() and "\x00" not in value}
 
 
 def _apply_cache_locations() -> int:
