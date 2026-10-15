@@ -107,3 +107,19 @@ are rejected. Zero-based `--series`, `--index AXIS=N`, ordered `--channel`, and
 PDF `--page`/`--pdf-dpi` mirror the Python reader. The command prints the final
 ZIP path only after successful publication. Deployments need a separate web
 service/UI and both required GPU paths; this CLI does not provide those.
+
+`registry.model_families()` exposes the eight current non-alpha web model
+classes and all of their published versions. It reuses the existing model-card
+family/default rules and current rescored card metrics, including alternatives,
+rather than ranking historical raw catalogue numbers. Detector classes advertise
+boxes; segmentation classes advertise labels. `inference_adapter` is currently
+`"plaque"` only for the plaque family and `null` for the remaining families.
+Metadata exposure is not a claim that weights or inference are available.
+
+`registry.resolve_trusted_model(family, provisioned_paths, model_key=...)`
+resolves only operator-provisioned model keys and verifies exact published
+weight bytes. Public metadata contains no filesystem paths. Selecting an
+unavailable default refuses rather than silently using an older installed
+model. The operator mapping is private service configuration, never a visitor
+request field. Existing alpha models remain excluded, and published dataset
+repository types/URLs retain their actual type.

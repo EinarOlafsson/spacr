@@ -189,3 +189,20 @@ operator usage tied to the bundled plaque-v4 weight hash, with diameter clearly
 an example rather than a selected scientific default. ParentN698 remains partial;
 webhosting/UI, modelclass routing and real GPU/browser parity remain open.
 Receipt: features/data/698_operator_command_2026-10-14/.
+
+2026-10-14 — Original Home: trusted model-class/version registry implemented.
+All eight requested existing model families derive from the normal model-card
+family/default rules, alpha filtering and CURRENT rescored card metrics. PVv5
+and plaquev3 alternatives do not replace their defaults; detector output kind
+is boxes, never fabricated masks/flows. Public metadata has no local paths;
+only an operator-owned provisioned-key mapping can resolve trusted checkpoint
+bytes, checked against the exact published checksum. Unavailable defaults do
+not silently fall back to older installed weights. Only plaque advertises an
+implemented inference adapter; other model-class adapters remain open.
+Owning closure10 registry cases+112 component regressions PASS, actualexit0,
+12.80s; registry32/32statements12/12branch arcs covered. Currentcatalog/default/
+alpha/card provenance are checked; controlled fake weight bytes exercise identity
+refusal without downloading or loading a real model. No new scientific benchmark
+or checkpoint-availability claim. No shared website/tool/settings file edited;
+registry imports existing owner-maintained model-card APIs. ParentN698 partial.
+Receipt: features/data/698_trusted_registry_2026-10-14/.
