@@ -13536,3 +13536,21 @@ enabled-helper docs, and two return fields awaiting source-owner clarification.
 Two disjoint authors now draft30 stable blocks across9 locales; an independent
 peer reviews them. Original owns start_update_helper's final paragraph and its
 Windows first-paragraph records. No stale/no-op API artifacts are published.
+
+## 2026-10-15 Home-B — coherent installer API and offline Help closure
+
+Source delivery896a22980 and normal mergea15077cfe integrate Original Home's
+accepted installer runtimea188516932d. Nine API bodies/seven arrivals have297
+reviewed records; normal selected generation and nine-locale/nine-symbol audit
+pass. Windows updater paragraph1, source history and all unrelated API rows
+remain exact. Normal Help generation and actual nine-symbol/eighteen-query
+consumer pass again after runtime integration;24 tested artifact/source hashes
+are exact. Offline conditional-helper lookup is fixed:19 targeted checks pass.
+N112 trailing notes and703_* evidence record scope and preserved failures.
+The broader API snapshot audit fails on unrelated N700 providers#6 active
+review/source mismatch, referred to Original Home/Claude; no foreign review
+retirement, global source-current or release claim is made.
+N689 readback11835ed44 proves actual latest deployment403 at1GB; live Space
+serves an older internally consistent revision. Plan10c994619 offers a free
+new-Space migration preserving old history, with explicit legacy-routing gates.
+No service/history mutation, full CI, release or tutorial changes here.
