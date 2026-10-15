@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "Exact-source AI technical translation; independent peer required, no native-speaker or native-platform claim",
+  "draft_author": "Original Home easy_overnight",
+  "purpose": "Disambiguate background image cache from scientific background values and translate cache nouns while preserving product brands. Underlying protected paths/selection behavior unchanged.",
+  "proposed_dialog_source_sha256": "43b3deb3a7ea2cea88e663f3c22f347059c2a5db3d5719bd7b9157fb7e68c0d1",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Background image cache",
+      "source": "Background image cache",
+      "source_sha256": "bf337d01fa4572696206eaebdb48da596a7e8ed9331fec66a513d417bbe5149d",
+      "translation": "Cache de imagens de fundo"
+    },
+    {
+      "table": "ui",
+      "key": "Hugging Face cache",
+      "source": "Hugging Face cache",
+      "source_sha256": "143b8e427a303d4d52d1a0d18a03b8b36cf33d89f4a47976ff47a1c91fb18e80",
+      "translation": "Cache do Hugging Face"
+    },
+    {
+      "table": "ui",
+      "key": "Torch cache",
+      "source": "Torch cache",
+      "source_sha256": "5714db23f2d467dcee6fbfdb75409183db5722f3d6347809772741c017c4d8b7",
+      "translation": "Cache do Torch"
+    }
+  ]
+}
