@@ -1073,7 +1073,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the settings to submit; a shallow copy is kept and used instead of a settings file until the path field is edited.",
       "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50",
-      "translation": "die zu übermittelnden Einstellungen; eine flache Kopie wird aufbewahrt und statt einer Einstellungsdatei verwendet, bis das Pfadfeld bearbeitet wird."
+      "translation": "die zu übermittelnden Einstellungen; eine flache Kopie wird aufbewahrt und statt einer Einstellungsdatei verwendet, bis das Pfadfeld bearbeitet wird.",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "context": "the hide event; passed on unchanged to the base class.",
@@ -3814,7 +3816,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "setting key; it must already be a run setting, or an organelle-slot key declared in ``expected_types`` when this form owns the organelle count, otherwise ``False`` is returned.",
       "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
-      "translation": "Einstellungsschlüssel; er muss bereits eine Laufeinstellung sein oder ein in ``expected_types`` deklarierter Organellen-Slot-Schlüssel, wenn dieses Formular die Organellenanzahl verwaltet, andernfalls wird ``False`` zurückgegeben."
+      "translation": "Einstellungsschlüssel; er muss bereits eine Laufeinstellung sein oder ein in ``expected_types`` deklarierter Organellen-Slot-Schlüssel, wenn dieses Formular die Organellenanzahl verwaltet, andernfalls wird ``False`` zurückgegeben.",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "context": "new value, coerced to the setting's expected type before it is stored.",

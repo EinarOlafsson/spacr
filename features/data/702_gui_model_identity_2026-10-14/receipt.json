@@ -1,0 +1,38 @@
+{
+  "component": "N702 GUI exact model identity preservation",
+  "parent_status": "partial; runtime acquisition and native cluster acceptance remain separate",
+  "tests": {
+    "distinct_owning_cases": 79,
+    "passed": 79,
+    "new_regression_baseline": "8 failures before source changes; 10 new lifecycle cases now pass",
+    "closure": "11 passed in 5.75 seconds; prior owning 76 passed/1 failed due to additive metadata expectation, subsequently corrected without weakening ordinary value checks"
+  },
+  "source_sha256": {
+    "spacr/qt/screens/settings_model.py": "a7b6524177769279021d23176eb0eefaeed18d153df81c862fd5a56665c17b35",
+    "spacr/qt/screens/app_screen.py": "e14beea4d73c002ec976881b3c137420411b10712541669aca40b459622b2db1",
+    "spacr/qt/screens/distributed_jobs.py": "d055dcac02e1aa7dea622f2d61adefaecce0fab8b7eaf9a703b84813ce43df9f",
+    "tests/qt/test_n702_gui_model_pin_lifecycle.py": "f2884a17d5227d29aea4e9f337f4fadf0f1643451d4a13b63877117b15dad743",
+    "tests/qt/test_n693_export_settings_from_every_form.py": "456a9e0f0c032ad8b2df5efd51489dcf3c5a48b6af008aa09fcccb89ae0c3824"
+  },
+  "localization": {
+    "new_runtime_captions": 0,
+    "changed_api_blocks": 2,
+    "reviewed_locale_targets": 18,
+    "locales": 9,
+    "unrelated_api_records_preserved": true,
+    "english_audit": "13474 symbols verified"
+  },
+  "limits": [
+    "No model downloads, GPU inference, native remote cluster acceptance or full CI performed.",
+    "Existing plaque export test logged an active preview worker warning; test process exited zero and no owned PID survived.",
+    "Technical translations are AI-authored reviews, not native-speaker acceptance."
+  ],
+  "checks": {
+    "fatal_ruff": "passed E9,F63,F7,F82",
+    "diff_check": "passed",
+    "instruction_index": "normal generator completed; no index delta",
+    "normal_english_sources": "13474 symbols generated",
+    "normal_english_audit": "13474 symbols verified",
+    "documentation_contracts": "9 passed in 161.01 seconds, actual exit 0; scoped writer provenance and AST API extractor contracts"
+  }
+}

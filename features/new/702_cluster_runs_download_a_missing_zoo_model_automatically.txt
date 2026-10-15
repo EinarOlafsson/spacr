@@ -210,3 +210,17 @@ parent-owned module-kind helper registry. No source captions, generated
 artifacts, network/weights/GPU/fullCI. Unsupported consumers, automatic export
 capture and GUI edit lifecycle remain distinct work; parent702 stays partial.
 Evidence: data/702_cli_backend_pin_integrity_2026-10-14/receipt.json.
+
+2026-10-14 — GUI model identity lifecycle component implemented:
+Settings forms retain validated model_metadata privately through rebuilds and
+independent collections. Explicit model edits invalidate only that model pin;
+stale uncommitted values refuse collection. Bulk imports validate original
+evidence before any widget mutation and preserve surviving pins. Actual GUI
+CSV export captures trusted explicit catalogue keys without network or hashing.
+Cluster submissions retain independent deep snapshots and recheck consumer kinds.
+79 distinct owning GUI cases pass, including ten new lifecycle regressions.
+Both changed API blocks have eighteen exact technical reviews across nine
+locales; normal scoped writers preserve unrelated records and the English
+manifest audit verifies13474symbols. No new runtime captions, weights, GPU,
+fullCI or native remote cluster acceptance. Parent702 remains partial.
+Evidence: data/702_gui_model_identity_2026-10-14/receipt.json.
