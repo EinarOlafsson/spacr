@@ -3724,10 +3724,18 @@ def _st_replace_plate_rows(db: str, table: str, frame, plate: str) -> None:
     parts = [frame]
     if os.path.exists(db) and table in database_tables(db):
         old = read_table(db, table=table, canonicalise=False, report=None)
+        if frame.empty:
+            if "plateID" not in old.columns or not (
+                    old["plateID"].astype(str) == str(plate)).any():
+                return
+            frame = old.iloc[:0].copy()
+            parts = [frame]
         if "plateID" in old.columns:
             old = old[old["plateID"].astype(str) != str(plate)]
         if len(old):
             parts.insert(0, old)
+    elif frame.empty:
+        return
     combined = pd.concat(parts, ignore_index=True) if len(parts) > 1 \
         else frame
     write_database(combined, db, table, if_exists="replace")
@@ -3959,11 +3967,10 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
         json.dump(layout, handle, indent=2, sort_keys=True)
         handle.write("\n")
     db = os.path.join(dst, "measurements", "measurements.db")
-    if field_rows:
-        _st_replace_plate_rows(db, "spatial_fields",
-                               pd.DataFrame(field_rows), sample)
-        _st_replace_plate_rows(db, "spatial_objects",
-                               pd.DataFrame(object_rows), sample)
+    _st_replace_plate_rows(db, "spatial_fields",
+                           pd.DataFrame(field_rows), sample)
+    _st_replace_plate_rows(db, "spatial_objects",
+                           pd.DataFrame(object_rows), sample)
     report = {
         "platform": slide["platform"], "source": folder, "dst": dst,
         "db": db, "plate": sample, "image": slide["channels"][0],

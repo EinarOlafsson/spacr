@@ -405,6 +405,68 @@ def test_a_rerun_replaces_the_slide_and_keeps_others(tmp_path):
     assert len(objects) == 2 * len(_centres())
 
 
+
+@pytest.mark.parametrize("keep_other_slide", [False, True])
+def test_empty_rerun_retires_only_its_slide_rows(tmp_path, keep_other_slide):
+    import hashlib
+    import pathlib
+    import sqlite3
+
+    source = xenium_slide(tmp_path / "bundle")
+    dst = tmp_path / "fields"
+    settings = _mask_settings(source, dst)
+    oe.run_spatial_masks(settings)
+    if keep_other_slide:
+        oe.run_spatial_masks(_mask_settings(source, dst,
+                                            spatial_sample="slide_two"))
+    db = str(dst / "measurements" / "measurements.db")
+    tables = ("spatial_fields", "spatial_objects")
+    before = {table: read_table(db, table=table, canonicalise=False,
+                               report=None) for table in tables}
+    with sqlite3.connect(db) as connection:
+        schemas = {table: connection.execute(
+            f'PRAGMA table_info("{table}")').fetchall() for table in tables}
+    own_stems = set(before["spatial_fields"].loc[
+        before["spatial_fields"]["plateID"] == "slide one", "file_name"])
+    other_stems = set(before["spatial_fields"]["file_name"]) - own_stems
+    assert own_stems
+    assert bool(other_stems) == keep_other_slide
+    other_files = {str(path.relative_to(dst)): hashlib.sha256(
+        path.read_bytes()).hexdigest() for path in dst.rglob("*.npy")
+                   if path.stem in other_stems}
+    assert bool(other_files) == keep_other_slide
+    input_files = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                   for path in pathlib.Path(source).rglob("*") if path.is_file()}
+
+    report = oe.run_spatial_masks(
+        settings, segment=lambda image: np.zeros(image.shape, np.int32))
+    assert report["fields"] == report["objects"] == 0
+    for table in tables:
+        actual = read_table(db, table=table, canonicalise=False, report=None)
+        expected = before[table].loc[
+            before[table]["plateID"] != "slide one"].reset_index(drop=True)
+        assert list(actual.columns) == list(expected.columns)
+        assert len(actual) == len(expected)
+        if keep_other_slide:
+            pd.testing.assert_frame_equal(actual, expected)
+        with sqlite3.connect(db) as connection:
+            assert connection.execute(
+                f'PRAGMA table_info("{table}")').fetchall() == schemas[table]
+    assert not any(path.stem in own_stems for path in dst.rglob("*.npy"))
+    assert {name: hashlib.sha256((dst / name).read_bytes()).hexdigest()
+            for name in other_files} == other_files
+    fields = read_table(db, table="spatial_fields", canonicalise=False,
+                        report=None)
+    assert all((dst / "merged" / f"{name}.npy").is_file()
+               for name in fields["file_name"])
+    before_repeat = pathlib.Path(db).read_bytes()
+    oe.run_spatial_masks(
+        settings, segment=lambda image: np.zeros(image.shape, np.int32))
+    assert pathlib.Path(db).read_bytes() == before_repeat
+    assert {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest()
+            for name in input_files} == input_files
+
+
 def test_bad_inputs_are_refused_with_the_reason(tmp_path):
     with pytest.raises(ValueError, match="spatial_source"):
         oe.run_spatial_masks({"spatial_source": str(tmp_path / "none")})
