@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_issues": [],
+  "scope": "Independent bounded source-only checked copier peer; no actual copy/fetch/rebase/stage/commit/push execution.",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/copy_completed02_to_report.py",
+      "bytes": 8457,
+      "sha256": "a844690e370729fc995418e340bb8fdcbc8996354742c7de04bc933015e63fac"
+    }
+  ],
+  "preserved_original": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/copy_completed02_to_report.before-peer-guard-13f6.py",
+    "bytes": 8757,
+    "sha256": "13f6ec454b75cc80d1f7c2fe86f46fa8f14a1b0a00f0860b0523e2533cbddb27"
+  },
+  "reviewed_delta": "--- original\n+++ final\n@@ -61,14 +61,7 @@\n  assert manifest['final_publication_review']==bind(a.final_review)\n  assert sha(a.packet_peer)==a.packet_peer_sha256\n  peer=json.loads(a.packet_peer.read_text());assert peer['status']=='pass'\n- def binds_manifest(obj):\n-  if isinstance(obj,dict):\n-   if obj.get('sha256')==a.packet_manifest_sha256 and obj.get('path')==str(pm.resolve()):return True\n-   if obj.get('packet_manifest_sha256')==a.packet_manifest_sha256:return True\n-   return any(binds_manifest(v) for v in obj.values())\n-  if isinstance(obj,list):return any(binds_manifest(v) for v in obj)\n-  return False\n- assert binds_manifest(peer), 'Actual independent packet peer must bind exact manifest'\n+ assert peer['packet_root']==str(packet.resolve()) and peer['packet_manifest']==bind(pm), 'Actual independent packet peer must bind exact root/path/bytes/SHA'\n  packet_files=inventory(packet);declared={}\n  for row in manifest['files']:\n   name=row['path'];rel=Path(name);assert not rel.is_absolute() and '..' not in rel.parts and rel.as_posix()==name and name not in declared\n",
+  "reviewer_witness_note": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/copy-helper-peer-witness-r1.txt",
+    "bytes": 289,
+    "sha256": "f5f40a144ad6d8bbacf03d027a963cb24c50bbc0fe404c3fb9dc48277cec9999"
+  },
+  "checks": {
+    "literal_destinations_only": [
+      "docs/source/_extra/tutorials",
+      "features/data/n676_install_selective_completed_2026-10-15",
+      "features/data/n676_install_selective_completed_2026-10-15-peer.json"
+    ],
+    "actual_REPORT_HEAD_and_clean_tree_required": true,
+    "actual_origin_ref_and_ancestor_after_root_fetch_rebase_required": true,
+    "Home_scoped_path_drift_rejected": true,
+    "ROOT_K3_or_generated_docs_checkpoint_only_successor_required": true,
+    "packet_manifest_fullinventory_hash_size_normalizedpaths_required": true,
+    "actual_final_publication_review_hash_and_packet_manifest_binding_required": true,
+    "independent_peer_status_root_fullmanifest_path_bytes_SHA_required": true,
+    "all_copy_sources_and_destinations_checked_by_hash_size": true,
+    "symlinks_specialfiles_rejected_by_source_and_existing_destination_inventories": true,
+    "untracked_ignored_existing_generated_destination_files_refused": true,
+    "obsolete_tracked_generated_docs_preserved_in_external_archive": true,
+    "force_add_whitelist_only_exact_declared_ignored_packet_log_paths": true,
+    "no_ignored_generated_docs_or_adjacent_peer_silently_omitted": true,
+    "HEAD_andall_inventories_rechecked_before_receipt": true,
+    "no_fetch_rebase_git_add_commit_push_in_source": true
+  },
+  "limitations": [
+    "Static source/AST/hash review only; actual finalpacket/peer/review and freshly fetched/rebased report/source heads must be supplied and validated at execution.",
+    "Helper performs the bounded ROOTgenerated-docs to REPORTdocs/features copy only after guards pass; root alone executes and stages/commits/pushes afterward.",
+    "Future finalpacket peer must use exact packet_root and full packet_manifest binding schema; mentioning a hash inside an unrelated receipt no longer qualifies."
+  ]
+}

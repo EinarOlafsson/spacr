@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "lesson": "02_install_spacr",
+  "scope": "Single bounded source-only chain review; current working bytes, not final combined K approval",
+  "executed_pipeline": false,
+  "source_guards": {
+    "future_clean_K_required": true,
+    "app_canonical_reviews_unchanged_from": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+    "whole_capture_or_science_restamp": false
+  },
+  "required_retention_interfaces": [
+    "finish --retain-visual-from C23",
+    "verify_staged_lesson --retain-visual-from C23",
+    "check_completed_matrix --retained-narration --retained-from ORIGINAL",
+    "verify_staged_audio --retained-narration --retained-from ORIGINAL",
+    "build --retain-narration02 --retain-visual-timing02 --refresh-lesson02 --host-web"
+  ],
+  "bounded_findings": [
+    "Three source retention seams assigned to702; current inspected source contains explicit retained dispatch and generated narration_voices-only normalization. Final frozen-source peer remains701 responsibility.",
+    "Optional two-consecutive-native-scene clock case is inapplicable to original02 with only one selected Home native interval; removed that flag from cue case. Strict sentence cue gate and all72 case executions remain.",
+    "No other unconditional native timing replan/current synthesis planning found in inspected retained finish/matrix/build paths or publication helpers."
+  ],
+  "source_files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/finish_staged_visual.py",
+      "bytes": 5319,
+      "sha256": "a58399848441fa2c9d71511c29baac1e211e5ec8dadceeb8c16421ee38e56077"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/check_completed_matrix.py",
+      "bytes": 10671,
+      "sha256": "1a19e390670b84373987f8237e3f12a293aa8d0de7700fa53c4b54e71c63fdaa"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_audio.py",
+      "bytes": 3847,
+      "sha256": "198f487f0e10aeda06ce12df91b368768b72e66f7d8f16210864f40b14234eb9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_lesson.py",
+      "bytes": 40381,
+      "sha256": "5fcdc99028c70db27fa99a30b4bb326e96981d825af676e2fa789e7dcd981c3d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/build_appended_candidate.py",
+      "bytes": 38632,
+      "sha256": "b4a2bd94912c48371d37c5881f021acfeab65746026f4779809d065df5d2cc85"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_release_candidate.py",
+      "bytes": 32024,
+      "sha256": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/publish_release_candidate.py",
+      "bytes": 24203,
+      "sha256": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/checkpoint_release_candidate.py",
+      "bytes": 4814,
+      "sha256": "54e8a87c7b6e30e2bd6cd320132b794307a199b3ac8d226a1c36d47e6b430d1b"
+    }
+  ],
+  "external_helpers": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/config.sh",
+      "bytes": 1169,
+      "sha256": "c542aff70f3f4e5e89c688aee999a8bdf75e3bb69e2fd3918e431d8a7f47b0eb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py",
+      "bytes": 3157,
+      "sha256": "ddfafbe7e917c5871e0acfc959a0f4d007923cffbea943f7278b04aafb037ce3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/tool.sh",
+      "bytes": 411,
+      "sha256": "d024698888948c944af28ce0e5f203832406a646108091de6077962415ebf175"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/sp_tool.sh",
+      "bytes": 411,
+      "sha256": "83db93f2217ed9c83a6e2104f012507a9f722f23ca9b217766da52769b0d6826"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/browser_matrix.py",
+      "bytes": 2734,
+      "sha256": "27d12756582a8e6655ee73e37caba375d91d4b81363bb519f187233618b151ec"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_phase_with_lease.sh",
+      "bytes": 1177,
+      "sha256": "5058390338212f9987ffbd8b7b7f37fdfcc9f7bbe2b1f9b3b3759f64ae5e2e6f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/publish_chain.sh",
+      "bytes": 2979,
+      "sha256": "8c3fb7e9698dd0dbe80d3126f9b7d066cca6701b1e5d25adb7e3f6f75086451b"
+    }
+  ],
+  "limits": [
+    "No imports of application modules, browser, tests, media execution or downstream pipeline execution.",
+    "Actual future candidate/HF/Pages/record/export evidence absent; no publication completion asserted.",
+    "Exporter owned701; dispatch uses its explicit CLI and requires actual final review/test-count/source-peer inputs after record.",
+    "701 exporter CLI is still authoring/freeze pending; dispatch anticipates repeatable source-tests (original and supplement) plus repeatable source-peer. Do not run export before final source/API peer."
+  ]
+}

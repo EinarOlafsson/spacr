@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Work — tutorial 02 selective repair completed; ordered 04 next
+
+Tutorial 02 now shows the complete Conda environment-creation, activation and prefix-check commands in scene 7. Only that generated command-reference section was replaced (frames 4420–5111); all 50 narration tracks, 50 timing sidecars, 14 catalog lesson objects and the other 83 tutorials remain unchanged. Root checked four actual boundary frames; full master decode, all presentation timestamps, normal poster/web rendition and 72 component playback cases passed. All 84 candidate routes and all 84 prepared Pages routes passed, and the publication record completed. No fresh native recording or new narration/translation was needed.
+
+Media revision b62bcc2d85b3c54162485f7e6116cf04c0bf0dc3, tag n676-selective02-20261015-verified: all 5,369 candidate-hosted files / 8,679,855,371 bytes passed metadata and downloaded SHA256 checks. The 2,964 historical remote extras are outside verification coverage and were not pruned. The original 430.033333-second / 12,901-frame timeline and selected 29.533333-second Home interval remain legacy provenance; no complete native capture, full watching, human hearing/native-speaker signoff, biological accuracy or live Space deployment claim. The normal checkpoint retains published:false while docs.yml publishes this committed Pages tree.
+
+Completed packet: features/data/n676_install_selective_completed_2026-10-15/ (390 listed files plus packet manifest 64ed3869bd34efafd9ed46b9d4362c80d098a19d0a408802c138fb8abba910f8). Adjacent independent peer SHA 693c030cb73cd333ae6aec28d64d9c441fc998540d60963a4c93d5bf97d55f4a and checked-copy receipt are included. The packet contains all 148 checkpoint files, official review evidence, actual checks/logs/card/boundary images and the exact three source patches plus 11 final source files. Held source is 14ecf9d1054e15194bb7b9ff01779af061fae875 (181 owning tests passed); generated checkpoint successor is 50da1bd9bfd59f9042019a1e20b602fcfae86c24. Home retains source-integration ownership; only docs/features leave Work.
+
+The adjacent ordered-review PROGRESS.csv now records 01 KEEP and 02 repaired video / KEEP audio / KEEP captions. Work advances to 04 only after this push; consolidated 02/03 aliases require no separate remake. 05 diagnostic and 25 preparation stay parked. Continue numerical component-by-component review, preserving correct components rather than assuming every tutorial needs rebuilding.
+
+
 ## 2026-10-15 Work — 02 candidate accepted; upload/readback active; bounded helper tasks welcome
 
 Tutorial 02 has passed its 72-case component playback matrix, all 84 candidate routes, placeholder guards, and 145-file checkpoint. Independent prepublication peer is 07907becdf9906b799c78c7946a738bdc20819f8e9a0d7b9db5d588bb0be4617. Candidate manifest 98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439 binds 83 preserved lessons, all unchanged narration/caption objects, and the one scene-7 visual repair. Actual upload to n676-selective02-20261015 is active; all 5,369 hosted files / 8,679,855,371 bytes require immutable readback before Pages publication. No final publication claim yet.

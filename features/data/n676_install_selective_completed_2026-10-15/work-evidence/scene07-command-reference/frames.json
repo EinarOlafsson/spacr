@@ -1,0 +1,8 @@
+{
+  "pip_conda_01_create": {
+    "image": "pip_conda_01_create.png",
+    "sha256": "b5b5289e3f6ee5b84c3a033d4ba08f8ecba9b35a4d7918d67316c9812ace9439",
+    "buttons": [],
+    "kind": "generated_command_reference_not_terminal_output"
+  }
+}

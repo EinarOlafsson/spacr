@@ -1,0 +1,54 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py', 'tools/tutorials/verify_staged_audio.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015', '--lesson', '02_install_spacr', '--languages', 'en', 'es', 'fr', 'hi', 'it', 'pt-BR', 'ja', 'zh-CN', '--retained-narration', '--retained-from', '/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1']
+Source: 14ecf9d1054e15194bb7b9ff01779af061fae875
+en/af_heart: 0 errors
+en/af_aoede: 0 errors
+en/af_bella: 0 errors
+en/af_jessica: 0 errors
+en/af_river: 0 errors
+en/af_sarah: 0 errors
+en/af_sky: 0 errors
+en/am_adam: 0 errors
+en/am_echo: 0 errors
+en/am_eric: 0 errors
+en/am_fenrir: 0 errors
+en/am_liam: 0 errors
+en/am_michael: 0 errors
+en/am_onyx: 0 errors
+en/am_puck: 0 errors
+en/am_santa: 0 errors
+en/bf_alice: 0 errors
+en/bf_emma: 0 errors
+en/bf_isabella: 0 errors
+en/bf_lily: 0 errors
+en/bm_daniel: 0 errors
+en/bm_fable: 0 errors
+en/bm_george: 0 errors
+en/bm_lewis: 0 errors
+es/ef_dora: 0 errors
+es/em_alex: 0 errors
+es/em_santa: 0 errors
+fr/ff_siwis: 0 errors
+hi/hf_alpha: 0 errors
+hi/hf_beta: 0 errors
+hi/hm_omega: 0 errors
+hi/hm_psi: 0 errors
+it/if_sara: 0 errors
+it/im_nicola: 0 errors
+pt-BR/pf_dora: 0 errors
+pt-BR/pm_alex: 0 errors
+pt-BR/pm_santa: 0 errors
+ja/jf_alpha: 0 errors
+ja/jf_gongitsune: 0 errors
+ja/jf_nezumi: 0 errors
+ja/jf_tebukuro: 0 errors
+ja/jm_kumo: 0 errors
+zh-CN/zf_xiaobei: 0 errors
+zh-CN/zf_xiaoni: 0 errors
+zh-CN/zf_xiaoxiao: 0 errors
+zh-CN/zf_xiaoyi: 0 errors
+zh-CN/zm_yunjian: 0 errors
+zh-CN/zm_yunxi: 0 errors
+zh-CN/zm_yunxia: 0 errors
+zh-CN/zm_yunyang: 0 errors
+
+Terminal exit status: 0

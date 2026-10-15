@@ -1,0 +1,15 @@
+{
+  "completed_capture": true,
+  "scope": "Generated command references; no platform installation or removal execution claim",
+  "verification_capture": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/installation-routes-current-r1/captures/pip_conda_public_1513",
+  "verification_sha256": "6499008345990f143fee8fb9029f4eb0a535f8d7e65b50248e0a2383d8cb1df0",
+  "verified_public_installation": {
+    "version": "1.5.1.3",
+    "package": "/home/user/miniforge3/envs/spacr-pip/lib/python3.12/site-packages/spacr/__init__.py",
+    "prefix": "/home/user/miniforge3/envs/spacr-pip",
+    "python": "3.12.15"
+  },
+  "style_source_sha256": "9951982f5ce75fa61b888dd523196643a70848d7f08b2ce5c1e741c5cd1ad92d",
+  "author_source_sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32",
+  "published": false
+}

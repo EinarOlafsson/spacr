@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_utc": "2026-10-15T16:37:44.716232+00:00",
+  "owning_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-inventory-order-owning-tests.json",
+    "bytes": 2448,
+    "sha256": "f0789eb81587188fac93411e98cc317538f79ce95b816c572d13006b4e31f9b3"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retain_narration.py",
+      "bytes": 6477,
+      "sha256": "10f956ce0a5cba7d18df1bd339411cd7de9c67e3735e7011b7766b4fefbb1054"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_narration.py",
+      "bytes": 7702,
+      "sha256": "db9c5fc010b19c9689b7a3d30814c6f7d75062a08a2284888366a68fd80fc435"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "bytes": 9763,
+      "sha256": "ed883ca41062efcab220b4d1cccdfa6c324932b8c21694b9c98ab9adcbfc28bb"
+    }
+  ],
+  "owning_tests": {
+    "passed": 181,
+    "seconds": 1.98,
+    "terminal_exit_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r5.log",
+      "bytes": 285,
+      "sha256": "c72bf216a9a0574e398957d2f726c1e6230808665cb92bad210ec263f6e47807"
+    },
+    "cap": "4G",
+    "CPU_only": true,
+    "own_lease_removed": true,
+    "no_media_execution": true
+  },
+  "reviewed_draft": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/inventory-order-fix-draft/draft-receipt.json",
+    "bytes": 2003,
+    "sha256": "7a7faddc50c5c18a4375886ba32b1498cf9dcd7b0374e88b838b07227c3c7e63"
+  },
+  "prior_draft_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/inventory-order-draft-and-dispatch-independent-peer.json",
+    "bytes": 4699,
+    "sha256": "62ea69f0d32ba1cb5aa391c7852381bf58b7fc65ff9f0edd4ebbfe15986c3820"
+  },
+  "findings": [
+    "Actual3source/testfiles match the exact previously reviewed8958 externalpatch proposed bytes.",
+    "Published/generated voice inventory accepts equal language/voice SETS with typed unique lists; actual published/staged object and array order remain exact. Historical original inventory remains only missing/supportedsubset; all other fields and default strict comparison unchanged.",
+    "Actual sealed181PASS1.98s terminal0 log matches owner binding. New order and invalid-inventory cases plus integrated14catalog fixture are included; reviewer did not rerun tests."
+  ],
+  "limits": [
+    "Only actual applied3file/test binding and previously reviewed semantics; no additional runtime/media/model/browser/decode or publication performed by reviewer.",
+    "This is suitable as final source-peer binding for current K3; root owns commit and downstream acceptance.",
+    "Earlier129/166/175test+peer evidence remains historical and unmodified.",
+    "No audio synthesis/currentruntime/hearing/nativecapture/publication claim."
+  ],
+  "reviewer_cap_gib": 1,
+  "own_lease_removed_on_exit": true
+}

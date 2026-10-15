@@ -1,6 +1,6 @@
 tutorial,title,video,audio,captions,required_repair,nightly_push
-01_pypi_github,"Find spaCR on GitHub, PyPI and conda-forge",KEEP,KEEP (technical assessment),KEEP,None identified; existing media retained,This review commit; no media replacement
-02_install_spacr,Install spaCR,Pending review,Pending review,Pending review,Undetermined; no remake assumed,
+01_pypi_github,"Find spaCR on GitHub, PyPI and conda-forge",KEEP,KEEP (technical assessment),KEEP,None identified; existing media retained,216b74017
+02_install_spacr,Install spaCR,REPAIRED — scene 7 command reference only,KEEP — all 50 tracks and timing sidecars retained,KEEP — all 14 catalog objects retained,Completed: 72 playback cases; 84 candidate and 84 prepared Pages routes; full media readback,Accompanying publication commit
 04_platform_installers,Install spaCR with a desktop installer,Pending review,Pending review,Pending review,Undetermined; no remake assumed,
 05_home,Home screen and navigation,Pending review,Pending review,Pending review,Undetermined; no remake assumed,
 06_api,Python API and batch commands,Pending review,Pending review,Pending review,Undetermined; no remake assumed,

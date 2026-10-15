@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_issues": [],
+  "scope": "Independent bounded source-only assembler peer; no assembler/packet execution or future publication acceptance.",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/assemble_completed02_packet.py",
+      "bytes": 7299,
+      "sha256": "1a695a65cf2392224ff93f6e2d66453f917a0f1d9d7432de5172605e56f98ba0"
+    }
+  ],
+  "preserved_original": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/assemble_completed02_packet.before-path-guards-162141.py",
+    "bytes": 6964,
+    "sha256": "162141b46ca9a64d246d2b0ae835275b2b32aaed3b38b8039ef03afc133a7b54"
+  },
+  "reviewed_delta": "--- original\n+++ final\n@@ -37,12 +37,16 @@\n   rel=PurePosixPath(row['path']);assert not rel.is_absolute() and '..' not in rel.parts and rel.as_posix()==row['path']\n   q=checkpoint/rel;assert not q.is_symlink() and q.stat().st_size==row['bytes'] and sha(q)==row['sha256']\n  assert sorted(q.relative_to(checkpoint).as_posix() for q in checkpoint.rglob('*') if q.is_file())==sorted(r['path'] for r in rows)\n- for item in manifest['review_evidence']:checked(item['source']);checked(item['snapshot'])\n+ for item in manifest['review_evidence']:\n+  checked(item['source']);snapshot=checked(item['snapshot'])\n+  assert snapshot.is_relative_to(export), 'Review evidence snapshot must be inside exact export tree'\n  assert sha(review)==a.final_review_sha256\n  final=read(review);assert final['lesson']=='02_install_spacr' and final['status']=='pass' and final['source_commit']==K\n  assert checked(final['export_manifest'])==em and final['export_snapshot_file_count']==148\n  assert Path(final['candidate']).resolve()==Path(manifest['candidate_root']).resolve()\n- assert checked(final['manifest']).name=='release-manifest.json' and final['manifest']['sha256']==manifest['release_manifest_sha256']\n+ actual_manifest=checked(final['manifest']);snapshot_manifest=checkpoint/'release-manifest.json'\n+ assert actual_manifest==Path(manifest['candidate_root']).resolve()/'release-manifest.json'\n+ assert final['manifest']['sha256']==manifest['release_manifest_sha256']==sha(snapshot_manifest) and actual_manifest.stat().st_size==snapshot_manifest.stat().st_size\n  for key in ['master','timing']:\n   checked(final[key]);assert final[key]==manifest[key]\n  for key,name in [('publication_receipt','publication-receipt.json'),('published_media_browser_checks','published-media-browser-checks.json'),('recorded_checkpoint','checkpoint.json')]:\n",
+  "checks": {
+    "actual_K3_source_pin": "14ecf9d1054e15194bb7b9ff01779af061fae875",
+    "exact_export_lesson_and_source_and_baseline_pins": true,
+    "record_and84_hosted_cases_required_before_output_creation": true,
+    "coherent145_plus3_unique_closed_checkpoint_inventory_sha_and_lengths": true,
+    "all13_reviews_100_audio_sidecars_14_catalog_objects_83_other_lessons_counts_bound": true,
+    "all_review_evidence_snapshots_inside_exact_export_tree": true,
+    "final_review_hash_and_source_lesson_status_required": true,
+    "final_manifest_exact_actual_candidate_path_and_export_snapshot_sha_bytes": true,
+    "master_timing_and_publication_receipts_hash_ties_required": true,
+    "human_or_word_completeness_signoff_not_inferred": true,
+    "copy_inputs_hashed_before_and_rechecked_after_copy": true,
+    "recursive_source_handoff_card_and_final_boundary_PNGs_included": true,
+    "delivery_symlinks_rejected_and_checkpoint_paths_normalized": true,
+    "no_acceptance_stub_or_media_regeneration": true
+  },
+  "limitations": [
+    "This peer validates guarded source behavior; actual export, finalreview, copiedpacket and publication must exist and pass later.",
+    "No ROOT edits, new tests, browser, decode, network, audio synthesis or model/runtime import.",
+    "Required source-handoff/card/boundary folders are preserved recursively and hashed; copied historical failed logs remain historical evidence, not new success claims."
+  ]
+}

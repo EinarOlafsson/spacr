@@ -1,0 +1,6 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py', 'tools/tutorials/build_appended_candidate.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015', '--baseline', '/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek', '--lesson', '02_install_spacr', '--replace-existing', '--retain-narration', '02_install_spacr', '--retain-visual-timing', '02_install_spacr', '--host-web']
+Source: 14ecf9d1054e15194bb7b9ff01779af061fae875
+02_install_spacr 50 byte-identical published audio tracks verified
+CANDIDATE /media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e
+
+Terminal exit status: 0

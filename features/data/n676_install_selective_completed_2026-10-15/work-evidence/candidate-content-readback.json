@@ -1,0 +1,902 @@
+{
+  "schema": 1,
+  "status": "candidate_content_checks_pass",
+  "lesson": "02_install_spacr",
+  "checked_utc": "2026-10-15T16:49:39.571661+00:00",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/release-manifest.json",
+    "bytes": 1179996,
+    "sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439"
+  },
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "counts": {
+    "manifest_files": 5511,
+    "total_manifest_bytes": 8794209708,
+    "media_host_files": 5369,
+    "media_host_bytes": 8679855371
+  },
+  "source_commit": "14ecf9d1054e15194bb7b9ff01779af061fae875",
+  "app_tree_unchanged_from_972": true,
+  "preservation": {
+    "other83_catalog_objects_in_all14_catalogs_exact": true,
+    "retained02_catalog_objects_in_all14_catalogs_exact": true,
+    "other_media_metadata_records_equal": true,
+    "other_media_records_compared": 5265,
+    "all100_actual_candidate_audio_sidecar_SHA_sizes_match_C23": true
+  },
+  "catalog_checks": [
+    {
+      "name": "captions_da.json",
+      "baseline_sha256": "62d0b264efb3564bf1e71e2c731deda841e689f94ba00dadce2997cd47e6b2f3",
+      "candidate_sha256": "62d0b264efb3564bf1e71e2c731deda841e689f94ba00dadce2997cd47e6b2f3",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "captions_de.json",
+      "baseline_sha256": "66a72441413588402e397456b60bef236b996549654ff7336a1462fc01738115",
+      "candidate_sha256": "66a72441413588402e397456b60bef236b996549654ff7336a1462fc01738115",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "captions_is.json",
+      "baseline_sha256": "df70792658f8a4e41f7f193580c827b5c800ec171360378c1f5c609b263b881e",
+      "candidate_sha256": "df70792658f8a4e41f7f193580c827b5c800ec171360378c1f5c609b263b881e",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "captions_ko.json",
+      "baseline_sha256": "ede10fc1f5534c382cdaf212de98e85ce9966ab2d86c8822d66b2c2c7ce849fe",
+      "candidate_sha256": "ede10fc1f5534c382cdaf212de98e85ce9966ab2d86c8822d66b2c2c7ce849fe",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "captions_nb.json",
+      "baseline_sha256": "6a3a7c81695c821851cefb8702b3c49f36c9c9384f25f8e2f2b3e590a0678013",
+      "candidate_sha256": "6a3a7c81695c821851cefb8702b3c49f36c9c9384f25f8e2f2b3e590a0678013",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "captions_sv.json",
+      "baseline_sha256": "15cfd9e0c3f91b70015ce2141019a246845b48668d9e3e2cdc340bbc0e5fbf36",
+      "candidate_sha256": "15cfd9e0c3f91b70015ce2141019a246845b48668d9e3e2cdc340bbc0e5fbf36",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_en.json",
+      "baseline_sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112",
+      "candidate_sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_es.json",
+      "baseline_sha256": "d683bc9ec4ccd2df8a94fb51b4d5e197bff259d1bc0d5d90b60d1347705eef47",
+      "candidate_sha256": "d683bc9ec4ccd2df8a94fb51b4d5e197bff259d1bc0d5d90b60d1347705eef47",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_fr.json",
+      "baseline_sha256": "23faac04b34a4688b8adf2f19c53c515f9f70bf49d358d0a2faf2e416fe37f8c",
+      "candidate_sha256": "23faac04b34a4688b8adf2f19c53c515f9f70bf49d358d0a2faf2e416fe37f8c",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_hi.json",
+      "baseline_sha256": "0e361a267ee30e1fb92fc45eaf1771024b5ddd54027f0b4ef65d4b01a82c9302",
+      "candidate_sha256": "0e361a267ee30e1fb92fc45eaf1771024b5ddd54027f0b4ef65d4b01a82c9302",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_it.json",
+      "baseline_sha256": "282966c194535ece06c49a156416ee51e75dd41ef43278cb6fd752f8edb2c7e0",
+      "candidate_sha256": "282966c194535ece06c49a156416ee51e75dd41ef43278cb6fd752f8edb2c7e0",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_ja.json",
+      "baseline_sha256": "727b87dfa705ca6b2a6a51f6730b34502c5d407e18b53703451b0ed704301987",
+      "candidate_sha256": "727b87dfa705ca6b2a6a51f6730b34502c5d407e18b53703451b0ed704301987",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_pt-BR.json",
+      "baseline_sha256": "ad6851ce435de9864bfb7c6558612d221e59afa802db384c7fbcfe568c057b9b",
+      "candidate_sha256": "ad6851ce435de9864bfb7c6558612d221e59afa802db384c7fbcfe568c057b9b",
+      "all84_objects_exact": true
+    },
+    {
+      "name": "lessons_zh-CN.json",
+      "baseline_sha256": "d24bad1ede2ff4933515101572149df66f784cc14dcc65c8195311211289ecce",
+      "candidate_sha256": "d24bad1ede2ff4933515101572149df66f784cc14dcc65c8195311211289ecce",
+      "all84_objects_exact": true
+    }
+  ],
+  "visual": {
+    "master": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/media_host/02_install_spacr/video/02_install_spacr_silent.mp4",
+      "bytes": 16691502,
+      "sha256": "66cf9ffb8082c18ff0201949e65e2d835df5b8e16e8fffb41963d49b56490cc7"
+    },
+    "timing": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/media_host/02_install_spacr/video/native-live-timings.json",
+      "bytes": 27713,
+      "sha256": "813a5e275ba32c54198180aedd5673176ea92e96f9b40cdb4dd4d858158b4286"
+    },
+    "retained_receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/media_host/02_install_spacr/video/retained-visual-refresh.json",
+      "bytes": 4303,
+      "sha256": "1d8d85c0e428d7d09e0e4fe53dbe52d1ca61d35fbdb97f9b0879eafd994f1e8c"
+    },
+    "new_spec": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/scenes.json",
+      "bytes": 87593,
+      "sha256": "304e06b6b89629b3c6f438f1ffac6d11c73c2f37918afa04119eabc5750bdc6f"
+    },
+    "new_card": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/captures/scene7_command_reference/pip_conda_01_create.png",
+      "bytes": 164103,
+      "sha256": "b5b5289e3f6ee5b84c3a033d4ba08f8ecba9b35a4d7918d67316c9812ace9439"
+    },
+    "legacy_total_duration": 430.03333333333336,
+    "legacy_frames": 12901,
+    "Home_selected_duration": 29.533333333333335,
+    "fresh_capture": false,
+    "complete_native_clips": false,
+    "pixels_modified": true,
+    "generated_card_installed_identity": null,
+    "root_visual_review": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-selective-visual-review.json",
+      "bytes": 1850,
+      "sha256": "7b2c1ef1d8ccb9b21c05b26e0e19117b454d76951487370d543bd9167e2651ff"
+    }
+  },
+  "matrix": {
+    "receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/browser-matrix-lesson02-selective-20261015.json",
+      "bytes": 20474,
+      "sha256": "0a7a29c8a149c51f9b308a33a15c557e9a8571327b4d2f41989133deb33e4e93"
+    },
+    "actual_runs": 72,
+    "all_returncode_zero": true,
+    "sealed_logs": [
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-cues-lesson02-selective-20261015.log",
+        "bytes": 19684,
+        "sha256": "0bd450ed491b137bb0d6e9a1814c107dc820e6b78372792ff4f8c143463f841e"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-en-af_heart-lesson02-selective-20261015.log",
+        "bytes": 1543,
+        "sha256": "860d4a902e9a83c0b98068f281590b06d645e3b9beaa8fde576b92fdd55ad56a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-es-ef_dora-lesson02-selective-20261015.log",
+        "bytes": 1592,
+        "sha256": "cda5d763b2a6e3dea03258585f31dd1ba8e3c42767b4dd2ac398f9629a037487"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-fr-ff_siwis-lesson02-selective-20261015.log",
+        "bytes": 1593,
+        "sha256": "b5824295d55f187f46749ae5a2bce7e9ffe7c8a44389cdc012dfc86ef76c5bc7"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-hi-hf_alpha-lesson02-selective-20261015.log",
+        "bytes": 1595,
+        "sha256": "6aea2db13812721083b0a3384119116ceace670cd8cbe15fe86df3bdb9c3fe4f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-it-if_sara-lesson02-selective-20261015.log",
+        "bytes": 1593,
+        "sha256": "0eedcf7df87f9da37a712ce1346f022764f60f8a43e8a253f1997611b242d4de"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-pt-BR-pf_dora-lesson02-selective-20261015.log",
+        "bytes": 1599,
+        "sha256": "1ed53ab6e8ee8455931b44c33d491bdab8e9e3583c34cf36fda3220ce2bc0ed3"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-ja-jf_alpha-lesson02-selective-20261015.log",
+        "bytes": 1595,
+        "sha256": "1d4d5c92e68afd40a1c6e668cc3cffc0b36fc822689fac67be0d53f97a8db115"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-zh-CN-zf_xiaobei-lesson02-selective-20261015.log",
+        "bytes": 1603,
+        "sha256": "8034e06de5dad0995332374687839e64317be13b60f0f414f2b36fc8df9bf521"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-da-lesson02-selective-20261015.log",
+        "bytes": 1733,
+        "sha256": "a5e67c5218d2624712e020011c5c1cd7eb9c26fb4640f8ee85cef99893bfd9c6"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-de-lesson02-selective-20261015.log",
+        "bytes": 1734,
+        "sha256": "38cb6767fe9549d08882bfbbc1b415f5bea6b673092b1f198e15a35104481130"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-is-lesson02-selective-20261015.log",
+        "bytes": 1734,
+        "sha256": "eb9af1b41cbf2b0a9063cb9f11e2ce41bf4a733037358587d3023fd98c7d0242"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-ko-lesson02-selective-20261015.log",
+        "bytes": 1734,
+        "sha256": "ed23fc53e7662010115e3e3e91fdf3603b2da804897b4b71c2d4443e41c257e9"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-nb-lesson02-selective-20261015.log",
+        "bytes": 1734,
+        "sha256": "ee553aa6048394c265a45ac1a388cb754aa59a8d5e03b8e8ec23087100ad896b"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-sv-lesson02-selective-20261015.log",
+        "bytes": 1734,
+        "sha256": "2bb5134ddd160a293af86861716f2b823a15a7427f0804db41e7dec9ebed545a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_heart-lesson02-selective-20261015.log",
+        "bytes": 1715,
+        "sha256": "5f876448d6bfa1a1fc6eaa7efec3ddbfb7c485e9f15b4463951236bc148e5691"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_aoede-lesson02-selective-20261015.log",
+        "bytes": 1717,
+        "sha256": "4632afa487e32b182d34e7ef7c64cb572b3b8472cc7a33d257a1d9ee2d84359f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_bella-lesson02-selective-20261015.log",
+        "bytes": 1717,
+        "sha256": "a69094e20e0794e5f1323b8b306a1d37e0af39bc207c4d353a82a133905c06fc"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_jessica-lesson02-selective-20261015.log",
+        "bytes": 1721,
+        "sha256": "6fcaa05d9dfd4de342f46922cfb93fa2e79d6049d7b52c54fb291e96f0781ff4"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_river-lesson02-selective-20261015.log",
+        "bytes": 1717,
+        "sha256": "976db39279256a6a36dafc25c5e2072d9773a867dfea2b217632f7b0f59a4028"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_sarah-lesson02-selective-20261015.log",
+        "bytes": 1715,
+        "sha256": "161889e2ebe9dc50c716dae0650b81d0b64912a7e40e261b561805b56ed219c6"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_sky-lesson02-selective-20261015.log",
+        "bytes": 1711,
+        "sha256": "6249566c2529fa118143c35b9a4323ba6cecb0dcf0f38031f79c4efe4f8039d6"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_adam-lesson02-selective-20261015.log",
+        "bytes": 1714,
+        "sha256": "b026856a5a11af4d3c0c526a94faa21f92c6a4362d77885517277e0e564d4ea9"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_echo-lesson02-selective-20261015.log",
+        "bytes": 1715,
+        "sha256": "3dc2d0f2ef2aa974ab528118092c94c6d62a25ee2ddec11c95485d56478a4144"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_eric-lesson02-selective-20261015.log",
+        "bytes": 1715,
+        "sha256": "1b104222235b557c9e9a895498e307efef6f251aabd8f385112eaed4525abaa5"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_fenrir-lesson02-selective-20261015.log",
+        "bytes": 1718,
+        "sha256": "44fffccf0e75ff6a32c990780e109a42da57cb55ed3118ea80bcc963cb04be63"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_liam-lesson02-selective-20261015.log",
+        "bytes": 1714,
+        "sha256": "27f44878050189fe44a2f9390b9421e6523eb1633a8ff63aa366df0c13998b19"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_michael-lesson02-selective-20261015.log",
+        "bytes": 1721,
+        "sha256": "0ae9e5af6c45a249c4215eca58b9abac7ea040fa5ed362fa105d520fddf36284"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_onyx-lesson02-selective-20261015.log",
+        "bytes": 1715,
+        "sha256": "afe3a7fde5a4bc66a0c339895804b2460093f90d96c660e8687cc8663bc7dba5"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_puck-lesson02-selective-20261015.log",
+        "bytes": 1715,
+        "sha256": "eae3065d1066989d96c4ec039b3288d8dc5d65d31b3469af35e4e1befb41d687"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-am_santa-lesson02-selective-20261015.log",
+        "bytes": 1716,
+        "sha256": "4347c1eeee323254caf60c9531f742f71259e2ac2f2d2d6748247b57dc31e958"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bf_alice-lesson02-selective-20261015.log",
+        "bytes": 1717,
+        "sha256": "3b7bbee1dad2cfa11cc7b602a0d088781a64d895c5bffcb748c420b6d1839aa4"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bf_emma-lesson02-selective-20261015.log",
+        "bytes": 1715,
+        "sha256": "7c4d023c27b4c76fdce717f7e95b3c5786ed3189e64105e56046accb1d5ff55f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bf_isabella-lesson02-selective-20261015.log",
+        "bytes": 1723,
+        "sha256": "bf8ec1c75b54bde8eac488ec5d936607f46d640b016ee219cc81e0138fac9ca0"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bf_lily-lesson02-selective-20261015.log",
+        "bytes": 1713,
+        "sha256": "8003177b2b5a772056adc2952a12dd2691e3967919b5e40671ff22ef491a68c2"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bm_daniel-lesson02-selective-20261015.log",
+        "bytes": 1719,
+        "sha256": "4593d5301bae989477ee5e6a576b873a729e14559cf1328acb48732a1170e53c"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bm_fable-lesson02-selective-20261015.log",
+        "bytes": 1716,
+        "sha256": "2e890e33806339fefea6c766fc07fe15652a24f72b9f92df6980d257b7cee573"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bm_george-lesson02-selective-20261015.log",
+        "bytes": 1718,
+        "sha256": "ec85d1c322cc41d2eb3a0091dd389c0c4b8ef759301032b3639ade31098aea14"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-bm_lewis-lesson02-selective-20261015.log",
+        "bytes": 1716,
+        "sha256": "05f1cb8375a7e832b64ea840191fb9d1f0341f01943fcba0890e176080128bb4"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-es-ef_dora-lesson02-selective-20261015.log",
+        "bytes": 1765,
+        "sha256": "bcf0625f4d74d10e04bdacd67fa42ec66f9519800745837b483d014bc74b6193"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-es-em_alex-lesson02-selective-20261015.log",
+        "bytes": 1766,
+        "sha256": "6cef1e978940a7d93cd68ea28b7d89e84ffbc8cabf5095076eb4e6f26a1e2e7b"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-es-em_santa-lesson02-selective-20261015.log",
+        "bytes": 1768,
+        "sha256": "3d9cfae4e1b7eec788ceb3d81a7be684bd6b7a36c622d07bb4447ad21dcfc2c0"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-fr-ff_siwis-lesson02-selective-20261015.log",
+        "bytes": 1766,
+        "sha256": "e5c2ab2e3a109b7b4ae8515f8caa7a0bf60cf5db3d6c887f183528e155abf732"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-hi-hf_alpha-lesson02-selective-20261015.log",
+        "bytes": 1768,
+        "sha256": "83206fb538b5bc72afcdc9253f8e094b74efb81650c75a52cf5b10082768c960"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-hi-hf_beta-lesson02-selective-20261015.log",
+        "bytes": 1765,
+        "sha256": "1c42709cfda9f6c4a6add1db00f4adc47a4cff94fcbe2d05f30250c0fab95355"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-hi-hm_omega-lesson02-selective-20261015.log",
+        "bytes": 1769,
+        "sha256": "04ced15a34655bc88d5f2cb5ec1c4a6bfc8c54b6bccaded967f30fd866f4d71a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-hi-hm_psi-lesson02-selective-20261015.log",
+        "bytes": 1765,
+        "sha256": "87ed9f0507a58ee0b7d16b023f0339d4cc68f8aa8a8bd20568c0961f233bb436"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-it-if_sara-lesson02-selective-20261015.log",
+        "bytes": 1766,
+        "sha256": "7f4d5ed0d79398e71ad0b9ed4983491d95a9d7c671c69cef9c76aa96ab5a5468"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-it-im_nicola-lesson02-selective-20261015.log",
+        "bytes": 1769,
+        "sha256": "3face481952e5b24836d11ac0d2fcb453398e5d78a202410c0f5a729ed7baf27"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-pt-BR-pf_dora-lesson02-selective-20261015.log",
+        "bytes": 1772,
+        "sha256": "dbf3ad7908b5ccf9746215978d91878eac76670df29f0ed99a94535c0d320432"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-pt-BR-pm_alex-lesson02-selective-20261015.log",
+        "bytes": 1771,
+        "sha256": "d5471b5e59eab119a5f864e5a0c2566ebf9d4cf6073c1f85279d539114c2d4f9"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-pt-BR-pm_santa-lesson02-selective-20261015.log",
+        "bytes": 1772,
+        "sha256": "3b3ac8fcb85a64caa450ec64b7c0b18bba93d96acdba82da77871eaf7a566b42"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-ja-jf_alpha-lesson02-selective-20261015.log",
+        "bytes": 1768,
+        "sha256": "ff5be105044b71520f816e35e7e7a073c9525e0df2c1b2ab3f8caf4dc28e6694"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-ja-jf_gongitsune-lesson02-selective-20261015.log",
+        "bytes": 1779,
+        "sha256": "9ef4e1062b89f16a7f92fd6414610609530e88477c0ee502da7af001b371b542"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-ja-jf_nezumi-lesson02-selective-20261015.log",
+        "bytes": 1768,
+        "sha256": "970f2fe31275479605d079a6d0acbea39c0c356788972b6d129dea555c5bf914"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-ja-jf_tebukuro-lesson02-selective-20261015.log",
+        "bytes": 1774,
+        "sha256": "0bbbd54b4f0135e9910d9950d787eb8d2726fbb7152f8a5399112c5a0d7c47cb"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-ja-jm_kumo-lesson02-selective-20261015.log",
+        "bytes": 1767,
+        "sha256": "00831190c7882c6ca2a58a9465d9fbd4a695c85b266afea6f552246ead3c5ba3"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaobei-lesson02-selective-20261015.log",
+        "bytes": 1776,
+        "sha256": "6f579cd69a41ffc51578c7e873a492c923b45e8cdc9adea9554ad1da89cf25b7"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoni-lesson02-selective-20261015.log",
+        "bytes": 1775,
+        "sha256": "afb40b997cfd2a5e622e2356747ee62bd303b612d5816186075629d143970174"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoxiao-lesson02-selective-20261015.log",
+        "bytes": 1779,
+        "sha256": "429bcc1bc1b300493d92bd46474ec772ddb64dd975fa7335fddfd8da2b6b2017"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoyi-lesson02-selective-20261015.log",
+        "bytes": 1775,
+        "sha256": "0977c151d3635250ae98b903bcc471a90f3fb4fda0f2f5987f250908e32fee09"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunjian-lesson02-selective-20261015.log",
+        "bytes": 1777,
+        "sha256": "f507acff1c0c1e33c198c45cea0f600744321b3c99556ae31a7e4bfdf573de41"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunxi-lesson02-selective-20261015.log",
+        "bytes": 1774,
+        "sha256": "3455e2945f64d04ab7f2a0ecd4325889e93ba1eac127baddb9eb49290f5dde24"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunxia-lesson02-selective-20261015.log",
+        "bytes": 1774,
+        "sha256": "7b69b539c79db01d27d51c5dc84b93d3191897846df5e0a30ed48ac487911420"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunyang-lesson02-selective-20261015.log",
+        "bytes": 1778,
+        "sha256": "fde25a3608c7101d5178b366b7c548c53dd64847786f274f2ec100304153b2b1"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-da-lesson02-selective-20261015.log",
+        "bytes": 1907,
+        "sha256": "a7b231a62d04a6bb2dbd3c71634c07483010aea64ecfbc56ca75acb5a36c82e1"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-de-lesson02-selective-20261015.log",
+        "bytes": 1907,
+        "sha256": "2da298c14670764201dbe02a64daa4003ed63d54c446860987f7a52350aac181"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-is-lesson02-selective-20261015.log",
+        "bytes": 1907,
+        "sha256": "4b12192cbb9f42ade3f5c725b65896c9021f4d48f3aff8319fb003d50d9b0bb5"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-ko-lesson02-selective-20261015.log",
+        "bytes": 1906,
+        "sha256": "e9365f3df47c09538d122cfec4d2d4af8dff285372d7bef484272727a9f64ddd"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-nb-lesson02-selective-20261015.log",
+        "bytes": 1907,
+        "sha256": "c660e03c52929091f558460a9662fb62b5655e9e81a2f70059cf81868e6a4121"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-sv-lesson02-selective-20261015.log",
+        "bytes": 1907,
+        "sha256": "b8969fcf9330a40c6cebe5b6fd47fd2007ee58ad65c9549ba0e628058036afe2"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson02-selective-20261015-02_install_spacr-completed-matrix-lesson02-selective-20261015.log",
+        "bytes": 655,
+        "sha256": "a685c0f92afcfb6c8c9c511936330fbef48422ab3480e076502b621aa22789d4"
+      }
+    ],
+    "browser_receipts_checked": 71,
+    "browser_receipts": [
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart/playback-checks.json",
+        "bytes": 918,
+        "sha256": "f5452d9854b9d9acb0660c996375e3598b97d8aafba6e6bf87810c9ff0183ccd"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart-captions-da/playback-checks.json",
+        "bytes": 1080,
+        "sha256": "c3f0d6e667ff19261994d19cf08ce99f130879750e8ab82079e5ac14831a6069"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart-captions-de/playback-checks.json",
+        "bytes": 1081,
+        "sha256": "ba6b58d788be6333ba3d8852bcf37e56653f87b49db6c32aa5654696e39910e9"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart-captions-is/playback-checks.json",
+        "bytes": 1081,
+        "sha256": "25fb32bb7fdf0367db74067d3c7ed096f3859d174665cea7d55c025e3f14f9e5"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart-captions-ko/playback-checks.json",
+        "bytes": 1081,
+        "sha256": "9db603e0773115138d40f184c8b1fc14c185725de51bf95e54a0b0c78af5f865"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart-captions-nb/playback-checks.json",
+        "bytes": 1081,
+        "sha256": "d6fd0e56c2a325f91f3a76c3235ab6d422c67396e753b6a89af89a3cb805b978"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart-captions-sv/playback-checks.json",
+        "bytes": 1081,
+        "sha256": "c97dfe507ec99f0463bf5384fdbb4eb9ecf15f5c724be54dcdbe9d9ed416beda"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/en-af_heart-sentence-cues/playback-checks.json",
+        "bytes": 19040,
+        "sha256": "7ed2d00a3ec1432ee21c219bf56d1433d57c013a4f9a708ee2b779b44c450606"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/es-ef_dora/playback-checks.json",
+        "bytes": 968,
+        "sha256": "320c49d5d7f0f597acc7c0200134395dbb88c9a6bf1f664204257f2bc5547db6"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/fr-ff_siwis/playback-checks.json",
+        "bytes": 968,
+        "sha256": "21ebb7d6b2ec17f903a48c078df92415e4a9358d3ff15eb6722d3a85d0396fbd"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/hi-hf_alpha/playback-checks.json",
+        "bytes": 970,
+        "sha256": "4c79bd9b2fec5d524def3f6e3ae4e043eb68511bfe3bac142002aaccc061b4d9"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/it-if_sara/playback-checks.json",
+        "bytes": 969,
+        "sha256": "69199b13211f4c0e92a82d0a57d7aae8da55125c14aa71be48318ec039dee4ef"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/ja-jf_alpha/playback-checks.json",
+        "bytes": 970,
+        "sha256": "2bc920f603e7c0d0d79cb6838aefecc7fff7e190cf1a034a624828c65e29fed0"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/pt-BR-pf_dora/playback-checks.json",
+        "bytes": 972,
+        "sha256": "88d2491555faea778070955acb3e75eaae07a25ffe9968471bc40d87f05c8e56"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser/02_install_spacr/zh-CN-zf_xiaobei/playback-checks.json",
+        "bytes": 973,
+        "sha256": "de08ada87ac7d50500455421bbb77e9ad3ded7dc601ce7b503f0c41eacb70910"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_aoede/playback-checks.json",
+        "bytes": 1073,
+        "sha256": "3bd1fe51892ae9a099943d104efec0db50717ffab7f571cfe7e378ec6b41d311"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_bella/playback-checks.json",
+        "bytes": 1073,
+        "sha256": "9da98bcd034fec13fe3d0ce8efde2dc26ff35a3b0592656b78da7ce77564284f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_heart/playback-checks.json",
+        "bytes": 1071,
+        "sha256": "684467956d9ffcf3ea6437aa38a5ee3e4563b0ba049750b2e2c1c17b94fcf5a8"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_heart-captions-da/playback-checks.json",
+        "bytes": 1235,
+        "sha256": "a582b2d40f64a34ef212392986443da6d6bdad57dcffbf4ee92e99def4adeaab"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_heart-captions-de/playback-checks.json",
+        "bytes": 1235,
+        "sha256": "b5d5e174194b9545ccab2f611320ab956e6a9b896dd18491013c0ffdb6cb71d1"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_heart-captions-is/playback-checks.json",
+        "bytes": 1235,
+        "sha256": "7262bc9c8a8d9a9bb3c6116a211ad24bef30d418da38c29b281dc357eef095dc"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_heart-captions-ko/playback-checks.json",
+        "bytes": 1234,
+        "sha256": "4998a5ea4166292f555ea96ff539b329791669868507313648f051f711343b87"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_heart-captions-nb/playback-checks.json",
+        "bytes": 1235,
+        "sha256": "f438402db2ab17d57c63e58949cb6cb52772cc484b88f20ce4da039a88658605"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_heart-captions-sv/playback-checks.json",
+        "bytes": 1235,
+        "sha256": "af3ebef85d69b0b403366f2cc4cae25058a9e3c75ea1985715a195a6fd7732ff"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_jessica/playback-checks.json",
+        "bytes": 1075,
+        "sha256": "cac5f20c20630871b35887253f4d8cf1d5d3ceafd064885d775f552ec405cc9f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_river/playback-checks.json",
+        "bytes": 1073,
+        "sha256": "305235546f7c04fd186129d083e04afc72bb26c81f2b632330f39176e68ab6db"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_sarah/playback-checks.json",
+        "bytes": 1071,
+        "sha256": "21f6b60134b41d87474ed324c7c4b81de23c25629b547de6c99d1f68d54b9f28"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-af_sky/playback-checks.json",
+        "bytes": 1069,
+        "sha256": "7f9d75ddd57d17a7cda4477f4d079ba1d758b7d810b5243062e2dfccd72f48c3"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_adam/playback-checks.json",
+        "bytes": 1071,
+        "sha256": "c79830b9dba24ba7e4e1d7435a7039a97c16b262cb12396a10d190c41b15cf35"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_echo/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "96faa27c44b80051c11d842ef0def6b2c268f7e6866d53109da3d0b62d0326dc"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_eric/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "3888e71f818ad1179038afeb3e9082344294b4ddad3f3ffc15726aee392d8bc2"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_fenrir/playback-checks.json",
+        "bytes": 1073,
+        "sha256": "457691ad6db86c5f4ff0c7f856d7690cfc62875c81c6dbf0a4cb47d3adb91ce0"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_liam/playback-checks.json",
+        "bytes": 1071,
+        "sha256": "932852ed1f76cf2a8e59560100acd91adc78ae7a51aed56c0e847c3ca4801263"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_michael/playback-checks.json",
+        "bytes": 1075,
+        "sha256": "ac4ce817567160921b0b0e0c53fc64491fc3825da58ba00d5737df50a702c20a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_onyx/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "aedda833632cad50fcb1daf2547e0b3bbe5aa02310f0b249bb5f6e3a42378f51"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_puck/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "ae26a1fe1d9de97769d73173877a79bcedbfa90f74debedd00061d1dbfa072a7"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-am_santa/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "3d28804b8a1351dc8f52ad55d3b8f34778dfc27e2a8a73d0cff3cb46e0c89e37"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bf_alice/playback-checks.json",
+        "bytes": 1073,
+        "sha256": "41c3f3fa6f4758958ce0c9681d59d403ede7c5276460c5cbab1bee6c8719bd2a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bf_emma/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "c7813bf2ac551e0dada004a7fb69c85391418b7ee4112977e3324488a98123cf"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bf_isabella/playback-checks.json",
+        "bytes": 1076,
+        "sha256": "1b2b95e23dac233423d6b4f5100be6977d8c460999e82e73097531dfd8e56424"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bf_lily/playback-checks.json",
+        "bytes": 1070,
+        "sha256": "a7dfa2f37f4765336c7efae2960d2a7654e5c9f7668aa9fd5f0b2c4c3fb2ec76"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bm_daniel/playback-checks.json",
+        "bytes": 1074,
+        "sha256": "9e4cf42f77c708028a548680ebed7199329d91ded98afe21211933e542a76e60"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bm_fable/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "088991cda244afd3a24f1a4c4ab77ebbe086bbf0c1fdc8087d5d747ccfb57f04"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bm_george/playback-checks.json",
+        "bytes": 1073,
+        "sha256": "041b18b81fd7980400ddf9b258e09e038ac27d8f49cf876df0fbd410c9a097b5"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/en-bm_lewis/playback-checks.json",
+        "bytes": 1072,
+        "sha256": "61485cb410efc1aed5cc77fe4ae44651748074df6d7e3b3872d9d6eafc4bbe2f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/es-ef_dora/playback-checks.json",
+        "bytes": 1122,
+        "sha256": "2c9c5dc0c0dfe4f3d953284feeb485decea7b16d7cb6aee7892c56c6f094e7d4"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/es-em_alex/playback-checks.json",
+        "bytes": 1123,
+        "sha256": "06b90b39a5bfdb33602d8efc756797db94f0282cc90c0287bff462e929f4e47e"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/es-em_santa/playback-checks.json",
+        "bytes": 1124,
+        "sha256": "3171d93a1f63743633fe5d239232defafb3a29ce2839e43342b3a8d5ab4f5c8a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/fr-ff_siwis/playback-checks.json",
+        "bytes": 1122,
+        "sha256": "50f1af82136f8888f44d1d9955637d943b152e22b85a85065aa6ec92bf300012"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/hi-hf_alpha/playback-checks.json",
+        "bytes": 1124,
+        "sha256": "bc18888f1980d599a68510bc2e610738b469347822f87627696e64fce471c5eb"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/hi-hf_beta/playback-checks.json",
+        "bytes": 1122,
+        "sha256": "6fce43858603625271742aecf28e5603c7fcc0b4540bc5a2775320f25ae92e14"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/hi-hm_omega/playback-checks.json",
+        "bytes": 1125,
+        "sha256": "c1b8b7438d942d612f0f185cb0f41914331d60f4237348a814ff96af33f39f83"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/hi-hm_psi/playback-checks.json",
+        "bytes": 1123,
+        "sha256": "1bf22424f6d0f2689ff2233476bb8cbe2ffd679b206c38c1c03b7f826ef0e317"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/it-if_sara/playback-checks.json",
+        "bytes": 1123,
+        "sha256": "99eb72185b3f25c6c7f08a00f885f8a95508e5d83d8886c7aa167e60c7708d19"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/it-im_nicola/playback-checks.json",
+        "bytes": 1124,
+        "sha256": "d4e09e788a3331d82018f6bcc2ab46222756cc8c7dc3dc481c88b6ea88d75f0a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/ja-jf_alpha/playback-checks.json",
+        "bytes": 1124,
+        "sha256": "2cfa1d6aedae3072bc1a33f18e9c98d9f820be55dcac9248d97ebfe35c43d882"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/ja-jf_gongitsune/playback-checks.json",
+        "bytes": 1130,
+        "sha256": "96d3cd578b768602d9e2840cd046c387f56838c17b69fd50915b8d6583d19a6a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/ja-jf_nezumi/playback-checks.json",
+        "bytes": 1123,
+        "sha256": "0bff5dd66edd24073482893ede5886d281fe904d78926d5bfa59e36cbdcc8ab7"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/ja-jf_tebukuro/playback-checks.json",
+        "bytes": 1127,
+        "sha256": "6e364242ff3ac788f68bb37dcd25329584d363882d1b0b4b882692b08dd2e853"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/ja-jm_kumo/playback-checks.json",
+        "bytes": 1124,
+        "sha256": "91c0af9ed4bf3dbda5133f58e35b157edb22f72830063a58050f936ad477784d"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/pt-BR-pf_dora/playback-checks.json",
+        "bytes": 1126,
+        "sha256": "17c3ae7bac282dcb68f1183cb337a967492f6d926f15304b118d08f433b456f5"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/pt-BR-pm_alex/playback-checks.json",
+        "bytes": 1125,
+        "sha256": "d44ccdf0a3e26914509a4c1d4b8f22927a19a03f51d311827abd501d593edffb"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/pt-BR-pm_santa/playback-checks.json",
+        "bytes": 1125,
+        "sha256": "ec4b863cf65667cdf25cf991075939e41ace56c3258ec06a0a48950a31310b8f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zf_xiaobei/playback-checks.json",
+        "bytes": 1127,
+        "sha256": "62a81a645ca88c657193f071f5ebebb43a9c8cc871359d0cd6370ff8660ef274"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zf_xiaoni/playback-checks.json",
+        "bytes": 1127,
+        "sha256": "1a6f68c2ca66dd8389b1274a900402f9071e5b6bce1f96ce3cbb23e40839be2c"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zf_xiaoxiao/playback-checks.json",
+        "bytes": 1129,
+        "sha256": "49be2c148972e145dc5852b8fc5857ec787376a56917cac9f49ed0c65f09518f"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zf_xiaoyi/playback-checks.json",
+        "bytes": 1127,
+        "sha256": "d48d4a0dd3f006346bf2f221ae9ad2563e7159eebf4c18af4a0a9445d33bbdf5"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zm_yunjian/playback-checks.json",
+        "bytes": 1128,
+        "sha256": "7092c7213526508ac4bdbbbbb4d2a01178eb3fb2c5b6ce64688ffb79b9af6993"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zm_yunxi/playback-checks.json",
+        "bytes": 1127,
+        "sha256": "b672180f66d83538e73b775d5f3e246c7a03adf40f80cd02eb139d8cad35f734"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zm_yunxia/playback-checks.json",
+        "bytes": 1126,
+        "sha256": "1d387dec6b0b8018c2b0136b5dd1a1ff071f19124a42863f377d6f03a38f4da4"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/browser-web/02_install_spacr/zh-CN-zm_yunyang/playback-checks.json",
+        "bytes": 1129,
+        "sha256": "b1fda234e52479fed4e15d3c6c542a498e021df38f871d7d8bc404e80535de5e"
+      }
+    ],
+    "final_reconciliation": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/final-artifact-checks.json",
+      "bytes": 25263,
+      "sha256": "c05b311ea57cafb2de2178277130de01ace1ca43fd292a2671d57e45db2595d0"
+    }
+  },
+  "retained_audio_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-audio-qa-independent-readback.json",
+    "bytes": 61593,
+    "sha256": "294a4437ba6998d006be28eefcb74238fe53c00535e2852081bb5310869a74ac"
+  },
+  "limits": [
+    "Actualmetadata/selected02bytechecks only; no duplicate8GBphysicalhash/readback/browser/decode.",
+    "Other83physicalmediaidentity relies on unchanged SHA/size manifestmaps and owning build/verify, not a new fullphysicalhash.",
+    "Root84route/placeholder/checkpoint verification is still independently running at this content-readback timestamp; finalprepublication peer must bind itsactualterminalresult.",
+    "No HF upload/hostedPages/publication/liveSpace or hearing/native-speaker acceptance is claimed."
+  ]
+}

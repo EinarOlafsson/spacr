@@ -1,0 +1,1991 @@
+{
+  "schema": 1,
+  "lesson": "02_install_spacr",
+  "owning_qa": {
+    "path": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json",
+    "bytes": 9037,
+    "sha256": "65fcf59a753c69bf32fcd2ad545f7bacd6c15c7c63c7fbf479159aa0812da255"
+  },
+  "owning_qa_passed": true,
+  "owning_qa_current_runtime_freshness_claimed": true,
+  "all50_exact_owning_qa_audio_hashes_and_historical_sidecars": [
+    {
+      "language": "en",
+      "voice": "af_aoede",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_aoede.json",
+        "bytes": 74178,
+        "sha256": "e7edf4ceefb235f1b3afdd829754dd62d6962b9d2dfb84ecac80e7e4e0052457"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/af_aoede.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "34833c62fd788977d6842edce02d5a2a619c90acf3ab48ff875d786456297223",
+      "audio_manifest_bytes": 1717818,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "af_bella",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_bella.json",
+        "bytes": 74360,
+        "sha256": "45a0ef09dfe4a704e458431e5ca9d4c5ec83bc2e0f32c86b95c67f3e3bae57d7"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/af_bella.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "bd5705dec0a4234416667d6164bee6d43506c560ec8a6961c7ffbac8aab7aed9",
+      "audio_manifest_bytes": 1728970,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "af_heart",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_heart.json",
+        "bytes": 74121,
+        "sha256": "a956c09ed15c5866f1ddf446dbcf729f5b40a137cfb87786c228b138ca854266"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/af_heart.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "8dc31a4b1fb3255b47ab50fd0a4d3be075ffec775b632dad8f103a6e092b1669",
+      "audio_manifest_bytes": 1705701,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "af_jessica",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_jessica.json",
+        "bytes": 73632,
+        "sha256": "b828d520e229191b9f0e4e7531bd9efe301886aa4351950ccc6e9173f15e20bc"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/af_jessica.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "317f319f297c45ccae37ceceecb32eec699314eceb25a67bb209f7c3c7201e3f",
+      "audio_manifest_bytes": 1666668,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "af_river",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_river.json",
+        "bytes": 74339,
+        "sha256": "91ff84316c096c742f3eaa318615863d8d564b8c2b608a2f69b0cb5c540e03b4"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/af_river.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "f53113334f859bb86814aed95babe3b62177f85dc6c7a7d2993d6ad03d21e95d",
+      "audio_manifest_bytes": 1686248,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "af_sarah",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_sarah.json",
+        "bytes": 74557,
+        "sha256": "712a00c818f6d760ee48c2cfcfca5000ebdc3400f6dda92839f3d9be5502ca9e"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/af_sarah.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "8feb87a257e248e2c7fc7d0991ef554c800195c7bfd97af65a7e69974d5494f1",
+      "audio_manifest_bytes": 1722244,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "af_sky",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_sky.json",
+        "bytes": 74286,
+        "sha256": "65fc3931eae3b7b8cb1673d1cf9e14d99521295d1c856b18daac44f1540b4c95"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/af_sky.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "fa7f6ed18401302dce36bf6bf3ed2095f6d870c9ce0a9e741c8202a9be506c1e",
+      "audio_manifest_bytes": 1752718,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_adam",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_adam.json",
+        "bytes": 73756,
+        "sha256": "f9df41f1f3df134d16f36178407b0b906a3f8c6f87f63a0d48b979fd0753fcfb"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_adam.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "c8e959c29173e445ef7d759ac043dea14f27c6f901b817c9c981855f26524c54",
+      "audio_manifest_bytes": 1722032,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_echo",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_echo.json",
+        "bytes": 73729,
+        "sha256": "09332ce4c976013ab4de5d0ed472a63eb560de76e9ec65888fcb895819f6dfcb"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_echo.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "eed33628393e80f54c1d7ece38c5c21b0f0db4341c7e17cc8fdbb4bb575b5f16",
+      "audio_manifest_bytes": 1797221,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_eric",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_eric.json",
+        "bytes": 74241,
+        "sha256": "c1779756c0bf8f7265e45d83850cc1b50a0e157c8c33eb3afc466a6221b1bf2b"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_eric.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "a3e0342409296687ecf791413c06727bfcd315637184f9c871706a32ac054900",
+      "audio_manifest_bytes": 1659616,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_fenrir",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_fenrir.json",
+        "bytes": 73539,
+        "sha256": "1f29b1bf32bd9e887ef6c8ae7947d6357a1f2cdbe3cc55e0190f42bb307b6752"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_fenrir.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "07f5b0b0bd2c6eb784062d1c8de582cbf3c1252da6a4faa9cb4f2240c123cd15",
+      "audio_manifest_bytes": 1748047,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_liam",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_liam.json",
+        "bytes": 73808,
+        "sha256": "eca292808c0c347834a65bede507cb7ff6c571890e09e754ef5e150d148fbf22"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_liam.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "e8d357e2d96ff2397fb00814208f93f3a8833ab399b1a284c787fd804dcb9cfb",
+      "audio_manifest_bytes": 1740306,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_michael",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_michael.json",
+        "bytes": 74238,
+        "sha256": "f46e672a15c084f95730356cdafbad962376d388794cd97c301d1fc7955ec3e7"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_michael.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "6f5ebbceaa3701176a7ef10ef00fb3a268bee7722105d73f244437063c4f478b",
+      "audio_manifest_bytes": 1850786,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_onyx",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_onyx.json",
+        "bytes": 73869,
+        "sha256": "d9fd5bf2cba50f0047c1bf84431ab977e1159539194cfd2da61b5d1f7afc9a9e"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_onyx.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "a624f3bc1fc67cf2787c2eb6c57aff451eacb62dbf4e86f0bb3cf1b9d5483e64",
+      "audio_manifest_bytes": 1824667,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_puck",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_puck.json",
+        "bytes": 74110,
+        "sha256": "198c879a1fdba44c3f4b98654aa936f99607038a64dc6051005d9254870c232d"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_puck.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "0369c40e8ae284bcf2f5ddd438de10c0d18f28eb08a262e357b94ab13ada2e60",
+      "audio_manifest_bytes": 1756817,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "am_santa",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/am_santa.json",
+        "bytes": 74360,
+        "sha256": "cb6260c48bdc4a30571ef2be2f9ba9e3d09a2f628cbb420d29bf53f9660dad1d"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/am_santa.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "b27ab8b4dd2287127412478b67d78b3cf38bbc385b62631c14c626f23ba5958a",
+      "audio_manifest_bytes": 1888789,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_alice",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bf_alice.json",
+        "bytes": 73806,
+        "sha256": "cde4e57e11d6bbc42b2d87a44f99b1f062d30b31c88b0ed5f3b94473108dacf1"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bf_alice.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "cd9e4be6a37512ce0c9bd28a1f2e20941429419d8f4a876b07701610c1ed4333",
+      "audio_manifest_bytes": 1775976,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_emma",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bf_emma.json",
+        "bytes": 73610,
+        "sha256": "196b68a64c7a298f0bd96f7063e13e0d29f8cc5933a99c0cb9dbe635198c8e98"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bf_emma.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "7b4cbf68245e2831af8ca837f6e0e67fa6df0239f360f45929705fd12af26f66",
+      "audio_manifest_bytes": 1735950,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_isabella",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bf_isabella.json",
+        "bytes": 74043,
+        "sha256": "0bfce2a8792a9fe4b9315ba28e7ffc7d779e1115cbbb42ecd5ae815fe85cb41f"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bf_isabella.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "c6de98c8ceb2951adc025ec2f5f343036fb8da413a8c5a20242b7571acd63656",
+      "audio_manifest_bytes": 1753514,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_lily",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bf_lily.json",
+        "bytes": 74002,
+        "sha256": "9546fadc8762c38fcce2a4dace2dca74ee6237596c17385a5189b95a5b6f34d4"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bf_lily.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "176b989ed8685ac30e275d558a442c75c1fa95ff422e641fc1b9ddd8163bfd51",
+      "audio_manifest_bytes": 1798335,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_daniel",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bm_daniel.json",
+        "bytes": 73437,
+        "sha256": "c05ce709fdebd1a210bdd83e4a03fe67fbbe8053e4a492442612f6931e84765b"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bm_daniel.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "26d1410c083dea11a2c8fb0d32fea3edd625a41d4f7292e3292881f77c83d9be",
+      "audio_manifest_bytes": 1777292,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_fable",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bm_fable.json",
+        "bytes": 73197,
+        "sha256": "5d3833a727e8f5307aa17239d690508f002332d98537bc64c5f0acefe5664ef8"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bm_fable.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "22d598b01210ea0d5ef1a4bb554504e78376d7ca0973c5293e2c4bd2bac64c3c",
+      "audio_manifest_bytes": 1835761,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_george",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bm_george.json",
+        "bytes": 73813,
+        "sha256": "b3a54f433125db85b5ba1c78a72f09cd6f07a0e2405bcccfeaa3a2e3fff9fb53"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bm_george.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "d55a989a075a9a3dfa5fdd555826a8ca78895fc3e9be18c43f700c23fc7acc3c",
+      "audio_manifest_bytes": 1954434,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_lewis",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/bm_lewis.json",
+        "bytes": 73384,
+        "sha256": "26cf5e2705db4f63ebd8cc4b78a697ac4e6a5d727b62eca432fa33b5084c2787"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/en/bm_lewis.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "ee42b3fbaa229c840780690633b9a10ccaa94203eed2e11af54a34c144e9e0c1",
+      "audio_manifest_bytes": 1853142,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "es",
+      "voice": "ef_dora",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/es/ef_dora.json",
+        "bytes": 60481,
+        "sha256": "52fcf5236b74acc92bcc0ea6595d8dc95170cc9ba6f12b70ecb172bd891dd4af"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/es/ef_dora.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "9d49cee5c7bf94ab00bb9b5913d58ebb76869034a13cab5691dafd0cc63c3978",
+      "audio_manifest_bytes": 1628243,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "es",
+      "voice": "em_alex",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/es/em_alex.json",
+        "bytes": 60650,
+        "sha256": "b44ee17ebc7a972b9b021f226e34138ab27994768745447802d2f0b93b59ba83"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/es/em_alex.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "697d85e958ad092199451ebdc5da7a539636148c65555ea74c53deca6cbc048f",
+      "audio_manifest_bytes": 1642659,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "es",
+      "voice": "em_santa",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/es/em_santa.json",
+        "bytes": 60640,
+        "sha256": "af573db13b26e3bdd6846320a31df35041f03baf908c9a97b07aa7d3b2962957"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/es/em_santa.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "af9609564fa5285a0c7f77d5efaecfae4efd0dbef2dd963509cb71f66bf4cc4c",
+      "audio_manifest_bytes": 1645738,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "fr",
+      "voice": "ff_siwis",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/fr/ff_siwis.json",
+        "bytes": 62652,
+        "sha256": "3f5e5b39cc917e89786d68f0adf59f897ee079a278d018f59dc20aeac3af0a16"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/fr/ff_siwis.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "21aec8cc3e67f79ce58de532860aa1680a5600f9dad7933745ad2b4e994763f2",
+      "audio_manifest_bytes": 1685810,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "hi",
+      "voice": "hf_alpha",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/hi/hf_alpha.json",
+        "bytes": 98212,
+        "sha256": "551f3ab655a375845e4ba4949db8df85dafb3c34c5a604e7451cf350bf8fd531"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/hi/hf_alpha.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "4f0c8af039e5ccd8d8720b014adf270aaf18d890d773895000a4ce8596ac3309",
+      "audio_manifest_bytes": 1941733,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "hi",
+      "voice": "hf_beta",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/hi/hf_beta.json",
+        "bytes": 98254,
+        "sha256": "22612629410e6d435cebaa674c5d9f27441fc21011f39edb4c9c2a122bb107eb"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/hi/hf_beta.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "4bb545c721c704f8db2b5c154833c79ff71f2a26ec1650966939abbf77f0ae17",
+      "audio_manifest_bytes": 1679584,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "hi",
+      "voice": "hm_omega",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/hi/hm_omega.json",
+        "bytes": 98282,
+        "sha256": "3e26d28ea8ba96d7e848c3d312ffaf7b0793c1f2e60ef7fc11c68a56698dbf6c"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/hi/hm_omega.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "ae82452180a9367b3787cb322ff8e00ac487f5d78b9911d12cfe0959313886d9",
+      "audio_manifest_bytes": 2008459,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "hi",
+      "voice": "hm_psi",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/hi/hm_psi.json",
+        "bytes": 98300,
+        "sha256": "46c3e35e3388c585ef301a41a50e2844cf20100777a9f80c26febc2b71ebe5e9"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/hi/hm_psi.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "d4c447be04c7d2db52869b2ec4660fd3a03b92f605e614a925b95304214a930d",
+      "audio_manifest_bytes": 2031268,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "it",
+      "voice": "if_sara",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/it/if_sara.json",
+        "bytes": 60280,
+        "sha256": "95aa7c4ec3351a0f8913bb078ca1ae7520ccc8b4f8b869c8e347069e7aefec14"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/it/if_sara.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "863c6a3a890f19e433348765f246b9b2bef5bc007ca2221c0bb8620a834824c3",
+      "audio_manifest_bytes": 1592086,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "it",
+      "voice": "im_nicola",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/it/im_nicola.json",
+        "bytes": 60045,
+        "sha256": "6a6641e53077ebe5662812bfbf9174f88619b3b984c92f16e3889642cb87cee6"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/it/im_nicola.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "2e631d9f73eac20cf984c840c7ced8d0bea45f00b2fe7400e75aa59a8c306257",
+      "audio_manifest_bytes": 1786316,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_alpha",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/ja/jf_alpha.json",
+        "bytes": 70566,
+        "sha256": "88d0f4c239afb2386184cd98a1989f85c7b16109803c6ce8f58d40cbe264b377"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/ja/jf_alpha.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "57728ce2e07733f66ad8b13ffb61ce1e432d93560d825bbfd773f3bbef154da7",
+      "audio_manifest_bytes": 2091579,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_gongitsune",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/ja/jf_gongitsune.json",
+        "bytes": 70541,
+        "sha256": "57df49bf7140731712dfdb3f6f1837b6e6f56856b5e663d7176e028089c1ff04"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/ja/jf_gongitsune.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "2a85e759a99864e7fa9276916a76441c4e341b95fbdf899b9a8be94dd2c08b86",
+      "audio_manifest_bytes": 2667019,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/ja/jf_nezumi.json",
+        "bytes": 70520,
+        "sha256": "4ece2ec5c8eecc2848c126687a9867672195510cc92524ef99ae25584c157dca"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/ja/jf_nezumi.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "0d98dcf6f4163339680d0152fab003e00f2fb93d6d287cc69756e1ecea0a8054",
+      "audio_manifest_bytes": 2803961,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_tebukuro",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/ja/jf_tebukuro.json",
+        "bytes": 70570,
+        "sha256": "352c00f269d41ad31bb557af3ef778b8461caf8c44b13e101bf9a499c20fc279"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/ja/jf_tebukuro.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "d7c4a6de8db4f434612f944bd6d2308d815c6ee1f833ebf43505365acd6deb40",
+      "audio_manifest_bytes": 2668395,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "ja",
+      "voice": "jm_kumo",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/ja/jm_kumo.json",
+        "bytes": 70601,
+        "sha256": "69a83cafca2ebda9a1a8d70d372d61419bf63d374d533835d92dc742dc9b459d"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/ja/jm_kumo.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "d579162061e78a112bd1859077a5617750ffbf972c1cb6a23677e39a7d6c90f3",
+      "audio_manifest_bytes": 2263628,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/pt-BR/pf_dora.json",
+        "bytes": 62446,
+        "sha256": "67ff6c4cdd887b2e4334e27fb9671f138ee55c46fbc3dd28c283e6b2eda2ddb8"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/pt-BR/pf_dora.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "aa6a7320501ff76c0f94c59bcaf4b148b560207f5323bda7fa2401e2194294a2",
+      "audio_manifest_bytes": 1618157,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/pt-BR/pm_alex.json",
+        "bytes": 62319,
+        "sha256": "1414c61c29e11d0cae339fb94519db172f0cfc6628704d6987ffae625ea4592c"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/pt-BR/pm_alex.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "0dd98f146ce09091a07a88d79ef292b53544aaf26f853828c4ac9c89d5c42145",
+      "audio_manifest_bytes": 1614008,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/pt-BR/pm_santa.json",
+        "bytes": 62470,
+        "sha256": "413235238625be8bbac158184502d969af2fe22e4b072ea7eb48722594e93005"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/pt-BR/pm_santa.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "df4b4a5c7635ebd73927da4eb2aaf8db4102cb225d967174594321e23f7ce0eb",
+      "audio_manifest_bytes": 1629179,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaobei",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zf_xiaobei.json",
+        "bytes": 60344,
+        "sha256": "df24a97ed19836cd359f35289fca86234d247fea6dd25a89c0c9b6b041e653e2"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zf_xiaobei.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "af5c56e6b034d69506e03d4def4e3a30d52a6a18ef9cadfe61ac04ed5786b073",
+      "audio_manifest_bytes": 1672097,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoni",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zf_xiaoni.json",
+        "bytes": 60306,
+        "sha256": "9a38d3f51210d7e4d2b1639382349aa96daa7dc3d3a48c55baea23bd3f843fd6"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zf_xiaoni.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "e71a85f26f8e5d26675188818514b8cc8110361a8bc119cc3c8f35eca8f18b7f",
+      "audio_manifest_bytes": 1456911,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoxiao",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zf_xiaoxiao.json",
+        "bytes": 60203,
+        "sha256": "9072de7de21a2ee94eaa88e34d15e42bf9c28557d16cc68ee6a098f7ef424034"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zf_xiaoxiao.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "c161e8302971c176aab7d7c053ba478e9561ae41c197f2c9bac0a04655026470",
+      "audio_manifest_bytes": 1444206,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoyi",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zf_xiaoyi.json",
+        "bytes": 60509,
+        "sha256": "d1bc5a6de15f1c950ed6a39e87e3c53def16d2120d7825bb5ede4547122ddd16"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zf_xiaoyi.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "3889442c5f2e08d1ab6550f2ee2b61ff575b833c14ab533aca0443cf72acf21f",
+      "audio_manifest_bytes": 1401152,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunjian",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zm_yunjian.json",
+        "bytes": 60166,
+        "sha256": "7a917d8b94673a326ca5a3ad1e931f553767983a779d31b0f5381de2c4a65e06"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zm_yunjian.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "cbeab6d6941895e14a490a2e88f9f3e05fbeddfa30b981c5e7200798af997212",
+      "audio_manifest_bytes": 1379904,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxi",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zm_yunxi.json",
+        "bytes": 60139,
+        "sha256": "b173fd063b24827a733359c89fd4081e0a27a8033bd1dae9f2662450bbf8aa1a"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zm_yunxi.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "6e1ebc713b2e7a7e08850c0889378f03edb8f21277647a60f7a3ebcfe2ff7b2a",
+      "audio_manifest_bytes": 1320633,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxia",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zm_yunxia.json",
+        "bytes": 60352,
+        "sha256": "e5be5b4286d434a8c5629205270a5fcb027574fd32788d795feeef7f8826d371"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zm_yunxia.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "5ff2c54d6884b489775abd42b938a22fed013e68d6b881338656f2d803f21ca5",
+      "audio_manifest_bytes": 1502496,
+      "owning_qa_audio_sha_matches": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunyang",
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/zh-CN/zm_yunyang.json",
+        "bytes": 60353,
+        "sha256": "31b6ffcf24cc7fae4a2f4be27e2798c3ffc87f63eb04fcad96ba0a38a6c7e8ce"
+      },
+      "historical_sidecar": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio/zh-CN/zm_yunyang.json",
+      "historical_sidecar_bytes_identical": true,
+      "audio_manifest_sha256": "0f8e8fcb5aadea6f0558c30bad62d48a486b9b21b4ac4561607d194f044a2cd3",
+      "audio_manifest_bytes": 1309328,
+      "owning_qa_audio_sha_matches": true
+    }
+  ],
+  "default_audio": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_heart.m4a",
+    "bytes": 1705701,
+    "sha256": "8dc31a4b1fb3255b47ab50fd0a4d3be075ffec775b632dad8f103a6e092b1669"
+  },
+  "default_sidecar": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_heart.json",
+    "bytes": 74121,
+    "sha256": "a956c09ed15c5866f1ddf446dbcf729f5b40a137cfb87786c228b138ca854266"
+  },
+  "default_full_decode_finite": true,
+  "default_decoded_samples": 6582272,
+  "default_decoded_duration": 274.2613333333333,
+  "default_metadata_duration": 274.23,
+  "default_utterances_checked": [
+    {
+      "scene": 1,
+      "sentence": 1,
+      "text": "Choose one installation route.",
+      "speech_text": "Choose one installation route.",
+      "phonemes": "ʧˈuz wˈʌn ˌɪnztəlˈAʃən ɹˈut.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/14d56c551c81fbde2ecb975b3addf971c44f816e4b8d9b9466fcf343b8b4a551.json",
+        "bytes": 1796,
+        "sha256": "a93bcb1019be5d1723e39ea1ef9df6ba10ee0126e56d899f73457b0c6f58a492"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/14d56c551c81fbde2ecb975b3addf971c44f816e4b8d9b9466fcf343b8b4a551.npy",
+        "bytes": 213728,
+        "sha256": "7bf2f24f39ad404f9267bec4bbdc18ad78f3f14755eb38df93261c1946606647"
+      },
+      "raw_samples": 53400,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 48240,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9931579211945684,
+      "tail700ms_cosine": 0.9965979196058101,
+      "whole_utterance_cosine": 0.991729683699897
+    },
+    {
+      "scene": 1,
+      "sentence": 2,
+      "text": "Pip installs spaCR inside either a Python virtual environment or a Conda environment.",
+      "speech_text": "Pip installs spacer inside either a Python virtual environment or a Conda environment.",
+      "phonemes": "pˈɪp ɪnstˈɔlz spˈAsəɹ ɪnsˈId ˈiðəɹ ɐ pˈIθˌɑn vˈɜɹʧəwəl ənvˈIɹənmᵊnt ɔɹ ɐ kˈɑndə ənvˈIɹənmᵊnt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/8546eb80c847f713bc498bdbb57b2abad5f7647d762d393b381c67a942b431d2.json",
+        "bytes": 1949,
+        "sha256": "14e626a45202d42012c06d945ced98e077b5aa6fab8459ff4ad18552bf1159e7"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/8546eb80c847f713bc498bdbb57b2abad5f7647d762d393b381c67a942b431d2.npy",
+        "bytes": 583328,
+        "sha256": "87d59be82a2eb305dc7cffc6af3febcc7c9eb0949977c962deef73ef2a6cd574"
+      },
+      "raw_samples": 145800,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 138960,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9874445764687719,
+      "tail700ms_cosine": 0.9864205182167933,
+      "whole_utterance_cosine": 0.9900038106113559
+    },
+    {
+      "scene": 1,
+      "sentence": 3,
+      "text": "Conda-forge installs into a Conda environment; it cannot install packages into a Python virtual environment.",
+      "speech_text": "Conda Forge installs into a Conda environment; it cannot install packages into a Python virtual environment.",
+      "phonemes": "kˈɑndə fˈɔɹʤ ɪnstˈɔlz ˈɪntu ɐ kˈɑndə ənvˈIɹənmᵊnt; ɪt kənˈɑt ɪnstˈɔl pˈækɪʤᵻz ˈɪntu ɐ pˈIθˌɑn vˈɜɹʧəwəl ənvˈIɹənmᵊnt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/409e92a7075ca44b815df0910a6f266651b24b5c1f2e046d10bd9eafe1dc24a1.json",
+        "bytes": 2006,
+        "sha256": "6cbd798d2319c10558f469c40602ac9439f94e52ed04971d1715d5377abdd0fb"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/409e92a7075ca44b815df0910a6f266651b24b5c1f2e046d10bd9eafe1dc24a1.npy",
+        "bytes": 753728,
+        "sha256": "c18518a865746c5b23ddcb1aa82c83e782caf002259d1f7338c94a452d34b39d"
+      },
+      "raw_samples": 188400,
+      "trim_start_samples": 4440,
+      "trim_end_samples": 181440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.995751821838759,
+      "tail700ms_cosine": 0.9866399853217988,
+      "whole_utterance_cosine": 0.9896782607643094
+    },
+    {
+      "scene": 1,
+      "sentence": 4,
+      "text": "The three routes below are alternatives, so you need only one.",
+      "speech_text": "The three routes below are alternatives, so you need only one.",
+      "phonemes": "ðə θɹˈi ɹˈuts bəlˈO ɑɹ ɔltˈɜɹnəTɪvz, sˌO ju nˈid ˈOnli wˈʌn.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/c92a55f384c9c8c9e153a81e0e49ca262420231145be3efd5661b2c5ee8e4bdb.json",
+        "bytes": 1870,
+        "sha256": "523cb01babb9821f27dc36ae7c4472a967cb5cf84e5ee47ca9e1b3a83745f7d0"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/c92a55f384c9c8c9e153a81e0e49ca262420231145be3efd5661b2c5ee8e4bdb.npy",
+        "bytes": 372128,
+        "sha256": "1e7bdf6fa98410b8f6df6bb398ac6a6b9747fe1a8d902237e6ec870a644ab3b6"
+      },
+      "raw_samples": 93000,
+      "trim_start_samples": 5160,
+      "trim_end_samples": 86160,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9955612036444381,
+      "tail700ms_cosine": 0.9990506324597425,
+      "whole_utterance_cosine": 0.9914056940256025
+    },
+    {
+      "scene": 2,
+      "sentence": 1,
+      "text": "For pip with a virtual environment, create a dedicated folder and run Python three point twelve with dash m venv to create dot venv.",
+      "speech_text": "For pip with a virtual environment, create a dedicated folder and run Python three point twelve with dash m venv to create dot venv.",
+      "phonemes": "fˌɔɹ pˈɪp wɪð ɐ vˈɜɹʧəwəl ənvˈIɹənmᵊnt, kɹiˈAt ɐ dˈɛdəkˌATᵻd fˈOldəɹ ænd ɹˈʌn pˈIθˌɑn θɹˈi pˈYnt twˈɛlv wɪð dˈæʃ ˈɛm vˈɛnv tə kɹiˈAt dˈɑt vˈɛnv.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b3aa43f6dec88c8881c2479412111bf540de339ef58dd66e5f8ab8b6d8f22027.json",
+        "bytes": 2065,
+        "sha256": "c76839cdb2101f4bd053a7265276ad6f3b03cdaf21c3ac90ce6ab1fcdde3e02b"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b3aa43f6dec88c8881c2479412111bf540de339ef58dd66e5f8ab8b6d8f22027.npy",
+        "bytes": 897728,
+        "sha256": "0b8350520f91404b94da3f2be73bc86bf32036d9420e0f1932c6404c3d2b3076"
+      },
+      "raw_samples": 224400,
+      "trim_start_samples": 4200,
+      "trim_end_samples": 217440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9943228138177005,
+      "tail700ms_cosine": 0.9932924426269827,
+      "whole_utterance_cosine": 0.9844265351323372
+    },
+    {
+      "scene": 2,
+      "sentence": 2,
+      "text": "Use a different folder if it already contains an environment.",
+      "speech_text": "Use a different folder if it already contains an environment.",
+      "phonemes": "jˈuz ɐ dˈɪfəɹənt fˈOldəɹ ɪf ɪt ˌɔlɹˈɛdi kəntˈAnz ɐn ənvˈIɹənmᵊnt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/1342c531935a841a98a492448c1fa13d31a46ee975c8e46e8d0bc6a2855bb0c0.json",
+        "bytes": 1878,
+        "sha256": "32323d299af3bae3fbfcfbe968a3eb7c0dbb594c32a7bf1fbc38d2c60bc6ca5f"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/1342c531935a841a98a492448c1fa13d31a46ee975c8e46e8d0bc6a2855bb0c0.npy",
+        "bytes": 376928,
+        "sha256": "f246b44d4565eec69b0892143d0fe01e461b28c5e3022433616317c7457ce63d"
+      },
+      "raw_samples": 94200,
+      "trim_start_samples": 5160,
+      "trim_end_samples": 88200,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9918986336414318,
+      "tail700ms_cosine": 0.9832919662325489,
+      "whole_utterance_cosine": 0.9788987587650109
+    },
+    {
+      "scene": 3,
+      "sentence": 1,
+      "text": "Activate dot venv before every install, update or launch.",
+      "speech_text": "Activate dot venv before every install, update or launch.",
+      "phonemes": "ˈæktəvˌAt dˈɑt vˈɛnv bəfˈɔɹ ˈɛvəɹi ɪnstˈɔl, ˈʌpdˌAt ɔɹ lˈɔnʧ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/af0b0637edd1282c3f41cbaab26ed043be08d924020fc8656736ce410f1209be.json",
+        "bytes": 1872,
+        "sha256": "625d85dcfa1934209375de671bb3279a64f88eacf9e6f6aa1bc18cf95b252847"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/af0b0637edd1282c3f41cbaab26ed043be08d924020fc8656736ce410f1209be.npy",
+        "bytes": 415328,
+        "sha256": "ee2cc49915b156c0ef0c801b5af2e799824b2a9048bd1141ba44cb9b6888f51c"
+      },
+      "raw_samples": 103800,
+      "trim_start_samples": 5400,
+      "trim_end_samples": 97440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9662168488416775,
+      "tail700ms_cosine": 0.9938394822705121,
+      "whole_utterance_cosine": 0.9815678855820901
+    },
+    {
+      "scene": 3,
+      "sentence": 2,
+      "text": "On Linux and macOS, source its bin slash activate script.",
+      "speech_text": "On Linux and [macOS](/mˈækOˌɛs/), source its bin slash activate script.",
+      "phonemes": "ˌɔn lˈɪnəks ænd mˈækOˌɛs, sˈɔɹs ɪts bˈɪn slˈæʃ ˈæktəvˌAt skɹˈɪpt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/9749fda7516c37fc819fefc6cf59b18fb8de031973928b61061353e1f8e8fdf9.json",
+        "bytes": 1893,
+        "sha256": "2ace24a14f01cb9bfc4e02e9fd5a7e80791ad1cd7f713d555ecf7044ad642b34"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/9749fda7516c37fc819fefc6cf59b18fb8de031973928b61061353e1f8e8fdf9.npy",
+        "bytes": 412928,
+        "sha256": "012d6d0fcc40a6d1ef4373bbba69db7ee3898148903ce0f9ca45ebb6fbf37ed1"
+      },
+      "raw_samples": 103200,
+      "trim_start_samples": 5400,
+      "trim_end_samples": 96840,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9927543845029931,
+      "tail700ms_cosine": 0.9847160406964136,
+      "whole_utterance_cosine": 0.9885210358520119
+    },
+    {
+      "scene": 3,
+      "sentence": 3,
+      "text": "In Windows PowerShell, run dot venv backslash Scripts backslash Activate dot ps one.",
+      "speech_text": "In Windows PowerShell, run dot venv backslash Scripts backslash Activate dot ps one.",
+      "phonemes": "ɪn wˈɪndOz pˈWəɹʃˌɛl, ɹˈʌn dˈɑt vˈɛnv bˈækslˌæʃ skɹˈɪpts bˈækslˌæʃ ˈæktəvˌAt dˈɑt pˌiˈɛs wˈʌn.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b3d7b2522143b3ea829fb35cd194e4ee3c014c5c9d531504d38632142c968592.json",
+        "bytes": 1945,
+        "sha256": "074809d424e9827ef6e7d565b8cc6ce6e9205b73956c8a72631827ba50f035bf"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b3d7b2522143b3ea829fb35cd194e4ee3c014c5c9d531504d38632142c968592.npy",
+        "bytes": 588128,
+        "sha256": "cd727ec1ec8a18d1bbabca8e3b21460ecba4706ae1dfe13b9287f4c8ced6d736"
+      },
+      "raw_samples": 147000,
+      "trim_start_samples": 5400,
+      "trim_end_samples": 140040,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9977263150856093,
+      "tail700ms_cosine": 0.9866799850373985,
+      "whole_utterance_cosine": 0.9870435559610743
+    },
+    {
+      "scene": 3,
+      "sentence": 4,
+      "text": "The environment prompt and Python path confirm which interpreter you are using.",
+      "speech_text": "The environment prompt and Python path confirm which interpreter you are using.",
+      "phonemes": "ði ənvˈIɹənmᵊnt pɹˈɑmpt ænd pˈIθˌɑn pˈæθ kənfˈɜɹm wˌɪʧ ɪntˈɜɹpɹəTəɹ ju ɑɹ jˈuzɪŋ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b2830330b8cd1d1e6cb4bec03764f60d8fb66f6331d6e9a14c6586effc7ae4e7.json",
+        "bytes": 1925,
+        "sha256": "4310bac31ff480b7968515312c6d319a2975ac40a4ab8918a738f391d4d6d519"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b2830330b8cd1d1e6cb4bec03764f60d8fb66f6331d6e9a14c6586effc7ae4e7.npy",
+        "bytes": 499328,
+        "sha256": "1e3d70776952c2507513e306767521f55a95a00f0a8566749f8ea028c4f180ba"
+      },
+      "raw_samples": 124800,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 117360,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9854906712817754,
+      "tail700ms_cosine": 0.9770278306615615,
+      "whole_utterance_cosine": 0.9880178630231212
+    },
+    {
+      "scene": 4,
+      "sentence": 1,
+      "text": "With the environment active, upgrade pip, then run pip install spacr.",
+      "speech_text": "With the environment active, upgrade pip, then run pip install spacer.",
+      "phonemes": "wˌɪð ði ənvˈIɹənmᵊnt ˈæktɪv, ˈʌpɡɹˌAd pˈɪp, ðˈɛn ɹˈʌn pˈɪp ɪnstˈɔl spˈAsəɹ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/52d6577e2795ed5947970259461db47f8d658466985454b4537e6a242910e20f.json",
+        "bytes": 1906,
+        "sha256": "e1734f140cfaef7eb6b89c26d5f046cc5bdd06d41a61b08d247601b90d069a1a"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/52d6577e2795ed5947970259461db47f8d658466985454b4537e6a242910e20f.npy",
+        "bytes": 470528,
+        "sha256": "90361e26e5487d45e40a9c146188c2fbc8b8a7e3abc00b47ed898bd1b08d2b98"
+      },
+      "raw_samples": 117600,
+      "trim_start_samples": 4800,
+      "trim_end_samples": 111360,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9781860044444483,
+      "tail700ms_cosine": 0.9759026694640678,
+      "whole_utterance_cosine": 0.9784011337907335
+    },
+    {
+      "scene": 4,
+      "sentence": 2,
+      "text": "The package installation includes the Qt dependencies used by the desktop application.",
+      "speech_text": "The package installation includes the Q T dependencies used by the desktop application.",
+      "phonemes": "ðə pˈækɪʤ ˌɪnztəlˈAʃən ɪnklˈudz ðə kjˈu tˈi dəpˈɛndᵊnsiz jˈuzd bI ðə dˈɛsktˌɑp ˌæpləkˈAʃən.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/c67b82179e765f52ef697a1fecee721ac98b8f8760dc9f73a17e8de46f93247a.json",
+        "bytes": 1941,
+        "sha256": "bb01f33baf6b0dd2ffeb2b39ade5f5c8e03d79917b349b835c3443cd3681807e"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/c67b82179e765f52ef697a1fecee721ac98b8f8760dc9f73a17e8de46f93247a.npy",
+        "bytes": 626528,
+        "sha256": "c12ea3d1d32c37ff1e931a9efdbfb099050e46654ed6fdfba5bf3bc185b671d5"
+      },
+      "raw_samples": 156600,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 149640,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9571166647493082,
+      "tail700ms_cosine": 0.9861346211600359,
+      "whole_utterance_cosine": 0.9813184719475655
+    },
+    {
+      "scene": 4,
+      "sentence": 3,
+      "text": "Wait for the scientific and desktop dependencies to finish installing.",
+      "speech_text": "Wait for the scientific and desktop dependencies to finish installing.",
+      "phonemes": "wˈAt fɔɹ ðə sˌIəntˈɪfɪk ænd dˈɛsktˌɑp dəpˈɛndᵊnsiz tə fˈɪnəʃ ɪnstˈɔlɪŋ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/60ac82b6a41ffaf27931f6f566db1996977213ab2b15fc39c3a792e404fd138f.json",
+        "bytes": 1898,
+        "sha256": "94bf458cf576c662e0b4d79f303178dce7494cd4a080e6a99865823eeed62ee4"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/60ac82b6a41ffaf27931f6f566db1996977213ab2b15fc39c3a792e404fd138f.npy",
+        "bytes": 460928,
+        "sha256": "fa4bc38136050e87bddcba7303466096196d62f4081d628937b34605d1830564"
+      },
+      "raw_samples": 115200,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 108240,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9743714682715315,
+      "tail700ms_cosine": 0.9861551861997929,
+      "whole_utterance_cosine": 0.9808120341588933
+    },
+    {
+      "scene": 5,
+      "sentence": 1,
+      "text": "Check the installed version and package path, then run python dash m pip check.",
+      "speech_text": "Check the installed version and package path, then run python dash m pip check.",
+      "phonemes": "ʧˈɛk ði ɪnstˈɔld vˈɜɹʒən ænd pˈækɪʤ pˈæθ, ðˈɛn ɹˈʌn pˈIθˌɑn dˈæʃ ˈɛm pˈɪp ʧˈɛk.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/78a294695ffa4adec8ec5244dd700d7290a2701686e2a9de9201d7ad73420ae0.json",
+        "bytes": 1925,
+        "sha256": "6d7b282086b19f4ad08752bed03d071b4c95a18ec937f3082e439ee8e76ce709"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/78a294695ffa4adec8ec5244dd700d7290a2701686e2a9de9201d7ad73420ae0.npy",
+        "bytes": 511328,
+        "sha256": "acb6216ad53da1acb07453017d5e96d92d7330f9d9e0c9f44f0b8c69042d17f4"
+      },
+      "raw_samples": 127800,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 122040,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9876938367719973,
+      "tail700ms_cosine": 0.9877110103277573,
+      "whole_utterance_cosine": 0.9853282039030359
+    },
+    {
+      "scene": 5,
+      "sentence": 2,
+      "text": "Keep the version with your analysis notes.",
+      "speech_text": "Keep the version with your analysis notes.",
+      "phonemes": "kˈip ðə vˈɜɹʒən wɪð jʊɹ ənˈæləsɪs nˈOts.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/04b55465a915d3b160548a8f97890c9273f54e59a6e786df02dd168be3e89dc0.json",
+        "bytes": 1826,
+        "sha256": "35dac22c14fdfd8c24304a4622cb648cac55f22ee72e169f4c69862ecc04290a"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/04b55465a915d3b160548a8f97890c9273f54e59a6e786df02dd168be3e89dc0.npy",
+        "bytes": 268928,
+        "sha256": "525e0461373b2af897d1cdccd177c952125d23ad4964c1ac28b7365b59861e61"
+      },
+      "raw_samples": 67200,
+      "trim_start_samples": 4560,
+      "trim_end_samples": 61440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.986430232112661,
+      "tail700ms_cosine": 0.9832963246884521,
+      "whole_utterance_cosine": 0.98324152341483
+    },
+    {
+      "scene": 5,
+      "sentence": 3,
+      "text": "This route installs the published PyPI package; a source checkout or nightly build can have newer interface features.",
+      "speech_text": "This route installs the published [pype](/pˈIp/) package; a source checkout or nightly build can have newer interface features.",
+      "phonemes": "ðˌɪs ɹˈut ɪnstˈɔlz ðə pˈʌblɪʃt pˈIp pˈækɪʤ; ɐ sˈɔɹs ʧˈɛkˌWt ɔɹ nˈItli bˈɪld kæn hæv nˈuəɹ ˈɪntəɹfˌAs fˈiʧəɹz.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/8708ac8f59c81b895a5dd6d3487d8e4221447cd8a66a1225daeb86cf4439f0c2.json",
+        "bytes": 2010,
+        "sha256": "ef2af7223cc6750cd02ee135ff2982e4be7be5585685d394916280f1af72588a"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/8708ac8f59c81b895a5dd6d3487d8e4221447cd8a66a1225daeb86cf4439f0c2.npy",
+        "bytes": 698528,
+        "sha256": "f265c8797be5f78ba40ebcce193d3c16ed34bf01ca9f936736dcbfcccf4628bc"
+      },
+      "raw_samples": 174600,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 168240,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9907115428889818,
+      "tail700ms_cosine": 0.9882077677178324,
+      "whole_utterance_cosine": 0.9831614503366617
+    },
+    {
+      "scene": 6,
+      "sentence": 1,
+      "text": "Run spacr-doctor and follow any missing-dependency guidance relevant to your work.",
+      "speech_text": "Run spacer doctor and follow any missing-dependency guidance relevant to your work.",
+      "phonemes": "ɹˈʌn spˈAsəɹ dˈɑktəɹ ænd fˈɑlO ˈɛni mˌɪsɪŋdəpˈɛndᵊnsi ɡˈIdəns ɹˈɛləvᵊnt tə jʊɹ wˈɜɹk.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/794f7e84d3afc567bc231452187c494cf8d90a6febc6161dea8ee6f68ad0b930.json",
+        "bytes": 1934,
+        "sha256": "a35b1691477c9e4d32d5d1031b58963d11931b96aab01e90f6aadd15344440d4"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/794f7e84d3afc567bc231452187c494cf8d90a6febc6161dea8ee6f68ad0b930.npy",
+        "bytes": 552128,
+        "sha256": "3c1ff0c0aceb7eeb772bbe0f6d3197aa1ef9a1e6cf4665aa1734dd612debb0f5"
+      },
+      "raw_samples": 138000,
+      "trim_start_samples": 5280,
+      "trim_end_samples": 131760,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9841755311012979,
+      "tail700ms_cosine": 0.9989899336827982,
+      "whole_utterance_cosine": 0.9749061270835213
+    },
+    {
+      "scene": 6,
+      "sentence": 2,
+      "text": "Then enter spacr to launch the installed application.",
+      "speech_text": "Then enter spacer to launch the installed application.",
+      "phonemes": "ðˈɛn ˈɛntəɹ spˈAsəɹ tə lˈɔnʧ ði ɪnstˈɔld ˌæpləkˈAʃən.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/bdc89933cdfeacd0509b6ab85c56f4a28a49fc454f6066b9d1805a15135fc969.json",
+        "bytes": 1857,
+        "sha256": "57c294984612800acab87c35841f9a84158176b25392f0d8fda489d24abc4154"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/bdc89933cdfeacd0509b6ab85c56f4a28a49fc454f6066b9d1805a15135fc969.npy",
+        "bytes": 369728,
+        "sha256": "c7399ab783d80b677e6ea059383685e09766f254f882f3d1e2839e0f57292c9a"
+      },
+      "raw_samples": 92400,
+      "trim_start_samples": 5280,
+      "trim_end_samples": 85680,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9850353322703074,
+      "tail700ms_cosine": 0.9945806885945646,
+      "whole_utterance_cosine": 0.9878613865516328
+    },
+    {
+      "scene": 6,
+      "sentence": 3,
+      "text": "Close the application before changing its environment.",
+      "speech_text": "Close the application before changing its environment.",
+      "phonemes": "klˈOz ði ˌæpləkˈAʃən bəfˈɔɹ ʧˈAnʤɪŋ ɪts ənvˈIɹənmᵊnt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/430dfb68d5e109d44dd2d8f9cc04107cfc1cb069b16d4715ab2a16ae87241edb.json",
+        "bytes": 1857,
+        "sha256": "596b0416b08a743ab5b7496d71065f518003da19a798a8c1c1969a68d36c921b"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/430dfb68d5e109d44dd2d8f9cc04107cfc1cb069b16d4715ab2a16ae87241edb.npy",
+        "bytes": 357728,
+        "sha256": "a241e81db7decbf7dfd96ba42f12b795fc0cc88b9bd6e5aed6f33c3daa716d26"
+      },
+      "raw_samples": 89400,
+      "trim_start_samples": 4920,
+      "trim_end_samples": 83160,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9619600335237743,
+      "tail700ms_cosine": 0.9852601941189046,
+      "whole_utterance_cosine": 0.9754524994881405
+    },
+    {
+      "scene": 7,
+      "sentence": 1,
+      "text": "For pip inside Conda, create an environment named spacr-pip with Python three point twelve and pip, then activate it.",
+      "speech_text": "For pip inside Conda, create an environment named spacer-pip with Python three point twelve and pip, then activate it.",
+      "phonemes": "fˌɔɹ pˈɪp ɪnsˈId kˈɑndə, kɹiˈAt ɐn ənvˈIɹənmᵊnt nˈAmd spˈAsəɹpˌɪp wɪð pˈIθˌɑn θɹˈi pˈYnt twˈɛlv ænd pˈɪp, ðˈɛn ˈæktəvˌAt ɪt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/02b48c9dc00354c9c40f71a0eeb0a3bd0a49b40a4004b1e31c6f08195fc541d2.json",
+        "bytes": 2017,
+        "sha256": "2a5d80268371b0ea4c1420c02e695ee1cfd667daccdc7d6805a1b645587f1751"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/02b48c9dc00354c9c40f71a0eeb0a3bd0a49b40a4004b1e31c6f08195fc541d2.npy",
+        "bytes": 765728,
+        "sha256": "3ad329a8c1d3601c2a0ae8b40182a728e2b408f5b19a2fd09be988651742b220"
+      },
+      "raw_samples": 191400,
+      "trim_start_samples": 3960,
+      "trim_end_samples": 184800,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9869299161140709,
+      "tail700ms_cosine": 0.9914555652403451,
+      "whole_utterance_cosine": 0.9800502452074928
+    },
+    {
+      "scene": 7,
+      "sentence": 2,
+      "text": "Conda supplies the interpreter; pip will supply spaCR.",
+      "speech_text": "Conda supplies the interpreter; pip will supply spacer.",
+      "phonemes": "kˈɑndə səplˈIz ði ɪntˈɜɹpɹəTəɹ; pˈɪp wɪl səplˈI spˈAsəɹ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b0fc3bfb11f44cea7ac5c26bb14a2484a5dd29b85d27d250c0876546ca27239a.json",
+        "bytes": 1859,
+        "sha256": "f5a162a2d2f6e13c5f476265aabc5aaabca87714d0632280d6461b4884711632"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b0fc3bfb11f44cea7ac5c26bb14a2484a5dd29b85d27d250c0876546ca27239a.npy",
+        "bytes": 367328,
+        "sha256": "b83285420c5fb19071ef19cb5b9c760427ef872cf431cd6045543516a8335607"
+      },
+      "raw_samples": 91800,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 85560,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9919564263363796,
+      "tail700ms_cosine": 0.9879444022275077,
+      "whole_utterance_cosine": 0.9888516745685625
+    },
+    {
+      "scene": 7,
+      "sentence": 3,
+      "text": "Choose a distinct name if spacr-pip already exists.",
+      "speech_text": "Choose a distinct name if spacer-pip already exists.",
+      "phonemes": "ʧˈuz ɐ dəstˈɪŋkt nˈAm ɪf spˈAsəɹpˌɪp ˌɔlɹˈɛdi ɪɡzˈɪsts.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/99ffc7932bb2c6d2899318df698720b84b1292b9b85eb34248618e50ca38c072.json",
+        "bytes": 1856,
+        "sha256": "076c4bd7081546cbb40626509c3f27390a4d6569a7aeb7613302af5441c291a9"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/99ffc7932bb2c6d2899318df698720b84b1292b9b85eb34248618e50ca38c072.npy",
+        "bytes": 360128,
+        "sha256": "3ac115354f6853bb67ca2fb7a63b602341d8fa77da1494ba9b56efaa2b75fb76"
+      },
+      "raw_samples": 90000,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 83880,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9950740398352268,
+      "tail700ms_cosine": 0.9787973457040475,
+      "whole_utterance_cosine": 0.9893406115155297
+    },
+    {
+      "scene": 8,
+      "sentence": 1,
+      "text": "With spacr-pip active, upgrade pip and run pip install spacr.",
+      "speech_text": "With spacer-pip active, upgrade pip and run pip install spacer.",
+      "phonemes": "wˌɪð spˈAsəɹpˌɪp ˈæktɪv, ˈʌpɡɹˌAd pˈɪp ænd ɹˈʌn pˈɪp ɪnstˈɔl spˈAsəɹ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/791d88e4b74c987bbc14cbc6ba7df22cf0cbb35d2b09b4271cc92064888dcee2.json",
+        "bytes": 1889,
+        "sha256": "3f8e8d7e5b7fd99506b763c56f339af20a4799cd3a214ba6de4ed12adbcf3f2a"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/791d88e4b74c987bbc14cbc6ba7df22cf0cbb35d2b09b4271cc92064888dcee2.npy",
+        "bytes": 434528,
+        "sha256": "203e562ee9cb14e3d68bb076cd78e07e34d795927c6832d8174e4aa0a8c5f5b3"
+      },
+      "raw_samples": 108600,
+      "trim_start_samples": 4800,
+      "trim_end_samples": 102120,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9849504923763072,
+      "tail700ms_cosine": 0.987147573196914,
+      "whole_utterance_cosine": 0.9732598123006312
+    },
+    {
+      "scene": 8,
+      "sentence": 2,
+      "text": "The package installation includes its Qt desktop dependencies.",
+      "speech_text": "The package installation includes its Q T desktop dependencies.",
+      "phonemes": "ðə pˈækɪʤ ˌɪnztəlˈAʃən ɪnklˈudz ɪts kjˈu tˈi dˈɛsktˌɑp dəpˈɛndᵊnsiz.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/f8546225f0748157a3f52a33a7e13da3e1409cf3b16a3c1525aa674e1fb9be45.json",
+        "bytes": 1884,
+        "sha256": "daafc781c234363fee4315ada58742dde41cced12e17dad8d0399f1dbbc74e95"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/f8546225f0748157a3f52a33a7e13da3e1409cf3b16a3c1525aa674e1fb9be45.npy",
+        "bytes": 451328,
+        "sha256": "e6f37d471e134eac8f3f19147cbdd2cd7fb5acd3ccdfdf121a73f48f9f6bf307"
+      },
+      "raw_samples": 112800,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 106440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9571564863986172,
+      "tail700ms_cosine": 0.9918383225567188,
+      "whole_utterance_cosine": 0.9787072567988548
+    },
+    {
+      "scene": 8,
+      "sentence": 3,
+      "text": "Check the package version and run pip check, just as in the virtual-environment route.",
+      "speech_text": "Check the package version and run pip check, just as in the virtual-environment route.",
+      "phonemes": "ʧˈɛk ðə pˈækɪʤ vˈɜɹʒən ænd ɹˈʌn pˈɪp ʧˈɛk, ʤˈʌst æz ɪn ðə vˌɜɹʧəwələnvˈIɹənmᵊnt ɹˈut.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/cddb85bfa5d45ba77e864b8ee1d6655ef0b9f5656ca9b03fb0f75e35eda893ab.json",
+        "bytes": 1942,
+        "sha256": "0b6e0d078a9aac75e478c50ee87e21145cd7b81016860d7d17f8dac26f7373de"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/cddb85bfa5d45ba77e864b8ee1d6655ef0b9f5656ca9b03fb0f75e35eda893ab.npy",
+        "bytes": 508928,
+        "sha256": "35251c627768a5cfdf8fcd3965b5dd66d387ae66a8c9a24414f2015763c3246d"
+      },
+      "raw_samples": 127200,
+      "trim_start_samples": 4560,
+      "trim_end_samples": 120840,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.986357861267412,
+      "tail700ms_cosine": 0.9976404104086883,
+      "whole_utterance_cosine": 0.9873100553792356
+    },
+    {
+      "scene": 8,
+      "sentence": 4,
+      "text": "Launch spacr from this same active environment.",
+      "speech_text": "Launch spacer from this same active environment.",
+      "phonemes": "lˈɔnʧ spˈAsəɹ fɹʌm ðɪs sˈAm ˈæktɪv ənvˈIɹənmᵊnt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/18295d4263aed415e3845ad062bc85cd3153160ddb2055e75a2fa2f1a90666f6.json",
+        "bytes": 1842,
+        "sha256": "a971011cbdaa275d14e75ac5038596cdf14d7909015c034d029cf0bf848b31f2"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/18295d4263aed415e3845ad062bc85cd3153160ddb2055e75a2fa2f1a90666f6.npy",
+        "bytes": 300128,
+        "sha256": "87e5b3962beb747330470756539a505d93fee7fecfe2c7d107a214f4611dd67a"
+      },
+      "raw_samples": 75000,
+      "trim_start_samples": 5280,
+      "trim_end_samples": 68640,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9934019054911502,
+      "tail700ms_cosine": 0.9936779597831392,
+      "whole_utterance_cosine": 0.9826046072032968
+    },
+    {
+      "scene": 9,
+      "sentence": 1,
+      "text": "For conda-forge, create a new environment named spacr-conda with Python three point twelve and spacr from the conda-forge channel in one command.",
+      "speech_text": "For Conda Forge, create a new environment named spacer-conda with Python three point twelve and spacer from the Conda Forge channel in one command.",
+      "phonemes": "fˌɔɹ kˈɑndə fˈɔɹʤ, kɹiˈAt ɐ nˈu ənvˈIɹənmᵊnt nˈAmd spˈAsəɹkˈɑndə wɪð pˈIθˌɑn θɹˈi pˈYnt twˈɛlv ænd spˈAsəɹ fɹʌm ðə kˈɑndə fˈɔɹʤ ʧˈænᵊl ɪn wˈʌn kəmˈænd.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/d58a5654045fc115e681dbe414e50cef1d824502c33065709998ac6859e08dd2.json",
+        "bytes": 2090,
+        "sha256": "5b3cea303f6ac72c5ec1d9d32e7c79494069bf50616c35313e3f00d377559486"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/d58a5654045fc115e681dbe414e50cef1d824502c33065709998ac6859e08dd2.npy",
+        "bytes": 960128,
+        "sha256": "8fe0169e6177a0e44b8b9aa0acbf1932580a3706d10951b2ff187df26d2fe3f4"
+      },
+      "raw_samples": 240000,
+      "trim_start_samples": 4080,
+      "trim_end_samples": 233160,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9959720013058504,
+      "tail700ms_cosine": 0.9952903794347825,
+      "whole_utterance_cosine": 0.9828802026436713
+    },
+    {
+      "scene": 9,
+      "sentence": 2,
+      "text": "Solving the interpreter and spaCR together avoids adding the package into an unrelated environment.",
+      "speech_text": "Solving the interpreter and spacer together avoids adding the package into an unrelated environment.",
+      "phonemes": "sˈɑlvɪŋ ði ɪntˈɜɹpɹəTəɹ ænd spˈAsəɹ təɡˈɛðəɹ əvˈYdz ˈædɪŋ ðə pˈækɪʤ ˈɪntu ɐn ˌʌnɹəlˈATᵻd ənvˈIɹənmᵊnt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/82cc653daf70b1fd5dcb659f79fb695354e244388cb2c661b32471d710a8c371.json",
+        "bytes": 1981,
+        "sha256": "39f27809ca6dd1c2af34c02c3671dd318d7131b5ad6882edee2e1f1ec283ccda"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/82cc653daf70b1fd5dcb659f79fb695354e244388cb2c661b32471d710a8c371.npy",
+        "bytes": 643328,
+        "sha256": "2a381d23624be1e618f35fb9d13b0ba325c71ceda8b08088710a8e8cbb01a0cf"
+      },
+      "raw_samples": 160800,
+      "trim_start_samples": 4440,
+      "trim_end_samples": 153960,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9723803242977239,
+      "tail700ms_cosine": 0.9964211530307248,
+      "whole_utterance_cosine": 0.974823887036535
+    },
+    {
+      "scene": 10,
+      "sentence": 1,
+      "text": "Conda shows its package plan before installing.",
+      "speech_text": "Conda shows its package plan before installing.",
+      "phonemes": "kˈɑndə ʃˈOz ɪts pˈækɪʤ plˈæn bəfˈɔɹ ɪnstˈɔlɪŋ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/ddb8d0faf0c7b9d946802b4c5cbcdc322398488fc54e3442ccbd94b63d9f31e4.json",
+        "bytes": 1840,
+        "sha256": "e00c8dc9598cb09bb08cb7391919290be64fa0cb96bdc82ca934e0cfba85f63f"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/ddb8d0faf0c7b9d946802b4c5cbcdc322398488fc54e3442ccbd94b63d9f31e4.npy",
+        "bytes": 312128,
+        "sha256": "ff6254a0cfbfe213ff7c7f1bf4e9110986f18ae54f9fa7ba48c01566cb40a188"
+      },
+      "raw_samples": 78000,
+      "trim_start_samples": 4920,
+      "trim_end_samples": 71160,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9928832966755448,
+      "tail700ms_cosine": 0.9885722219327117,
+      "whole_utterance_cosine": 0.9931852349216631
+    },
+    {
+      "scene": 10,
+      "sentence": 2,
+      "text": "Review it, accept the plan and let the downloads and installation finish.",
+      "speech_text": "Review it, accept the plan and let the downloads and installation finish.",
+      "phonemes": "ɹəvjˈu ɪt, əksˈɛpt ðə plˈæn ænd lˈɛt ðə dˈWnlˌOdz ænd ˌɪnztəlˈAʃən fˈɪnəʃ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/519aecbfcfbca70492b4aa671d8aac055ace7b233bd584cad13631c6961d2021.json",
+        "bytes": 1903,
+        "sha256": "80e756224c3c17cea6e2b574fab944607d1322710283036df8a961be47926780"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/519aecbfcfbca70492b4aa671d8aac055ace7b233bd584cad13631c6961d2021.npy",
+        "bytes": 463328,
+        "sha256": "e24c4628f546daf3858660130efa0f5fd6dc5eeef5567d2640abc5e120c61420"
+      },
+      "raw_samples": 115800,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 109440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9951719124107425,
+      "tail700ms_cosine": 0.9886213216100327,
+      "whole_utterance_cosine": 0.9840303152200595
+    },
+    {
+      "scene": 10,
+      "sentence": 3,
+      "text": "The available conda-forge release may differ from the latest PyPI or nightly version.",
+      "speech_text": "The available Conda Forge release may differ from the latest [pype](/pˈIp/) or nightly version.",
+      "phonemes": "ði əvˈAləbᵊl kˈɑndə fˈɔɹʤ ɹəlˈis mˈA dˈɪfəɹ fɹʌm ðə lˈATᵻst pˈIp ɔɹ nˈItli vˈɜɹʒən.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/adddafbfecd04f5064b6faf020f13eaf0aeca6f30fdcca32645d0ec397d5697c.json",
+        "bytes": 1943,
+        "sha256": "85d50a715e3ec9f7493fb6682f487396dc751bc340132625a835c6a0e0a114ca"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/adddafbfecd04f5064b6faf020f13eaf0aeca6f30fdcca32645d0ec397d5697c.npy",
+        "bytes": 528128,
+        "sha256": "ced77571d5c889ae0adcdb593998e3dd7e71999d17122e8e3bb1ea71028e5186"
+      },
+      "raw_samples": 132000,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 125040,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9926125372013506,
+      "tail700ms_cosine": 0.9916455904042007,
+      "whole_utterance_cosine": 0.9916419837949688
+    },
+    {
+      "scene": 11,
+      "sentence": 1,
+      "text": "Activate spacr-conda.",
+      "speech_text": "Activate spacer-conda.",
+      "phonemes": "ˈæktəvˌAt spˈAsəɹkˈɑndə.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/a20fe9c12458f2549434316f7dcf7bd4b222d10ceb9a912d1fbea787e05f0206.json",
+        "bytes": 1782,
+        "sha256": "17099483e53bb446b34e8ef50f8f7e7ca8d70406e611c67ad663baa38ddef6b9"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/a20fe9c12458f2549434316f7dcf7bd4b222d10ceb9a912d1fbea787e05f0206.npy",
+        "bytes": 204128,
+        "sha256": "906e61cfae97d15178b2b968bd3dc9bd74d8dc08d686ddc43a5d9f3af62ded00"
+      },
+      "raw_samples": 51000,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 45120,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9607577382772926,
+      "tail700ms_cosine": 0.9989373530652087,
+      "whole_utterance_cosine": 0.9654876868884459
+    },
+    {
+      "scene": 11,
+      "sentence": 2,
+      "text": "Check the Python environment path and run conda list spacr to confirm the installed version and channel.",
+      "speech_text": "Check the Python environment path and run conda list spacer to confirm the installed version and channel.",
+      "phonemes": "ʧˈɛk ðə pˈIθˌɑn ənvˈIɹənmᵊnt pˈæθ ænd ɹˈʌn kˈɑndə lˈɪst spˈAsəɹ tə kənfˈɜɹm ði ɪnstˈɔld vˈɜɹʒən ænd ʧˈænᵊl.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/ba71e35b12f8d92f686780d6cb3c0d760f8bf93e90c209634582f2e31e2c3f84.json",
+        "bytes": 1989,
+        "sha256": "ac21caa83e311f0a6d60e56b9122e85d953bcd0c95db025a2494b5169ce7d815"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/ba71e35b12f8d92f686780d6cb3c0d760f8bf93e90c209634582f2e31e2c3f84.npy",
+        "bytes": 684128,
+        "sha256": "c93fac78cc95a5efbee2a015c6084073e0871824cb7a94a7aac60eb4732bf0f1"
+      },
+      "raw_samples": 171000,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 163440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.995535766122369,
+      "tail700ms_cosine": 0.9934466465787523,
+      "whole_utterance_cosine": 0.9897106416114945
+    },
+    {
+      "scene": 11,
+      "sentence": 3,
+      "text": "Then run spacr-doctor and launch spacr from this environment.",
+      "speech_text": "Then run spacer doctor and launch spacer from this environment.",
+      "phonemes": "ðˈɛn ɹˈʌn spˈAsəɹ dˈɑktəɹ ænd lˈɔnʧ spˈAsəɹ fɹʌm ðɪs ənvˈIɹənmᵊnt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/004283cb8b315e46ce35ce352b17e16504da312a39aeb6210e089b8367dfbee1.json",
+        "bytes": 1886,
+        "sha256": "b68a46ba533746cc8e9893b5a1238a01684f39075504bac53ced90f85c9c097f"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/004283cb8b315e46ce35ce352b17e16504da312a39aeb6210e089b8367dfbee1.npy",
+        "bytes": 400928,
+        "sha256": "320be2cdf0fb7bf6cb14f55c290454a16335eacb8c33d1c9cd796f8b2a96ac2f"
+      },
+      "raw_samples": 100200,
+      "trim_start_samples": 4920,
+      "trim_end_samples": 93960,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9908273303993711,
+      "tail700ms_cosine": 0.9869683022375834,
+      "whole_utterance_cosine": 0.9893010121901896
+    },
+    {
+      "scene": 12,
+      "sentence": 1,
+      "text": "This companion shows the current nightly Home interface.",
+      "speech_text": "This companion shows the current nightly Home interface.",
+      "phonemes": "ðˌɪs kəmpˈænjən ʃˈOz ðə kˈɜɹənt nˈItli hˈOm ˈɪntəɹfˌAs.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/6c52581ac627b21a2b61b395e975d5aca2915ed32974dc378df5f7d6bc47d687.json",
+        "bytes": 1859,
+        "sha256": "414faaa46f02f7e0a3a3ca33d99243ffdef23d6b9db7203277964a6d02fe01f9"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/6c52581ac627b21a2b61b395e975d5aca2915ed32974dc378df5f7d6bc47d687.npy",
+        "bytes": 355328,
+        "sha256": "2158858ec16162099401ccb11d278882a8ba9236bb628f9e6c7b80ef9546f500"
+      },
+      "raw_samples": 88800,
+      "trim_start_samples": 5280,
+      "trim_end_samples": 82680,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.993139007226218,
+      "tail700ms_cosine": 0.9941154121070778,
+      "whole_utterance_cosine": 0.9925078848089357
+    },
+    {
+      "scene": 12,
+      "sentence": 2,
+      "text": "Your installed release may look different.",
+      "speech_text": "Your installed release may look different.",
+      "phonemes": "jˌʊɹ ɪnstˈɔld ɹəlˈis mˈA lˈʊk dˈɪfəɹənt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/51fbe3a4286a02e2682eab2140878fb4973274f884cbb09561d1ffa2fd72ca05.json",
+        "bytes": 1825,
+        "sha256": "26818514d6e5d5a6e62300ac47014b71b2f3e262b01bd8e68f4440badbc41e6c"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/51fbe3a4286a02e2682eab2140878fb4973274f884cbb09561d1ffa2fd72ca05.npy",
+        "bytes": 259328,
+        "sha256": "419a6a614cf530ca872c1802097d7c40950ec752d0dee7a6ce203a18a3b49f19"
+      },
+      "raw_samples": 64800,
+      "trim_start_samples": 4920,
+      "trim_end_samples": 58560,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9896858464940929,
+      "tail700ms_cosine": 0.9923991611152253,
+      "whole_utterance_cosine": 0.9901445226585501
+    },
+    {
+      "scene": 12,
+      "sentence": 3,
+      "text": "The environment commands install the published package from the selected channel; this current-source view does not claim that all nightly features are already published.",
+      "speech_text": "The environment commands install the published package from the selected channel; this current-source view does not claim that all nightly features are already published.",
+      "phonemes": "ði ənvˈIɹənmᵊnt kəmˈændz ɪnstˈɔl ðə pˈʌblɪʃt pˈækɪʤ fɹʌm ðə səlˈɛktᵻd ʧˈænᵊl; ðɪs kˈɜɹəntsˌɔɹs vjˈu dˈʌz nˌɑt klˈAm ðæt ˈɔl nˈItli fˈiʧəɹz ɑɹ ˌɔlɹˈɛdi pˈʌblɪʃt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/a8e0ae90da232669dc7083284fa090967a25bde71124a5a21ef24d035528b2bf.json",
+        "bytes": 2129,
+        "sha256": "45dceb59fb097a8e205c82860940f472d4ea6036a9bc17295df52ab8aa1f57a5"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/a8e0ae90da232669dc7083284fa090967a25bde71124a5a21ef24d035528b2bf.npy",
+        "bytes": 962528,
+        "sha256": "4d1d618a0208985b7b37a6c6c9ddec9d36bea9ae923c42cb461b4d9a1bf006c8"
+      },
+      "raw_samples": 240600,
+      "trim_start_samples": 5040,
+      "trim_end_samples": 234000,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9649206958490832,
+      "tail700ms_cosine": 0.9907081213749679,
+      "whole_utterance_cosine": 0.9767194955962879
+    },
+    {
+      "scene": 13,
+      "sentence": 1,
+      "text": "To update a pip installation, close spaCR, activate its environment and run pip install dash dash upgrade spacr.",
+      "speech_text": "To update a pip installation, close spacer, activate its environment and run pip install dash dash upgrade spacer.",
+      "phonemes": "tʊ ˈʌpdˌAt ɐ pˈɪp ˌɪnztəlˈAʃən, klˈOs spˈAsəɹ, ˈæktəvˌAt ɪts ənvˈIɹənmᵊnt ænd ɹˈʌn pˈɪp ɪnstˈɔl dˈæʃ dˈæʃ ˈʌpɡɹˌAd spˈAsəɹ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/15fafe0249cb6bd23a18d9b6155792907674c9a67308019316452416f0379388.json",
+        "bytes": 2015,
+        "sha256": "7cf3bcfa7bede5496b3f5902ca71e3da83b2e7437674fe22a503b1b86cf57f45"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/15fafe0249cb6bd23a18d9b6155792907674c9a67308019316452416f0379388.npy",
+        "bytes": 775328,
+        "sha256": "a61efb6d642a45241c6366149c2fd015028f52ce822572575c81dc9d7b7145f3"
+      },
+      "raw_samples": 193800,
+      "trim_start_samples": 4440,
+      "trim_end_samples": 186720,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9769980993675946,
+      "tail700ms_cosine": 0.9779628862492684,
+      "whole_utterance_cosine": 0.9799827013780548
+    },
+    {
+      "scene": 13,
+      "sentence": 2,
+      "text": "Check the version afterwards.",
+      "speech_text": "Check the version afterwards.",
+      "phonemes": "ʧˈɛk ðə vˈɜɹʒən ˈæftəɹwəɹdz.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/7bf6a07ec1162abf3656c0b5d769bcd23a3224e4c55901142fec0364ccb7d399.json",
+        "bytes": 1799,
+        "sha256": "5819c8580f066cf8ae3e7eaa574bd43f13e810fbc0af874c1f30e05518b581c5"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/7bf6a07ec1162abf3656c0b5d769bcd23a3224e4c55901142fec0364ccb7d399.npy",
+        "bytes": 208928,
+        "sha256": "b495a97874b718b24b53c34a3824d0dc81ffea92f33679318da1d5d5695f0453"
+      },
+      "raw_samples": 52200,
+      "trim_start_samples": 4920,
+      "trim_end_samples": 46800,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9924477983359047,
+      "tail700ms_cosine": 0.9896580715129308,
+      "whole_utterance_cosine": 0.9892023913938109
+    },
+    {
+      "scene": 13,
+      "sentence": 3,
+      "text": "Use pip for spaCR updates in both pip routes, including the Conda environment created for pip.",
+      "speech_text": "Use pip for spacer updates in both pip routes, including the Conda environment created for pip.",
+      "phonemes": "jˈuz pˈɪp fɔɹ spˈAsəɹ ˈʌpdˌAts ɪn bˈOθ pˈɪp ɹˈuts, ɪnklˈudɪŋ ðə kˈɑndə ənvˈIɹənmᵊnt kɹiˈATᵻd fɔɹ pˈɪp.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/9887da32b732b450df6b1bb259396fad4f0604f04d1ef4fd16e5c01e460a095f.json",
+        "bytes": 1965,
+        "sha256": "08678f1485f0d9a1b581299f8532bd4a01374499b06c7a2e97ecff79644c7cb2"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/9887da32b732b450df6b1bb259396fad4f0604f04d1ef4fd16e5c01e460a095f.npy",
+        "bytes": 602528,
+        "sha256": "28ead85e0b2f6aeb1475c48c52d7f95ab6e23e1c95131c4d93f0ab5f11a28163"
+      },
+      "raw_samples": 150600,
+      "trim_start_samples": 5280,
+      "trim_end_samples": 143640,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9936656433195671,
+      "tail700ms_cosine": 0.9933796484127638,
+      "whole_utterance_cosine": 0.9902592233096339
+    },
+    {
+      "scene": 14,
+      "sentence": 1,
+      "text": "For the conda-forge route, close spaCR, activate spacr-conda and run conda update dash c conda-forge spacr.",
+      "speech_text": "For the Conda Forge route, close spacer, activate spacer-conda and run conda update dash c Conda Forge spacer.",
+      "phonemes": "fˌɔɹ ðə kˈɑndə fˈɔɹʤ ɹˈut, klˈOs spˈAsəɹ, ˈæktəvˌAt spˈAsəɹkˈɑndə ænd ɹˈʌn kˈɑndə ˈʌpdˌAt dˈæʃ sˈi kˈɑndə fˈɔɹʤ spˈAsəɹ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/160b9b8e571498519f42bcb2a77c889d3c9f05e72995c1123775e796f6bce953.json",
+        "bytes": 2009,
+        "sha256": "60543d1105575bb4e022facac99784880caa757209686e8fb700ecce8fdd8113"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/160b9b8e571498519f42bcb2a77c889d3c9f05e72995c1123775e796f6bce953.npy",
+        "bytes": 748928,
+        "sha256": "846684c887cdb6a495a1cc5930092acdf3513419436f3360d5f821c9f772b0fc"
+      },
+      "raw_samples": 187200,
+      "trim_start_samples": 4440,
+      "trim_end_samples": 180000,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9921899334157901,
+      "tail700ms_cosine": 0.9823787395792606,
+      "whole_utterance_cosine": 0.9766576379589534
+    },
+    {
+      "scene": 14,
+      "sentence": 2,
+      "text": "If no newer build is available, Conda reports that the requested packages are already installed.",
+      "speech_text": "If no newer build is available, Conda reports that the requested packages are already installed.",
+      "phonemes": "ˌɪf nˈO nˈuəɹ bˈɪld ɪz əvˈAləbᵊl, kˈɑndə ɹəpˈɔɹts ðæt ðə ɹəkwˈɛstᵻd pˈækɪʤᵻz ɑɹ ˌɔlɹˈɛdi ɪnstˈɔld.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/e1478c42564b819769dc1153bb562dddb40d9a238c7dd19f2c9d97c41501a004.json",
+        "bytes": 1969,
+        "sha256": "c8003ae028dbcbba91bfb935f87b3e0979860f3e8ccb8cc4323367e224215c93"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/e1478c42564b819769dc1153bb562dddb40d9a238c7dd19f2c9d97c41501a004.npy",
+        "bytes": 604928,
+        "sha256": "d136c29bff4ace17ba4006b4c259629176177a9ecdb12502a75303079bd50361"
+      },
+      "raw_samples": 151200,
+      "trim_start_samples": 4920,
+      "trim_end_samples": 144960,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9981869462477077,
+      "tail700ms_cosine": 0.9708645951748067,
+      "whole_utterance_cosine": 0.9931316508230563
+    },
+    {
+      "scene": 14,
+      "sentence": 3,
+      "text": "Check the installed version rather than assuming the interface has changed.",
+      "speech_text": "Check the installed version rather than assuming the interface has changed.",
+      "phonemes": "ʧˈɛk ði ɪnstˈɔld vˈɜɹʒən ɹˈæðəɹ ðən əsˈumɪŋ ði ˈɪntəɹfˌAs hæz ʧˈAnʤd.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/69cc0d3d44fde59df53da732ae2be92c7ffa5559a330bff24f2be418bdd26943.json",
+        "bytes": 1905,
+        "sha256": "2081c08491effedb78176c21fd2e34fdb97bc972182a813e8ba56281c34477ad"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/69cc0d3d44fde59df53da732ae2be92c7ffa5559a330bff24f2be418bdd26943.npy",
+        "bytes": 446528,
+        "sha256": "5bb89427eade344e96bc59c79db475b32260fccc2743a75bf1cc5858ff2d08cd"
+      },
+      "raw_samples": 111600,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 105240,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9838957656825819,
+      "tail700ms_cosine": 0.9910257954437208,
+      "whole_utterance_cosine": 0.9544057421077224
+    },
+    {
+      "scene": 15,
+      "sentence": 1,
+      "text": "To remove a pip installation, activate its environment and run python dash m pip uninstall spacr, then accept the removal prompt.",
+      "speech_text": "To remove a pip installation, activate its environment and run python dash m pip uninstall spacer, then accept the removal prompt.",
+      "phonemes": "tə ɹəmˈuv ɐ pˈɪp ˌɪnztəlˈAʃən, ˈæktəvˌAt ɪts ənvˈIɹənmᵊnt ænd ɹˈʌn pˈIθˌɑn dˈæʃ ˈɛm pˈɪp ˌʌnənstˈɔl spˈAsəɹ, ðˈɛn əksˈɛpt ðə ɹəmˈuvᵊl pɹˈɑmpt.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b3138bd8f3c4a35fe77b15d7bb109e784c0b2f090822ab1b9abd0ff7d85c651b.json",
+        "bytes": 2062,
+        "sha256": "06974095395000bc9e00b514875a86c5a77b66685908e387e7c52f0d6c44a58b"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/b3138bd8f3c4a35fe77b15d7bb109e784c0b2f090822ab1b9abd0ff7d85c651b.npy",
+        "bytes": 890528,
+        "sha256": "bf6d5235625a2a97fcb397a49dd9155c54864e4fa2da4077ff47e39b5037cd49"
+      },
+      "raw_samples": 222600,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 216000,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9990864528127298,
+      "tail700ms_cosine": 0.998555829760639,
+      "whole_utterance_cosine": 0.9821918460505789
+    },
+    {
+      "scene": 15,
+      "sentence": 2,
+      "text": "This removes the spaCR package.",
+      "speech_text": "This removes the spacer package.",
+      "phonemes": "ðˌɪs ɹəmˈuvz ðə spˈAsəɹ pˈækɪʤ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/07ef9b7c6c4896a45b565be7f3ef79abf0e787a9fb68fb1646a10ba05331d460.json",
+        "bytes": 1804,
+        "sha256": "c3e2f27d037171664a116ed58b760e4afad96116bd7d65e068757d797e9d0d13"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/07ef9b7c6c4896a45b565be7f3ef79abf0e787a9fb68fb1646a10ba05331d460.npy",
+        "bytes": 232928,
+        "sha256": "f51965509e58d25bd9ebe0d7d7dca8a2224bf0abc82b582c34b648f928381757"
+      },
+      "raw_samples": 58200,
+      "trim_start_samples": 4800,
+      "trim_end_samples": 52440,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9940069064640695,
+      "tail700ms_cosine": 0.9732664170080226,
+      "whole_utterance_cosine": 0.9897133800272191
+    },
+    {
+      "scene": 15,
+      "sentence": 3,
+      "text": "It does not remove your microscopy projects or automatically remove every dependency.",
+      "speech_text": "It does not remove your microscopy projects or automatically remove every dependency.",
+      "phonemes": "ˌɪt dˈʌz nˌɑt ɹəmˈuv jʊɹ mIkɹˈɑskəpi pɹˈɑʤˌɛkts ɔɹ ˌɔTəmˈæTəkᵊli ɹəmˈuv ˈɛvəɹi dəpˈɛndᵊnsi.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/9275fa451e9cc25f7792757ffdfd4ccb4ef642c65e43c6f3bc8c1fa796a74683.json",
+        "bytes": 1946,
+        "sha256": "ef51990bffea2ffe9238ea3ca8dc3a29131d73b200546589814bb6d6a7bca6d4"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/9275fa451e9cc25f7792757ffdfd4ccb4ef642c65e43c6f3bc8c1fa796a74683.npy",
+        "bytes": 571328,
+        "sha256": "637e64be30c5f2989b3919bd81551d432ebc509deeb0d34fafbe0183e61a9298"
+      },
+      "raw_samples": 142800,
+      "trim_start_samples": 5160,
+      "trim_end_samples": 135360,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9940678510035263,
+      "tail700ms_cosine": 0.9918480104161924,
+      "whole_utterance_cosine": 0.9827519252506232
+    },
+    {
+      "scene": 16,
+      "sentence": 1,
+      "text": "If dot venv was created only for spaCR, deactivate it and remove that dedicated dot venv folder.",
+      "speech_text": "If dot venv was created only for spacer, deactivate it and remove that dedicated dot venv folder.",
+      "phonemes": "ˌɪf dˈɑt vˈɛnv wʌz kɹiˈATᵻd ˈOnli fɔɹ spˈAsəɹ, diˈæktəvˌAt ɪt ænd ɹəmˈuv ðˈæt dˈɛdəkˌATᵻd dˈɑt vˈɛnv fˈOldəɹ.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/70b28bdb748bf1bed20dcd583b3b328253d5d9b91640babb7c9a9c5f62c5c73b.json",
+        "bytes": 1975,
+        "sha256": "7c1d06539c2a3ece4517a47d18e8b497b49582054147f3f386674833b118fa6a"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/70b28bdb748bf1bed20dcd583b3b328253d5d9b91640babb7c9a9c5f62c5c73b.npy",
+        "bytes": 674528,
+        "sha256": "f5f7987bc667cf13f383b0bf6f6065d8a47173540760fa484bb6ee264eb03f12"
+      },
+      "raw_samples": 168600,
+      "trim_start_samples": 4920,
+      "trim_end_samples": 161520,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9891241118083567,
+      "tail700ms_cosine": 0.9931755452062317,
+      "whole_utterance_cosine": 0.9855470437316953
+    },
+    {
+      "scene": 16,
+      "sentence": 2,
+      "text": "For the dedicated spacr-pip Conda environment, run conda deactivate, then conda env remove dash n spacr-pip.",
+      "speech_text": "For the dedicated spacer-pip Conda environment, run conda deactivate, then conda env remove dash n spacer-pip.",
+      "phonemes": "fˌɔɹ ðə dˈɛdəkˌATᵻd spˈAsəɹpˌɪp kˈɑndə ənvˈIɹənmᵊnt, ɹˈʌn kˈɑndə diˈæktəvˌAt, ðˈɛn kˈɑndə ˈɛnv ɹəmˈuv dˈæʃ ˈɛn spˈAsəɹpˌɪp.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/dd79b2de94343602aa2f84e368bc16af263f7857ebbc99dd38bdbb72950f358c.json",
+        "bytes": 2016,
+        "sha256": "11bb91487f867e11b5d6e5193029b06e1db38f7ebf3470d4f8a9186b8c95855f"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/dd79b2de94343602aa2f84e368bc16af263f7857ebbc99dd38bdbb72950f358c.npy",
+        "bytes": 775328,
+        "sha256": "fca148060edb1400c08f9758d573100ef75ed2ffb14fb126817445547f8b1a73"
+      },
+      "raw_samples": 193800,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 188040,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9884213025090102,
+      "tail700ms_cosine": 0.980338241109656,
+      "whole_utterance_cosine": 0.9842871373840797
+    },
+    {
+      "scene": 16,
+      "sentence": 3,
+      "text": "Remove only the environment you created for this tutorial.",
+      "speech_text": "Remove only the environment you created for this tutorial.",
+      "phonemes": "ɹəmˈuv ˈOnli ði ənvˈIɹənmᵊnt ju kɹiˈATᵻd fɔɹ ðɪs tutˈɔɹiəl.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/8326bf31c256c6045e68a535ff4895eec352fd4eb17819480730cb9285478515.json",
+        "bytes": 1866,
+        "sha256": "52e26c7069bb3054a1027f6fc5aece650f505122ffe04db5c96d31c8c622b735"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/8326bf31c256c6045e68a535ff4895eec352fd4eb17819480730cb9285478515.npy",
+        "bytes": 396128,
+        "sha256": "dfb29f0255101d7713076bedbe9d1f10d6b187321856d12e23d74e1451eba0aa"
+      },
+      "raw_samples": 99000,
+      "trim_start_samples": 5160,
+      "trim_end_samples": 91800,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.994913150820729,
+      "tail700ms_cosine": 0.9975428403275166,
+      "whole_utterance_cosine": 0.9676482161520641
+    },
+    {
+      "scene": 17,
+      "sentence": 1,
+      "text": "In the conda-forge environment, conda remove spacr removes the package after you review its removal plan.",
+      "speech_text": "In the Conda Forge environment, conda remove spacer removes the package after you review its removal plan.",
+      "phonemes": "ɪn ðə kˈɑndə fˈɔɹʤ ənvˈIɹənmᵊnt, kˈɑndə ɹəmˈuv spˈAsəɹ ɹəmˈuvz ðə pˈækɪʤ ˈæftəɹ ju ɹəvjˈu ɪts ɹəmˈuvᵊl plˈæn.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/2540797d5cdfaa42b969c5ba2419eedd1aa948c75db0d0680ce1385697283497.json",
+        "bytes": 1991,
+        "sha256": "f8c1256d255c3e6f136da1795d8d94ad8c3a97ea6f549536fd6cce27f40c7c74"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/2540797d5cdfaa42b969c5ba2419eedd1aa948c75db0d0680ce1385697283497.npy",
+        "bytes": 710528,
+        "sha256": "102c5e130558dc8d2b63c66146a824059e5c9342f5d1f937b79a5bb21187650b"
+      },
+      "raw_samples": 177600,
+      "trim_start_samples": 5520,
+      "trim_end_samples": 170280,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9953693756228802,
+      "tail700ms_cosine": 0.9974167753694055,
+      "whole_utterance_cosine": 0.9807356850535297
+    },
+    {
+      "scene": 17,
+      "sentence": 2,
+      "text": "To remove the entire dedicated environment instead, deactivate it and run conda env remove dash n spacr-conda.",
+      "speech_text": "To remove the entire dedicated environment instead, deactivate it and run conda env remove dash n spacer-conda.",
+      "phonemes": "tə ɹəmˈuv ði əntˈIəɹ dˈɛdəkˌATᵻd ənvˈIɹənmᵊnt ɪnstˈɛd, diˈæktəvˌAt ɪt ænd ɹˈʌn kˈɑndə ˈɛnv ɹəmˈuv dˈæʃ ˈɛn spˈAsəɹkˈɑndə.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/1445d24f16e59b86cb1e7cb8a8efdbd239acf9ba0b46b77545df7bb07a7729bd.json",
+        "bytes": 2011,
+        "sha256": "c40040cf6daa7ec866d42f499c54fcfad7401a7e2abf48d4d0d4f7ba29855ae0"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/1445d24f16e59b86cb1e7cb8a8efdbd239acf9ba0b46b77545df7bb07a7729bd.npy",
+        "bytes": 792128,
+        "sha256": "6abb81fe2ac30cb77be83d91cbec23b38a3c85f43217206473e15530f205b84a"
+      },
+      "raw_samples": 198000,
+      "trim_start_samples": 4680,
+      "trim_end_samples": 190560,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9996375266703913,
+      "tail700ms_cosine": 0.9943643919582735,
+      "whole_utterance_cosine": 0.9861067943085492
+    },
+    {
+      "scene": 17,
+      "sentence": 3,
+      "text": "Keep your project folders separately; uninstalling the environment is not deleting your analysis data.",
+      "speech_text": "Keep your project folders separately; uninstalling the environment is not deleting your analysis data.",
+      "phonemes": "kˈip jʊɹ pɹˈɑʤˌɛkt fˈOldəɹz sˈɛpəɹətli; ˌʌnənstˈɔlɪŋ ði ənvˈIɹənmᵊnt ɪz nˌɑt dᵻlˈiTɪŋ jʊɹ ənˈæləsɪs dˈATə.",
+      "cache_metadata": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/70dc1ff893e009e7916f44d9532e3d5c1793004503bac91f26bb5fb7cb1b32f4.json",
+        "bytes": 1983,
+        "sha256": "a61285620b785839e23937d2f00b505847198a6bed909169fbdb795a9631daea"
+      },
+      "cache_pcm": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/sentence-audio-cache/70dc1ff893e009e7916f44d9532e3d5c1793004503bac91f26bb5fb7cb1b32f4.npy",
+        "bytes": 636128,
+        "sha256": "7d2f77e561df4181b613541571f54072f8c4e07744f14a5aa0cf229e48417ced"
+      },
+      "raw_samples": 159000,
+      "trim_start_samples": 4560,
+      "trim_end_samples": 152160,
+      "trim_sidecar_max_error_seconds": 0.0,
+      "head700ms_cosine": 0.9969099845224703,
+      "tail700ms_cosine": 0.9770630583174175,
+      "whole_utterance_cosine": 0.9835001454126244
+    }
+  ],
+  "default_cache_missing": [],
+  "concrete_problems": [],
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "human_listening_performed": false,
+  "word_completeness_verified": false,
+  "limits": [
+    "Only af_heart decoded anew; exact prior50-track QA and C23 immutable hash readback reused for other49.",
+    "Waveform correlation supports raw-to-assembled identity; it does not establish perceptual word/phoneme completeness. Quiet discarded prefixes are not automatically defects.",
+    "Historical QA freshness is its original claim, not a newly synthesized/current runtime claim. Historical source-freeze receipt was unavailable at the one known expected path."
+  ]
+}
