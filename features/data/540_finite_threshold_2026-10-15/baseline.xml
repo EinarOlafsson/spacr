@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="18" skipped="0" tests="28" time="3.896" timestamp="2026-10-15T04:18:26.072779-04:00" hostname="olafsson"><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_cut_still_classifies_declared_synthetic_signals" time="0.498" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[None-expected0]" time="0.002" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[values5-expected5]" time="0.001" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[0--Infinity]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">value = '-Infinity', position = 0
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[values2-expected2]" time="0.002" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_actual_classifier_refuses_before_replacing_prior_outputs[dead-nan]" time="0.173"><failure message="Failed: DID NOT RAISE ValueError">accepted_database = (PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses0/measurem...  90.0  p1_r1_c1_f1
+39      p1    r1  ...                                    90.0  p1_r1_c2_f1
+
+[40 rows x 14 columns])
+cut = nan, role = 'dead'
+
+    @pytest.mark.parametrize('cut', [float('nan'), float('inf'), -float('inf')])
+    @pytest.mark.parametrize('role', ['dead', 'live'])
+    def test_actual_classifier_refuses_before_replacing_prior_outputs(accepted_database, cut, role):
+        path, _ = accepted_database
+        config = settings([cut, None] if role == 'dead' else [None, cut])
+        if role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=2)
+&gt;       assert_refusal_keeps_database(path, config, SOURCE)
+
+tests/test_viability_finite_threshold_f540.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses0/measurements.db')
+config = {'channels': [0, 1, 2], 'viability_dead_channel': 1, 'viability_live_channel': None, 'viability_thresholds': [nan, None], ...}
+expected = 'Manual viability thresholds must be finite numbers or automatic.'
+
+    def assert_refusal_keeps_database(path, config, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:66: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[1-Inf]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">value = 'Inf', position = 1
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[values6-expected6]" time="0.002" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[0--inf]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">value = -inf, position = 0
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_actual_classifier_refuses_before_replacing_prior_outputs[live--inf]" time="0.220"><failure message="Failed: DID NOT RAISE ValueError">accepted_database = (PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses1/measurem...  90.0  p1_r1_c1_f1
+39      p1    r1  ...                                    90.0  p1_r1_c2_f1
+
+[40 rows x 14 columns])
+cut = -inf, role = 'live'
+
+    @pytest.mark.parametrize('cut', [float('nan'), float('inf'), -float('inf')])
+    @pytest.mark.parametrize('role', ['dead', 'live'])
+    def test_actual_classifier_refuses_before_replacing_prior_outputs(accepted_database, cut, role):
+        path, _ = accepted_database
+        config = settings([cut, None] if role == 'dead' else [None, cut])
+        if role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=2)
+&gt;       assert_refusal_keeps_database(path, config, SOURCE)
+
+tests/test_viability_finite_threshold_f540.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses1/measurements.db')
+config = {'channels': [0, 1, 2], 'viability_dead_channel': None, 'viability_live_channel': 2, 'viability_thresholds': [None, -inf], ...}
+expected = 'Manual viability thresholds must be finite numbers or automatic.'
+
+    def assert_refusal_keeps_database(path, config, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:66: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[0-inf]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = inf, position = 0
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[-expected1]" time="0.001" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[0-nan1]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = 'nan', position = 0
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_actual_classifier_refuses_before_replacing_prior_outputs[dead--inf]" time="0.203"><failure message="Failed: DID NOT RAISE ValueError">accepted_database = (PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses2/measurem...  90.0  p1_r1_c1_f1
+39      p1    r1  ...                                    90.0  p1_r1_c2_f1
+
+[40 rows x 14 columns])
+cut = -inf, role = 'dead'
+
+    @pytest.mark.parametrize('cut', [float('nan'), float('inf'), -float('inf')])
+    @pytest.mark.parametrize('role', ['dead', 'live'])
+    def test_actual_classifier_refuses_before_replacing_prior_outputs(accepted_database, cut, role):
+        path, _ = accepted_database
+        config = settings([cut, None] if role == 'dead' else [None, cut])
+        if role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=2)
+&gt;       assert_refusal_keeps_database(path, config, SOURCE)
+
+tests/test_viability_finite_threshold_f540.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses2/measurements.db')
+config = {'channels': [0, 1, 2], 'viability_dead_channel': 1, 'viability_live_channel': None, 'viability_thresholds': [-inf, None], ...}
+expected = 'Manual viability thresholds must be finite numbers or automatic.'
+
+    def assert_refusal_keeps_database(path, config, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:66: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_actual_classifier_refuses_before_replacing_prior_outputs[dead-inf]" time="0.236"><failure message="Failed: DID NOT RAISE ValueError">accepted_database = (PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses3/measurem...  90.0  p1_r1_c1_f1
+39      p1    r1  ...                                    90.0  p1_r1_c2_f1
+
+[40 rows x 14 columns])
+cut = inf, role = 'dead'
+
+    @pytest.mark.parametrize('cut', [float('nan'), float('inf'), -float('inf')])
+    @pytest.mark.parametrize('role', ['dead', 'live'])
+    def test_actual_classifier_refuses_before_replacing_prior_outputs(accepted_database, cut, role):
+        path, _ = accepted_database
+        config = settings([cut, None] if role == 'dead' else [None, cut])
+        if role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=2)
+&gt;       assert_refusal_keeps_database(path, config, SOURCE)
+
+tests/test_viability_finite_threshold_f540.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses3/measurements.db')
+config = {'channels': [0, 1, 2], 'viability_dead_channel': 1, 'viability_live_channel': None, 'viability_thresholds': [inf, None], ...}
+expected = 'Manual viability thresholds must be finite numbers or automatic.'
+
+    def assert_refusal_keeps_database(path, config, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:66: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[[5, 7]-expected8]" time="0.002" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[0-nan0]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = nan, position = 0
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[values4-expected4]" time="0.003" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[1-inf]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">value = inf, position = 1
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[values3-expected3]" time="0.002" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_actual_classifier_refuses_before_replacing_prior_outputs[live-nan]" time="0.197"><failure message="Failed: DID NOT RAISE ValueError">accepted_database = (PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses4/measurem...  90.0  p1_r1_c1_f1
+39      p1    r1  ...                                    90.0  p1_r1_c2_f1
+
+[40 rows x 14 columns])
+cut = nan, role = 'live'
+
+    @pytest.mark.parametrize('cut', [float('nan'), float('inf'), -float('inf')])
+    @pytest.mark.parametrize('role', ['dead', 'live'])
+    def test_actual_classifier_refuses_before_replacing_prior_outputs(accepted_database, cut, role):
+        path, _ = accepted_database
+        config = settings([cut, None] if role == 'dead' else [None, cut])
+        if role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=2)
+&gt;       assert_refusal_keeps_database(path, config, SOURCE)
+
+tests/test_viability_finite_threshold_f540.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses4/measurements.db')
+config = {'channels': [0, 1, 2], 'viability_dead_channel': None, 'viability_live_channel': 2, 'viability_thresholds': [None, nan], ...}
+expected = 'Manual viability thresholds must be finite numbers or automatic.'
+
+    def assert_refusal_keeps_database(path, config, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:66: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[1--Infinity]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">value = '-Infinity', position = 1
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[1-nan1]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = 'nan', position = 1
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_valid_finite_and_automatic_settings_keep_existing_meaning[values7-expected7]" time="0.001" /><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[1-nan0]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = nan, position = 1
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[1--inf]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">value = -inf, position = 1
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_actual_classifier_refuses_before_replacing_prior_outputs[live-inf]" time="0.187"><failure message="Failed: DID NOT RAISE ValueError">accepted_database = (PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses5/measurem...  90.0  p1_r1_c1_f1
+39      p1    r1  ...                                    90.0  p1_r1_c2_f1
+
+[40 rows x 14 columns])
+cut = inf, role = 'live'
+
+    @pytest.mark.parametrize('cut', [float('nan'), float('inf'), -float('inf')])
+    @pytest.mark.parametrize('role', ['dead', 'live'])
+    def test_actual_classifier_refuses_before_replacing_prior_outputs(accepted_database, cut, role):
+        path, _ = accepted_database
+        config = settings([cut, None] if role == 'dead' else [None, cut])
+        if role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=2)
+&gt;       assert_refusal_keeps_database(path, config, SOURCE)
+
+tests/test_viability_finite_threshold_f540.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/f540-finite-threshold-20261015/baseline-pytest/test_actual_classifier_refuses5/measurements.db')
+config = {'channels': [0, 1, 2], 'viability_dead_channel': None, 'viability_live_channel': 2, 'viability_thresholds': [None, inf], ...}
+expected = 'Manual viability thresholds must be finite numbers or automatic.'
+
+    def assert_refusal_keeps_database(path, config, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:66: Failed</failure></testcase><testcase classname="tests.test_viability_finite_threshold_f540" name="test_parser_refuses_nonfinite_explicit_dead_and_live_cuts[0-Inf]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">value = 'Inf', position = 0
+
+    @pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 'nan', 'Inf', '-Infinity'])
+    @pytest.mark.parametrize('position', [0, 1])
+    def test_parser_refuses_nonfinite_explicit_dead_and_live_cuts(value, position):
+        values = [None, None]
+        values[position] = value
+        before = copy.deepcopy(values)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_viability_finite_threshold_f540.py:29: Failed</failure></testcase></testsuite></testsuites>

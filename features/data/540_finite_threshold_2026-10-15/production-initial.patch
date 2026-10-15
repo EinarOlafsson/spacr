@@ -1,0 +1,20 @@
+--- a/spacr/measure.py
++++ b/spacr/measure.py
+@@ -7424,11 +7424,16 @@
+             out.append(None)
+             continue
+         try:
+-            out.append(float(item))
++            number = float(item)
+         except (TypeError, ValueError):
+             raise ValueError(
+                 f"Setting: viability_thresholds entries must be numbers or "
+                 f"None; got {item!r}.") from None
++        if not np.isfinite(number):
++            from .qt.i18n import tr
++
++            raise ValueError(tr("Manual viability thresholds must be finite numbers or automatic."))
++        out.append(number)
+     return out[0], out[1]
+ 
+ 

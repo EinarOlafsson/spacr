@@ -309,3 +309,16 @@ button, which lives inside their rows).
     population cut calls nothing dead; acridine orange also stains dead
     cells, so it is not a live-only stain), segmentation of dense
     monolayers, and a real plate that can test DONE WHEN.
+
+2026-10-15 — Nonfinite manual-cut refusal (source component; locale closure pending).
+Actual synthetic measured signals showed NaN/+Inf cutoffs writing every object
+as live, and -Inf writing every object as dead, while a finite100 cutoff
+retained declared30live/10dead. Manual settings now require finite converted
+cuts; automatic/blank/None, negative/zero/large finite and numeric strings
+retain their meaning. The existing parser call runs before DB reads because
+the normal table reader may migrate schema: invalid cutoff refusal leaves
+existing DB bytes and accepted outputs untouched. Invalid cutoff errors now
+precede database-content errors. Baseline18FAIL/10PASS; initialguard25PASS/
+6DB-byteFAIL; final9affectedPASS, with no repeat of25 other passing cases.
+No new automatic-cut, calibration or biological efficacy claim. Evidence:
+features/data/540_finite_threshold_2026-10-15/.
