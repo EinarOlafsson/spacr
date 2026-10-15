@@ -23,7 +23,22 @@
   },
   "limits": [
     "No native/scientific/tutorial acceptance or final CI.",
-    "Original 1.35 backing-store flush benchmark discrepancy remains unresolved.",
-    "AUTO_TEXT normal API generation and foreign N700 caption evidence remain separate closure."
-  ]
+    "Global N700 caption evidence remains a separate release gate."
+  ],
+  "subsequent_closure": {
+    "paint_gate": "Original 1.35 gate passed in current source; see paint-and-recorder-scope.json.",
+    "AUTO_TEXT": "All-nine owner-reviewed API entries normally generated; exact receipt in features/data/696_auto_text_api_generation_2026-10-15/.",
+    "recorder": "Exact public Work recorder source restored; preserved historical patch awaits Work owner."
+  },
+  "paint_worker_module": {
+    "passed": 56,
+    "seconds": 47.51,
+    "exit_code": 0,
+    "log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/paint-module-current.log",
+    "thresholds_unchanged": true
+  },
+  "normal_documentation_generation": {
+    "status": "Actual exit1: enabled published Home-B preferences relocation callback lacks docstring; narrow owner fix requested. API/help writer cannot proceed until owner source repaired.",
+    "raw_log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/final-generated.log"
+  }
 }

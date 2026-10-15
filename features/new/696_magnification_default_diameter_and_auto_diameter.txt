@@ -164,3 +164,5 @@ required fresh full CI, platform/native acceptance and Work-owned current-
 layout tutorial publication. The unchanged Make Masks field-flush assertion
 failed once in the earlier N697 covered context; its diagnostic pass does
 not establish a fix. No native model-quality/GPU acceptance is claimed.
+
+2026-10-15 Original Home integration update: approved four-widget source and attribute-docstring patch integrated; 235 merged diameter/brush/export/Toggle owning checks passed. AUTO_TEXT exact owner reviews and normal API writer completed in all nine locales. Original unmodified 1.35 backing-store paint gate passed (1 test,10.04s); native tutorial acceptance remains separate. Public Work recorder files restored exactly, historical owner review patch preserved. Global N700 review/CI/release gates are not claimed closed.
