@@ -1,0 +1,269 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review; independent source-semantic peer review approved all 261 draft pairs; committed-hash receipt follows; no native-speaker signoff",
+  "note": "Twenty-nine changed blocks in twelve existing symbols from memory source a48984fffa7 and laptop source a8457f61cf0. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.memory_budget#0",
+      "source": "Cache eviction policies and host-memory availability measurements.",
+      "context": "Cache eviction policies and host-memory availability measurements.",
+      "source_sha256": "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+      "previous_same_source_indexes": [],
+      "translation": "캐시 항목 제거 정책과 호스트 가용 메모리 측정.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget#1",
+      "source": "The idle timeout and cache ceiling determine the keys selected by ``what_to_drop``. The separate ``headroom_is_short`` predicate compares available host memory with a configured threshold. Callers apply these policies and perform resource cleanup.",
+      "context": "The idle timeout and cache ceiling determine the structured-data names selected by ``what_to_drop``. The separate ``headroom_is_short`` predicate compares available host memory with a configured threshold. Callers apply these policies and perform resource cleanup.",
+      "source_sha256": "c58bbd9144a04712a3e43730f51eb31206fa4de45fc39af9e363370a6b35390a",
+      "previous_same_source_indexes": [],
+      "translation": "유휴 시간 제한과 캐시 용량 상한이 ``what_to_drop`` 함수가 선택하는 키를 결정합니다. 별도의 판정 함수인 ``headroom_is_short`` 함수는 호스트 가용 메모리를 설정된 임계값과 비교합니다. 호출자가 이 정책을 적용하고 리소스를 정리합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget#2",
+      "source": "This module does not unload Python modules or native libraries. Eviction plans identify cache entries; callers decide which resources may be released. The policies do not guarantee a particular reduction in process memory or GPU allocations.",
+      "context": "This module does not unload Python modules or native libraries. Eviction plans identify cache entries; callers decide which resources may be released. The policies do not guarantee a particular reduction in process memory or GPU allocations.",
+      "source_sha256": "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa",
+      "previous_same_source_indexes": [],
+      "translation": "이 모듈은 Python 모듈이나 네이티브 라이브러리를 메모리에서 해제하지 않습니다. 제거 계획은 캐시 항목을 식별하며, 어떤 리소스를 해제할 수 있는지는 호출자가 결정합니다. 이 정책은 프로세스 메모리나 GPU 할당량이 특정한 만큼 줄어드는 것을 보장하지 않습니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.free_megabytes#0",
+      "source": "Return available host memory in mebibytes.",
+      "context": "Return available host memory in mebibytes.",
+      "source_sha256": "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+      "previous_same_source_indexes": [],
+      "translation": "호스트 가용 메모리를 메비바이트 단위로 반환합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.free_megabytes#1",
+      "source": "``psutil.virtual_memory().available`` divided by ``1024**2``, or ``None`` when the measurement fails.",
+      "context": "``psutil.virtual_memory().available`` divided by ``1024**2``, or ``None`` when the measurement fails.",
+      "source_sha256": "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb",
+      "previous_same_source_indexes": [],
+      "translation": "``psutil.virtual_memory().available`` 값을 ``1024**2`` 값으로 나눈 결과이며, 측정에 실패하면 ``None`` 값입니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#0",
+      "source": "Test whether available host memory is below the configured threshold.",
+      "context": "Test whether available host memory is below the configured threshold.",
+      "source_sha256": "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+      "previous_same_source_indexes": [],
+      "translation": "호스트 가용 메모리가 설정된 임계값보다 작은지 확인합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#1",
+      "source": "threshold in mebibytes; read from preferences when omitted.",
+      "context": "threshold in mebibytes; read from preferences when omitted.",
+      "source_sha256": "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+      "previous_same_source_indexes": [],
+      "translation": "메비바이트 단위의 임계값이며, 생략하면 환경설정에서 읽습니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#2",
+      "source": "``False`` when memory or the required preference cannot be read; otherwise the result of comparing available memory with the threshold.",
+      "context": "``False`` when memory or the required preference cannot be read; otherwise the result of comparing available memory with the threshold.",
+      "source_sha256": "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027",
+      "previous_same_source_indexes": [],
+      "translation": "메모리나 필요한 환경설정을 읽을 수 없으면 ``False`` 값입니다. 그렇지 않으면 가용 메모리를 임계값과 비교한 결과입니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#0",
+      "source": "Select cache keys by idle timeout and then the remaining total size.",
+      "context": "Select cache structured-data names by idle timeout and then the remaining total size.",
+      "source_sha256": "31af9ce76aff459d4c3179c000db0bdb43c6503ec8570c3138467fa97fc8d6cf",
+      "previous_same_source_indexes": [],
+      "translation": "유휴 시간 제한을 먼저 적용하고 그다음 남은 총크기에 따라 캐시 키를 선택합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#5",
+      "source": "string keys to drop, in selection order.",
+      "context": "string keys to drop, in selection order.",
+      "source_sha256": "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+      "previous_same_source_indexes": [],
+      "translation": "제거할 문자열 키이며, 선택 순서대로 나열합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#6",
+      "source": "Entries older than the timeout are selected first, in input order. If the remaining total exceeds the ceiling, additional entries are selected from least to most recently used until that total fits.",
+      "context": "Entries older than the timeout are selected first, in input order. If the remaining total exceeds the ceiling, additional entries are selected from least to most recently used until that total fits.",
+      "source_sha256": "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+      "previous_same_source_indexes": [],
+      "translation": "시간 제한보다 오래된 항목을 먼저 입력 순서대로 선택합니다. 남은 총크기가 상한을 넘으면 가장 오래전에 사용한 항목부터 가장 최근에 사용한 항목 순으로 추가 선택하여 총크기가 상한 안에 들어오게 합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#7",
+      "source": "Size determines whether further eviction is needed, not the ranking. The ceiling can select entries even when none exceeds the idle timeout. This helper does not check host-memory headroom or whether entries are in use; callers must supply entries eligible for eviction.",
+      "context": "Size determines whether further eviction is needed, not the ranking. The ceiling can select entries even when none exceeds the idle timeout. This helper does not check host-memory headroom or whether entries are in use; callers must supply entries eligible for eviction.",
+      "source_sha256": "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06",
+      "previous_same_source_indexes": [],
+      "translation": "크기는 추가 제거가 필요한지를 결정하며 순위를 결정하지는 않습니다. 유휴 시간 제한을 넘은 항목이 없어도 용량 상한에 따라 항목을 선택할 수 있습니다. 이 도우미는 호스트의 메모리 여유나 항목의 사용 여부를 확인하지 않습니다. 호출자는 제거가 허용되는 항목을 제공해야 합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#0",
+      "source": "Measure hardware constraints and suppress the ambient backdrop for this process.",
+      "context": "Measure hardware constraints and suppress the ambient backdrop for this process.",
+      "source_sha256": "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+      "previous_same_source_indexes": [],
+      "translation": "하드웨어 제약을 측정하고 이 프로세스의 장식 배경을 억제합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#1",
+      "source": "Hardware-based decisions use the usable CPU count, physical memory and the ``SPACR_LAPTOP_MODE`` override. GUI startup instead passes an explicit decision from the selected performance level; its hardware reading is diagnostic.",
+      "context": "Hardware-based decisions use the usable CPU count, physical memory and the ``SPACR_LAPTOP_MODE`` override. GUI startup instead passes an explicit decision from the selected performance level; its hardware reading is diagnostic.",
+      "source_sha256": "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+      "previous_same_source_indexes": [],
+      "translation": "하드웨어 기반 결정에는 사용 가능한 CPU 수, 물리 메모리 및 ``SPACR_LAPTOP_MODE`` 재정의를 사용합니다. GUI 시작 시에는 대신 선택한 성능 수준에 따른 명시적 결정을 전달하며, 이때 하드웨어 읽기는 진단용입니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#2",
+      "source": "Suppression affects backdrop rendering. This module does not set worker-thread limits or analysis parameters, and it does not replace stored animation preferences.",
+      "context": "Suppression affects backdrop rendering. This module does not set background execution unit limits or analysis parameters, and it does not replace stored animation preferences.",
+      "source_sha256": "c4f4dc6104a1cb2030a0d6288cfce1b03fc25118abcc101dcb223f8e151bb3f9",
+      "previous_same_source_indexes": [],
+      "translation": "억제는 배경 렌더링에 영향을 줍니다. 이 모듈은 작업자 스레드 제한이나 분석 매개변수를 설정하지 않으며 저장된 애니메이션 환경설정을 대체하지 않습니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#3",
+      "source": "``apply`` sets ``SPACR_NO_BACKDROP`` when suppression is requested and the ambient backdrop is enabled. Disabling removes only a suppression created by this module; a pre-existing crash-recovery override is retained.",
+      "context": "``apply`` sets ``SPACR_NO_BACKDROP`` when suppression is requested and the ambient backdrop is enabled. Disabling removes only a suppression created by this module; a pre-existing crash-recovery override is retained.",
+      "source_sha256": "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61",
+      "previous_same_source_indexes": [],
+      "translation": "억제를 요청했고 장식 배경이 활성화되어 있으면 ``apply`` 함수는 ``SPACR_NO_BACKDROP`` 값을 설정합니다. 억제를 해제할 때는 이 모듈이 만든 억제만 제거하며, 기존의 충돌 복구용 재정의는 유지합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.usable_cores#0",
+      "source": "Return the CPU affinity count, falling back to ``os.cpu_count``.",
+      "context": "Return the CPU affinity count, falling back to ``os.cpu_count``.",
+      "source_sha256": "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+      "previous_same_source_indexes": [],
+      "translation": "프로세스 선호도에서 허용하는 CPU 수를 반환하며, 대체 방법으로 ``os.cpu_count`` 함수를 사용합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.usable_cores#1",
+      "source": "``os.sched_getaffinity`` accounts for process pinning when available. If it is unavailable or fails, use the reported CPU count instead. The result is at least one; the fallback does not measure affinity limits.",
+      "context": "``os.sched_getaffinity`` accounts for process pinning when available. If it is unavailable or fails, use the reported CPU count instead. The result is at least one; the fallback does not measure affinity limits.",
+      "source_sha256": "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5",
+      "previous_same_source_indexes": [],
+      "translation": "``os.sched_getaffinity`` 함수는 사용 가능할 때 프로세스의 실행 대상 고정을 반영합니다. 사용할 수 없거나 실패하면 대신 보고된 CPU 수를 사용합니다. 결과는 최소 하나이며, 대체 방법은 선호도 제한을 측정하지 않습니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.override#0",
+      "source": "Parse the environment override; return ``None`` if absent or unrecognized.",
+      "context": "Parse the environment override; return ``None`` if absent or unrecognized.",
+      "source_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "previous_same_source_indexes": [],
+      "translation": "환경 재정의를 해석하며, 없거나 인식할 수 없으면 ``None`` 값을 반환합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.measure#0",
+      "source": "Return CPU count, physical memory, threshold flags and the parsed override.",
+      "context": "Return CPU count, physical memory, threshold flags and the parsed override.",
+      "source_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "previous_same_source_indexes": [],
+      "translation": "CPU 수, 물리 메모리, 임계값 플래그 및 해석한 재정의를 반환합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.wanted#0",
+      "source": "Return the hardware-based laptop-mode decision and its explanation.",
+      "context": "Return the hardware-based laptop-mode decision and its explanation.",
+      "source_sha256": "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+      "previous_same_source_indexes": [],
+      "translation": "하드웨어 기반 노트북 모드 결정과 그 설명을 반환합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.wanted#1",
+      "source": "``(on, why)``. The reason is always populated, including when the decision is off. An explicit environment override takes precedence over the core-count and physical-memory threshold flags.",
+      "context": "``(on, why)``. The reason is always populated, including when the decision is off. An explicit environment override takes precedence over the core-count and physical-memory threshold flags.",
+      "source_sha256": "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723",
+      "previous_same_source_indexes": [],
+      "translation": "``(on, why)`` 값입니다. 끄기로 결정한 경우에도 이유는 항상 채워집니다. 명시적인 환경 재정의가 코어 수와 물리 메모리의 임계값 플래그보다 우선합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.what_it_turns_down#0",
+      "source": "Return the animation and backdrop-blur descriptions used in diagnostics.",
+      "context": "Return the animation and backdrop-blur descriptions used in diagnostics.",
+      "source_sha256": "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+      "previous_same_source_indexes": [],
+      "translation": "진단에 사용하는 애니메이션과 배경 흐림 효과의 설명을 반환합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.what_it_turns_down#1",
+      "source": "Each pair contains an effect name and its description for UI notes and logs. This function returns text; :func:`apply` performs the process-local backdrop suppression.",
+      "context": "Each pair contains an effect name and its description for UI notes and logs. This function returns text; :func:`apply` performs the process-local backdrop suppression.",
+      "source_sha256": "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216",
+      "previous_same_source_indexes": [],
+      "translation": "각 쌍에는 UI 메모와 로그를 위한 효과 이름과 설명이 들어 있습니다. 이 함수는 텍스트를 반환하며, :func:`apply` 함수가 현재 프로세스에 한정된 배경 억제를 수행합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.describe#0",
+      "source": "Format the hardware-based decision and effect descriptions for diagnostic logs.",
+      "context": "Format the hardware-based decision and effect descriptions for diagnostic logs.",
+      "source_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "previous_same_source_indexes": [],
+      "translation": "하드웨어 기반 결정과 효과 설명을 진단 로그용 형식으로 만듭니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#0",
+      "source": "Apply process-local backdrop suppression and report the decision and actions.",
+      "context": "Apply process-local backdrop suppression and report the decision and actions.",
+      "source_sha256": "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+      "previous_same_source_indexes": [],
+      "translation": "현재 프로세스에 한정된 배경 억제를 적용하고 결정과 동작을 보고합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#1",
+      "source": "explicit decision; ``None`` uses :func:`wanted`, including its hardware reading and environment override.",
+      "context": "explicit decision; ``None`` uses :func:`wanted`, including its hardware reading and environment override.",
+      "source_sha256": "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+      "previous_same_source_indexes": [],
+      "translation": "명시적인 결정입니다. ``None`` 값이면 :func:`wanted` 함수를 사용하며, 해당 함수의 하드웨어 읽기와 환경 재정의도 포함합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#2",
+      "source": "a mapping with ``on``, ``why`` and ``changed``. ``on`` is the decision; ``changed`` lists actions actually performed and may be empty.",
+      "context": "a mapping with ``on``, ``why`` and ``changed``. ``on`` is the decision; ``changed`` lists actions actually performed and may be empty.",
+      "source_sha256": "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+      "previous_same_source_indexes": [],
+      "translation": "``on``, ``why``, ``changed`` 항목이 있는 매핑입니다. ``on`` 항목은 결정이며, ``changed`` 항목은 실제 수행한 동작을 나열하고 비어 있을 수도 있습니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#3",
+      "source": "Suppression is process-local and does not replace the stored animation preference. Disabling clears only suppression created by this module, retaining any pre-existing crash-recovery override.",
+      "context": "Suppression is process-local and does not replace the stored animation preference. Disabling clears only suppression created by this module, retaining any pre-existing crash-recovery override.",
+      "source_sha256": "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5",
+      "previous_same_source_indexes": [],
+      "translation": "억제는 현재 프로세스에만 적용되며 저장된 애니메이션 환경설정을 대체하지 않습니다. 억제를 해제할 때는 이 모듈이 만든 억제만 지우고 기존의 충돌 복구용 재정의는 모두 유지합니다.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}
