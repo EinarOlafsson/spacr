@@ -31,7 +31,22 @@
   "source_sha256": {
     "spacr/measure.py": "f7c878839809eb0501838aae1c77456f954e71d9c4fadca057fb8ebea100ca12",
     "tests/test_cell_cycle_torch_grouped_holdout.py": "3ce1e858cd6180fdcc5847ccbf6e6a2442c533e08d46730fbcfe52b365325016",
-    "tests/test_cell_cycle_phase_three_ways.py": "9003add124881a0ed15b08dbe1db0aac80140cb8f6ab6e0dc7b4db460e83590d"
+    "tests/test_cell_cycle_phase_three_ways.py": "32b5a11313ad34b9eefa9ced063278696b2d7264aa7ae705ef10f9815970b3a6"
   },
-  "pending": "Root exact source review and Home-B one-function extractor owner closure before publication"
+  "pending": "Normal merge/source-identity proof/publication. Narrow _phases_by_torch owner extraction request remains followup; no new unique source or runtime target, actual9locale callbacks PASS.",
+  "root_peer_source_review": "Parent reviewed aad2769b960 runtime helper/native fixture/intercepted trainer tests; no source blocker. Scope source only, no native model-training/biological acceptance.",
+  "fixture_followup": {
+    "result": "3PASS5.66s actualexit0",
+    "scopes": [
+      "Currentdefaultwell actualhelper boundary",
+      "Independent balanced four-well native outer/inner proof",
+      "Preserved originalseed3pixels/phase-distribution inadequateinnerholdout refusal"
+    ],
+    "separate_fixture_controls": [
+      "separate_wells",
+      "balanced_phases"
+    ],
+    "runtime_helper_AST_unchanged_from_reviewed_aad": true,
+    "existing_English_caption_identity_present": true
+  }
 }
