@@ -320,3 +320,16 @@ judgments and deduplicate split identities BEFORE asking the expert to redo
 any calls. Untouched cell/nucleus and additional PV labels remain needed after
 reconciliation. Data proof: data/maintainer_annotation_reconciliation_2026-10-14/.
 No images, masks, labels, DBs or protected jobs were changed; no training ran.
+
+2026-10-15 — Sample-builder provenance preparation (partial):
+Parent png_list databases now open explicitly read-only. Newly inserted sample
+rows record SHA-256 and size of the crop bytes before annotation, while their
+real labels remain NULL; parent judgments are never copied. Existing labels
+and fingerprint fields are never backfilled or replaced on rerun. Structured
+reports explicitly count unverified parent/legacy candidates and state that no
+legacy transfer or annotation-time binding occurred. Four owning temporary-DB
+checks PASS, five unrelated cases deselected, 13.03 s, exit 0, including the
+existing growing-sample preservation path. Parent DB/crop bytes remain exact.
+Receipt: features/data/470_sample_provenance_2026-10-15/. No live curation was
+run. Historical pixels judged by legacy annotations remain unproven; this
+preparatory sample hash is not retrospective proof or F470 acceptance.

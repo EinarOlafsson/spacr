@@ -563,7 +563,7 @@ class ModelZooScreen(QWidget):
         dl.setSpacing(SPACING["xs"])
         row = QHBoxLayout()
         row.setSpacing(SPACING["sm"])
-        self._dest_edit = QLineEdit(DEFAULT_DOWNLOAD_DIR, download)
+        self._dest_edit = QLineEdit(str(zoo._model_cache_root()), download)
         self._dest_edit.setToolTip(
             "(str) Where a downloaded model is written. Never overwritten: a "
             "second copy of the same name lands as name_v2.")
@@ -969,7 +969,7 @@ class ModelZooScreen(QWidget):
         """Ask where downloaded models should be written."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose where downloaded models go",
-            self._dest_edit.text() or DEFAULT_DOWNLOAD_DIR)
+            self._dest_edit.text() or str(zoo._model_cache_root()))
         if path:
             self._dest_edit.setText(path)
 
@@ -1075,7 +1075,7 @@ class ModelZooScreen(QWidget):
                 f"entry.", error=True)
             return False
 
-        dest = str(self._dest_edit.text() or DEFAULT_DOWNLOAD_DIR).strip()
+        dest = str(self._dest_edit.text() or str(zoo._model_cache_root())).strip()
         require = not self._allow_unverified.isChecked()
         opener = self._opener
         self._cancel = {"stop": False}

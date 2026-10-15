@@ -6,8 +6,6 @@ log said it was continuing.
 """
 from __future__ import annotations
 
-import types
-
 import pytest
 
 from spacr import submodules as sm
@@ -32,7 +30,7 @@ def test_a_zoo_key_on_disk_is_used_without_a_download(tmp_path, monkeypatch):
 
     local = tmp_path / "cpsam_plaque_r5"
     local.write_bytes(b"w")
-    entry = types.SimpleNamespace(key="toxoplasma_plaque_v2", path=str(local))
+    entry = model_zoo.ModelEntry(key="toxoplasma_plaque_v2", name=local.name, path=str(local))
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
     monkeypatch.setattr(model_zoo, "fetch",
                         lambda *a, **k: pytest.fail("must not download"))
@@ -69,7 +67,7 @@ def test_a_stock_zoo_entry_with_nothing_to_download_is_passed_through(monkeypatc
     not something to fetch (21 training tests failed on the first cut)."""
     from spacr import model_zoo
 
-    entry = types.SimpleNamespace(key="cpsam", path="", uri="")
+    entry = model_zoo.ModelEntry(key="cpsam", name="cpsam", path="", uri="")
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
     monkeypatch.setattr(model_zoo, "fetch",
                         lambda *a, **k: pytest.fail("must not download"))

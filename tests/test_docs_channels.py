@@ -465,6 +465,58 @@ def test_report_names_every_missing_stale_and_obsolete_symbol():
         {'kind': 'missing', 'symbol': 'b'}, {'kind': 'obsolete', 'symbol': 'c'}]
 
 
+@pytest.mark.parametrize('text', [None, False, True, 0, 1.25, [], ['Translation'],
+                                  {}, {'text': 'Translation'}, '', ' \n\t'])
+def test_api_report_rejects_non_string_and_empty_text_even_with_current_hashes(text):
+    source = {'source_sha256': 'current', 'source_blocks_sha256': ['block']}
+    translated = {**source, 'text': text,
+                  'translation_source_blocks_sha256': ['block']}
+    assert api_issues({'symbols': {'current': source}},
+                      {'schema': 2, 'symbols': {'current': translated}}) == [
+        {'kind': 'empty_or_malformed', 'symbol': 'current'}]
+
+
+@pytest.mark.parametrize('text', ['Translation', ' 日本語の説明。\n'])
+def test_api_report_keeps_nonempty_string_text_compatible(text):
+    source = {'source_sha256': 'current', 'source_blocks_sha256': ['block']}
+    translated = {**source, 'text': text,
+                  'translation_source_blocks_sha256': ['block']}
+    assert api_issues({'symbols': {'current': source}},
+                      {'schema': 2, 'symbols': {'current': translated}}) == []
+
+
+def test_cli_reports_null_api_text_as_incompatible_without_blocking_english(
+        tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    import report_translation_compatibility as reporter
+
+    source = {'source_sha256': 'current', 'source_blocks_sha256': ['block']}
+    api_dir = tmp_path / 'docs/source/_static/i18n/api'
+    api_dir.mkdir(parents=True)
+    for language, text in (('en', 'Current'), ('es', None)):
+        record = {**source, 'text': text,
+                  'translation_source_blocks_sha256': ['block']}
+        (api_dir / f'{language}.json').write_text(json.dumps(
+            {'schema': 2, 'symbols': {'current': record}}))
+    sources = {name: {} for name in ('setting_labels', 'setting_tooltips',
+                                     'categories', 'ui', 'module_summaries')}
+    docs = SimpleNamespace(MODEL_SPECS={'es': None}, public_docstrings=lambda: {},
+                           audit=lambda *_: 0)
+    runtime = SimpleNamespace(MODEL_SPECS={}, canonical_sources=lambda: sources,
+                              audit=lambda *_: 0, _source_hashes=lambda _: {})
+    monkeypatch.setattr(reporter.importlib, 'import_module',
+                        lambda name: docs if name == 'build_documentation_i18n' else runtime)
+    report = tmp_path / 'report.json'
+    assert reporter.main(['--root', str(tmp_path), '--output', str(report),
+                          '--english-required']) == 0
+    data = json.loads(report.read_text())
+    assert data['api']['es'] == {
+        'source_compatible': False,
+        'issues': [{'kind': 'empty_or_malformed', 'symbol': 'current'}]}
+    assert data['english']['api']['status'] == 'compatible'
+    assert data['policy'] == 'translation incompatibilities are report-only'
+
+
 def test_runtime_report_registers_missing_rows_and_changed_placeholders():
     issues = runtime_issues({'UI': {'Hello {name}': 'Hello {name}', 'Next': 'Next'}},
         {'UI': {'Hello {name}': 'Hallo {wrong}'}, 'SOURCE_HASHES': {}},

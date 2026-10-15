@@ -3896,6 +3896,67 @@ def _prune_root(kind: str) -> Path:
     raise ValueError(f"unknown storage kind: {kind!r}")
 
 
+def _small_journal_mapping(path: Path) -> Optional[Dict[str, Any]]:
+    """Read at most one MiB of a regular journal JSON marker, or refuse it."""
+    try:
+        if path.is_symlink() or not path.is_file():
+            return None
+        with path.open("rb") as stream:
+            payload = stream.read(1024 * 1024 + 1)
+        if len(payload) > 1024 * 1024:
+            return None
+        data = json.loads(payload)
+        return data if isinstance(data, dict) else None
+    except (OSError, ValueError, RecursionError):
+        return None
+
+
+def _journal_prune_evidence(entry: Path) -> bool:
+    """Admit validated manifests or a conservative native bootstrap layout."""
+    manifest = entry / "manifest.json"
+    if manifest.exists() or manifest.is_symlink():
+        data = _small_journal_mapping(manifest)
+        if data is None:
+            return False
+        schema = data.get("schema_version")
+        if "schema_version" in data and (type(schema) is not int or schema not in {1, 2, 3}):
+            return False
+        if not isinstance(data.get("app_key"), str) or not data["app_key"].strip():
+            return False
+        if not isinstance(data.get("status"), str) or data["status"] not in {"running", "success", "failed", "cancelled"}:
+            return False
+        try:
+            datetime.fromisoformat(data["start_utc"])
+        except (KeyError, TypeError, ValueError):
+            return False
+        return True
+    match = re.fullmatch(r"(\d{4}-\d{2}-\d{2}_\d{6})_[0-9a-f]{8}__([A-Za-z0-9_.-]+)", entry.name)
+    if match is None or match[2].strip("._") != match[2]:
+        return False
+    try:
+        datetime.strptime(match[1], "%Y-%m-%d_%H%M%S")
+        children = list(entry.iterdir())
+        for child in children:
+            if child.is_symlink():
+                return False
+            if child.name == "outputs":
+                if not child.is_dir() or any(child.iterdir()):
+                    return False
+            elif child.name == _ENV_LOCK_FOLDER:
+                if not child.is_dir() or any(
+                        item.is_symlink() or not item.is_file()
+                        or item.name not in {_PIP_LOCK_NAME, _CONDA_LOCK_NAME}
+                        for item in child.iterdir()):
+                    return False
+            elif child.name not in {"settings.json", "settings.csv"} or not child.is_file():
+                return False
+        if not children or all(child.is_dir() and not any(child.iterdir()) for child in children):
+            return True
+        return _small_journal_mapping(entry / "settings.json") is not None
+    except (OSError, ValueError):
+        return False
+
+
 def _is_prunable_name(kind: str, entry: Path) -> bool:
     """Whether ``entry`` is something pruning may consider for ``kind``.
 
@@ -3913,7 +3974,7 @@ def _is_prunable_name(kind: str, entry: Path) -> bool:
     if kind == "run_logs":
         return ((name.endswith(".jsonl") or name.endswith(".resources.json"))
                 and entry.is_file() and not entry.is_symlink())
-    return entry.is_dir() and not entry.is_symlink()
+    return entry.is_dir() and not entry.is_symlink() and _journal_prune_evidence(entry)
 
 
 def _protected_storage() -> Set[str]:
@@ -3999,7 +4060,8 @@ def _prune_plan(kind: str, keep_days: float, cap_mb: float, *,
         children = []
     for entry in children:
         try:
-            if not _is_prunable_name(kind, entry):
+            protected_run = kind == "run_folders" and _is_protected(entry, protected)
+            if not protected_run and not _is_prunable_name(kind, entry):
                 continue
         except OSError:
             continue
@@ -4039,14 +4101,17 @@ def _prune(plan: Dict[str, Any]) -> Tuple[int, int, List[str]]:
     for raw, size in plan.get("delete", ()):
         entry = Path(raw)
         try:
-            if entry.resolve().parent != root or not _is_prunable_name(kind, entry):
+            if entry.resolve().parent != root:
+                refused.append(f"{entry.name}: not in {root}")
+                continue
+            if _is_protected(entry, protected):
+                refused.append(f"{entry.name}: in use")
+                continue
+            if not _is_prunable_name(kind, entry):
                 refused.append(f"{entry.name}: not in {root}")
                 continue
         except OSError as error:
             refused.append(f"{entry.name}: {error}")
-            continue
-        if _is_protected(entry, protected):
-            refused.append(f"{entry.name}: in use")
             continue
         if _tree_stats(entry)[1] >= float(plan["cutoff"]):
             refused.append(f"{entry.name}: changed since it was listed")
@@ -4180,7 +4245,7 @@ def _clear_logs(plan: Dict[str, Any]) -> Tuple[int, int, int, List[str]]:
 
 _CACHE_LOCATIONS_FILE = "cache_locations.json"
 _CACHE_ROWS = (
-    ("models", "spaCR models", ""),
+    ("models", "spaCR models", "SPACR_MODEL_CACHE"),
     ("cellpose", "Cellpose models", "CELLPOSE_LOCAL_MODELS_PATH"),
     ("huggingface", "Hugging Face", "HF_HOME"),
     ("torch", "Torch", "TORCH_HOME"),

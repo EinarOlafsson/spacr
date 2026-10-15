@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "Direct exact-source AI technical translation review; independent parent review requested; no human or native-speaker signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "Checked all six source/target pairs for zero-based integral unique channels, finite mathematical pixel values, matching floating dtype/device/NCHW geometry, reference crop/tensor meaning and absence of biological identity claims. NCHW retained as a protected tensor-axis literal. No placeholders occur. Normal owner-scoped extraction/generation and independent parent review remain required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Preserved channels must be a list of valid zero-based whole channel indices.",
+      "source": "Preserved channels must be a list of valid zero-based whole channel indices.",
+      "source_sha256": "82a92fbcc6b9ee4dcbb063830f294d2b6fb7a83315e715218fa082173986bf00",
+      "translation": "Los canales que se conservarán deben indicarse como una lista de índices de canal enteros válidos con base cero."
+    },
+    {
+      "table": "ui",
+      "key": "Select each preserved channel only once.",
+      "source": "Select each preserved channel only once.",
+      "source_sha256": "b74e8b817b76db9fadf91e8db347eb09040503428e33153a63147ced4fcf9431",
+      "translation": "Seleccione cada canal que se conservará una sola vez."
+    },
+    {
+      "table": "ui",
+      "key": "Reference and edited crops must have matching floating NCHW shapes, dtype and device.",
+      "source": "Reference and edited crops must have matching floating NCHW shapes, dtype and device.",
+      "source_sha256": "d5dc85c829e7423df436b958ffb3ba1454fd6a3bfb8a9f66348419fde018ef0a",
+      "translation": "Los recortes de referencia y editados deben tener la misma forma NCHW, el mismo tipo de datos de coma flotante y el mismo dispositivo."
+    },
+    {
+      "table": "ui",
+      "key": "Reference and edited crops must contain finite pixels.",
+      "source": "Reference and edited crops must contain finite pixels.",
+      "source_sha256": "d1ed17a91cd7b1adce12d51d6989b2b5268f9c78b7ff9a7bcc41f6d0ccc01a1b",
+      "translation": "Los recortes de referencia y editados deben contener valores de píxel finitos."
+    },
+    {
+      "table": "ui",
+      "key": "Reference preservation requires NCHW crop tensors.",
+      "source": "Reference preservation requires NCHW crop tensors.",
+      "source_sha256": "3b05ee4f68a7f0dc8b53b6cfcd0bc0600c37d405a1c4d1e9ab771222cebbe019",
+      "translation": "La conservación de la referencia requiere tensores de recortes en formato NCHW."
+    },
+    {
+      "table": "ui",
+      "key": "Reference crops must contain finite pixels.",
+      "source": "Reference crops must contain finite pixels.",
+      "source_sha256": "30dc75490ba2c11870b8f042dba624f129d57b119054ecd327077e9567d42b41",
+      "translation": "Los recortes de referencia deben contener valores de píxel finitos."
+    }
+  ]
+}

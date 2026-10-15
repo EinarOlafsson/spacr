@@ -106028,13 +106028,13 @@
     "spacr.qt.widgets.plaque_preview.resolve_detector": {
       "source_blocks_sha256": [
         "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
-        "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
+        "ea5d7c2116bd8c61066388dd9de100238555e29e7be23c7620cafd8ba6ad9c83",
         "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
         "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
         "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119"
       ],
-      "source_sha256": "9b72b1cacb61582e226d497e44137d9f05f08373394cce96fad8bdb9ac9e5aad",
-      "text": "The detector checkpoint a key names, found without a download.\n\nLooks where the run looks: the path itself, the zoo entry's own path,\n``~/.spacr/models`` and the run's model cache under\n``<src>/plaque_figures/models``.\n\n:param key: a zoo key or a checkpoint path.\n:param src: the figure folder.\n:returns: ``(path, note, entry)``; ``path`` is ``''`` when it is not\n    here, and ``entry`` is what a download would fetch."
+      "source_sha256": "00ee734565c88ae0ba5ebd15e6d200f5ede624f2b9e05cb1cc56986afd17d122",
+      "text": "The detector checkpoint a key names, found without a download.\n\nLooks where the run looks: the path itself, the zoo entry's own path,\nthe active shared model cache and the run's model cache under\n``<src>/plaque_figures/models``.\n\n:param key: a zoo key or a checkpoint path.\n:param src: the figure folder.\n:returns: ``(path, note, entry)``; ``path`` is ``''`` when it is not\n    here, and ``entry`` is what a download would fetch."
     },
     "spacr.qt.widgets.plaque_preview.resolve_plaque_model": {
       "source_blocks_sha256": [
