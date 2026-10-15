@@ -1,4 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+## 2026-10-15 Home-B — exact write refusal and current PyPI acceptance
+
+N689 run38754742270 completed with HTTP403 at operation commit. Metadata,
+tree and README steps completed first; no successful write/new revision or
+readback occurred. All build/deploy jobs were skipped. Existing HF_DOCS_TOKEN
+write permission for the selected existing v2 Space needs an owner correction;
+no broader local credential is copied and no retry is justified until that
+permission changes. Evidence:data/689_operation_specific_ci_probe_2026-10-15/.
+
+N704's current67-panel actual PyPI sanitizer cohort passes4cases1.18s after
+replacing a stale66-count fixture with exact current-route equality and named
+new-panel checks. Every sanitized image retains its own exact readable target;
+root independent peer preserves all other test AST and current sourcepins.
+No generated output or main/hosted/PyPI upload was changed. The exact738-file
+main owner packet and all required assets remain ready for Original promotion.
+
+N655 figure tiles now accept real numeric Enter+KeypadModifier across saved,
+live and pinned routes, preserving all modified-key refusals and signal IDs.
+Actual3failures become26passing new/owning checks; root independent review
+proves one method body only, no caption/API arrivals. This remains a bounded
+accessibility repair rather than whole N655 acceptance.
 
 ## 2026-10-15 Home-B — published source and next owner packets
 
