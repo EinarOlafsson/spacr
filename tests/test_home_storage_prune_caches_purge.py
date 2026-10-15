@@ -42,7 +42,12 @@ def _aged(path: Path, days: float, size: int = 1000) -> Path:
     else:
         path.mkdir(exist_ok=True)
         (path / "log.txt").write_bytes(b"x" * size)
-        os.utime(path / "log.txt", (time.time() - days * DAY,) * 2)
+        run = rj.Run(app_key="mask", settings={}, dir=path)
+        run.status = "success"
+        run._write_settings()
+        run._write_manifest()
+        for child in path.iterdir():
+            os.utime(child, (time.time() - days * DAY,) * 2)
     os.utime(path, (time.time() - days * DAY,) * 2)
     return path
 
