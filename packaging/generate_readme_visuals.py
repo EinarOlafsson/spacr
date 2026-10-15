@@ -975,6 +975,10 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
             link(entry) + (f" ({label('candidate')})"
                            if status == "candidate" else "")
             for entry, status in alternatives)]
+    site_language = "" if language == "en" else language.replace("_", "-") + "/"
+    lines += ["", f"`{label('Mask generator')} "
+              "<https://einarolafsson.github.io/projects/spacr/"
+              f"{site_language}#mask-generator>`__"]
     return "\n".join(lines)
 
 
