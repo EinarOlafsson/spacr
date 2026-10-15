@@ -1,0 +1,12 @@
+{
+  "actual_tables_consumer": {
+    "form": "get",
+    "function_depth": 1,
+    "key": "tables",
+    "line": 8905,
+    "module": "spacr.ml",
+    "nested": false,
+    "qualname": "generate_ml_scores"
+  },
+  "normal_generated_flow_mentions_actual_consumer": true
+}

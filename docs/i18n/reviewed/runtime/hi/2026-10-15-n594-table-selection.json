@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "draft_author": "Original Home easy_overnight",
+  "review_kind": "Direct AI technical draft plus independent root AI technical peer approval; no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "tables",
+      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation": "हर प्लेट के डेटाबेस से पढ़ी जाने वाली मापन तालिकाएँ, जिन्हें एक विश्लेषण डेटा फ़्रेम में जोड़ा जाता है। समर्थित तालिकाओं में पंजीकृत ऑब्जेक्ट भूमिकाएँ, ऑर्गेनेल सहित, और png_list शामिल हैं। सारणीबद्ध Classify के लिए अलग-अलग समर्थित तालिकाओं की गैर-खाली सूची चुनें, जिसमें कम से कम एक ऑब्जेक्ट-भूमिका की तालिका हो। डिफ़ॉल्ट ['cell', 'nucleus', 'pathogen', 'cytoplasm']।"
+    }
+  ],
+  "peer_receipt": {
+    "path": "features/data/594_existing_table_selection_2026-10-15/root-tooltip-peer-review.json",
+    "sha256": "ec502b7c070a0dd5e83fc7d80bf6d13be555801cc1b6da0ca2e34e1ef233fb9a",
+    "approved_translation_sha256": "9609eb00be1a484572907c5a9b1d19052bc904402d7d48310b3aa84109c4b68a"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "base": "67e37853676e682e33b372f4f0cd04ecce629f2c",
+  "before_sha256": "7ec32f1a3bbafe0efe8a3f095c597b124dff35a14530752b1672ce3c463963c3",
+  "after_sha256": "a31905b17c96ec90e5e44c54542567f39c81b901dd39907eeeafffedf7c24dc5",
+  "only_ast_changes": "Two RegionProperties attribute names in _find_dish and _measure_colonies; no math/fields/threshold/default/prose/signature/caption changes",
+  "work24_distinction": "Exact owner submodules.py equivalent_diameter_area fix already public, no duplicated tutorial/backend patch",
+  "acceptance": "Existing targeted geometry/unit/dish-selection tests queued; no native/scientific claim"
+}

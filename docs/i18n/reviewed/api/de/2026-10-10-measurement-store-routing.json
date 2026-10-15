@@ -6,7 +6,10 @@
       "label": "spacr.ml.generate_ml_scores#1",
       "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
       "source_sha256": "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
-      "translation": "Liest den durch ``measurement_backend`` ausgewählten Messspeicher aus :func:`spacr.measure.measure_crop`, führt die Merkmalstabellen für Zelle/Zellkern/Pathogen/ Zytoplasma zusammen, verwendet die als ``positive_control`` / ``negative_control`` markierten Wells (oder eine Annotationsspalte) als Trainingslabels, delegiert das Anpassen an :func:`ml_analysis` und schreibt Vorhersagen pro Objekt, Permutations- und Merkmalswichtigkeitstabellen sowie eine Platten-Heatmap nach ``results/`` im ersten Quellordner."
+      "translation": "Liest den durch ``measurement_backend`` ausgewählten Messspeicher aus :func:`spacr.measure.measure_crop`, führt die Merkmalstabellen für Zelle/Zellkern/Pathogen/ Zytoplasma zusammen, verwendet die als ``positive_control`` / ``negative_control`` markierten Wells (oder eine Annotationsspalte) als Trainingslabels, delegiert das Anpassen an :func:`ml_analysis` und schreibt Vorhersagen pro Objekt, Permutations- und Merkmalswichtigkeitstabellen sowie eine Platten-Heatmap nach ``results/`` im ersten Quellordner.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "context": "``src`` (str or list) — folder(s) containing the measurements.",

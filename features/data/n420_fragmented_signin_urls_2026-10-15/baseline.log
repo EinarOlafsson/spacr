@@ -1,0 +1,60 @@
+FFF.FFFF                                                                 [100%]
+=================================== FAILURES ===================================
+_ test_only_completed_url_is_opened_after_short_reads[Open https://-example.invalid/oauth?state=abc123 ] _
+tests/qt/test_sign_in_fragmented_urls_420.py:48: in test_only_completed_url_is_opened_after_short_reads
+    assert opened == [URL]
+E   AssertionError: assert [] == ['https://exa...state=abc123']
+E     
+E     Right contains one more item: 'https://example.invalid/oauth?state=abc123'
+E     Use -v to get more diff
+_ test_only_completed_url_is_opened_after_short_reads[Open https://example.-invalid/oauth?state=abc123 ] _
+tests/qt/test_sign_in_fragmented_urls_420.py:45: in test_only_completed_url_is_opened_after_short_reads
+    assert opened == []
+E   AssertionError: assert ['https://example'] == []
+E     
+E     Left contains one more item: 'https://example'
+E     Use -v to get more diff
+_ test_only_completed_url_is_opened_after_short_reads[Open https://example.invalid/oa-uth?state=abc123 ] _
+tests/qt/test_sign_in_fragmented_urls_420.py:45: in test_only_completed_url_is_opened_after_short_reads
+    assert opened == []
+E   AssertionError: assert ['https://example.invalid/oa'] == []
+E     
+E     Left contains one more item: 'https://example.invalid/oa'
+E     Use -v to get more diff
+______________ test_eof_flushes_a_final_url_without_newline_once _______________
+tests/qt/test_sign_in_fragmented_urls_420.py:64: in test_eof_flushes_a_final_url_without_newline_once
+    assert opened == []
+E   AssertionError: assert ['https://exa...state=abc123'] == []
+E     
+E     Left contains one more item: 'https://example.invalid/oauth?state=abc123'
+E     Use -v to get more diff
+___________ test_multiple_urls_keep_order_and_do_not_open_duplicates ___________
+tests/qt/test_sign_in_fragmented_urls_420.py:78: in test_multiple_urls_keep_order_and_do_not_open_duplicates
+    assert dialog._urls == [URL]
+E   AssertionError: assert ['https://exa...ps://example'] == ['https://exa...state=abc123']
+E     
+E     Left contains one more item: 'https://example'
+E     Use -v to get more diff
+_____________ test_existing_ansi_cleanup_survives_url_short_reads ______________
+tests/qt/test_sign_in_fragmented_urls_420.py:92: in test_existing_ansi_cleanup_survives_url_short_reads
+    assert opened == []
+E   AssertionError: assert ['https://example.invalid/'] == []
+E     
+E     Left contains one more item: 'https://example.invalid/'
+E     Use -v to get more diff
+________ test_cancellation_does_not_flush_an_incomplete_url_to_browser _________
+tests/qt/test_sign_in_fragmented_urls_420.py:104: in test_cancellation_does_not_flush_an_incomplete_url_to_browser
+    assert opened == []
+E   AssertionError: assert ['https://exa...d/unfinished'] == []
+E     
+E     Left contains one more item: 'https://example.invalid/unfinished'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/qt/test_sign_in_fragmented_urls_420.py::test_only_completed_url_is_opened_after_short_reads[Open https://-example.invalid/oauth?state=abc123 ]
+FAILED tests/qt/test_sign_in_fragmented_urls_420.py::test_only_completed_url_is_opened_after_short_reads[Open https://example.-invalid/oauth?state=abc123 ]
+FAILED tests/qt/test_sign_in_fragmented_urls_420.py::test_only_completed_url_is_opened_after_short_reads[Open https://example.invalid/oa-uth?state=abc123 ]
+FAILED tests/qt/test_sign_in_fragmented_urls_420.py::test_eof_flushes_a_final_url_without_newline_once
+FAILED tests/qt/test_sign_in_fragmented_urls_420.py::test_multiple_urls_keep_order_and_do_not_open_duplicates
+FAILED tests/qt/test_sign_in_fragmented_urls_420.py::test_existing_ansi_cleanup_survives_url_short_reads
+FAILED tests/qt/test_sign_in_fragmented_urls_420.py::test_cancellation_does_not_flush_an_incomplete_url_to_browser
+7 failed, 1 passed in 3.13s

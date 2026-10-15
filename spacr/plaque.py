@@ -636,7 +636,7 @@ def _find_dish(image: np.ndarray) -> Tuple[Well, str]:
                 best = region
     if best is not None:
         y, x = best.centroid
-        radius = best.equivalent_diameter / 2.0
+        radius = best.equivalent_diameter_area / 2.0
         x, y, radius = x / factor, y / factor, radius / factor
         return Well(int(round(x - radius)), int(round(y - radius)),
                     int(round(x + radius)), int(round(y + radius))), \
@@ -1274,7 +1274,7 @@ def _measure_colonies(labels: np.ndarray, factor: float,
     rows = []
     for region in measure.regionprops(labels):
         area = float(region.area) / factor ** 2
-        diameter = float(region.equivalent_diameter) / factor
+        diameter = float(region.equivalent_diameter_area) / factor
         y, x = region.centroid
         rows.append(dict(
             colony_id=int(region.label), area_px=area, diameter_px=diameter,

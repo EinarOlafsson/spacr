@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "Exact-source AI technical translation and self-review; normal owner-source/candidate gates required; no native-speaker signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "Retained feature values must be finite after float32 conversion: rejects NaN/infinity or overflow rather than promising exact float64 precision; existing missing-row handling and valid finite values unchanged. No algorithm, model training, acquisition independence or scientific acceptance claim.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Multiple-instance feature values must remain finite when converted to float32.",
+      "source": "Multiple-instance feature values must remain finite when converted to float32.",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation": "Los valores de características del aprendizaje por múltiples instancias deben seguir siendo finitos al convertirse a float32."
+    }
+  ]
+}

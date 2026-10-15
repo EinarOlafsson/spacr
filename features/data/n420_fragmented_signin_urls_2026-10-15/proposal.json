@@ -1,0 +1,14 @@
+{
+  "scope": "Only SignInDialog pending URL token state and _tick assembly; public find_urls/session transport/lifecycle/captions unchanged",
+  "original_sha256": "7cdb3051a1a5a9fcd03e400b2ac915e80dc9979698ee67890836590bd51405c0",
+  "proposal_sha256": "0b108e4c846dd74793bba07110c4d9f738f760858cc6706a6279bd258cae553b",
+  "source_untouched": true,
+  "design": [
+    "Carry only unfinished final whitespace-delimited text token between reads; preserve partial scheme/host/path.",
+    "Only completed token prefix is passed to unchanged find_urls; never auto-open an otherwise valid prefix before delimiter.",
+    "Process exit explicitly flushes final unterminated token, including empty final read; clear pending state, existing URL dedup prevents repeated opens.",
+    "Existing first-URL-only auto-open, multiple-URL order/latest manual open, terminal ANSI cleanup, display text and cancellation behavior remain.",
+    "No debounce/retry/timing tolerance/new module/helper/caption or account/browser/network action."
+  ],
+  "test_scope": "Actual SignInDialog _tick with local fake session and mocked browser callback, no sleeps; scheme/host/path fragmentation, immediate complete URI, EOF, multiple/dedup, conventional ANSI cleanup, cancellation."
+}

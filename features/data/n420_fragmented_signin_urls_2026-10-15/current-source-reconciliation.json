@@ -1,0 +1,10 @@
+{
+  "incoming_tip": "986a5f82664ca205b7f2d9756813794ed377c817",
+  "source_sha256": "0b108e4c846dd74793bba07110c4d9f738f760858cc6706a6279bd258cae553b",
+  "original_api_docstrings_signatures": "AST-identical to current public module",
+  "all_tr_calls": "AST-identical to current public module; no new caption",
+  "tool_context_catalogs_Help_index": "Exact incoming bytes preserved for tools, API/review/catalog artifacts and Help index; no generated hand merge or source-context change",
+  "validation": "Exact approved17PASS source retained; no collector or unchanged test rerun",
+  "source_peer": "root-source-peer-review.json",
+  "limits": "No native/vendor/browser/account or universal ANSI streaming claim."
+}

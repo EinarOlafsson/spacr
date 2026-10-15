@@ -1,0 +1,5 @@
+{
+  "base": "67e37853676e682e33b372f4f0cd04ecce629f2c",
+  "source_sha256": "7cdb3051a1a5a9fcd03e400b2ac915e80dc9979698ee67890836590bd51405c0",
+  "scope": "Per-dialog completed URL token assembly; no browser/network/account side effect"
+}

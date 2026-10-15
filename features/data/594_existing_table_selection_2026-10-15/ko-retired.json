@@ -1,0 +1,15 @@
+{
+  "reason": "Correct pre-existing unsupported-organelle claim and describe actual tabular Classify table selection",
+  "records": [
+    {
+      "input_path": "docs/i18n/reviewed/runtime/ko/2026-08-26-final-runtime-gaps.json",
+      "record": {
+        "table": "setting_tooltips",
+        "key": "tables",
+        "source_sha256": "44096ea3a7b8d7e090e0212cca3a4d967d9e997c3bf214063dc3b195bc410828",
+        "source": "Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+        "translation": "각 플레이트의 데이터베이스에서 읽어 하나의 분석 프레임으로 병합하는 측정 테이블입니다. 'cell', 'nucleus', 'pathogen', 'cytoplasm', 'png_list' 만 병합됩니다. 'organelle' 을 포함한 다른 테이블은 불러오지만 경고 없이 병합 결과에서 제외됩니다. 기본값 ['cell', 'nucleus', 'pathogen', 'cytoplasm']."
+      }
+    }
+  ]
+}

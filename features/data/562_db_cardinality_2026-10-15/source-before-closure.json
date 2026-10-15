@@ -1,0 +1,16 @@
+{
+  "current_pin": "8e1bf0df937feb3010472dcf9860a32095fc4fb5",
+  "helpers": {
+    "_mil_frame_from_db": {
+      "approved_pin": "091c0d96b9b",
+      "exact_source_segment_unchanged": true,
+      "sha256": "273424cde2f85653b06c69150ca6e7c5a8d841475a0bf432d184f4da7d12753d"
+    },
+    "_mil_bags": {
+      "approved_pin": "d25e03edf02",
+      "exact_source_segment_unchanged": true,
+      "sha256": "24cc2e9fe9ec5b45a61273ba4d5f19e91e2a220faac3f7a18e152356762b2604"
+    }
+  },
+  "nine_exact_review_files_match_peer_adoption": true
+}
