@@ -1,0 +1,14 @@
+{
+  "current_source": "a31da668374311861b22eca638790ba5b21e62a6",
+  "assignment_count_without_spatial": 38,
+  "visible_assignment_count_without_spatial_launcher": 36,
+  "historical_digest": "417e53d93cd6259149951890b9ea9a00b163952790abdfbaff605f2f01785d3d",
+  "single_assignment_removal_reproducing_historical_digest": [
+    "spacr.qt.widgets.object_settings_grid.AUTO_TEXT"
+  ],
+  "admitted_assignment": {
+    "text": "What an unset value reads as. ``None`` means \"work it out\" for most of\nthese, and an empty cell would read as \"nobody has filled this in yet\",\nwhich is a different claim. An object diameter is the exception: its\n``None`` is the magnification default, drawn greyed (item 696).",
+    "path": "spacr/qt/widgets/object_settings_grid.py",
+    "source_sha256": "9caa0afca39d68d263907fa52367a944d8067c256a17363b4a54c773ba637305"
+  }
+}

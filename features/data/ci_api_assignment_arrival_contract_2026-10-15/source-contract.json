@@ -1,0 +1,46 @@
+{
+  "base_source": "a31da668374311861b22eca638790ba5b21e62a6",
+  "test_before_sha256": "cc6959498c1f7a7661ce66c668ed35b3c75457e5e4a5097042e34e6d5b0dbfe8",
+  "test_after_sha256": "acdb765076662ca88fe1955b099bc66d8b0671176683c70ccb1093331798c6cb",
+  "changed_existing_definitions": [
+    "test_public_docstrings_matches_reviewed_visible_coverage",
+    "test_assignment_docs_are_ast_source_text_without_show_value_artifact"
+  ],
+  "all_other_function_class_asts_identical": true,
+  "production_tools_generated_files_changed": false,
+  "historical_counts_unchanged": [
+    35,
+    37,
+    13218
+  ],
+  "historical_digest_constants_unchanged": true,
+  "curated_fixture_changes": [
+    {
+      "path": "tests/data/release_contracts/655_accessibility_api_arrivals_2026-10-12.json",
+      "key_count_unchanged": 15,
+      "only_changed_keys": [
+        "spacr.qt.theme.focus_ring_qss"
+      ],
+      "other_values_identical": true
+    },
+    {
+      "path": "tests/data/release_contracts/694_startup_splash_api_arrivals_2026-10-12.json",
+      "key_count_unchanged": 21,
+      "only_changed_keys": [
+        "spacr.qt.preferences.get_startup_animation",
+        "spacr.qt.widgets.loading_screen.startup_animation_allowed"
+      ],
+      "other_values_identical": true
+    },
+    {
+      "path": "tests/data/release_contracts/695_startup_sequence_api_arrivals_2026-10-12.json",
+      "key_count_unchanged": 5,
+      "only_changed_keys": [
+        "spacr.qt.widgets.loading_screen.replay_startup_animation"
+      ],
+      "other_values_identical": true
+    }
+  ],
+  "new_named_fixture_count": 20,
+  "parent_review": "Root approved exact named AUTO_TEXT mapping, four existing source-corrected prose values, and the20-arrival proposala0262b1062aadb7f54d70ac1e3c21e357fd454c7dcdde9d211228916c9324a3d. No validator, tool, generated catalog, production source, or ceiling change."
+}
