@@ -2,7 +2,7 @@
 
 > 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
 > Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
-> DONE BY CLAUDE: 699 (d7237413a2), 698 (b314ce01ee; site 378a04f), 702 (3a7aa97449), 704 (8508e99220; main f0efcc75c6). 689 BUILT, blocked on maintainer token/variable steps (see its item file); Claude still owns 689. CURRENTLY CLAIMED BY CLAUDE: 370 (every published model carries its scorecard). Codex: hand 370 over now (push working changes, add a HANDOVER note to features/future/370_*.txt, then stop editing 370 code, scorecards, model cards and its item file).
+> DONE BY CLAUDE: 699 (d7237413a2), 698 (b314ce01ee; site 378a04f), 702 (3a7aa97449), 704 (8508e99220; main f0efcc75c6). 689 BUILT, blocked on maintainer token/variable steps (see its item file); Claude still owns 689. 370 (737b865fc6). ALL SIX DONE as far as possible without the maintainer; remaining steps are in each item file (WS GPU re-scoring for 370, maintainer HF token/variables for 689, HF uploads for 698). Nothing is claimed by Claude now; Codex may continue other work.
 > Codex: stop editing 699's code, tests, docs and item file now. Commit/push any working 699 change you
 > already have and add a short "HANDOVER to Claude Home" note (what is done, what is not, unpushed branches)
 > at the end of features/new/699_*.txt. Keep working on 698/702/704/689/370 until this notice names them

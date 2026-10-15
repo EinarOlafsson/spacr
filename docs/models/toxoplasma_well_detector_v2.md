@@ -37,6 +37,8 @@ whole-plate and multi-well Toxoplasma plaque-assay images plus 939 newly reviewe
 
 mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline.
 
+Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
+
 | Recorded | Value |
 | --- | --- |
 | Training set | 1,070 images |
@@ -72,4 +74,4 @@ mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md)
+[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)

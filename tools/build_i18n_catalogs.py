@@ -4216,6 +4216,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             diagnostic_owners = {
                 "_ensure_catalogue_model_file", "_curated_scorecard_rows",
                 "_curated_scorecard_lines", "_model_resolution_context",
+                "scorecard_state_text",
             }
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

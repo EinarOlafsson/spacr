@@ -3,7 +3,15 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    PARTIAL 2026-10-14 — nine approved curated cards are published;
+Status:    BUILT 2026-10-15 (Claude Home): software side complete. Every
+           published model shows a scorecard state (reviewed / hold-out /
+           recorded at publication / not yet evaluated) in the catalogue,
+           tooltips, picker card and detail panel; matched-stock export
+           docs/models/scorecards.csv; card JSON / zoo / generator consistency
+           tested. OPEN, assigned to WS and the maintainer: GPU re-scores of
+           the eight non-reviewed models, central dataset upload, native GUI
+           check and scientific sign-off (exact steps in the last note).
+Previous status (superseded 2026-10-15):    PARTIAL 2026-10-14 — nine approved curated cards are published;
            catalogue/tooltips, matched-stock exports, API consistency and
            remaining published-model acceptance still need completion.
 
@@ -1546,3 +1554,78 @@ are bounded software/locale acceptance, not a claim of every model's new
 scientific evaluation, central dataset upload or native inspection. Claude
 owns reconciliation of the full original item. Original stops scorecard/model
 card/code/item editing after this handover; general CI continues separately.
+
+2026-10-15 — BUILT (Claude Home): scorecard states, matched-stock export,
+consistency tests. Remaining work assigned below.
+
+Done, no scoring, training, GPU or upload:
+* spacr.model_zoo.scorecard_state(entry) names one of four states:
+  reviewed (the nine bound packaged cards), held_out (structured
+  measurements on a named set; toxoplasma_well_detector_v3), recorded
+  (numbers written into the zoo record at publication) and not_evaluated.
+  scorecard_state_text(entry) gives spaCR-published rows a translated
+  sentence for recorded and not_evaluated; stock, third-party and local rows
+  keep their own description. The Model Zoo tooltip, the detail panel (the
+  card viewer's fallback for rows without a 3-page card), the picker row
+  tooltip and the picker card all show it, so no published row shows nothing.
+* Data gaps closed from existing measurements only: toxoplasma_from_hoechst_v1
+  had no metrics dict (tooltip empty while the README card showed numbers);
+  it now carries F1/AJI/Dice 0.569/0.421/0.546 against stock cpsam_v2
+  0.002/0.006/0.016 on 463 fields, copied from its own notes.
+  nuclei_from_cellmask_v1 said "not recorded" for stock while its notes and
+  card give 0.201/0.286/0.449; filled from those notes. SVG cards unchanged.
+* Matched-stock export: spacr.model_zoo.scorecard_export_rows() (long format,
+  one row per metric: this model, stock, difference, baseline, evaluation set
+  and version, field and object counts, boundary tolerance, checkpoint
+  SHA-256; values copied, never recomputed). tools/build_model_cards.py now
+  writes docs/models/scorecards.csv (17 published models, 77 rows) through
+  spacr.tabular.write_table, adds a Scorecard column to docs/models/README.md
+  and a "Scorecard state" line to every Markdown card; --check covers it.
+* Tests: tests/test_f370_scorecard_states_and_export.py: every published
+  model has a measurement; the nine reviewed rows equal the packaged card
+  JSON exactly; export agrees with the SVG score-card numbers (to 5e-4);
+  CSV is current and matches the index; unevaluated and stock rows behave.
+  API arrival contract
+  tests/data/release_contracts/370_scorecard_states_and_export_api_arrivals_2026-10-15.json
+  (3 symbols). Two new captions with AI-reviewed records in nine languages
+  (docs/i18n/reviewed/runtime/<lang>/2026-10-15-f370-scorecard-states.json;
+  Claude AI review, no native-speaker signoff); catalogs rebuilt.
+* Not changed: the nine reviewed cards, default model choices, the API
+  model_zoo_table.rst (it already states "Measured." for every published
+  model), historical evaluations.
+
+Current published states (docs/models/scorecards.csv):
+  reviewed (9): toxoplasma_pv_v1..v5, toxoplasma_plaque_v1..v4
+  held_out (1): toxoplasma_well_detector_v3 (no stock: no stock YOLO class)
+  recorded (7): toxoplasma_well_detector_v1, toxoplasma_well_detector_v2,
+    toxoplasma_from_cellmask_v1, toxoplasma_from_hoechst_v1,
+    nuclei_from_cellmask_v1, cell_from_hoechst_v1, live_cell_v1
+  not_evaluated: none published (alpha colony_yolo11n_makrai_v1 and
+    mitonet_mini_v1 are "recorded").
+
+REMAINING, ASSIGNMENT FOR WS (all GPU work), in order:
+ 1. Re-score the five recorded segmenters with matched stock on fields they
+    never saw (their recorded numbers come from the split that selected the
+    checkpoint): toxoplasma_from_cellmask_v1, toxoplasma_from_hoechst_v1,
+    nuclei_from_cellmask_v1, cell_from_hoechst_v1, live_cell_v1. Use the
+    2026-10-11 protocol (spacr.model_zoo.benchmark, defaults, stock
+    cpsam_v2 on identical fields, six metrics incl. boundary F1 at 2 px,
+    pooled, with field/object counts). Keep the receipt beside
+    model_rescore_curated_gt_2026-10-11 (no evidence packets in the repo).
+ 2. Detectors v1/v2/v3: mAP50, mAP50-95, precision, recall on one
+    independent plate set not used for checkpoint selection (the three Gel
+    Doc plates selected v3's best.pt, so they do not qualify); baseline is
+    the incumbent detector, as no stock YOLO has a plaque_well class.
+ 3. For each re-scored model: card JSON in spacr/resources/model_cards/
+    (same schema as the nine), three PNG pages to its HF repo, a binding in
+    _CURATED_SCORECARD_BINDINGS (URI, checkpoint and resource SHA-256), then
+    python tools/build_model_cards.py; the state becomes "reviewed" and
+    test_the_nine_reviewed_cards_stay_reviewed gets the new keys.
+ 4. Upload docs/models/scorecards.csv to the einarolafsson/models DATASET
+    repo (repo_type="dataset") as scorecards/scorecards.csv and move the
+    pinned catalogue revision past the Oct 9 one (maintainer token).
+ 5. Native GUI check on the GNOME host: Model Zoo hover and select one row
+    per state, picker card in Mask, both themes, screenshots.
+REMAINING, MAINTAINER: scientific sign-off of the re-scored cards (step 3),
+whether "recorded" numbers may stay visible until then, and native-speaker
+review of the two new captions (optional; they are labelled AI-reviewed).

@@ -1591,6 +1591,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
     assert not s700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
+    # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
+    s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
+    assert len(s370_arrivals) == 3
+    assert {key: docs[key] for key in s370_arrivals} == s370_arrivals
+    assert not s370_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **s370_arrivals}
     # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
     note_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "install_cleanup_note_api_arrival_2026-10-14.json").read_text())

@@ -35,6 +35,8 @@ Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxopla
 
 F1 0.761 against stock cpsam_v2's 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040.
 
+Scorecard state: **reviewed hold-out scorecard**.
+
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
 | F1 | 0.7611 | 0.3771 | 0.3840 |
@@ -86,4 +88,4 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 209 sco
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md)
+[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)

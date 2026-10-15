@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_scope": "Claude AI technical review (Opus 5.5); translated directly from the English for item 370's scorecard-state sentences (recorded at publication, not yet evaluated) in the Model Zoo tooltip, picker card and detail panel; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Scorecard: not yet evaluated. No held-out comparison against the stock model has been measured for this model.",
+      "source": "Scorecard: not yet evaluated. No held-out comparison against the stock model has been measured for this model.",
+      "source_sha256": "4ee5b4dde53d768a1084444c35724b67816f0ef460297282025e96a98b5704fb",
+      "translation": "평가표: 아직 평가되지 않았습니다. 이 모델에 대해 보류 데이터에서 기본 모델과의 비교가 아직 측정되지 않았습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Scorecard: these numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.",
+      "source": "Scorecard: these numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.",
+      "source_sha256": "b209992ba48e5f1e3fc2f7118cea0a9df4272b096df1e3a8285b4a649a6ae819",
+      "translation": "평가표: 이 수치는 모델을 게시할 때 모델과 함께 기록된 것입니다. 보류 데이터에서 기본 모델과 비교한 검토된 결과는 아직 없습니다."
+    }
+  ]
+}

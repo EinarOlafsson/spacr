@@ -1624,6 +1624,8 @@ class ModelZooPicker(QDialog):
         from ... import model_zoo
 
         tip = model_zoo.scorecard_html(entry)
+        state = model_zoo._scorecard_state_html(entry)
+        tip = tip + state if tip else state
         notes = tuple(getattr(entry, "notes", ()) or ())
         sorting = self.table.isSortingEnabled()
         self.table.setSortingEnabled(False)
@@ -1897,6 +1899,7 @@ class ModelZooPicker(QDialog):
                 name = getattr(entry, "display_name", "") or getattr(entry, "name", "")
                 html = (f"<p><b>{name}</b></p>"
                         f"<p>{getattr(entry, 'trained_on', '') or ''}</p>")
+        html += model_zoo._scorecard_state_html(entry)
         if (getattr(entry, "source", "") == "community"
                 and model_zoo.source_of(entry) == "spaCR community"):
             from ... import model_zoo as _zoo

@@ -367,10 +367,12 @@ def _tooltip_for(entry) -> str:
     two paragraphs to find two numbers. This is the same table the model card
     prints, so the GUI and Hugging Face say the same thing in the same shape.
     """
+    state = zoo.scorecard_state_text(entry)
     table = zoo.scorecard_html(entry)
     if table:
-        return table
-    return _tooltip_prose(entry)
+        return table + zoo._scorecard_state_html(entry)
+    prose = _tooltip_prose(entry)
+    return f"{state}\n\n{prose}" if state else prose
 
 
 def _tooltip_prose(entry) -> str:
@@ -1018,7 +1020,9 @@ class ModelZooScreen(QWidget):
         """Show the details of the selected model."""
         chosen = self.selected_entries()
         if len(chosen) == 1:
-            self._detail.setPlainText(chosen[0].describe())
+            state = zoo.scorecard_state_text(chosen[0])
+            self._detail.setPlainText(
+                chosen[0].describe() + (f"\n  ! {state}" if state else ""))
         elif len(chosen) > 1:
             self._detail.setPlainText(
                 "\n\n".join(e.describe() for e in chosen[:2]))
