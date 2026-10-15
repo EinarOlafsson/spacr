@@ -1,0 +1,55 @@
+{
+  "scope": "N468 warning-free existing-mask plaque diameter API compatibility; not tutorial/scientific acceptance",
+  "owner_packet": "9abb8240bb7:features/data/n676_plaque_current_preview_blocker_2026-10-15/tested-source-fixes.patch",
+  "adopted_files": [
+    "spacr/submodules.py",
+    "tests/test_plaque_equivalent_diameter_api.py"
+  ],
+  "source_change": "equivalent_diameter alias to equivalent_diameter_area; output field equivalent_diameter_px unchanged",
+  "predecessor": {
+    "commit": "3335cf1d55c",
+    "failed": 1,
+    "passed": 1,
+    "seconds": 11.23,
+    "cause": "FutureWarning under supplied strict warnings contract on scikit-image0.26.0; ordinary prior numeric output is semantically equivalent"
+  },
+  "owning": {
+    "passed": 38,
+    "seconds": 12.05,
+    "exit": 0,
+    "memory_cap": "6G",
+    "shared_lock": true
+  },
+  "geometry": {
+    "proof": "features/data/n676_plaque_current_preview_blocker_2026-10-15/diameter-alias-proof.json",
+    "proof_sha256": "347cdd1a3be4bc60afd9c26b238e89d1834274138776109b7afbab268a2d5caf",
+    "labels": [
+      2,
+      7,
+      12,
+      20,
+      31
+    ],
+    "areas": [
+      1,
+      12,
+      12,
+      40,
+      20
+    ],
+    "exact_alias_equality": true,
+    "tables_preserved": [
+      "summary",
+      "stats",
+      "details",
+      "per_image",
+      "per_plaque"
+    ],
+    "input_mask_preserved": true
+  },
+  "limitations": [
+    "Synthetic native TIFF/SQLite only; no biological accuracy proof",
+    "No real checkpoint/model/inference/GPU/network/full CI",
+    "No tutorial recorder source or publication adopted"
+  ]
+}
