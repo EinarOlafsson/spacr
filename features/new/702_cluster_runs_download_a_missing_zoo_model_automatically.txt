@@ -1,8 +1,6 @@
-================================================================================
 CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
-================================================================================
 
-Status:    not started
+Status:    PARTIAL — exact missing-path lookup and local-process download coalescing implemented 2026-10-14; pinned export, offline mode and remaining acceptance open.
 Requested: maintainer, 2026-10-13: "when using run if the like with athe
            cluster, if a user puts in a version of a model thatisnt on the
            cluster it should be automatically downloaded. now it just fails
@@ -95,3 +93,120 @@ round trips, invalidate identities after model edits/CLI --set, recheck caches
 under a process lock and reject ambiguity/stale hashes. No code, tests, model
 downloads or GPU execution occurred; exact lookup/export/offline/lock/native
 acceptance remains to implement after release.
+
+2026-10-14 — exact missing-laptop-path resolver component (Home):
+The existing shared headless model resolver now accepts a missing POSIX,
+Windows or ~/ laptop path when its final component exactly names one unique
+catalogue key or checkpoint filename. Existing native files still win before
+any catalogue query. The selected immutable ModelEntry goes through the same
+kind restriction, cache hash verification, GUI-thread refusal and verified
+fetch implementation; no fuzzy prefix or neighbouring version is selected.
+Ambiguous identities remain unresolved for the caller's existing error path.
+Explicit remote URIs are not reinterpreted as laptop paths.
+
+The native offline file:// mirror baseline failed 5 new cases while 3 guards
+already passed. The first owning model-zoo/shared-catalogue/missing-model
+cohort passed 111 cases in 18.93 seconds. A final explicit-URI safeguard and
+its focused closure passed 26 cases in 7.24 seconds, actual exit 0; these
+cohorts overlap and are not summed. A prior test that incorrectly described
+an exact matching basename as unrelated now supplies a genuinely unrelated
+filename. Checksum rejection leaves no replacement weights; cache reuse,
+dry-run, wrong-kind, local-first and GUI-thread policies retain their tests.
+
+This closes only the bounded exact-path lookup component. Exported pinned
+key/version/hash metadata, metadata invalidation after edits, offline no-
+traffic controls, contextual unknown/ambiguous copy instructions, all-model
+entrypoint coverage, process download coalescing, docs/translations/native
+acceptance remain OPEN. No live weights download, network or GPU operation.
+Public signatures, docstrings and captions are unchanged.
+Evidence: data/702_exact_missing_path_resolver_2026-10-14/receipt.json.
+
+2026-10-14 — local-node process download coalescing component completed:
+Two resolver jobs previously both fetched the same checkpoint after checking
+an empty cache, and retained duplicate versioned copies. A deterministic
+native two-child file:// mirror baseline reproduced both downloads. Missing
+headless checkpoint acquisition now holds a QtCore QLockFile keyed by cache
+filename and expected SHA-256, then rechecks exact cached bytes and versioned
+cache files under that lock before fetch. Different hashes retain separate
+identities and fetch's existing no-overwrite/versioned reservation is intact.
+Preflight and the GUI-thread refusal happen before lock/file creation. Dead
+local owners are reclaimed through Qt's PID/host check; age-based expiration
+is disabled so long downloads do not become stale merely by taking time.
+
+Initial owning99PASS/20.06s, finite native closure4PASS/1.07s, final-source
+owning103PASS/17.80s and final native closure6PASS/1.38s; all actual exit0.
+Cohorts overlap and must not be summed. Native children fetch once and return
+the same checked path both with an empty cache and a preserved different-
+version file. A child exiting inside fetch leaves a real lock which its
+successor reclaims. Failed checksum then corrected retry releases its lock,
+and controlled permission/unknown lock failures preserve prior bytes and
+never fetch. No orphan locks or partial checkpoint files remain after success
+or handled failure. Existing resolver/type/checksum/versioning cases pass.
+
+This is CPU/native local-process and private file-mirror proof, not a real
+HPC/network-share/Windows/macOS acceptance claim. No live weights download,
+network or GPU operation. No new captions/public signatures/docstrings or
+translation-tool changes. Parent N702 remains partial: pinned settings export
+and invalidation, contextual unknown/ambiguous errors and all-model entrypoint
+acceptance remain open; the separate offline component retains its artifact
+hold until owner-generated catalogs and nine actual locale tests pass.
+Evidence: data/702_process_download_coalescing_2026-10-14/receipt.json.
+
+2026-10-14 — ambiguous exact identities refuse stock fallback:
+An exact basename matching multiple zoo entries previously returned None.
+The real Cellpose resolver then treated that known-but-ambiguous name as
+unknown and silently used stock cpsam weights. Native baseline2FAIL/1local
+file guardPASS reproduced the missing refusal and actual fallback message.
+The model resolver now raises ModelZooError with requested identifier, exact
+match count and EVERY candidate key@version [sha256=...] instead of choosing
+or handing ambiguity to a stock fallback. Existing local files still win.
+Unknown identifiers and known legacy behavior are unchanged by this repair.
+
+The error reuses the existing correctly translated '{name} · {n} matches'
+caption; no new source captions, generated artifacts, tool changes or review
+claims. The superficially suitable 'Ambiguous mapping' row was not reused
+because several existing translations have the wrong meaning. The finite
+owning cohort passed44cases in8.21seconds, actual exit0, including the real
+Cellpose resolution path and all nine actual shipped language error paths
+with unchanged exact candidate identities. Public signatures/docstrings are
+unchanged; no network/weights inference/GPU/native-other-OS/fullCI claim.
+Parent702 and the separate offline-catalog artifact hold remain open.
+Evidence: data/702_ambiguous_identity_refusal_2026-10-14/receipt.json.
+
+2026-10-14 — CLI and batch preserve and invalidate recorded model identities:
+Imported pins are validated before migration or overrides, preventing an edit
+from repairing stale evidence. Proven one-to-one setting renames move the pin;
+conflicting identities and one-to-many mappings fail. Explicit model overrides
+remove only that setting's pin, including repeated edits back to the original
+value, with a translated removal warning. Generic metadata and dotted metadata
+overrides are refused. Untouched pins survive as independent deep copies;
+failed pinned edits cannot partly mutate the caller. The actual CLI force and
+no-preflight paths cannot bypass malformed imports. CSV/JSON export validates
+existing supplied pins before either previous output is touched. Generic
+serialization does not automatically enrich identities.
+
+The finite owning CLI, batch and recorded-identity cohort passed407tests in
+8.90seconds, exit0 (one existing runpy warning), including seventeen new native
+file/actual CLI cases. Initial regression baseline10FAIL/1PASS. The independent
+Work fixtures now test raw validator rejection AND real settings-loader refusal
+at their respective boundaries. No new captions/modules, network/GPU/fullCI.
+Parent702 remains partial: module/backend kind enforcement, automatic capture,
+GUI edit lifecycle and shared acquisition acceptance remain separate work.
+Evidence: data/702_cli_batch_pin_integrity_2026-10-14/receipt.json.
+
+2026-10-14 — CLI/batch enforce model pins against the selected consumer:
+After original-key validation and proven migration/default overlay, imported
+pins must fit the actual module and backend before any override. Overrides
+then invalidate only explicitly edited model fields and the final backend is
+checked against every surviving pin. A classifier pin cannot be smuggled into
+Mask Generation by simultaneously replacing the model. A backend change
+cannot retain unrelated incompatible Cellpose pins, and rejection preserves
+the caller's original payload. Explicit backend and both model changes may
+remove both old pins. Generic moduleless serialization remains structural.
+
+The finite owning cohort passed427tests in8.40seconds, exit0 (one existing
+runpy warning), including ten new kind/route/atomicity cases. Depends on the
+parent-owned module-kind helper registry. No source captions, generated
+artifacts, network/weights/GPU/fullCI. Unsupported consumers, automatic export
+capture and GUI edit lifecycle remain distinct work; parent702 stays partial.
+Evidence: data/702_cli_backend_pin_integrity_2026-10-14/receipt.json.

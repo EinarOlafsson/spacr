@@ -1,0 +1,30 @@
+{
+  "scope": "N702 exact ambiguous model identity refuses stock fallback",
+  "baseline": {
+    "failed": 2,
+    "passed": 1,
+    "exit": 1,
+    "actual_caller_observation": "Unknown shared_weights.CP_model; using cpsam"
+  },
+  "owning": {
+    "passed": 44,
+    "seconds": 8.21,
+    "exit": 0,
+    "actual_locale_error_paths": 9
+  },
+  "caption_reused": "{name} \u00b7 {n} matches",
+  "no_new_caption_sources": true,
+  "sha256": {
+    "spacr/model_zoo.py": "9fa027df96efd39c28f6a7b8eb1dbf9217d34c3150e4010a5f26d20a7fe464fd",
+    "tests/test_n702_ambiguous_identity_never_uses_stock_model.py": "62d37e6770c316d10ef9a243248a64b9365052b62394488d1ee8c9210de441c7",
+    "tests/test_n702_missing_laptop_model_path.py": "137a7d3168f315ae4bd5f53270b5f0dfb0ab27d251602dd6502529e9d3a014ce",
+    "/mnt/wd4tb/scratch/n702-ambiguity-20261014/baseline.log": "ba79d6efdaf9ef12edc4658e9fc0e88a72d96d070c08d8ef59d71bf17215a5a0",
+    "/mnt/wd4tb/scratch/n702-ambiguity-20261014/owning.log": "a8ff0430f402c04b0e953b625176dafa7e727c37fcb0c4e6e7a6be022842c9c4",
+    "/mnt/wd4tb/scratch/n702-ambiguity-20261014/owning.xml": "5e2a1aba77c32160e599ca40368bfced30cc8353eaf301e4db919ec988bea49d"
+  },
+  "limits": [
+    "Controlled catalogue/native local files/real Cellpose name resolver",
+    "No live weights download/network/GPU/full CI",
+    "Parent partial and separate offline artifact hold remain"
+  ]
+}

@@ -25,3 +25,31 @@ DONE NOTE
   tests/test_home_storage_prune_caches_purge.py,
   tests/qt/test_storage_preferences.py (temp homes).
   Left: captions await the next catalog rebuild (_AWAITING_CATALOG_REBUILD).
+
+2026-10-14 — active worker-thread run journals protected from pruning:
+The storage worker's thread-local current_run is empty while a pipeline runs
+on another thread. An active journal older than the age floor could therefore
+appear in the prune plan and delete_runs could remove it, breaking its next
+manifest write. Two native temporary-thread cases reproduced both failures.
+
+A guarded process-wide set now retains every open_run directory throughout
+its pipeline and finalization. Prune planning includes that snapshot; explicit
+delete_runs refuses active directories and their descendants/ancestors using
+the existing still-running refusal. The thread-local current_run contract and
+nested restoration remain unchanged. Protection is always removed at context
+exit, including pipeline and finalizer failure, so completed records remain
+deletable. The lock is reinitialized after fork where supported.
+
+Initial finite storage/journal cohort54PASS; final native closure6PASS; final
+source owning cohort56PASS in4.95seconds, actual exit0. Cohorts overlap and
+are not summed. Tests use actual private folders, held worker threads, aged
+files, native planning/deletion and normal context entry/exit; expensive
+environment/provenance/provider operations are stubbed. Closed, failed and
+nested runs and active child-folder preservation are covered. No captions,
+public signatures or docstrings change.
+
+Scope is active runs registered in THIS process, including its storage
+worker. Separate-process/remote-host live-run detection and native fork/OS
+acceptance are not established by these tests. No real jobs, logs, annotations,
+models, caches, user data, GPU or external provider operation was touched.
+Evidence: data/643_worker_run_prune_protection_2026-10-14/receipt.json.

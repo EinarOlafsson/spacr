@@ -3017,20 +3017,30 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                         os.symlink(os.path.relpath(target, os.path.dirname(original)), path)
         staged_python = os.path.join(staged, "bin", "python")
         command = list(install)
-        position = command.index("--python") + 1
-        if os.path.realpath(command[position]) != os.path.realpath(record.python):
-            raise ValueError("the package command does not target this private runtime")
-        command[position] = staged_python
+        pip_command = len(command) > 4 and command[1:4] == ["-I", "-m", "pip"]
+        if pip_command:
+            if os.path.abspath(command[0]) != os.path.abspath(record.python):
+                raise ValueError("the package command does not target this private runtime")
+            if command[4:6] != ["install", "--upgrade"]:
+                raise ValueError("the package command does not target this private runtime")
+            command[0] = staged_python
+            check_command = [staged_python, "-I", "-m", "pip", "check"]
+        else:
+            position = command.index("--python") + 1
+            if os.path.realpath(command[position]) != os.path.realpath(record.python):
+                raise ValueError("the package command does not target this private runtime")
+            command[position] = staged_python
+            check_command = [command[0], "pip", "check", "--python", staged_python]
         code, output = runner(command)
         if code:
             raise RuntimeError(f"The staged package upgrade failed with exit code {code}: {output}")
-        code, checked = runner([command[0], "pip", "check", "--python", staged_python])
+        code, checked = runner(check_command)
         if code:
             raise RuntimeError(f"Staged package dependencies failed verification: {checked}")
         code, imported = runner([staged_python, "-I", "-c", "import spacr.qt"])
         if code:
             raise RuntimeError(f"The staged application import failed: {imported}")
-        code, observed = runner(_runtime_identity_command(staged_python, version, minimum=True))
+        code, observed = runner(_runtime_identity_command(staged_python, version, minimum=not pip_command))
         if code:
             raise RuntimeError("The staged application identity could not be verified: " + observed)
         try:

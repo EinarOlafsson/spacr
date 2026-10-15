@@ -70,7 +70,7 @@ def test_wrong_model_kind_never_downloads(remote_model):
 
 def test_missing_local_path_is_not_replaced_by_an_unrelated_model(remote_model):
     _entry, _payload, requests = remote_model
-    assert zoo._ensure_model_file("/missing/remote_cells.CP_model") is None
+    assert zoo._ensure_model_file("/missing/unrelated_cells.CP_model") is None
     assert zoo._ensure_model_file("unknown_model") is None
     assert requests == []
 
