@@ -1,0 +1,759 @@
+**CI, tests, dependencies and repository maintenance (67)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N03 | P | — | A | five order dependent qt failures |
+| N05 | R | — | Prior | version bump and github actions |
+| N07 | P | — | A | known bugs not fixed |
+| N22 | R | — | Prior | reproducibility hash should be opt in |
+| N25 | R | — | Prior | qt conftest is lost on mixed ordering |
+| N29 | R | — | Prior | stop should offer hard or soft |
+| N43 | P | — | A | fix the failing github tests |
+| N47 | P | — | A | qt suite hangs at about 25 percent |
+| N54 | P | — | A | python 3 9 to 3 14 and optimal dependencies |
+| N56 | R | — | Prior | github issue generation is a page not found |
+| N58a | R | — | Prior | remove claude and github actions from contributors |
+| N58b | R | — | Prior | remove claude as a github contributor |
+| N60 | P | — | A | every module to 100 percent test coverage |
+| N70 | R | — | Prior | gpu offload where it actually helps |
+| N81 | R | — | Prior | close the github issues |
+| N98 | R | — | Prior | worker threads have a 512kb stack |
+| N100 | R | — | Prior | xfail backlog is fifteen unfixed bugs |
+| N101 | R | — | Prior | nightly cancels its own ci before it finishes |
+| N114 | P | — | A | parameter search that cannot take the machine down |
+| N145 | R | — | Prior | one reader one writer one vocabulary |
+| N220 | R | — | Prior | backends that can be default dependencies |
+| N234a | R | — | Prior | codex repository familiarisation |
+| N235 | P | — | A | two tests fail on an unlucky order |
+| N237 | R | — | Prior | every core module driven on real data |
+| N242 | R | — | Prior | module consolidation |
+| N251 | R | — | Prior | four things about the modules |
+| N259 | P | — | A | delete the dead code |
+| N268 | R | — | Prior | spacr must run on a laptop |
+| N282 | R | — | Prior | libraries load when called and memory is budgeted |
+| F288 | P | — | A | zero issues green ci and per module coverage |
+| N294 | P | — | A | verbose logging must be cheap before it is default |
+| N297 | R | — | Prior | verbose logging is broken |
+| N305 | P | — | A | installed package loads and runs optimally |
+| N308 | P | — | A | setup py declares every dependency on every os and python |
+| N310 | R | — | Prior | defects found while covering excluded code |
+| N312 | P | — | A | spacr records what each process and thread cost |
+| N313 | R | — | Prior | ceiling admits python 315 |
+| N319 | R | — | Prior | use non nvidia accelerators where they exist |
+| N328 | B | — | A | source install should not cost a gigabyte |
+| N332 | R | — | Prior | measure needs downloadable test data |
+| N340 | R | — | Prior | session of 2026 09 01 |
+| N344 | P | — | A | open list audit of 2026 09 01 |
+| N346 | P | — | A | measure suite fails only in company |
+| N349 | R | — | Prior | load test data leaves the literal src placeholder |
+| N351 | P | — | A | close every github issue by fixing it |
+| N354 | P | — | A | night of 2026 09 02 |
+| N364 | R | — | Prior | audit every setting for necessity redundancy and clarity |
+| N377b | R | — | Prior | github community standards checklist is green |
+| N393 | R | — | Prior | test pins generated png bytes to one pillow version |
+| N395 | R | — | Prior | measure an encoder that was trained on cells |
+| N398 | R | — | Prior | eleven stale ledger files sit outside the index |
+| N402 | R | — | Prior | flowview tracing has no teardown |
+| N430 | R | — | Prior | rerun trusts nothing a killed run left |
+| N434 | R | — | Prior | local spacr checkout is missing a git object |
+| N453 | R | — | Prior | memory watchdog so a runaway cannot take the desktop |
+| N460 | R | — | Prior | test data for every module that reads a measurements db |
+| N461 | R | — | Prior | test data for ops and align stitch |
+| F487 | R | — | Prior | github issue audit and resolution |
+| N514 | R | — | Prior | load test data fills src and live shows it at once |
+| F583 | R | — | Prior | lims plate barcode linkage |
+| N614 | R | — | Prior | github 134 measure plane layout conflict |
+| N631 | R | — | Prior | ram aware worker guard |
+| N638 | R | — | Prior | verbose logging is usable |
+| N641 | P | — | A | performance audit 2026 10 04 |
+| N664 | R | — | Prior | stagger parallel workers and retry overload after primary queue |
+| N681 | R | — | Prior | numeric hosted test count badge |
+| N683 | R | — | Prior | token free prepared item publication |
+
+**Installation, updates, environments, lifecycle and cluster access (55)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N01 | R | — | Prior | pip upgrade is broken for installed builds |
+| N44 | R | — | Prior | installer cpu vs gpu choice |
+| N45 | P | — | A | installer opt in logs and accounts |
+| N53 | R | — | Prior | installers must actually build and run |
+| F59 | R | — | Prior | publish spacr on conda forge |
+| N82a | R | — | Prior | green ci then release 1 5 0 5 |
+| N82b | R | — | Prior | green ci then release 1 5 0 7 |
+| N123 | R | — | Prior | every installer version stays downloadable |
+| N142 | R | — | Prior | force restart when stop does not stop |
+| N158 | P | — | A | unavailable option offers to make itself available |
+| N165 | R | — | Prior | upgrade never replaces the checkout |
+| N180 | P | — | A | saved run can carry the whole workspace |
+| N190 | P | — | A | run opens on double click and stays put |
+| N221 | P | — | A | first run setup screen |
+| N234b | P | — | A | setup screen is a sequence of slides |
+| N248 | R | — | Prior | setup card and three defaults |
+| N275 | R | — | Prior | save and reload run states |
+| N281 | R | — | Prior | timing that is not a proxy |
+| N292 | R | — | Prior | terms of service needs no scrolling |
+| N324 | P | — | A | setup slide shows its capabilities as a table |
+| N331 | R | — | Prior | before the version update |
+| N389 | R | — | Prior | merging nightly into main for the release |
+| N414 | R | — | Prior | claude code installs with curl on every system |
+| N416 | R | — | Prior | update removes every older spacr first |
+| N420 | P | — | A | setup screen installs the ai provider it offers |
+| N469 | R | — | Prior | figure reader installs into its own environment |
+| N472 | R | — | Prior | how the modules connect after installation |
+| F476 | R | — | Prior | secondary objects grown from a primary mask |
+| N483 | R | — | Prior | pipeline overviews and spacr flowchart |
+| F491 | R | — | Prior | release 1 5 1 0 |
+| N496 | R | — | Prior | parascape updates via pip |
+| N503 | R | — | Prior | cellpose 3 models are usable after the backend is installed |
+| N507 | R | — | Prior | make masks has a console and honest backend install feedback |
+| N518 | R | — | Prior | plaque mode follows what was dropped and the reader reinstalls in place |
+| N521 | R | — | Prior | install dialog buttons are rectangles |
+| F546 | R | — | Prior | run cellprofiler pipelines as a step |
+| F577 | R | — | Prior | run finished notifications |
+| F586 | B | — | A | apptainer singularity images |
+| F587 | R | — | Prior | offline air gapped installer |
+| N598 | P | — | A | contribute dialog shows a working dataset link |
+| N627 | R | — | Prior | macos update existing environment and relaunch |
+| N630 | R | — | Prior | bump version to 1 5 1 2 when release ready |
+| N643 | P | — | A | prune the spacr home folder |
+| N644 | P | — | A | disk cache manager |
+| N645 | R | — | Prior | multi instance lock |
+| N646 | P | — | A | clean uninstall purge |
+| N651 | R | — | Prior | update channel and whats new |
+| N652 | R | — | Prior | proxy and corporate ca |
+| N654 | R | — | Prior | environment lockfile per run |
+| N675 | B | — | A | conda forge update to latest spacr release |
+| N682 | R | — | Prior | release 1 5 1 4 promotion |
+| N693 | P | — | A | export settings from every form |
+| N699 | P | — | A | cluster submit reads ssh config and handles mfa |
+| N702 | P | — | A | cluster runs download a missing zoo model automatically |
+| N703 | P | — | A | updates replace old application versions and keep user data |
+
+**Documentation, translations, README, website and publication (47)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N61 | P | — | B | tooltip and documentation sweep |
+| N63 | R | — | Prior | api documentation page sweep |
+| N64 | R | — | Prior | user sets the default language |
+| N65 | R | — | Prior | translation coverage |
+| N83a | P | — | B | finish multilingual catalogs and push nightly |
+| N83b | R | — | Prior | multilingual catalogs green and pushed 2026 09 12 |
+| N85 | R | — | Prior | name is spaCR |
+| N86 | P | — | B | api docs are not a roadmap |
+| N112 | P | — | B | docstring and translation correctness sweep |
+| N120 | P | — | B | readme installer links are platform icons |
+| N250 | R | — | Prior | repository as the public sees it |
+| N283 | R | — | Prior | notebook that answers which test |
+| N289 | P | — | B | setting name is the hover target |
+| N290 | P | — | B | tooltips read as paragraphs and live in the panel |
+| N306 | P | — | B | api tooltips and translations are current and correct |
+| N316 | P | — | B | translations are semantically wrong in places |
+| N321 | P | — | B | api and readme still show the old module structure |
+| N323 | P | — | B | readme needs a hardware capability table |
+| N329 | B | — | B | readme and chrome polish 2026 09 01 |
+| N336 | P | — | B | api link points at the module not the consumer |
+| N361 | P | — | B | readme language picker should be a dropdown |
+| N362 | R | — | Prior | readme front page rework |
+| N365 | P | — | B | licence is not identifiable and main disagrees with nightly |
+| N366 | P | — | B | equal gutters one module section and thorough api pages |
+| N367 | R | — | Prior | class init docstrings and the api they should reach |
+| N368 | P | — | B | settings flow tree and docstrings for every function |
+| N374 | R | — | Prior | api homepage shows the module structure |
+| N383 | P | — | B | settings api link lands on the setting |
+| N384 | ? | — | B | api prose backlog is 358 blocks and needs a model this machine lacks |
+| N394 | R | — | Prior | prose that cannot be translated is only found after a 65 minute build |
+| N397 | R | — | Prior | seventy seven api rows name settings that do not exist |
+| N400 | ? | — | B | every comment leaves the modules |
+| N401 | P | — | B | gpu backend names are not protected |
+| N406 | P | — | B | translation cache regresses what a hand fix repairs |
+| F411 | H | — | B | api pages and translations for nested helpers |
+| N488 | R | — | Prior | pypi readme images |
+| N494 | P | — | B | retire help demos in favor of test data |
+| F582 | R | — | Prior | plugin and recipe catalogue |
+| N589 | P | — | B | public slide deck is flawless and high resolution |
+| N590 | R | — | Prior | deck shows four object classes and an alpha features slide |
+| N615 | H | — | B | requested batch api docs translations tutorials and acceptance |
+| N678 | P | — | B | objective factual user facing language review |
+| N686 | P | — | B | Free project website: ✅ repairs deployed and verified; performance acceptance open |
+| N687 | P | — | B | Website v2/release sync: ✅ deployed, 16 HTTP checks pass; performance acceptance open |
+| N688 | P | — | B | codecov for spacr with a readme badge |
+| N689 | P | — | B | Nightly HF docs: atomic upload/readback repaired; storage quota and main migration open |
+| N704 | P | — | B | Readable README panels: ✅ pushed to nightly; main/PyPI publication open |
+
+**Interface, accessibility, settings, navigation and themes (154)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N04 | R | — | Prior | font scale default disagrees with the tests |
+| N08 | P | — | B | flowview pipeline visualisation |
+| N12 | R | — | Prior | annotate multiselect and page buttons |
+| N15 | R | — | Prior | segmentation qc text backdrop |
+| N16 | R | — | Prior | settings window movement |
+| N23 | R | — | Prior | macos menu roles are wrong |
+| N24 | R | — | Prior | preferences gear in module screens |
+| N32 | R | — | Prior | aurora rays sharper and alive |
+| N33 | R | — | Prior | menu order and all apps |
+| N46 | R | — | Prior | setting label right edge paints surface alt |
+| N55 | R | — | Prior | performance sweep and the startup stutter |
+| N62 | R | — | Prior | audit the setting animations for accuracy |
+| N66 | R | — | Prior | home screen module tooltips |
+| N69 | P | — | A | standardise live views and searches |
+| N73 | R | — | Prior | advanced settings with real subsections |
+| N74 | P | — | B | loading screen covers the preload |
+| N77 | R | — | Prior | phantom settings and wrong numbers |
+| N78 | P | — | B | loading screen background is teal |
+| N88 | R | — | Prior | notebooks carry every setting with its tooltip |
+| N89 | R | — | Prior | colourblind mode rgb as cmyk |
+| N103 | R | — | Prior | no icon on linux and a dirty first frame |
+| N105 | R | — | Prior | ai chat always sees the whole console |
+| N106 | R | — | Prior | inapplicable settings are greyed out |
+| N110 | R | — | Prior | click a console heading to raise and expand it |
+| N113 | R | — | Prior | tooltips belong to the setting not its field |
+| N117 | P | — | B | figures on a grid not stretched |
+| N118 | P | — | B | figure preferences general and per graph |
+| N126 | P | — | B | theme must not lag while a run is going |
+| N134 | R | — | Prior | analysis mode is a dropdown |
+| N138 | P | — | B | explainer text fills its box |
+| N159 | R | — | Prior | loading a run hangs the application |
+| N162 | R | — | Prior | measure panels resize |
+| N163 | R | — | Prior | timer started off the gui thread |
+| N173 | R | — | Prior | guide and a probability for every cell |
+| N176a | R | — | Prior | panel cannot write an impossible number |
+| N177b | R | — | Prior | cells tab compares measurements and the chrome behaves |
+| N181 | R | — | Prior | default that always fails is not a default |
+| N184 | R | — | Prior | control can be named as a gene or as a guide |
+| N188 | R | — | Prior | cells tab applies settings without reloading |
+| N192 | R | — | Prior | button that picks the settings for your data |
+| N193 | R | — | Prior | no button ever cuts off its own text |
+| N196 | R | — | Prior | advisors settings have to actually run |
+| N197 | P | — | B | hotkey map is in the help menu |
+| N198 | R | — | Prior | folded headings read when they are closed |
+| N199 | P | — | B | every figure in the panel opens when it is clicked |
+| N205 | R | — | Prior | show offers the wells the chosen guides are in |
+| N206 | R | — | Prior | volcano takes more than one guide |
+| N208 | P | — | B | picture settings tooltips stay while read |
+| N216 | P | — | B | every popup is a window the user can drag |
+| N217 | R | — | Prior | settings for my data advises the rest |
+| N228 | P | — | B | bottom panels collapse |
+| N232 | R | — | Prior | console can be jumped to the bottom |
+| N233 | R | — | Prior | evaluation settings are split by category |
+| N238 | R | — | Prior | setup window and startup polish |
+| N240 | P | — | B | gui pass |
+| N243 | R | — | Prior | setup screen and the settings panel |
+| N244 | P | — | A | plate viewer is one locked grid |
+| N246 | R | — | Prior | settings appear when they apply |
+| N249 | R | — | Prior | second plate viewer is locked by luck |
+| N257 | R | — | Prior | spaceout |
+| N258 | R | — | Prior | simpler marks |
+| N260 | R | — | Prior | spaceout should look alive |
+| N262 | R | — | Prior | starting up takes too long |
+| N266 | R | — | Prior | every settings window resizes |
+| N269 | R | — | Prior | macos application menu |
+| N270 | R | — | Prior | every picture is drawn for the screen it is on |
+| N274 | R | — | Prior | ask for the path when the usual one is missing |
+| N279 | R | — | Prior | interface uses the font it ships |
+| N280 | R | — | Prior | backdrop hotkeys and a tidier help menu |
+| N284 | R | — | Prior | two second start and responsive modules |
+| N286 | P | — | B | one performance selector with five levels |
+| N287 | R | — | Prior | window chrome has no black plate |
+| N291 | P | — | B | open sans everywhere including figures |
+| N296 | R | — | Prior | safespacr starts the bare minimum |
+| N298 | R | — | Prior | space theme in spaceout |
+| N299 | R | — | Prior | pointer reaches every pattern |
+| N301 | R | — | Prior | mandelbrot deep zoom theme |
+| N302 | R | — | Prior | committed value brings its settings back |
+| N303 | R | — | Prior | fractal panel needs real controls |
+| N309 | P | — | B | one settings store with one name |
+| N311 | P | — | B | no outlines between the module rows |
+| N315 | R | — | Prior | gui must never make the compositor offer to force quit |
+| N318 | R | — | Prior | fewer module tiles more buttons and one qc |
+| N320 | P | — | B | qt console is noisy and mislabels warnings |
+| N327 | R | — | Prior | backdrop camera and the pointer should feel like gravity |
+| N330 | P | — | B | dock and menu should show the nested structure |
+| N347 | R | — | Prior | tooltip strip the api dot and every setting covered |
+| N348 | R | — | Prior | dock should behave like a dock |
+| N350 | P | — | B | no text is cut off anywhere in the package |
+| N355 | P | — | B | every button deserves its own icon |
+| N359 | P | — | B | every settings container resizes and first launch chooses a measured layout |
+| N369 | P | — | B | dock reads as icons with names on hover |
+| N371 | R | — | Prior | two tooltip surfaces the user chooses between |
+| N372 | R | — | Prior | ops button on align and stitch |
+| N373 | R | — | Prior | folded module wears its own picture |
+| N376 | P | — | B | simple dock icon text and categories |
+| N378 | R | — | Prior | hold z and scroll to resize the interface |
+| N380 | P | — | B | performance sweep for smoothness and speed |
+| N381 | R | — | Prior | one backdrop that is actually visible |
+| N385 | R | — | Prior | backdrop keeps moving while a dialog is open |
+| N408 | R | — | Prior | tooltip popup turns the settings column and chat box black |
+| N409 | R | — | Prior | theme sweep is one widget from red |
+| N413 | P | — | B | font zoom floor is ten percent |
+| N415 | R | — | Prior | startup window text is bright in dark mode |
+| N422 | R | — | Prior | search field beside the help dropdown |
+| F425 | R | — | Prior | docker image for spacr |
+| N427 | P | — | B | sound effects and the resonance theme |
+| N433 | P | — | B | icons follow the zoom |
+| N444 | P | — | B | sound on wedges the preferences dialog |
+| N464 | R | — | Prior | every live preview has a refresh button |
+| N466 | R | — | Prior | make masks divider hovers as a thin line |
+| N471 | R | — | Prior | gui fits a laptop scale and collapse |
+| N486 | P | — | B | native os cursor and thin resize edge hints |
+| N497 | R | — | Prior | keyboard instructions surface |
+| N502 | R | — | Prior | download progress line is never cut off |
+| N505 | R | — | Prior | live view gets cell probability saving and a mask overlay panel |
+| N506 | P | — | B | tooltips wait two seconds and can be switched off |
+| N510 | R | — | Prior | features window looks like every other spacr window |
+| N515 | R | — | Prior | console and actions headings sit in their boxes |
+| N527 | R | — | Prior | embedding icon lines are thinner |
+| N529 | R | — | Prior | resizable dock and right panels with ctrl scroll text |
+| N530 | P | — | B | spaceout fractal changes apply without a restart |
+| N531 | R | — | Prior | fractal supersampling setting does something |
+| N533 | R | — | Prior | diameter estimate moves into the model zoo popup |
+| N569 | R | — | Prior | show alpha features preference |
+| N591 | P | — | B | alpha categories read as alpha and image preprocessing holds the rest |
+| N595 | R | — | Prior | measure settings regrouped and qc behind a button |
+| N597 | P | — | B | home screen sliders size the right widgets and their text |
+| N601 | P | — | B | preferences theme and animation under appearance |
+| N602 | R | — | Prior | window rim is one continuous gradient |
+| N603 | R | — | Prior | tooltip delay setting |
+| N604 | R | — | Prior | spaceout mandelbrot camera glides to complex regions |
+| N605 | R | — | Prior | spaceout magnifier size slider |
+| N606 | R | — | Prior | space mode passing galaxies |
+| N607 | R | — | Prior | home text size draws system panel twice |
+| N624 | R | — | Prior | centered half length window resize lines |
+| N636 | R | — | Prior | no empty settings categories |
+| N647 | P | — | B | session restore on every start |
+| N648 | P | — | B | settings autosave |
+| N649 | R | — | Prior | undo redo everywhere |
+| N650 | R | — | Prior | jobs window |
+| N655 | P | — | B | Accessibility: repairs pushed; Linux reader checks pass; other OS/human acceptance open |
+| N656 | R | — | Prior | rebindable shortcuts |
+| N657 | R | — | Prior | settings profiles |
+| N660 | R | — | Prior | clear all logs button |
+| N663 | R | — | Prior | abstract data flow themes and performance |
+| N666 | R | — | Prior | window resize snap and field edge ripples |
+| N668 | P | — | B | separate settings animation controls and spaceout theme catalog |
+| N670 | P | — | B | independent field ripples and setup backdrop |
+| N674 | P | — | B | spaceout field random phenomena and effect controls |
+| N679 | R | — | Prior | gpu accelerated data flow themes with cpu fallback |
+| N684 | P | — | B | animation defaults ripples cross platform snap and dynamic gpu |
+| N694 | P | — | B | photomosaic blow away startup screen |
+| N695 | P | — | B | startup logo on a full screen borderless window and a help replay |
+
+**Regression, statistics, figures and results (95)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N26 | R | — | Prior | umap figure settings and live apply |
+| N28 | R | — | Prior | classify training graphs |
+| N35 | R | — | Prior | incremental figure grid |
+| N50 | R | — | Prior | gate editor save graph as pdf or png |
+| N68 | R | — | Prior | gate editor graph context menu |
+| N75 | R | — | Prior | image umap figures and live settings |
+| N80 | R | — | Prior | statistics at the declared level |
+| N108 | R | — | Prior | right click any figure to restyle it |
+| N111 | R | — | Prior | clear figures control that is text and flickers blue |
+| N115 | P | — | B | every regression diagnostic graph saved and scored |
+| N116 | R | — | Prior | click a search row to spawn its graphs |
+| N119 | P | — | B | regression figure surface |
+| N121 | R | — | Prior | click a gene to see everything about it |
+| N122 | R | — | Prior | regress across screens |
+| N124 | R | — | Prior | regression figures finished |
+| N125 | R | — | Prior | old volcano the runs tab and qt by default |
+| N127 | R | — | Prior | module overlap after the regression work |
+| N128 | R | — | Prior | regression panel seven asks |
+| N129 | P | — | B | every plot in pyqtgraph with a tab each |
+| N131 | R | — | Prior | show the cells behind a dot on the volcano |
+| N135 | R | — | Prior | regression settings are one page a user can read |
+| N136 | P | — | B | old matplotlib figures get the house style |
+| N139 | P | — | B | every regression graph in pyqtgraph and box not bar |
+| N140 | R | — | Prior | long fit says it is long and says where it is |
+| N141 | P | — | B | user picks the backend and is told what it costs |
+| N143 | R | — | Prior | plate position is opt in and the box is shorter |
+| N146 | R | — | Prior | delete a run from the runs tab |
+| N147 | R | — | Prior | both fits are visible a square is a square and the menu has categories |
+| N148 | P | — | B | axes behave as expected logged or not |
+| N149 | R | — | Prior | volcano y axis is continuous again |
+| N150 | P | — | B | saved figure is for paper not for the screen |
+| N151 | R | — | Prior | changing a line width should not take a minute |
+| N152 | P | — | B | axis and text colour follow the theme and the user |
+| N154 | R | — | Prior | measurements tab is a workflow not a report |
+| N156 | P | — | B | every regression mode gets a summary |
+| N157 | R | — | Prior | loaded mark moves and nothing reloads |
+| N160 | R | — | Prior | two regressions hung the machine |
+| N161 | R | — | Prior | regression that fails says why |
+| N166 | P | — | B | restyling a figure while a run draws it |
+| N168 | R | — | Prior | run summary is readable at a glance |
+| N169 | R | — | Prior | figures container is resizable and collapsible |
+| N174 | R | — | Prior | beta as a response transform |
+| N175 | R | — | Prior | every gene against every measurement |
+| N177a | P | — | B | one parse per input file |
+| N178 | P | — | B | every figure reads in both themes and the summary is a table |
+| N179 | R | — | Prior | graph tab that combines two measurements |
+| N182 | R | — | Prior | family is chosen on the untransformed response |
+| N183 | R | — | Prior | console is not where 790 coefficients go |
+| N185 | R | — | Prior | pick wells off a plate map |
+| N187 | R | — | Prior | measure tab compares and fills |
+| N189 | R | — | Prior | plots must show the regression that ran |
+| N194 | P | — | A | plate map is squares you drag across |
+| N195 | R | — | Prior | default control is 000000 |
+| N200 | R | — | Prior | figure settings are the graphs own controls |
+| N212 | P | — | B | nonparametric regressions are offered |
+| N214 | P | — | B | positive control calibrates the fractions |
+| N218 | R | — | Prior | response histogram before and after transform |
+| N219 | P | — | B | unit that constrains says so before the run |
+| N223 | R | — | Prior | saving a graph makes a folder |
+| N224 | R | — | Prior | permutation shows its residuals |
+| N225 | P | — | B | summary flags broken assumptions and recommends |
+| N226 | R | — | Prior | advisor reads the last run |
+| N236 | R | — | Prior | classify and regression audited exhaustively |
+| N239 | R | — | Prior | regression graphs streaming and the cell tab |
+| N245 | R | — | Prior | volcano menu and four dead filters |
+| N252 | R | — | Prior | annotating the cells in regression |
+| N254 | R | — | Prior | seven more nonparametric fits |
+| N264 | R | — | Prior | gene level coefficients are unreachable |
+| N265 | R | — | Prior | volcano explorer defaults and its settings |
+| N267 | R | — | Prior | save figure dialog |
+| N271 | R | — | Prior | three things the regression log said |
+| N272 | R | — | Prior | regression offers its own src |
+| N273 | R | — | Prior | one control says what is being fitted |
+| N278 | R | — | Prior | tabs follow the loaded run |
+| N285 | R | — | Prior | regression settings span nameerror |
+| N293 | R | — | Prior | default graph type is a setting |
+| N314 | P | — | B | regression hangs and preferences is slow again |
+| N322 | R | — | Prior | regression must show its diagnostics |
+| N343 | P | — | B | regression module writes submission panel packages |
+| N353 | R | — | Prior | regression download buttons belong at the top |
+| N387 | R | — | Prior | what the dose response module still cannot say |
+| N392 | P | — | B | regression table should not need the plate in the filename |
+| N524 | R | — | Prior | plaque figure mode shows the four views |
+| F570 | R | — | Prior | arrayed screen hit statistics |
+| F571 | R | — | Prior | time to event analysis |
+| F572 | R | — | Prior | figure integrity guard |
+| F585 | R | — | Prior | sample size planner for arrayed assays |
+| N609 | R | — | Prior | plaque figure mode alpha columns and folder |
+| N613 | R | — | Prior | graph builder merge tables |
+| N620 | R | — | Prior | graph builder metadata condition annotations |
+| N621 | R | — | Prior | graph builder clearing chart axes crashes |
+| N635 | R | — | Prior | plaque figure mode finds no plaques |
+| N637 | R | — | Prior | graph builder loaded schema rules overlap |
+| N658 | R | — | Prior | figures prefs rightclick and zip export |
+| N671 | R | — | Prior | gate editor rounded opaque plot backing |
+
+**Gates, UMAP, tables and data exploration (45)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N06 | R | — | Prior | module overlap and merge candidates |
+| N13 | R | — | Prior | annotate database browser link |
+| N14 | R | — | Prior | database browser column sort |
+| N17 | R | — | Prior | surrogate model module |
+| N27 | P | — | B | umap resizable figure container |
+| N30 | R | — | Prior | classify merged cv vs ml categories |
+| N31 | R | — | Prior | gate editor redesign |
+| N34 | R | — | Prior | umap hyperparameter walk |
+| N36 | R | — | Prior | umap point inspection and zoom |
+| N38 | R | — | Prior | sql column picker invisible selection |
+| N39 | P | — | B | gate editor round two |
+| N40 | R | — | Prior | relationships table |
+| N41 | P | — | B | working table set and merge rules |
+| N49 | R | — | Prior | gate editor xd dimensionality reduction |
+| N51 | R | — | Prior | gate editor taller console and ai chat |
+| N52 | R | — | Prior | gate editor 3d plane anchored gates |
+| N57 | R | — | Prior | image umap api link dots |
+| N67 | R | — | Prior | umap search table and walk convergence |
+| N79 | P | — | B | merge keys duplicate columns and aggregation |
+| N95 | P | — | B | image umap rebuilt the parascape way |
+| N96 | R | — | Prior | classify merged routes the ml model type |
+| N109 | P | — | B | modules take more than one database and merge them |
+| N130 | R | — | Prior | measurements databases per plate in the input table |
+| N164 | R | — | Prior | montage count tables are canonicalised |
+| N202 | P | — | B | measurements table columns say what they control |
+| N203 | R | — | Prior | merged database keeps the grna annotation |
+| N204 | R | — | Prior | cell table bars carry the error the user picks |
+| N213 | P | — | B | merge offers png list and the dependent variable |
+| N215 | R | — | Prior | umap says whether the annotation worked |
+| N222 | P | — | B | colour by takes more than one column |
+| N261 | R | — | Prior | investigate hits gets the hit icon |
+| N263 | R | — | Prior | every table sorts by its columns |
+| N338 | R | — | Prior | generate annotation database from streams |
+| N342 | R | — | Prior | count table may be long or wide |
+| N499 | R | — | Prior | plaque preview stable initial scale |
+| F581 | R | — | Prior | r and parquet export |
+| N588 | R | — | Prior | fill holes merges touching cells and apply defaults fail |
+| N623 | R | — | Prior | original filename metadata in table merges |
+| N632 | R | — | Prior | gate editor 3d mode is usable |
+| N642 | R | — | Prior | model zoo alpha table is empty |
+| N653 | R | — | Prior | portable mode |
+| N665 | R | — | Prior | single database writer with bounded ram and disk spill |
+| N667 | R | — | Prior | stable inline action help and single progress indicator |
+| N672 | R | — | Prior | gate editor editable 2d 3d anchors and surfaces |
+| N673 | R | — | Prior | make masks 3d editable anchors and surfaces |
+
+**Host–pathogen analysis, spatial data, archives and integrations (22)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N102 | R | — | Prior | missing metadata column asks instead of dying |
+| N304 | R | — | Prior | release 1 5 0 5 to zenodo |
+| N388 | P | — | B | infected cell and its neighbours |
+| N399 | P | — | B | map barcodes searches finds and colours reads |
+| N403 | R | — | Prior | map barcodes is general beyond three named references |
+| N432 | R | — | Prior | failed run offers the report it promised |
+| F474 | R | — | Prior | organism modules toxoplasma plasmodium candida |
+| N484 | B | — | B | integrated host pathogen analysis and inference |
+| N492 | P | — | B | host pathogen live preview |
+| N495 | R | — | Prior | organism dropdown hierarchy |
+| F534 | H | — | B | map barcodes reads visium and xenium and maps them to cells |
+| F549 | P | — | B | smart microscopy feedback |
+| F550 | R | — | Prior | cloud storage access |
+| F573 | R | — | Prior | preregistered analysis lock |
+| F574 | B | — | B | mihcsme rembi metadata and archive packages |
+| F575 | R | — | Prior | nextflow snakemake export |
+| F576 | P | — | B | postgres duckdb parquet backend |
+| F579 | ? | — | B | one click zenodo archive of a run |
+| F584 | R | — | Prior | chemistry aware hit view |
+| N628 | R | — | Prior | metadata extraction rules and drag composition |
+| F634 | P | — | B | more organism modules trypanosome leishmania giardia virus mammalian |
+| N677 | R | — | Prior | rename assays category to organism |
+
+**Masks, segmentation, model zoo and training (78)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N42 | R | — | Prior | relationships after mask |
+| N104 | R | — | Prior | hf e2e mask stage produces no cell masks |
+| N144 | R | — | Prior | model box is typeset not dumped |
+| N153 | R | — | Prior | model summary survives being loaded from disk |
+| N247 | R | — | Prior | make masks toolbar is short |
+| N256 | R | — | Prior | objects are not all there |
+| N307 | P | — | A | segmentation qc field browser |
+| N317 | R | — | Prior | mask example data is cut off and brings no settings |
+| N339 | R | — | Prior | illumination correction before segmentation |
+| F370 | P | — | A | every published model carries its scorecard |
+| N386 | R | — | Prior | self supervised embeddings as a feature source |
+| N391 | R | — | Prior | generate masks says percentile where the user means intensity |
+| N396 | R | — | Prior | make masks should curate a queue not one field |
+| F404 | B | — | A | dinocell as a segmentation backend |
+| F407 | R | — | Prior | live magnifier that segments under the mouse |
+| N412 | R | — | Prior | ten image toxo pv test dataset that opens in make masks |
+| N417 | P | — | A | magnifier round two |
+| N418 | P | — | A | mask filters objects by min and max intensity |
+| N419 | P | — | A | make masks reads out lays out and edits by hand |
+| N421 | P | — | A | capture measurements from hand drawn masks |
+| F423 | P | — | A | third party segmenters in the model zoo |
+| N428 | R | — | Prior | flow threshold default is cellpose s own |
+| N431 | R | — | Prior | mask settings follow the channels the user sets |
+| N436 | R | — | Prior | wire pv round 6 into the model zoo |
+| N437 | R | — | Prior | wire the v4 well detector and fix the v3 row |
+| N439 | P | — | A | two hoechst models are published and unlisted |
+| N440 | P | — | A | model zoo picker groups by source and folds |
+| N445 | P | — | A | well detector is fed rgb and ultralytics reads bgr |
+| N446 | R | — | Prior | cellpose 3 and cellpose sam take different settings |
+| N448 | P | — | A | keep or discard a field in make masks |
+| N450 | R | — | Prior | sample of every training dataset in make masks |
+| N465 | R | — | Prior | make masks can detect on the normalized image |
+| N467 | P | — | A | live cell model in the zoo and its dataset in make masks |
+| N473 | R | — | Prior | make masks offers every detection method and contrast help |
+| F475 | R | — | Prior | spotnet for spot detection |
+| N477 | R | — | Prior | line ruler in image editing and mask previews |
+| N478 | R | — | Prior | make masks levels with an interactive histogram |
+| N479 | R | — | Prior | apply image enhancement before drawing masks |
+| N481 | R | — | Prior | clear all objects in make masks |
+| N482 | P | — | A | lock the magnifier region and zoom |
+| F493 | R | — | Prior | parallel multi gpu mask batches |
+| N498 | P | — | A | cellpose4 training workbench |
+| N504 | R | — | Prior | bioimage io models in the zoo and usable |
+| N508 | R | — | Prior | enhancement and deconvolution reach mask generation |
+| N516 | R | — | Prior | measured diameters come out in the wrong order |
+| N525 | P | — | A | cellpose dino models run in their own environment |
+| N528 | R | — | Prior | community images and masks upload from make masks |
+| N532 | R | — | Prior | how good each segmentation strategy is |
+| F551 | R | — | Prior | stardist backend |
+| F552 | R | — | Prior | instanseg backend |
+| F553 | R | — | Prior | omnipose backend |
+| F554 | B | — | A | spotiflow spot detection |
+| F555 | R | — | Prior | prompt based sam in make masks |
+| F560 | B | — | A | foundation model embeddings |
+| F561 | P | — | A | dino pretraining on own crops |
+| F562 | P | — | A | multiple instance learning |
+| F563 | R | — | Prior | anomaly detection vs controls |
+| F564 | P | — | A | generative counterfactuals |
+| F565 | R | — | Prior | similarity search find cells like this |
+| F568 | R | — | Prior | segmentation uncertainty maps |
+| F578 | R | — | Prior | segmentation robustness report |
+| N592 | R | — | Prior | mask generation is per object only |
+| N593 | P | — | A | make masks consolidate folders and sort into channels |
+| N596 | P | — | A | spectral unmixing under mask image preprocessing |
+| N600 | R | — | Prior | make masks understands what is dropped |
+| N611 | R | — | Prior | make masks thumbnail quality |
+| N622 | R | — | Prior | mask preprocessing exhausts plate memory |
+| N639 | P | — | A | organize import in mask and import modules |
+| N661 | R | — | Prior | center pixel puncta masks inside parent objects |
+| N680 | R | — | Prior | make masks save on navigation |
+| N685 | P | — | A | make masks curation controls and alpha vvvv export |
+| N690 | P | — | A | make masks for tem images |
+| N691 | P | — | A | mitonet tem backend alpha |
+| N692 | P | — | A | three d mask drawing and a fib sem example |
+| N696 | H | — | A | magnification default diameter and auto diameter |
+| N697 | H | — | A | each disconnected brush stroke is a new object |
+| N698 | P | — | A | web mask generator one page per model |
+| N701 | R | — | Prior | make masks can exclude fields with a keep or discard verdict |
+
+**Image processing, measurement, formats and data pipelines (52)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N10 | R | — | Prior | crop channel mapping |
+| N20 | R | — | Prior | anchor every channel prompt to colour |
+| N71 | R | — | Prior | more measurements opt in and learned |
+| N90 | R | — | Prior | fourth channel in the crops |
+| N91 | P | — | A | crop dtype and scaling are the users choice |
+| N93 | R | — | Prior | intensity rescale factor is per field and unrecorded |
+| N107 | R | — | Prior | score and count csvs are paired when they are added |
+| N137 | R | — | Prior | drag images in and the regex is worked out for you |
+| N171 | R | — | Prior | one name for loading and one for streaming |
+| N176b | R | — | Prior | one channel vocabulary and a tab that opens calm |
+| N191 | R | — | Prior | example data downloads and loads itself |
+| N201 | R | — | Prior | outline setting looks like the channel settings |
+| N211 | R | — | Prior | image tabs page instead of scrolling |
+| N230 | R | — | Prior | images are streamed not only loaded |
+| N241 | R | — | Prior | every distance worth measuring |
+| N334 | R | — | Prior | normalize percentiles need more than two decimals |
+| N335 | R | — | Prior | live preview loses the image after a settings change |
+| N337 | P | — | A | measure defaults manders and labels |
+| N356 | R | — | Prior | channel number should not reload the module |
+| N363 | R | — | Prior | import module must accept anything |
+| N375 | P | — | A | retire metadata type and consolidate after migration |
+| N382 | P | — | A | channel reveals its settings without unhiding them all |
+| N410 | R | — | Prior | embedding depends on which crops share its batch |
+| N429 | P | — | A | stack file spacr wrote is one it can read |
+| N435 | R | — | Prior | invert does not invert and otsu needs more options |
+| N441 | P | — | A | metadata type for every common microscope |
+| N442 | P | — | A | preview follows the channel you are setting |
+| N443 | P | — | A | measure preview ignores the crop size |
+| N452 | R | — | Prior | live preview sits above the console |
+| N462 | R | — | Prior | import test data in every vendor format and naming |
+| F470 | B | — | A | object crops from the cross channel ground truth to judge every label |
+| N480 | R | — | Prior | adaptive threshold keeps its mode when block size changes |
+| N485 | P | — | A | image zoom follows the mouse cursor |
+| F489 | R | — | Prior | deep image enhancement |
+| F490 | R | — | Prior | measured and calculated point spread functions |
+| N509 | R | — | Prior | deconvolution settings infer themselves and stay out of the way |
+| N511 | P | — | A | filters are any regionprop the user adds |
+| N522 | R | — | Prior | scaled preview no longer scales its dialogs |
+| F538 | P | — | A | spectral unmixing and bleed through correction |
+| F543 | R | — | Prior | import vendor flat field profiles |
+| F545 | R | — | Prior | roi export import geojson imagej coco |
+| F547 | R | — | Prior | image based profiling |
+| F548 | R | — | Prior | watch a folder and analyse incoming images |
+| F557 | R | — | Prior | self supervised denoising |
+| F558 | R | — | Prior | virtual staining |
+| F559 | B | — | A | deep learning image qc |
+| F566 | R | — | Prior | gpu measurement |
+| F580 | P | — | A | cross session intensity calibration |
+| N612 | R | — | Prior | measure live multiple checked images |
+| N626 | R | — | Prior | organizer reports partial consolidation failures |
+| N633 | P | — | A | test data for every module |
+| N640 | R | — | Prior | measure adds original filename columns |
+
+**Annotation, classification, explanation and cell selection (34)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N11 | R | — | Prior | annotate auto annotation |
+| N18 | P | — | A | activation map review |
+| N19 | R | — | Prior | classify module unification |
+| N21 | R | — | Prior | annotate drop api dots |
+| N37 | P | — | A | classify settings overhaul |
+| N87 | R | — | Prior | pr 74 display order in annotate |
+| N94 | P | — | A | train test splits must group by well |
+| N97 | P | — | A | classify segfaults on duplicate openmp runtimes |
+| N99 | R | — | Prior | explain cv models and resolve hits back to cells |
+| N132 | R | — | Prior | model tab explains what it fits |
+| N155 | P | — | A | montage knows its own run and says how it chose |
+| N167 | R | — | Prior | montage uses the scores the run already has |
+| N170 | R | — | Prior | cells tab has two modes and the annotator settings |
+| N172 | R | — | Prior | count and the choice of cells |
+| N186 | P | — | A | cells tab walkthrough |
+| N207 | R | — | Prior | annotated fractions are all one or zero |
+| N209 | R | — | Prior | sudoku annotation methods |
+| N210 | R | — | Prior | outliers can be removed before annotation |
+| N229 | R | — | Prior | classify classes column can be filled in |
+| N231 | P | — | A | training graphs update not regenerate |
+| N255 | R | — | Prior | annotation app |
+| N277 | R | — | Prior | xgboost scores never reached the montage |
+| N300 | R | — | Prior | count controls the categories |
+| N341 | P | — | A | three annotate engine tests fail |
+| N345 | P | — | A | three more annotate tests fail |
+| N379 | P | — | A | suggest button that labels the rest |
+| N449 | B | — | A | classification wrapper around any cellpose model |
+| N512 | R | — | Prior | annotate pages fill the space and suggestions can be judged |
+| F544 | R | — | Prior | blind scoring mode |
+| N594 | P | — | A | classify essentials are enough to train a model |
+| N610 | R | — | Prior | annotate suggest round never finishes on cpu |
+| N625 | R | — | Prior | multiple annotation columns and composed conditions |
+| N629 | R | — | Prior | save and load annotation schemas |
+| N662 | R | — | Prior | make masks yolo bounding box annotations |
+
+**Plaques, organisms and biological assays (24)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N72 | P | — | A | organelle type drives the settings |
+| N76 | P | — | A | more than one organelle |
+| N133 | R | — | Prior | every model explained and toxoplasma annotation |
+| N326 | P | — | A | organelle count must be arbitrary |
+| N333 | R | — | Prior | custom pathogen models in live preview |
+| N377a | R | — | Prior | infection assay module |
+| F424 | P | — | A | plaques from published papers |
+| N438 | R | — | Prior | publish plaque round 5 and wire it in |
+| N451 | R | — | Prior | test data for the plaque module |
+| N463 | P | — | A | test data for the replication invasion and recruitment assays |
+| N468 | P | — | A | plaque assay has plaque and figure modes |
+| N500 | R | — | Prior | plaque well diameter scale and time |
+| F501 | R | — | Prior | calibrated plaque growth estimates |
+| N513 | R | — | Prior | plaque preview outline styling views and a ruler |
+| N517 | P | — | A | drop files as well as folders in make masks and plaque |
+| N519 | R | — | Prior | plaque size slider handle is a circle |
+| N523 | R | — | Prior | community plaque training data uploads to hugging face |
+| N526 | P | — | A | plaque assay reads any number of pdfs and images |
+| F535 | B | — | A | cell cycle phase classification three ways |
+| F536 | P | — | A | scratch wound closure assay |
+| F540 | B | — | A | live dead viability and cytotoxicity |
+| F541 | R | — | Prior | confluency in measure |
+| F542 | P | — | A | colony cfu counting |
+| N608 | R | — | Prior | bundled plaque checkpoint is cellpose3 |
+
+**Timelapse, tracking and temporal analysis (9)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N02 | P | — | A | multi fov loader for the timelapse movie |
+| F405 | R | — | Prior | samcell and livecell for timelapse |
+| F426 | R | — | Prior | timeflows a temporal cellpose for timelapse |
+| N520 | R | — | Prior | ops says src is missing and the track preview switch hides |
+| F537 | P | — | A | lineage trees from tracks |
+| F539 | R | — | Prior | photobleaching correction for every timelapse |
+| F556 | P | — | A | sam2 timelapse propagation |
+| F567 | P | — | A | deep event detection on tracks |
+| N669 | R | — | Prior | trackastra timelapse availability and dispatch |
+
+**Tutorials — Work ownership, excluded from Home split (6)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N48 | R | — | W | optimize the tutorials |
+| N84a | R | — | W | classify controls and the location column |
+| N84b | P | — | W | natural voice narration skill |
+| N358 | P | — | W | redo every core module tutorial with live data |
+| N447 | R | — | W | tutorial videos show the current spacr only |
+| N676 | H | — | W | Tutorial refresh: lesson43 pipeline complete;20 stalled;09 pending;24/26 source blockers |
+
+**Error reporting and free hosted AI — Claude ownership (1)**
+
+| Item | Percent done | Time left | Owner | Detailed description |
+|---|---|---|---|---|
+| N700 | P | — | C | Anonymous error reporting/free AI: Claude implementation published; live acceptance open |
+

@@ -3,7 +3,7 @@ WEBSITE V2: spaCR FLOW THEME, OPEN SANS, A MODEL SHOWCASE AND RELEASE SYNC
 ================================================================================
 
 Status:    PARTIAL — site live and integration links present; current release-sync
-           and startup repairs validated privately, deployment/performance pending.
+           and startup repairs deployed and verified; performance acceptance pending.
 Requested: 2026-10-10 — "for the new website i want a spacr flow type theme. i
            want the font to be open sans relular and opens sans ligh (regular
            for titles and regular for the rest) / I like the way you show object
@@ -561,3 +561,15 @@ Original Home owns deployment of this commit after d9624b5 and cc81d2f.
 Current uncontended mobile Lighthouse>=90 performance/>=95 accessibility and
 mid-range laptop60fps remain unverified; no score or whole-item claim.
 Proof: data/687_reduced_motion_2026-10-14/receipt.json.
+
+2026-10-14 22:08 EDT — Home-B published and verified the three website repairs.
+site-src/main e33c81e includes release-asset sync d9624b5, startup loading
+cc81d2f and reduced-motion e33c81e. Source workflow38669177349 and public
+Pages38669241478 both succeeded; public output bd0f63712ca6b7852cddbc778db011d35272909a.
+Sixteen HTTP200 checks verify exact CSS bytes, all ten spaCR locales and
+three installers, release fingerprint and encrypted protected pages. Hosted
+11release tests,123-file build and privacy leak scan/self-test all pass.
+Latest actual release remains1.5.1.4; no1.5.1.5release claim.
+Evidence:data/687_reduced_motion_2026-10-14/publication-receipt.json.
+This closes publication of these repairs. Current mobile Lighthouse thresholds
+and physical mid-range laptop60fps acceptance remain OPEN; full item PARTIAL.

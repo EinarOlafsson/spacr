@@ -12575,3 +12575,29 @@ feature implementation/fullCI. No main push, release or paid/destructive action.
 Work tutorial source/recordings, N699/Masks and Claude700 code are unchanged
 by this delivery. N689 live Space quota repair is active in a separate tree;
 no history deletion/squash is authorized by this implementation push.
+
+## 2026-10-14 22:14 EDT — Maintainer orders full inventory and equal Home split
+
+This REPLACES the old Home-B six-item assignment. Full689record table and
+exact path-keyed owners are in data/home_split_2026-10-14/. Original inventory
+records455historicalcomplete and234noncomplete/uncertain; this is not fresh
+whole-release certification. Exclude tutorial-onlyN84voice/N358/N676(Work)
+andN700(Claude); remaining230 flaggedrecords divide115Home-B/115OriginalHome.
+N615non-tutorial API/docs/translations belongs Home-B; tutorial part staysWork.
+Duplicated IDs remain distinct by path and displaya/b suffix.
+
+Copyable messages are home_b-assignment-message.txt and
+original_home-assignment-message.txt beside the exact progress-and-assignments.json.
+OriginalHome retains CI/dependency/release,installer/lifecycle/cluster and
+Masks/model/classification/assay/data lanes; Home-B owns docs/publication,
+sharedUI/accessibility/themes,regression/figures/gates/UMAP and listed analysis
+integrations. Exact shared-file ownership boundaries are in both messages.
+Claim concrete files before editing; mixed items request source-owner patches.
+Normal nightly pushes by eitherHome must fetch/merge first; no force pushes.
+
+Website sourcee33c81e is NOW deployed aspublicbd0f637: bothhosted stages and
+16liveHTTP checksPASS; performance/hardware gates remain OPEN. N655 final
+receiptb589369871 is integrated;106PASS plusAT-SPI/Orca1415nodes. N689 atomic
+upload/live-readback repairf4ffbb51f1 integrated with34PASS; historic Space
+quota remainsunresolved, nohistorydeletion/paidchange. No wholefeature/release
+completion is inferred from these completed repairs.
