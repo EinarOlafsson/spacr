@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "source_before": "288f17d7a2",
+  "before_sha256": "67933d9c36b2959540460cec23558d5c6bde4286d616ab545091d5b42e50d4a1",
+  "after_sha256": "779188b8b59b1420cc5421ce035f20f8b3f8ab35ba04bad2473fe9f724ba0382",
+  "baseline": "1 FAIL/15 deselected in2.19s: a valid Qt-generated PDF survived the saved bundle but disappeared from restored queue state when the PNG was missing.",
+  "final": "3 PASS/13 deselected in3.15s; optional-PDF pairing/resave, missing-PNG/valid-PDF resave, and missing-raster-only original-reference behavior. Wall6.16s/878548KiB; private2G/thread1/offscreen/CUDAhidden.",
+  "change": "After either file is staged, bind the slot to its staged PNG path, even when only the sibling PDF exists. With neither file, preserve original missing reference.",
+  "docstrings": "All unchanged; seven API blocks and all authored target bytes retained.",
+  "no_deferred_first_slot_case": "Actual add_figure invokes _following_the_tail(0), then show_index(0), before returning from its first successful append; no deferred first-slot relaxation or invented regression.",
+  "tests_sha256": "3b175fb8a605feb64e41924f903fd335c7b0f9694ab85fcda64e5f08aa5199ac"
+}
