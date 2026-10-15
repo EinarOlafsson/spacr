@@ -824,7 +824,7 @@ def _model_zoo_sections() -> str:
                       "   * - Metric", "     - This model",
                       "     - Stock", "     - Difference"]
             for metric, value in score_rows:
-                lines += [f"   * - {metric}",
+                lines += [f"   * - {build_model_cards.METRIC_LABELS.get(metric, metric)}",
                           f"     - {score_value(value['finetuned'])}",
                           f"     - {score_value(value.get('vanilla'))}",
                           f"     - {score_value(value.get('delta'))}"]
@@ -850,7 +850,13 @@ def _model_zoo_sections() -> str:
                 f"``{entry.get('name')}``.",
                 "",
             ]
-            if score_rows:
+            if entry.get("scorecard_pages"):
+                for page in entry["scorecard_pages"]:
+                    lines += [f".. image:: https://huggingface.co/{where}{repo}/resolve/main/{page}",
+                              f"   :alt: Published scorecard for {title}: {page}",
+                              f"   :target: https://huggingface.co/{where}{repo}/blob/main/{page}",
+                              ""]
+            elif score_rows:
                 lines += [f".. image:: https://huggingface.co/{where}{repo}/resolve/main/scorecard.png",
                           f"   :alt: Published scorecard for {title}",
                           f"   :target: https://huggingface.co/{where}{repo}/blob/main/scorecard.csv",
