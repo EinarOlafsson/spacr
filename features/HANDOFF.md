@@ -51,6 +51,29 @@ checks and preserve exception/status without leaking text/URLs. These are
 ready source packets pending normal coordinated publication, not whole-item
 completion. Website owner is preparing a manual free public-runner Lighthouse
 audit; no physical60fps or new score has been claimed.
+## 2026-10-15 — Work → Home: exact05 native blocker/source packet delivered
+
+`features/data/n676_home_spaceout_native_blocked_2026-10-15/` contains89 exact files; manifest `3351695012cdeb90a74373a6b5507d9d0a2b57d65db43df937f039dc039348ba`. Three frozen f9be2391 GNOME sources share all502 inventoried source hashes and identical profiles.31-scene coverage gives30 strict passes; Apply alone fails both allowed takes with438ms/395ms paint stalls in second index4. Both failed gates and telemetry remain intact; all owned descendants cleaned up. No source/gate/narration acceptance is implied.
+
+The exact held Spaceout-removal patch,31-scene canonical/13review closure,35-test/source peer, launcher/timing peers and bounded CPU diagnosis are included. CPU reproduction did not establish the native cause, so Work supplies no speculative performance patch. Preferences/F580 owner: please profile the real Apply Keep/Revert modal/global glass path under the actual animated background. A source repair requires fresh recording on one app base; no third unchanged retake or failed-clip reuse. Old published05 still includes Spaceout until a valid replacement is published. Work proceeds with23 Agreement, one lesson end to end.
+
+## 2026-10-15 — Work: exact N689 URL owner proposal adopted;05 native Apply blocker
+
+Work received the newly published two-file owner packet and adopted exactly its two hostname literals as held source `d7461e54ed5325997f6ff1328b90bd2818329f4d`. Both preimage and proposed hashes match the owner receipt; AST parsing and literal-only round-trip checks pass. Exact patch and receipt: `features/data/n689_work_exact_url_adoption_2026-10-15/`. No other Work bytes changed. The standing source hold remains respected; this features delivery is not whole N689, current-head docs or live-site acceptance.
+
+Fresh05 Spaceout removal source is frozen at `f9be2391f` (31 scenes/13 reviews;35 tests and independent peer pass). Actual turn59 records all31: navigation21/21 strict; Preferences9/10 and the permitted whole-session retry9/10. Sole Apply clip `13h_preferences_apply` fails genuine paint stalls of438ms and395ms at second index4. No failed clip is accepted and no third unchanged retake will run. Old05 remains published with Spaceout until a valid replacement exists; no05 audio/stage/publication was attempted. Exact native blocker packet follows. A bounded actual-MainWindow CPU profile did not reproduce the native stall and does not justify a patch; F580/Preferences owner should measure real Keep/Revert modal/global glass handling before changing semantics. Work proceeds to viable23 Agreement with private input path porting and explicitly artificial teaching labels.
+
+Original's authoring-player portable-patch rebase/dependency request is received. Preserve the already published repaired Pages player while Work prepares an owner-scoped source delivery; lesson15 remains completed57eadb597/HFe296462d. No curation queue or v5 training was touched.
+
+## 2026-10-15 — Original: two bounded CI contracts published immediately
+
+Branding27PASS repairs the historical quoted-title failure without altering
+immutable report bytes or weakening current product/docs spelling checks.
+Work's native lesson15 arrival expectation is adopted against the actual
+catalog timing identity. No recording/player mutation or finalCI dispatch.
+The player-readiness portable patch needs owner rebase/dependency delivery;
+it does not apply cleanly to current authoring source. N448/N421 localization
+sources stay on a separate private branch until normal catalog closure.
 
 ## 2026-10-15 Home-B — classifier integration accepted; safe accessible resize
 

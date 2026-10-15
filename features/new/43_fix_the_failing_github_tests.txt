@@ -3934,3 +3934,17 @@ data/ci_callable_documentation_contracts_2026-10-15/ and
 data/ci_shortcut_current_contracts_2026-10-15/. These are targeted source-bound
 repairs, not a whole hosted-CI pass. Final full CI remains deferred by the
 maintainer until remaining implementation work is finished.
+
+2026-10-15 — Original: immutable historical quotations and native lesson15 CI contracts.
+    Branding baseline fails on15 literal historical title quotations in the
+    unchanged seven-output progress bundle. A single exact-path/SHA evidence
+    pin preserves those bytes; missing/unreadable/drift now fail explicitly.
+    All current product/docs and neighboring evidence remain checked. Entire
+    owning branding file27PASS16.68s, baseline1FAIL16.57s; all bundle bytes
+    remain exact. Evidence:data/ci_historical_progress_branding_2026-10-15/.
+    Owner-supplied native-arrival patch adds published lesson15 to the explicit
+    timing set; AST and actual lesson_catalog.js native timing identity match.
+    No recording/player/media mutation or unchanged browser replay. Separate
+    player-readiness patch does not apply to current authoring source; owner
+    rebase/dependencies requested, not silently overwritten. No fullCI/whole43
+    or release acceptance.

@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 534,
+      "sha256": "1daad9b04c9c5a0125d8b110a426eb08e88bfb9cdeac326ed89efe52495ad2c6"
+    },
+    {
+      "path": "adopted-url-receipt.json",
+      "bytes": 1046,
+      "sha256": "0d4c5fff8c4b59562aad800fbb8f615cfd3dd4adbf31b1fa79da7f136ac8d5b8"
+    },
+    {
+      "path": "exact-owner-adoption.patch.gz",
+      "bytes": 812,
+      "sha256": "c8d1cdbbe30585cfc41f4d4090c1d242caf6eff2bf33697083f5bfd866712df6"
+    }
+  ],
+  "source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "uncompressed_format_patch_sha256": "c1ee232dde802871aaa2e96824d1fbf99ae093674c261443163559f99b4f0169"
+}

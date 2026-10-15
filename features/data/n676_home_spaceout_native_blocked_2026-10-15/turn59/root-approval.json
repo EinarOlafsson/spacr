@@ -1,0 +1,61 @@
+{
+  "approved": true,
+  "hf_upload_verified": true,
+  "pages_tree_hosted_playback_verified": true,
+  "publication_recorded": true,
+  "pushed": true,
+  "public_only": true,
+  "home_spaceout_removed": true,
+  "current_home_route_review_passed": true,
+  "home_public_tour_tests_passed": true,
+  "normal_beta_enabled_alpha_off": true,
+  "approved_next_lesson": "05_home",
+  "completed_lesson": "15_image_umap",
+  "completed15_nightly_commit": "57eadb597f67b5617de6e84b67e070e47ff010e2",
+  "completed15_publication_revision": "e296462dc19ddc4280300044d374856ac97ad20a",
+  "completed15_export_manifest_sha256": "395e7213a2160d09042ee016dac44d86d4d75262da49b9654a5f5d2d87665684",
+  "source_revision": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+  "lesson05_english_raw_sha256": "8be61a39d6fe9cb1cc44c14ed10b33fc3e8c7b5243ea682f5fe3a822e9b42347",
+  "lesson05_english_normalized_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+  "lesson05_scene_count": 31,
+  "created_at": "2026-10-15T09:28:24.565881-04:00",
+  "capture_accepted": false,
+  "scope": "Root technical authorization to attempt fresh31 Home scenes after completed15; not native, narration or publication acceptance. Historical review metadata remains preserved. No Spaceout companion selected.",
+  "evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-spaceout-removal-proposal-20261015/recorder-hidden-mode-removal-evidence.json",
+      "sha256": "2869a870c36c50e0d776d0d1566e0c0c266500cc33271870a0c10ccadfb5a08a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-spaceout-removal-proposal-20261015/recorder-hidden-mode-removal-independent-peer.json",
+      "sha256": "ed4453e6b7af683b793d8923f9139e00575d4198918ed8f4a5dfd88a65219572"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-spaceout-removal-proposal-20261015/applied-canonical-review-closure.json",
+      "sha256": "89662ca4e6868ce62da097c6fac75c5999d0fc4d8507e84bf53283d78e44b799"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn59/plan-evidence.json",
+      "sha256": "9f0ca954d6e16b57a56e2820b9d14a08b816b7bda78495c7a89882ba05b8dc77"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn59/05_home-clips.json",
+      "sha256": "f0942a08c62967525b4ae436d9900cfc4b7ecb57f73191e6b9af10fd3fc88680"
+    }
+  ],
+  "lesson05_review_sha256": {
+    "da": "81cb9824f20993410ecddb36996b416587c76a898a1bfd24fe9d827d9126b0c3",
+    "de": "a889be892d8cfc3751704445d0fac6923d6d93f9c338ace54afba321d9118bde",
+    "es": "62c3a52fcd7bfc1076c7b3870dd41c4eb21b04840f75015906aeb6d89a2af216",
+    "fr": "f599dce84aa0f365ae4a945c4c161260992193c94f3ab22be7e8cb4842f87581",
+    "hi": "0f94e3337d886f7d371d5404501c455b8a046c70f9c2fad5f4facac8a39a06a3",
+    "is": "235bb07aeaa2e75640a0f9414bffe969b6b63d882fc6aaca4c56ae2e82fe6d64",
+    "it": "8a712dd704e53c488eefa06f00097d9dd869362f5562f5bc7bd90ed0c2f2c550",
+    "ja": "d481ab3e06376f632f967de3e692d7f82304a5bc14592062e19c20eac3418c39",
+    "ko": "d05e63b0c99b7b9b4ba484be10ed0bc0e6725088ab26baac4ce1f2ff4531893f",
+    "nb": "1e5ebd8c0a914bf6e5858654bd91fd5ae310e3ec8fe4a6d89db77e074f66428d",
+    "pt-BR": "2dacfcc1ac449b771348d3492952569ffd975b7d56f788a4c9180088da541bb0",
+    "sv": "c570dc65ffa62e0bf83e36011a71743d1383abada84c6f2762c39ff77efe9afb",
+    "zh-CN": "b57261d78cd19c2a64426ec45fd0f81c8eebb6a62982809a7d68d2c2034056ec"
+  }
+}

@@ -27,6 +27,8 @@ capitalised ``Spacr`` is now a mis-spelling wherever it appears.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -162,6 +164,17 @@ PLACEHOLDER_TOKEN = re.compile(
     r"\b[A-Z][A-Z0-9]*(?:\[[^\]]*\]\*?|\(\?:[^)]*\))?[A-Z0-9]*TOKEN\b")
 
 
+#: This report quotes historical feature titles and source excerpts verbatim.
+#: Its immutable delivery manifest and source-file hashes preserve those exact
+#: bytes; correcting a quotation would falsify the evidence. This is one
+#: artifact, not an exemption for the feature evidence directory. Drift or
+#: removal fails even if a replacement corrects every quoted brand spelling.
+IMMUTABLE_QUOTED_REPORTS = {
+    "features/data/combined_feature_progress_2026-10-14/all-689-features.md":
+        "7552c50bce580855fc7cd3916e7ce65c2944e727a012d7b41c0897277dc5af9c",
+}
+
+
 def _project_files():
     for path in sorted(ROOT.rglob("*")):
         rel = str(path.relative_to(ROOT))
@@ -174,7 +187,17 @@ def _project_files():
 
 def _offenders():
     out = []
+    for rel, expected in IMMUTABLE_QUOTED_REPORTS.items():
+        try:
+            actual = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+        except OSError:
+            out.append(f"{rel}: immutable quoted-source report is missing or unreadable")
+        else:
+            if actual != expected:
+                out.append(f"{rel}: immutable quoted-source report digest changed")
     for path, rel in _project_files():
+        if rel in IMMUTABLE_QUOTED_REPORTS:
+            continue
         if rel == str(Path(__file__).relative_to(ROOT)):
             continue          # this file quotes the wrong spellings on purpose
         try:
@@ -272,3 +295,91 @@ def test_the_environment_variables_keep_their_case():
             continue
         hits.extend(re.findall(r"SPACR_[A-Z0-9_]+", text))
     assert hits, "no SPACR_ environment variables found; the exemption is stale"
+
+
+@pytest.fixture
+def quoted_report_tree(monkeypatch, tmp_path):
+    rel = "features/data/combined_feature_progress_2026-10-14/all-689-features.md"
+    raw = b"Historical quotation: SPACR ALREADY REFUSED THIS.\n"
+    report = tmp_path / rel
+    report.parent.mkdir(parents=True)
+    report.write_bytes(raw)
+    monkeypatch.setitem(globals(), "ROOT", tmp_path)
+    monkeypatch.setitem(globals(), "__file__", str(tmp_path / "tests/test_the_name_is_spaCR.py"))
+    monkeypatch.setitem(globals(), "IMMUTABLE_QUOTED_REPORTS", {
+        rel: hashlib.sha256(raw).hexdigest()})
+    return report, raw
+
+
+def test_exact_pinned_historical_quotation_is_evidence(quoted_report_tree):
+    assert _offenders() == []
+
+
+@pytest.mark.parametrize("replacement", [
+    b"Historical quotation: spaCR ALREADY REFUSED THIS.\n",
+    b"Historical quotation: SPACR ALREADY REFUSED THIS.\n\n",
+    b"\xff",
+])
+def test_historical_quotation_drift_is_not_laundered_by_correct_branding(
+        quoted_report_tree, replacement):
+    report, _raw = quoted_report_tree
+    report.write_bytes(replacement)
+    assert _offenders() == [
+        f"{report.relative_to(ROOT)}: immutable quoted-source report digest changed"]
+
+
+def test_missing_historical_report_is_not_silently_omitted(quoted_report_tree):
+    report, _raw = quoted_report_tree
+    report.unlink()
+    assert _offenders() == [
+        f"{report.relative_to(ROOT)}: immutable quoted-source report is missing or unreadable"]
+
+
+def test_unreadable_historical_report_is_not_silently_omitted(quoted_report_tree):
+    report, _raw = quoted_report_tree
+    report.unlink()
+    report.mkdir()
+    assert _offenders() == [
+        f"{report.relative_to(ROOT)}: immutable quoted-source report is missing or unreadable"]
+
+
+@pytest.mark.parametrize("relative, text", [
+    ("elsewhere/all-689-features.md", "Historical quotation: SPACR ALREADY REFUSED THIS.\n"),
+    ("features/data/combined_feature_progress_2026-10-14/new.md", "SpaCR is the product."),
+    ("features/data/new-report/progress.md", "Spacr is the product."),
+    ("README.rst", "SPACR is the product."),
+    ("docs/source/guide.rst", "SpaCR is the product."),
+    ("spacr/widget.py", 'title = "Spacr"'),
+])
+def test_quotation_pin_does_not_exempt_current_prose_or_nearby_reports(
+        quoted_report_tree, relative, text):
+    path = ROOT / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    hits = _offenders()
+    assert len(hits) == 1
+    assert hits[0].startswith(relative + ":1 ")
+    assert WRONG.search(hits[0])
+
+
+@pytest.mark.parametrize("relative", ["README.rst", "docs/source/guide.rst", "spacr/widget.py"])
+def test_current_correctly_branded_prose_remains_accepted(quoted_report_tree, relative):
+    path = ROOT / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("spaCR is the product.", encoding="utf-8")
+    assert _offenders() == []
+
+
+def test_actual_quoted_report_and_original_delivery_hashes_are_preserved():
+    rel = "features/data/combined_feature_progress_2026-10-14/all-689-features.md"
+    assert IMMUTABLE_QUOTED_REPORTS == {
+        rel: "7552c50bce580855fc7cd3916e7ce65c2944e727a012d7b41c0897277dc5af9c"}
+    folder = (ROOT / rel).parent
+    manifest = json.loads((folder / "delivery-manifest.json").read_text(encoding="utf-8"))
+    assert manifest["source_commit"] == "d4ce43a67834d2c7a3c028d4edf42e3fced7a3f9"
+    assert len(manifest["outputs"]) == 7
+    for name, record in manifest["outputs"].items():
+        raw = (folder / name).read_bytes()
+        assert len(raw) == record["bytes"]
+        assert hashlib.sha256(raw).hexdigest() == record["sha256"]
+    assert manifest["outputs"]["all-689-features.md"]["sha256"] == IMMUTABLE_QUOTED_REPORTS[rel]
