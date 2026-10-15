@@ -3284,6 +3284,12 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
     exchanged = False
     committed = False
     try:
+        current = _retiring_runtime_identity(prefix)
+        if current is None:
+            raise ValueError("previous_runtime_identity_unverified")
+        record = replace(record, version=current["version"])
+        if _runtime_version_compare(record.python, record.version, version, runner) > 0:
+            raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
         transaction = tempfile.mkdtemp(prefix=".spacr-runtime-update-", dir=parent)
         staged = os.path.join(transaction, "runtime")
         journal = os.path.join(transaction, "transaction.json")
@@ -3437,7 +3443,11 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     install, probe, relaunch = _macos_online_commands(record, plan["version"], plan["workdir"])
     if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
         raise ValueError("the macOS online update commands differ from the approved environment")
-    if record.version and _runtime_version_compare(record.python, record.version, plan["version"], run) > 0:
+    current = _retiring_runtime_identity(os.path.dirname(os.path.dirname(record.python)))
+    if current is None:
+        raise ValueError("previous_runtime_identity_unverified")
+    record = replace(record, version=current["version"])
+    if _runtime_version_compare(record.python, record.version, plan["version"], run) > 0:
         raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
     handshake = _FrozenUpdateHandshake(plan)
     handshake.ready()

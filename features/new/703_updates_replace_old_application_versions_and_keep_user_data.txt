@@ -719,3 +719,24 @@ macOS/Windows acceptance; shared/Conda/Windows adapters and parent703 remain OPE
 Existing API prose/captions unchanged; two new private helper docs are present.
 Fatal Ruff/diff checks pass. Global owner API/caption holds/fullCI not certified.
 Evidence: features/data/n703_nightly_runtime_and_cache_2026-10-15/.
+
+2026-10-15 01:43 EDT — Saved macOS plans bind the actual current runtime floor
+Actual predecessor1FAIL/4.72s proves a saved record1.5.1.4 could authorize real
+offline replacement of installed1.5.1.6 with1.5.1.5 and request relaunch. The
+existing isolated metadata/path/_version literal probe now refreshes actual
+identity before macOS approval and again under the POSIX runtime lease before
+transaction allocation or package operations. Staged verification receives the
+actual current version as its previous-version floor, including a replacement
+that lands during shutdown wait. No app/Qt import is needed for this old identity.
+Final62distinct focused checks PASS/actualexit0/45.02s, zero skips/errors:
+3new actual offline regressions,20mac command/handshake,22mac transaction,
+9pip transaction,2cache collision and6Nightly handoff cases. Tests prove newer
+current wheels refuse before approval, wait-time replacement refuses under the
+actual lease, old bytes survive, and broken old Qt remains repairable. Existing
+stubbed-runtime tests explicitly mock their absent distribution identity while
+retaining all behavioral assertions; actual venv/probe cases are separate.
+All API prose/captions unchanged; fatal Ruff/diff checks pass. Actual Linux
+private venv/pip subprocesses use tiny offline wheels; uv/macOS is modeled.
+No network/live install, native macOS/Windows, fullCI or wholeN703 acceptance.
+Noncooperating external mutation that ignores the lease is not excluded.
+Evidence: features/data/n703_actual_runtime_floor_2026-10-15/.
