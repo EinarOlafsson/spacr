@@ -1,0 +1,67 @@
+{
+  "clips": {
+    "01_module": {
+      "passed": false,
+      "reasons": [
+        "app freeze: second(s) [5] (paint scope: minimum_rate_of_stably_visible_fields)"
+      ],
+      "distinct_fps": 28.49,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 37.1,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 66.83,
+      "app_freeze_seconds": [
+        5
+      ],
+      "capture_loss_seconds": [
+        6,
+        7,
+        8,
+        10
+      ],
+      "loadavg": [
+        9.24951171875,
+        8.7734375
+      ],
+      "file": "01_module.gate.json"
+    },
+    "14_actual_completion": {
+      "passed": false,
+      "reasons": [
+        "app freeze: second(s) [5] (paint scope: minimum_rate_of_stably_visible_fields)"
+      ],
+      "distinct_fps": 28.44,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 37.4,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 56.83,
+      "app_freeze_seconds": [
+        5
+      ],
+      "capture_loss_seconds": [
+        0,
+        1,
+        2,
+        3,
+        6,
+        34
+      ],
+      "loadavg": [
+        7.390625,
+        6.42333984375
+      ],
+      "file": "14_actual_completion.gate.json"
+    }
+  },
+  "failed": [
+    "01_module",
+    "14_actual_completion"
+  ],
+  "passed": false
+}

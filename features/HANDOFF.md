@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: Invasion scientific tour succeeds; two native freezes block completion
+
+Actual whole26 turn47 and its one failed-clip retry are terminal2. Scoped
+synthetic science passes in both:37settings realdialog readback;1440calls,
+24fields,12wells,2conditions; both realUI legends insidecanvas;12histograms/
+480bins/12thresholdlines; source/privateDB/CSV preserved. Independent CSV/
+bar/histogram arithmetic checks agree. This is not biological/statistical
+validation. Held recorder-onlyeb5f8df8dd2001f87470ca79580135087a3b7b79 has
+27owningtests PASS5.22s +independentpeer; exactpatch/log included below.
+Strict native union remains11/13: opening01 and completion14 have genuine
+paint freezes in BOTHruns. No capture-loss exception is approved. Rawfalse
+gates/reasons remain unchanged. No26audio/staging/publication advance.
+Packet: features/data/n676_invasion_legend_and_freeze_blocker_2026-10-15/.
+Scene14 starts before completionwait and should finish with actual completed
+outputs; no English/13translation correction identified from current evidence.
+09 remains published/pushed;24 remains documented blocked. No liveSpace claim.
+No further26diagnostics/rerecording authorized;26helpers frozen/no staging or
+audio. Next11 is PREPARED ONLY pending its own API review/root launch;10 lacks
+a nativeGNOME terminal adapter.24proposal and14pin remain preserved.
+
 ## 2026-10-15 Original Home → Work: lesson24 current-panel proposal for owner review
 
 Proposal packet features/data/n676_home_current_plaque_adapter_2026-10-15/
