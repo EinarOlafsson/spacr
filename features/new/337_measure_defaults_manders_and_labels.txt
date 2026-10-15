@@ -425,3 +425,15 @@ the conversion algorithm are unchanged. Detailed initial failures, fixture
 correction and finite necessary followups are preserved in
 features/data/337_legacy_crop_defaults_2026-10-15/. Normal derived-settings
 artifacts and coherent publication follow this source component.
+
+2026-10-15 — COHERENT LEGACY CROP REPAIR ACCEPTANCE
+The normal consumer map and settings-flow generators passed. Normal Help
+first correctly refused two missing published F561 callback API entries;
+that exact refusal and independent-owner dependency proof are retained.
+After adopting the owner's coherent English/nine-locale fix at76d35e70313,
+normal Help generation passed and all nine required generated-current/API
+consumer-link checks passed (49.24s). Both repaired function ASTs remain
+identical to the approved tested source59e64803cea; no captions, loader
+coercion, scientific conversion algorithm or other old aliases were added.
+Raw initial failures and precise necessary final followups remain recorded;
+this does not claim a final whole44 rerun or54 distinct checks.

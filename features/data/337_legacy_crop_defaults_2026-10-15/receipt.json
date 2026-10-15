@@ -77,14 +77,33 @@
   "root_review": "Final exact10line typed guard independently approved; root-final-peer.json binds source hashes and unchanged signatures/prose.",
   "resource": "All actual tests blankCUDA/offscreen/commonheavy.lock/cap6G/singleprocess; no model/network/render/live data",
   "held": [
-    "Adopt Home-B coherent two-helper English and nine-locale artifacts/public baseline",
-    "Normal Help generation and required generated-current/consumer-link checks",
-    "Normal publication after final source/artifact identity proof"
+    "Normal public fetch/merge/source-identity/push"
   ],
   "derived_artifacts": {
-    "consumer_map": "Normal tool PASS before Help dependency refusal",
-    "settings_flow": "Normal tool --rst PASS before Help dependency refusal",
-    "help_index": "Normal tool refused two pre-existing published F561 enabled helper manifest omissions; help-dependency-proof.json binds exact sources and diagnostic",
-    "required_nine_checks": "Not run because normal Help refusal stopped command chain; pending coherent owner artifacts"
-  }
+    "consumer_map": "Normal tool PASS; retained through owner merge, required current checks PASS",
+    "settings_flow": "Normal tool --rst PASS; retained through owner merge, required current checks PASS",
+    "help_index": "Normal full tool PASS after adoption of coherent owner public76d35; initial refusal and exact dependency proof retained",
+    "required_nine_checks": {
+      "passed": 9,
+      "seconds": 49.24,
+      "exit": 0
+    },
+    "owner_dependency_public": "76d35e703137dbc6a4c2798de59de039fd938aaa",
+    "unnecessary_duplicate_consumer_flow_or_active_entries_collection": false
+  },
+  "final_source_proof": {
+    "spacr/cli.py": {
+      "function": "_under_todays_names",
+      "AST_identical_to_approved_tested_source": true,
+      "current_file_sha256": "9bdfbd02c092940cd3148da6c2ac8ae3491e1687ba72721614e7633489a5cd67",
+      "function_ast_sha256": "dd49c5400d9f23507ccdc47cafcbf85a898a7d5d45daf0794b9a43f9c31f25be"
+    },
+    "spacr/settings.py": {
+      "function": "get_measure_crop_settings",
+      "AST_identical_to_approved_tested_source": true,
+      "current_file_sha256": "2e32842aa7190fbb930b34fe7eadbc7057bd881e2bb51fd42f11bdf083654267",
+      "function_ast_sha256": "35e4f9b021798584782573cbf7a36b5459cf337e752742411b6edb174d223efa"
+    }
+  },
+  "publication_scope": "Actual supported legacy png_dims default-overlay repair; no other old six-key functionality restored or scientific validity claim"
 }

@@ -13949,7 +13949,7 @@ SETTING_CONSUMERS = {
     'plot_outlines': (('spacr.core', 'generate_image_umap'), ('spacr.settings', 'set_default_umap_image_settings'),),
     'plot_points': (('spacr.core', 'generate_image_umap'), ('spacr.settings', 'set_default_umap_image_settings'),),
     'png_channel_mapping': (('spacr.settings', 'get_measure_crop_settings'),),
-    'png_dims': (('spacr.measure', 'field_table_settings'),),
+    'png_dims': (('spacr.measure', 'field_table_settings'), ('spacr.settings', 'get_measure_crop_settings'),),
     'png_size': (('spacr.annotation_dataset', 'generate_annotation_dataset'), ('spacr.crops', 'crop_spec_from_settings'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.validate', 'describe_plan'),),
     'png_type': (('spacr.crop_source', 'select_crops'), ('spacr.io', 'generate_dataset'), ('spacr.io', 'generate_training_dataset'), ('spacr.qt.screens.settings_model', 'organelle_morphology_now'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'organelle_measurement_caveats'),),
     'point_alpha': (('spacr.core', 'generate_image_umap'), ('spacr.settings', 'set_default_umap_image_settings'),),
