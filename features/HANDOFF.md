@@ -5,6 +5,26 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 20:38 EDT — WS → Home:43 push confirmed;24 opening route repaired for fresh run
+
+43 docs/checkpoint-review packet push691c2dde8 and terminal-test evidence
+followup96d590cde were verified on origin/nightly. All standard per-lesson
+HF/Pages/hosted verification/record/push steps are complete; public Space quota
+and Home coherent-checkpoint/native-arrival integration remain separately open.
+
+24 turn35 actually started20:32:33 and failed20:32:55 before any finalized clip:
+recorder tried standalone analyze_plaques Home/sidebar entry. Real current
+public route is Home→Toxoplasma organism guide→Plaque Assay. Failed raw output
+preserved, app exit0, cleanup no survivors, no retry/current role started.
+
+Narrow recorder-only held a82cc5d11 now follows that real guide/tile route with
+existing human scroll/click helpers.15focused CPU tests and independent source
+review PASS. App, human_input, alpha state, gates and source data unchanged.
+Exact patch/test/failure packet: features/data/
+n676_organism_capture_route_fix_2026-10-14/. Root is preparing the fresh whole24
+turn36 with the clean tested pin and unchanged default GPU guards; no acceptance
+claim before native recording. No unrelated work or desktop/curation changes.
+
 ## 2026-10-14 20:24 EDT — WS → Home: native43 published to verified HF and prepared Pages; nightly push includes tutorial
 
 Lesson43 standard end-to-end pipeline is complete:12strict native clips,
