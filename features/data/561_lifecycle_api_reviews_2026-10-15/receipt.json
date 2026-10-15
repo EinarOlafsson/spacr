@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "source_commits": [
+    "e4458d409d6",
+    "f35b59248ae812751b31e608a1ff0ec8e6c9e7d7",
+    "efe3784e64a6a527a5ca557ccd2dbffc45272052"
+  ],
+  "published_base": "c98f0cd6bd73ba26e3075693edce2ef13479f2c3",
+  "normal_collector": "Two normal targeted rendered bodies/five changed blocks match source-owner ledgers and published before bodies. Exact owned source-file hashes verified. Unrelated published English preserved without claiming its global source currency. No full collector replay.",
+  "review_count": 45,
+  "source_docs_sha256": {
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24"
+  },
+  "source_and_context_gates": "PASS all 45 source checks, 45 context checks and 45 actual inline parser checks; normal reviewed_api_block_translations passes for nine complete selected document sets.",
+  "retired_review_rows": [
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-010.json",
+      "record_index": 57,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-005.json",
+      "record_index": 190,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-008.json",
+      "record_index": 102,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-005.json",
+      "record_index": 174,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-005.json",
+      "record_index": 190,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-004.json",
+      "record_index": 148,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-007.json",
+      "record_index": 99,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 133,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-005.json",
+      "record_index": 190,
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+    }
+  ],
+  "unrelated_review_rows": "Exact preservation asserted. Retired source/translation content retained.",
+  "scope": "Review inputs; normal catalog generation separate.",
+  "review_claim": "AI technical review; independent peer approved all 45 draft pairs, committed-hash receipt follows; no native-speaker claim."
+}
