@@ -1,0 +1,60 @@
+{
+  "source_sha256": "b2efb304ae31a12f4ba0208a2295962f6eb95a22e86e1963ad1a53a04121b479",
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "555cbcc0561f79e7e0b4e0f4e1eb69e7502014f0f3ada249d6bec8f99ff8a4bb",
+      "adopted_final_file_sha256": "21a0321a5fdac0eab07cfb4c5328d2bc3211c4eb5fade7c1d3b263f5289d8184",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "4cffd17ab0a351d0b80f3dd1aebef809c9a476fd41159cac374ad38677d244f9",
+      "adopted_final_file_sha256": "2d2e900ce756a7856a24d1af8b4bbf6faf8279746043940e009137964ae54b38",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "249845988cdb15881881fdb6dfbca11f7d3c2d2e0103dae9d5cc49ff810d04bd",
+      "adopted_final_file_sha256": "d70cc7b532891d2161c1cc3891fa598d06c3d44f51a7cbaf73a042b83c221f91",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "a586d2d4ba13a1badee4dad3f670ac62fe70bb4765eefb898c476b1ef523cefd",
+      "adopted_final_file_sha256": "153c2d73b6817e710ce18959201812f915cd5ffaed6ba1aab8b89275661f3b6d",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "fa1165845d6b0ef212d923e3c803994ca9846815b8f90261be1f6dd8cef08230",
+      "adopted_final_file_sha256": "31d99bcbd6d420ef3524f87b0cc8c03607b2e8cca710ad3765323178b7b85a24",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "1c72c826a85b1d8325330046cfd30ee12ed07fce8e7e6985c4d0a3de3066998d",
+      "adopted_final_file_sha256": "9327ea8882e72273c1f804bae146d01420edac193d63201ce4c850e0f31f453d",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "5a039c8a174e38d6c2835107da8710124673fb7de93ff60e7b1149c12ec4c7eb",
+      "adopted_final_file_sha256": "9e8d93ff11d86ec8bccd26185bf55dce5730beba4a86f26dc6c77dbaa155d565",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "25258edd0f71bd83edcdf5caecabfa6abcc893f51507d5d762e80a19c8808435",
+      "adopted_final_file_sha256": "ed7b8e83ccb118174540410c91801340c13ba50b3c53da41e0f6fc7924ada8d9",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-unmix-shape-boundary.json",
+      "independent_peer_immutable_draft_sha256": "bba1d1015c30d53cb0ed25e271032012a09ddd88354371c58326a071cf885aa5",
+      "adopted_final_file_sha256": "4746723013c92fd645155657b76efc7a3f60877f6f9caa10d0abbe7b664ed9bc",
+      "source_and_target_unchanged": true
+    }
+  ],
+  "changes": "Only independent peer metadata added; exact approved source/targets preserved. Root target peer source_file_sha256 identifies original baseline; separate root-source-peer.json binds actual final eight-line guard source."
+}

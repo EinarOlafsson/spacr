@@ -82222,11 +82222,11 @@
         "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
         "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
         "35459c9d59856122a87e062b581e4055eab02cf6ba3e89cc06ef8affd6c24267",
-        "488c10c66e8c94acde0054ae4de4358f57d83b0371189aab491d3927ffb3c9f8",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+        "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993"
       ],
-      "source_sha256": "cd34b82e0fef38a00f7ef640845299630faacc7d3f1db642735fd671d4fe483a",
-      "text": "Führen Sie einen Aufruf vom Haupt- GUI-Ausführungspfad aus und liefern Sie sein Ergebnis auf dem Haupt- GUI-Exekutionspfad.\n\nAnwendungsansichten wie ``DbBrowserScreen``, ``PlateViewScreen`` und ``ReportScreen`` hatten zuvor jeweils eine eigene Kopie dieser Logik, und die Kopien unterschieden sich: zwei miteinander verbundene ``thread.finished`` mit einer *-Abschließung*, die den Job nie zurückzieht (siehe :meth:`_retire_finished_jobs`). Dieses Modul implementiert die Regeln einmal, für jede Anwendungsansicht, die Arbeit vom Haupt- GUI-Ausführungspfad entfernt.\n\nDie Regeln:\n\n* ``PipelineWorker.finished`` wird **auf der Hintergrundausführungseinheit** emittiert. Dort wird ein mit ihm verbundener Verschluss aufgerufen. Das Berühren eines Widgets von ihm ist undefiniertes Verhalten. Die einzige sichere Sache, die ein Slot auf diesem Signal tun kann, ist ein ``Signal``, dessen Empfänger eine gebundene Methode eines Hauptausführungspfadobjekts GUI ist -- Qt ordnet dann den Aufruf auf den Hauptausführungspfad GUI an.\n* **QObject-Empfängeranforderung.** Verbinden Sie ``QThread.finished`` mit einer Methode auf einem QObject, die zum GUI-Thread gehört. Ein Verschluss ist unsicher. PySide6 weist den QThread selbst als Empfänger eines Verschlusses zu. :func:`spacr.qt.bridge.make_thread` verbindet zuerst ``thread.finished -> thread.deleteLater``. Slots werden in Verbindungsreihenfolge ausgeführt. DeferredDelete wird daher vor dem Schließungsaufruf gepostet. Qt verwirft den Warteschlangenaufruf nach dem Zerstören des Empfängers. Der Auftrag bleibt dann aktiv und ``active_jobs()`` erreicht nie Null.\n* Ein starker Verweis auf den QThread und den Worker-Prozesse muss bis ``thread.finished`` gehalten werden. Ein QThread Müll, der während der Ausführung gesammelt wird, beendet den Prozess.\n* Der Complete-Handler muss für **jeden** Job ausführen, einschließlich eines, dessen Ergebnis nicht mehr gewünscht ist, oder die Buchhaltung leckt und der Screening dauerhaft \"busy\" ist. Ob das *Ergebnis* verwendet wird, ist eine separate Entscheidung, die vom Erzeugungszähler getroffen wird -- siehe :meth:`cancel`.\n\nAlles hier eingereichte geht durch ``make_thread``, so dass es in der Prozess-breite erscheint :func:`spacr.qt.bridge.registry` und dreht den Hintergrund Aktivität Spinner (:mod:`spacr.qt.widgets.activity_spinner`) ohne den Anrufer etwas zu tun.",
+      "source_sha256": "ef279b22872ef65edf0387969c89ca9dba19ecc717bfa5727e00509fe99d65af",
+      "text": "Führen Sie einen Aufruf vom Haupt- GUI-Ausführungspfad aus und liefern Sie sein Ergebnis auf dem Haupt- GUI-Exekutionspfad.\n\nAnwendungsansichten wie ``DbBrowserScreen``, ``PlateViewScreen`` und ``ReportScreen`` hatten zuvor jeweils eine eigene Kopie dieser Logik, und die Kopien unterschieden sich: zwei miteinander verbundene ``thread.finished`` mit einer *-Abschließung*, die den Job nie zurückzieht (siehe :meth:`_retire_finished_jobs`). Dieses Modul implementiert die Regeln einmal, für jede Anwendungsansicht, die Arbeit vom Haupt- GUI-Ausführungspfad entfernt.\n\nDie Regeln:\n\n* ``PipelineWorker.finished`` wird **auf der Hintergrundausführungseinheit** emittiert. Dort wird ein mit ihm verbundener Verschluss aufgerufen. Das Berühren eines Widgets von ihm ist undefiniertes Verhalten. Die einzige sichere Sache, die ein Slot auf diesem Signal tun kann, ist ein ``Signal``, dessen Empfänger eine gebundene Methode eines Hauptausführungspfadobjekts GUI ist -- Qt ordnet dann den Aufruf auf den Hauptausführungspfad GUI an.\n* **QObject-Empfängeranforderung.** Verbinden Sie ``QThread.finished`` mit einer Methode auf einem QObject, die zum GUI-Thread gehört. Ein Verschluss ist unsicher. PySide6 weist den QThread selbst als Empfänger eines Verschlusses zu. :func:`spacr.qt.bridge.make_thread` verbindet zuerst ``thread.finished -> thread.deleteLater``. Slots werden in Verbindungsreihenfolge ausgeführt. DeferredDelete wird daher vor dem Schließungsaufruf gepostet. Qt verwirft den Warteschlangenaufruf nach dem Zerstören des Empfängers. Der Auftrag bleibt dann aktiv und ``active_jobs()`` erreicht nie Null.\n* Ein starker Verweis auf den QThread und den Worker-Prozesse muss bis ``thread.finished`` gehalten werden. Ein QThread Müll, der während der Ausführung gesammelt wird, beendet den Prozess.\n* Ergebniszustellung und Freigabe von Thread-Referenzen sind getrennt. :meth:`cancel` löscht ausstehende Zustellungen sofort; ein verspäteter Abschluss löst dann kein ``job_finished``-Signal aus. Die Bereinigung beendeter Threads gibt die Thread-Referenzen weiterhin unabhängig davon frei.\n\nAufträge im Thread-Modus laufen über ``make_thread``, erscheinen daher in der prozessweiten :func:`spacr.qt.bridge.registry` und aktivieren den Hintergrundaktivitätsindikator (:mod:`spacr.qt.widgets.activity_spinner`). Der Inline-Modus umgeht diese Registrierung und ändert den Beschäftigtstatus des Runners nicht.",
       "translation_source_blocks_sha256": [
         "dcdc4c7885888d598e472129494ded92b6ab9df1834c2ebf6ee2ba0c8a7d5f1c",
         "a80b94ff03948af31dc3e3a8d3ecb9c535b15696a1a8c59be7578c3ad8784223",
@@ -82234,120 +82234,126 @@
         "da0963d1bc57319ebdcf93a8b98919a0b2cac1cd514a258e088d764319a035e8",
         "881e8b01d32db2658fbcde0c99b69443140de833e47aa3495931c050f43cbbcb",
         "b86b36add38a7d26b9ed0067cbab9205d54f947de1cbea68b2546c8bfa9d0b10",
-        "4392e74130acfcd7fc08a0519d476eb323c6a70c063cc4fff11b5bcec9c23b50",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+        "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae"
       ]
     },
     "spacr.qt.job_runner.JobRunner": {
       "source_blocks_sha256": [
         "8910cf72a115abde1ce47627f46226b8d8f4891b352a6e6eb53290b3c0154698",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
         "b2d33c392b0cc478caf2e1a94221d54ad2ce7dae155ba96dee697eee7a63119e",
         "af9f2b99ce97cad3e0986be5f14829bf8e8b4f9755a0c70534d71237418a97b7",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "048b85c784cc96d879067fff66c027830096bc801c4849097d547a9be221c6a6",
+        "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "d5d9e078cc2c8b2ca8657098691a4a8b3aeeeb82e7367d8b6e9b5e79bf4444f1"
       ],
-      "source_sha256": "09fdc24666af59626c2fd54da3e8c8fcfd6830f3d29598359e2c92aee46c00cf",
-      "text": "Führen Sie Callables aus dem Haupt- GUI-Ausführungspfad aus; liefern Sie ihre Ergebnisse darauf.\n\n:param parent: das Widget, das die Arbeit besitzt. Behielt als der Läufer Qt Eltern, so dass der Läufer mit ihm stirbt.\n:param threaded: ``False`` läuft jeden Auftrag inline und sendet die gleichen Signale in der gleichen Reihenfolge aus, so dass ein Test einen Screening synchron fahren kann, ohne dass das Verhalten auseinander geht.\n:param app_key: die Namen Jobs erscheinen unter in der Verarbeitung Session Registry, und so in der Aktivität spinner's Tooltip.\n:param user_visible: ``False`` für die Haushaltsführung hat der Benutzer nicht begonnen. Ein solcher Auftrag dreht den Aktivitätsdreher -- etwas, das IS ausführt -- aber behauptet nie ein Verarbeitungs-Sitzungsbanner. Der Nutzungspoller reicht alle zwei Sekunden ein; ohne diesen Home-Flashs \"<module> use - executing\" ein und aus, solange eine Modul-Anwendungsansicht geöffnet ist.\nErstellen Sie einen Läufer für die Hintergrundarbeit eines Widgets.\n\nEs registriert sich in dem Moment, in dem es existiert, so dass ein Läufer nicht erstellt werden kann und dann durch die Beendigung-Zeit-Drain verpasst; die Registrierung ist schwach, so hält es nichts lebendig, dass Qt sonst sammeln würde.\n\n:param parent: das eigene Objekt oder ``None``.\n:param threaded: ausführen Sie Aufträge auf einer Hintergrundausführungseinheit. ``False`` führt jeden einzelnen Inline aus und sendet die gleichen Signale in der gleichen Reihenfolge aus.\n:param app_key: wie die Arbeit dieses Läufers in der Run-Register genannt wird.\n:param user_visible: ob diese Aufträge als läuft der Benutzer gestartet zählen. Setze ``False`` für die Haushaltsführung, damit Homes Laufbanner es nicht als Verarbeitungssitzung zeigt.",
+      "source_sha256": "6e5f679c082897d95cb6376dc3948c809ece12d9de1ba17932d35ad8b73c288b",
+      "text": "Führen Sie Callables aus dem Haupt- GUI-Ausführungspfad aus; liefern Sie ihre Ergebnisse darauf.\n\n:param parent: das Widget, das die Arbeit besitzt. Behielt als der Läufer Qt Eltern, so dass der Läufer mit ihm stirbt.\n:param threaded: ``False`` führt Arbeit und Handler inline im aufrufenden Thread aus. Fehler- und Abschlusssignale werden vor der Rückkehr ausgesendet; kein Worker wird registriert und der Beschäftigtstatus ändert sich nicht.\n:param app_key: die Namen Jobs erscheinen unter in der Verarbeitung Session Registry, und so in der Aktivität spinner's Tooltip.\n:param user_visible: ``False`` für die Haushaltsführung hat der Benutzer nicht begonnen. Ein solcher Auftrag dreht den Aktivitätsdreher -- etwas, das IS ausführt -- aber behauptet nie ein Verarbeitungs-Sitzungsbanner. Der Nutzungspoller reicht alle zwei Sekunden ein; ohne diesen Home-Flashs \"<module> use - executing\" ein und aus, solange eine Modul-Anwendungsansicht geöffnet ist.\nErstellen Sie einen Läufer für die Hintergrundarbeit eines Widgets.\n\nEs registriert sich in dem Moment, in dem es existiert, so dass ein Läufer nicht erstellt werden kann und dann durch die Beendigung-Zeit-Drain verpasst; die Registrierung ist schwach, so hält es nichts lebendig, dass Qt sonst sammeln würde.\n\n:param parent: das eigene Objekt oder ``None``.\n:param threaded: Aufträge in einem Worker-Thread ausführen. ``False`` führt Arbeit und Handler im aufrufenden Thread aus, ohne einen Worker zu registrieren oder den Beschäftigtstatus zu ändern.\n:param app_key: wie die Arbeit dieses Läufers in der Run-Register genannt wird.\n:param user_visible: ob diese Aufträge als läuft der Benutzer gestartet zählen. Setze ``False`` für die Haushaltsführung, damit Homes Laufbanner es nicht als Verarbeitungssitzung zeigt.",
       "translation_source_blocks_sha256": [
         "3dfbd1c06cb216af429e8680cbf6669545d07a9215a67352e953085a691ca243",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
         "3e5af743fb8ed6790be78403f93529d3dfb6ed4bf70068864d43019d94bea1f0",
         "91cf99fb87ff23d7b09bd341260c49cf3dc97d8cca8c34cbaa1812f447cc6cba",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "5ebb543cc092cda186edc74c53232e85628ee9c1012ed2a577c2299c83e67b18",
+        "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "460cd539047c66bcf53f8057ca4d5e32272103c0b52b4eff441a7b3aa10691ea"
       ]
     },
     "spacr.qt.job_runner.JobRunner.active_jobs": {
       "source_blocks_sha256": [
-        "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ],
-      "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
-      "text": "Wie viele Hintergrund-Exekutionseinheiten sind noch immer am Wicklungen.",
+      "source_sha256": "d9dade8b109f8c2925c6e84b31b312d13a2d9978424cee210ca6f2cc3263c3a6",
+      "text": "Verwaltete Worker-Referenzen zählen, einschließlich laufender oder noch nicht freigegebener Aufträge.\n\nBeendete Threads werden bis zur Bereinigungsrunde mitgezählt. Shutdown setzt die Anzahl auch dann zurück, wenn ein Thread an anderer Stelle geparkt wurde.",
       "translation_source_blocks_sha256": [
-        "19c49fa615bddff20814365f7d0a7c265789612bd4a9a793342b2034ccef4f97"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ]
     },
     "spacr.qt.job_runner.JobRunner.cancel": {
       "source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "3cf69411195547dd50f165161356a8c44dd6043b2d8ab28129d9e3283ce37131"
+        "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24"
       ],
-      "source_sha256": "46c7a780a1ab844880b06ac514b56ca3a3d3751ceb567580db645dac5991a9e2",
-      "text": "Verlassen Sie die Ergebnisse von allem im Flug.\n\nDie unabhängigen Ausführungspfade werden gebeten, anzuhalten und dann selbst in den Ruhestand zu gehen; sie sind *nicht* zusammengeschlossen, weil das Verbinden den Haupt- GUI-Ausführungspfad blockieren würde. Ihre Ergebnisse werden bei der Ankunft durch die Generationsüberprüfung fallen gelassen, so dass nichts einen Handler erreicht, der im Begriff sein könnte, zerstört zu werden.",
+      "source_sha256": "f7a0bdc5abb5129e7fbf51833ad4084665d294f8d4b19a8df9a18a9e3cc26b5e",
+      "text": "Verlassen Sie die Ergebnisse von allem im Flug.\n\nThread-Unterbrechung ohne Warten anfordern und danach ausstehende Zustellungen sowie den Beschäftigtstatus sofort löschen. Verspätete Abschlüsse werden ignoriert und senden kein ``job_finished``-Signal. Worker-Referenzen bleiben bis zur Freigabe oder zum Shutdown erhalten; eine Unterbrechung beendet die Arbeit nicht gewaltsam. Das Fehlersignal eines Workers kann weiterhin ``job_failed`` auslösen.",
       "translation_source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "d18f4c3ea2a3b2b84f11f95ab1b8273ee14292e47af4c5297a38e95c80d2f6ca"
+        "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb"
       ]
     },
     "spacr.qt.job_runner.JobRunner.is_busy": {
       "source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+        "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285"
       ],
-      "source_sha256": "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5",
-      "text": "True während ein eingereichter Job noch nicht sein Ergebnis geliefert hat.",
+      "source_sha256": "d44c1fd351b00059fe72a830f20b2a48604cd4f49afc6ffc54c3aa643dbd0202",
+      "text": "Ob Abschlüsse von Thread-Aufträgen ausstehen; ein Abbruch löscht diesen Status sofort.\n\nInline-Arbeit setzt dieses Flag nicht. Ein abgebrochener Worker kann noch laufen, nachdem hier ``False`` zurückgegeben wird.",
       "translation_source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+        "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b"
       ]
     },
     "spacr.qt.job_runner.JobRunner.pending_jobs": {
       "source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193"
       ],
-      "source_sha256": "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6",
-      "text": "Wie viele Ergebnisse wurden noch nicht geliefert.",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "text": "Ausstehende Abschlussdatensätze von Thread-Aufträgen zählen; ein Abbruch löscht sie sofort.",
       "translation_source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9"
       ]
     },
     "spacr.qt.job_runner.JobRunner.shutdown": {
       "source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "0816cfadd686e835c533d078a9ff374dbff4740a8ea48b59e01c3cefd988cb16"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e"
       ],
-      "source_sha256": "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
-      "text": "Abbrechen, dann kurz warten, so dass kein QThread das Widget überdauert.\n\nAufruf von ``closeEvent``. Qt beendet den Prozess, wenn ein ausgeführtes QThread zerstört wird, so dass eine begrenzte Wartezeit erforderlich ist, wenn eine Anwendungsansicht die Mitte des Ladens schließt. Unabhängige Ausführungspfade, die das Budget überdauern, werden durch :func:`spacr.qt.bridge.drain_thread` geparkt anstatt beendet.",
+      "source_sha256": "c96601558323f911ac19bebf17e41546c66554ebe2c6d143ae4aecc5c5818928",
+      "text": "Zustellungen abbrechen und anschließend innerhalb eines gemeinsamen Zeitbudgets warten oder aktive Threads parken.\n\nAus ``closeEvent`` aufrufen. Qt bricht den Prozess ab, wenn ein laufender QThread zerstört wird; daher ist eine begrenzte Wartezeit erforderlich, wenn ein Bildschirm während des Ladens schließt. ``timeout_ms`` wird von allen Threads dieses Runners gemeinsam genutzt. Threads, die diese Zeit überschreiten, werden von :func:`spacr.qt.bridge.drain_thread` geparkt statt zwangsweise beendet.",
       "translation_source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "11328991d433b99f114901d8cb645f7101cc471cc31a5ceb0b8ec45eab24d7bb"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd"
       ]
     },
     "spacr.qt.job_runner.JobRunner.submit": {
       "source_blocks_sha256": [
-        "12af44ef7e5938ea0c5f618207afc691e4ef1e01bd1750b09b63daeb772e894c",
-        "3194492a23e4afb0b7c8b3e0e4039de6a49c779dd584968a70e518764dd48b10",
-        "c7c9aad31a6bd67766a3f96db07f69b27590a0ca5fb1cf05d8afcb7c346e59c5",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+        "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+        "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b"
       ],
-      "source_sha256": "e582622136df8f041658862e9493736bd484422b600c0cb5cc99ea658b6bef37",
-      "text": "Führen Sie ``fn()`` vom Haupt- GUI-Ausführungspfad aus, dann ``on_done(result)`` darauf.\n\n:param fn: ein Null-Argument, das auf einer Hintergrund-Ausführungseinheit ausgeführt wird und **kein Widget** anfassen muss -- stattdessen die Daten zurückgeben.\n:param on_done: aufgerufen auf dem Haupt- GUI-Ausführungspfad mit ``fn`` s Rückgabewert.\n:returns: True wenn der Job gestartet wurde (oder, ungelesen, lief).",
+      "source_sha256": "97f0e63400fd95006431fc04c4ea7d7587ff52d9e3cbb9178f42dcb3247783eb",
+      "text": "``fn()`` einreichen und das erfolgreiche Ergebnis an ``on_done`` zustellen.\n\n:param fn: eine aufrufbare Funktion ohne Argumente. Im Thread-Modus läuft sie außerhalb des GUI-Threads und darf keine Widgets berühren. Im Inline-Modus läuft sie im aufrufenden Thread.\n:param on_done: optionaler Handler für den Rückgabewert von ``fn``; im Thread-Modus wird er im GUI-Thread aufgerufen, andernfalls inline. Ein Abbruch verwirft ausstehende Zustellungen von Thread-Aufträgen.\n:returns: ``True`` nach dem Start eines Thread-Auftrags, bevor dessen Ergebnis feststeht. Der Inline-Modus gibt ``False`` zurück, wenn eine der beiden aufrufbaren Funktionen eine Ausnahme auslöst; andernfalls gibt er ``True`` zurück.",
       "translation_source_blocks_sha256": [
-        "80f86748c347b4f721d1c7df2e1fa9a0f4e7d15ee7552173a3c3ba87af92741e",
-        "43343668990e9ecb58921a6a3c209b09103cdb176379655b000d5ed5f975dc8b",
-        "88f69f9e8ee7ba8aa0c01335e900d6bcfd921366fe686a34b264625106726951",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+        "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+        "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589"
       ]
     },
     "spacr.qt.job_runner.shutdown_all": {
       "source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ],
-      "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
-      "text": "Stoppen Sie jeden Live JobRunner. Gibt zurück, wie viele gefragt wurden.\n\nRufen Sie einmal auf dem Weg aus, bevor Qt beginnt, Widgets zu zerstören. Bestellen Sie mehr als Vollständigkeit hier: ein Läufer, der nicht in der Zeit stoppen kann, wird von `bridge.drain_thread` geparkt, anstatt beendet, so dass dies begrenzt ist.",
+      "source_sha256": "d370dad5b5a783bca409e24001d83745abf282841e4f0b4b9e9c742ba75156c6",
+      "text": "Abbruch für aktive Runner anfordern; die Anzahl normal abgeschlossener Shutdown-Aufrufe zurückgeben.\n\nAufrufen, bevor Qt Widgets zu zerstören beginnt. Für alle Runner wird der Abbruch angefordert, bevor auf einen Runner gewartet wird; danach teilen sie sich eine Wartefrist von ``timeout_ms``. Dies begrenzt das Warten auf Threads, nicht die gesamte Beendigungszeit der Anwendung. Threads, die das Budget überschreiten, werden von :func:`spacr.qt.bridge.drain_thread` geparkt und nicht zwangsweise beendet. Fehlgeschlagene Shutdown-Aufrufe werden protokolliert, nicht mitgezählt und verhindern die Verarbeitung der übrigen Runner nicht.\n\n:param timeout_ms: das gesamte Wartezeitbudget für alle Runner zusammen.",
       "translation_source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ]
     },
     "spacr.qt.laptop_mode": {
@@ -170660,14 +170666,14 @@
       "source_blocks_sha256": [
         "bc3b3f790771c3ac5febee6db66a8bea14cd1d1087fe073b3a6f003280b46a4c",
         "5ffe31d50c50026a60679aed48f0590e27b00d22db0d6ab50cc14f14e8b0755c",
-        "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c"
+        "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343"
       ],
-      "source_sha256": "3b12859878d36eccfdbfea157c85ab7fbde617a91f9505506ec36950f7b9fcb2",
-      "text": "Legen Sie einen gespeicherten :meth:`plot_state` zurück. Gibt zurück, ob er angewendet wurde.\n\nEin Redraw, nicht eins pro Einstellung. Jeder öffentliche Setter zeichnet hier neu, so dass die Wiederherstellung von neun durch neun Setter das Panel neun Mal auf jedem Verarbeitungs-Sitzungsschalter zeichnen würde -- und die Zwischenrahmen sind Kombinationen, die der Benutzer nie gewählt hat.\n\n:param state: Wörterbuch, wie :meth:`plot_state` es zurückgibt; fehlende Schlüssel behalten ihren aktuellen Wert. Nichts wird angewendet, wenn es kein Wörterbuch ist oder keine Tabelle geladen ist.",
+      "source_sha256": "1b651f58a50e5eff99149c5c8ee0b7457907b99cc47be1690a559d883dd7de7a",
+      "text": "Legen Sie einen gespeicherten :meth:`plot_state` zurück. Gibt zurück, ob er angewendet wurde.\n\nEin Redraw, nicht eins pro Einstellung. Jeder öffentliche Setter zeichnet hier neu, so dass die Wiederherstellung von neun durch neun Setter das Panel neun Mal auf jedem Verarbeitungs-Sitzungsschalter zeichnen würde -- und die Zwischenrahmen sind Kombinationen, die der Benutzer nie gewählt hat.\n\n:param state: ein von :meth:`plot_state` zurückgegebenes dict; fehlende Schlüssel behalten ihre aktuellen Werte. Es wird nichts angewendet, wenn der Wert kein dict ist oder keine Tabelle geladen ist. Ein explizites ``None`` als Farbe deaktiviert die Farbcodierung. Ältere Zustände, die nur ``selected_key`` enthalten, werden weiterhin unterstützt.",
       "translation_source_blocks_sha256": [
         "bc3b3f790771c3ac5febee6db66a8bea14cd1d1087fe073b3a6f003280b46a4c",
         "d37a5a50f27f13134a33683ecb17875494e84b1bc31269a90abfb953e0117f07",
-        "4dc2a6986b1d1351de09411f04856f44bf6bb9d389720880bf30ac0845686db6"
+        "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state": {
@@ -170972,14 +170978,16 @@
       "source_blocks_sha256": [
         "d16a8a97e6ad7b9ba2a827ebe3e37812d6a8074428e84bcc4123ee5828290a6f",
         "a2c610687c28676b1a215fd06bc26f7a327d4601cb56f04f9346ef0bb717a698",
-        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08"
+        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08",
+        "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7"
       ],
-      "source_sha256": "6656ac222b7b87c29545d47a8d44200dcc2e3f673cff048768dae906f8741bf7",
-      "text": "Was der Benutzer als Daten auf dem Plot aufgebaut hat.\n\nJeder Regressionslauf hält seinen eigenen Plot-Zustand. Das Screening-Experiment hat einen Vulkan, den jeder Lauf verwendet, ohne diesen würde der Öffnungslauf B den Pegel, die Färbung, die Achsgrenzen, den Effektschnitt und die Auswahl auf Lauf A verwerfen.\n\nAlles hier gehört zum Lauf, nicht zum Widget. Die Farbspalte wird nach Namen und nicht nach Index gespeichert, da die Combobox aus den Spalten jeder Tabelle neu aufgebaut wird und Index 3 im nächsten Lauf eine andere Spalte ist.",
+      "source_sha256": "fe485e4258701db737818d6b6a10e4e963bdb4520c428f1cb27d5123a85e3f8e",
+      "text": "Was der Benutzer als Daten auf dem Plot aufgebaut hat.\n\nJeder Regressionslauf hält seinen eigenen Plot-Zustand. Das Screening-Experiment hat einen Vulkan, den jeder Lauf verwendet, ohne diesen würde der Öffnungslauf B den Pegel, die Färbung, die Achsgrenzen, den Effektschnitt und die Auswahl auf Lauf A verwerfen.\n\nAlles hier gehört zum Lauf, nicht zum Widget. Die Farbspalte wird nach Namen und nicht nach Index gespeichert, da die Combobox aus den Spalten jeder Tabelle neu aufgebaut wird und Index 3 im nächsten Lauf eine andere Spalte ist.\n\n``selected_keys`` enthält die vollständige Tabellenauswahl; das ältere ``selected_key`` bewahrt außerdem den aktiven Schlüssel für verknüpfte Diagramme. ``symbol_by`` und ``opacity_by`` speichern die gewählten Spalten für Markierungsform und Deckkraft unabhängig voneinander, einschließlich ``None`` für einen ungenutzten Kanal. Ein leerer Formkanal verändert dadurch nicht die Rolle der Deckkraft.",
       "translation_source_blocks_sha256": [
         "d16a8a97e6ad7b9ba2a827ebe3e37812d6a8074428e84bcc4123ee5828290a6f",
         "d8ef6e7982637cd45d2012b88ec266aa0d6bcc3a1c3a4c1901980f4c30b21678",
-        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08"
+        "6faaecb99e619349d3a4f015f8e13fc7fd6a63674e86e5e807cfc82e9da7ee08",
+        "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.ranking": {

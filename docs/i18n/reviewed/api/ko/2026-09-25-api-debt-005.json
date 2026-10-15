@@ -4132,7 +4132,10 @@
       "source_sha256": "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c",
       "context": "key-value mapping as :meth:`plot_state` returns it; structured-data names it lacks keep their current value. Nothing applies when it is not a key-value mapping or no table is loaded.",
       "translation": ":meth:`plot_state` 가 반환하는 형식의 사전입니다. 없는 키는 현재 값을 유지합니다. 사전이 아니거나 로드된 테이블이 없으면 아무것도 적용되지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Regression workspace-state contracts expanded in 2b5ba2553db plus1cd00114b270. Replacement exact-source review is2026-10-15-n180-regression-state.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state#2",
