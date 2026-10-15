@@ -179,9 +179,7 @@ class _Well(QPushButton):
         ``A01`` name shown in the tooltip.
         """
         super().__init__(parent)
-        from .figure_grid_view import _strong_focus_style
-
-        self._strong_focus_ring = _strong_focus_style()
+        self._cache_focus_style()
         self.row, self.column = int(row), int(column)
         self.setCheckable(True)
         self.setFixedSize(well_side(), well_side())
@@ -190,15 +188,27 @@ class _Well(QPushButton):
         self.toggled.connect(lambda *_: self._paint())
 
 
+    def _cache_focus_style(self) -> None:
+        """Keep the normal ring and a contrasting selected-fill variant."""
+        from .figure_grid_view import _strong_focus_style
+        from ..theme import FOCUS_RING_MIN_CONTRAST, contrast_ratio
+
+        self._strong_focus_ring = _strong_focus_style()
+        self._selected_focus_ring = self._strong_focus_ring
+        if self._strong_focus_ring:
+            width, colour = self._strong_focus_ring
+            if contrast_ratio(colour, CHOSEN) < FOCUS_RING_MIN_CONTRAST:
+                colour = max(("#000000", "#ffffff"),
+                             key=lambda candidate: contrast_ratio(candidate, CHOSEN))
+                self._selected_focus_ring = (width, colour)
+
     def changeEvent(self, event) -> None:
         """Refresh the cached focus outline when the active style changes."""
         super().changeEvent(event)
         if event.type() in (QEvent.StyleChange, QEvent.PaletteChange,
                             QEvent.ApplicationPaletteChange,
                             QEvent.ApplicationFontChange):
-            from .figure_grid_view import _strong_focus_style
-
-            self._strong_focus_ring = _strong_focus_style()
+            self._cache_focus_style()
             self.update()
 
     def paintEvent(self, event) -> None:
@@ -208,8 +218,9 @@ class _Well(QPushButton):
             painter = QPainter(self)
             try:
                 role = QPalette.HighlightedText if self.isChecked() else QPalette.Highlight
-                width, colour = self._strong_focus_ring or (
-                    2, self.palette().color(role))
+                strong = (self._selected_focus_ring if self.isChecked()
+                          else self._strong_focus_ring)
+                width, colour = strong or (2, self.palette().color(role))
                 painter.setPen(QPen(QColor(colour), width))
                 painter.setBrush(Qt.NoBrush)
                 painter.drawRect(self.rect().adjusted(1, 1, -1, -1))

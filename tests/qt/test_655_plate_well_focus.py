@@ -15,6 +15,7 @@ def plate(qtbot, monkeypatch, tmp_path):
                         lambda: QSettings(str(tmp_path / 'prefs.ini'), QSettings.IniFormat))
     monkeypatch.setattr(preferences, '_SAFE_MODE', False)
     preferences.set_strong_focus(False)
+    original_palette = QApplication.palette()
     theme._forget_painting_theme()
     widget = PlateMapPicker(layout=6)
     qtbot.addWidget(widget)
@@ -24,6 +25,7 @@ def plate(qtbot, monkeypatch, tmp_path):
     widget.activateWindow()
     QApplication.processEvents()
     yield widget
+    QApplication.setPalette(original_palette)
     theme._forget_painting_theme()
 
 
@@ -31,6 +33,7 @@ def plate(qtbot, monkeypatch, tmp_path):
 @pytest.mark.parametrize('selected', [False, True])
 def test_focus_changes_pixels_and_tracks_strong_preference_on_open_well(plate, scheme, selected):
     preferences.set_theme_choice(scheme)
+    theme.apply_qpalette(QApplication.instance())
     plate.setStyleSheet(theme.stylesheet())
     well = plate._wells[(1, 1)]
     well.setChecked(selected)
@@ -49,9 +52,16 @@ def test_focus_changes_pixels_and_tracks_strong_preference_on_open_well(plate, s
     QApplication.processEvents()
     stronger = well.grab().toImage()
     assert stronger != ordinary
-    colour = QColor(theme.focus_ring_colour(scheme))
+    generic = QColor(theme.focus_ring_colour(scheme))
+    colour = stronger.pixelColor(stronger.width() // 2, 0)
     assert [stronger.pixelColor(stronger.width() // 2, y)
             for y in range(theme.FOCUS_RING_PX)] == [colour] * theme.FOCUS_RING_PX
+    if selected:
+        assert theme.contrast_ratio(colour.name(), center.name()) >= theme.FOCUS_RING_MIN_CONTRAST
+        if theme.contrast_ratio(generic.name(), center.name()) >= theme.FOCUS_RING_MIN_CONTRAST:
+            assert colour == generic
+    else:
+        assert colour == generic
     assert stronger.pixelColor(stronger.width() // 2, stronger.height() // 2) == center
     assert well.geometry() == original_geometry
     assert well.width() == well.height() == well_side()

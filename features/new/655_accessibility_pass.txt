@@ -553,3 +553,15 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   API policy; the one pre-existing nested helper changes only source lines.
   Public prose/captions remain exact. No new native/human/other-OS claim.
   Evidence:data/655_plate_well_focus_2026-10-15/receipt.json.
+
+2026-10-15 — Plate focus contrast follow-up from independent review
+  Initial46b367 focus acceptance is superseded for selected fills: actual
+  palette/render checks reproduced2FAIL for the generic Dark/Light strong
+  ring against CHOSEN blue (1.714/1.238, below3:1). _Well now caches a local
+  selected-fill fallback only where generic focus fails the existing3:1
+  policy; passing generic colours and all unselected colours are retained.
+  Actual3theme×2state rendering now checks uniform3px focus, required contrast,
+  center-fill/geometry/selection preservation and live ordinary/strong changes.
+  Final45PASS7.21s,9.81s wall,595748KiB peak,2G/offscreenQt6.12/thread1.
+  Five private methods excluded; all public/old mouse/selection AST unchanged.
+  Evidence:data/655_plate_well_focus_2026-10-15/contrast-followup.json.
