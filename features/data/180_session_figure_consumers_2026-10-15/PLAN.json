@@ -1,0 +1,10 @@
+{
+  "status": "PREPARED ONLY; NOT EXECUTED",
+  "script": "check-consumers.py",
+  "prerequisites": ["Normal runtime/API producers finished and integrated", "Normal Help generator finished at a frozen commit", "Parent supplies actual commit, generated Help SHA and saved pre-generation help_api_index.py", "Parent grants bounded execution slot"],
+  "planned_environment": "Existing interpreter/Qt6.12 overlay, private XDG/QSettings paths, CUDA hidden, offscreen, thread1, at most4G, async and approved lock; no widgets/app/network/model operations",
+  "obligations": {"actual_compiled_runtime_tr":9,"selected_api_catalog_records":18,"source_bound_target_blocks":63,"new_help_entries":2,"local_AST_docstrings":2,"english_korean_routes":4,"production_search_queries":4},
+  "preservation": "Exact prior Help entries retained, exactly2 entries added; source hashes bound to finalbf9/c9 input manifest. Full foreign catalog/history preservation belongs to normal producer.",
+  "boundaries": "No18+3 source tests, native replay, collector, generator, provider requests, browser openers or source edits. AST-only no-target-import assertion occurs BEFORE api_url/build_index legitimate imports. This script does not assert no import after those helpers.",
+  "example": "python check-consumers.py --root PRIVATE_ROOT --expected-commit FINAL_SHA --expected-help-sha256 FINAL_HELP_SHA --before-help BEFORE_HELP_PATH"
+}
