@@ -1,0 +1,301 @@
+From 607c2291a99cfe7a76fae4601f1f1b519dd2a490 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 00:57:30 -0400
+Subject: [PATCH] Observe deferred Invasion completion across capture scenes
+
+---
+ tools/tutorials/capture_acceptance.py         | 45 ++++++++++
+ tools/tutorials/capture_invasion.py           | 44 ++++-----
+ tools/tutorials/capture_plaque.py             | 43 +--------
+ .../tests/test_capture_invasion_completion.py | 89 +++++++++++++++++++
+ 4 files changed, 159 insertions(+), 62 deletions(-)
+ create mode 100644 tools/tutorials/tests/test_capture_invasion_completion.py
+
+diff --git a/tools/tutorials/capture_acceptance.py b/tools/tutorials/capture_acceptance.py
+index 33eb281fd..9f40deb07 100644
+--- a/tools/tutorials/capture_acceptance.py
++++ b/tools/tutorials/capture_acceptance.py
+@@ -1,6 +1,8 @@
+ """Reject tutorial demonstrations with partial output, even after GUI success."""
+ from __future__ import annotations
+ 
++import time
++
+ 
+ def assess_pipeline(outcome, console_blocks, figure_count, *, requires_figure=True):
+     """Return explicit recording acceptance, keeping ordinary QC warnings visible."""
+@@ -19,3 +21,46 @@ def assess_pipeline(outcome, console_blocks, figure_count, *, requires_figure=Tr
+     return {'accepted': not reasons, 'reasons': reasons, 'figure_count': figure_count,
+             'worker_finished': bool(outcome.get('finished')),
+             'worker_ok': bool(outcome.get('ok'))}
++
++
++def observe_pipeline_run(screen, click_run, settle, timeout, *, after_click=None):
++    """Observe the real run even when import is deferred or its worker is gone.
++
++    AppScreen creates its worker only after the asynchronous entry import,
++    and clears it after thread completion. Its new run timestamp and rendered
++    terminal notice survive both transitions; neither an old notice nor merely
++    an idle thread proves that this click ran anything.
++    """
++    from spacr.qt.i18n import tr
++
++    previous_run = getattr(screen, '_run_started_at', None)
++    before = {id(block): text for block, _, text
++              in screen._console._pipeline_console_blocks()}
++    terminal = {tr('✓ Finished'): True, tr('✗ Failed — see traceback above'): False}
++    deadline = time.monotonic() + timeout
++    click_run()
++    if after_click is not None:
++        after_click()
++    while True:
++        new_run = getattr(screen, '_run_started_at', None) != previous_run
++        additions = []
++        errors = []
++        for block, kind, text in screen._console._pipeline_console_blocks():
++            old = before.get(id(block), '')
++            # A replaced block is not evidence of an appended terminal line.
++            if old and not text.startswith(old):
++                continue
++            added = text[len(old):]
++            additions.extend(added.splitlines())
++            if kind == 'traceback' and added.strip():
++                errors.append(added)
++        endings = [terminal[line.strip()] for line in additions
++                   if line.strip() in terminal]
++        if (new_run and endings and getattr(screen, '_entry_import', None) is None
++                and not screen._worker_thread_is_running()
++                and screen._btn_run.isEnabled()):
++            return dict(finished=True, ok=endings[-1], errors=errors,
++                        completion_observation='new run timestamp, rendered terminal notice, idle thread')
++        if time.monotonic() > deadline:
++            raise TimeoutError('The bounded pipeline did not report a new completed run')
++        settle(.1)
+diff --git a/tools/tutorials/capture_invasion.py b/tools/tutorials/capture_invasion.py
+index f3e06d205..6025b7675 100644
+--- a/tools/tutorials/capture_invasion.py
++++ b/tools/tutorials/capture_invasion.py
+@@ -4,14 +4,35 @@ from capture_ui_drv_a import search_typed
+ from capture_ui_drv_c import Scenes
+ from capture_ui_drv_e import guarded
+ from pathlib import Path
+-import time
+ 
+-from capture_acceptance import assess_pipeline
++from capture_acceptance import assess_pipeline, observe_pipeline_run
+ from invasion_demo import prepare, check_preserved, verify_output, verify_figure, verify_histograms, digest
+ from native_figure_legend import fit_legend
+ from stage_lesson import read
+ 
+ 
++def run_invasion_pipeline(screen, scenes, settle, timeout):
++    """Keep the real Run and completion scenes across deferred or fast runs."""
++    from PySide6.QtCore import Qt
++    from PySide6.QtTest import QTest
++
++    def after_click():
++        settle(.3)
++        scenes.end('13_actual_run', screen._console)
++        scenes.begin('14_actual_completion')
++
++    scenes.begin('13_actual_run')
++    try:
++        return observe_pipeline_run(screen,
++            lambda: QTest.mouseClick(screen._btn_run, Qt.LeftButton),
++            settle, timeout, after_click=after_click)
++    except TimeoutError:
++        if screen._worker_thread_is_running():
++            QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
++            settle(3)
++        raise
++
++
+ @guarded
+ def record_invasion(app, window, screen, stage, captures, capture, settle, write_json, timeout):
+     from PySide6.QtCore import Qt
+@@ -78,25 +99,8 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
+         QTest.mouseClick(screen._ai_switch, Qt.LeftButton)
+     if screen._ai_switch.isChecked():
+         raise ValueError('No external AI request is part of this example')
+-    outcome = dict(finished=False, ok=False, errors=[])
+-    S.begin('13_actual_run')
+-    QTest.mouseClick(screen._btn_run, Qt.LeftButton)
+-    worker = screen._worker
+-    if worker is None:
+-        raise ValueError('The actual Run control did not launch a worker')
+-    worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
+-    worker.error.connect(lambda message: outcome['errors'].append(str(message)))
++    outcome = run_invasion_pipeline(screen, S, settle, timeout)
+     proof['actual_gui_run'] = True
+-    settle(.3)
+-    S.end('13_actual_run', screen._console)
+-    S.begin('14_actual_completion')
+-    deadline = time.monotonic()+timeout
+-    while not outcome['finished'] or screen._worker_thread_is_running():
+-        if time.monotonic() > deadline:
+-            QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
+-            settle(3)
+-            raise TimeoutError('The bounded synthetic Invasion run did not finish')
+-        settle(.1)
+     settle(1)
+     blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
+     write_json(captures/'batch_outcome.json', outcome)
+diff --git a/tools/tutorials/capture_plaque.py b/tools/tutorials/capture_plaque.py
+index 8ab6b375b..3f4a46f85 100644
+--- a/tools/tutorials/capture_plaque.py
++++ b/tools/tutorials/capture_plaque.py
+@@ -7,7 +7,7 @@ from pathlib import Path
+ import shutil
+ import time
+ 
+-from capture_acceptance import assess_pipeline
++from capture_acceptance import assess_pipeline, observe_pipeline_run as observe_plaque_run
+ from plaque_demo import prepare, require_preserved, verify_database
+ from replication_demo import digest
+ from stage_lesson import read
+@@ -36,47 +36,6 @@ def prepare_bundled_model(stage, source):
+                 bytes=target.stat().st_size)
+ 
+ 
+-def observe_plaque_run(screen, click_run, settle, timeout):
+-    """Observe the real run even when import is deferred or its worker is gone.
+-
+-    AppScreen creates its worker only after the asynchronous entry import,
+-    and clears it after thread completion. Its new run timestamp and rendered
+-    terminal notice survive both transitions; neither an old notice nor merely
+-    an idle thread proves that this click ran anything.
+-    """
+-    from spacr.qt.i18n import tr
+-
+-    previous_run = getattr(screen, '_run_started_at', None)
+-    before = {id(block): text for block, _, text
+-              in screen._console._pipeline_console_blocks()}
+-    terminal = {tr('✓ Finished'): True, tr('✗ Failed — see traceback above'): False}
+-    deadline = time.monotonic() + timeout
+-    click_run()
+-    while True:
+-        new_run = getattr(screen, '_run_started_at', None) != previous_run
+-        additions = []
+-        errors = []
+-        for block, kind, text in screen._console._pipeline_console_blocks():
+-            old = before.get(id(block), '')
+-            # A replaced block is not evidence of an appended terminal line.
+-            if old and not text.startswith(old):
+-                continue
+-            added = text[len(old):]
+-            additions.extend(added.splitlines())
+-            if kind == 'traceback' and added.strip():
+-                errors.append(added)
+-        endings = [terminal[line.strip()] for line in additions
+-                   if line.strip() in terminal]
+-        if (new_run and endings and getattr(screen, '_entry_import', None) is None
+-                and not screen._worker_thread_is_running()
+-                and screen._btn_run.isEnabled()):
+-            return dict(finished=True, ok=endings[-1], errors=errors,
+-                        completion_observation='new run timestamp, rendered terminal notice, idle thread')
+-        if time.monotonic() > deadline:
+-            raise TimeoutError('The bounded existing-mask Plaque run did not report a new completed run')
+-        settle(.1)
+-
+-
+ @guarded
+ def record_plaque(app, window, screen, stage, captures, capture, settle, write_json, timeout,
+                   *, use_zoo_model=False):
+diff --git a/tools/tutorials/tests/test_capture_invasion_completion.py b/tools/tutorials/tests/test_capture_invasion_completion.py
+new file mode 100644
+index 000000000..165896bcc
+--- /dev/null
++++ b/tools/tutorials/tests/test_capture_invasion_completion.py
+@@ -0,0 +1,89 @@
++"""The Invasion recorder retains Run/completion scenes across Qt lifecycle edges."""
++from pathlib import Path
++import sys
++from types import SimpleNamespace
++
++sys.path[:0] = [str(Path(__file__).resolve().parents[3]),
++                str(Path(__file__).resolve().parents[1])]
++
++import pytest
++from PySide6.QtCore import QTimer
++from PySide6.QtTest import QTest
++from PySide6.QtWidgets import QApplication, QPushButton
++
++from capture_acceptance import assess_pipeline
++from capture_invasion import run_invasion_pipeline
++from spacr.qt.widgets.console_panel import ConsolePanel
++
++
++@pytest.mark.parametrize('mode', ['fast_ok', 'fast_failed', 'deferred_ok', 'deferred_failed', 'refused', 'stale'])
++def test_actual_qt_run_and_completion_boundaries_do_not_require_a_live_worker(mode):
++    app = QApplication.instance() or QApplication([])
++    console = ConsolePanel('Invasion', follow_log=False, chat=False)
++    run, stop = QPushButton('Run'), QPushButton('Stop')
++    screen = SimpleNamespace(_console=console, _btn_run=run, _btn_stop=stop,
++        _run_started_at=1, _entry_import=None, running=False)
++    screen._worker_thread_is_running = lambda: screen.running
++    console.append_notice('✓ Finished\n')  # Previous run cannot satisfy this click.
++    events = []
++    scenes = SimpleNamespace(
++        begin=lambda name: events.append(('begin', name)),
++        end=lambda name, target: events.append(('end', name, target is console)))
++
++    def finish():
++        if mode.endswith('failed'):
++            console.append_error('actual new pipeline error')
++            console.append_notice('✗ Failed — see traceback above\n')
++        else:
++            console.append_notice('✓ Finished\n')
++        screen.running = False
++        screen._worker = None
++        run.setEnabled(True)
++        events.append(('finished',))
++
++    def begin():
++        screen._entry_import = None
++        screen._run_started_at = 2
++        screen._worker = object()
++        screen.running = True
++        console.append_stdout('new Invasion run\n')
++        QTimer.singleShot(350, finish)
++
++    def clicked():
++        events.append(('click',))
++        if mode == 'refused':
++            return
++        if mode == 'stale':
++            console.append_notice('✓ Finished\n')
++            return
++        run.setEnabled(False)
++        if mode.startswith('deferred'):
++            assert not hasattr(screen, '_worker')
++            screen._entry_import = object()
++            QTimer.singleShot(20, begin)
++        else:
++            screen._run_started_at = 2
++            finish()  # Completion and worker cleanup before click returns.
++    run.clicked.connect(clicked)
++    settle = lambda seconds: QTest.qWait(max(1, int(seconds * 1000)))
++    try:
++        if mode in ('refused', 'stale'):
++            with pytest.raises(TimeoutError, match='new completed run'):
++                run_invasion_pipeline(screen, scenes, settle, .45)
++        else:
++            outcome = run_invasion_pipeline(screen, scenes, settle, 2)
++            expected_ok = mode.endswith('_ok')
++            assert outcome['finished'] and outcome['ok'] is expected_ok
++            assert bool(outcome['errors']) is not expected_ok
++            assert assess_pipeline(outcome, [], 1)['accepted'] is expected_ok
++            assert screen._worker is None
++        boundary_events = [event for event in events if event[0] != 'finished']
++        assert boundary_events == [('begin', '13_actual_run'), ('click',),
++                                   ('end', '13_actual_run', True), ('begin', '14_actual_completion')]
++        if mode.startswith('deferred'):
++            assert events.index(('begin', '14_actual_completion')) < events.index(('finished',))
++    finally:
++        for widget in (console, run, stop):
++            widget.close()
++            widget.deleteLater()
++        app.processEvents()
+-- 
+2.34.1
+
