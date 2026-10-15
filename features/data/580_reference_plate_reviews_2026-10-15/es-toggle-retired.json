@@ -1,0 +1,12 @@
+{
+  "reason": "Unconditional first-plate reference replaced by explicit selection and blank default",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
+      "translation": "Calibra intensidades entre sesiones de adquisición antes de medir: cada placa es una sesión, se miden las microesferas o pocillos de referencia fotografiados en cada placa, y los canales de intensidad de cada placa se escalan para que sus pocillos de referencia coincidan con los de la primera placa. Esto corrige la deriva de exposición, lámpara y detector entre días a nivel de imagen, a diferencia de la corrección de lotes de las tablas. Las ganancias se registran en measurements.db:intensity_rescale. Valor predeterminado: False."
+    }
+  ]
+}

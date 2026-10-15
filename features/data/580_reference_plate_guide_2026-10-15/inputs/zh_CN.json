@@ -1,0 +1,7 @@
+[
+  {
+    "domain": "measure_live",
+    "msgid": "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name.",
+    "msgstr": "启用 **显示 Alpha 功能** 后，强度校准允许在 ``intensity_calibration_reference_plate`` 中选择性地填写参考微孔板的名称；留空则使用按名称排序的第一块微孔板。"
+  }
+]

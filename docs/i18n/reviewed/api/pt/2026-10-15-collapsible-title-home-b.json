@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review; independent peer review by website lane requested; no native-speaker signoff",
+  "note": "Two changed existing title getter API blocks from collapsible_section7b1379559ca3. Prior complete symbol bodies match published English. Normal scoped extraction; no full collector or global source-currency claim. No obsolete active review rows found; unrelated review inputs preserved.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.collapsible_section.CollapsibleSection.title#0",
+      "source": "Return the title passed to the constructor, converted to ``str``.",
+      "context": "Return the title passed to the constructor, converted to ``str``.",
+      "source_sha256": "c1c72df8068cdbbc0e191475e25f7617baa8eac2ade3f8d027b665e2cbb4c708",
+      "translation": "Retorna o título passado ao construtor, convertido em ``str``.",
+      "review_basis": "Exact-source technical review of constructor title conversion to str and the stored title remaining unaffected by header button text changes. Literal syntax and return-value distinction retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_section.CollapsibleSection.title#1",
+      "source": "the stored title; changing the header button's text does not change this value.",
+      "context": "the stored title; changing the header button's text does not change this value.",
+      "source_sha256": "a4e8495ff87c99b9d090c6bde8fff42700a6100524dd93fa6a1e357cdf56caa4",
+      "translation": "o título armazenado; alterar o texto do botão do cabeçalho não altera esse valor.",
+      "review_basis": "Exact-source technical review of constructor title conversion to str and the stored title remaining unaffected by header button text changes. Literal syntax and return-value distinction retained. No native-speaker claim."
+    }
+  ]
+}

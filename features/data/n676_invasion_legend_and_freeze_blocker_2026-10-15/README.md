@@ -1,0 +1,11 @@
+# Invasion science completes; native freezes block whole lesson
+
+Held recorder-only eb5f8df8dd2001f87470ca79580135087a3b7b79 applies the existing real Figure settings legend position through an actual position change. Exact patch, owning27PASS5.22s terminal0 log and independent source review are included. App, input and gates are unchanged by this fix.
+
+Actual fresh whole turn47 plus its single permitted failed-clip retry complete all scoped synthetic scientific checks. Both recorded runs import37settings using the real dialog and preserve original/private input databases. Actual CSV arithmetic agrees with the synthetic reference:1,440calls,24fields,12wells,2conditions. The independent attached/inside bar geometry checks56values;12histogram panels/480bins/12threshold lines account for1,440observations. Both legends lie within their canvases after real UI edits, without changing CSV data. This demonstrates software plumbing/arithmetic, not biological invasion, stain quality, treatment efficacy or statistical inference.
+
+Whole capture remains BLOCKED: strict union11of13. Opening01 and completion14 have real paint freezes in BOTH runs, so they are ineligible for a capture-loss-only exception. Exact raw false gates/summaries are copied unchanged; no thresholds, evidence or reasons are rewritten. Scientific accepted:true is scoped and does not approve native smoothness or the whole lesson.
+
+Scene14 deliberately starts before the terminal completion observer wait, then verifies actual finished/idle/output state before its tail. A processing state at its beginning is expected; the final full tail must show completion. Current English and13source-bound translations need no identified wording correction. No listening/native-speaker approval, audio/staging/rendering/publication advance or live Space update is claimed.09 remains completed/pushed;24 remains documented blocked.
+
+No further26diagnostic or rerecording is authorized.26helpers remain frozen; no staging/audio. The two full science receipts stay unchanged onWS and are hash-bound here; only the compact independent checks and four small raw failed gates are delivered. Next11 is prepared only, subject to its separate current-API review/root marker/launch.10 has no existing native GNOME terminal adapter.24proposal and14pin are preserved.

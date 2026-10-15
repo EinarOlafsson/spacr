@@ -1,0 +1,3 @@
+{
+  "spacr.qt.widgets.training_monitor.TrainingMonitor": "Display training metrics as incrementally updated curves.\n\n``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed\n``\"loss\"``, ``\"accuracy\"`` and ``\"per_class\"``. ``curves`` holds the\n:class:`pyqtgraph.PlotDataItem` for each metric, created when that\nmetric first appears and reused for every epoch after it.\n\nThe plot widgets are created in the constructor; curves are added when\ntheir metrics first appear. :meth:`clear` removes curves and stored points\nfor a new run while retaining the plot widgets and both dictionaries.\nBuild the panel that follows a training run's losses and metrics.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent widget, or ``None``."
+}

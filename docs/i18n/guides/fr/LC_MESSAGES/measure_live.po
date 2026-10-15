@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-15 01:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -26,6 +26,10 @@ msgstr "Mesure : prévisualiser les images cochées et vérifier les plans de ma
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
 msgstr "Ouvrez **Mesure** avec un dossier d’exécution ou son dossier ``merged``. Si ``src`` pointe vers l’un des sous-dossiers de sortie de la plaque, comme ``measurements`` ou ``masks``, Mesure lit le dossier ``merged`` de cette plaque et l’indique dans la console. S’il n’y a aucun dossier ``merged`` à lire, Mesure ne démarre pas et son message nomme le dossier manquant et ce qu’il faut indiquer à la place. La vue **Direct** charge un champ et montre des recadrages provenant du masque d’objets configuré. Utilisez **Paramètres de recadrage…** pour choisir l’objet, les plans de masque, les canaux d’image, la taille des recadrages et les filtres avant de mesurer toute l’expérience."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
+msgstr "Lorsque **Afficher les fonctionnalités alpha** est activé, la calibration de l’intensité accepte une plaque de référence facultative indiquée par son nom dans ``intensity_calibration_reference_plate`` ; laissez ce champ vide pour utiliser la première plaque dans l’ordre des noms."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

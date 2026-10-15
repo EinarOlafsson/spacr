@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "source_base": "93474c76ea0f2918b5990a1940f1da00a859b79d",
+  "source_file": "spacr/qt/widgets/training_monitor.py",
+  "before_sha256": "67d30c2e36b95dd62a3b8d94a8f3845c4fe23a15e875b993f58ee29968ad2b1c",
+  "after_sha256": "98ee28eeb368d5e2b3dc196295f87b3243b0fb5544e4c579e2c5d79b8f910f22",
+  "scope": "Read full small widget source; six selected public lifecycle docstrings recorded. Only one class paragraph changes, describing eager plot construction, lazy metric curves and clear retention.",
+  "executable_ast_identical": true,
+  "changed_docstrings": 1,
+  "retained_selected_docstrings": 5,
+  "docstring_ledger": [
+    {
+      "symbol": "spacr.qt.widgets.training_monitor.TrainingMonitor",
+      "disposition": "revised",
+      "before": "Display training metrics as incrementally updated curves.\n\n``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed\n``\"loss\"``, ``\"accuracy\"`` and ``\"per_class\"``. ``curves`` holds the\n:class:`pyqtgraph.PlotDataItem` for each metric, created when that\nmetric first appears and reused for every epoch after it.\n\nBoth are populated as epochs arrive and neither is replaced, so a\nreference taken once stays valid for the life of the panel.",
+      "after": "Display training metrics as incrementally updated curves.\n\n``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed\n``\"loss\"``, ``\"accuracy\"`` and ``\"per_class\"``. ``curves`` holds the\n:class:`pyqtgraph.PlotDataItem` for each metric, created when that\nmetric first appears and reused for every epoch after it.\n\nThe plot widgets are created in the constructor; curves are added when\ntheir metrics first appear. :meth:`clear` removes curves and stored points\nfor a new run while retaining the plot widgets and both dictionaries.",
+      "before_sha256": "e81431b5ed03776e487b401b44c86ee7859aee3f627bbb82fedb0046652be5a0",
+      "after_sha256": "1643ae0c58c58c82f624b07aeee36b4c764d5d50071d075dbb1a0d8ebddd878f"
+    },
+    {
+      "symbol": "spacr.qt.widgets.training_monitor.TrainingMonitor.__init__",
+      "disposition": "retained",
+      "before": "Build the panel that follows a training run's losses and metrics.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent widget, or ``None``.",
+      "after": "Build the panel that follows a training run's losses and metrics.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent widget, or ``None``.",
+      "before_sha256": "5b77e4420eb0bb66fb6f7b002e4d7f53ed6e5b8202ee3edd0e75b9e77f1e4b73",
+      "after_sha256": "5b77e4420eb0bb66fb6f7b002e4d7f53ed6e5b8202ee3edd0e75b9e77f1e4b73"
+    },
+    {
+      "symbol": "spacr.qt.widgets.training_monitor.TrainingMonitor.append",
+      "disposition": "retained",
+      "before": "Append finite metric values for one epoch.\n\nParameters\n----------\nepoch : float\n    Epoch coordinate assigned to each accepted value.\nvalues : dict of str to float\n    Metric values keyed by series name. Names containing ``loss``\n    are placed on the loss panel; aggregate accuracy names are placed\n    on the accuracy panel; other names are treated as per-class\n    metrics. Non-numeric and non-finite values are ignored.\n\nReturns\n-------\nint\n    Number of series updated.",
+      "after": "Append finite metric values for one epoch.\n\nParameters\n----------\nepoch : float\n    Epoch coordinate assigned to each accepted value.\nvalues : dict of str to float\n    Metric values keyed by series name. Names containing ``loss``\n    are placed on the loss panel; aggregate accuracy names are placed\n    on the accuracy panel; other names are treated as per-class\n    metrics. Non-numeric and non-finite values are ignored.\n\nReturns\n-------\nint\n    Number of series updated.",
+      "before_sha256": "a460e761ecc0048aeb6400976df9a4c151675f90c01fea0954c584cf3f089e26",
+      "after_sha256": "a460e761ecc0048aeb6400976df9a4c151675f90c01fea0954c584cf3f089e26"
+    },
+    {
+      "symbol": "spacr.qt.widgets.training_monitor.TrainingMonitor.series",
+      "disposition": "retained",
+      "before": "Return metric names in the order they first appeared.",
+      "after": "Return metric names in the order they first appeared.",
+      "before_sha256": "bef618d96d220d3db5358724a5768b0317e7c6fb096c3e5bced0c7854ed0dd8b",
+      "after_sha256": "bef618d96d220d3db5358724a5768b0317e7c6fb096c3e5bced0c7854ed0dd8b"
+    },
+    {
+      "symbol": "spacr.qt.widgets.training_monitor.TrainingMonitor.points",
+      "disposition": "retained",
+      "before": "Return epoch and value coordinates for a metric series.\n\nParameters\n----------\nname : str\n    Metric series name.\n\nReturns\n-------\ntuple of tuple of float\n    ``(epochs, values)``. Both tuples are empty when the series has\n    not been observed.",
+      "after": "Return epoch and value coordinates for a metric series.\n\nParameters\n----------\nname : str\n    Metric series name.\n\nReturns\n-------\ntuple of tuple of float\n    ``(epochs, values)``. Both tuples are empty when the series has\n    not been observed.",
+      "before_sha256": "544683af3334edc078a8dc6356235dff82729255fb6ac115bd13ba4117e007ac",
+      "after_sha256": "544683af3334edc078a8dc6356235dff82729255fb6ac115bd13ba4117e007ac"
+    },
+    {
+      "symbol": "spacr.qt.widgets.training_monitor.TrainingMonitor.clear",
+      "disposition": "retained",
+      "before": "Remove all curves and stored points for a new training run.",
+      "after": "Remove all curves and stored points for a new training run.",
+      "before_sha256": "936f2e3a758ae8db8dff9e06dd48d68013dd655acbc9cf8ddc4f59911bbf1a22",
+      "after_sha256": "936f2e3a758ae8db8dff9e06dd48d68013dd655acbc9cf8ddc4f59911bbf1a22"
+    }
+  ],
+  "code_evidence": {
+    "constructor": "__init__ builds one PlotWidget for each of three PANELS and stores them immediately in self.plots; self.curves starts empty.",
+    "lazy_curves": "append calls _curve; existing name returns existing PlotDataItem, absent name creates a curve and its point lists.",
+    "clear": "clear calls panel.clear/addLegend, then self.curves.clear and self._points.clear. It neither replaces either dictionary nor removes plot widgets from self.plots."
+  },
+  "rendered_changed_blocks": [
+    {
+      "label": "spacr.qt.widgets.training_monitor.TrainingMonitor#2",
+      "before": "Both are populated as epochs arrive and neither is replaced, so a reference taken once stays valid for the life of the panel. Build the panel that follows a training run's losses and metrics.",
+      "source": "The plot widgets are created in the constructor; curves are added when their metrics first appear. :meth:`clear` removes curves and stored points for a new run while retaining the plot widgets and both dictionaries. Build the panel that follows a training run's losses and metrics.",
+      "context": "The plot widgets are created in the constructor; curves are added when their metrics first appear. :meth:`clear` removes curves and stored points for a new processing session while retaining the plot widgets and both key-value mappings. Build the panel that follows a training processing session's losses and metrics.",
+      "source_sha256": "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73"
+    }
+  ],
+  "normal_full_collector_run": false,
+  "block_identification": "One existing class symbol rendered through normal targeted _autoapi_class_doc/translatable_blocks helpers; constructor merge retained, no new symbol.",
+  "tests_run": false,
+  "reason_no_tests": "Doc-only correction; complete executable AST equality proves training, plotting, captions and method behavior unchanged.",
+  "pending": [
+    "Normal API nine-locale review and scoped catalog generation of the one changed existing block."
+  ],
+  "full_N678_or_native_claim": false
+}

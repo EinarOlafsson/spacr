@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review; independent parent peer review requested; no native-speaker signoff",
+  "note": "Four changed blocks in two existing symbols from volume source8f0fc8f4655 and column source9b9314e184d. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.volume_view.angles_from_axes#0",
+      "source": "Return ``(elev, azim, roll)`` in degrees for the supplied screen axes.",
+      "context": "Return ``(elev, azim, roll)`` in degrees for the supplied screen axes.",
+      "source_sha256": "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+      "previous_same_source_indexes": [],
+      "translation": "返回给定屏幕坐标轴对应的 ``(elev, azim, roll)``，单位为度。",
+      "review_basis": "Exact-source technical translation review of degree units, normalized near-pole threshold and approximation, azimuth/roll behavior, existing-layout reuse without replacing arguments, empty layout returns and missing/deleted Qt object handling. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.angles_from_axes#1",
+      "source": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Near either pole, where ``abs(w[2]) > 1.0 - 1e-9`` after normalization, the returned elevation is ``89.9999`` or ``-89.9999`` degrees. The azimuth is chosen from ``u`` and roll is zero. This branch deliberately approximates the supplied frame instead of returning an exact pole.",
+      "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Near either pole, where ``abs(w[2]) > 1.0 - 1e-9`` after normalization, the returned elevation is ``89.9999`` or ``-89.9999`` degrees. The azimuth is chosen from ``u`` and roll is zero. This branch deliberately approximates the supplied frame instead of returning an exact pole.",
+      "source_sha256": "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
+      "previous_same_source_indexes": [],
+      "translation": "``elev`` 保持在 ``[-90, 90]`` 内，因此竖直方向不会翻转；滚转角随后表示该坐标框架绕视线的旋转。在任一极点附近，即归一化后满足 ``abs(w[2]) > 1.0 - 1e-9`` 时，返回的仰角为 ``89.9999`` 或 ``-89.9999`` 度。方位角根据 ``u`` 选取，滚转角为零。此分支有意近似给定的坐标框架，而不返回精确的极点。",
+      "review_basis": "Exact-source technical translation review of degree units, normalized near-pole threshold and approximation, azimuth/roll behavior, existing-layout reuse without replacing arguments, empty layout returns and missing/deleted Qt object handling. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.align_row_to_columns#1",
+      "source": "An existing ``ColumnAlignedRow`` on the strip is returned unchanged. Its header, widget-column assignments and invalidation callback are not compared with or replaced by the new arguments.",
+      "context": "An existing ``ColumnAlignedRow`` on the strip is returned unchanged. Its header, widget-column assignments and invalidation callback are not compared with or replaced by the new arguments.",
+      "source_sha256": "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
+      "previous_same_source_indexes": [],
+      "translation": "如果条带上已有 ``ColumnAlignedRow``，则原样返回。其表头、控件与列的对应关系以及失效回调不会与新参数比较，也不会被新参数替换。",
+      "review_basis": "Exact-source technical translation review of degree units, normalized near-pole threshold and approximation, azimuth/roll behavior, existing-layout reuse without replacing arguments, empty layout returns and missing/deleted Qt object handling. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.align_row_to_columns#6",
+      "source": "the existing or newly installed layout, including an empty layout when ``columns`` is empty. Returns ``None`` when the strip or header is missing or its Qt object has been deleted.",
+      "context": "the existing or newly installed layout, including an empty layout when ``columns`` is empty. Returns ``None`` when the strip or header is missing or its Qt object has been deleted.",
+      "source_sha256": "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6",
+      "previous_same_source_indexes": [],
+      "translation": "已有或新安装的布局；当 ``columns`` 为空时，也包括空布局。如果条带或表头缺失，或者其 Qt 对象已被删除，则返回 ``None``。",
+      "review_basis": "Exact-source technical translation review of degree units, normalized near-pole threshold and approximation, azimuth/roll behavior, existing-layout reuse without replacing arguments, empty layout returns and missing/deleted Qt object handling. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

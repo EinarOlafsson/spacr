@@ -335,7 +335,8 @@ def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
     The reference statistic of each intensity plane is taken from each
     reference field, in the units Measure works in (after the plate's uint16
     rescale), and the median over a plate's fields is that plate's value.
-    The first plate by name is the reference session: its gain is 1 and
+    An explicit intensity_calibration_reference_plate names the reference
+    session. A blank value uses the first plate by name. Its gain is 1 and
     every other plate is scaled so its reference wells match it.
 
     :param src: directory of merged field arrays.
@@ -381,7 +382,14 @@ def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
             f"field in the reference wells {', '.join(sorted(wells.values()))}"
             f". Image the beads or reference wells on every plate, or leave "
             f"intensity_calibration off.")
-    reference = sorted(samples)[0]
+    selection = settings.get("intensity_calibration_reference_plate")
+    if selection is None:
+        selection = ""
+    if not isinstance(selection, str) or (selection.strip() and selection.strip() not in samples):
+        from .qt.i18n import tr
+
+        raise ValueError(tr("Bad settings") + f": intensity_calibration_reference_plate={selection!r}; {tuple(sorted(samples))}")
+    reference = selection.strip() or sorted(samples)[0]
     reference_values = {plane: float(np.nanmedian(values))
                         for plane, values in samples[reference].items()}
     plan_plates: Dict[str, Dict[str, Any]] = {}

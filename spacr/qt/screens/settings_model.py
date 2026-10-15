@@ -10387,6 +10387,10 @@ class SettingsWidgets:
             self._add_source_actions(key, widget)
         else:
             return None
+        if (self.app_key == "measure"
+                and key == "intensity_calibration_reference_plate"
+                and widget is not None):
+            widget.setObjectName('IntensityCalibrationReferencePlate')
         self._add_calibration_preview_action(key, widget)
         owner = getattr(self, "_unmounted_control_owner", self._parent)
         if (widget is not None and owner is not None

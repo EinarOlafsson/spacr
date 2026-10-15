@@ -175,3 +175,18 @@ measurement-comparison panel do not contribute yet, so a restored session
 puts the montage back but not the comparison built on it.
 
 VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+2026-10-15 — Direct carried-file restoration repaired; directory adapter remains.
+A real disposable reader reproduced the old failure: inventory said carried,
+but restore supplied the deleted original path. Missing direct file references
+now use only contained, digest-verified bundle copies; existing original paths
+retain their prior behavior. Provider payloads are copied without mutating the
+saved document. Corrupt, unverified and escaping copies are refused with visible
+machine reasons; a copy made from an unhashed inventory now retains its digest.
+Final source: 31 selected owning cases PASS, including all 14 new reader and
+containment cases. The initial 109 PASS/6 reporter failures and baseline failure
+remain preserved. Evidence: features/data/n180_verified_carried_files_2026-10-15/.
+This is bounded validation before the provider read, not atomic file ownership.
+Still actionable: DatabaseSetWidget restores folder sources and ignores the
+verified carried databases list; its owner adapter must support that state.
+No whole-item, full-CI or native GUI completion is claimed.

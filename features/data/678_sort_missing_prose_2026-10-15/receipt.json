@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-15",
+  "public_base_commit": "f233129d079542f2f84720d01bdd4f694d0e7dab",
+  "source": "spacr/qt/widgets/sortable_table.py",
+  "before_sha256": "388c5226f078f1ba3400c0ca1a89da3a9cc70d624e1c3645ba85d39570158806",
+  "after_sha256": "3de35c700094176a04f03dddd4c3dd6678af46ed37dee9cfd2972dc7020bc8ae",
+  "symbol": "spacr.qt.widgets.sortable_table.is_missing",
+  "before": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. Array-like values are not treated as individual missing cells.\n\n:param value: a cell value of any type.",
+  "after": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. After the ``None`` and string checks, the result of\n``pandas.isna`` is converted to ``bool``. A single-element array containing\na missing value can therefore return ``True``; ambiguous multi-element\nresults return ``False``.\n\n:param value: a cell value of any type.",
+  "executable_ast_identical": true,
+  "observed_existing_function_examples": [
+    {
+      "input": "[None]",
+      "actual": true
+    },
+    {
+      "input": "[None, None]",
+      "actual": false
+    },
+    {
+      "input": "[1]",
+      "actual": false
+    }
+  ],
+  "observation_method": "Executed the exact existing top-level function AST with the installed pandas import, no Qt import, capped2G/thread1. It calls bool(pandas.isna(value)); ambiguity raises ValueError and is caught. The false all-array-like exclusion claim is corrected; data handling is unchanged.",
+  "validation": "Full-module AST equality after removing docstrings; only the selected public function docstring changed. No new tests or repeated behavior check.",
+  "public_api_dependencies": [
+    "spacr.qt.widgets.sortable_table.is_missing"
+  ],
+  "limitations": [
+    "Only one selected docstring reviewed; not whole N678 completion.",
+    "Normal API extraction and nine-locale paragraph reviews remain with the API lane.",
+    "No runtime caption, sorting behavior, public signature or scientific operation changed."
+  ]
+}

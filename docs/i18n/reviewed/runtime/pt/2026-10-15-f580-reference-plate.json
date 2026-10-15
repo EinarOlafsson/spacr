@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "Direct exact-source AI technical review plus independent root AI peer review approved; no native-speaker signoff",
+  "draft_author": "Original Home easy_overnight",
+  "technical_reviewer": "Original Home easy_overnight",
+  "review": "Preserves exact plate2 identifier, selected-reference semantics, blank first-by-name default and required selected-plate presence. No new scientific agreement/tolerance or native-speaker acceptance. Independent parent technical review approved; exact owner source adoption and normal catalog generation remain required.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_plate",
+      "source": "Intensity calibration reference plate",
+      "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+      "translation": "Placa de referência para calibração de intensidade"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+      "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+      "translation": "Identificador da placa de referência nos nomes dos arquivos mesclados, como plate2. Deixe em branco para usar a primeira placa por ordem de nome. A placa selecionada deve estar presente nesta execução. Padrão: em branco."
+    },
+    {
+      "table": "ui",
+      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+      "translation": "A placa de referência selecionada é usada; deixe em branco para usar a primeira placa por ordem de nome."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+      "translation": "Calibra intensidades entre sessões de aquisição antes da medição: cada placa é uma sessão, as microesferas ou poços de referência imageados em cada placa são medidos, e os canais de intensidade de cada placa são escalados para que seus poços de referência coincidam com os da placa de referência selecionada; se a configuração da placa de referência estiver vazia, usa-se a primeira placa por nome. Isso corrige a deriva de exposição, lâmpada e detector entre dias no nível da imagem, ao contrário da correção de lote de tabelas. Os ganhos são registrados em measurements.db:intensity_rescale. Padrão False."
+    }
+  ],
+  "independent_review": {
+    "reviewer": "Original Home root",
+    "kind": "Independent AI technical peer review",
+    "decision": "approved all27 exact targets",
+    "receipt": "root-peer-review.json",
+    "receipt_sha256": "dc2ef03d4fd3798db4e7b6740618aa5ddba441c7d87cb79b694139592e6e6ff6"
+  },
+  "independent_toggle_review": {
+    "reviewer": "Original Home root",
+    "kind": "Independent AI technical peer review",
+    "receipt": "toggle-tooltip-peer-review.json",
+    "receipt_sha256": "6189043edffb2ee602c0eb8cb8175d8a3ee3674e24f517f6001a56bc9bd3dedd",
+    "decision": "approved exact amended toggle tooltip"
+  }
+}
