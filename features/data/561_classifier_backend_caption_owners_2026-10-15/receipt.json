@@ -1,0 +1,12 @@
+{
+  "status": "OWNER_CHECKS_PASS_FINAL_PRODUCER_PENDING",
+  "scope": "Four exact backend owners, one genuinely new diagnostic/nine targets. Training-stopped identity already among54UI sources; allnine accepted current targets retained, six conflicting historical drafts not installed.",
+  "targeted_tests": "5 passed,51 deselected in1.33s",
+  "original_peer": "features/data/561_own_dino_classifier_backend_2026-10-15/independent-ci-initial-source-runtime-peer.json runtime_target_peer (not historical whole-source decision)",
+  "source_files": {
+    "spacr/qt/screens/embeddings.py": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+    "spacr/embeddings.py": "965148f2ec847f40df8e3d0c8bd79a7cc2d9f7693d184013936c1f1843a9efbf",
+    "spacr/torch_artifacts.py": "34dcae10260adb94af207aca56c884d86d78260e3a8abd1d8c5f7727c666d496"
+  },
+  "producer_sha256": "ab8456cd780f448caf66c21aa3446199cf97e1d8fcc58edfcab0bf4920427e82"
+}

@@ -421,3 +421,46 @@ def test_wound_calibration_caption_enters_only_through_its_owner(extract_backend
     caption = "Wound calibration {name} must be a finite number greater than zero, or blank."
     assert extract_backend_sources('measure.py',
         f'def _wound_calibration():\n    raise ValueError(tr({caption!r}, name="pixel_size"))\n') == {caption}
+
+
+def test_shared_stock_preflight_literal_caption_is_owned(extract_backend_sources):
+    caption = "Cellpose stock model {model} is not cached at {path}."
+    assert extract_backend_sources("utils.py",
+        f"def _cellpose_stock_preflight():\n    raise ValueError(tr({caption!r}))\n") == {caption}
+
+
+def test_shared_stock_preflight_excludes_nonliteral_nested_and_class_helpers(
+        extract_backend_sources):
+    assert extract_backend_sources("utils.py", '''
+tr("Unrelated utility metadata.")
+def unrelated():
+    def _cellpose_stock_preflight():
+        return tr("Nested same-name helper.")
+class Unrelated:
+    def _cellpose_stock_preflight(self):
+        return tr("Same-name method.")
+def _cellpose_stock_preflight():
+    """Internal documentation is not a caption."""
+    return "Internal untranslated detail."
+''') == set()
+
+
+@pytest.mark.parametrize("owner", ["_dino_classifier_from_config", "_dino_classifier_from_checkpoint", "_dino_finetune_classifier", "_dino_classifier_apply"])
+def test_own_classifier_diagnostics_have_exact_top_level_owners(extract_backend_sources, owner):
+    caption = "Own-DINO classifier settings, checkpoint or input are incompatible."
+    assert extract_backend_sources("embeddings.py",
+        f"def {owner}():\n    def refuse():\n        raise ValueError(tr({caption!r}))\n") == {caption}
+
+
+def test_classifier_diagnostic_ownership_excludes_unrelated_nested_and_methods(extract_backend_sources):
+    assert extract_backend_sources("embeddings.py", '''
+def unrelated():
+    def _dino_classifier_apply():
+        return tr("Unrelated nested diagnostic.")
+class Unrelated:
+    def _dino_classifier_apply(self):
+        return tr("Unrelated method diagnostic.")
+def _dino_classifier_apply():
+    """Internal documentation is not a caption."""
+    return "Unwrapped internal detail."
+''') == set()

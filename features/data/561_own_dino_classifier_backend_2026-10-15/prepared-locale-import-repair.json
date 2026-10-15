@@ -1,0 +1,7 @@
+{
+  "status": "PRIVATE preparedcallback importrepair only, no localeexecutionclaimed",
+  "reason": "Observed actual N698callback collection proves repositorytestsnamespace mustbeexplicit; existingpublishedN698locale modules use fromtests... convention. F561samebareimport repairedbeforefutureownerclosure.",
+  "old_test_sha256": "5f3f02322499f9facb12b363fe23d43f73206c0c67906e9940102659c05839eb",
+  "new_test_sha256": "ebdfe69512faf5b264f9356285726a560c216aa156a3a7b5afaeddac6335ca9e",
+  "backend_source_unchanged": "8772b7c49bbd773aa567ec3f252f3a17506bb3a5e09b1516072f5d1a6292d008"
+}

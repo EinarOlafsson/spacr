@@ -138,3 +138,57 @@ published N641 source merge. No training/model/GPU/quality acceptance claimed.
 Evidence: features/data/561_dino_controls_2026-10-15/ and related runtime/API
 review/catalog directories. This closes the described software-control gap;
 scientific acceptance is not inferred from fake-backend Qt checks.
+
+
+2026-10-15 — private own-DINO classifier backend prepared (not whole-item closure)
+    Added a trainable own-DINO teacher/head factory with recorded scaling,
+    resize, ordered caller-declared physical channels, freeze/fine-tune policy
+    and strict restricted checkpoint reconstruction. A supervised raw-NHWC
+    producer holds out explicit acquisition groups with the existing shared
+    split and writes the best canonical classifier through private staging
+    and atomic no-overwrite publication. Late cancellation and foreign output
+    races refuse publication. Existing Classify/PIL decoding is unchanged.
+    Source-bound evidence: features/data/561_own_dino_classifier_backend_2026-10-15/.
+    Actual31owning software checks plus3compatibility and4publication followup
+    checks passed; historical failed reproductions/orchestration failures are
+    retained. Only tiny synthetic CPU encoders were trained. UI producer route,
+    normal runtime/API catalogs and actual localized callbacks remain pending;
+    nine-locale18runtime/81API inputs are private drafts. Human phenotype labels,
+    multi-seed independent-cohort performance and biological acceptance remain
+    separate. Historical channel identity is explicitly caller-declared.
+
+2026-10-15 — Saved own-DINO classifier application backend prepared privately.
+The classifier artifact has model_config/model_state_dict, not the teacher's
+setup/teacher/out_dim, and must not enter dino:path or generic plate scaling.
+The dedicated _dino_classifier_apply route accepts full raw NHWC crops, selects
+saved physical source channels once, and keeps saved scaling/resize/feature
+normalization inside the reconstructed classifier. It returns features, logits,
+probabilities, saved-order class labels and actual loaded checkpoint SHA-256.
+The existing strict restricted artifact loader accepts a held binary stream
+only with explicit weights_only=True; this route hashes and loads the same
+regular descriptor and refuses changed bytes/identity. Four missing-route
+baselines failed; 25 new synthetic application/trust/stream cases plus four
+existing gradient/reload controls pass (29 tests,8.18s). No pretrained weights,
+training runs, downloads or GPU were used. Normal API/runtime closure and
+Home-B's actual feature/prediction UI integration remain coherent-publication
+dependencies; this is not a whole-feature or scientific acceptance claim.
+Evidence: features/data/561_classifier_application_2026-10-15/.
+
+2026-10-15 — Coherent classifier training/application software closure.
+Actual alpha controls train from raw crops, ordered physical channels and
+explicit well-group CSV labels, then apply saved classifier preprocessing once.
+Predictions/features/logits/probabilities and complete CSV export are reachable.
+Normal23-symbol API output preserves every unrelated record;234 current targets,
+four precise Korean repairs and nine code-literal provenance records accepted.
+Normal runtime generation covers54UI identities plus one backend diagnostic;
+all existing stopped-message targets are preserved. Nine-language audit and
+fresh canonical equality pass. Actual45GUI buttons/nine dialogs/486lookups and
+nine real backend application refusal routes pass. Normal Help generation,
+23 actual consumers/46 searches and five existing Help checks pass. Exact
+approved19-helper arrival/constructor wiring passes three strict tests, with
+historical13218 floor and211 nonrendered boundary unchanged. Caption arrival
+writer preserves9833 baseline;1251added/33changed/153retired. User guide is in
+features.rst. Training/backend synthetic checks remain as originally scoped;
+no new phenotype, independent-cohort, GPU or scientific acceptance is inferred.
+Initial SDK/history/environment/harness failures remain recorded, not hidden.
+Evidence:561_classifier_* /561_combined_api_* /561_strict_api_arrival_acceptance_*.

@@ -1,0 +1,11 @@
+{
+  "run": 38743415875,
+  "source": "669ac7395e",
+  "status": "failure",
+  "response_status": 403,
+  "token_missing": false,
+  "phase": "Helper failed with HTTP403; current redacted error does not identify which hosted operation rejected access.",
+  "build_and_deploy_jobs": "All skipped as intended",
+  "result": "Existing GitHub HF_DOCS_TOKEN is not yet accepted for the v2 migration route; do not change canonical target variables or claim permission.",
+  "next": "Preserve free snapshot and old history; owner must provide a token with sufficient rights to the selected docs Space before automation cutover. No broad local token was copied."
+}

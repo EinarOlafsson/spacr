@@ -497,3 +497,46 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   scoped helper inventory is empty. This is bounded software acceptance,
   not native reader/human/macOS/Windows or whole-item acceptance.
   Proof: data/655_dock_accessible_state_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B help resize grip exposes its actual value and actions
+  Actual Qt baseline found Border/Set Focus only, no height value interface,
+  and three focused failures. A private retained adapter now exposes Grip,
+  live bounded logical-pixel height, Increase/Decrease actions and existing
+  Up/Down keys. Changed values reuse the existing clamp/persistence signal;
+  invalid/disabled/unchanged values do not create extra commits. Actual
+  resizes notify accessibility clients. Public HintBar/mouse methods and all
+  existing docstrings/captions stay unchanged;18 private declarations are
+  excluded by normal visibility policy and helper inventory stays empty.
+  Final33PASS3.97s,2G/Qt6.12/offscreen/thread1,7.63s wall,585896KiB peak.
+  Retained failures include the unsafe bare-pointer exit139 (replaced with
+  installed VoidPtr wrapper) and one new fixture's undelivered relayout;
+  GC/cache retirement and all existing focused keyboard/mouse checks pass.
+  No native value-interface, human-reader or other-platform acceptance is
+  inferred. Broader N655 gates remain open. Evidence:
+  data/655_hint_accessible_value_2026-10-15/receipt.json.
+
+2026-10-15 — Native HintBar failure found; numeric adapter removed
+  The single external AT-SPI readback crashed the earlier418e numeric-value
+  adapter on GetState despite33 in-process passes. That source is private
+  historical evidence, not accepted publication. No further pointer attempt.
+  The safe follow-up removes ValueInterface, interface_cast, shiboken pointer
+  conversion and numeric notification machinery. It retains ordinary Grip,
+  bounded Increase/Decrease and truthful Qt value text through the original
+  clamp/commit path. Seven supported-scope cases plus19 existing keyboard/
+  focus/mouse checks pass:26PASS4.51s. Numeric native min/max/step/set support
+  stays open. Nine private declarations are excluded by actual normal policy;
+  public docs/captions and original mouse/public methods remain unchanged.
+  Native action/tree replay follows separately; no full N655 completion.
+  Evidence:data/655_hint_safe_actions_2026-10-15/receipt.json includes the
+  exact native crash/source hashes and supersedes the earlier33 green claim.
+
+2026-10-15 — Safe help-grip native actions verified
+  The pointer-free04eebb fallback passes actual external Linux AT-SPI tree/
+  GetState and Increase/Decrease readback in4.75s/349012KiB. Native actions
+  change height97→115→97 and emit exactly[115,97] on the existing commit
+  signal. The grip is focusable/resizable with Up/Down action key bindings.
+  All204 loaded spaCR sources match final bytes; the owned app has exited.
+  Qt reports role name grip but numeric UNKNOWN(67); Value is intentionally
+  absent. Numeric native value/range/setter and speech/human/other-platform
+  acceptance remain open. This does not restore the rejected418e interface.
+  Evidence:data/655_hint_native_safe_actions_2026-10-15/receipt.json.

@@ -1,0 +1,24 @@
+Command exited with non-zero status 1
+	Command being timed: "/usr/bin/timeout 40s /usr/bin/dbus-run-session -- /usr/bin/xvfb-run -a -s -screen 0 1000x800x24 /bin/bash /mnt/wd4tb/scratch/home-b-n655-native-hint-value-20261015/inner.sh"
+	User time (seconds): 1.46
+	System time (seconds): 0.50
+	Percent of CPU this job got: 49%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.02
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 347712
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 418
+	Minor (reclaiming a frame) page faults: 78620
+	Voluntary context switches: 3323
+	Involuntary context switches: 170
+	Swaps: 0
+	File system inputs: 151952
+	File system outputs: 184
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

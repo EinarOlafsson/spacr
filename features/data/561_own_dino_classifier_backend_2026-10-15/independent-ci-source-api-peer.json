@@ -1,0 +1,36 @@
+{
+  "decision": "ACCEPT corrected bounded source proposal and 81 exact-source technical API targets",
+  "source_sha256": {
+    "spacr/embeddings.py": "8772b7c49bbd773aa567ec3f252f3a17506bb3a5e09b1516072f5d1a6292d008",
+    "spacr/torch_artifacts.py": "0568c2f9f0e0c1950c1b585394788a0203da487c9d7115b1e92d66da5e4c2a0b"
+  },
+  "proposal_sha256": "437a7024145483bb78a1f0c04e196a72f012d09f0282d966fd8fc5b261e26546",
+  "previous_findings_closed": {
+    "python39-file-digest": "Same-descriptor bounded 1MiB SHA256 loops before/after restricted torch.load replace file_digest; actual compatibility3PASS retained.",
+    "late-cancel-publication": "Checks after validation, before private best write and after progress before final publish; cancellation raises without publishing result.",
+    "midrun-destination-ownership": "Private same-filesystem best artifact; os.link final destination refuses an existing foreign file atomically instead of overwrite; finally removes private stage."
+  },
+  "api_target_files_sha256": {
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/de.json": "97724b944f42f4c6eb937fb3cf9dd54d37f7555359a00534604949796240931b",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/es.json": "afbc50d28b7aff81de0a700361d578b4ee7d3d095d435a299d27da9cdc15d93b",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/fr.json": "351f2181cd7bcee1e08492bcf5729ac7aeeb7c8f63757df073c6bcd57e6d9f5d",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/hi.json": "cbd38c5b93ff7aa3cec1a4dc63c19e32e521c0d6677b564002a83997102ddd81",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/is.json": "ae2dae7572b886e1fb13c9e8922bf51e9f535fc4ec757f38555bdcad52bf539f",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/ko.json": "fb156dfc8ef000fd38d4a8907e1eee73e13f4fa6499d6150682d8968897274a1",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/pt.json": "64d10066022afbf16ecc4f0a021c5c3583de4f1dd2ae88381077d2212f453931",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/sv.json": "f51a11d9264e676b9cbdfbd09f3f879e7426a6ad2920c778ddfaad26e8dfaae1",
+    "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/api-drafts/zh_CN.json": "affe8e427e381969c55ceafc5e0af35f9cb2438961f563c46d4f42694a8d91f8"
+  },
+  "api_target_review": "Read all 9 paragraphs in each of 9 locales. Scaling/raw NCHW/logits, frozen teacher evaluation versus head training, cancellation between batches, no pretrained download, trusted legacy pickle versus restricted local tensor/primitive decode with no unsafe retry preserved. Icelandic scaling uses sk\u00f6lun/Skala. No placeholders present. AI technical peer only, no human/native-language signoff.",
+  "runtime_target_review": "Earlier 18 target semantic review retained; canonical zh_CN metadata correction does not change Chinese target text. Normal writer/candidate/source gates remain required.",
+  "evidence_read": {
+    "publication-after.log": "ceebff422ef083ba2b75724bf02c44743176e16f79d413fce9557a053cf7ef23",
+    "compat-quoted-after.log": "8e0f81922a4044dcce2f98431b9586ca2a21fea3382fefceacaf4be2760950aa"
+  },
+  "tests_or_runtime_by_peer": false,
+  "limits": [
+    "No model/scientific/native acceptance certified.",
+    "No unconditional claim about arbitrary concurrent mutation of source checkpoint; bounded before/after SHA check is retained.",
+    "No duplicate 31 owning tests run."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+  "version": "1.5.1.4",
+  "module": "home",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorial-current/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": false,
+  "selected_scenes": "09_performance,13_preferences_general,13b_preferences_appearance,13c_appearance_theme,13d_appearance_animation,13h_preferences_apply,13i_preferences_kept,13e_session_updates,13f_storage,13g_storage_prune",
+  "status": "gate_failed",
+  "gate_failed_clips": [
+    "13h_preferences_apply"
+  ]
+}

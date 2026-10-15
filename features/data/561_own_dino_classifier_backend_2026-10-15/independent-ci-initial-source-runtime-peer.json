@@ -1,0 +1,99 @@
+{
+  "decision": "REQUEST_CORRECTION on reviewed original proposal; preserve passing31 tests, only changed/failed guards need new owning evidence",
+  "reviewed_patch_sha256": "47acd6d7cc5fcedc31a15ef056c52bb3b599c066b25d946b3724afebc0a3a85f",
+  "reviewed_source_pins": {
+    "spacr/embeddings.py": "c79fe1860f75dc1ff986e8434bf5e25afcac6589d6d0aaa3314b2536692fcc34",
+    "spacr/torch_artifacts.py": "2d66b9489b31c655bf46b45aafb9015aed4251a4a9a85d13456ee95c2d44029e",
+    "tests/test_own_dino_classifier.py": "8b0987244148c6cd8dbad2f6b9782c7170ebea92f463f7c9a4d4a36da6354385"
+  },
+  "normal_doc_inventory_owner": "Hard repairing enabled nested helper docstrings; current live source may differ, no finalsourceSHA approval inferred",
+  "findings": [
+    {
+      "id": "python39-file-digest",
+      "severity": "blocker",
+      "symbol": "spacr.embeddings._dino_classifier_from_checkpoint",
+      "source_trace": "Two hashlib.file_digest calls; no fallback; pyproject.toml requires>=3.9,<3.15 except3.14.1",
+      "evidence": "Official Python hashlib file_digest Added in version3.11, https://docs.python.org/3/library/hashlib.html#hashlib.file_digest",
+      "required": "Use bounded sha256 stream hashing compatible with3.9 on the same FD and retain before/after verification; preserve restricted torch.load no fallback."
+    },
+    {
+      "id": "late-cancel-publication",
+      "severity": "control-flow defect",
+      "symbol": "spacr.embeddings._dino_finetune_classifier",
+      "source_trace": "stop_if_requested before final validation batch, then final forward can set cancellation; no check aftervalidation/before new best atomic_torch_save and successreturn",
+      "required": "Recheck cancellation aftervalidation/before publication and cover actual late-cancel flag; preserve already accepted best artifact, no initial-only cancel proof."
+    },
+    {
+      "id": "midrun-destination-ownership",
+      "severity": "source ownership concern requiring bounded refusal or explicit limit",
+      "symbol": "_dino_finetune_classifier\u2192atomic_torch_save",
+      "source_trace": "os.path.exists(output_path) checked once before long training; atomic_torch_save later unconditionally os.replace temporary onto requested path, so a midrun foreign creation/replacement is overwritten",
+      "required": "Bind output ownership for subsequent saves and refuse changed/new foreign state, retaining previous best and source checkpoint; do not assert compare+replace removes arbitrary cross-process race without evidence."
+    }
+  ],
+  "accepted_semantics": [
+    "weights_only teacher and explicit restricted artifact reload, nounsafe retry/network model lookup onrestricted path",
+    "Recorded selected rawNCHW/scales/policy/resize; frozen encoder requires_grad false plus evaloverride, head remains trainable; caller channelorder declaration remains honest",
+    "Actual grouped_split wellholdout retains everyclass bothsides, train/validation groups serialized with class/channel/preprocessing configuration",
+    "Only best validation-loss artifacts, existing atomic helperretains target on serialization failure; initial cancellation covered, latecancel guard separately requested"
+  ],
+  "runtime_target_peer": [
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/de.json",
+      "sha256": "1289841738d1741b40b7fcc4b9a694c7d67040aa96adabae7788dcb1e58d892b",
+      "language": "de",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/es.json",
+      "sha256": "fae2cda26bb14de5ea1b08ba9ee39cb864699f809d8273db5058085c70707249",
+      "language": "es",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/fr.json",
+      "sha256": "019e7bf35be388f9556afbc4a6322f681831f33d2619d58c960077257ecbdc06",
+      "language": "fr",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/hi.json",
+      "sha256": "fa173f5683930f618b5f1050ed995046030a17aedd315dcc48e4316a43878aae",
+      "language": "hi",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/is.json",
+      "sha256": "a1fd13a7fe38c537724c0333d496f6c1b614d88b7ad8c03ea5cc926372788a96",
+      "language": "is",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/ko.json",
+      "sha256": "ea63b5c285cdc9baeb0dbddf99442dd38749acbaa6a9a79c96aee06391e24b33",
+      "language": "ko",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/pt.json",
+      "sha256": "078d30d57ffe9fe2f39da8afa9a37df572dc2b1cf6ae24f307f908e00f9b4958",
+      "language": "pt",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/sv.json",
+      "sha256": "b1fa6d3a0639912f4f30e9d7624f27d9d4b99f76b86a4e8c9c2248cb70d842ed",
+      "language": "sv",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-backend-20261015/runtime-drafts/zh.json",
+      "sha256": "97751ce220770a199f980460e81d3aab57ffc97cf62eb676aa613193f258693f",
+      "language": "zh",
+      "technical_meaning": "ACCEPT both exact source meanings; own-DINO/configuration/checkpoint/input incompatibility and stoppedtraining preserved; no placeholders or native claims"
+    }
+  ],
+  "runtime_format_note": "Chinese draft language=zh; normal canonical promotion must use actual supported locale identifier zh_CN and unchanged normal loader; draft semantic review is not generator acceptance",
+  "tests_rerun_by_peer": false,
+  "no_app_model_gpu_runtime_import": true
+}

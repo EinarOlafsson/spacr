@@ -21,9 +21,24 @@ from .results import _sha256, build_result_zip
 
 
 @lru_cache(maxsize=2)
-def _load_model(path, weights_sha256=None):
+def _cached_model(path, weights_sha256, context):
+    """Construct a desktop model for the already resolved web execution context."""
     from spacr.submodules import _plaque_cellpose_model
     return _plaque_cellpose_model(str(path))
+
+
+def _load_model(path, weights_sha256=None):
+    """Refresh this web process's context before selecting cached checkpoint weights."""
+    from spacr import accelerator
+    resolved = accelerator.resolve(refresh=True)
+    context = (resolved.kind, resolved.device, resolved.is_gpu,
+               resolved.bfloat16 if resolved.is_gpu else False)
+    return _cached_model(path, weights_sha256, context)
+
+
+_load_model.cache_clear = _cached_model.cache_clear
+_load_model.cache_info = _cached_model.cache_info
+_load_model.cache_parameters = _cached_model.cache_parameters
 
 
 class _CapturedModel:

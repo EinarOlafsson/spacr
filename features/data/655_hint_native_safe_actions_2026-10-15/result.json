@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "session": 41087,
+  "exit": 0,
+  "wall_seconds": 4.75,
+  "peak_rss_kib": 349012,
+  "source_sha256": "2d8c046252ca976c1f1e00788ff9c029a4020534a3f99c074c96348ff02d91aa",
+  "source_commit": "04eebb77c245c3265b7e7129b0bf059ac4365a55",
+  "native_numeric_Value_support": false
+}

@@ -1,0 +1,43 @@
+{
+  "status": "UNAPPLIED owner proposal; authoritative test and fixture paths untouched",
+  "owner": "Original CI",
+  "base_commit": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
+  "test_path": "tests/test_api_i18n_extractor.py",
+  "test_preimage_sha256": "acdb765076662ca88fe1955b099bc66d8b0671176683c70ccb1093331798c6cb",
+  "test_proposed_sha256": "142b9b7b2de16f0809f0d54edc0757782d1cfc8b5a9b53050e5e7261a6a3cba1",
+  "patch": "extractor-test-owner.patch",
+  "patch_sha256": "0e6b2b400bb199d67990a49431c38d1e093f8deff55d71bd279cb71c87cb8886",
+  "fixture": "561_classifier_api_arrivals_2026-10-15.json",
+  "fixture_destination": "tests/data/release_contracts/561_classifier_api_arrivals_2026-10-15.json",
+  "fixture_sha256": "253027dfb255290b7ac10d68f30ace488952b853e52dabc6fb43d7a638663a43",
+  "normal_source_files": {
+    "spacr/embeddings.py": "965148f2ec847f40df8e3d0c8bd79a7cc2d9f7693d184013936c1f1843a9efbf",
+    "spacr/torch_artifacts.py": "34dcae10260adb94af207aca56c884d86d78260e3a8abd1d8c5f7727c666d496",
+    "spacr/qt/screens/embeddings.py": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea"
+  },
+  "eligible_arrivals": [
+    "spacr.embeddings._dino_classifier_apply.refuse",
+    "spacr.embeddings._dino_classifier_from_config.Classifier.__init__",
+    "spacr.embeddings._dino_classifier_from_config.Classifier.features",
+    "spacr.embeddings._dino_classifier_from_config.Classifier.forward",
+    "spacr.embeddings._dino_classifier_from_config.Classifier.train",
+    "spacr.embeddings._dino_classifier_from_config.refuse",
+    "spacr.embeddings._dino_finetune_classifier.refuse",
+    "spacr.embeddings._dino_finetune_classifier.stop_if_requested",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.finished",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.work",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.start",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.finished",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.work",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._show_classifier_application.show_view",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.cancelled",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.done",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.progress",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.work"
+  ],
+  "unchanged_historical_surface_floor": 13218,
+  "unchanged_nonrendered_boundary": 211,
+  "new_nested_constructor": "spacr.embeddings._dino_classifier_from_config.Classifier.__init__",
+  "validation": "Two patch hunks; proposed Python AST parses; fixture19 exact normal rendered bodies. No full collector/test run or runtime behavior claim."
+}

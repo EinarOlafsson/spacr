@@ -1,0 +1,22 @@
+{
+  "function": "spacr.embeddings._dino_finetune_classifier",
+  "input": "Full raw NHWC numeric crop array; label and known acquisition-well group sequences aligned one-per-crop; UI filters labeled subset first without reordering metadata",
+  "channel_contract": "source_channels unique ordered physical zero-based indices selecting full raw stack; caller explicitly declares this order matches historical teacher scale. Historical teacher files do not prove channel identity.",
+  "checkpoint": "Local own-DINO teacher only; restricted weights_only decoding, no remote acquisition/unsafe fallback",
+  "alpha": "UI remains existing ALPHA_FEATURES561, existing EmbeddingsDinoPretrainButton gate; any new train action needs literal objectName and561registry owner update",
+  "controls": [
+    "Local teacher checkpoint",
+    "Output new classifier artifact path",
+    "Supervised epochs (distinct from self-supervised pretraining)",
+    "Freeze encoder vs fine-tune encoder",
+    "Known label column/mapping and acquisition-well metadata",
+    "Ordered source channels",
+    "Batch size and learning rate; CPU default, no automatic GPU selection"
+  ],
+  "worker": "Background JobRunner; progress(epoch,total,train_loss,validation_loss); cancelled()->bool checked between batches, aftervalidation and before publication; UI generation/lifetime checks needed",
+  "output": "Canonical safe model_config/model_state_dict artifact, best private checkpoint published by final atomic hard-link without overwriting destination; classes, ordered sourcechannels, checkpointSHA, scaling policy, grouped train/validation provenance. No result artifact on cancellation.",
+  "reload": "spacr.torch_artifacts.load_model_artifact(path,weights_only=True), model.eval(); raw selected NCHW tensor enters model (scaling/resize embedded). Existing PILRGB Classify path is not yet declared compatible.",
+  "acceptance": "TinyCPU synthetic encoder software evidence only. Humanlabels/multi-seed independent-cohort biological performance remains open.",
+  "source_sha256": "8772b7c49bbd773aa567ec3f252f3a17506bb3a5e09b1516072f5d1a6292d008",
+  "timestamp_utc": "2026-10-15T11:16:11.769732+00:00"
+}

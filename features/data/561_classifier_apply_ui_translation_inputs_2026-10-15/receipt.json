@@ -1,0 +1,78 @@
+{
+  "source_commit": "29941d1693b4902b37d2bd9b75c81111911e9cf2",
+  "source_sha256": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+  "new_review_files": {
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "b14f326c079f3cd9c7a1f1d51dcb77c43d8fcfa8539e7f9fae28af8d6a0bd8d9",
+    "docs/i18n/reviewed/api/sv/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "ce099aa55fb1485be99776b4d6095f40563a6a916d394d49c801c6192bddb259",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "c32a83970d7296b6a72c8d1d153439b9ed8c53ddb7b4510ac2b413d936fc3a79",
+    "docs/i18n/reviewed/api/de/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "ecbfa32bfca0ed42511cac5a418ac1b461c3eef188a68705066ed2dd533525e6",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "4211d8a58e06801c6666ae2dba32630e5bae9efad537f123bb080385d883cf3b",
+    "docs/i18n/reviewed/api/es/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "7440b7b0f64651c50ec84beb176eecfbe0cc15e402c991b2f08a04f473281bb2",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "febb971245f0f06dc98a3902051e36739d91b946aa8c0590f18dda2accbbee79",
+    "docs/i18n/reviewed/api/fr/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "8ba9361b3b93f5ad46dd6de5af93e0b868058da13bf12ac49782a6b7ca0d8dfa",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "016030df32258cf2b8eeeab30104624598ff1e9b4467cb762e63008d7e779cc1",
+    "docs/i18n/reviewed/api/pt/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "cf28a19af1c12fcb58f18e52c508fce5fef674d29012cc7c9cdde1cb3a54ce89",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "633b9734c0451744691a33986ae19ca72875e169a36b4d3614654dadd3fae090",
+    "docs/i18n/reviewed/api/is/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "3a9b08b7305d942696211d8e0d19e6b8052513fc5805854685c058b696995b4b",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "1c853c38e943b7687cb8b8adabe33e26cbfecd76a2f1cc4696c48d2ed3b16d18",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "e5894559ac5399761ce223e9e05028bdc62a1181ab42cd4c0f35640e980ba2ea",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "1c51716e971e3d06a76e5df5b0579dc91f892d2b890c886d9b97dee0b57fa01a",
+    "docs/i18n/reviewed/api/hi/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "92f0d83b8439277bed33040711dd6b990e2f758237960dd1db3ddc97223facf6",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-f561-classifier-apply-ui-runtime-home-b.json": "1b59bbdfbc655b9e82db404745d240951c4d0c20f62bfdbb165e4e538243ead2",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f561-classifier-apply-ui-api-home-b.json": "6b6e11952f85e56d217f0b32b205f8fc68ed1685badec5acff1632b38e825547"
+  },
+  "records": {
+    "runtime": 180,
+    "api": 63,
+    "authored_runtime": 180,
+    "retired_api": 18,
+    "existing_compact_sources_unchanged": 2
+  },
+  "normal_scoped_api_review_loader": {
+    "sv": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "de": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "es": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "fr": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "pt": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "is": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "zh_CN": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "hi": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    },
+    "ko": {
+      "normal_scoped_api_loader": "PASS",
+      "new_or_changed_reviewed_blocks": 7
+    }
+  },
+  "pure_gate_counts": {
+    "runtime": 180,
+    "api_source_context": 126,
+    "api_inline": 63
+  },
+  "canonical_collection": false,
+  "catalog_writes": false,
+  "backend_api_scope": "All Original-owned backend records untouched; this is only six UI symbols.",
+  "generation_gate": "Await final independent source/target input binding and integration; normal runtime/API source-currency, scoped writers and full audits remain required."
+}

@@ -1,0 +1,6 @@
+{
+  "base_commit": "418e0d9bae540f09ca27de8146aad6c4b4e76610",
+  "source": "spacr/qt/widgets/hint_bar.py",
+  "sha256": "2d8c046252ca976c1f1e00788ff9c029a4020534a3f99c074c96348ff02d91aa",
+  "status": "uncommitted approved safe fallback; exact source frozen for this probe"
+}

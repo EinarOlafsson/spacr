@@ -1,0 +1,23 @@
+{
+  "scope": "Exact two Home-owner URL literals adopted preserving all newer Work bytes; no live-site/current-head docs acceptance",
+  "owner_source_pin": "0a980232a30c0d9b6cc468d5e5dd438f806ffd06",
+  "work_preimage_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+  "files": [
+    {
+      "path": "tools/tutorials/audit_user_walkthroughs.py",
+      "before_sha256": "7b0abc8dd393333acb73bd7ec9127d7b19a5774de8bf506868c6a0d97bfcb69d",
+      "after_sha256": "a6e75eba1ce24ceeb303a5585345cc321eb2de64bf140242836c07885f949a5a",
+      "matches_owner_preimage": true,
+      "only_exact_authorized_literal_replaced": true
+    },
+    {
+      "path": "tools/tutorials/build_cellpose_training_images.py",
+      "before_sha256": "345739523a77e04e2cf04bb1788931a1d84918fe3d931850ceb6f4efbd8b41e8",
+      "after_sha256": "8183a2fa191f583801195af1743b2d06806aad0bf34fc0d9c831fa2c682e508a",
+      "matches_owner_preimage": true,
+      "only_exact_authorized_literal_replaced": true
+    }
+  ],
+  "AST_parse_passed": true,
+  "tutorial_capture_live": false
+}

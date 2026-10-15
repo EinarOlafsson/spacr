@@ -4222,7 +4222,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         if path == source_root / "utils.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model"}]
+                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
+                                           "_cellpose_stock_preflight"}]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",
@@ -4236,7 +4237,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_bags",
-                                           "_backbone_scorecards"}]
+                                           "_backbone_scorecards", "_dino_classifier_from_config",
+                                           "_dino_classifier_from_checkpoint",
+                                           "_dino_finetune_classifier", "_dino_classifier_apply"}]
         if path == source_root / "measure.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
