@@ -1,0 +1,142 @@
+From 42a1806d650e8f2ae732c663052d9e5219221cac Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Wed, 14 Oct 2026 22:10:39 -0400
+Subject: [PATCH] Handle deleted Coverage reports in the native Annotate
+ tutorial
+
+---
+ tools/tutorials/capture_annotate.py           | 22 ++++--
+ .../tutorials/tests/test_capture_annotate.py  | 72 +++++++++++++++++++
+ 2 files changed, 87 insertions(+), 7 deletions(-)
+
+diff --git a/tools/tutorials/capture_annotate.py b/tools/tutorials/capture_annotate.py
+index bca523c94..53a37326f 100644
+--- a/tools/tutorials/capture_annotate.py
++++ b/tools/tutorials/capture_annotate.py
+@@ -26,6 +26,18 @@ def require_preserved(before, after):
+         raise RuntimeError('Annotation tour changed original data or labels')
+ 
+ 
++def close_coverage_report(capture, report):
++    """Keep the normal dismissal, allowing Qt to delete its closed report."""
++    from shiboken6 import isValid
++
++    try:
++        capture_ui.close_dialog(capture, report)
++    except TimeoutError:
++        pass
++    if isValid(report) and report.isVisible():
++        report.close()
++
++
+ def record_annotation(app, window, screen, stage, captures, capture, settle,
+                       write_json, timeout):
+     from PySide6.QtCore import Qt, QTimer, QUrl
+@@ -33,6 +45,7 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
+     from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QMessageBox
+     from spacr.qt.screens.annotate import _SettingsDialog
+     from spacr.qt.widgets.fold_strip import FoldButton
++    from shiboken6 import isValid
+ 
+     # capture_refresh binds this private dataset onto the downloader's cache.
+     # First verify the genuine automatic opening, then show the optional
+@@ -273,14 +286,9 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
+         QTest.mouseClick(screen._btn_coverage, Qt.LeftButton)
+         settle()
+         report = screen._reports.get('Annotation coverage')
+-        if report is None or not report.isVisible():
++        if report is None or not isValid(report) or not report.isVisible():
+             raise RuntimeError('Coverage did not open its actual report')
+-    try:
+-        capture_ui.close_dialog(capture, report)
+-    except TimeoutError:
+-        pass
+-    if report.isVisible():
+-        report.close()
++    close_coverage_report(capture, report)
+     settle()
+     with Rec(capture, '10_class_cleared', settle):
+         QTest.mouseClick(screen._thumbs[0], Qt.LeftButton)
+diff --git a/tools/tutorials/tests/test_capture_annotate.py b/tools/tutorials/tests/test_capture_annotate.py
+index fe186ea86..1440ae318 100644
+--- a/tools/tutorials/tests/test_capture_annotate.py
++++ b/tools/tutorials/tests/test_capture_annotate.py
+@@ -23,3 +23,75 @@ def test_unchanged_originals_are_accepted():
+ def test_changed_originals_are_rejected(after):
+     with pytest.raises(RuntimeError, match='changed original'):
+         recorder.require_preserved({'rows': 'same', 'pixels': ['a', 'b']}, after)
++
++
++@pytest.mark.parametrize('delete_on_close', [True, False])
++def test_actual_report_dismissal_handles_qt_delete_on_close(monkeypatch, delete_on_close):
++    from types import SimpleNamespace
++    from PySide6.QtCore import QCoreApplication, QEvent, Qt
++    from PySide6.QtTest import QTest
++    from PySide6.QtWidgets import QApplication, QDialog, QPushButton, QVBoxLayout
++    from shiboken6 import isValid
++
++    app = QApplication.instance() or QApplication([])
++    report = QDialog()
++    report.setAttribute(Qt.WA_DeleteOnClose, delete_on_close)
++    button = QPushButton('Close', report)
++    QVBoxLayout(report).addWidget(button)
++    button.clicked.connect(report.close)
++    report.show()
++    app.processEvents()
++    clicks = []
++
++    def click(target):
++        assert target is button and target.isVisible()
++        clicks.append(target.text())
++        QTest.mouseClick(target, Qt.LeftButton)
++        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
++
++    def wait_until(capture, predicate, timeout, message):
++        assert predicate(), message
++
++    monkeypatch.setattr(recorder.capture_ui, '_h', lambda: SimpleNamespace(
++        click=click, wait_until=wait_until))
++    capture = lambda _: None
++    capture.host = object()  # Actual host dismissal branch with a real Qt button; no native host.
++    try:
++        recorder.close_coverage_report(capture, report)
++        assert clicks == ['Close']
++        assert not isValid(report) if delete_on_close else not report.isVisible()
++    finally:
++        if isValid(report):
++            report.close()
++            report.deleteLater()
++        app.processEvents()
++
++
++@pytest.mark.parametrize('already_deleted', [True, False])
++def test_report_timeout_fallback_never_reads_a_deleted_wrapper(monkeypatch, already_deleted):
++    from PySide6.QtCore import QCoreApplication, QEvent, Qt
++    from PySide6.QtWidgets import QApplication, QDialog
++    from shiboken6 import isValid
++
++    app = QApplication.instance() or QApplication([])
++    report = QDialog()
++    report.setAttribute(Qt.WA_DeleteOnClose, already_deleted)
++    report.show()
++    app.processEvents()
++
++    def timeout(capture, target):
++        assert target is report
++        if already_deleted:
++            target.close()
++            QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
++        raise TimeoutError('actual dismissal timed out')
++
++    monkeypatch.setattr(recorder.capture_ui, 'close_dialog', timeout)
++    try:
++        recorder.close_coverage_report(None, report)
++        assert not isValid(report) if already_deleted else not report.isVisible()
++    finally:
++        if isValid(report):
++            report.close()
++            report.deleteLater()
++        app.processEvents()
+-- 
+2.34.1
+
