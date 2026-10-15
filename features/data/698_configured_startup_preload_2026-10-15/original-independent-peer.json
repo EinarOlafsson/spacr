@@ -1,0 +1,20 @@
+{
+  "reviewer": "Original Home independent AI technical source/translation review",
+  "result": "ACCEPT",
+  "source": "Unknown provisioned model key: {key}",
+  "scope": "All nine targets retain precise refusal, setting/model/path identifiers and required remedy; placeholders exact. No human/native signoff. Normal loaders/writer/audit still required.",
+  "draft_hashes": {
+    "de.json": "f458fc03602d72d17e09e4a380f697fa273278476b930f8cef5b903295983553",
+    "es.json": "9b1250e92fa787e453dc9567b417eedb2466b91d86450b76c77cd55586a8ad36",
+    "fr.json": "a0acf4425904336674d77ebe4207be4cb28a61b5203b5e5814805f01ecf50351",
+    "hi.json": "26d792b6b78aebd12fcc35adae5c378b7a091a013f44148f0070b3e9689eced9",
+    "is.json": "67e60f5d88a6901e533a0ebf4cb34dfec6d71b4fff0fa1733bbb335ced9ab91c",
+    "ko.json": "2a0b982d7e1ce7ca1b152f105d310411e8d188e2ef417883278b78c8ae5c5770",
+    "pt.json": "10ac1a3c705a364d7d1afec5b7befd8fefef177695af42b3cc4c1d88b155d09e",
+    "sv.json": "4579ef3a9e7782492cb8f8c16914a9d046da50ae480f83d0633c4e6cebb6731e",
+    "zh_CN.json": "a0f86807b833981c7a443c8d3fd19c30d312a911a37be9dee330c8310eadbedd"
+  },
+  "source_commit": "4667736d09fffca64d7bb4ea7328efd2cf0f2f97",
+  "source_sha256": "eeae54f58463373c1a2a494823866eb07723260846fec0dad2d9dc56d519fc32",
+  "source_review": "All configured keys validated before any construction; one deterministic segmentation warm-up, detector/empty None; default plaque compatibility; no request substitution/cache/device/endpoint edits. Actual22-pass evidence inspected, not replayed."
+}
