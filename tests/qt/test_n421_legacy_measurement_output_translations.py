@@ -101,6 +101,34 @@ def test_scan_failure_writes_are_localized_without_changing_scan_flow(
     assert widget.unassigned() == []
     assert not widget.is_scanning()
     assert len(seen) == 3
-    assert seen[0] == 'Looking at what was dropped...'
+    assert seen[0] == 'Granskar det som släpptes…'
     assert seen[1] == f'En del av det som släpptes kunde inte läsas: {trouble}'
     assert seen[2] == f'Det som släpptes kunde inte läsas: {failure}'
+
+
+@pytest.mark.parametrize(('language', 'caption'), [
+    ('sv', 'Granskar det som släpptes…'),
+    ('is', 'Skoða það sem var dregið inn...'),
+    ('de', 'Abgelegte Dateien werden geprüft...'),
+    ('fr', 'Examen des fichiers déposés…'),
+    ('es', 'Examinando los archivos arrastrados…'),
+    ('pt', 'Inspecionando os arquivos arrastados...'),
+    ('zh_CN', '正在检查拖入的内容…'),
+    ('hi', 'छोड़ी गई फ़ाइलें देखी जा रही हैं...'),
+    ('ko', '드롭한 항목을 살펴보는 중...'),
+])
+def test_drop_scan_initial_status_uses_the_active_language(
+        qtbot, monkeypatch, language, caption):
+    monkeypatch.setattr(i18n, 'current_language', lambda: language)
+    widget = measure_input_table.MeasureInputTable(threaded=False)
+    qtbot.addWidget(widget)
+    submitted = []
+    monkeypatch.setattr(widget._scanner, 'submit',
+                        lambda work, done: submitted.append((work, done)) or True)
+
+    widget.add_dropped(['/not-accessed/by-this-test'])
+
+    assert len(submitted) == 1
+    assert widget._regex_status.text() == caption
+    assert widget.table().rows == []
+    assert widget.unassigned() == []
