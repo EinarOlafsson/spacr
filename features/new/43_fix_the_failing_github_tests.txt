@@ -3948,3 +3948,19 @@ maintainer until remaining implementation work is finished.
     player-readiness patch does not apply to current authoring source; owner
     rebase/dependencies requested, not silently overwritten. No fullCI/whole43
     or release acceptance.
+
+2026-10-15 Original — current hosted-failure repair batch published through d12fe074a6.
+Reproduced and repaired the documentation fixture dependency, Toggle failure
+injection, live-run workspace fixture, Pages content/redirect routing test,
+installer cleanup sorting, asynchronous model-picker fixtures, cancellation
+cleanup behavior fixture, channel warning expectation, private dataclass
+constructor audit and typed Qt Enter-event crash fixture. Each finite targeted
+run and independent source/evidence peer is preserved under features/data/ci_*.
+Normal notebook generation updated only activation_maps checkpoint settings.
+No ratchet ceiling, historical debt, assertion exemption, provider refusal,
+model-trust check or dialog-safety guard was relaxed. No full-suite/release CI
+was dispatched; local staged passes do not establish hosted green/coverage.
+Remaining actual owner dependencies include N700 test hygiene, F561 reviewed
+input fixture path, README source contracts and current tutorial publication
+selectors. HF cell-mask E2E emptiness remains under source-only diagnosis.
+Whole N43/F288 and release acceptance remain OPEN.
