@@ -104,19 +104,33 @@ def test_use_is_refused_until_the_file_is_actually_on_disk(picker):
 
 
 def test_a_downloaded_model_becomes_usable_and_returns_its_path(picker,
-                                                               tmp_path):
-    """The other half: once the file is there, the path comes back."""
+                                                               tmp_path, monkeypatch,
+                                                               qtbot):
+    """The other half: once the verified file is there, the path comes back."""
+    import hashlib
+    from spacr import model_zoo
+
+    content = b"controlled downloaded checkpoint bytes"
+    raw = {"key": "controlled_cellpose", "name": "controlled_weights.pt",
+           "kind": "cellpose", "sha256": hashlib.sha256(content).hexdigest(),
+           "repo_id": "controlled/fixture", "repo_type": "model", "version": "001"}
+    monkeypatch.setattr(model_zoo, "BUNDLED_REMOTE_MODELS", (raw,))
+    entry = model_zoo._entry_from_mapping(raw)
+    monkeypatch.setattr(model_zoo, "catalogue", lambda **kwargs: [entry])
+    picker.refresh()
     row = _row_needing_download(picker)
     picker.table.selectRow(row)
     entry = picker.selected_entry()
-    (tmp_path / entry.name).write_bytes(b"weights")
+    (tmp_path / entry.name).write_bytes(content)
     picker.folder_edit.setText(str(tmp_path))
     picker.refresh()
     picker.table.selectRow(row)
 
     assert picker.use_button.isEnabled()
     picker._accept_selected()
+    qtbot.waitUntil(lambda: picker.chosen_path() is not None)
     assert picker.chosen_path() == str(tmp_path / entry.name)
+    assert dict(picker._chosen_reference.record)["sha256"] == raw["sha256"]
 
 
 def test_a_failed_download_is_reported_and_leaves_nothing_usable(

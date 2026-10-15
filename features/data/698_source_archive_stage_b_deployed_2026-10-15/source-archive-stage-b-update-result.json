@@ -1,0 +1,68 @@
+{
+  "target": "einarolafsson/spacr-mask-generator",
+  "parent_commit": "85b41cf7084471679f8c1076df8ee4f0b18b09b6",
+  "patch_source_commit": "2c2b6df05bd8f90930d32451d75b3015359836b4",
+  "published_source_commit": "b5b04e0772b58a7ee9dd401e53bfca971c4ff3b4",
+  "mutation_attempts": [
+    {
+      "operation": "atomic_four_file_update",
+      "parent_commit": "85b41cf7084471679f8c1076df8ee4f0b18b09b6",
+      "paths": [
+        "README.md",
+        "requirements.txt",
+        "tools/web_mask_generator/space/README.md",
+        "tools/web_mask_generator/space/requirements.txt"
+      ]
+    }
+  ],
+  "status": "FOUR_FILE_UPDATE_AND_FULL_TREE_VERIFIED_REBUILD_PENDING",
+  "authorization": "Parent /root explicitly authorized ONE StageB four-config update from published2c2/b5 bytes atop exact85b41; preserve source archive/allother source/freeflags, no inference/settings/otheroperations.",
+  "four_files": {
+    "tools/web_mask_generator/space/README.md": {
+      "sha256": "24040f48624071632ecf4f9447e2afba96def03d26080be686c06255ad0c3212",
+      "bytes": 7500
+    },
+    "README.md": {
+      "sha256": "24040f48624071632ecf4f9447e2afba96def03d26080be686c06255ad0c3212",
+      "bytes": 7500
+    },
+    "tools/web_mask_generator/space/requirements.txt": {
+      "sha256": "232252571abeceb9d49b7c01e4372959db78fdddd1464527358a7efeb316a2b0",
+      "bytes": 381
+    },
+    "requirements.txt": {
+      "sha256": "232252571abeceb9d49b7c01e4372959db78fdddd1464527358a7efeb316a2b0",
+      "bytes": 381
+    }
+  },
+  "fresh_guards": {
+    "time_utc": "2026-10-15T16:10:14.260971+00:00",
+    "user": "einarolafsson",
+    "parent": "85b41cf7084471679f8c1076df8ee4f0b18b09b6",
+    "stage": "BUILD_ERROR",
+    "requested": "zero-a10g",
+    "current": null,
+    "flags_exact": true,
+    "all1182_sources_plus_archive_verified": true
+  },
+  "uploaded_commit": "f457356bbffa1c3166f01ea3e7a40c6ab44fca35",
+  "verified_files": 1183,
+  "changed_files": [
+    "README.md",
+    "requirements.txt",
+    "tools/web_mask_generator/space/README.md",
+    "tools/web_mask_generator/space/requirements.txt"
+  ],
+  "unchanged_source_files": 1178,
+  "archive_unchanged": true,
+  "actual_four_file_byte_readback": true,
+  "provider_gitattributes_unchanged": true,
+  "runtime": {
+    "stage": "BUILDING",
+    "requested": "zero-a10g",
+    "current": null
+  },
+  "other_mutations": false,
+  "inference_attempted": false,
+  "finished_at_utc": "2026-10-15T16:10:17.978017+00:00"
+}

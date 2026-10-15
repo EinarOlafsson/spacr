@@ -2710,11 +2710,21 @@ def _st_replace_image_rows(db: str, table: str, frame, prcf) -> None:
     parts = [frame]
     if os.path.exists(db) and table in database_tables(db):
         old = read_table(db, table=table, canonicalise=False, report=None)
+        if frame.empty and not len(frame.columns):
+            if "prcfo" not in old.columns:
+                return
+            images = old["prcfo"].astype(str).str.rsplit("_o", n=1).str[0]
+            if not images.isin(keys).any():
+                return
+            frame = old.iloc[:0].copy()
+            parts = [frame]
         if "prcfo" in old.columns:
             images = old["prcfo"].astype(str).str.rsplit("_o", n=1).str[0]
             old = old[~images.isin(keys).to_numpy()]
         if len(old):
             parts.insert(0, old)
+    elif frame.empty and not len(frame.columns):
+        return
     combined = pd.concat(parts, ignore_index=True) if len(parts) > 1 \
         else frame
     write_database(combined, db, table, if_exists="replace")
@@ -4073,7 +4083,9 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
     :raises ValueError: when the masks folder holds no fields of this slide
         or a requested plane is not in the fields.
     """
+    import hashlib
     import json
+    import tempfile
 
     import pandas as pd
     from matplotlib.figure import Figure
@@ -4201,12 +4213,12 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
                                           store["prcfs"], labels, genes,
                                           matrix, platform)
         written["counted"] = float(matrix.sum())
-        if store["coverage"]:
-            table = f"{kind}_spot_coverage"
-            _st_replace_image_rows(db, table,
-                                   pd.concat(store["coverage"],
-                                             ignore_index=True),
-                                   store["prcfs"])
+        table = f"{kind}_spot_coverage"
+        if store["coverage"] or (platform != "xenium"
+                                  and table in database_tables(db)):
+            coverage = (pd.concat(store["coverage"], ignore_index=True)
+                        if store["coverage"] else pd.DataFrame())
+            _st_replace_image_rows(db, table, coverage, store["prcfs"])
             written["tables"] += (table,)
         summary["objects"][kind] = written
         if kind == kinds[0]:
@@ -4297,10 +4309,109 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
                           "assign": round(assign_seconds, 1),
                           "total": round(time.perf_counter() - started, 1)}
     summary["peak_rss_gb"] = _peak_rss_gb()
+    report_path = os.path.join(output, "spatial_map_report.json")
+    suffixes = {"infection": "_infection.csv",
+                "infected_vs_uninfected": "_infected_vs_uninfected.csv",
+                "distance_trend": "_distance_trend.csv",
+                "region_summary": "_region_summary.csv",
+                "anndata": ".h5ad"}
+    runs = []
+    try:
+        if not os.path.islink(report_path):
+            with open(report_path, "rb") as handle:
+                payload = handle.read(1024 * 1024 + 1)
+            previous = json.loads(payload) if len(payload) <= 1024 * 1024 else {}
+            ledger = previous.get("analysis_output_ownership", {})
+            valid = (isinstance(ledger, dict)
+                     and set(ledger) == {"version", "runs"}
+                     and type(ledger["version"]) is int
+                     and ledger["version"] == 1
+                     and isinstance(ledger["runs"], list)
+                     and os.path.realpath(previous.get("output", ""))
+                     == os.path.realpath(output)
+                     and os.path.realpath(previous.get("db", ""))
+                     == os.path.realpath(db))
+            seen = set()
+            for entry in ledger.get("runs", []) if valid else []:
+                if (not isinstance(entry, dict)
+                        or set(entry) != {"plate", "host", "files"}
+                        or not isinstance(entry["plate"], str)
+                        or not isinstance(entry["host"], str)
+                        or not isinstance(entry["files"], dict)):
+                    valid = False
+                    break
+                identity = (entry["plate"], entry["host"])
+                allowed = {f"{entry['plate']}_{entry['host']}{suffix}"
+                           for suffix in suffixes.values()}
+                if identity in seen or any(
+                        not isinstance(name, str) or name not in allowed
+                        or "/" in name or "\\" in name
+                        or not isinstance(digest, str)
+                        or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+                        for name, digest in entry["files"].items()):
+                    valid = False
+                    break
+                seen.add(identity)
+            if valid:
+                runs = ledger["runs"]
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+    owned = next((entry for entry in runs
+                  if (entry["plate"], entry["host"]) == (plate, host)), None)
+    if owned is None:
+        owned = {"plate": plate, "host": host, "files": {}}
+        runs.append(owned)
+    for key, suffix in suffixes.items():
+        name = f"{plate}_{host}{suffix}"
+        path = summary["files"].get(key)
+        if (not isinstance(path, str) or "/" in name or "\\" in name
+                or os.path.basename(path) != name or os.path.islink(path)
+                or os.path.dirname(os.path.realpath(path))
+                != os.path.realpath(output) or not os.path.isfile(path)):
+            continue
+        digest = hashlib.sha256()
+        with open(path, "rb") as handle:
+            while chunk := handle.read(1024 * 1024):
+                digest.update(chunk)
+        owned["files"][name] = digest.hexdigest()
+    summary["analysis_output_ownership"] = {"version": 1, "runs": runs}
     report = {key: value for key, value in summary.items()}
-    with open(os.path.join(output, "spatial_map_report.json"), "w",
-              encoding="utf-8") as handle:
-        json.dump(report, handle, indent=1, default=str)
+    descriptor, pending_report = tempfile.mkstemp(
+        prefix=".spatial_map_report-", suffix=".json", dir=output)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(report, handle, indent=1, default=str)
+        os.replace(pending_report, report_path)
+    finally:
+        if os.path.exists(pending_report):
+            os.remove(pending_report)
+    if not len(obs):
+        retired = []
+        for name, expected in owned["files"].items():
+            path = os.path.join(output, name)
+            if (os.path.islink(path) or not os.path.isfile(path)
+                    or os.path.dirname(os.path.realpath(path))
+                    != os.path.realpath(output)):
+                continue
+            digest = hashlib.sha256()
+            with open(path, "rb") as handle:
+                while chunk := handle.read(1024 * 1024):
+                    digest.update(chunk)
+            if digest.hexdigest() == expected:
+                os.remove(path)
+                retired.append(name)
+        if retired:
+            for name in retired:
+                del owned["files"][name]
+            descriptor, pending_report = tempfile.mkstemp(
+                prefix=".spatial_map_report-", suffix=".json", dir=output)
+            try:
+                with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                    json.dump(report, handle, indent=1, default=str)
+                os.replace(pending_report, report_path)
+            finally:
+                if os.path.exists(pending_report):
+                    os.remove(pending_report)
     _say(f"spatial map: {summary['objects'][host]['objects']} {host} objects "
          f"counted from {summary['points_in_fields']} of {total} points")
     summary["obs"] = obs

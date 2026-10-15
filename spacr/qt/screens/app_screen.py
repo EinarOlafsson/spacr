@@ -5098,18 +5098,70 @@ class AppScreen(QWidget):
         :param key: the setting the field stands for, which decides what the
             picker offers -- see :meth:`_model_kinds_for`.
         """
-        from ..widgets.model_zoo_picker import choose_model
+        from copy import deepcopy
+        from PySide6.QtWidgets import QDialog, QMessageBox
+        from ..widgets.model_zoo_picker import ModelZooPicker
+        from ... import model_zoo
 
-        path = choose_model(self, kinds=self._model_kinds_for(key))
+        dialog = ModelZooPicker(self._model_kinds_for(key), self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        path = dialog.chosen_path()
         if not path:
             return
-        if hasattr(field, "set_value"):
-            field.set_value(path)
-        elif hasattr(field, "setText"):
-            field.setText(path)
-        else:
-            LOG.warning("no way to write a model path into %s",
-                        type(field).__name__)
+        model = getattr(self, "_settings_model", None)
+        previous = None
+        read_field = getattr(field, "text", None)
+        if not callable(read_field):
+            read_field = getattr(field, "get_value", None)
+        field_known = callable(read_field)
+        previous_field = deepcopy(read_field()) if field_known else None
+        changed = False
+        try:
+            if model is not None:
+                previous = deepcopy(model.collect())
+            verified = getattr(dialog, "_chosen_reference", None)
+            owned = previous is not None and key in previous
+            if verified is not None:
+                if not owned or not field_known:
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+                proposed = model_zoo._invalidate_model_metadata(previous, (key,))
+                proposed[key] = path
+                model_zoo._attach_model_reference(
+                    self.app_key, proposed, key, verified)
+            if owned:
+                changed = True
+                written = model.set_value_for_key(key, path)
+            else:
+                written = False
+            if not written:
+                if hasattr(field, "set_value"):
+                    changed = True
+                    field.set_value(path)
+                elif hasattr(field, "setText"):
+                    changed = True
+                    field.setText(path)
+                else:
+                    LOG.warning("no way to write a model path into %s",
+                                type(field).__name__)
+                    return
+                if owned:
+                    model._setting_committed(key)
+            if verified is not None:
+                attached = model_zoo._attach_model_reference(
+                    self.app_key, model.collect(), key, verified)
+                if (not model.set_hidden_value("model_metadata", attached["model_metadata"])
+                        or model.collect().get("model_metadata") != attached["model_metadata"]):
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+        except model_zoo.ModelZooError as exc:
+            if changed and field_known:
+                if hasattr(field, "set_value"):
+                    field.set_value(previous_field)
+                else:
+                    field.setText(previous_field)
+            if previous is not None:
+                model._model_metadata = deepcopy(previous.get("model_metadata"))
+            QMessageBox.warning(self, tr("Model zoo"), str(exc))
 
     def _with_a_settings_advisor(self, widget, key):
         """Add the regression settings-advisor button beside ``inference``.

@@ -862,6 +862,9 @@ def _ssh_lookup(host, directives, *, home=None, default_port="22"):
             if keyword not in selected:
                 selected[keyword] = " ".join(values)
     selected.setdefault("hostname", host)
+    selected["hostname"] = re.sub(
+        r"%[%h]", lambda match: "%" if match.group(0) == "%%" else host,
+        selected["hostname"])
     selected.setdefault("port", str(default_port))
     user_home = str(home or Path.home())
     for key in ("identityfile", "userknownhostsfile"):

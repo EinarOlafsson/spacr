@@ -1,0 +1,9 @@
+{
+  "scope": "One existing picker test-only fixture alignment with actual SHA verification and asynchronous completion; all original path/selection/enabled assertions retained.",
+  "source_unchanged": true,
+  "outside_exact_test_AST_unchanged": true,
+  "test_sha256": "05c676c0894323cff9835bfe596b6d2e160617ba0418eb32db99dad2c46c0f91",
+  "baseline": "1FAIL2.42s; arbitrary bweights vs trusted real catalogue and immediate assertion. Existing background provider attempted network and was refused by socket tripwire; warning retained, no network accepted.",
+  "final": "3PASS2.18s: exact corrected download test plus opening no-download and immediate stock controls; controlled empty initial catalogue prevents provider startup, actual tiny trusted record/native bytes/helper used. No verifier bypass/timeout increase/skips.",
+  "limitations": "Metadata/controller/native-file verification only; no model execution, actual weights, native GUI, full picker suite or full CI certification."
+}
