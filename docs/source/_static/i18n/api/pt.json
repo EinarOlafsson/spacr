@@ -91127,14 +91127,14 @@
     "spacr.qt.preferences.get_startup_animation": {
       "source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ],
-      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
-      "text": "Se o fotomosaico de inicialização se dispersa quando o spaCR está pronto.\n\nPreferences > Animação > Animação de inicialização. Reduzir movimento tem precedência sobre ela.\n\n:returns: ``True`` a menos que o interruptor tenha sido desligado; ligado por padrão.",
+      "source_sha256": "3f7ad6f39cae82cafbcd3f0d3d7d7de21466cabc2acce2c39e83ee07fe8adbc3",
+      "text": "Se o fotomosaico de inicialização se dispersa quando o spaCR está pronto.\n\nPreferências > Aparência > Animação > Animação de inicialização. Reduzir movimento tem prioridade.\n\n:returns: ``True`` a menos que o interruptor tenha sido desligado; ligado por padrão.",
       "translation_source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ]
     },
@@ -119919,15 +119919,15 @@
     "spacr.qt.theme.focus_ring_qss": {
       "source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ],
-      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
-      "text": "As regras que colocam um anel grosso em volta do controle com o foco do teclado.\n\nPreferences > Aparência > Acessibilidade > Contornos de foco mais fortes. Uma borda de destaque de 1 px é a única marca de foco que os temas desenham, e sobre um fundo carregado é fácil perdê-la; esta tem :data:`FOCUS_RING_PX` de largura em :func:`focus_ring_colour`.\n\n:param theme: um de :data:`THEMES`.\n:returns: QSS, acrescentado por último por :func:`stylesheet` enquanto a preferência está ligada.",
+      "source_sha256": "0fc1ce6b7b20e5b7c66850c951c0c7b0949f141bc5ed872081f0a6f1bb0b1c0f",
+      "text": "As regras que colocam um anel grosso em volta do controle com o foco do teclado.\n\nPreferências > Aparência > Acessibilidade > Contornos de foco mais fortes. Estas regras substituem as bordas de foco normais dos widgets listados por uma borda de :data:`FOCUS_RING_PX` pixels na cor de :func:`focus_ring_colour`.\n\n:param theme: um de :data:`THEMES`.\n:returns: QSS, acrescentado por último por :func:`stylesheet` enquanto a preferência está ligada.",
       "translation_source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ]
@@ -126560,15 +126560,15 @@
       "source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "ebc6c311e7f8e90747e37132d95f7e7554165f00a6d747ecc5b50f8c69ddd3e3",
-        "b7c043c24743e7176b9e75b8f634b4b24b651ac5a997fb82f3fd2503ce342b16",
+        "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
         "a34f954babda05655f0c60cd07273c3e678f790c323d8f15cb3cd8984766c143"
       ],
-      "source_sha256": "bf06e84aaa4ba562f7583ac1c93755f699f512f5312671236615458f684399bb",
-      "text": "Mostrar as células medidas representadas por um coeficiente de regressão.\n\n:mod:`spacr.cell_montage` seleciona os objetos e registra a razão de seleção; este módulo resolve e exibe suas regiões de imagem extraídas ao lado dos números da sessão de processamento. Cada banco de dados anexado resolve sua própria fonte exportada-PNG ou ``merged/<fov>.npy`` para que as montagens multiplacas possam combinar experimentos com diferentes layouts de armazenamento. A camada de imagem de máscara de região de imagem e os canais de dados de imagem extraídos vêm de :class:`spacr.crops.CropSpec` ou, por padrão, os metadados ``measurements.db`` da sessão.\n\nAs leituras de imagem são executadas através de :class:`spacr.qt.job_runner.JobRunner` e apenas os principais widgets de atualizações do manipulador de conclusão de caminho de execução GUI. A conversão de no máximo 300 regiões de imagem extraídas para ``QPixmap`` permanece no caminho de execução GUI principal porque o QPixmap não é transferível em caminhos de execução independentes; a conversão em miniatura de 224 pixels registrada leva cerca de 21 milissegundos para 300 regiões de imagem extraídas.\n\nA guia permanece visível quando as regiões de imagem extraídas estão indisponíveis e relata a razão em seu status, dica de ferramenta e ação desabilitada. A descoberta de origem de imagem-imagem extraída é armazenada em cache após uma carga e invalidada quando o coeficiente, bancos de dados ou configurações de região-imagem extraídos são alterados.",
+      "source_sha256": "e41c56ed2ac7a0e2892de57c453c74115298ba8630c716a9133db8e0059c3332",
+      "text": "Mostrar as células medidas representadas por um coeficiente de regressão.\n\n:mod:`spacr.cell_montage` seleciona os objetos e registra a razão de seleção; este módulo resolve e exibe suas regiões de imagem extraídas ao lado dos números da sessão de processamento. Cada banco de dados anexado resolve sua própria fonte exportada-PNG ou ``merged/<fov>.npy`` para que as montagens multiplacas possam combinar experimentos com diferentes layouts de armazenamento. A camada de imagem de máscara de região de imagem e os canais de dados de imagem extraídos vêm de :class:`spacr.crops.CropSpec` ou, por padrão, os metadados ``measurements.db`` da sessão.\n\nA leitura das imagens passa por :class:`spacr.qt.job_runner.JobRunner` e somente o manipulador de conclusão na thread da GUI atualiza os widgets. O limite da montagem restringe os objetos selecionados e seu valor padrão é :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). A conversão de matrizes de imagem em ``QPixmap`` ocorre na thread da GUI; o carregamento das imagens e a seleção dos recortes ocorrem na thread de trabalho.\n\nA guia permanece visível quando as regiões de imagem extraídas estão indisponíveis e relata a razão em seu status, dica de ferramenta e ação desabilitada. A descoberta de origem de imagem-imagem extraída é armazenada em cache após uma carga e invalidada quando o coeficiente, bancos de dados ou configurações de região-imagem extraídos são alterados.",
       "translation_source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "a573c439772d5e6c83122350309b41abd22721ca241b0bf67bd7e60f719591a1",
-        "ea3bfe02c93fd2f036cfbab9bbfc4a0fc2d3d9ef673c5781285c1a208307f704",
+        "933a697aa16decb842423c3e379810568d5194ac3c6980989fbfb650e2a6d5a7",
         "10d03f7e0727f257cca82f456e4910613c36c7a6d337776d722b9058061baec4"
       ]
     },
@@ -140867,34 +140867,34 @@
     "spacr.qt.widgets.figure_queue": {
       "source_blocks_sha256": [
         "05ee442e2e23be7c6b1b3971cc43ee7d5f73765b8338df6b0ecf767e52252522",
-        "1734036571703c85bfba4bfe861fe038edf94432b499fd955e636becd990b60c",
+        "0a8a923a7290e46fa98b9d549f11e960c2cae85b3caf76eee84b0ce2bd6aafb2",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ],
-      "source_sha256": "64b6b80b8eedef4b6e8d13955ceee484ac26147d13296a577b475be5fd0dcb0a",
-      "text": "Colete, navegue e reestilize figuras emitidas por uma sessão de processamento de fluxo de trabalho.\n\nO painel combina uma tira de miniatura, controles para a frente / para trás, um rótulo de posição e uma visualização de resolução total com zoom. Cada figura que chega é gravada em uma PNG temporária. Os mais novos 100 objetos  ``QPixmap`` de resolução completa permanecem na memória; entradas mais antigas recarregam seu PNG sob demanda, enquanto as miniaturas ficam na memória. Limpar a lista de trabalho ou destruir seu proprietário remove o diretório temporário.\n\nNo modo PDF, a visualização do  PNG aparece imediatamente e um trabalhador rasteriza a página vetorial em 2.200 pixels antes de substituí-la. Isso mantém o  GUI responsivo durante a renderização vetorial cara; o número de nove painéis gravados, 16 por 12 polegadas, exigiu cerca de 815 ms para rasterizar síncronamente.",
+      "source_sha256": "2b6fc1e464daa8323dd5a108388a4f40d65d4d6c48507fcebbb173af482e2bdd",
+      "text": "Colete, navegue e reestilize figuras emitidas por uma sessão de processamento de fluxo de trabalho.\n\nO painel combina uma faixa de miniaturas, controles de avanço e retorno, um rótulo de posição e uma visualização ampliável em resolução total. Cada figura recebida é gravada em um PNG temporário. Os objetos ``QPixmap`` em resolução total usam um cache que remove as entradas usadas há mais tempo, limitado pela contagem de entradas ``ram_cap`` (100 por padrão). As entradas removidas recarregam seu PNG quando necessário, enquanto as miniaturas permanecem na memória. Limpar a fila ou destruir seu proprietário remove o diretório temporário.\n\nNo modo PDF, a visualização do  PNG aparece imediatamente e um trabalhador rasteriza a página vetorial em 2.200 pixels antes de substituí-la. Isso mantém o  GUI responsivo durante a renderização vetorial cara; o número de nove painéis gravados, 16 por 12 polegadas, exigiu cerca de 815 ms para rasterizar síncronamente.",
       "translation_source_blocks_sha256": [
         "0645338614fac3648acfec8c7bd15994f93a4225ab3375aa9e78830a758de443",
-        "3953db9fe354c4cb56c88b2e107f2db2600bed66f379162c4070d01c8f8ed6b1",
+        "b5a9ceb8ed447163c69bdd2a745df789636747344736a5ea88836769b407a6b7",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ]
     },
     "spacr.qt.widgets.figure_queue.FigureQueue": {
       "source_blocks_sha256": [
         "184c45133afc5f52807a3a2b81277f6bddebaddec93f1c0192c74ddb52afabcc",
-        "c174d732cf708ee9800172bb8c81ff8518022b93cea74f050f12ee407c7269be",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "2bfd5ab3ce97ffd6cbf7d8a5e199183b26d6f638397bcbcdd9b06af763a52cdc",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "ae5bd2e960eb0870e236582b252e0f10ab1493ba35e62861462af1b4a62ab062",
-      "text": "Galeria de figuras de fluxo de trabalho com rolagem e limite de RAM.\n\n:param ram_cap: quantos bytes de figuras a galeria pode conter. Números mais antigos são descartados para permanecer sob ele, que é o que \"RAM-bounded\" acima significa - um fluxo de trabalho que emite centenas de figuras não deve crescer sem limite.\n:param parent: widget pai.\nConstrua a lista de figuras.\n\n:param ram_cap: Quantos bytes de pixmaps de resolução completa manter na memória; os mais antigos são despejados pelo uso menos recente.\n:param parent: widget pai, ou ``None``.",
+      "source_sha256": "c59f395d1af2db49d9066d9a06e796ac01bc0fe589e85da0580b4e888e56291e",
+      "text": "Galeria de figuras de fluxo de trabalho com rolagem e limite de RAM.\n\n:param ram_cap: número máximo de pixmaps em resolução total no cache de RAM, 100 por padrão. As entradas usadas há mais tempo são removidas; seus arquivos PNG continuam disponíveis para recarga. Trata-se de uma contagem de entradas, não de um limite em bytes nem de um limite de toda a memória do processo.\n:param parent: widget pai.\nConstrua a lista de figuras.\n\n:param ram_cap: número máximo de pixmaps em resolução total armazenados no cache de memória, 100 por padrão; as entradas usadas há mais tempo são removidas.\n:param parent: widget pai, ou ``None``.",
       "translation_source_blocks_sha256": [
         "69fa66fc3a8d9a49c76e0c720f4785767d821c0819d9d18189cdca2d1bcadc65",
-        "c386e4fe811f38b59f77f26202a04fb5024a8ee56b7149ab964485e3539ae770",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "adef3b5f64ff7336b47f9f0d40d25cbdbb5b5a07269f5bc7d63114070bd9aaeb",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
@@ -141357,15 +141357,15 @@
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ],
-      "source_sha256": "36faddaa4e53d2c8cb75173764820f365a675b8d47e6648532156ed7b45a995d",
-      "text": "Retornar todos os objetos de texto anexados a uma figura Matplotlib.\n\nInclui títulos e etiquetas de eixo, etiquetas de marcação, anotações, legendas e títulos de legenda, o título da figura e o texto armazenado diretamente na figura. A função não tem dependência Qt e é segura para chamar do trabalhador de renderização de figuras.\n\n:param fig: Figura de Matplotlib para inspecionar.\n:returns: Objetos de texto em ordem transversal, com objetos duplicados removidos.",
+      "source_sha256": "0533bfe48e0bb81671d16c9e1d183cab130d86863509b702edab6eb71cae568b",
+      "text": "Retornar todos os objetos de texto anexados a uma figura Matplotlib.\n\nInclui títulos e etiquetas de eixo, etiquetas de marcação, anotações, legendas e títulos de legenda, o título da figura e o texto armazenado diretamente na figura. A função não tem dependência Qt e é segura para chamar do trabalhador de renderização de figuras.\n\n:param fig: Figura de Matplotlib para inspecionar.\n:returns: Objetos de texto na ordem de percurso, omitindo as entradas ausentes. As referências repetidas são mantidas.",
       "translation_source_blocks_sha256": [
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ]
     },
     "spacr.qt.widgets.figure_queue.figure_text_size_override": {
@@ -156348,20 +156348,16 @@
     },
     "spacr.qt.widgets.loading_screen": {
       "source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "966d19113647321bd2952fc71d33d47463e23d515ad93ff653ed13e75bc65b45",
-        "aaef0d5cce47f0c0de331228126728fc18b205ead2ccd1483b74db3e02cb811d",
-        "dfac6cc31c8ddd27935cd584523d2559c8b149fda7bf9918e493813ea508bab5",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "d5cdd19db82248472abddbc3a3a038aebd742124e1467a731f7853087f11a6be",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ],
-      "source_sha256": "27f0798de29d105437d2ffe515d0cb7607f35447e7126829ab6025a7db4ea1ce",
-      "text": "A triagem que cobre a pré-carga.\n\nspaCR importa 3.1 s de módulos pesados (torch, cellpose, pandas e o fluxo de trabalho que depende deles) antes que o primeiro clique em um módulo possa ser instantâneo. Medido em um lançamento com janelas reais: ``spacr.core`` sozinho é 1968 ms e ``spacr.deep_spacr`` 711 ms.\n\nEssas importações têm que ser executadas no caminho de execução principal – fazendo-as em uma inicialização e segfaults GPU do worker races Qt, que é registrado acima de :class:`spacr.qt.app._PipelinePreloader`. O ciclo de eventos é, portanto, bloqueado por segundos, e uma janela que parecia interativa durante esse tempo não responderia.\n\nEste modo de exibição do aplicativo cobre toda a janela até que as importações sejam feitas, de modo que o ciclo de evento bloqueado não seja confundido com uma janela suspensa.\n\nO progresso é mostrado pela linha de cinta em vez de uma barra: as três fases de :data:`STRAP_LINE` acendem-se por sua vez à medida que os módulos carregam -- microscopia, então análise de célula única, então genótipo-para-fenótipo. O denominador é o número de módulos, que é conhecido antes que o primeiro seja importado.",
+      "source_sha256": "4605eda09bd7bda7a1cb31af86456afb7a578da00f24bbef56d20c257ffcbb98",
+      "text": "Cobertura de carregamento da janela inteira e animação de fotomosaico na inicialização.\n\nO aplicativo exibe esta cobertura enquanto constrói sua janela. Com o pré-carregamento antecipado, :class:`spacr.qt.app._PipelinePreloader` importa os módulos do pipeline em uma thread de trabalho e informa o progresso por um temporizador na thread da GUI. A política padrão sob demanda encerra a fase de carregamento sem importar esses módulos. Em seguida, a janela anfitriã fecha a cobertura ou inicia sua animação de fotomosaico, conforme as preferências de inicialização.\n\nO progresso informado ilumina as três fases de :data:`STRAP_LINE` e preenche a linha fina abaixo delas. :meth:`LoadingScreen.show_mosaic` substitui o logotipo simples pelo fotomosaico; :meth:`LoadingScreen.blow_away` anima sua remoção. :func:`replay_startup_animation` executa a sequência novamente sobre uma janela existente.",
       "translation_source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "6ddda941c386644b19d6ab4f5f16389884154efea2027ec35656214062b936e9",
-        "e82c82ac9b76b66c53ec220cccf0ab136ded27aac1a3cb17b72bd70e225a99c0",
-        "36eb7bda5f8e70efc69206aa4496f425d28557f7edb2e01a5d9b7e8528322412",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "a2955dbc820ffd24aa88d847e363d6bf3dbad81be99d2a34c1b3a2d160736bfb",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ]
     },
     "spacr.qt.widgets.loading_screen.BlowAway": {
@@ -156442,7 +156438,7 @@
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
-        "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156451,10 +156447,10 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
-      "text": "Cobertura de janela inteira exibida até que os módulos do pipeline sejam importados.\n\nPor padrão mostra a marca branca ao lado da linha de slogan. Depois de chamado :meth:`show_mosaic`, mostra em vez disso o fotomosaico do spaCR acima da linha de slogan, e :meth:`blow_away` a encerra soprando os ladrilhos do mosaico para fora da janela para revelar a janela por baixo.\n\n:param total: quantos passos serão informados. Zero ou negativo significa \"unknown\", e as fases ficam esmaecidas em vez de dividir por isso.\n:param parent: a janela que ela preenche. Tem o tamanho da janela pai e muda com ela, em vez de ser uma janela de nível superior separada -- uma segunda janela teria sua própria entrada na barra de tarefas e poderia ser arrastada para longe do que deve cobrir.\nConstruir a tela de abertura que cobre a janela enquanto ela é montada.\n\nOpaca por construção: cobre uma janela construída pela metade, e qualquer transparência mostraria o que ela existe para esconder.\n\n:param total: até quantos passos a barra de progresso conta; ``0`` não mostra proporção.\n:param parent: a janela a cobrir; sua geometria é adotada.",
+      "source_sha256": "0807e66d934569840a2ccbaefc680a27d1382cadbdd43e7693d3db66870f20ac",
+      "text": "Cobertura de carregamento da janela inteira com animação opcional de fotomosaico.\n\nPor padrão mostra a marca branca ao lado da linha de slogan. Depois de chamado :meth:`show_mosaic`, mostra em vez disso o fotomosaico do spaCR acima da linha de slogan, e :meth:`blow_away` a encerra soprando os ladrilhos do mosaico para fora da janela para revelar a janela por baixo.\n\n:param total: quantos passos serão informados. Zero ou negativo significa \"unknown\", e as fases ficam esmaecidas em vez de dividir por isso.\n:param parent: a janela que ela preenche. Tem o tamanho da janela pai e muda com ela, em vez de ser uma janela de nível superior separada -- uma segunda janela teria sua própria entrada na barra de tarefas e poderia ser arrastada para longe do que deve cobrir.\nConstruir a tela de abertura que cobre a janela enquanto ela é montada.\n\nOpaca por construção: cobre uma janela construída pela metade, e qualquer transparência mostraria o que ela existe para esconder.\n\n:param total: até quantos passos a barra de progresso conta; ``0`` não mostra proporção.\n:param parent: a janela a cobrir; sua geometria é adotada.",
       "translation_source_blocks_sha256": [
-        "29b9e3edb2706230d69db8eeb56c8f1fa1d9caf170992e142d3c1dd6c2c59218",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "d4ff49473441a5a3c33659ad0a6791ccd540d74c21b916a9f8095e96aa609b73",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156702,17 +156698,33 @@
         "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
       ]
     },
+    "spacr.qt.widgets.loading_screen.replay_startup_animation": {
+      "source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ],
+      "source_sha256": "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5",
+      "text": "Reproduzir de novo a sequência de inicialização dentro de ``window``.\n\nAjuda > Mostrar animação de inicialização. O contêiner preto com o logotipo reaparece sobre a janela, permanece por dois segundos e se dispersa como na inicialização. A animação é reproduzida mesmo quando Preferências > Aparência > Animação > Animação de inicialização está desativado; com Preferências > Aparência > Acessibilidade > Reduzir movimento, o logotipo permanece e depois desaparece por esmaecimento em um segundo. Um clique ou uma tecla pula a animação. O tamanho, o estado e o foco do teclado da janela são preservados.\n\n:param window: a janela em que ela é reproduzida.\n:returns: a cobertura que está sendo reproduzida agora, ou ``None`` quando o logotipo não pode ser lido ou já há uma cobertura sobre a janela.",
+      "translation_source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
       "source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ],
-      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
-      "text": "Se o fotomosaico pode se dispersar quando a janela está pronta.\n\nNão quando :data:`NO_SPLASH_ENV` está definido, na plataforma offscreen, enquanto Acessibilidade > Reduzir movimento está ligado, ou quando Preferences > Animação > Animação de inicialização está desligada. Uma preferência que não pode ser lida conta como não: uma cobertura parada é sempre segura.\n\n:returns: ``True`` quando a dispersão deve ser reproduzida.",
+      "source_sha256": "668216481cc0366123ce5abcbd0c0e6e152c4e0de5177235e284c4e0826a7231",
+      "text": "Se o fotomosaico pode se dispersar quando a janela está pronta.\n\nNão quando :data:`NO_SPLASH_ENV` está definida, na plataforma sem tela, enquanto Preferências > Aparência > Acessibilidade > Reduzir movimento está ativado ou quando Preferências > Aparência > Animação > Animação de inicialização está desativado. Uma preferência ilegível desativa a animação.\n\n:returns: ``True`` quando a dispersão deve ser reproduzida.",
       "translation_source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ]
     },

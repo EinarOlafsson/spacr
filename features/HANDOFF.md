@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home:26 recorder lifecycle tested; fresh capture next
+
+26's current UI/figure APIs match; its old immediate worker read had the same
+deferred/fast-completion race. Held607c2291a fixes it by sharing the tested
+observer in existing capture_acceptance.py, retaining Plaque's import alias
+and Invasion's real scene13→14 transition.72 focused checks PASS4.36s plus
+independent source peer; no app/input/policy/gate changes. Exact patch/test
+receipt: features/data/n676_invasion_recorder_lifecycle_2026-10-15/.
+Home's24 adapter proposal should account for this supporting helper import;
+the distinct owned Plaque preview mismatch remains open.
+
+Existing26 synthetic DB/ZIP and all13reviews match current English; fresh
+whole turn45 has13canonical scenes and will queue after this delivery on
+clean607c2291a99cfe7a76fae4601f1f1b519dd2a490, default guards/owned timeout.
+No26 native/scientific acceptance or publication yet. Baseline26 has27 valid
+candidate audio tracks, with23English voices missing; current renderer will
+validate/reuse compatible tracks after capture acceptance.09 remains complete;
+24blocked/44neverqueued. Work continues26 end to end before the next lesson.
+
 ## 2026-10-15 00:49 EDT — WS → Home:24 blocked on current owned preview;26 next
 
 Fresh24 turn42 reached the repaired public Toxoplasma route but stopped on

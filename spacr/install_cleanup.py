@@ -2984,6 +2984,10 @@ assert observed == Version(str(shipped)) == Version(dist.version), 'Imported cod
 normalize = lambda path: os.path.normcase(os.path.realpath(path))
 assert normalize(sys.executable) == normalize(expected['python']), 'Launcher interpreter differs'
 assert normalize(sys.prefix) == normalize(expected['prefix']), 'Launcher environment differs'
+assert os.path.commonpath([normalize(expected['prefix']), normalize(actual)]) == normalize(expected['prefix']), 'Imported application is outside the launcher environment'
+assert os.path.commonpath([normalize(expected['prefix']), normalize(dist.locate_file(''))]) == normalize(expected['prefix']), 'Application distribution is outside the launcher environment'
+metadata_path = getattr(dist, '_path', None)
+assert metadata_path is not None and os.path.commonpath([normalize(expected['prefix']), normalize(metadata_path)]) == normalize(expected['prefix']), 'Application distribution is outside the launcher environment'
 if expected['previous_version'] is not None:
     try:
         previous = Version(expected['previous_version'])
@@ -3027,6 +3031,8 @@ spec = find_spec('spacr')
 assert spec is not None and spec.origin and Path(spec.origin).resolve() == module, 'Previous application import is shadowed'
 assert os.path.commonpath([expected, os.path.normcase(str(module))]) == expected, 'Previous application is outside its environment'
 assert os.path.commonpath([expected, os.path.normcase(os.path.realpath(dist.locate_file('')))]) == expected, 'Previous metadata is outside its environment'
+metadata_path = getattr(dist, '_path', None)
+assert metadata_path is not None and os.path.commonpath([expected, os.path.normcase(os.path.realpath(metadata_path))]) == expected, 'Previous metadata is outside its environment'
 direct = json.loads(dist.read_text('direct_url.json') or '{}')
 assert not direct.get('dir_info', {}).get('editable'), 'Previous application is editable'
 version = dist.version
@@ -3657,6 +3663,7 @@ def _published_digest(url: str) -> Optional[str]:
     :returns: the expected hex digest, or None when the release publishes
         no sums file or names no line for this asset.
     """
+    import urllib.error
     import urllib.request
 
     base, _, name = url.rpartition("/")
@@ -3665,8 +3672,10 @@ def _published_digest(url: str) -> Optional[str]:
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
             published = response.read().decode("utf-8", "replace")
-    except Exception:                                        # noqa: BLE001
-        return None
+    except urllib.error.HTTPError as error:
+        if error.code == 404:
+            return None
+        raise
     for line in published.splitlines():
         parts = line.split()
         if len(parts) >= 2 and os.path.basename(parts[-1]) == name:
@@ -3696,28 +3705,36 @@ def _download(url: str, path: str) -> None:
     import urllib.request
     request = urllib.request.Request(url, headers={"User-Agent": "spacr-updater"})
     digest = hashlib.sha256()
-    with urllib.request.urlopen(request, timeout=120) as response, \
-            open(path, "wb") as handle:
-        while True:
-            chunk = response.read(1 << 20)
-            if not chunk:
-                break
-            handle.write(chunk)
-            digest.update(chunk)
-    if os.path.getsize(path) == 0:
-        raise OSError(f"{url} was empty")
-    expected = _published_digest(url)
-    if expected and digest.hexdigest() != expected:
-        try:
-            os.remove(path)
-        except OSError:
-            pass
-        raise OSError(
-            f"{os.path.basename(path)} does not match the checksum this "
-            f"release publishes for it: expected {expected}, got "
-            f"{digest.hexdigest()}. Nothing was installed and nothing was "
-            f"removed.")
-    os.chmod(path, 0o755)
+    staged = None
+    try:
+        with tempfile.NamedTemporaryFile(prefix=".spacr-download-",
+                                         dir=os.path.dirname(os.path.abspath(path)),
+                                         delete=False) as handle:
+            staged = handle.name
+            with urllib.request.urlopen(request, timeout=120) as response:
+                while True:
+                    chunk = response.read(1 << 20)
+                    if not chunk:
+                        break
+                    handle.write(chunk)
+                    digest.update(chunk)
+        if os.path.getsize(staged) == 0:
+            raise OSError(f"{url} was empty")
+        expected = _published_digest(url)
+        if expected and digest.hexdigest() != expected:
+            raise OSError(
+                f"{os.path.basename(path)} does not match the checksum this "
+                f"release publishes for it: expected {expected}, got "
+                f"{digest.hexdigest()}. Nothing was installed and nothing was "
+                f"removed.")
+        os.chmod(staged, 0o755)
+        os.replace(staged, path)
+    finally:
+        if staged is not None:
+            try:
+                os.unlink(staged)
+            except FileNotFoundError:
+                pass
 
 
 def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,

@@ -60,7 +60,7 @@ def test_failure_and_consumer_exception_also_remove_private_upload(setup, monkey
     assert source.is_file()
 
 
-@pytest.mark.parametrize("changes", [{"consent_upload": False}, {"consent_upload": "yes"}, {"family": "toxoplasma_pv"}, {"checkpoint": "/client/weights"}, {"selection": {"max_decoded_bytes": 2**40}}, {"selection": []}])
+@pytest.mark.parametrize("changes", [{"consent_upload": False}, {"consent_upload": "yes"}, {"family": "unknown"}, {"checkpoint": "/client/weights"}, {"selection": {"max_decoded_bytes": 2**40}}, {"selection": []}])
 def test_untrusted_requests_cannot_choose_paths_or_limits(setup, changes):
     instance, source, request, calls = setup
     request.update(changes)
@@ -115,3 +115,33 @@ def test_stream_copy_cannot_write_beyond_its_own_limit(tmp_path):
     with pytest.raises(ValueError, match="file size"):
         service._copy_upload(source, target, 8)
     assert target.stat().st_size <= 8
+
+
+@pytest.mark.parametrize('family', ['toxoplasma_plaque', 'toxoplasma_well_detector', *service.OBJECT_ROLES])
+def test_all_eight_families_dispatch_only_their_trusted_adapter(setup, monkeypatch, family):
+    instance, source, request, _ = setup
+    called = []
+    def runner(kind):
+        def run(output, **kwargs):
+            called.append((kind, kwargs))
+            output.write_bytes(b'result')
+            return output
+        return run
+    monkeypatch.setattr(service, 'run_plaque_download', runner('plaque'))
+    monkeypatch.setattr(service, 'run_well_download', runner('detector'))
+    monkeypatch.setattr(service, 'run_mask_download', runner('masks'))
+    resolved = []
+    def resolve(selected_family, paths, **kwargs):
+        resolved.append((selected_family, kwargs))
+        checkpoint = next(iter(paths.values()))
+        return {'checkpoint': checkpoint, 'metadata': {'key': family + '_v1', 'version': '1', 'sha256': 'ab' * 32}}
+    monkeypatch.setattr(service, 'resolve_trusted_model', resolve)
+    request.update(family=family, model_key=family + '_v1')
+    with instance.job(source, request) as artifact:
+        assert artifact['model']['key'] == family + '_v1'
+        assert artifact['result_zip'].read_bytes() == b'result'
+    assert resolved == [(family, {'model_key': family + '_v1'})]
+    expected = 'plaque' if family == 'toxoplasma_plaque' else 'detector' if family == 'toxoplasma_well_detector' else 'masks'
+    assert called[0][0] == expected
+    assert called[0][1].get('family') == (family if expected == 'masks' else None)
+    assert not list(instance.job_parent.iterdir())

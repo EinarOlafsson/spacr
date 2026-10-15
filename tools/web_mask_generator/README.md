@@ -205,3 +205,53 @@ are explicitly rectangle measurements, not segmented well area/centroids;
 physical calibration is not assumed. Masks, vectors and per-pixel cell scores
 are explicitly unavailable and never synthesized. Backend integration into the
 public service/UI remains separate work; no hosted detector is claimed here.
+
+`masks.run_mask_download` implements the other six segmentation family adapters
+through the canonical N696 diameter/settings helpers and desktop normalization,
+Cellpose evaluation, mask filtering and field-size restoration. Choose exactly
+one explicit source channel. Blank diameter uses the desktop magnification rule;
+`auto`/zero requests the model's automatic/native diameter; a positive value is
+an explicit pixel diameter. The original image remains unchanged for intensity
+measurements. Filtering may renumber retained IDs, exactly as on the desktop.
+The ZIP records requested/resolved/evaluated diameter and actual role-specific
+normalization, thresholds and filters, without exposing checkpoint paths.
+This adapter requires the updated N696 backend; CPU tests exercise its actual
+helpers with injected model evaluation and establish no real-model parity.
+Service/UI enablement for these routes remains a separate integration step.
+
+All eight dedicated Gradio tabs now have callable hosted-route interfaces.
+Segmentation routes show label boundaries; the well detector shows actual
+bounding rectangles and offers confidence/axis-ratio controls. Plaque diameter
+requires explicit resolved pixels or native scale. Other Mask routes distinguish
+blank (magnification default), Auto and explicit pixels, and accept optional
+JSON desktop normalization/filter overrides. Each panel owns its callbacks so
+selecting one family cannot execute another family's late-bound closure.
+This source UI has CPU component/callback coverage, not deployed GPU acceptance.
+ZeroGPU model placement/cache lifetime for all approved weights, real quota
+behavior and scientific parity remain to be accepted on the intended host.
+
+The operator CLI supports `--family` for every registered class. For generic
+Mask models, omit diameter to use `--magnification` (default 20), choose
+`--native-scale` for Auto, or give `--diameter` in pixels. Optional
+`--settings-json '{"background": 100, "remove_border_objects": true}'`
+passes only desktop normalization/filter settings. For the well detector,
+`--confidence`, `--min-axis-ratio` and `--detector-image-size` retain desktop
+defaults 0.25, 0.7 and 640. Detector settings do not fabricate pixel masks.
+
+Random public test images are configured with `SPACR_WEB_EXAMPLES_JSON`, a JSON
+list of operator-reviewed records, each with exactly: `family`, `repo_id`,
+`revision` (40 lowercase hex immutable DATASET commit), `filename` (relative
+path), `sha256`, `bytes`, `credit`, `split` (`"test"`). Review actual test-split
+membership, scientific input suitability and redistribution rights before
+provisioning records; the code cannot establish those facts from a filename.
+No example catalogue is invented or downloaded implicitly. Buttons stay
+disabled for unconfigured classes. Downloads use no ambient account token,
+stream within the approved byte count and verify the entire checksum/header
+before returning a cached image and attribution. Public example staging is
+removed on success/failure; returned files use the disclosed Gradio cache.
+
+The common background floor, signal-to-noise anchor, lower percentile, perimeter
+merge and border/background switches have ordinary controls under
+“Normalization and object filters”. Blank numbers and “Desktop default” keep
+the canonical role settings; explicit controls take precedence over optional
+JSON values. The detector also exposes a strictly integral image-size control.
