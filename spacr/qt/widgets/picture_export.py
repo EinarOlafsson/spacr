@@ -1,22 +1,19 @@
-"""Right-click a picture and save it, as a PNG or as a PDF.
+"""Save a rendered picture as a PNG or a one-page PDF.
 
-A picture on screen is often the thing somebody wants in a slide an hour
-later, and the route to it was a screenshot of a window, at the window's
-resolution, with the surrounding chrome in it. This saves THE PICTURE, at
-the resolution it was rendered at rather than the size it happens to be
-shown at, into a file of the user's choosing.
+Exports use the supplied ``QImage`` or ``QPixmap`` rather than capturing
+the surrounding widget. PNG preserves the image's pixel dimensions and
+records the selected resolution as dots-per-metre metadata. PDF embeds
+the raster image on a page; it does not convert pixels into vector artwork.
 
-TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster
-dropped into a PDF satisfies the file name and nothing else; a figure panel
-is a page, and a page has a size in millimetres. :func:`save_picture` gives
-the PDF a page the image's own shape and tells the writer the resolution
-Preferences carries, so the picture lands at the size it was measured at and
-prints at that resolution.
+PDF page dimensions are computed from the image's pixel dimensions and
+export DPI, with a minimum of one millimetre for each dimension. The image
+fills the page with zero margins. This sets the printed size without using
+microscope pixel calibration.
 
-The resolution and the default format are the ones the Figures preferences
-already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and
-:func:`spacr.qt.preferences.get_figure_format` -- so a user who has already
-said "300 DPI, PDF" is not asked a second time in different words.
+Default resolution and filename suffix come from
+:func:`spacr.qt.preferences.get_figure_png_dpi` and
+:func:`spacr.qt.preferences.get_figure_format`. The right-click menu's
+explicit PNG or PDF choice determines the final export format.
 """
 from __future__ import annotations
 
@@ -156,11 +153,10 @@ def save_picture(picture, path, dpi: Optional[int] = None) -> bool:
 
 
 def _save_png(image: QImage, path: str, dpi: int) -> bool:
-    """Write the raster, carrying the resolution in the file's own header.
+    """Write PNG pixels with horizontal and vertical resolution metadata.
 
-    ``setDotsPerMeterX`` is not decoration: a PNG with no resolution in it
-    is imported at 72 DPI by every layout program there is, and the figure
-    then arrives four times too big and has to be scaled by hand.
+    A copy receives the requested DPI converted to integer dots per metre.
+    If setting the metadata fails, writing the pixel image is still attempted.
     """
     stamped = QImage(image)
     try:
@@ -177,10 +173,11 @@ def _save_png(image: QImage, path: str, dpi: int) -> bool:
 
 
 def _save_pdf(image: QImage, path: str, dpi: int) -> bool:
-    """Write a one-page PDF the image's own shape, at ``dpi``.
+    """Draw a raster image across a one-page PDF at the selected DPI.
 
-    The page is sized from the pixels and the resolution rather than fixed,
-    so a tall field is a tall page and nothing is stretched or letterboxed.
+    Width and height are computed from pixels divided by DPI, converted to
+    millimetres, and independently clamped to at least one millimetre. The
+    image is drawn over the resulting page with zero margins.
     """
     from PySide6.QtGui import QPdfWriter
 
@@ -219,11 +216,11 @@ def suggested_name(stem: str) -> str:
 
 
 def ask_where_to_save(parent, stem: str) -> str:
-    """Ask for a path. ``""`` when the user walked away.
+    """Ask for an output path; return ``""`` when the dialog is cancelled.
 
-    THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one
-    would otherwise be written as a PNG whatever filter was selected, which
-    is how "save as PDF" quietly produces a raster.
+    If the chosen name has no suffix, append ``.pdf`` or ``.png`` according
+    to the selected file filter. An existing suffix is retained here;
+    :func:`save_as` subsequently enforces the format chosen in the menu.
 
     :param parent: the widget the save dialog is parented to.
     :param stem: the file name offered, without a suffix; cleaned by
@@ -322,12 +319,12 @@ def install_picture_save(view, picture: Callable[[], object],
     """Give ``view`` a right-click menu that saves what it is showing.
 
     :param view: the widget the user right-clicks.
-    :param picture: called when the menu is used; returns the ``QPixmap`` or
-        ``QImage`` to write. Called AT SAVE TIME rather than now, so the
-        menu always writes the picture currently on screen.
+    :param picture: called before the context menu opens; returns the
+        ``QPixmap`` or ``QImage`` to write. The returned image is used after
+        the format and path dialogs; the callback is not called again
+        immediately before writing.
     :param stem: the file name offered, without a suffix. A callable is
-        asked at save time, so a view whose contents change -- Overlay one
-        moment, Flows the next -- offers the name of what is on it now.
+        called after the format is selected and before the path dialog opens.
     :param unless: asked first; ``True`` means the right button belongs to
         something else at this moment and no menu is shown. The live
         preview's ruler is cleared with a right-click while it is active,
