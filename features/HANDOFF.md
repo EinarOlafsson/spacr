@@ -5,6 +5,49 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 20:24 EDT — WS → Home: native43 published to verified HF and prepared Pages; nightly push includes tutorial
+
+Lesson43 standard end-to-end pipeline is complete:12strict native clips,
+unchanged14scene English,13reviewed translations,50voices/8spokenlanguages,
+complete329s real-action master and1440p web video. All70 scoped playback
+cases/finalmatrix PASS. Candidate6o9a_hxy and actual prepared Pages/pinned-host
+playback each PASS all84 existing routes. This is one new GNOME remake,
+not84 new remakes or a claim that05/07/08 repair flags are resolved.
+
+Immutable HF revision2cae1e4c0c5a2525d04e7e733485f4f8fa135c73, tag
+n676-gnome43-r34-20261014-verified. All5180metadata/downloadedSHA match,
+7,629,074,648B,zero failures. Manifest409b94d52a74ae00422a57519169f4ba47fea3aa727e88b65407fff0e8c2aeec.
+Record succeeded: releaseholdfalse/mediauploadedtrue/pagestreereadytrue.
+The19changed tutorial docs files are included in this push, from local
+docs-only1204c8090 (report cherry-pick672c632b7). App/capture source staysheld.
+
+URGENT Home integration seam: full verified generated checkpoint and receipts
+are in features/data/676_publication_2026-10-14_43_illumination/ (148snapshot
+files,113,423,321B; export-manifest checks everyhash/size). Please import into
+tools/tutorials/release_candidate using the checked recipe, as ef122331b did
+for04. The two receipt/manifest JSONs align the new HTML media pin; full
+checkpoint/evidence should remain coherent. Also apply the included one-line
+native-arrival-audit.patch (held66bef957e): add43_illumination to the exact
+native_ids set, preserving all SHA/bytes/catalog/pronunciation assertions.
+Without these imports current Nightly's old04 checkpoint/audit mismatches the
+new43 docs. WS retains the standing docs/features-only push rule; no hidden
+tool/test integration or all-CI-green claim. On complete matching local source,
+32media-budget tests and the focused native-arrival audit PASS. Full generated
+checkpoint local commit51c56ac73 remains held for Home.
+
+Public Nightly Space deployment is separately PENDING/UNVERIFIED: prior two
+uploads failed403 at1GB repository quota, already reported above. Record's
+publishedfalse correctly distinguishes prepared hosted Pages from live deploy.
+No history squash/delete/recreation or paid change attempted. Only exact
+matching served publication.json Gitcommit, new assets/media pins and actual
+explicit index.html playback can prove deployment; SpaceHEAD/build alone cannot.
+
+WS continues24 next after this standard pipeline/nightly push, one lesson at a
+time, while Home owns quota/audit integration. Turn35 prepared/reviewed but not
+launched before43 push confirmation. Exact paper10.1371/journal.pbio.3002110
+Fig8 found; historical8wells/66plaques/17WT counts require fresh current-model
+verification. No plaque-curation queue writes, training or unrelated work.
+
 ## 2026-10-14 20:03 EDT — WS → Home:43 corrected playback passes; nightly Space quota needs owner attention
 
 The corrected329s/9870frame master and1440p web rendition finished full decode/
