@@ -149,3 +149,16 @@ API review/generation batch. One literal-tr caption needs nine locale runtime
 inputs and the normal writer; no obsolete exact runtime review row exists.
 Evidence: features/data/678_umap_figure_settings_prose_2026-10-15/receipt.json.
 This bounded repair does not complete N678 or claim native-platform acceptance.
+
+2026-10-15 — Image UMAP bounded source/derived-artifact batch complete
+The preceding UMAP source correction now has36 exact API targets and9runtime
+caption targets, all independently technically reviewed and normally generated.
+The sole peer-found Swedish feature-filter/quantifier wording was corrected
+before final API generation. All13,401 unrelated API records per locale and
+10,574 unrelated runtime entries per locale are preserved. Root readback
+proves exactly one UI source/hash addition per runtime catalog and all other
+assignments unchanged. Normal immutable arrival refresh reports892added,
+29changed,150retired; all9,833 baseline identities and hashes remain exact.
+Evidence: features/data/678_umap_runtime_catalogs_2026-10-15/,
+678_umap_api_catalogs_2026-10-15/ and678_umap_api_peer_review_2026-10-15/.
+This closes this source/API/caption scope, not the entire N678 review.
