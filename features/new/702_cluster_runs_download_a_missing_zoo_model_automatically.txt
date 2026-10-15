@@ -562,3 +562,21 @@ shared lock, with one existing runpy warning. Real pipeline writer/reader native
 roundtrips and concurrent replacement are exercised; no model I/O, enrichment,
 provider discovery, network/GPU/fullCI or whole-item closure. Parent702 partial.
 Evidence: data/702_csv_request_pin_preservation_2026-10-15/receipt.json.
+
+2026-10-15 — file-menu CSV import preserves exact model evidence:
+AppScreen's metadata-aware import now uses the shared torch-free validated
+reader for model_metadata and exactly its named raw request fields. Other
+rows retain the original pandas/tabular conversion, as do ordinary imports,
+accepted headers and existing empty/unknown-header diagnostics. A local stamp
+checks coherence across the metadata reread. Raw001/true/None/nan and opaque
+version001 survive literal and JSON metadata. Actual dialog/form tests prove
+valid pins retained and malformed evidence refused before form changes; native
+input bytes are preserved. Duplicate pinned fields refuse. A fresh process
+proves the metadata route imports neither torch nor spacr.utils. Immutable
+public-method baseline12FAIL/2PASS10.56seconds;14new cases plus existing import,
+legacy-header, pin-lifecycle and single-rebuild cohorts pass57 in49.00seconds
+under6G/shared lock. An initial reserved pytest parameter-name collection typo
+was corrected before product assertions and is retained separately. No model
+I/O/enrichment, provider/network/GPU/inference/fullCI or native other-OS
+acceptance. Parent702 partial. Evidence:
+data/702_gui_csv_pin_preservation_2026-10-15/receipt.json.
