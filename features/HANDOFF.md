@@ -17,9 +17,13 @@ The latter documents both initial fallback and later maturity classification,
 without changing stage policy. Coordinator independently verifies11 owned API
 symbols in all10 catalogs, source/review hashes and all unrelated incoming
 records against published1d90f7c921b. Doc-only executable ASTs are unchanged.
-Normal Help search regeneration must include the two new public methods before
-publication; its current two-helper DINO manifest prerequisite is being fixed
-through the normal documentation owner. Evidence:
+The normal Help generator exposed two newly enabled existing DINO callbacks
+missing from the English manifest. Their18 exact translation targets and
+independent source/target review are complete; normal scoped generation added
+the entries without changing source or helper eligibility. Normal Help search
+regeneration then passed, including both new panel methods and both callbacks.
+The combined readback now verifies13 owned symbols across all10 catalogs.
+Evidence:
 features/data/180_graph_coordinator_readback_2026-10-15/ and the corresponding
 source, catalog and independent-peer directories. Final full CI and release
 remain deferred per maintainer instructions.

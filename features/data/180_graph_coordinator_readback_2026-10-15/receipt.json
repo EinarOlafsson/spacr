@@ -29,47 +29,55 @@
         "spacr.qt.app.register_app"
       ],
       "source_and_review_hashes_exact": true
+    },
+    "561_enabled_helper_api_catalogs": {
+      "reference": "de8394c0606",
+      "symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress"
+      ],
+      "source_and_review_hashes_exact": true
     }
   },
   "catalogs": {
     "en": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13471
     },
     "de": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "es": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "fr": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "hi": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "is": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "ko": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "pt": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "sv": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     },
     "zh_CN": {
-      "owned_symbols_exact": 11,
+      "owned_symbols_exact": 13,
       "unrelated_records_preserved": 13397
     }
   }

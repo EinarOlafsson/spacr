@@ -13,6 +13,7 @@ batches = [
     ('678_row_exclusion_api_catalogs', 'c3f8909b28d'),
     ('180_graph_api_catalogs', 'bca8cc7eb0c'),
     ('678_register_stage_api_catalogs', '46bfb196edd'),
+    ('561_enabled_helper_api_catalogs', 'de8394c0606'),
 ]
 owned = set()
 report = {'baseline': '1d90f7c921b', 'batches': {}, 'catalogs': {}}
@@ -55,4 +56,4 @@ for path in ['spacr/qt/widgets/row_exclusion.py', 'spacr/qt/app.py']:
 target = root / 'features/data/180_graph_coordinator_readback_2026-10-15'
 target.mkdir(exist_ok=True)
 (target / 'receipt.json').write_text(json.dumps(report, indent=2) + '\n')
-print('PASS: 11 symbols exact in all 10 catalogs, all incoming unrelated records retained, doc-only executable AST unchanged')
+print(f'PASS: {len(owned)} symbols exact in all 10 catalogs, all incoming unrelated records retained, doc-only executable AST unchanged')
