@@ -1,0 +1,9 @@
+{
+  "source_sha256": "794d645b188400ca630fba6a6c85d61ef4de3ad13dc8312986af02374838689c",
+  "exact_approved_proposal": true,
+  "all_original25_assertion_ASTs_identical": true,
+  "all_other_module_AST_identical": true,
+  "only_eight_private_helpers_and_existing_routing_test_changed": true,
+  "original_matrix_inputs": "batchedFalse/True\u00d7fail_tailFalse/True\u00d7range(3), same shim/commands/environment/timeout10s",
+  "independent_review": "Root approval of exact proposal ca927a7af2474a1ee6d6e6c7826babcc734afd7996743858dabe51cc0f05d73d retained; no source change after approval."
+}

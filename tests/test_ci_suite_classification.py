@@ -276,15 +276,7 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
     assert f"--exclude-file {structural}" not in coverage
 
 
-def test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci(tmp_path):
-    import yaml
-
-    filename = (
-        "tests/qt/test_torch_libraries_map_without_the_interpreter_lock_"
-        "20261013.py"
-    )
-    timing = "test_importing_torch_after_the_map_blocks_other_threads_far_less"
-    node = f"{filename}::{timing}"
+def _torch_routing_nodes(filename, node):
     tree = ast.parse((ROOT / filename).read_text(encoding="utf-8"))
     original_nodes = {
         f"{filename}::{item.name}" for item in tree.body
@@ -292,6 +284,12 @@ def test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci(tmp_path):
     }
     assert len(original_nodes) == 9
     assert node in original_nodes
+    return original_nodes
+
+
+def _torch_routing_step():
+    import yaml
+
     workflow = yaml.safe_load(REUSABLE.read_text(encoding="utf-8"))
     job = workflow["jobs"]["pytest"]
     assert not job.get("continue-on-error", False)
@@ -300,6 +298,10 @@ def test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci(tmp_path):
         if step.get("name", "").startswith("Run ${{ inputs.suite_name }}")
     )
     assert not step.get("continue-on-error", False)
+    return step
+
+
+def _write_torch_routing_shim(tmp_path):
     shim = tmp_path / "python"
     shim.write_text(
         f"#!{sys.executable}\n"
@@ -314,64 +316,100 @@ def test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci(tmp_path):
         encoding="utf-8",
     )
     shim.chmod(0o700)
+
+
+def _torch_routing_script(step, batched, serial_tail):
+    inputs = {
+        "memory_telemetry_seconds": "0", "xdist_workers": "2",
+        "per_test_timeout_seconds": "600",
+        "batch_size": "32" if batched else "0",
+        "marker_expression": "qt and not slow and not heavy and not gpu",
+        "run_serial_tail": "true" if serial_tail else "false",
+    }
+    script = step["run"]
+    for name, value in inputs.items():
+        script = script.replace("${{ inputs." + name + " }}", value)
+    assert "${{" not in script
+    return script
+
+
+def _run_torch_routing_shard(tmp_path, step, node, batched, fail_tail, shard_index):
+    serial_tail = shard_index == 2
+    script = _torch_routing_script(step, batched, serial_tail)
+    log = tmp_path / f"routing-{batched}-{shard_index}-{fail_tail}.jsonl"
+    original_addopts = "-p tools.pytest_plugins.qt_serial_rss_journal"
+    env = dict(
+        os.environ, PATH=f"{tmp_path}{os.pathsep}{os.environ['PATH']}",
+        PYTEST_ADDOPTS=original_addopts, SPACR_QT_NATIVE_EVIDENCE_DIR="",
+        SPACR_PYTEST_FILE_SHARD_INDEX=str(shard_index),
+        SPACR_PYTEST_FILE_SHARD_COUNT="3",
+        ROUTING_LOG=str(log), ROUTING_NODE=node,
+        ROUTING_FAIL_TAIL="1" if fail_tail else "0",
+    )
+    result = subprocess.run(
+        ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script],
+        env=env, cwd=ROOT, capture_output=True, text=True, timeout=10,
+    )
+    expected_exit = 7 if fail_tail and serial_tail else 0
+    assert result.returncode == expected_exit, result.stderr
+    commands = [json.loads(line) for line in log.read_text().splitlines()]
+    assert len(commands) == (2 if serial_tail else 1)
+    return commands, original_addopts, serial_tail
+
+
+def _assert_torch_parallel_routing(parallel, node, filename, batched):
+    assert parallel["addopts"].split().count(f"--deselect={node}") == 1
+    assert f"--ignore={filename}" not in parallel["argv"]
+    assert "--cov" not in parallel["addopts"]
+    expected_command = (["tools/run_pytest_batches.py", "tests/"]
+                        if batched else ["-m", "pytest"])
+    assert parallel["argv"][:2] == expected_command
+    assert "tests/" in parallel["argv"]
+
+
+def _assert_torch_serial_routing(tail, node, filename, original_addopts, allocated):
+    assert tail["argv"].count(node) == 1
+    assert filename not in tail["argv"]
+    assert tail["addopts"] == original_addopts
+    assert "-n" not in tail["argv"]
+    assert not any(arg.startswith("--cov") for arg in tail["argv"])
+    assert (tail["index"], tail["count"]) == ("0", "1")
+    assert node not in allocated
+
+
+def _assert_torch_routing_assignment(tmp_path, step, node, filename, original_nodes, batched, fail_tail):
+    assigned: list[str] = []
+    for shard_index in range(3):
+        commands, original_addopts, serial_tail = _run_torch_routing_shard(
+            tmp_path, step, node, batched, fail_tail, shard_index)
+        parallel = commands[0]
+        _assert_torch_parallel_routing(parallel, node, filename, batched)
+        allocated = original_nodes - {node}
+        assert len(allocated) == 8
+        if _ci_file_shard(ROOT / filename, 3) == shard_index:
+            assigned.extend(allocated)
+        if serial_tail:
+            tail = commands[1]
+            _assert_torch_serial_routing(tail, node, filename, original_addopts, allocated)
+            assigned.append(node)
+    assert set(assigned) == original_nodes
+    assert all(assigned.count(item) == 1 for item in original_nodes)
+
+
+def test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci(tmp_path):
+    filename = (
+        "tests/qt/test_torch_libraries_map_without_the_interpreter_lock_"
+        "20261013.py"
+    )
+    timing = "test_importing_torch_after_the_map_blocks_other_threads_far_less"
+    node = f"{filename}::{timing}"
+    original_nodes = _torch_routing_nodes(filename, node)
+    step = _torch_routing_step()
+    _write_torch_routing_shim(tmp_path)
     for batched in (False, True):
         for fail_tail in (False, True):
-            assigned: list[str] = []
-            for shard_index in range(3):
-                serial_tail = shard_index == 2
-                inputs = {
-                    "memory_telemetry_seconds": "0", "xdist_workers": "2",
-                    "per_test_timeout_seconds": "600",
-                    "batch_size": "32" if batched else "0",
-                    "marker_expression": "qt and not slow and not heavy and not gpu",
-                    "run_serial_tail": "true" if serial_tail else "false",
-                }
-                script = step["run"]
-                for name, value in inputs.items():
-                    script = script.replace("${{ inputs." + name + " }}", value)
-                assert "${{" not in script
-                log = tmp_path / f"routing-{batched}-{shard_index}-{fail_tail}.jsonl"
-                original_addopts = "-p tools.pytest_plugins.qt_serial_rss_journal"
-                env = dict(
-                    os.environ, PATH=f"{tmp_path}{os.pathsep}{os.environ['PATH']}",
-                    PYTEST_ADDOPTS=original_addopts, SPACR_QT_NATIVE_EVIDENCE_DIR="",
-                    SPACR_PYTEST_FILE_SHARD_INDEX=str(shard_index),
-                    SPACR_PYTEST_FILE_SHARD_COUNT="3",
-                    ROUTING_LOG=str(log), ROUTING_NODE=node,
-                    ROUTING_FAIL_TAIL="1" if fail_tail else "0",
-                )
-                result = subprocess.run(
-                    ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script],
-                    env=env, cwd=ROOT, capture_output=True, text=True, timeout=10,
-                )
-                expected_exit = 7 if fail_tail and serial_tail else 0
-                assert result.returncode == expected_exit, result.stderr
-                commands = [json.loads(line) for line in log.read_text().splitlines()]
-                assert len(commands) == (2 if serial_tail else 1)
-                parallel = commands[0]
-                assert parallel["addopts"].split().count(f"--deselect={node}") == 1
-                assert f"--ignore={filename}" not in parallel["argv"]
-                assert "--cov" not in parallel["addopts"]
-                allocated = original_nodes - {node}
-                assert len(allocated) == 8
-                expected_command = (["tools/run_pytest_batches.py", "tests/"]
-                                    if batched else ["-m", "pytest"])
-                assert parallel["argv"][:2] == expected_command
-                assert "tests/" in parallel["argv"]
-                if _ci_file_shard(ROOT / filename, 3) == shard_index:
-                    assigned.extend(allocated)
-                if serial_tail:
-                    tail = commands[1]
-                    assert tail["argv"].count(node) == 1
-                    assert filename not in tail["argv"]
-                    assert tail["addopts"] == original_addopts
-                    assert "-n" not in tail["argv"]
-                    assert not any(arg.startswith("--cov") for arg in tail["argv"])
-                    assert (tail["index"], tail["count"]) == ("0", "1")
-                    assert node not in allocated
-                    assigned.append(node)
-            assert set(assigned) == original_nodes
-            assert all(assigned.count(item) == 1 for item in original_nodes)
+            _assert_torch_routing_assignment(
+                tmp_path, step, node, filename, original_nodes, batched, fail_tail)
 
     coverage = WORKFLOW.read_text(encoding="utf-8")
     assert coverage.count(f"--deselect={node}") == 1
