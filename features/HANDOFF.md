@@ -1,5 +1,19 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original whole-item closeouts and hosted build diagnosis
+
+Whole N468, N94 and F554 accepted/published5261e262fa; N687 owner closure
+reconciled172a52e396. N197 original contract now source-bound accepted;
+N384 remains historically maintainer-closed, not a new implementation.
+The combined tracker has85 numbered rows; no component totals or scientific
+claims substituted for whole contracts. N698 free ZeroGPU source66ac uploaded
+and1182 files verified, but managed build installs requirements before source
+COPY: local .[plaque] fails. Private immutable-source packaging repair active;
+no accepted inference endpoint/site change. N702 normal GUI picker export loses
+model pins; Hard owns private verified-reference backend, UI dependency being
+coordinated. Home-B N180 exclusive global generated writer slot is reserved.
+
+
 ## 2026-10-15T11:37:38.878191-04:00 — Work:23 full candidate accepted; immutable readback running
 
 Agreement23 has10/10 strict native clips,7527completeframes/250.9s at1x,50/50 current-runtime audio QA,13 official reviews, full master/web decode and timing checks,72/72 browser-matrix steps and84/84 candidate routes. Other83 lesson objects remain exact completed15baseline. Prepublication independent peer325be9c2840fa37dc8ce389611394425b072c07a1320b423d213f88bbc32af2a binds actual candidate manifest8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4 and145-file checkpoint. Source remains heldd7461e54e; no source push.
