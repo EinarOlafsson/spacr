@@ -2,8 +2,10 @@
 NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
 ================================================================================
 
-Status:    PARTIAL — automatic HF nightly publication verified 2026-10-13;
-           main-only Pages and legacy nightly redirect await main promotion
+Status:    BUILT, BLOCKED ON MAINTAINER — code complete on nightly; HF
+           publication stopped by the old Space's 1 GB storage limit; needs
+           token scope + two repo variables (steps 2026-10-15), then the
+           nightly->main merge for main-only Pages and the /nightly/ redirect
 Requested: 2026-10-10 — "Can you host the docs on huggingface? Removing docs
            from nightly sees like a bad idea as my process is to change nightly
            (including docs) then push and merge with main"; chose "Nightly on
@@ -242,3 +244,71 @@ Owner action: check existing HF_DOCS_TOKEN write permission to the existing
 einarolafsson/spacr-docs-nightly-v2 Space; no broad local token substitution
 or repeated probe without an actual permission correction. Main cutover,
 canonical variables and current-head deployment remain separate.
+
+
+2026-10-15 — BUILT (Claude Home, owner of 689 from today). Diagnosis of the
+"token write refusal", from gh run logs and public Hub metadata.
+There are two different 403s, and neither comes from the workflow YAML.
+docs.yml already has `permissions: contents: read`, Pages jobs get
+`pages: write` + `id-token: write`, and the secret name HF_DOCS_TOKEN
+matches the repository secret.
+ (a) Canonical Space einarolafsson/spacr-docs-nightly: every nightly
+     deploy fails at commit with "403 Forbidden: Storage limit reached for
+     this space (Max: 1 GB)" (e.g. run 38790283828, job "Publish nightly
+     documentation to the Hugging Face Space"). The Hub reports usedStorage
+     988,829,585 bytes. Daily history growth filled it. The live site is
+     still nightly 0b94804723 (2026-10-14).
+ (b) Candidate Space einarolafsson/spacr-docs-nightly-v2: access probe run
+     38754742270 got 403 at commit, but the Space uses only 191,085,051
+     bytes, so this is not storage. HF_DOCS_TOKEN is a fine-grained token
+     that is scoped to the old Space only and has no write grant on v2.
+Code change: verify-space-access now adds a fixed "reason"
+(storage-limit | not-authorized) without echoing server text, and
+upload-nightly prints a ::error:: annotation that names the cause before it
+fails. tests/test_docs_space_access.py has 4 new cases. The access, channels
+and tree suites pass: 99 tests.
+
+Verified live 2026-10-15:
+ - https://einarolafsson-spacr-docs-nightly.static.hf.space/ returns 200, channels
+   schema 2, nightly 0b94804723, 455,793,473 bytes. It is stale because of (a).
+ - https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/ returns 200,
+   nightly 8e0a1fdbea, 459,836,810 bytes (the hand-uploaded candidate).
+ - https://einarolafsson.github.io/spacr/ is still the old combined schema-1
+   site (main 87ff67a085 + nightly c138911fb6, 974,730,784 bytes), and
+   /nightly/ is not a redirect yet. main's docs.yml is the old combined
+   workflow, whose runs fail at the old 996 MB limit. The main-only workflow
+   exists only on nightly.
+
+MAINTAINER STEPS (no agent may touch tokens; do them in order):
+ 1. Hugging Face, give the existing token write access to v2. This keeps the
+    token value, so the GitHub secret stays as it is:
+    huggingface.co -> avatar -> Settings -> Access Tokens -> the token used
+    as HF_DOCS_TOKEN -> "..." menu -> Edit permissions -> "Repositories
+    permissions" -> search and add einarolafsson/spacr-docs-nightly-v2 ->
+    tick "Write access to contents/settings of selected repos" -> Save.
+    (If you cannot tell which token it is, create a new fine-grained token
+    with exactly that one grant, then on GitHub: repo -> Settings -> Secrets
+    and variables -> Actions -> HF_DOCS_TOKEN -> Update secret.)
+ 2. GitHub, point nightly docs at v2: repo EinarOlafsson/spacr -> Settings
+    -> Secrets and variables -> Actions -> Variables tab -> New repository
+    variable:
+      HF_DOCS_SPACE = einarolafsson/spacr-docs-nightly-v2
+      HF_DOCS_URL   = https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/
+    Set both (the resolver refuses only one).
+ 3. Check: Actions -> docs -> Run workflow -> branch nightly, mode
+    verify-host-access, access_space einarolafsson/spacr-docs-nightly-v2.
+    Green means the token can write. A red result now shows the "reason".
+ 4. Push anything to nightly (or Run workflow, mode publish). The
+    deploy-space job uploads to v2 and checks the tree and the public site.
+ 5. Merge nightly into main as usual. main then runs the main-only workflow:
+    GitHub Pages holds only main, under the 900 MB guard, and /nightly/
+    redirects to the v2 URL.
+ 6. Owner decision, before v2 also fills (it is at 191 MB of 1 GB; the old
+    Space filled in about 5 days of nightly pushes): either squash the
+    Space history now and then (Space -> Settings -> "Squash history"
+    / HfApi.super_squash_history, then delete orphaned LFS files on the
+    Settings "Storage" page), or accept a new Space when it fills. This
+    is irreversible history deletion, so no agent does it unasked.
+ The old Space keeps serving its stale 2026-10-14 build. Its direct
+ bookmarks do not redirect (see the 2026-10-15 quota plan).
+
