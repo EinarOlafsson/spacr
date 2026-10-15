@@ -1,0 +1,7 @@
+{
+  "patch_sha256": "71487f09be25e9e44e5d11c0ea6437bcf2a28883d104648f6adf2dfea42ddd4f",
+  "baseline": "Original actual1FAIL1.29s,0instead1 matcheshosted; source8fc2->3c078 identical.",
+  "scope": "Only original real-drop test body; production/pairing/sourceprose untouched.",
+  "wait_contract": "Observe real contents_changed signal(defaultnormal1s), then real scanner is_busy false within1s to finalize worker before asserting exactfile/order/count and empty pendingqueue; no sleeps, sourceguardbypass or expanded CI timeout.",
+  "original_assertions": "Accepted event remains asserted immediately inside signal context; existinglen1 remains; exactfilename and drainedqueue added."
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "Only existing real-drop test awaits intentional asyncdrop completion; no production change",
+  "source": "3c078191bd521aca9d0c7498aed94d9c292b9156",
+  "baseline": "Actualoriginal1FAIL1.29s beforecallback; matchesfailed38699600639/8fc2; testandwidgetsourcebyteidenticalfailedhost",
+  "verification": "Originalnode1PASS1.16s/exit0, realQt6.12/offscreen and actual filesystemworker; fatalRuffPASS E9,F63,F7,F82/diffcheckPASS",
+  "invariants": "Originalimmediate eventaccepted andlen1 assertions retained; actualcontents_changed signal +workerfinalization with1snormaldeadlines; exactpath/order anddrainedqueue added. AllothermoduleAST/signatures/decorators identical.",
+  "independent_review": "Root explicitlyapproved exactproposed.patch beforeapplication; finalsourceexactproposal",
+  "resources": "Sharedheavy.lock;6GiBMemoryMax/0swap; unitspacr-ci-real-drop-fixed-20261015 inactive/MainPID0",
+  "limits": [
+    "Testtimingcontractreconciliation,notproductionbugfix",
+    "No wholeQt/fullCI/nativecaptureacceptance",
+    "No file_list/pairing/sourceguard change"
+  ],
+  "evidence_sha256": {
+    "baseline.log": "14a1b5972518e271d767fae5fe4bc836a00a8d0cb8e13f583a10dff79c48474f",
+    "fixed.xml": "41a94dbcdf5d66fc4bc31424597bb379d16699adcaed524a45cdc2d8b2e6c466",
+    "baseline.sh": "bf6630a533d7f53d3a6b0bae8bb49417bbd5d72ef9159d4b0c7f3834a8365723",
+    "proposed.patch": "71487f09be25e9e44e5d11c0ea6437bcf2a28883d104648f6adf2dfea42ddd4f",
+    "baseline-receipt.json": "8f2e0cd6cfea289d5ad5a9422302845bc47e0c67a142f2616210838714374773",
+    "fixed.sh": "f958d7cff55c4841f724c17c434678946e4e25d825ba5dbf8d9430b2ad6fd0ab",
+    "source-pins.json": "ac6419a5a5d5436dbe1d58a4e94b8de9b39476973d74ee0743f5385fd1ce3f50",
+    "test-only-ast-proof.json": "781dd7d656c2f897e16ce188f360577d953fde08898ac6663326ad2078f9f0d2",
+    "baseline.xml": "59cac009aac8aadb0d78a02eda3780403d3f7e85dfdde5b06647182b69c3e46c",
+    "fixed.log": "44235bb126d358d88a07a2f307e0db3853d30250babf5e369036be16a91fa9a3",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "fixed.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "proposal.json": "d2ccebecc0317cea377b05f05a4c3ca024b89bc353e0862c3de1a676e524b8dd"
+  }
+}
