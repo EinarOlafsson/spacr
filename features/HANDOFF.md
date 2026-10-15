@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — exact README owner CI request; F580 fixture
+
+Home-B/next N704 owner: portable read-only current-source CI request is
+features/data/ci_readme_owner_request_2026-10-15/ (see delivery commitfedb7f1d02).
+Two separate causes must not be conflated: the deliberate localized Models
+panel makes67 routes while an old fixture expects66; independently, localized
+Website plaintext inside raw YAML passes through the image renderer and breaks
+the image-only README contract. Preserve the prominent Website destination;
+normal regeneration alone retains the raw-text fault. No README source,
+rendering, generated content, count ratchet or owner test was edited by Original.
+
+F580 exact test fixture now checks the current conditional plate-default and
+both session rules rather than obsolete unconditional wording. Original widget
+semantics and production/settings/translated captions are unchanged. One
+reproduced failure becomes1PASS; independent peer accepted.
+
+CI analysis continues without final full-CI dispatch. N702 writer is long
+terminal/public; F561 owner global writer reservation remains respected.
+
+
 ## 2026-10-15 Original Home — native hover crash and unknown-model fixture
 
 A reproduced native SIGSEGV in the UMAP hover test was an invalid generic Enter
