@@ -33,8 +33,9 @@ class TrainingMonitor(QWidget):
     :class:`pyqtgraph.PlotDataItem` for each metric, created when that
     metric first appears and reused for every epoch after it.
 
-    Both are populated as epochs arrive and neither is replaced, so a
-    reference taken once stays valid for the life of the panel.
+    The plot widgets are created in the constructor; curves are added when
+    their metrics first appear. :meth:`clear` removes curves and stored points
+    for a new run while retaining the plot widgets and both dictionaries.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):

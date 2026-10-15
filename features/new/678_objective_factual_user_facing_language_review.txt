@@ -183,3 +183,15 @@ The complete executable AST is unchanged, with no arithmetic/test replay.
 Two existing API blocks await the normal nine-locale review/catalog batch.
 Evidence: features/data/678_volume_camera_prose_2026-10-15/receipt.json.
 This bounded contract clarification does not complete the full N678 review.
+
+2026-10-15 — Bounded training-monitor lifecycle documentation repair.
+TrainingMonitor creates its three plot widgets during construction, while
+metric curves are added when their series first appears. Its class paragraph
+now states this distinction and that clear removes curves and stored points
+while retaining the plot widgets and dictionary objects. One selected class
+docstring changed; five public constructor/method docstrings were retained.
+The complete executable AST is unchanged. No training, plotting, caption or
+method behavior changed, and no runtime tests were repeated for this prose.
+One existing API block awaits normal nine-locale review/catalog generation.
+Evidence: features/data/678_training_monitor_prose_2026-10-15/receipt.json.
+This bounded lifecycle clarification does not complete the full N678 review.
