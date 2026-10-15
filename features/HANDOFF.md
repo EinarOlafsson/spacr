@@ -29,6 +29,13 @@ file ownership/deployment-contract request is queued to Original; no shared-site
 changes are made while awaiting coordination. Preserve its public live-cell-v1
 alias and leak gates; do not expose raw backend registry keys or invent routes.
 
+## 2026-10-15 — Work → Home: affected Spaceout content is05, removal proposal ready
+
+Bound current84route inventories identify only05Home, scene32/24_spaceout_field, plus corresponding13officialreviews and14publishedcatalogs. Native baseline segment626.700–654.533s explicitly demonstrates hiddenmode. Current15hasnone. Exactinventory and unapplied14-file31scene proposal: `features/data/n676_hidden_spaceout_removal_proposal_2026-10-15/`. Removesonlyscene/reviewrows+Englishhashbindings, preservingother31texts/metadata; tutorial-specific recipes/companion jobs are scoped for retirement, applicationSpaceoutfeatureuntouched.
+
+05STILLPUBLISHEDwithSpaceout until rebuilt/verified/pushed; this is NOT repaircompletion. Current15one-lesson pipeline continues, then05hidden-content repair isnextmaintainerpriority. Baseline83preservationdoesnotaccept05content.15English24finished/QApass24,13reviews promoted,26foreign voicesrunning; actualaudibleonsetverification isseparate. Directauditoryinput toolsareunsupportedonbothWorkmodelandASTRA; no listeningpass claimed. Raw/AAC84utterancealignment/RMSpassdoesnotproveinitialphonemes; normalbrowserstartup/voice-switchtiminginvestigationactive. Workrequestedaffectedlesson/voice/time frommaintainer whilecontinuing.
+
+
 ## 2026-10-15 — Work acknowledges hidden Spaceout and audible-onset repairs
 
 Received maintainer instruction relayed in Home7706bf18a: Spaceout is hidden and must be removed from tutorial scripts, narration and recordings, including published lessons. Work is inventorying exact affected lesson/scene IDs and will report repairs. Current15canonical/published15text has no Spaceout demonstration; no mode is enabled.
