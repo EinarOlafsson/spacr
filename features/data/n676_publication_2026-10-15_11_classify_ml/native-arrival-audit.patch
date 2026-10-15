@@ -1,0 +1,25 @@
+From 1b6e378a7df5b1f12d002f85b7fc1bacd835a695 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 04:41:59 -0400
+Subject: [PATCH] Audit Classify as a complete native tutorial arrival
+
+---
+ tests/test_tutorial_release_audit.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/test_tutorial_release_audit.py b/tests/test_tutorial_release_audit.py
+index a93ba394f..b29a3db49 100644
+--- a/tests/test_tutorial_release_audit.py
++++ b/tests/test_tutorial_release_audit.py
+@@ -518,7 +518,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
+     # 438464849 (07 r26b) and 52d5d99bf (08 r26), with dated publication
+     # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
+     native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
+-                  "07_mask", "08_measure", "09_annotate", "14_make_masks",
++                  "07_mask", "08_measure", "09_annotate", "11_classify_ml", "14_make_masks",
+                   "43_illumination", "80_image_analysis_pathways", "82_toxoplasma"}
+     original_ids = {"18_motility", "19_train_cellpose", "20_cellpose_masks", "24_plaque",
+                     "74_import_images", "85_host_pathogen", "87_alpha_features"}
+-- 
+2.34.1
+

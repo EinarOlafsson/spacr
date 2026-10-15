@@ -1,0 +1,33 @@
+{
+  "lesson": "11_classify_ml",
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Classify: lær af målte egenskaber",
+  "description": "Indlæs målinger, definér klasser, træn en tabelklassifikator, og undersøg objektscorer og pladeoversigter.",
+  "objectives": [
+    "Vælge tabelfamilien og et målt projekt.",
+    "Definere klasser og vælge egenskabskanaler, modelstørrelse og tilbageholdte brønde.",
+    "Finde modellens output, forudsigelser pr. objekt og oversigtsfigurer."
+  ],
+  "prerequisite": "Brug Load test data i Classify, og vælg Load; bekræft derefter den hentede plademappe med Choose source data. Til dit eget projekt kører du først Measure. Eksemplet bruger columnID-værdierne c1 og c2 som to klasser; brug labels, der passer til dit forsøg, når du arbejder med egne data.",
+  "scenes": [
+    "Fra Home åbner du Classify og vælger Tabular Machine Learning. Denne familie bruger de objektmålinger, som Measure har gemt. Den giver en tilpasset model og en score for hvert objekt, der har de nødvendige målinger.",
+    "Klik på Load test data, og vælg Load. Vent, til det målte eksempel er hentet. Til dine egne data vælger du projektmappen, som Measure har oprettet, inklusive dens måledatabase.",
+    "Brug Choose source data til at bekræfte den hentede plademappe. Vælg mappen, der indeholder målingerne. Så får klassifikatoren adgang til objekttabellerne og de metadata, der bruges til at definere klasserne.",
+    "Vælg metadata som klassegrundlag, og definér to Classes med columnID-værdierne c1 og c2. Disse labels skelner mellem pladens to kolonner i eksemplet. For at træne på dine egne celleannoteringer vælger du annoteringsgrundlaget og den labelkolonne, du oprettede i Annotate.",
+    "Sæt Channel of interest til 1 for eksemplet. Det styrer, hvilke kanalspecifikke måleegenskaber der indgår i modellen. I dit eget forsøg vælger du den kanal, der indeholder det signal, som er relevant for dine klasser.",
+    "Vælg Random Forest, 16 estimatorer og to arbejdsjob. Antallet af estimatorer styrer antallet af træer. Flere træer giver mere tilpasningsarbejde. Lad udvælgelse af egenskaber og krydsvalidering være slået fra i denne første runde; du kan sammenligne disse valg, når du har en fungerende basislinje.",
+    "Sæt Test size til 0,1, og behold grupperingen efter brønd. spaCR tilbageholder hele brønde, så den endelige andel af objekter kan afvige fra den ønskede. Læs den endelige opdeling i konsollen, og sørg for, at den passer til dit forsøg.",
+    "Slå Plot til, ryd søgningen, og tryk på Run. Konsollen viser filtrering af egenskaber, opdelingen i træning og test, modeltilpasning og de gemte outputstier. Vent, til kørslen er færdig, før du sammenligner dens scorer.",
+    "Resultaterne ligger under results/random_forest/channel_1. Databasen gemmer den forudsagte klasse i predictions og sandsynligheden for klasse 1 i ml_pred. Objekter, der mangler nødvendige målinger, kan stå uden score; undersøg manglende værdier, når du eksporterer en oversigt.",
+    "Gennemse figurerne over egenskabernes betydning og pladens heatmap. Med Predictions og gruppering efter gennemsnit er en brønds værdi gennemsnittet af dens binære forudsagte klasser. Brug de gemte objektscorer til detaljeret gennemgang, og sammenlign ydeevnen på de tilbageholdte brønde, før du anvender klassifikatoren på et andet forsøg."
+  ]
+}
