@@ -474,3 +474,37 @@ Python/frozen Debian adapters, full hosted CI and parentN703 remain open. The
 Debian outside helper exists but lacks a privileged verified rollback transaction;
 its refusal is retained and no real dpkg/root/package operation was run.
 Source-bound receipt: features/data/n703_current_catalog_closure_2026-10-14/.
+
+
+2026-10-15 00:08 EDT — Online installer transaction leases and private NSIS staging
+Closed a concrete same-root concurrency defect: independent installer staging
+could overlap, and one failing installer could remove/restore a runtime that
+another installer had just activated. Unix now atomically acquires an outside
+owner-root lease before root/log/runtime mutations, then acquires the same
+private-runtime lease used by the in-app POSIX transaction. It retains both
+through rollback, resolves path aliases, restricts lease permissions and checks
+device/inode ownership before removal. Existing/interrupted leases are refused
+without PID guessing or deletion. Failed metadata recovery retains the leases
+and its evidence for explicit resolution. The desktop parent returns before
+the backend acquires leases, so no inherited GUI lease blocks its own child.
+
+The Windows PowerShell engine acquires exclusive CreateNew/FileShare.None
+handles before logging or environment changes, and releases only its owned
+handles after rollback. Failure before acquisition does not clean another
+process's staging/work files. Native behavior remains UNVERIFIED here. NSIS's
+helper extraction/invocation/cleanup now use its per-process PLUGINSDIR rather
+than the shared TEMP/spaCR-online-installer directory, preventing two wrappers
+from overwriting each other's bootstrap scripts. NSIS root writes before/after
+the PowerShell engine remain outside that lease; complete wrapper handoff is
+still OPEN, as is coordinating retirement across different installation roots.
+
+93 distinct owning checks PASS:12 new stdlib/actual shell concurrency/source
+contracts,12 existing sidecar rollback and69 existing installer checks. The
+old sidecar harness's exact trap delimiter was changed to parse the same
+cleanup function after the EXIT handler became composite; assertions remain.
+A final81-case NSIS/installer subset passes on final source. No Qt/model,
+live install, network, package operation or GPU was used. Existing reviewed
+already_running captions are reused in all installer languages. Fatal Ruff,
+Bash syntax and diff checks pass. Native Windows/macOS, interrupted-lease GUI
+recovery, global caption arrival/full CI and parentN703 acceptance remain OPEN.
+Evidence: features/data/n703_installer_transaction_lease_2026-10-15/.

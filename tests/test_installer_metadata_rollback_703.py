@@ -111,7 +111,7 @@ def test_actual_linux_exit_trap_restores_runtime_and_matching_sidecars_or_retain
     uninstaller = _write(root / 'uninstall-spacr.sh', 'old uninstaller')
     work = tmp_path / 'work';work.mkdir()
     folder = work / 'previous-metadata'
-    cleanup = 'cleanup() {' + UNIX.read_text().split('cleanup() {',1)[1].split('\n}\ntrap cleanup EXIT',1)[0] + '\n}\n'
+    cleanup = 'cleanup() {' + UNIX.read_text().split('cleanup() {',1)[1].split('\n}\ntrap ',1)[0] + '\n}\n'
     bindings = {'work_dir':work,'VENV_DIR':live,'old_venv':old,'stage_profile':root/'stage-profile',
                 'stage_venv':root/'stage-venv','metadata_backup':folder,
                 'cleanup_python':sys.executable,'cleanup_module':ic.__file__}
