@@ -2929,7 +2929,38 @@ class OrganizeForMeasureDialog(QDialog):
         """
         if _headless():
             return False
-        return QMessageBox.question(self, title, text) == QMessageBox.Yes
+        box = QMessageBox(QMessageBox.Question, title, text,
+                          QMessageBox.Yes | QMessageBox.No, self)
+        box.button(QMessageBox.Yes).setText(tr("Yes"))
+        box.button(QMessageBox.No).setText(tr("No"))
+        return box.exec() == QMessageBox.Yes
+
+    def _plan_summary(self, plan: cs.SortPlan) -> str:
+        """Describe the selected output layout and retain every plan diagnostic."""
+        masks = sum(1 for row in plan.rows if row.source_mask)
+        if self._target_layout == "measure":
+            summary = tr(
+                "Move {images} image(s) and {masks} mask(s) into {channels} "
+                "channel folder(s) under {dest}, as {sets} set(s) in "
+                "Yokogawa naming. Then build channel stacks and any merged "
+                "arrays supported by the available masks.",
+                images=len(plan.rows), masks=masks, channels=len(plan.channels),
+                dest=plan.dest, sets=plan.n_sets)
+        else:
+            summary = tr(
+                "Move {images} image(s) into {dest} using Yokogawa names, "
+                "with {masks} mask(s) in {masks_dir}. Do not write stacks "
+                "or merged arrays.", images=len(plan.rows), dest=plan.dest,
+                masks=masks, masks_dir=os.path.join(plan.dest, "masks"))
+        lines = [summary]
+        if plan.mask_roles:
+            roles = ", ".join(
+                tr("channel {n}: {role}", n=channel, role=tr(role))
+                for channel, role in sorted(plan.mask_roles.items()))
+            lines.append(tr("Mask roles: {roles}", roles=roles))
+        lines.extend(plan.warnings)
+        lines.extend(plan.problems)
+        return "\n".join(lines)
 
     def _on_apply(self) -> None:
         """Plan, confirm and accept -- or say what is missing."""
@@ -2962,10 +2993,10 @@ class OrganizeForMeasureDialog(QDialog):
                     "folder.", n=len(plan.convertible), names=shown)):
                 plan = self.prepare_plan(convert=True)
         if not plan.ok:
-            self.status.setText(plan.summary())
+            self.status.setText(self._plan_summary(plan))
             return
         if not self.ask(tr("Move and merge?") if self._target_layout == "measure"
-                        else tr("Move the images?"), plan.summary()):
+                        else tr("Move the images?"), self._plan_summary(plan)):
             return
         self.plan = plan
         self.accept()

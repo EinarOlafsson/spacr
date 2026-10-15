@@ -1,0 +1,45 @@
+{
+  "item": "N639",
+  "sources": [
+    {
+      "source": "{sets} complete set(s) across {channels} channel(s).",
+      "line": 434,
+      "owner": "SetReport"
+    },
+    {
+      "source": "{count} file(s) not matched: {names}",
+      "line": 437,
+      "owner": "SetReport"
+    },
+    {
+      "source": "{count} file(s) have no channel: {names}",
+      "line": 440,
+      "owner": "SetReport"
+    },
+    {
+      "source": "{count} set(s) incomplete: {sets}",
+      "line": 443,
+      "owner": "SetReport"
+    },
+    {
+      "source": "{name} lacks channel(s) {channels}",
+      "line": 445,
+      "owner": "SetReport"
+    },
+    {
+      "source": "{count} duplicate(s): {duplicates}",
+      "line": 450,
+      "owner": "SetReport"
+    },
+    {
+      "source": "{name} channel {channel}: {names}",
+      "line": 453,
+      "owner": "SetReport"
+    },
+    {
+      "source": "{shown} and {more} more",
+      "line": 471,
+      "owner": "_few"
+    }
+  ]
+}

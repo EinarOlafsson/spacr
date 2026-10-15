@@ -4189,6 +4189,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "utils.py")
     paths.add(ROOT / "spacr" / "attribution.py")
     paths.add(ROOT / "spacr" / "measure.py")
+    paths.add(ROOT / "spacr" / "channel_sorting.py")
     paths.add(ROOT / "spacr" / "object_classifier.py")
     paths.add(ROOT / "spacr" / "core.py")
     paths.add(ROOT / "spacr" / "psf_pipeline.py")
@@ -4251,6 +4252,17 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_wound_calibration",
                              "measure_from_field_table",
                          }]
+        if path == source_root / "channel_sorting.py":
+            tree.body = [node for node in tree.body
+                         if (isinstance(node, ast.FunctionDef)
+                             and node.name in {"build_plan", "_few"})
+                         or (isinstance(node, ast.ClassDef)
+                             and node.name == "SetReport")]
+            for node in tree.body:
+                if isinstance(node, ast.ClassDef):
+                    node.body = [method for method in node.body
+                                 if isinstance(method, ast.FunctionDef)
+                                 and method.name == "summary"]
         if path == source_root / "object_classifier.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

@@ -1,0 +1,92 @@
+[
+  {
+    "language": "hi",
+    "index": 7,
+    "source": "{count} set(s) have no {role} mask in channel {channel}. Those sets cannot be merged when merging is requested.",
+    "target": "{count} सेट में चैनल {channel} में {role} का मास्क नहीं है। मर्ज करने का अनुरोध किए जाने पर इन सेट को मर्ज नहीं किया जा सकता।",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "{count} सेट में चैनल {channel} में {role} का मास्क नहीं है। मर्ज करने का अनुरोध किए जाने पर इन सेट को मर्ज नहीं किया जा सकता।"
+  },
+  {
+    "language": "hi",
+    "index": 9,
+    "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+    "target": "{images} चित्रों और {masks} मास्क को {dest} के अंतर्गत {channels} चैनल फ़ोल्डरों में ले जाएँ, जहाँ वे Yokogawa नामकरण वाले {sets} सेट होंगे। फिर चैनल स्टैक और उपलब्ध मास्क के आधार पर बनाए जा सकने वाले मर्ज किए गए ऐरे बनाएँ।",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "{images} चित्रों और {masks} मास्क को {dest} के अंतर्गत {channels} चैनल फ़ोल्डरों में ले जाएँ, जहाँ वे Yokogawa नामकरण वाले {sets} सेट होंगे। फिर चैनल स्टैक और उपलब्ध मास्क के आधार पर बनाए जा सकने वाले मर्ज किए गए ऐरे बनाएँ।"
+  },
+  {
+    "language": "hi",
+    "index": 13,
+    "source": "{sets} complete set(s) across {channels} channel(s).",
+    "target": "{channels} चैनलों में {sets} पूर्ण सेट।",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "{channels} चैनलों में {sets} पूर्ण सेट।"
+  },
+  {
+    "language": "ko",
+    "index": 7,
+    "source": "{count} set(s) have no {role} mask in channel {channel}. Those sets cannot be merged when merging is requested.",
+    "target": "{count}개 세트의 채널 {channel}에 {role} 마스크가 없습니다. 병합이 요청되어도 이 세트들은 병합할 수 없습니다.",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "{count}개 세트의 채널 {channel}에 {role} 마스크가 없습니다. 병합이 요청되어도 이 세트들은 병합할 수 없습니다."
+  },
+  {
+    "language": "ko",
+    "index": 9,
+    "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+    "target": "이미지 {images}개와 마스크 {masks}개를 {dest} 아래의 채널 폴더 {channels}개로 이동하여, Yokogawa 명명 규칙을 따르는 {sets}개 세트로 구성합니다. 그런 다음 채널 스택과 사용 가능한 마스크로 만들 수 있는 병합 배열을 만듭니다.",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "이미지 {images}개와 마스크 {masks}개를 {dest} 아래의 채널 폴더 {channels}개로 이동하여, Yokogawa 명명 규칙을 따르는 {sets}개 세트로 구성합니다. 그런 다음 채널 스택과 사용 가능한 마스크로 만들 수 있는 병합 배열을 만듭니다."
+  },
+  {
+    "language": "ko",
+    "index": 13,
+    "source": "{sets} complete set(s) across {channels} channel(s).",
+    "target": "{channels}개 채널에 걸쳐 완전한 세트 {sets}개가 있습니다.",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "{channels}개 채널에 걸쳐 완전한 세트 {sets}개가 있습니다."
+  },
+  {
+    "language": "zh_CN",
+    "index": 7,
+    "source": "{count} set(s) have no {role} mask in channel {channel}. Those sets cannot be merged when merging is requested.",
+    "target": "{count} 个数据组在通道 {channel} 中没有 {role} 掩膜。请求合并时，这些数据组无法合并。",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "{count} 个数据组在通道 {channel} 中没有 {role} 掩膜。请求合并时，这些数据组无法合并。"
+  },
+  {
+    "language": "zh_CN",
+    "index": 9,
+    "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+    "target": "将 {images} 张图像和 {masks} 个掩膜移至 {dest} 下的 {channels} 个通道文件夹中，组成按 Yokogawa 规则命名的 {sets} 个数据组。然后构建通道堆栈及可用掩膜所支持的合并数组。",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "将 {images} 张图像和 {masks} 个掩膜移至 {dest} 下的 {channels} 个通道文件夹中，组成按 Yokogawa 规则命名的 {sets} 个数据组。然后构建通道堆栈及可用掩膜所支持的合并数组。"
+  },
+  {
+    "language": "zh_CN",
+    "index": 13,
+    "source": "{sets} complete set(s) across {channels} channel(s).",
+    "target": "{channels} 个通道中共有 {sets} 个完整数据组。",
+    "reasons": [
+      "protected_syntax"
+    ],
+    "contextualized_target": "{channels} 个通道中共有 {sets} 个完整数据组。"
+  }
+]

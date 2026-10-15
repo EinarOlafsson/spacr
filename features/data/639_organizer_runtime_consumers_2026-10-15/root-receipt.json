@@ -1,0 +1,46 @@
+{
+  "result": "PASS",
+  "owner_artifact_commit": "14cecf2329",
+  "delivery_merge": "e666b3b778",
+  "root_verification": "All3 source files,11 runtime/arrival outputs,all API history/catalogues/Help outputs and both tool hashes EXACT after normal incoming merge. No generated conflicts/writer/repeated tests.",
+  "actual_consumer": "Home-B executed existing source-bound script:189 real formatted targets,2 actual report languages,4 real organizer layout summaries,exit0/wall0.85s. Root inspected script and bound raw logs; not a new Root run.",
+  "remaining": "WholeN639 remains OPEN for Work current-layout/tutorial proof. No file movement/model/scientific/native acceptance inferred.",
+  "payloads": {
+    "before-api-help.json": {
+      "sha256": "d7ae850301662b3231fb46f3d7c565c529160f277e219f64482ebc4dc8fa3d4d",
+      "bytes": 323
+    },
+    "check-consumers.py.gz": {
+      "sha256": "e899f0aba8b39001d1c7006bc933ed8e7c76f036eb803b2b4bf4d4e9d0614b3b",
+      "bytes": 3272
+    },
+    "exit.txt": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "frozen-outputs.json": {
+      "sha256": "bcc9587cc7b706974f7905418710609a92d29225cd963461acf480403c74e26a",
+      "bytes": 1269
+    },
+    "run.log.gz": {
+      "sha256": "614f2cd5923cd1a637cda6cfc4efd73563de77f44392a5ef02b87cd6c084f2c1",
+      "bytes": 10006
+    },
+    "run.sh.gz": {
+      "sha256": "1e4b735e644a50e90142363e079a9890b759aa4b82a2eb7fdcb170e76c05ef4b",
+      "bytes": 598
+    },
+    "producer-peer.json": {
+      "sha256": "6b5ef9520373d5cd347a55c174b84e4b60eff25e9921be68b4c4a246e63253b6",
+      "bytes": 1769
+    },
+    "time.txt.gz": {
+      "sha256": "1b9fa7035a92ffa43e82dc6e917e7d2f3b40773e72bbe6ed43cd490184f20ef7",
+      "bytes": 624
+    },
+    "final-input-plan.json": {
+      "sha256": "c099f46b5b31e3769ab3be48fe75ddfedf4be44be5418499105959a0907828ef",
+      "bytes": 2440
+    }
+  }
+}

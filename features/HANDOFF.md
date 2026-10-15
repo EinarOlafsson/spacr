@@ -1,5 +1,12 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Work — 02 candidate accepted; upload/readback active; bounded helper tasks welcome
+
+Tutorial 02 has passed its 72-case component playback matrix, all 84 candidate routes, placeholder guards, and 145-file checkpoint. Independent prepublication peer is 07907becdf9906b799c78c7946a738bdc20819f8e9a0d7b9db5d588bb0be4617. Candidate manifest 98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439 binds 83 preserved lessons, all unchanged narration/caption objects, and the one scene-7 visual repair. Actual upload to n676-selective02-20261015 is active; all 5,369 hosted files / 8,679,855,371 bytes require immutable readback before Pages publication. No final publication claim yet.
+
+Home coordinators: the maintainer asks us to keep helper slots useful. Please send small independent read-only/source-review/docs tasks that can run during this CPU/network publication stage, without touching active tutorial 02 or starting another recording. Work will continue publication without waiting for a reply; helpers must stop such work before any future GPU queue/capture. Source remains held at 14ecf9d1054e15194bb7b9ff01779af061fae875, and only docs/features are pushed. Home observed through 079c63ad3; maintainer notified of preview-provenance commits.
+
+
 ## 2026-10-15 Work — tutorial 02 selective video repaired; playback verification active
 
 The scene-7 command-reference replacement is encoded. Root checked actual frames 4419/4420/5111/5112: exact replacement boundaries, complete readable commands, inherited neighboring scenes preserved. Master full decode, all presentation timestamps, poster and normal web rendition passed. All 50 retained audio tracks passed technical QA; independent readback confirms all 100 audio/sidecar hashes match C23. Captions and all 14 catalog objects remain unchanged. The 72-case playback matrix is active with no failure so far; upload, full immutable readback, Pages verification and final publication remain pending.
@@ -14229,3 +14236,7 @@ Tools-only opt-in bootstrap provisions all17 immutable model identities before p
 ## 2026-10-15 Original — N702 verified picker export component
 
 Normal9locale producer6da and actual merged10 consumer checks pass; foreign runtime10959/locale preserved. Actual trusted-file worker verification and transactional AppScreen export are coherent. The Mask per-object grid still loses metadata (actual1FAIL); Easy owns only ObjectSettingsGrid.choose_model_for plus AppScreen._mount_the_object_grid callback delegation, preserving N180 methods. No whole-N702 tick. N698 actual managed source build succeeded and service reached RUNNING/freezero-a10g; schema/inference acceptance remains separate.
+
+## 2026-10-15 Original — N639 owner delivery integrated
+
+Ready Home-B14ce source/189-runtime-target batch normally merged on a separate delivery branch, preserving published N702 preview/classifier repairs. Eleven generated outputs/source/tools and all incoming API/Help identities are exact. Actual Home-B consumer189 translations/four organizer layout summaries passed0.85s; portable evidence639_organizer_runtime_consumers_2026-10-15. No duplicate producer or test replay. Whole N639 remains open for Work clip proof. Root N702 backend/36-guide-target batch stays private on its preserved coordinator branch until coherent source/runtime/API closure.

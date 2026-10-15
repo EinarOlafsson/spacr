@@ -19,7 +19,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
         "_lineage_trees.py",
-        "utils.py",
+        "utils.py", "channel_sorting.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -556,3 +556,39 @@ def _model_resolution_context(requested, *, setting):
     return "An unwrapped internal detail is not a UI caption."
 '''
     assert extract_backend_sources('model_zoo.py', source) == set()
+
+
+@pytest.mark.parametrize("source,caption", [
+    ('def build_plan():\n    return tr("No complete image sets are available.")\n',
+     "No complete image sets are available."),
+    ('def _few():\n    return tr("{shown} and {more} more")\n',
+     "{shown} and {more} more"),
+    ('class SetReport:\n    def summary(self):\n        return tr("{sets} complete set(s).")\n',
+     "{sets} complete set(s)."),
+])
+def test_organizer_report_captions_have_exact_backend_owners(
+        extract_backend_sources, source, caption):
+    assert extract_backend_sources("channel_sorting.py", source) == {caption}
+
+
+def test_organizer_report_owners_exclude_metadata_other_methods_and_nested_shadows(
+        extract_backend_sources):
+    assert extract_backend_sources("channel_sorting.py", '''
+METADATA = tr("Unrelated channel metadata.")
+def unrelated():
+    def build_plan():
+        return tr("A nested same-name plan is not an organizer diagnostic.")
+    class SetReport:
+        def summary(self):
+            return tr("A nested same-name report is not displayed.")
+class OtherReport:
+    def summary(self):
+        return tr("An unrelated report is not displayed.")
+class SetReport:
+    label = tr("A report class constant is not a status message.")
+    def unrelated(self):
+        return tr("An unrelated report method is not displayed.")
+    def summary(self):
+        """Documentation is not a status caption."""
+        return "Unwrapped internal detail."
+''') == set()
