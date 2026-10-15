@@ -12,13 +12,6 @@
   ],
   "records": [
     {
-      "key": "Drag this edge to make the help area taller or shorter.",
-      "source": "Drag this edge to make the help area taller or shorter.",
-      "source_sha256": "8b267b7007e23a62037dc48b0da67996ddea78a05394274a6adcd86e8896485f",
-      "table": "ui",
-      "translation": "Faites glisser ce bord pour augmenter ou réduire la hauteur de la zone d’aide."
-    },
-    {
       "key": "Organism-specific image analysis and quantitative assay readouts.",
       "source": "Organism-specific image analysis and quantitative assay readouts.",
       "source_sha256": "65968834aa1d7bcc5de45bd52caf88439555c8c11d3416b4b0aa28227626e600",
@@ -27,5 +20,15 @@
     }
   ],
   "review_scope": "AI technical and contextual review against exact Help/Organism Home source 62a38906063d64f71bf2a4dcf25cca63ccd9f427; no native-speaker signoff. Swedish Organism intentionally uses the same scientific noun through the existing manual reviewed-caption authority. Resize help describes the vertical help-region edge, independent of outer window size.",
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "Drag this edge to make the help area taller or shorter.",
+      "source": "Drag this edge to make the help area taller or shorter.",
+      "source_sha256": "8b267b7007e23a62037dc48b0da67996ddea78a05394274a6adcd86e8896485f",
+      "table": "ui",
+      "translation": "Faites glisser ce bord pour augmenter ou réduire la hauteur de la zone d’aide."
+    }
+  ],
+  "retirement_note_2026_10_15": "The exact mouse-only resize caption left the current source. Preserved here as provenance; its keyboard-aware replacement is reviewed in 2026-10-15-hint-resize-keyboard.json. Every other live/moved record is unchanged."
 }
