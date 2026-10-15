@@ -514,3 +514,18 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   No native value-interface, human-reader or other-platform acceptance is
   inferred. Broader N655 gates remain open. Evidence:
   data/655_hint_accessible_value_2026-10-15/receipt.json.
+
+2026-10-15 — Native HintBar failure found; numeric adapter removed
+  The single external AT-SPI readback crashed the earlier418e numeric-value
+  adapter on GetState despite33 in-process passes. That source is private
+  historical evidence, not accepted publication. No further pointer attempt.
+  The safe follow-up removes ValueInterface, interface_cast, shiboken pointer
+  conversion and numeric notification machinery. It retains ordinary Grip,
+  bounded Increase/Decrease and truthful Qt value text through the original
+  clamp/commit path. Seven supported-scope cases plus19 existing keyboard/
+  focus/mouse checks pass:26PASS4.51s. Numeric native min/max/step/set support
+  stays open. Nine private declarations are excluded by actual normal policy;
+  public docs/captions and original mouse/public methods remain unchanged.
+  Native action/tree replay follows separately; no full N655 completion.
+  Evidence:data/655_hint_safe_actions_2026-10-15/receipt.json includes the
+  exact native crash/source hashes and supersedes the earlier33 green claim.

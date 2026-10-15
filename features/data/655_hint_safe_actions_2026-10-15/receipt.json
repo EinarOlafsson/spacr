@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "item": "N655",
+  "status": "Safe fallback source:26 targeted checks pass; native actions replay pending",
+  "supersedes": "418e0d9bae custom numeric ValueInterface and its33 in-process checks are not publication acceptance; the actual Linux bridge crashed on GetState. The earlier source/tests/logs remain historical.",
+  "source": "spacr/qt/widgets/hint_bar.py",
+  "source_sha256": "2d8c046252ca976c1f1e00788ff9c029a4020534a3f99c074c96348ff02d91aa",
+  "tests": "tests/qt/test_655_hint_resize_accessible_value.py",
+  "tests_sha256": "a1125707eb2f047b15f70b746a2f32af8cc12ff28e3a1a2f740dd6e46cf72f7d",
+  "removed": [
+    "Separate QAccessibleValueInterface",
+    "interface_cast override",
+    "getCppPointer/VoidPtr imports and pointer conversion",
+    "ValueChange event filter and numeric setter/range adapter"
+  ],
+  "retained": [
+    "Truthful Grip/sizeable role/state",
+    "Enabled, bounded standard Increase/Decrease actions via existing height clamp and changed-height commit signal",
+    "Existing keyboard step/key bindings and normal inherited focus action",
+    "QAccessible.Value text reflects actual current height; no native numeric value interface claimed",
+    "Class-restricted normal Qt-owned accessibility adapter/cache lifetime"
+  ],
+  "focused_validation": {
+    "result": "26 passed in4.51s",
+    "exit": 0,
+    "new_supported_scope_cases": 7,
+    "existing_keyboard_focus_cases": 9,
+    "existing_mouse_height_cases": 10,
+    "session": 83622
+  },
+  "native_failure": {
+    "result": "FAIL",
+    "session": 4059,
+    "terminal_exit": 1,
+    "app_signal": "SIGSEGV",
+    "app_pid": 2222197,
+    "reader_error": "org.freedesktop.DBus.Error.NoReply during GetState tree traversal",
+    "wall_seconds": 4.02,
+    "peak_rss_kib": 347712,
+    "source_commit": "418e0d9bae",
+    "meaning": "Real native bridge failure supersedes prior in-process33 acceptance. Unsafe ValueInterface will not ship; no further pointer attempt.",
+    "no_core_dump_committed": true
+  },
+  "scope_proof": {
+    "baseline_commit": "a8545a4ab9",
+    "baseline_source_sha256": "0efad77e9991951b19f5363325fbf78b737231a457bd0239d95274a6ae95c202",
+    "source_sha256": "2d8c046252ca976c1f1e00788ff9c029a4020534a3f99c074c96348ff02d91aa",
+    "module_and_all_existing_docstrings_signatures_comments_unchanged": true,
+    "all_HintBar_methods_and_mouse_methods_unchanged": true,
+    "changed_existing_private_methods": [
+      "_HintResizeHandle.keyPressEvent"
+    ],
+    "actual_normal_public_symbol_calls": {
+      "spacr.qt.widgets.hint_bar._HintResizeHandle._resize_to": false,
+      "spacr.qt.widgets.hint_bar._AccessibleHintResize": false,
+      "spacr.qt.widgets.hint_bar._AccessibleHintResize.__init__": false,
+      "spacr.qt.widgets.hint_bar._AccessibleHintResize.state": false,
+      "spacr.qt.widgets.hint_bar._AccessibleHintResize.text": false,
+      "spacr.qt.widgets.hint_bar._AccessibleHintResize.actionNames": false,
+      "spacr.qt.widgets.hint_bar._AccessibleHintResize.doAction": false,
+      "spacr.qt.widgets.hint_bar._AccessibleHintResize.keyBindingsForAction": false,
+      "spacr.qt.widgets.hint_bar._hint_resize_accessible_factory": false
+    },
+    "actual_scoped_nested_inventory": [],
+    "scope": "Actual normal visibility policy and before/after one-file helper inventory; no full repository collector, runtime module imports or generated artifacts."
+  },
+  "limits": "No public caption/docstring/generated artifact change. Native numeric Value min/max/step/set remains unsupported. Corrected actual native actions/tree validation is separately pending; no whole N655/native reader/human/other-platform claim.",
+  "artifacts": {
+    "safe-after.sh": {
+      "sha256": "d365dbd9c839b382c759ca7ca7c4b2431be18e57bcfa3fd9d6d023316342ae8e",
+      "raw_sha256": "d365dbd9c839b382c759ca7ca7c4b2431be18e57bcfa3fd9d6d023316342ae8e"
+    },
+    "safe-after.log.gz": {
+      "sha256": "f38f49bafb100d7d5da1fabb079bd51c7d16fe031cd83ea16715a7ed646404ff",
+      "raw_sha256": "db49a4471425c4b6ffc90db20416e73cfe4d3a00276b21fcf1cda1235aa2440e"
+    },
+    "safe-after.time": {
+      "sha256": "f660d1bfe5486885edbdb4cc0b8b2980eed19f2fc3d490bc0875e2d9f9abd3c6",
+      "raw_sha256": "f660d1bfe5486885edbdb4cc0b8b2980eed19f2fc3d490bc0875e2d9f9abd3c6"
+    },
+    "safe-after.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "safe-scope-proof.py": {
+      "sha256": "3b5091b5ee1828ddd169ed8ca5ab01a88f87da6261113643aad8e6d29d52ebb6",
+      "raw_sha256": "3b5091b5ee1828ddd169ed8ca5ab01a88f87da6261113643aad8e6d29d52ebb6"
+    },
+    "safe-scope-proof.json": {
+      "sha256": "9553ed0d61a72f8c83972560db236b6d4ac1abbc0519fd58020c4fd84f9fe718",
+      "raw_sha256": "9553ed0d61a72f8c83972560db236b6d4ac1abbc0519fd58020c4fd84f9fe718"
+    },
+    "unsafe-value-interface-test.py.gz": {
+      "sha256": "f41f53ec9f0c1be16a679da3da77c5f0b4dbac17ddd35a215799ce03c6006629",
+      "raw_sha256": "8e33af20116a23060602505672ec62207f6e90b2ea4dde87a3b6e26fad85602f"
+    },
+    "native-crash/after-source.json": {
+      "sha256": "bca1daf5b3cf6baba77c8188d765e455d997912e0cdf78246407a09f89c3602b",
+      "raw_sha256": "bca1daf5b3cf6baba77c8188d765e455d997912e0cdf78246407a09f89c3602b"
+    },
+    "native-crash/app-observations.json": {
+      "sha256": "989cf0e675182b169be8d823843443d2ed93385fa85745cd1c744867ace07ffe",
+      "raw_sha256": "989cf0e675182b169be8d823843443d2ed93385fa85745cd1c744867ace07ffe"
+    },
+    "native-crash/app.log.gz": {
+      "sha256": "1b805742a43f7943d12c0078524b14438bb4e30d23a8a8b9a22e172f09c9fff4",
+      "raw_sha256": "292d52f023fa92924953c4480728394acd7ad46842c0b0d0bd2c71d3f85b90d9"
+    },
+    "native-crash/before-source.json": {
+      "sha256": "b27bcf4120dd93dec1ed2f3aab15768b01358ed6eafea197758ec41fc23f1418",
+      "raw_sha256": "b27bcf4120dd93dec1ed2f3aab15768b01358ed6eafea197758ec41fc23f1418"
+    },
+    "native-crash/hint-app.py": {
+      "sha256": "957d0e95d2344f82e67192d8c3adac80619d7298ff85136b7761df93173c855d",
+      "raw_sha256": "957d0e95d2344f82e67192d8c3adac80619d7298ff85136b7761df93173c855d"
+    },
+    "native-crash/inner.sh": {
+      "sha256": "bd06f3c4e0e54260b3cf250c4e524d039fd0e17c839c0e76cff3e113a5a686b1",
+      "raw_sha256": "bd06f3c4e0e54260b3cf250c4e524d039fd0e17c839c0e76cff3e113a5a686b1"
+    },
+    "native-crash/owned-pids.json": {
+      "sha256": "c2e1ff6c301f1ce73de975985b1bb1adeb020d567a968cf459d6d2c7c1098ed5",
+      "raw_sha256": "c2e1ff6c301f1ce73de975985b1bb1adeb020d567a968cf459d6d2c7c1098ed5"
+    },
+    "native-crash/preflight-harness-correction.json": {
+      "sha256": "1a208f862f8c7543ea46a20cdf41d17ca4778f5c4fe7ebf06a919b287f88b3d6",
+      "raw_sha256": "1a208f862f8c7543ea46a20cdf41d17ca4778f5c4fe7ebf06a919b287f88b3d6"
+    },
+    "native-crash/process-source.json": {
+      "sha256": "b0118a1270c5204e369b5cc63842108c61992ef1ce159476989ffe94bcc53eeb",
+      "raw_sha256": "b0118a1270c5204e369b5cc63842108c61992ef1ce159476989ffe94bcc53eeb"
+    },
+    "native-crash/queued-draft-read-value.py": {
+      "sha256": "082144259144f3d65837c0764192a19536a9f7b63f3fce0061ec7359e16fb53c",
+      "raw_sha256": "082144259144f3d65837c0764192a19536a9f7b63f3fce0061ec7359e16fb53c"
+    },
+    "native-crash/read-value.py": {
+      "sha256": "39ece403adb507461fec5fbc808bd376f447fe17ba9b120f92e0fdf702244ad3",
+      "raw_sha256": "39ece403adb507461fec5fbc808bd376f447fe17ba9b120f92e0fdf702244ad3"
+    },
+    "native-crash/reader.json": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-crash/result.json": {
+      "sha256": "f8edab63c4d9ab14e4c19fe503fd5f7887d302da4f2a088af00c1578f9b0b54a",
+      "raw_sha256": "f8edab63c4d9ab14e4c19fe503fd5f7887d302da4f2a088af00c1578f9b0b54a"
+    },
+    "native-crash/run.log.gz": {
+      "sha256": "e2f89c994eb783ad99dba2a7ad3d0f77c1688913ce30df350e800a702e8c3142",
+      "raw_sha256": "694b051c82b134e7ca78aded6605f4ad9dc6b131d658d3d8994959cf6e1b67aa"
+    },
+    "native-crash/run.sh": {
+      "sha256": "5037346dc25974af5fc323ac69b605c23d5fcc1f3e417a1b37f128f9bb8856f3",
+      "raw_sha256": "5037346dc25974af5fc323ac69b605c23d5fcc1f3e417a1b37f128f9bb8856f3"
+    },
+    "native-crash/time.txt": {
+      "sha256": "09365f123488c4b739a31ecd1a957a64abe0869a00a81e879d3413d154d9a4ef",
+      "raw_sha256": "09365f123488c4b739a31ecd1a957a64abe0869a00a81e879d3413d154d9a4ef"
+    }
+  }
+}
