@@ -1103,7 +1103,7 @@ def _native_lineage_columns(tracks, parents, source):
             if parent is None or pd.isna(parent):
                 continue
             number = int(parent)
-            if number != float(parent):
+            if not isinstance(parent, (str, int, np.integer)) and number != float(parent):
                 raise ValueError(f'{source}: non-integer parent for track {child}')
             if number > 0 and number != child:
                 candidates.add(number)
@@ -1112,7 +1112,8 @@ def _native_lineage_columns(tracks, parents, source):
                              'a division lineage requires one parent')
         parent = next(iter(candidates), 0)
         normalized[child] = parent if parent in present else 0
-    tracks['parent_track_id'] = tracks['track_id'].map(normalized).fillna(0).astype(int)
+    tracks['parent_track_id'] = np.asarray(
+        [normalized.get(int(t), 0) for t in tracks['track_id']], dtype=int)
     tracks['parent_track_id_source'] = [source if int(t) in normalized else ''
                                         for t in tracks['track_id']]
     return tracks
