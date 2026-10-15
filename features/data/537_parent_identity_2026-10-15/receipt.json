@@ -1,0 +1,10 @@
+{
+  "source_sha256": "dafe129bf5968a5e62cd9eb663496a04df012088c7967963c4bb4c6e53e922c0",
+  "actual_counterexample": "Same contradictory parent IDs select different actual segment ancestry in opposite row orders; original table unchanged.",
+  "initial_harness_correction": "Initial [1,2,1] fixture was palindromic and reverse expectation failed. Preserved raw script/log/exit; corrected declared parent sequence to [1,2,2]. No source change for reproduction.",
+  "lossless_controls": "Six actual existing/scratch-proposed controls cover object ints+None, nullable Int64+missing, integer strings >2**53; exact known identity preserved, contradictions refuse. pd.to_numeric lossy coercion explicitly rejected.",
+  "baseline": "8 FAIL, 14 PASS, 9 locale deselected; 1.31 s",
+  "owning": "36 PASS, 9 locale deselected; 12.34 s: 22 new/direct and 14 existing native adapter/lineage output cases",
+  "limits": "Existing tracker adapters use declared/stub fixtures, no real tracker/model/biological acceptance. No inferred links, distances, temporal algorithm, table or saved data changes. Exact first sentinel selection retained.",
+  "closure": "Nine reviewed translations/exact owner extractor/normal writer/full-nine audit/arrival and nine actual localized callbacks pending."
+}
