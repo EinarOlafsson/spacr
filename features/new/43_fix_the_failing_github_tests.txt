@@ -3921,3 +3921,16 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     cohort repetition or code mutation. Disposable local synthetic wheels only;
     no hostedPython3.9/nativeplatform/fullCI/release acceptance is inferred.
     Evidence:data/43_runtime_fixture_consumers_2026-10-15/.
+
+2026-10-15 — Additional current-source CI contract repairs ready/published normally.
+Three callable/documentation failures reproduce3FAIL58.69s and pass3PASS54.21s
+after restoring three missing private docstrings and validating exact named
+source/signature arrivals. All historical counts, parameter sums, digests and
+original assertions remain; no source/tool eligibility relaxation. Two shortcut
+failures reproduce2FAIL44.40s and pass2PASS36.35s using the already-published
+Annotate page/focus labels and current shortcut prose. Production keyboard
+bindings and all ordering/scope/semantic checks remain. Evidence:
+data/ci_callable_documentation_contracts_2026-10-15/ and
+data/ci_shortcut_current_contracts_2026-10-15/. These are targeted source-bound
+repairs, not a whole hosted-CI pass. Final full CI remains deferred by the
+maintainer until remaining implementation work is finished.

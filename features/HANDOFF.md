@@ -7,7 +7,10 @@ remaining-time estimates in hours. Reprint the complete grouped table only
 when every remaining task for a whole item is finished. Component fixes,
 translation batches and test repairs must not be counted as separate finished
 items. Earlier182 component scopes remain evidence, not182 completed features.
-The current grouped tracker is in scratch/original-home-grouped-progress-20261015.json.
+The repo-readable current grouped tracker is
+`features/data/home_grouped_progress_2026-10-15/PROGRESS.txt`
+(with status.json alongside it). Please report changes through this handoff
+and the individual item files; the scratch copy is only a local convenience.
 Continue implementation, targeted checks and immediate nightly publication;
 this changes reporting, not ownership or the release/final-CI sequencing.
 ## 2026-10-15 — Work → Home: N689 exact URL-owner patch unavailable on workstation
