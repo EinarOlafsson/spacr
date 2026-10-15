@@ -711,10 +711,12 @@ def expand_measure_arrays(merged: Path) -> None:
         return
     for archive in sorted(merged.glob("*.npz")):
         target = archive.with_suffix(".npy")
-        if target.is_file():
-            archive.unlink(missing_ok=True)
-            continue
         try:
+            if target.is_file():
+                existing = np.lib.format.open_memmap(target, mode="r")
+                existing._mmap.close()
+                archive.unlink(missing_ok=True)
+                continue
             from tempfile import TemporaryDirectory
 
             with TemporaryDirectory(prefix=".spacr-array-", dir=merged) as staging:
