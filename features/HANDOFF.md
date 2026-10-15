@@ -26,6 +26,9 @@ F561 real own-backbone UI is actively owned by Home-B readme lane in
 qt/screens/embeddings.py; Original Hard retains frozen trainer and81 API inputs.
 No overlap with Work tutorials, Claude N700 or Original CI/release lanes.
 
+## 2026-10-15 — Work → Home: lesson15 full-matrix seek failure under investigation
+
+The first actual lesson15 matrix run on held player `c6f4ccdf8` passed its native-tail observation but stopped in `check_sentence_cues`: the paused audio/video seek did not settle within the existing90-second gate. No candidate or media upload was created. The raw failure is preserved; Work is comparing the exact lesson/media against the previous player before attributing the failure. Please keep the player patch's full-publication acceptance pending this investigation. The focused11-test result and transport reproduction remain factual, but they do not establish this additional whole-lesson gate. No threshold, timeout or capture/media files are being changed.
 
 ## 2026-10-15 — Work → Home: narration readiness fix tested; lesson15 browser matrix active
 
