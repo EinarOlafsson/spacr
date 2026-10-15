@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "lesson": "04_platform_installers",
+  "reviewed_utc": "2026-10-15T20:04:43.676907+00:00",
+  "scope": "Paired source delivery only; no actual matrix or publication acceptance.",
+  "capture_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "playback_source_commit": "253f5814bc2add67d01032948271b8aa1b06aa00",
+  "source_preimage": "50da1bd9bfd59f9042019a1e20b602fcfae86c24",
+  "manifests": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source-manifest.json",
+      "bytes": 7803,
+      "sha256": "42fd04a26420ba664acf9dc09131689471936def14354a71bcd97b8e5b7b8624"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/source-manifest.json",
+      "bytes": 7567,
+      "sha256": "51c59b83349ac0f133fa01b80e9c32ed8643cc8e459b25dea9fe35c674962a3e"
+    }
+  ],
+  "patches": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/0001-selective04-mixed-visual-retention.patch",
+      "bytes": 52430,
+      "sha256": "699e421da1a9d6e3496d9b09b2ad650f9d72977d84d8d932eeab62442f27d2fb",
+      "literal_format": "git format-patch --full-index --no-signature -1 --stdout K4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/0001-selective04-static-playback-clock-followup.patch",
+      "bytes": 6196,
+      "sha256": "341752e42823b15d0a13eae48e34ba04a02affe7e1e403a790f3c8b4496aebfd",
+      "literal_format": "git format-patch -1 --stdout K5"
+    }
+  ],
+  "closed_directories": [
+    {
+      "root": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff",
+      "listed_files": 12,
+      "total_files": 13,
+      "bytes": 285003
+    },
+    {
+      "root": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup",
+      "listed_files": 8,
+      "total_files": 9,
+      "bytes": 133710
+    }
+  ],
+  "owning_evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/evidence/owning-tests.json",
+      "bytes": 5175,
+      "sha256": "2a7b9774f5ceb6734a9fa5292ff949cf848c2dae988b22fc4b91656c8afec652"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/evidence/owning-tests.json",
+      "bytes": 4787,
+      "sha256": "c828f383388620e6ace4825f3b09631a15adf7e4dc1b545613f9742448d4fe33"
+    }
+  ],
+  "source_peers": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/evidence/independent-source-peer.json",
+      "bytes": 9278,
+      "sha256": "6397c337f155dd6df50107fa5c963dcc0f14c3a21ad303836c59f54b073fe1cd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/evidence/independent-source-peer.json",
+      "bytes": 4384,
+      "sha256": "cd9b0bbe1bb615f085551edbc9ea6e3d413923585ede4ab2034998f5f066609c"
+    }
+  ],
+  "native_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-native-home-visual-acceptance.json",
+    "bytes": 5887,
+    "sha256": "87019dda438fba31de602c23b811e840a7c9ffb0d1042b8d7a1aca14b3a40f25"
+  },
+  "capture_inventory": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/exact-source.json",
+    "bytes": 54675,
+    "sha256": "fd85b55c7a225b5f07c48cfc53a8ddab802d63ed8f0a8b6d37cff71669a26670"
+  },
+  "checks": {
+    "two_successive_direct_child_commits": true,
+    "literal_git_format_patches_exact": true,
+    "closed_handoff_trees_without_symlinks": true,
+    "all_raw_sources_match_actual_commits": true,
+    "original_K4_handoff_preserved": true,
+    "exact_K5_two_file_followup": true,
+    "application_tree_unchanged": true,
+    "canonical_and13reviews_unchanged": true,
+    "all502_capture_source_hashes_current_and_followup_paths_excluded": true,
+    "capture_native_source_not_restamped": true,
+    "final_owning_count225_not_sum449": true
+  },
+  "test_counts": {
+    "K4_historical_owning": 224,
+    "K5_final_owning": 225,
+    "final_count": 225,
+    "cohorts_not_added": true
+  },
+  "claims": {
+    "source_delivery_verified": true,
+    "actual_matrix_accepted": false,
+    "publication_completed": false,
+    "whole_fresh_capture": false,
+    "human_listening": false,
+    "native_speaker_acceptance": false
+  },
+  "limits": [
+    "Existing actual851-frame Home approval only distinguishes capturedK4 from final playbackK5; this peer grants no new native/media acceptance.",
+    "No git apply, source edits, tests, browser, decoder, network, rendering, capture or publication executed."
+  ],
+  "resource_cap": "1G CPU-only PID-owned ledger leases; removed on exit"
+}

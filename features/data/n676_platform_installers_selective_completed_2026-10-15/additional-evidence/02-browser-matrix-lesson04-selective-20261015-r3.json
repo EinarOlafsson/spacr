@@ -1,0 +1,440 @@
+[
+  {
+    "run": "04_platform_installers-cues-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 18.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-cues-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-en-af_heart-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.3,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-es-ef_dora-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-es-ef_dora-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-fr-ff_siwis-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-fr-ff_siwis-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-hi-hf_alpha-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-hi-hf_alpha-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-it-if_sara-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-it-if_sara-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-pt-BR-pf_dora-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-pt-BR-pf_dora-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-ja-jf_alpha-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-ja-jf_alpha-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-zh-CN-zf_xiaobei-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-zh-CN-zf_xiaobei-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-en-af_heart-captions-da-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-da-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-en-af_heart-captions-de-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-de-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-en-af_heart-captions-is-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-is-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-en-af_heart-captions-ko-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-ko-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-en-af_heart-captions-nb-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-nb-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-master-en-af_heart-captions-sv-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-sv-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_heart-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_aoede-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_aoede-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_bella-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.3,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_bella-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_jessica-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_jessica-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_river-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_river-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_sarah-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_sarah-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_sky-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_sky-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_adam-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_adam-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_echo-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_echo-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_eric-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_eric-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_fenrir-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_fenrir-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_liam-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_liam-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_michael-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_michael-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_onyx-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_onyx-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_puck-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_puck-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-am_santa-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_santa-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bf_alice-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.3,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_alice-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bf_emma-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_emma-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bf_isabella-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_isabella-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bf_lily-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_lily-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bm_daniel-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_daniel-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bm_fable-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.3,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_fable-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bm_george-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_george-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-bm_lewis-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_lewis-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-es-ef_dora-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-es-ef_dora-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-es-em_alex-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-es-em_alex-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-es-em_santa-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-es-em_santa-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-fr-ff_siwis-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-fr-ff_siwis-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-hi-hf_alpha-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hf_alpha-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-hi-hf_beta-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hf_beta-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-hi-hm_omega-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 5.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hm_omega-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-hi-hm_psi-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 5.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hm_psi-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-it-if_sara-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-it-if_sara-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-it-im_nicola-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-it-im_nicola-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-pt-BR-pf_dora-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-pt-BR-pf_dora-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-pt-BR-pm_alex-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-pt-BR-pm_alex-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-pt-BR-pm_santa-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-pt-BR-pm_santa-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-ja-jf_alpha-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_alpha-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-ja-jf_gongitsune-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_gongitsune-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-ja-jf_nezumi-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_nezumi-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-ja-jf_tebukuro-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_tebukuro-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-ja-jm_kumo-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jm_kumo-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zf_xiaobei-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaobei-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zf_xiaoni-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaoni-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zf_xiaoxiao-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaoxiao-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zf_xiaoyi-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaoyi-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zm_yunjian-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunjian-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zm_yunxi-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunxi-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zm_yunxia-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunxia-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-zh-CN-zm_yunyang-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunyang-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_heart-captions-da-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-da-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_heart-captions-de-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-de-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_heart-captions-is-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-is-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_heart-captions-ko-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-ko-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_heart-captions-nb-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-nb-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-web-en-af_heart-captions-sv-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 4.5,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-sv-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-preserve-interval-boundary-eof-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 29.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-preserve-interval-boundary-eof-lesson04-selective-20261015-r3.log"
+  },
+  {
+    "run": "04_platform_installers-completed-matrix-lesson04-selective-20261015-r3",
+    "returncode": 0,
+    "seconds": 0.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-completed-matrix-lesson04-selective-20261015-r3.log"
+  }
+]

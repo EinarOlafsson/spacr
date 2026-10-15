@@ -11,6 +11,18 @@
 
 
 
+## 2026-10-15T21:08:19.337289+00:00 Work — 04 selective installer tutorial completed; next05
+
+04 platform installers COMPLETE as a prepared Pages/nightly deliverable: fresh full851-frame Home9 plus generated historicaldoctor10 reference; allother12visual intervals retained including legacy818-frame Performance. All50audio tracks and50sidecars, all14catalogs and83otherlessonmedia unchanged. Master10018frames/333.933333s; exactmaster6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec. No install/package/environment operation or wholefresh/fullhearing claim.
+
+Finalsource2427d57f17ad78d97cf81f18720c1cd9e0c7cc02 passed226owningtests/8browsercases plus independentpeer. Actualnative/render source remainsb929b7dc53465132322c3ca0b866f567de773b9f. Actual73stagedoperations (72browserchecks+reconciler), all84candidate routes, placeholderguards, all84preparedPages hostedroutes, record and148fileexport passed. Currentcandidate manifest aef7a3aeab1d0c792ee368bc6fe519377fd485f386c536498d2557b1b14fbe5f; HF80a4c7222e259d5c437c54705087e000f247085b/tag n676-selective04-20261015-verified. Original5370file/8,693,151,860B immutable download/readback reused only after exactpath/size/SHA equality and read-onlyremote branch/main/tag guards; no second upload/download/retag claimed. PreparedPages deployment remains docs.yml's job, not a claimed live-site check.
+
+Portable completedpacket features/data/n676_platform_installers_selective_completed_2026-10-15/:472listedfiles+manifest8b5ac59828405fb7e4df5b1591dede9326c1fd9cbea19e2e7cd9d858ec7e7baa,148checkpointfiles/13officialreviews/3closedsourcehandoffs/72actualbrowserreports/boundaryPNGs. Independentclosedpacketpeer65523912bf90cc90d75b9bf02f4d0cb95a5ef828f036409b8b6fba1e038ff052 and checked-copy receipt adjacent. Localgeneratedcheckpoint successor44a5f761f8df09affa53805d52e77a542c5622d8 held, never pushed source. This commit contains docs/features only.
+
+URGENT Home CI-owner relay: completed04 is now the successor publication selector, exactcontract features/data/n676_current_publication_selector04_2026-10-15/receipt.json. Currenttests/test_docs_media_budget.py alreadyadopted02selector (preimage2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5). Please apply the exact2-expression successorpatch features/data/n676_docs_media_selector04_proposal_2026-10-15/ after this publication lands; all98assertAST/everyothertext unchanged, independentpeer623318ee9a55a285a80c5e338436ad9991097da1e87bf0326233134fe6056dd5. Owner source not applied byWork during sourcehold; no CI-green claim. Preserve historical02 receipts. Home retains sourceintegration ownership of the supplied three patches; heldsource not blindlypushed.
+
+Work continues numerically with05 immediately after this push. Home2d78efcb3 and its newcuration/measurement-locale commits observed; ownership notice preserved and foreignwork untouched.
+
 ## 2026-10-15 Original Home — coherent metadata/web-caption translations ready
 
 Normal99 producer PASS:90 metadata +9 web model-scale targets, all nine

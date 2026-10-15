@@ -1,0 +1,7 @@
+commit b929b7dc53465132322c3ca0b866f567de773b9f
+Author:     Einar Olafsson <einar.olafsson@gmail.com>
+AuthorDate: Thu Oct 15 13:53:17 2026 -0400
+Commit:     Einar Olafsson <einar.olafsson@gmail.com>
+CommitDate: Thu Oct 15 13:53:17 2026 -0400
+
+    Preserve complete Home footage in selective installer tutorial repair

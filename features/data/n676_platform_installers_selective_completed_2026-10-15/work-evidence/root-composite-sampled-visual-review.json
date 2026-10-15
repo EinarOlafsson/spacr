@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "status": "sampled_visual_review_pass",
+  "reviewed_utc": "2026-10-15T19:52:49.819734+00:00",
+  "render_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/04_platform_installers_silent.mp4",
+    "bytes": 71636267,
+    "sha256": "6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/native-live-timings.json",
+    "bytes": 26070,
+    "sha256": "0e18fb14eb75bf67c34cca9c329d732e648a331ded362c9a446ee0f40ce0c2b6"
+  },
+  "owning_video_qa": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/current-video-acceptance.json",
+    "bytes": 4086,
+    "sha256": "7741e03fe907c645443adca4c74f8278c5c7bd0bdb245c422bb4a766e46d65da"
+  },
+  "sampling_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/sampling-receipt.json",
+    "bytes": 4618,
+    "sha256": "f89cc383b65eda6dbe7d44f9a00bbebf0b79fb174c62cf49b8d8a14dcbc3258c"
+  },
+  "native_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-native-home-visual-acceptance.json",
+    "bytes": 5887,
+    "sha256": "87019dda438fba31de602c23b811e840a7c9ffb0d1042b8d7a1aca14b3a40f25"
+  },
+  "actual_viewed_frames": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05110.png",
+      "bytes": 4226477,
+      "sha256": "a7602482846e313b063c03cb30ec465a153b4fcc61b418d7dbc351095817ecd5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05111.png",
+      "bytes": 3890034,
+      "sha256": "08ecbc1a21545b956ec2505dcdb45cc5765dcd90bbb02334fa965d2ec2de8308"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05961.png",
+      "bytes": 4546557,
+      "sha256": "637eb458b7301663b463d2fbf0052710679dbffdb380edbe2aa31066bd4e20e1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05962.png",
+      "bytes": 441872,
+      "sha256": "f0bd61c9ca874ce700bc8cae26495ad20a34e4004bf47a75ba948e8f52edde4e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-06400.png",
+      "bytes": 443617,
+      "sha256": "d3c93b6d53d452c85d9cb2d8291706984abd61241850e571558aad05f5e8b45a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-06840.png",
+      "bytes": 443768,
+      "sha256": "e99b490ae50fd4e227dcd0b4e8c265dc06d9b91d32863a90673791f94a86f3c7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-06841.png",
+      "bytes": 443969,
+      "sha256": "2abe7c113e3fbe116ff5de05d6279abae643623d79ff64fe782a546ca0ac5ff5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-10017.png",
+      "bytes": 369651,
+      "sha256": "6233bc2c51620dfea9b0820fde0f36ab7469c00c55c1127cec5883fd1b9eb9f4"
+    }
+  ],
+  "findings": [
+    "Scene8 retained Performance ends at5110; fresh Home starts5111 and ends5961, all851frames at1x.",
+    "Generateddoctorreference starts5962 and ends6840, all879frames; readable completecommand/result with explicit reference/no newrun labelling and no Spaceout.",
+    "Retained following logs/reference scene begins6841; final10017 shows intactLinuxremoval reference.",
+    "All eight sampled frames show expected scene boundaries and readable text; no blank replacement boundary, alpha, privacy notice or unrelated desktop observed."
+  ],
+  "limits": [
+    "Exact boundary and midpoint sampling only, not fullwatch or humanhearing.",
+    "Accepts encodedvisuals only. Initial actualbrowserclock check found static mapping defect; correctedplayer tests/rerun/publication remain pending and are not accepted by this visual receipt.",
+    "Other12sections retained; legacy818framePerformance is not a complete fresh nativeclip."
+  ]
+}

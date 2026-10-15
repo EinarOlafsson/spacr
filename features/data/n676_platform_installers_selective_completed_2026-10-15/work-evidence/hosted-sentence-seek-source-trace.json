@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "status": "source_review_complete_cause_unproven_await_actual_diagnostics",
+  "lesson": "04_platform_installers",
+  "reviewed_utc": "2026-10-15T20:30:36.895120+00:00",
+  "source_commit": "253f5814bc2add67d01032948271b8aa1b06aa00",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 103117,
+      "sha256": "026441d007817bb7c67c2b8cef6d8e8429e8af1ad991b9641a9ecc08abe8f6c8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_release_candidate.py",
+      "bytes": 32024,
+      "sha256": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/index.html",
+      "bytes": 15935,
+      "sha256": "18333888969391fa3c1980323d9ed841e77ee9f196a975c6006bca45be06f038"
+    }
+  ],
+  "sealed_failed_verify_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-verify-pages.log",
+    "bytes": 3387,
+    "sha256": "230fa5fe0bcf45ad52bf9138439e1a7be30d3edd3e64d2a567c99b0ea956a925"
+  },
+  "observed_failure": "Owning check_sentence_cues line58 did not reach !video.seeking && !audio.seeking && video.readyState>=2 within unchanged90000ms. No per-media failure state exists in this sealed log.",
+  "source_facts": [
+    {
+      "path": "tools/tutorials/verify_release_candidate.py",
+      "lines": [
+        55,
+        59
+      ],
+      "fact": "Verifier waits for settled correction, seeks requested sentence midpoint, immediately pauses video, then waits for both seeks and one decoded video frame."
+    },
+    {
+      "path": "tools/tutorials/authoring/web/app_v2.js",
+      "lines": [
+        1560,
+        1587
+      ],
+      "fact": "seekTo may set one explicit video target; preserve mode syncVideoToNarration delegates to audio synchronization and does not repeatedly correct video toward audio."
+    },
+    {
+      "path": "tools/tutorials/authoring/web/app_v2.js",
+      "lines": [
+        2181,
+        2202
+      ],
+      "fact": "Video seeked clears correction pending and reconciles audio to the actual visual position."
+    },
+    {
+      "path": "tools/tutorials/authoring/web/app_v2.js",
+      "lines": [
+        2159,
+        2179
+      ],
+      "fact": "Ordinary video pause clears resume/hold flags and pauses audio; prior pending programmatic pause events have separate guards."
+    },
+    {
+      "path": "docs/source/_extra/tutorials/index.html",
+      "lines": [
+        142,
+        148
+      ],
+      "fact": "Video and audio use preload=metadata, so a distant uncached paused seek may require actual new range transport and frame decode."
+    }
+  ],
+  "unproven_possibilities": [
+    "Remote range delay/throttle/failure; full prior SHA readback proves bytes at revision, not instantaneous browser range availability.",
+    "Audio changed-scene sync(false) can initially select scene start before video seeked sync(true) restores midpoint; no observed repeated seek loop or deadlock is established by source alone.",
+    "Hold/resume state can explain paused playback but by itself does not explain unresolved seek/readyState predicate."
+  ],
+  "minimal_diagnostic_comparison": [
+    "Exact sentence index/requested audio midpoint/projected visual target versus current clocks.",
+    "For each media: seeking,readyState,networkState,error,paused,currentSrc,buffered+seekable ranges.",
+    "Correction/hold/load/complete-scene/waiting flags and recent seeking/seeked/waiting/stalled/canplay/progress events.",
+    "Outstanding relevant audio/video Range request,206/429/403/5xx status,Content-Range and requestfinished/requestfailed; expected canceled prior ranges must not be treated automatically as root cause."
+  ],
+  "next_action": "Wait for root unchanged strict diagnostic. If it passes, preserve original failure and report non-reproduction without a source fix. If it fails, use actual state/request evidence to choose the smallest causal next check; no threshold/timeout changes.",
+  "claims": {
+    "root_cause_proven": false,
+    "player_bug_proven": false,
+    "HF_throttle_proven": false,
+    "source_changed": false,
+    "diagnostic_browser_run_by_this_peer": false,
+    "Pages84_accepted": false
+  },
+  "resource_cap": "1G source-only CPU ledger lease; removed on exit"
+}

@@ -1,0 +1,29 @@
+{
+  "app_exit_code": 0,
+  "recorder_rc": 0,
+  "failure": null,
+  "clips": {
+    "13_current_nightly_home": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.51,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 61.93,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        7
+      ],
+      "loadavg": [
+        4.2685546875,
+        6.47900390625
+      ],
+      "file": "13_current_nightly_home.gate.json"
+    }
+  },
+  "gate_failed": []
+}

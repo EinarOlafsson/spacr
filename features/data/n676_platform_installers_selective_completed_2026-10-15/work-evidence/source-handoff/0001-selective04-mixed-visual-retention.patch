@@ -1,0 +1,724 @@
+From b929b7dc53465132322c3ca0b866f567de773b9f Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 13:53:17 -0400
+Subject: [PATCH] Preserve complete Home footage in selective installer
+ tutorial repair
+
+---
+ tools/tutorials/authoring/web/app_v2.js       |   3 +-
+ .../render_installation_route_cards.py        |   5 +
+ tools/tutorials/retained_visual_refresh.py    | 317 ++++++++++++++++++
+ .../test_player_preserve_visual_intervals.py  |  46 +++
+ .../test_retained_mixed_visual_refresh.py     | 225 +++++++++++++
+ tools/tutorials/verify_staged_lesson.py       |  20 +-
+ 6 files changed, 609 insertions(+), 7 deletions(-)
+ create mode 100644 tools/tutorials/tests/test_player_preserve_visual_intervals.py
+ create mode 100644 tools/tutorials/tests/test_retained_mixed_visual_refresh.py
+
+diff --git a/tools/tutorials/authoring/web/app_v2.js b/tools/tutorials/authoring/web/app_v2.js
+index e155bc99a52be05abd253974d4534c33909f5902..9f35e6a4744d4355d22d8308f221406e46e912b3 100644
+--- a/tools/tutorials/authoring/web/app_v2.js
++++ b/tools/tutorials/authoring/web/app_v2.js
+@@ -1217,7 +1217,8 @@ function configureMediaSync() {
+ }
+ 
+ function completeNativePlayback() {
+-  return visualTimings?.complete_native_clips === true &&
++  return (visualTimings?.complete_native_clips === true ||
++    visualTimings?.preserve_visual_intervals === true) &&
+     visualTimings?.native_live_video === true;
+ }
+ 
+diff --git a/tools/tutorials/render_installation_route_cards.py b/tools/tutorials/render_installation_route_cards.py
+index 59055a0f6995fb24406094cad04f976fe460eba6..5da380079444335fc098b37bab4dd5202faf2f1f 100644
+--- a/tools/tutorials/render_installation_route_cards.py
++++ b/tools/tutorials/render_installation_route_cards.py
+@@ -45,6 +45,11 @@ def cards():
+             ('Activate the environment you created', 'conda activate spacr-pip'),
+             ('Check the active Python environment path', 'python -c "import sys; print(sys.prefix)"')],
+          'Choose an unused environment name. Conda supplies Python; pip supplies spaCR in the next step.'),
++        ('05_doctor', 'spaCR Doctor: generated command reference', [
++            ('Run from the installed spaCR environment', 'spacr-doctor --no-gpu-probe'),
++            ('Summary of the recorded CPU installation', '13 passed | 1 warning | 0 failed | 0 errored | 4 skipped'),
++            ('Recorded backend and optional file-format reader', 'CPU passed | GPU probe skipped | Optional CZI reader missing')],
++         'Recorded spaCR 1.5.1.3 CPU installation; no new run. Install the CZI extra only if needed.'),
+         ('conda_01_create', 'Install from conda-forge in a new Conda environment', [
+             ('Solve Python and spaCR together', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr'),
+             ('Use a different name if this environment already exists', 'Review Conda’s package plan before accepting it')],
+diff --git a/tools/tutorials/retained_visual_refresh.py b/tools/tutorials/retained_visual_refresh.py
+index 71a985eeb0e1593f21558b4abe2d211d70eaa7cd..1818ffc5c9265ff561e8f6e61bd43eb9887eec2a 100644
+--- a/tools/tutorials/retained_visual_refresh.py
++++ b/tools/tutorials/retained_visual_refresh.py
+@@ -7,6 +7,8 @@ from __future__ import annotations
+ 
+ from copy import deepcopy
+ from pathlib import Path
++import math
++import re
+ import struct
+ 
+ from audit_staged_catalogs import CATALOGS
+@@ -54,6 +56,8 @@ def checked_retained_visual_timing(stage, identity, baseline):
+     from build_appended_candidate import require_baseline_receipt
+ 
+     stage, baseline = Path(stage).resolve(), Path(baseline).resolve()
++    if read(stage / 'production' / identity / 'retained-visual-refresh.json').get('schema') == 2:
++        return _checked_mixed_refresh(stage, identity, baseline)
+     root = stage / 'production' / identity
+     receipt_path = root / 'retained-visual-refresh.json'
+     receipt = read(receipt_path)
+@@ -183,3 +187,316 @@ def checked_retained_visual_timing(stage, identity, baseline):
+     if read(timing_path) != retained_timing(timing, digest(spec_path), digest(receipt_path), digest(manifest_path)):
+         raise ValueError('Retained visual timing changed outside its explicit refresh binding')
+     return timing_path
++
++
++def mixed_overlay_command(master, home, card, output, native_frames):
++    """Replace old Home/doctor intervals while preserving every new native frame."""
++    if type(native_frames) is not int or native_frames < 840:
++        raise ValueError('Home needs at least its original narration coverage')
++    graph = ("[0:v]split=2[before][after];"
++             "[before]trim=start_frame=0:end_frame=5111,setpts=PTS-STARTPTS[prefix];"
++             "[1:v]setpts=PTS-STARTPTS[home];"
++             "[2:v]trim=start_frame=0:end_frame=879,setpts=PTS-STARTPTS[doctor];"
++             "[after]trim=start_frame=6830:end_frame=10007,setpts=PTS-STARTPTS[tail];"
++             "[prefix][home][doctor][tail]concat=n=4:v=1:a=0,format=yuv420p[v]")
++    return ['ffmpeg', '-nostdin', '-v', 'warning', '-y', '-progress', 'pipe:1', '-nostats',
++            '-threads', '4', '-i', str(Path(master).resolve()), '-threads', '4',
++            '-i', str(Path(home).resolve()), '-loop', '1', '-framerate', '30',
++            '-i', str(Path(card).resolve()), '-filter_complex_threads', '1',
++            '-filter_complex', graph, '-map', '[v]', '-an', '-c:v', 'libx264',
++            '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', '30',
++            '-frames:v', str(9167 + native_frames), '-threads', '4', str(Path(output).resolve())]
++
++
++def mixed_retained_timing(original, spec_hash, receipt_hash, manifest_hash, video_hash, receipt_video_hash,
++                          native_frames):
++    if type(native_frames) is not int or native_frames < 840:
++        raise ValueError('Home needs at least its original narration coverage')
++    result = retained_timing(original, spec_hash, receipt_hash, manifest_hash)
++    result['preserve_visual_intervals'] = True
++    delta = (native_frames - 840) / 30
++    result['scenes'][8]['duration'] = native_frames / 30
++    for index, scene in enumerate(result['scenes']):
++        if index >= 8:
++            scene['speech_end'] += delta
++            scene['scene_end'] += delta
++        if index >= 9:
++            scene['speech_start'] += delta
++    result['total_duration'] += delta
++    matches = [row for row in result['native_clip_sources'] if row['scene'] == 9]
++    if len(matches) != 1:
++        raise ValueError('Expected one inherited Home source entry')
++    matches[0].update(clip_sha256=video_hash, receipt_sha256=receipt_video_hash)
++    return result
++
++
++def _same_bytes(record, path):
++    require_binding(record)
++    current = binding(path)
++    if any(record[key] != current[key] for key in ('bytes', 'sha256')):
++        raise ValueError('Approved visual bytes differ from staged source')
++
++
++def _checked_home(replacement, image, clip, root):
++    from native_live_timing import complete_native_duration
++    native = replacement['native']
++    source = Path(native['capture_root']).resolve()
++    stage = source.parent.parent
++    name = '13_current_nightly_home'
++    if source.name != 'home' or source.parent.name != 'captures':
++        raise ValueError('Expected the actual Home capture directory')
++    locations = dict(video=source / (name + '.mp4'), native_video=source / (name + '.native.mp4'),
++        receipt=source / (name + '.capture.json'), gate=source / (name + '.gate.json'),
++        facts=source / (name + '.host.json'), pointer=source / (name + '.pointer.json'),
++        poster=source / (name + '.png'), frames_manifest=source / 'frames.json',
++        provenance=source / 'provenance.json', host_run=stage / 'host-run.json',
++        cleanup=stage / 'gnome-host/cleanup.json', profile=stage / 'capture-profile.json',
++        exact_source=stage / 'exact-source.json')
++    paths = {key: require_binding(native[key], path) for key, path in locations.items()}
++    evidence = {key: read(paths[key]) for key in ('receipt', 'gate', 'facts', 'frames_manifest',
++        'provenance', 'host_run', 'cleanup', 'profile', 'exact_source')}
++    receipt, gate = evidence['receipt'], evidence['gate']
++    frames = replacement['frame_count']
++    if type(frames) is not int or frames < 840:
++        raise ValueError('Home needs complete native frames covering its narration')
++    frame = evidence['frames_manifest'].get(name, {})
++    source_clip = frame.get('clip', {})
++    commit = native['source_commit']
++    exact, provenance = evidence['exact_source'], evidence['provenance']
++    if (not re.fullmatch('[0-9a-f]{40}', commit)
++            or exact.get('commit') != commit or provenance.get('commit') != commit
++            or exact.get('fresh') is not True or exact.get('private_profile') is not True
++            or provenance.get('completed_capture') is not True
++            or provenance.get('app_source_modified') is not False
++            or provenance.get('module') != 'home' or provenance.get('selected_scenes') != name):
++        raise ValueError('Home capture is not fresh and bound to its actual source')
++    inventory = exact.get('sha256', {})
++    if not inventory:
++        raise ValueError('Missing Home app/recorder source inventory')
++    for relative, checksum in inventory.items():
++        path = Path(relative)
++        if (path.is_absolute() or '..' in path.parts or path.as_posix() != relative
++                or digest(REPO / path) != checksum):
++            raise ValueError('Home app/recorder source inventory changed')
++    if (replacement['new_video_sha256'] != native['video']['sha256']
++            or replacement['new_receipt_sha256'] != native['receipt']['sha256']
++            or source_clip.get('sha256') != native['video']['sha256']
++            or source_clip.get('native_sha256') != native['native_video']['sha256']
++            or source_clip.get('receipt_sha256') != native['receipt']['sha256']
++            or frame.get('sha256') != native['poster']['sha256']
++            or frame.get('image') != paths['poster'].name):
++        raise ValueError('Home manifest or native/handoff/poster identity differs')
++    _same_bytes(native['poster'], image)
++    for key, checksum in (('video', 'sha256'), ('receipt', 'receipt_sha256')):
++        if digest(root / clip[key]) != source_clip.get(checksum):
++            raise ValueError('Staged Home video or receipt differs from actual capture')
++    if (set(clip) != {'video', 'sha256', 'receipt', 'receipt_sha256', 'duration'}
++            or clip.get('duration') != frames / 30 or clip.get('sha256') != native['video']['sha256']
++            or clip.get('receipt_sha256') != native['receipt']['sha256']
++            or receipt.get('video') != paths['video'].name
++            or receipt.get('sha256') != native['video']['sha256']
++            or receipt.get('size') != [3840, 2160] or receipt.get('full_decode_passed') is not True
++            or receipt.get('audio_streams') != 0 or receipt.get('target_fps') != 30
++            or complete_native_duration(receipt, 30) != frames / 30
++            or len(receipt['frames']) != frames
++            or receipt.get('native', {}).get('sha256') != native['native_video']['sha256']
++            or receipt['native'].get('video') != paths['native_video'].name
++            or receipt['native'].get('size') != gate.get('size')
++            or gate.get('size') not in ([2560, 1440], [3840, 2160])
++            or gate.get('frames') != frames or not math.isclose(float(gate.get('fps', 0)), 30)
++            or not math.isclose(float(gate.get('duration_s', 0)), frames / 30, abs_tol=.002)):
++        raise ValueError('Home must preserve all actual frames at 30 fps and 1x')
++    host = evidence['host_run']
++    row = host.get('clips', {}).get(name, {})
++    for verdict in (gate, row, source_clip.get('gate', {}), receipt.get('gate', {})):
++        if verdict.get('passed') is not True or verdict.get('reasons') != []:
++            raise ValueError('Home requires an unchanged strict gate pass')
++    if (host.get('app_exit_code') != 0 or host.get('recorder_rc') != 0
++            or host.get('failure') is not None or host.get('gate_failed') != []
++            or evidence['cleanup'].get('exit_code') != 0
++            or evidence['cleanup'].get('survivors_after_cleanup') != []
++            or Path(gate.get('video', '')).name != paths['native_video'].name
++            or row.get('file') != paths['gate'].name
++            or float(gate['limits']['min_fps']) < 27.9 or float(gate['distinct_fps']) < 27.9
++            or row.get('distinct_fps') != gate['distinct_fps']):
++        raise ValueError('Home host, cleanup or strict smoothness evidence failed')
++    for field in ('app_freeze_seconds', 'app_slow_seconds', 'app_unknown_seconds',
++                  'app_gui_sampler_gaps_s', 'app_stall_windows_s', 'adapter_bypasses'):
++        if gate.get(field) != []:
++            raise ValueError('Home has missing or nonempty freeze/slow/unknown/gap/stall/bypass evidence')
++    if (evidence['facts'].get('adapter_bypasses') != []
++            or evidence['facts'].get('app_gui_sampler_gaps_s') != []
++            or receipt.get('adapter_bypasses') != []
++            or gate.get('cursor', {}).get('jump_count') != 0
++            or gate['cursor'].get('jumps') != [] or float(gate['cursor']['found_fraction']) < .9
++            or float(gate['cursor']['max_step_px']) > float(gate['cursor']['bound_px'])
++            or gate.get('top_bar', {}).get('hidden') is not True):
++        raise ValueError('Home pointer/GUI/top-bar evidence failed')
++    for key in ('show_alpha', 'show_alpha_features', 'show_alpha_species', 'spaceout',
++                'anonymous_reports_enabled', 'anonymous_report_notice_due'):
++        if evidence['profile'].get(key) is not False:
++            raise ValueError('Home private profile has a hidden-mode or notice mismatch')
++    approval = read(require_binding(replacement['native_visual_acceptance']))
++    if (approval.get('accepted') is not True or approval.get('source_commit') != commit
++            or approval.get('source_scene') != name or approval.get('actual_native_frames') != frames
++            or approval.get('requested_minimum_seconds') != 28):
++        raise ValueError('Missing actual Home visual acceptance')
++    for key in ('video', 'gate', 'host_run', 'provenance', 'profile', 'cleanup',
++                'frames_manifest', 'poster', 'exact_source'):
++        if approval.get(key) != native[key]:
++            raise ValueError('Home acceptance binds different actual evidence')
++    if approval.get('capture_receipt') != native['receipt']:
++        raise ValueError('Home acceptance binds a different capture receipt')
++    return dict(kind='current_nightly', capture=str(source), source_visual=name,
++        image_sha256=digest(image), installed_identity=None, capture_source_commit=commit,
++        capture_provenance=native['provenance'], representation='fresh_full_native_clip')
++
++
++def _checked_mixed_refresh(stage, identity, baseline):
++    from build_appended_candidate import require_baseline_receipt
++    root = stage / 'production' / identity
++    receipt_path = root / 'retained-visual-refresh.json'
++    receipt = read(receipt_path)
++    if (identity != '04_platform_installers' or receipt.get('schema') != 2
++            or receipt.get('kind') != 'retained_visual_refresh' or receipt.get('lesson') != identity
++            or Path(receipt['baseline_root']).resolve() != baseline):
++        raise ValueError('Schema2 is only the explicit two-scene installer refresh')
++    policy = read(require_binding(receipt['policy']))
++    if (policy.get('schema') != 1 or policy.get('kind') != 'retained_mixed_visual_refresh_policy'
++            or policy.get('lesson') != identity or policy.get('accepted') is not True
++            or policy.get('minimum_native_frames') != 840 or policy.get('fps') != 30
++            or any(policy.get(key) is not True for key in ('whole_native_required',
++                'other_scene_durations_preserved', 'audio_and_catalogs_retained'))
++            or policy.get('supersedes_sha256') != '48959f634aff43cbec64c1c3b416e0e97ad4a4ff711bda8537c41d2f3a004e42'):
++        raise ValueError('Missing the superseding full-native duration policy')
++    manifest_path = require_binding(receipt['baseline_manifest'], baseline / 'release-manifest.json')
++    publication = require_binding(receipt['publication_receipt'], baseline / 'publication-receipt.json')
++    manifest = read(manifest_path)
++    require_baseline_receipt(manifest, read(publication), digest(manifest_path))
++    records = {r['path']: r for r in manifest['files']}
++    if len(records) != len(manifest['files']):
++        raise ValueError('Duplicate published paths')
++    original = Path(receipt['original_root']).resolve()
++    old_spec_path = require_binding(receipt['original_spec'], original / 'scenes.json')
++    old_timing_path = require_binding(receipt['original_timing'])
++    old_master = require_binding(receipt['original_master'])
++    for path, name in ((old_timing_path, 'native-live-timings.json'), (old_master, identity + '_silent.mp4')):
++        record = records[f'media_host/{identity}/video/{name}']
++        if (digest(path), path.stat().st_size) != (record['sha256'], record['bytes']):
++            raise ValueError('Original mixed visual input differs from published bytes')
++    spec_path = require_binding(receipt['new_spec'], root / 'scenes.json')
++    master = require_binding(receipt['new_master'], root / 'video' / (identity + '_silent.mp4'))
++    old, spec, timing = read(old_spec_path), read(spec_path), read(old_timing_path)
++    if (old.get('lesson') != identity or timing.get('lesson') != identity
++            or timing.get('visual_spec_sha256') != digest(old_spec_path)
++            or timing.get('complete_native_clips') is True or 'retained_visual_refresh' in timing
++            or old.get('fps') != 30 or old.get('size') != [3840, 2160]
++            or len(old['scenes']) != 14 or len(timing['scenes']) != 14
++            or timing['fps'] != 30 or round(timing['total_duration'] * 30) != 10007):
++        raise ValueError('Mixed refresh must inherit the exact legacy installer timeline')
++    canonical = read(REPO / 'tools/tutorials/lessons' / (identity + '.json'))
++    if (read(root / 'lesson.en.json') != canonical
++            or [s['narration'] for s in old['scenes']] != [s['narration'] for s in canonical['scenes']]):
++        raise ValueError('Mixed refresh narration changed')
++    for name in CATALOGS:
++        if catalog_lesson(stage / 'catalog' / name, identity) != catalog_lesson(baseline / 'web/catalog' / name, identity):
++            raise ValueError('Mixed refresh catalog object changed')
++    prefix = f'media_host/{identity}/audio/'
++    audio = {path[len(prefix):]: row for path, row in records.items() if path.startswith(prefix)}
++    actual = {p.relative_to(root / 'audio').as_posix() for p in (root / 'audio').rglob('*') if p.is_file()}
++    if len(audio) != 100 or set(audio) != actual:
++        raise ValueError('Mixed refresh must preserve all 100 narration files')
++    for rel, row in audio.items():
++        for path in (root / 'audio' / rel, baseline / prefix / rel):
++            if (digest(path), path.stat().st_size) != (row['sha256'], row['bytes']):
++                raise ValueError('Mixed refresh narration bytes changed')
++    replacements = receipt.get('replacements', [])
++    if [r.get('scene') for r in replacements] != [9, 10]:
++        raise ValueError('Mixed refresh requires only scene9 Home and scene10 doctor')
++    expected = deepcopy(old)
++    home = card = None
++    native_frames = replacements[0].get('frame_count')
++    if type(native_frames) is not int or native_frames < 840:
++        raise ValueError('Home requires all actual native frames covering its old slot')
++    for replacement, number, kind, first, count, visual in zip(replacements, (9, 10),
++            ('strict_full_native_clip', 'generated_command_reference_not_terminal_output'),
++            (5111, 5111 + native_frames), (native_frames, 879), ('13_current_nightly_home', '05_doctor')):
++        index = number - 1
++        clock, old_scene, new_scene = timing['scenes'][index], old['scenes'][index], spec['scenes'][index]
++        if (replacement.get('kind') != kind or replacement.get('first_frame') != first
++                or replacement.get('frame_count') != count or clock['visual'] != visual
++                or round(clock['speech_start'] * 30) != (5111 if number == 9 else 5951)
++                or round(clock['duration'] * 30) != (840 if number == 9 else 879)
++                or replacement['original_origin'] != old['capture_source']['frame_origins'][visual]
++                or replacement['original_image_sha256'] != old_scene['capture_sha256']):
++            raise ValueError('Mixed replacement identity or clock changed')
++        image = (root / new_scene['image']).resolve()
++        if digest(image) != replacement['new_image_sha256'] or new_scene['capture_sha256'] != digest(image):
++            raise ValueError('Mixed replacement poster bytes changed')
++        with image.open('rb') as stream:
++            header = stream.read(24)
++        if header[:16] != b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR' or struct.unpack('>II', header[16:24]) != (3840, 2160):
++            raise ValueError('Mixed replacement requires a normal full4K source image')
++        expected['scenes'][index].update(image=new_scene['image'], capture_sha256=digest(image))
++        if number == 9:
++            if not old_scene.get('clip') or clock.get('native_live_video') is not True:
++                raise ValueError('The Home replacement must replace only its native interval')
++            new_origin = _checked_home(replacement, image, new_scene['clip'], root)
++            expected['scenes'][index]['clip'] = new_scene['clip']
++            home = root / new_scene['clip']['video']
++        else:
++            if old_scene.get('clip') or clock.get('native_live_video') is not False:
++                raise ValueError('Doctor must remain a generated non-native reference')
++            card = image
++            provenance = require_binding(replacement['new_origin']['generator_provenance'], image.parent / 'provenance.json')
++            generator, frames = read(provenance), read(image.parent / 'frames.json')
++            if (generator.get('author_source_sha256') != digest(REPO / 'tools/tutorials/render_installation_route_cards.py')
++                    or generator.get('style_source_sha256') != digest(REPO / 'tools/tutorials/authoring/tools/render_install_keyframes.py')
++                    or frames.get(visual) != dict(image=image.name, sha256=digest(image), buttons=[], kind=kind)):
++                raise ValueError('Doctor generated source provenance changed')
++            new_origin = dict(kind='reference_guidance', capture=str(image.parent), source_visual=visual,
++                image_sha256=digest(image), installed_identity=None, representation=kind,
++                generator_provenance=binding(provenance))
++            approval = read(require_binding(replacement['card_visual_acceptance']))
++            if (approval.get('accepted') is not True or approval.get('lesson') != identity
++                    or approval.get('scene') != 10 or approval.get('terminal_output_fabricated') is not False
++                    or approval.get('installation_or_environment_commands_executed') is not False):
++                raise ValueError('Missing actual doctor reference visual acceptance')
++            _same_bytes(approval['image'], image)
++            _same_bytes(approval['generator_provenance'], provenance)
++            history = read(require_binding(replacement['historical_doctor']))
++            rows = [r for r in history if r.get('scene') == '05_doctor']
++            if (len(rows) != 1 or rows[0].get('accepted') is not True or rows[0].get('returncode') != 0
++                    or rows[0].get('command') != ['spacr-doctor', '--no-gpu-probe']
++                    or '13 passed, 1 warnings, 0 failed, 0 errored, 4 skipped' not in rows[0].get('output', '')
++                    or 'czi: missing pylibCZIrw' not in rows[0]['output']
++                    or 'installer selected cpu; torch currently uses cpu' not in rows[0]['output']
++                    or 'no GPU probe was run' not in rows[0]['output']):
++                raise ValueError('Doctor reference is not bound to the actual recorded CPU result')
++        if replacement['new_origin'] != new_origin:
++            raise ValueError('Mixed replacement has an untruthful origin')
++        expected['capture_source']['frame_origins'][visual] = new_origin
++    expected['capture_source'].update(completed_capture=False, frame_pixels_modified=True)
++    if spec != expected:
++        raise ValueError('Mixed specification changed outside the two approved replacements')
++    for index, (old_scene, new_scene) in enumerate(zip(old['scenes'], spec['scenes'])):
++        if (digest(original / old_scene['image']) != old_scene['capture_sha256']
++                or digest(root / new_scene['image']) != new_scene['capture_sha256']):
++            raise ValueError('Mixed source image changed')
++        if old_scene.get('clip'):
++            for key, checksum in (('video', 'sha256'), ('receipt', 'receipt_sha256')):
++                if digest(original / old_scene['clip'][key]) != old_scene['clip'][checksum]:
++                    raise ValueError('Original native source changed')
++                if index != 8 and digest(root / new_scene['clip'][key]) != old_scene['clip'][checksum]:
++                    raise ValueError('Unselected legacy native source changed')
++    render = read(require_binding(receipt['render_log']))
++    log = require_binding(render['output_log'])
++    if (render.get('returncode') != 0 or not log.read_text().rstrip().endswith('Terminal exit status: 0')
++            or render.get('command') != mixed_overlay_command(old_master, home, card, master, native_frames)):
++        raise ValueError('Mixed render did not preserve the two exact source intervals')
++    expected_timing = mixed_retained_timing(timing, digest(spec_path), digest(receipt_path),
++        digest(manifest_path), replacements[0]['new_video_sha256'], replacements[0]['new_receipt_sha256'], native_frames)
++    timing_path = root / 'video/native-live-timings.json'
++    if read(timing_path) != expected_timing:
++        raise ValueError('Mixed timeline changed outside its spec, receipt and Home source bindings')
++    return timing_path
+diff --git a/tools/tutorials/tests/test_player_preserve_visual_intervals.py b/tools/tutorials/tests/test_player_preserve_visual_intervals.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..b297d35d0214e05cfc16fa7c7f6e75aec1e830e7
+--- /dev/null
++++ b/tools/tutorials/tests/test_player_preserve_visual_intervals.py
+@@ -0,0 +1,46 @@
++"""Retained visual intervals stay intact without asserting full raw-clip coverage."""
++import json
++
++from test_player_complete_native_clips import complete_fixture, open_player
++from test_player_holds_narration import served
++from verify_staged_lesson import check_native_boundary_playback
++
++
++def test_preserved_intervals_hold_audio_and_finish_selected_video_at_one_speed(served, tmp_path, monkeypatch):
++    from playwright.sync_api import sync_playwright
++    import test_player_holds_narration
++    monkeypatch.setattr(test_player_holds_narration, 'VIDEO_DELAY_SECONDS', 0)
++    url = complete_fixture(served, tmp_path)
++    visual_path = tmp_path / 'complete-native-visual.json'
++    visual = json.loads(visual_path.read_text())
++    del visual['complete_native_clips']
++    visual['preserve_visual_intervals'] = True
++    visual['scenes'][0]['native_live_video'] = False
++    visual['scenes'][-1]['native_live_video'] = False
++    visual_path.write_text(json.dumps(visual))
++    spoken = json.loads((tmp_path / 'complete-native-audio.json').read_text())
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        try:
++            page.wait_for_function('elements.video.buffered.length && elements.video.buffered.end(elements.video.buffered.length-1)>=11.99', timeout=30000)
++            assert page.evaluate('visualTimings.complete_native_clips === undefined')
++            result = check_native_boundary_playback(page, visual, spoken)
++            assert result['preserve_visual_intervals'] is True
++            assert result['complete_native_clips'] is False
++            assert result['actual_video_speed'] == 1
++            assert result['boundary']['recorded_tail_observed']
++            assert result['boundary']['next_narration_resumed']
++            assert result['boundary']['checked_boundary_after_scene'] == 2
++            assert result['final_tail']['final_visual_eof_observed']
++            assert result['final_tail']['final_native_eof_observed'] is False
++            assert page.evaluate('elements.video.currentTime') > 11.9
++            assert page.evaluate('elements.video.playbackRate === 1 && elements.audio.playbackRate === 1')
++            page.evaluate('visualTimings.native_live_video=false')
++            assert page.evaluate('completeNativePlayback()') is False
++        finally:
++            browser.close()
++
++
++def test_absent_preservation_flag_keeps_legacy_narration_owned_boundary_skip(served, tmp_path):
++    from test_player_native_live_video import test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries
++    test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries(served, tmp_path)
+diff --git a/tools/tutorials/tests/test_retained_mixed_visual_refresh.py b/tools/tutorials/tests/test_retained_mixed_visual_refresh.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..f4895ed89a6647bd2a9fb7ec78c9b76125274d8f
+--- /dev/null
++++ b/tools/tutorials/tests/test_retained_mixed_visual_refresh.py
+@@ -0,0 +1,225 @@
++"""A retained installer composite keeps complete fresh Home and legacy provenance."""
++from copy import deepcopy
++from pathlib import Path
++import json
++
++import pytest
++
++from test_retained_visual_refresh import retained
++import retained_visual_refresh as refresh
++from audit_staged_catalogs import CATALOGS
++from stage_lesson import read, write
++
++
++@pytest.fixture
++def mixed(retained):
++    r = retained
++    identity = '04_platform_installers'
++    root = r['root'].with_name(identity);r['root'].rename(root)
++    old_media = r['baseline'] / 'media_host' / r['identity']
++    media = old_media.with_name(identity);old_media.rename(media)
++    for base in (media, root):
++        (base / 'video' / (r['identity'] + '_silent.mp4')).rename(base / 'video' / (identity + '_silent.mp4'))
++    original = r['original'];repo = refresh.REPO
++    frames = [600,600,600,600,600,600,693,818,840,879,600,600,600,1377]
++    assert sum(frames) == 10007
++    spec = read(original / 'scenes.json');spec['lesson'] = identity;spec['scenes'] = spec['scenes'][:14]
++    for scene in spec['scenes']:scene.pop('clip', None)
++    origins = {};clocks = [];elapsed = 0
++    for index,(scene,count) in enumerate(zip(spec['scenes'],frames)):
++        visual = {7:'14_current_nightly_performance',8:'13_current_nightly_home',9:'05_doctor'}.get(index,f'visual_{index}')
++        origins[visual] = dict(kind='current_nightly' if index in (7,8) else 'published_installation',
++                               image_sha256=scene['capture_sha256'],installed_identity=None)
++        clocks.append(dict(scene=index+1,speech_start=elapsed/30,speech_end=(elapsed+count)/30,
++            scene_end=(elapsed+count)/30,duration=count/30,visual=visual,native_live_video=index in (7,8),
++            text=scene['narration'],longest_narration_duration=count/30-.01))
++        elapsed += count
++        if index in (7,8):
++            for suffix in ('.mp4','.json'):
++                path=original/'clips'/(visual+suffix);path.parent.mkdir(exist_ok=True)
++                path.write_bytes(('old'+visual+suffix).encode());dest=root/path.relative_to(original);dest.write_bytes(path.read_bytes())
++            scene['clip']=dict(video='clips/'+visual+'.mp4',sha256=refresh.digest(original/'clips'/(visual+'.mp4')),
++                receipt='clips/'+visual+'.json',receipt_sha256=refresh.digest(original/'clips'/(visual+'.json')),
++                duration=33.234 if index==7 else 32.367)
++    spec['capture_source']['frame_origins']=origins;write(original/'scenes.json',spec)
++    lesson=dict(id=identity,scenes=[dict(narration=s['narration']) for s in spec['scenes']])
++    write(repo/'tools/tutorials/lessons'/(identity+'.json'),lesson);write(root/'lesson.en.json',lesson)
++    for name in CATALOGS:
++        catalog=dict(lessons=[lesson]);write(r['baseline']/'web/catalog'/name,catalog);write(r['stage']/'catalog'/name,catalog)
++    old_timing=dict(lesson=identity,fps=30,total_duration=10007/30,scenes=clocks,
++        visual_spec_sha256=refresh.digest(original/'scenes.json'),coverage=dict(accepted=True),
++        native_clip_sources=[dict(scene=i+1,clip_sha256=spec['scenes'][i]['clip']['sha256'],
++            receipt_sha256=spec['scenes'][i]['clip']['receipt_sha256']) for i in (7,8)])
++    old_timing_path=media/'video/native-live-timings.json';write(old_timing_path,old_timing)
++    old_master=media/'video'/(identity+'_silent.mp4')
++    baseline_manifest=r['baseline']/'release-manifest.json';base=read(baseline_manifest)
++    for row in base['files']:
++        path=row['path'].replace(r['identity'],identity);row['path']=path
++        actual=r['baseline']/path;row.update(sha256=refresh.digest(actual),bytes=actual.stat().st_size)
++    write(baseline_manifest,base)
++    pubpath=r['baseline']/'publication-receipt.json';pub=read(pubpath);pub['manifest_sha256']=refresh.digest(baseline_manifest);write(pubpath,pub)
++    source=r['stage']/'live/captures/home';source.mkdir(parents=True)
++    live=source.parent.parent;name='13_current_nightly_home';N=845;commit='1'*40
++    def put(path,data):path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data);return path
++    png=(root/'cards/pip_conda_01_create.png').read_bytes()
++    put(source/(name+'.png'),png);put(source/(name+'.mp4'),b'new whole native handoff');put(source/(name+'.native.mp4'),b'raw native')
++    put(source/(name+'.pointer.json'),b'[]')
++    gate=dict(video=str(source/(name+'.native.mp4')),size=[3840,2160],fps=30.,frames=N,duration_s=N/30,
++        passed=True,reasons=[],limits=dict(min_fps=27.9),distinct_fps=29.2,
++        cursor=dict(jump_count=0,jumps=[],found_fraction=1.,max_step_px=20.,bound_px=115.2),top_bar=dict(hidden=True))
++    for key in ('app_freeze_seconds','app_slow_seconds','app_unknown_seconds','app_gui_sampler_gaps_s','app_stall_windows_s','adapter_bypasses'):gate[key]=[]
++    write(source/(name+'.gate.json'),gate);write(source/(name+'.host.json'),dict(adapter_bypasses=[],app_gui_sampler_gaps_s=[]))
++    capture=dict(video=name+'.mp4',sha256=refresh.digest(source/(name+'.mp4')),size=[3840,2160],duration=N/30,
++        full_decode_passed=True,audio_streams=0,target_fps=30,encoded_fps='30/1',frames=[dict(pts=i) for i in range(N)],
++        native=dict(video=name+'.native.mp4',sha256=refresh.digest(source/(name+'.native.mp4')),size=[3840,2160]),
++        gate=dict(passed=True,reasons=[]),adapter_bypasses=[])
++    write(source/(name+'.capture.json'),capture)
++    frame=dict(image=name+'.png',sha256=refresh.digest(source/(name+'.png')),clip=dict(video=name+'.mp4',
++        sha256=capture['sha256'],native_video=name+'.native.mp4',native_sha256=capture['native']['sha256'],
++        receipt=name+'.capture.json',receipt_sha256=refresh.digest(source/(name+'.capture.json')),gate=dict(passed=True,reasons=[])))
++    write(source/'frames.json',{name:frame})
++    write(source/'provenance.json',dict(commit=commit,module='home',completed_capture=True,app_source_modified=False,selected_scenes=name))
++    sourcefile=put(repo/'spacr/capture_source.py',b'unchanged app/source fixture')
++    write(live/'exact-source.json',dict(commit=commit,fresh=True,private_profile=True,sha256={'spacr/capture_source.py':refresh.digest(sourcefile)}))
++    write(live/'host-run.json',dict(app_exit_code=0,recorder_rc=0,failure=None,gate_failed=[],clips={name:dict(passed=True,reasons=[],distinct_fps=29.2,file=name+'.gate.json')}))
++    write(live/'gnome-host/cleanup.json',dict(exit_code=0,survivors_after_cleanup=[]))
++    profile={key:False for key in ('show_alpha','show_alpha_features','show_alpha_species','spaceout','anonymous_reports_enabled','anonymous_report_notice_due')}
++    write(live/'capture-profile.json',profile)
++    locations=dict(video=source/(name+'.mp4'),native_video=source/(name+'.native.mp4'),receipt=source/(name+'.capture.json'),
++        gate=source/(name+'.gate.json'),facts=source/(name+'.host.json'),pointer=source/(name+'.pointer.json'),poster=source/(name+'.png'),
++        frames_manifest=source/'frames.json',provenance=source/'provenance.json',host_run=live/'host-run.json',
++        cleanup=live/'gnome-host/cleanup.json',profile=live/'capture-profile.json',exact_source=live/'exact-source.json')
++    native=dict(capture_root=str(source),source_commit=commit,**{key:refresh.binding(path) for key,path in locations.items()})
++    approval_path=live/'root-native-acceptance.json'
++    approval=dict(accepted=True,source_commit=commit,source_scene=name,actual_native_frames=N,requested_minimum_seconds=28)
++    approval.update({key:native[key] for key in ('video','gate','host_run','provenance','profile','cleanup','frames_manifest','poster','exact_source')})
++    approval['capture_receipt']=native['receipt'];write(approval_path,approval)
++    expected=deepcopy(spec)
++    put(root/'fresh/home.png',png);put(root/'fresh/home.mp4',(source/(name+'.mp4')).read_bytes())
++    put(root/'fresh/home.capture.json',(source/(name+'.capture.json')).read_bytes())
++    expected['scenes'][8].update(image='fresh/home.png',capture_sha256=refresh.digest(root/'fresh/home.png'),
++        clip=dict(video='fresh/home.mp4',sha256=native['video']['sha256'],receipt='fresh/home.capture.json',
++                  receipt_sha256=native['receipt']['sha256'],duration=N/30))
++    origin_home=dict(kind='current_nightly',capture=str(source),source_visual=name,image_sha256=native['poster']['sha256'],
++        installed_identity=None,capture_source_commit=commit,capture_provenance=native['provenance'],representation='fresh_full_native_clip')
++    card=root/'cards/05_doctor.png';put(card,png)
++    write(card.parent/'frames.json',{'05_doctor':dict(image=card.name,sha256=refresh.digest(card),buttons=[],kind='generated_command_reference_not_terminal_output')})
++    expected['scenes'][9].update(image='cards/05_doctor.png',capture_sha256=refresh.digest(card))
++    origin_card=dict(kind='reference_guidance',capture=str(card.parent),source_visual='05_doctor',image_sha256=refresh.digest(card),
++        installed_identity=None,representation='generated_command_reference_not_terminal_output',generator_provenance=refresh.binding(card.parent/'provenance.json'))
++    card_approval=r['stage']/'card-approval.json';write(card_approval,dict(lesson=identity,scene=10,accepted=True,
++        terminal_output_fabricated=False,installation_or_environment_commands_executed=False,image=refresh.binding(card),
++        generator_provenance=origin_card['generator_provenance']))
++    historical=r['stage']/'recorded-doctor.json';write(historical,[dict(scene='05_doctor',accepted=True,returncode=0,
++        command=['spacr-doctor','--no-gpu-probe'],output='13 passed, 1 warnings, 0 failed, 0 errored, 4 skipped\nczi: missing pylibCZIrw\ninstaller selected cpu; torch currently uses cpu\nno GPU probe was run')])
++    expected['capture_source']['frame_origins'].update({'13_current_nightly_home':origin_home,'05_doctor':origin_card})
++    expected['capture_source'].update(completed_capture=False,frame_pixels_modified=True);write(root/'scenes.json',expected)
++    policy=r['stage']/'policy.json';write(policy,dict(schema=1,kind='retained_mixed_visual_refresh_policy',lesson=identity,
++        accepted=True,minimum_native_frames=840,fps=30,whole_native_required=True,other_scene_durations_preserved=True,
++        audio_and_catalogs_retained=True,supersedes_sha256='48959f634aff43cbec64c1c3b416e0e97ad4a4ff711bda8537c41d2f3a004e42'))
++    master=root/'video'/(identity+'_silent.mp4');render=r['stage']/'render.json';log=r['stage']/'overlay.log'
++    write(render,dict(command=refresh.mixed_overlay_command(old_master,root/'fresh/home.mp4',card,master,N),
++        returncode=0,output_log=refresh.binding(log)))
++    replacements=[]
++    for index,kind,first,count,origin in [(8,'strict_full_native_clip',5111,N,origin_home),
++            (9,'generated_command_reference_not_terminal_output',5111+N,879,origin_card)]:
++        visual=clocks[index]['visual'];replacements.append(dict(scene=index+1,kind=kind,first_frame=first,frame_count=count,
++            original_image_sha256=spec['scenes'][index]['capture_sha256'],new_image_sha256=expected['scenes'][index]['capture_sha256'],
++            original_origin=origins[visual],new_origin=origin))
++    replacements[0].update(native=native,native_visual_acceptance=refresh.binding(approval_path),new_video_sha256=native['video']['sha256'],new_receipt_sha256=native['receipt']['sha256'])
++    replacements[1].update(card_visual_acceptance=refresh.binding(card_approval),historical_doctor=refresh.binding(historical))
++    receipt=dict(schema=2,kind='retained_visual_refresh',lesson=identity,baseline_root=str(r['baseline']),original_root=str(original),
++        baseline_manifest=refresh.binding(baseline_manifest),publication_receipt=refresh.binding(pubpath),original_spec=refresh.binding(original/'scenes.json'),
++        original_timing=refresh.binding(old_timing_path),original_master=refresh.binding(old_master),new_spec=refresh.binding(root/'scenes.json'),
++        new_master=refresh.binding(master),render_log=refresh.binding(render),policy=refresh.binding(policy),replacements=replacements)
++    receipt_path=root/'retained-visual-refresh.json'
++    def seal():
++        frame=read(source/'frames.json')[name];frame['clip']['receipt_sha256']=refresh.digest(source/(name+'.capture.json'));write(source/'frames.json',{name:frame})
++        (root/'fresh/home.capture.json').write_bytes((source/(name+'.capture.json')).read_bytes())
++        for key,path in locations.items():native[key]=refresh.binding(path)
++        approval=read(approval_path);approval.update({key:native[key] for key in ('video','gate','host_run','provenance','profile','cleanup','frames_manifest','poster','exact_source')});approval['capture_receipt']=native['receipt'];write(approval_path,approval)
++        replacements[0]['native_visual_acceptance']=refresh.binding(approval_path);replacements[0]['new_receipt_sha256']=native['receipt']['sha256']
++        current=read(root/'scenes.json');current['scenes'][8]['clip']['receipt_sha256']=native['receipt']['sha256'];write(root/'scenes.json',current)
++        receipt['new_spec']=refresh.binding(root/'scenes.json');receipt['render_log']=refresh.binding(render);receipt['policy']=refresh.binding(policy)
++        write(receipt_path,receipt);write(root/'video/native-live-timings.json',refresh.mixed_retained_timing(old_timing,
++            refresh.digest(root/'scenes.json'),refresh.digest(receipt_path),refresh.digest(baseline_manifest),
++            native['video']['sha256'],native['receipt']['sha256'],N))
++    seal()
++    return dict(stage=r['stage'],root=root,baseline=r['baseline'],identity=identity,source=source,live=live,
++        original=original,receipt=receipt,receipt_path=receipt_path,old_timing=old_timing,N=N,seal=seal,
++        policy=policy,render=render,approval=approval_path,historical=historical)
++
++
++def test_full_native_latency_tail_shifts_clocks_without_trimming_other_scenes(mixed):
++    r=mixed;path=refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline']);t=read(path)
++    assert round(t['total_duration']*30)==9167+r['N']==10012
++    assert t['scenes'][8]['duration']==845/30
++    for index,(before,after) in enumerate(zip(r['old_timing']['scenes'],t['scenes'])):
++        assert after['text']==before['text']
++        if index!=8:assert after['duration']==before['duration']
++    assert t['native_clip_sources'][0]==r['old_timing']['native_clip_sources'][0]
++    assert 'complete_native_clips' not in t
++    assert t['preserve_visual_intervals'] is True
++    graph=read(r['render'])['command'];graph=graph[graph.index('-filter_complex')+1]
++    assert '[1:v]setpts=PTS-STARTPTS[home]' in graph and '[1:v]trim' not in graph
++    assert 'end_frame=879' in graph and 'start_frame=6830:end_frame=10007' in graph
++
++
++@pytest.mark.parametrize('change',['short','noncontiguous','badfps','gatefail','freeze','slow','unknown','samplergap',
++ 'stall','bypass','cursor','topbar','profile','provenance','cleanup','source','approval','recordonlypolicy',
++ 'other_scene','legacy_performance','timing','missing_playback_mode','wrong_range','renderfailed','missing_policy','card_history'])
++def test_mixed_refresh_rejects_missing_or_drifted_actual_evidence(mixed,change):
++    r=mixed;name='13_current_nightly_home';source=r['source'];root=r['root']
++    if change in ('short','noncontiguous','badfps'):
++        p=source/(name+'.capture.json');j=read(p)
++        if change=='short':j['frames']=j['frames'][:839];j['duration']=839/30
++        if change=='noncontiguous':j['frames'][-1]['pts']-=1
++        if change=='badfps':j['encoded_fps']='60/1'
++        write(p,j)
++    elif change in ('gatefail','freeze','slow','unknown','samplergap','stall','bypass','cursor','topbar'):
++        p=source/(name+'.gate.json');j=read(p)
++        if change=='gatefail':j.update(passed=False,reasons=['capture loss'])
++        if change in ('freeze','slow','unknown','samplergap','stall','bypass'):
++            key=dict(freeze='app_freeze_seconds',slow='app_slow_seconds',unknown='app_unknown_seconds',
++                     samplergap='app_gui_sampler_gaps_s',stall='app_stall_windows_s',bypass='adapter_bypasses')[change];j[key]=[1]
++        if change=='cursor':j['cursor'].update(jump_count=1,jumps=[1])
++        if change=='topbar':j['top_bar']['hidden']=False
++        write(p,j)
++    elif change in ('profile','provenance','cleanup'):
++        p={'profile':r['live']/'capture-profile.json','provenance':source/'provenance.json','cleanup':r['live']/'gnome-host/cleanup.json'}[change];j=read(p)
++        if change=='profile':j['show_alpha']=True
++        if change=='provenance':j['completed_capture']=False
++        if change=='cleanup':j['survivors_after_cleanup']=[123]
++        write(p,j)
++    elif change=='source':
++        p=source.parent.parent/'exact-source.json';j=read(p);j['sha256']['spacr/capture_source.py']='0'*64;write(p,j)
++    elif change=='approval':p=r['approval'];j=read(p);j['accepted']=False;write(p,j)
++    elif change=='recordonlypolicy':write(r['policy'],dict(accepted=True,lesson=r['identity']))
++    elif change=='missing_policy':r['receipt']['policy']['sha256']='0'*64
++    elif change in ('other_scene','legacy_performance'):
++        p=root/'scenes.json';j=read(p)
++        if change=='other_scene':j['scenes'][3]['narration']='Changed'
++        else:j['scenes'][7]['clip']['duration']=33.235
++        write(p,j)
++    elif change in ('timing','missing_playback_mode'):
++        p=root/'video/native-live-timings.json';j=read(p)
++        if change=='timing':j['scenes'][7]['duration']=33.
++        else:del j['preserve_visual_intervals']
++        write(p,j)
++        with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
++        return
++    elif change in ('wrong_range','renderfailed'):
++        p=r['render'];j=read(p)
++        if change=='wrong_range':j['command'][j['command'].index('-filter_complex')+1]='[1:v]trim=end_frame=840[v]'
++        else:j['returncode']=1
++        write(p,j)
++    elif change=='card_history':
++        p=r['historical'];j=read(p);j[0]['returncode']=1;write(p,j);r['receipt']['replacements'][1]['historical_doctor']=refresh.binding(p)
++    r['seal']()
++    if change=='missing_policy':
++        j=read(r['receipt_path']);j['policy']['sha256']='0'*64;write(r['receipt_path'],j)
++    with pytest.raises(ValueError):refresh.checked_retained_visual_timing(r['stage'],r['identity'],r['baseline'])
++
++
++def test_short_requested_native_frame_count_cannot_build_a_concat():
++    with pytest.raises(ValueError):refresh.mixed_overlay_command('old','native','card','out',839)
+diff --git a/tools/tutorials/verify_staged_lesson.py b/tools/tutorials/verify_staged_lesson.py
+index 8c92e1b04ef2e88211d5c15275b5586771e3cddc..099373c8d9b61bca100411080ac44e81cd89c07e 100644
+--- a/tools/tutorials/verify_staged_lesson.py
++++ b/tools/tutorials/verify_staged_lesson.py
+@@ -37,7 +37,8 @@ def check_related_links(actual, expected):
+ 
+ def check_native_boundary_playback(page, visual, spoken):
+     """Measure actual media clocks across a recorded scene boundary at normal speed."""
+-    if visual.get('complete_native_clips') is True:
++    if (visual.get('complete_native_clips') is True
++            or visual.get('preserve_visual_intervals') is True):
+         return check_complete_native_boundary_playback(page, visual, spoken)
+     candidates = [i for i in range(len(visual['scenes']) - 1)
+                   if visual['scenes'][i].get('native_live_video')
+@@ -148,20 +149,25 @@ def check_complete_native_trace(trace, events, visual, spoken, index, final=Fals
+             if abs(row['audio'] - expected) >= .5:
+                 raise AssertionError({'next_narration_wrong_offset': row, 'expected': expected})
+     return {'checked_boundary_after_scene': index + 1, 'trace': trace,
+-            'recorded_tail_observed': True, 'narration_paused_for_recorded_tail': True,
+-            'next_narration_resumed': not final, 'final_native_eof_observed': final,
++            'selected_visual_tail_observed': True,
++            'recorded_tail_observed': scene.get('native_live_video') is True,
++            'narration_paused_for_recorded_tail': scene.get('native_live_video') is True,
++            'next_narration_resumed': not final,
++            'final_visual_eof_observed': final,
++            'final_native_eof_observed': final and scene.get('native_live_video') is True,
+             'actual_video_speed': 1, 'native_animation_stretched_or_looped': False}
+ 
+ 
+ def check_complete_native_boundary_playback(page, visual, spoken):
+     """Observe uninterrupted native video, narration rest/resume, and final EOF."""
++    preserve = visual.get('preserve_visual_intervals') is True
+     candidates = [i for i in range(len(visual['scenes']) - 1)
+                   if visual['scenes'][i].get('native_live_video')
+-                  and visual['scenes'][i + 1].get('native_live_video')
++                  and (preserve or visual['scenes'][i + 1].get('native_live_video'))
+                   and float(visual['scenes'][i]['duration'])
+                   - (float(spoken['scenes'][i]['speech_end'])
+                      - float(spoken['scenes'][i]['speech_start'])) > .8]
+-    if not candidates or not visual['scenes'][-1].get('native_live_video'):
++    if not candidates or (not preserve and not visual['scenes'][-1].get('native_live_video')):
+         raise ValueError('Complete native verification needs a boundary and final recorded tail')
+     index = max(candidates, key=lambda i: float(visual['scenes'][i]['duration'])
+                 - (float(spoken['scenes'][i]['speech_end'])
+@@ -230,7 +236,9 @@ def check_complete_native_boundary_playback(page, visual, spoken):
+         finally:
+             page.evaluate('clearInterval(window.__completeNativeTimer); window.__completeNativeObserve=false')
+         results.append(check_complete_native_trace(trace, events, visual, spoken, current, final))
+-    return {'complete_native_clips': True, 'boundary': results[0], 'final_tail': results[1],
++    return {'complete_native_clips': visual.get('complete_native_clips') is True,
++            'preserve_visual_intervals': visual.get('preserve_visual_intervals') is True,
++            'boundary': results[0], 'final_tail': results[1],
+             'actual_video_speed': 1, 'independent_wall_clock_comparison': True,
+             'native_animation_stretched_or_looped': False}
+ 

@@ -1217,7 +1217,8 @@ function configureMediaSync() {
 }
 
 function completeNativePlayback() {
-  return visualTimings?.complete_native_clips === true &&
+  return (visualTimings?.complete_native_clips === true ||
+    visualTimings?.preserve_visual_intervals === true) &&
     visualTimings?.native_live_video === true;
 }
 
@@ -1348,9 +1349,11 @@ function mapTiming(seconds, fromTimings, toTimings) {
   const sourceEnd = Number(located.scene.scene_end) || sourceStart;
   const targetStart = Number(target.speech_start) || 0;
   const targetEnd = Number(target.scene_end) || targetStart;
-  if (located.scene.native_live_video || target.native_live_video) {
-    // Native footage retains its recorded elapsed time. A shorter narration
-    // skips the unused end of the scene at the next chapter boundary.
+  if ((visualTimings?.preserve_visual_intervals === true &&
+      visualTimings?.native_live_video === true) ||
+      located.scene.native_live_video || target.native_live_video) {
+    // Preserved intervals and native footage map speech by elapsed time.
+    // Ordinary native playback skips unused tails; preserved playback holds speech.
     const elapsed = Math.max(0, seconds - sourceStart);
     return targetStart + Math.min(elapsed, Math.max(0, targetEnd - targetStart - 0.001));
   }
@@ -1436,6 +1439,11 @@ function syncCompleteNativeNarration(seek = false) {
   if (narrationLoadPending || !completeNativePlayback() || !narrationAudioAvailable ||
       elements.voice.value === "silent" || !elements.video.duration ||
       !elements.audio.duration || !audioTimings) return;
+  if (visualTimings?.preserve_visual_intervals === true &&
+      (videoClockCorrectionPending || elements.video.seeking)) {
+    if (!elements.audio.paused) elements.audio.pause();
+    return;
+  }
   const visualTime = elements.video.currentTime / elements.video.duration *
     timingDuration(visualTimings, elements.video.duration);
   const located = timingScene(visualTimings, visualTime);

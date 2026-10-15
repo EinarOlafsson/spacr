@@ -1,0 +1,7 @@
+SOURCE-ONLY PREPARATION. Not executed; no future validation or reuse receipt exists.
+
+After the actual NEW K6 candidate has all84 routes, placeholder and145-file ROOT checkpoint: run from ROOT under owned CPU RAM cap and CUDA_VISIBLE_DEVICES empty:
+
+python /media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/prepare_verified_media_reuse.py --candidate <actual-new-C04-candidate> --source-commit <actual-current-committed-K6> --output-dir /media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/verified-media-reuse-<fresh-name>
+
+This runs owning require_verified_candidate (full actual local byte hashing), verifies old pinned snapshot + exact5370 hosted path/size/SHA maps/8693151860bytes and current placeholder/checkpoint. Only then creates fresh reuse-proof.json and original-readback.json (identical parsed readback object). No network, upload, tag, Pages, resume or receipt mutation. Original K5 candidate/snapshot untouched. Root then uses existing resume-receipt with original branch/tag and the new original-readback.json, preserving remote branch/main/tag guards, and binds reuse proof/source snapshot in new publication evidence.

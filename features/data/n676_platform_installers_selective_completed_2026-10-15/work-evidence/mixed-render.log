@@ -1,0 +1,5 @@
+Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/stage_mixed_visual.py', 'render']
+Source: b929b7dc53465132322c3ca0b866f567de773b9f
+{"receipt": {"path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/retained-visual-refresh.json", "bytes": 10707, "sha256": "2d605da66277c9789a8d481773fe703b952a48ca158177f27374bc22d60d1991"}, "timing": {"path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/native-live-timings.json", "bytes": 26070, "sha256": "0e18fb14eb75bf67c34cca9c329d732e648a331ded362c9a446ee0f40ce0c2b6"}, "master": {"path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/04_platform_installers_silent.mp4", "bytes": 71636267, "sha256": "6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec"}, "whole_native_frames": 851, "total_frames": 10018}
+
+Terminal exit status: 0

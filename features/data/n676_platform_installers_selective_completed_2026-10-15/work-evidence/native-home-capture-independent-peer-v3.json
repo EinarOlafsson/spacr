@@ -1,0 +1,89 @@
+{
+  "schema": 3,
+  "lesson": "04_platform_installers",
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_utc": "2026-10-15T17:45:02.887094+00:00",
+  "preparation": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/preparation-v3.json",
+    "bytes": 6343,
+    "sha256": "114dc87d85e7a01c8206fa37c42a4a075a35a8dd3a1951c297e8aeef5bb32ac0"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/check_approval.py",
+      "bytes": 4134,
+      "sha256": "fcf00bb853464bfb1ba5a96b3e3c377725573177984b3c5f02e5e0518d3c32c0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/home-clips.json",
+      "bytes": 38,
+      "sha256": "ba90e5e906989cb28370162e3c58e8346a165b7476aaf1854061c2ebb12ac51a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/jobs/a01.sh",
+      "bytes": 546,
+      "sha256": "0351a12445b6e21b7cdeb5228f403346ad30c351c81dcab109e6900433e74582"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/jobs/b01.sh",
+      "bytes": 351,
+      "sha256": "a5f7359f2e23a09114badc276686be1b747038c68a1ae2a09853584314f602dc"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/live.sh",
+      "bytes": 659,
+      "sha256": "d2bcaaf89479dcf155869d89a32f3a00132846059698af7c10e0b6143f86e139"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/retry_failed.py",
+      "bytes": 5572,
+      "sha256": "0cc7e1923ecddfafde95efbe6c808e8d0efea34d8c229e3019405ff657a6f42e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/run_with_lease.sh",
+      "bytes": 3113,
+      "sha256": "a1d6bdd463016d103e6652c1896b83801e31014657697f1bca09006d2c3dc9e3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/turn_runner.sh",
+      "bytes": 1618,
+      "sha256": "29610963b5fe15d6ef5cd311999e1ab8754316d6926ac20de9fd544ed0d988d5"
+    }
+  ],
+  "prior_full_plan_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture-independent-peer-v2.json",
+    "bytes": 8162,
+    "sha256": "d8888e74e63c8b6ec1b101395957c6006ae209151d71d1f63ce4be781db6b60f"
+  },
+  "previous_preparation_preserved": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-capture/before-playback-allowlist-v3/preparation-v2.json",
+    "bytes": 5489,
+    "sha256": "8f33874e57d9ebc8b74bc0f9c2618bcd2106aec9a6f4c6171e324f966dcaf836"
+  },
+  "allowed_changed_source_paths": [
+    "tools/tutorials/authoring/web/app_v2.js",
+    "tools/tutorials/render_installation_route_cards.py",
+    "tools/tutorials/retained_visual_refresh.py",
+    "tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+    "tools/tutorials/tests/test_retained_mixed_visual_refresh.py",
+    "tools/tutorials/verify_staged_lesson.py"
+  ],
+  "checks": {
+    "all8_hashes_match": true,
+    "only_guard_differs_from_v2_executable_files": true,
+    "guard_AST_delta_only_exact6paths_and_v3_preparation_binding": true,
+    "metadata_addition_truthful_visual_interval_playback_requirement": true,
+    "root_v2_policy_fullcard_Performance_pins_unchanged": true,
+    "all_jobs_bootstrap_defaults12G_timeouts_retry_cleanup_unchanged": true,
+    "capture_app_gate_profile_driver_canonical_sources_not_authorized_to_change": true,
+    "future_cleanK4_approved_hash_rows_source_tests_and_peer_still_required": true,
+    "fresh_stages_absent": true
+  },
+  "limits": [
+    "Source-only plan peer; no guard/launcher/app/native/GPU/browser execution.",
+    "Final source implementation and actual owning source tests/peer must precede root launch approval. No actual native source/frame count/whole capture or visual acceptance asserted."
+  ],
+  "resource_cap": "1G; owned lease removed in finally"
+}

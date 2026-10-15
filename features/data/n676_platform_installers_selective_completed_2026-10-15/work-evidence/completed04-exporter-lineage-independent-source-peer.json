@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "lesson": "04_platform_installers",
+  "reviewed_utc": "2026-10-15T19:56:48.442760+00:00",
+  "review_scope": "Bounded independent read-only exporter snapshot exclusion and K4-capture/K5-player lineage source delta; prior full exporter review retained.",
+  "exporter": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/export_completed04_checkpoint.py",
+    "bytes": 28346,
+    "sha256": "61bd8c6a7d017c0271948f869ff5295cc493f21f51887dda42dd0fc404aeeab5"
+  },
+  "preparation": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/completed04-exporter-source-preparation-v5.json",
+    "bytes": 2006,
+    "sha256": "b9ae3e5050854d2282cea0313a34131b593a6b7639eec3547ec737b872e7bebf"
+  },
+  "usage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/export_completed04-USAGE.txt",
+    "bytes": 4753,
+    "sha256": "bd1c0cc8b94f97406094254ed92ea70f5cc2f3a72be8fda1acc9d875336e50bf"
+  },
+  "prior_full_exporter_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/completed04-exporter-independent-source-peer.json",
+    "bytes": 4315,
+    "sha256": "d55366cbba923432fc1288f4326fede7c4c21173527a14330d6a8213fe966f3c"
+  },
+  "prior_exporter": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/helper-review-originals/export_completed04_checkpoint.py.9050fbfbe0b4",
+    "bytes": 26804,
+    "sha256": "9050fbfbe0b421da1995799f3ead681a9261804a5b4c4ec7d76605c9430c8a0d"
+  },
+  "lineage_delta": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/exporter-K4-capture-K5-player-lineage.diff",
+    "bytes": 5230,
+    "sha256": "90b53e1f9ba5b18cbd9b809adf08301adf60d0e71d27e56afd72177b361dc22e"
+  },
+  "checks": {
+    "AST_valid": true,
+    "both_native_video_binding_checks_preserved": true,
+    "only_video_native_video_payload_snapshots_excluded": true,
+    "native_video_identity_retained_in_actual_acceptance_and_receipts": true,
+    "capture_source_exact_K4_b929_preserved": true,
+    "final_SOURCE_must_actual_K4_descendant": true,
+    "postcapture_Git_delta_exact_playerJS_and_owning_test": true,
+    "followup_paths_absent_from_recorded_capture_inventory": true,
+    "owning_schema2_validator_still_checks_entire_recorded_source_inventory": true,
+    "stage_preparation_source_remains_K4": true,
+    "export_report_truthfully_distinguishes_capture_stage_from_final_source": true,
+    "all_previous_actual_native_policy_timing_audio_catalog_HF_Pages_record_guards_retained": true,
+    "final_source_test_count_is_last_cohort_not_sum": true,
+    "no_future_final_commit_or_native_acceptance_generated": true,
+    "export_not_executed": true
+  },
+  "limits": [
+    "Actual K5 must be root committed after its225 owning tests and independent peer; this source review does not fabricate a future commit or publication.",
+    "No source mutation, exporter execution, video hash/decode, browser, model, network, capture or audio changes.",
+    "Original captured502 source files remain authoritative; player/test are outside that inventory and independently constrained by exact Git lineage."
+  ],
+  "resource_cap": "1G CPU-only PID-owned lease; removed on exit"
+}

@@ -1,0 +1,543 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "status": "preservation_pass_pending_actual84_placeholder_checkpoint",
+  "reviewed_at_utc": "2026-10-15T20:54:35.979182+00:00",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy",
+  "source_commit": "2427d57f17ad78d97cf81f18720c1cd9e0c7cc02",
+  "capture_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/release-manifest.json",
+    "bytes": 1180230,
+    "sha256": "aef7a3aeab1d0c792ee368bc6fe519377fd485f386c536498d2557b1b14fbe5f"
+  },
+  "old_C04_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-34v6631r/release-manifest.json",
+    "bytes": 1180230,
+    "sha256": "9ac6c7ee63581e1ab77e59957f25fdcdd3854aded7e74fc4645ad7d021de2172"
+  },
+  "baseline_C02_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/release-manifest.json",
+    "bytes": 1179996,
+    "sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439"
+  },
+  "counts": {
+    "candidate_files": 5512,
+    "candidate_bytes": 8807506575,
+    "hosted_media_records_identical_to_old_C04": 5370,
+    "hosted_media_bytes": 8693151860,
+    "retained04_audio_and_sidecars": 100,
+    "catalog_files_exact_C02": 14,
+    "unchanged_other_lesson_objects_per_catalog": 83,
+    "unchanged_other_hosted_media_records": 5266,
+    "scenes": 14,
+    "master_frames": 10018,
+    "master_seconds": 333.93333333333334,
+    "native_Home_frames": 851,
+    "legacy_Performance_selected_frames": 818,
+    "doctor_generated_frames": 879,
+    "matrix_operations": 73,
+    "actual_browser_operations": 72,
+    "reconciliation_operations": 1
+  },
+  "old_to_new_manifest_changed_paths": [
+    "web/app_v2.js",
+    "web/module_navigation.js"
+  ],
+  "all14_catalog_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/captions_da.json",
+      "bytes": 697693,
+      "sha256": "62d0b264efb3564bf1e71e2c731deda841e689f94ba00dadce2997cd47e6b2f3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/captions_de.json",
+      "bytes": 744668,
+      "sha256": "66a72441413588402e397456b60bef236b996549654ff7336a1462fc01738115"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/captions_is.json",
+      "bytes": 702456,
+      "sha256": "df70792658f8a4e41f7f193580c827b5c800ec171360378c1f5c609b263b881e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/captions_ko.json",
+      "bytes": 739161,
+      "sha256": "ede10fc1f5534c382cdaf212de98e85ce9966ab2d86c8822d66b2c2c7ce849fe"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/captions_nb.json",
+      "bytes": 693544,
+      "sha256": "6a3a7c81695c821851cefb8702b3c49f36c9c9384f25f8e2f2b3e590a0678013"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/captions_sv.json",
+      "bytes": 702450,
+      "sha256": "15cfd9e0c3f91b70015ce2141019a246845b48668d9e3e2cdc340bbc0e5fbf36"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_en.json",
+      "bytes": 674671,
+      "sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_es.json",
+      "bytes": 1105076,
+      "sha256": "d683bc9ec4ccd2df8a94fb51b4d5e197bff259d1bc0d5d90b60d1347705eef47"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_fr.json",
+      "bytes": 1148821,
+      "sha256": "23faac04b34a4688b8adf2f19c53c515f9f70bf49d358d0a2faf2e416fe37f8c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_hi.json",
+      "bytes": 1833449,
+      "sha256": "0e361a267ee30e1fb92fc45eaf1771024b5ddd54027f0b4ef65d4b01a82c9302"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_it.json",
+      "bytes": 1093713,
+      "sha256": "282966c194535ece06c49a156416ee51e75dd41ef43278cb6fd752f8edb2c7e0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_ja.json",
+      "bytes": 1223315,
+      "sha256": "727b87dfa705ca6b2a6a51f6730b34502c5d407e18b53703451b0ed704301987"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_pt-BR.json",
+      "bytes": 1087847,
+      "sha256": "ad6851ce435de9864bfb7c6558612d221e59afa802db384c7fbcfe568c057b9b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/catalog/lessons_zh-CN.json",
+      "bytes": 949379,
+      "sha256": "d24bad1ede2ff4933515101572149df66f784cc14dcc65c8195311211289ecce"
+    }
+  ],
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/media_host/04_platform_installers/video/native-live-timings.json",
+    "bytes": 26070,
+    "sha256": "0e18fb14eb75bf67c34cca9c329d732e648a331ded362c9a446ee0f40ce0c2b6"
+  },
+  "retention_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/media_host/04_platform_installers/video/retained-visual-refresh.json",
+    "bytes": 10707,
+    "sha256": "2d605da66277c9789a8d481773fe703b952a48ca158177f27374bc22d60d1991"
+  },
+  "player": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-4lb27kuy/web/app_v2.js",
+    "bytes": 103313,
+    "sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25"
+  },
+  "build_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-candidate-k6.log",
+    "bytes": 894,
+    "sha256": "662a7cd9571ab97a3632cf0bd88ae0fd0deebfc2300512ab40c8bd58aeaeec0b"
+  },
+  "actual_K6_matrix_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/logs/browser-matrix-lesson04-selective-20261015-r3.json",
+    "bytes": 22097,
+    "sha256": "197b63e7852483a4d43ae8aa0cc492f0299b08d5f4cb2bf5f28221e832243189"
+  },
+  "actual_K6_matrix_logs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-cues-lesson04-selective-20261015-r3.log",
+      "bytes": 15702,
+      "sha256": "2b17e20f747430511c2c096d4229a710215027e4696e6298e7b7d8d3d8546112"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-lesson04-selective-20261015-r3.log",
+      "bytes": 1578,
+      "sha256": "1bf89dd168bc01b7f8ccf0258df7570a2681bdd21000020c0c84c038ef4b2a77"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-es-ef_dora-lesson04-selective-20261015-r3.log",
+      "bytes": 1627,
+      "sha256": "9afdce9cf8d58d4539ad0c517697d8cb671c864506942f5c9ae038fb0f125cc9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-fr-ff_siwis-lesson04-selective-20261015-r3.log",
+      "bytes": 1627,
+      "sha256": "467fc5cb41c7105a40f19f2a88fa2a02bce007e491129c2ff673279313ce3fc3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-hi-hf_alpha-lesson04-selective-20261015-r3.log",
+      "bytes": 1628,
+      "sha256": "02c877bd13e67d2d9ea19391a8a5cb1e0d9bad8e01a40c1c56fe8569e80f5047"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-it-if_sara-lesson04-selective-20261015-r3.log",
+      "bytes": 1624,
+      "sha256": "97112dab0614c2dbc58a267e3d4ac4f6e3db89f325b67610d0cf55820a725c36"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-pt-BR-pf_dora-lesson04-selective-20261015-r3.log",
+      "bytes": 1632,
+      "sha256": "a5434046e8c91225ce66d5a52c3db5a30f3e23790edbec09223b527dd0417bde"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-ja-jf_alpha-lesson04-selective-20261015-r3.log",
+      "bytes": 1627,
+      "sha256": "53bef29bdc914e3120dec9a09d7bed0a1f8a38ed8ef90c8907488d11f3f36c11"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-zh-CN-zf_xiaobei-lesson04-selective-20261015-r3.log",
+      "bytes": 1638,
+      "sha256": "39a002200d5b33ebcb661f0b13f71dadbbf06c39af335acc09463bde04cfe4dc"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-da-lesson04-selective-20261015-r3.log",
+      "bytes": 1769,
+      "sha256": "192515f378995beff633f601503bf6a91a34950fcf333b09de516753e4c57eed"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-de-lesson04-selective-20261015-r3.log",
+      "bytes": 1769,
+      "sha256": "fb43f468538f602c35b5140ab3dce29b4ccea0140c8a59c5d91c66cbccb5a182"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-is-lesson04-selective-20261015-r3.log",
+      "bytes": 1768,
+      "sha256": "b30808f46156c5340bae2adb434a0defee4bb40c9256ac912dc71c45551d1a5e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-ko-lesson04-selective-20261015-r3.log",
+      "bytes": 1769,
+      "sha256": "53849fb574ee201317a846f64da56991cbb53d06157b297b21be9e83c3049e3a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-nb-lesson04-selective-20261015-r3.log",
+      "bytes": 1769,
+      "sha256": "2d3b1fd2989b6c4ea5b32e6f8bae1160ba74ba6aec5ca1abe9ba2edc9c6c2c1d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-master-en-af_heart-captions-sv-lesson04-selective-20261015-r3.log",
+      "bytes": 1768,
+      "sha256": "5a5f00d0f54f3cabd0d130d698b6354e1e212c19ed38303b39d78819b19f711b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-lesson04-selective-20261015-r3.log",
+      "bytes": 1750,
+      "sha256": "163c92013973fe7eec76cccd00933252fbfbcfa2820f339226bd2ec8119ad6ed"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_aoede-lesson04-selective-20261015-r3.log",
+      "bytes": 1751,
+      "sha256": "a2407a06e25016d70e448d67affe1e2dd151f91c831b5238f23ed8522dd8c07c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_bella-lesson04-selective-20261015-r3.log",
+      "bytes": 1751,
+      "sha256": "d904e35429677c30b77ce4dcb83a02c34f6099f82da2320fac53d59aacd0ee43"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_jessica-lesson04-selective-20261015-r3.log",
+      "bytes": 1755,
+      "sha256": "cb56b97d3d6dfef54f6ef1c71fca85dca29163faaf114d8f4fd72176f2a27b3e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_river-lesson04-selective-20261015-r3.log",
+      "bytes": 1751,
+      "sha256": "e443206999cbcd0a59998d5fa673227c7159ff9ac33c76f726bd47418a3f510a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_sarah-lesson04-selective-20261015-r3.log",
+      "bytes": 1751,
+      "sha256": "a34497037470acffc5fcee0ac23025062abf2dc204cc9460fbc0fd07364f4724"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_sky-lesson04-selective-20261015-r3.log",
+      "bytes": 1747,
+      "sha256": "2e747418a60364ff35adc94178c9a8180dc712366b6bdceefc43ec5a0ae1d011"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_adam-lesson04-selective-20261015-r3.log",
+      "bytes": 1748,
+      "sha256": "efa3ec038a05f2e988445bc37aa2e24916284bb561267f3eabc0f2e9085de0e6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_echo-lesson04-selective-20261015-r3.log",
+      "bytes": 1746,
+      "sha256": "fba18d111e6e3b09a6b52acba6428eef62b2a81cc53505fd9c03d464d485afe5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_eric-lesson04-selective-20261015-r3.log",
+      "bytes": 1748,
+      "sha256": "65fd872b21c5f477a949e12cc291f6f65a0fa4b744e8f013a478f7e7c146c1b1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_fenrir-lesson04-selective-20261015-r3.log",
+      "bytes": 1752,
+      "sha256": "ef66e2361de4c86830988966480e41b0e753d8f2186e3260d22912d3827fb837"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_liam-lesson04-selective-20261015-r3.log",
+      "bytes": 1747,
+      "sha256": "2dce38db0b4bd2466b57ab03b26bfd59736f948c6661d063e01eb52cdcb6fcdc"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_michael-lesson04-selective-20261015-r3.log",
+      "bytes": 1754,
+      "sha256": "a247fc6d9f6318570306411138a50e3894690f353fae16949c9a4e23be0d2147"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_onyx-lesson04-selective-20261015-r3.log",
+      "bytes": 1747,
+      "sha256": "85b06a17c6e9aa6ac04653a532c73b61a19c29ee82ed7ad60aaa03795976db2f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_puck-lesson04-selective-20261015-r3.log",
+      "bytes": 1749,
+      "sha256": "beb9690f703a90d2214ff20cda6ce41d1a063278698204f46abd6f56c6f3a5b6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-am_santa-lesson04-selective-20261015-r3.log",
+      "bytes": 1747,
+      "sha256": "274d104d6ed4c0c56f4061946241165726ce5f1d3e773363e766524178bd8682"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_alice-lesson04-selective-20261015-r3.log",
+      "bytes": 1749,
+      "sha256": "4d47dfa02b71284505078d444987483d63cb544d29c1ab2a3ece2062d55fc898"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_emma-lesson04-selective-20261015-r3.log",
+      "bytes": 1748,
+      "sha256": "64051989742736af423aa01653c8222e2977a89b08fc369be6979e9aafa63242"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_isabella-lesson04-selective-20261015-r3.log",
+      "bytes": 1757,
+      "sha256": "874d12cdbf67fbac8daee6348ebcb0b2d5ea84487b52f91e522e65f6a6d4e49b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bf_lily-lesson04-selective-20261015-r3.log",
+      "bytes": 1749,
+      "sha256": "97cb7648f2380f09376e79582fa373c0872c6416507c8863f11c645d3451214a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_daniel-lesson04-selective-20261015-r3.log",
+      "bytes": 1752,
+      "sha256": "087bb511e9e9a7af3b9e813fa9bbf87f39bf6958ab9af99f4cbfeafa9d47adb0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_fable-lesson04-selective-20261015-r3.log",
+      "bytes": 1749,
+      "sha256": "041fc6e19669ff57b540c1233b217e8a6eb14771999b8274d0add94ed9505d60"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_george-lesson04-selective-20261015-r3.log",
+      "bytes": 1752,
+      "sha256": "4cc8b3a0366c193d2e1735ee70c29fe0a0e4dd3dd83e7e09a230c02bdde4b6ac"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-bm_lewis-lesson04-selective-20261015-r3.log",
+      "bytes": 1750,
+      "sha256": "9d266e5953d836ae23def209cfbc41226b471b0474ed5ce9f0ca1021d4859380"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-es-ef_dora-lesson04-selective-20261015-r3.log",
+      "bytes": 1800,
+      "sha256": "3693551912a031338fe43281b57752924a7b822ee596ea47f143b1c34cd2f123"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-es-em_alex-lesson04-selective-20261015-r3.log",
+      "bytes": 1799,
+      "sha256": "3b1954d52927bd38d18948d856a10c83915720ac52c710867ab7fc61360821a7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-es-em_santa-lesson04-selective-20261015-r3.log",
+      "bytes": 1801,
+      "sha256": "f23ae3c9295eb5194679353af1ee13efcddf11fb5f13f45ee6ce5e03e9bc9b37"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-fr-ff_siwis-lesson04-selective-20261015-r3.log",
+      "bytes": 1801,
+      "sha256": "73d0a0e24add242b2b1386cbd835f228f1ce52e30ced166194c4717de06e7ceb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hf_alpha-lesson04-selective-20261015-r3.log",
+      "bytes": 1801,
+      "sha256": "6156bd00df3935bf18d6e01471ac8b4da04d618eebb47d9dd00ca223a5cca8c5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hf_beta-lesson04-selective-20261015-r3.log",
+      "bytes": 1798,
+      "sha256": "e8fe17a520e0e8a41e07fd331471328eac17ba756c031415bece62fd92b9a28b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hm_omega-lesson04-selective-20261015-r3.log",
+      "bytes": 1801,
+      "sha256": "11d6d8c22673b4f83339f4019745519a79e0a87d9f1e492c052767168ce0b5db"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-hi-hm_psi-lesson04-selective-20261015-r3.log",
+      "bytes": 1798,
+      "sha256": "a4f2b974eddf7019c44251526759a640b15d71dbdc9c8a7ef78c49fcbf94f1af"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-it-if_sara-lesson04-selective-20261015-r3.log",
+      "bytes": 1799,
+      "sha256": "f3b05dfe1fc9a1034af6272958810ef8d8a69d14f86d223466f74005fee6f7d9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-it-im_nicola-lesson04-selective-20261015-r3.log",
+      "bytes": 1804,
+      "sha256": "35aa9d5ab357af256dd5af64480999a93c0f1be021e679797948973c9c74591d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-pt-BR-pf_dora-lesson04-selective-20261015-r3.log",
+      "bytes": 1805,
+      "sha256": "85e6679221e3ecaf81f487b29edc76febd5f22c4ffb34a85bcfbbd8fc65f30f5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-pt-BR-pm_alex-lesson04-selective-20261015-r3.log",
+      "bytes": 1804,
+      "sha256": "ab67e9c24ade631a049656350e8b2910e0e8c0d3f58ee6991af8821bc4c769d3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-pt-BR-pm_santa-lesson04-selective-20261015-r3.log",
+      "bytes": 1807,
+      "sha256": "3b2df04600c49f9c5714c72fda84cd4b3c2de1d1d7edb018b482a32721d7a9e6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_alpha-lesson04-selective-20261015-r3.log",
+      "bytes": 1801,
+      "sha256": "344a0cbb3b8b16ebdcc7eba43c96be86ae4da027010f6436b6e16a2f5448f0fd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_gongitsune-lesson04-selective-20261015-r3.log",
+      "bytes": 1812,
+      "sha256": "d018e8c91d5444edd66e13514b0267a5f371c10a1ebfe0f31159f799ca1998ee"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_nezumi-lesson04-selective-20261015-r3.log",
+      "bytes": 1805,
+      "sha256": "efe865f2c9089e289484020a5ad9ff58a6128441f83f68562de06d5dc0299f31"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jf_tebukuro-lesson04-selective-20261015-r3.log",
+      "bytes": 1809,
+      "sha256": "929d20b44d898a0bae85259eb08fd9918dc288147bd526f2f8a940ef428a464a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-ja-jm_kumo-lesson04-selective-20261015-r3.log",
+      "bytes": 1799,
+      "sha256": "c000680d5c5b1fb69eae5d0af461fb05a141ad17f0c610589ed8f4301a608fe6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaobei-lesson04-selective-20261015-r3.log",
+      "bytes": 1811,
+      "sha256": "7ff65ec79f845edf7fca566e212a00744bd14d53fb3b321523fa518f76192d9e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaoni-lesson04-selective-20261015-r3.log",
+      "bytes": 1808,
+      "sha256": "177a1e062402980199cef83058c953d1e86509b72f16b3aefbc9d0298979da2c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaoxiao-lesson04-selective-20261015-r3.log",
+      "bytes": 1814,
+      "sha256": "409195d728b40187c2fa952aae16a71570242f0d4090350ccdc3d31814ef5a20"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zf_xiaoyi-lesson04-selective-20261015-r3.log",
+      "bytes": 1809,
+      "sha256": "75b9d175f6d1181679f39d7d0c4953cbf5e423b1485e55fe558f5dd115fe31eb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunjian-lesson04-selective-20261015-r3.log",
+      "bytes": 1811,
+      "sha256": "f5a453238c1137dbc3a4d959af52aba650a71bc2ab17f138675529e9a6162b44"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunxi-lesson04-selective-20261015-r3.log",
+      "bytes": 1807,
+      "sha256": "32ebf36e9a2b8304d4aa625ed17e255ac4ef268cc54ea1e5d021b83d4472de4b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunxia-lesson04-selective-20261015-r3.log",
+      "bytes": 1810,
+      "sha256": "ffd384fc055c9f5d1914d266ac037b78e19bb03369b4e2e6e2f23790491c8e19"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-zh-CN-zm_yunyang-lesson04-selective-20261015-r3.log",
+      "bytes": 1811,
+      "sha256": "07d7843f150277ec5025f61c4778fcfedbc131927193886498ba2da2973cb061"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-da-lesson04-selective-20261015-r3.log",
+      "bytes": 1941,
+      "sha256": "592cdbc0be8c54a95444b57f1c67753ef39131d51135061e33446c53212d658c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-de-lesson04-selective-20261015-r3.log",
+      "bytes": 1941,
+      "sha256": "2440750087609b934409105488bb5adf5c82acb816501e00f4463fc91cc44202"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-is-lesson04-selective-20261015-r3.log",
+      "bytes": 1942,
+      "sha256": "de8989361bd7b8e7481255f942154527976c5a518c01abb479c908ce3d419e17"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-ko-lesson04-selective-20261015-r3.log",
+      "bytes": 1942,
+      "sha256": "6d52a7e5e9f16e5d7d08918d21f0449687f135c3a0f2ca42d0d192a5307e4b7a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-nb-lesson04-selective-20261015-r3.log",
+      "bytes": 1941,
+      "sha256": "522365fd2c1674b707e199c51225363774d2fe411bf9e8e3ed608e4f606956f0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-web-en-af_heart-captions-sv-lesson04-selective-20261015-r3.log",
+      "bytes": 1942,
+      "sha256": "61011ffbc224cf8f0138f3667cce0f75f5617f0ce11d21eb5100bc6bd3923fac"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-preserve-interval-boundary-eof-lesson04-selective-20261015-r3.log",
+      "bytes": 168947,
+      "sha256": "6dd7d5b56869a41bab2bd9df7e0fbf7250082b10aa3dcd857148d77296c63f07"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-04_platform_installers-completed-matrix-lesson04-selective-20261015-r3.log",
+      "bytes": 634,
+      "sha256": "f0ea1cbf1d00e2fb1e773063a4d6c87db0b10055b427e74e5f71c647b0bb4104"
+    }
+  ],
+  "dedicated_playback": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/browser/04_platform_installers/en-af_heart-captions-en/playback-checks.json",
+    "bytes": 168254,
+    "sha256": "6ca07606fdbee1275dfaeece46b7340746474de8cded08410472387ebf26fb75"
+  },
+  "source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/player-explicit-seek-independent-source-peer.json",
+    "bytes": 4388,
+    "sha256": "ea74135d287471d7f52b1e82f9bb42cc73b7366ac6a2d16b551de67daecccaad"
+  },
+  "root_sampled_visual_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-composite-sampled-visual-review.json",
+    "bytes": 4576,
+    "sha256": "2b7c462ea91b5cf1f55092f2a8e5b8b65b3f96e013c7295d47bf646d32c693f1"
+  },
+  "root_native_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-native-home-visual-acceptance.json",
+    "bytes": 5887,
+    "sha256": "87019dda438fba31de602c23b811e840a7c9ffb0d1042b8d7a1aca14b3a40f25"
+  },
+  "checks": {
+    "exact_full5370_old_new_hosted_map_equality": true,
+    "all100audio14catalogs83others_retained": true,
+    "full851_native1x_preserved_static_flag_not_complete_claim": true,
+    "master_and_audio_not_reencoded_or_resynthesized": true,
+    "actualK6player_and73terminal0_bound": true
+  },
+  "limits": [
+    "Preservation review only; actual new84candidate/placeholder/checkpoint still running when this receipt was sealed.",
+    "No new browser/decode/remote/media stream hash; maps rely on owning build actual-byte validation, with smallactual player/timing/retention/catalog bytes independently checked.",
+    "OldC04prepublication PASS is historical; no restamped hosted acceptance or hearing/fullfreshcapture claim."
+  ]
+}

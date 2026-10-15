@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_utc": "2026-10-15T18:08:00.719023+00:00",
+  "source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/stage_mixed_visual.py",
+      "bytes": 12573,
+      "sha256": "be1aa8996e368e12c7be4e85b316eb938ef8521dba82407ed6087fdd43e8594d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/run_stage_and_render.sh",
+      "bytes": 2443,
+      "sha256": "6d860e1e937c975c1e951e86d110e4b4269b8a895a27d394d36baedab1de0af7"
+    }
+  ],
+  "owning_helper": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retained_visual_refresh.py",
+    "bytes": 32978,
+    "sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3"
+  },
+  "retained_narration_helper": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retain_narration.py",
+    "bytes": 6477,
+    "sha256": "10f956ce0a5cba7d18df1bd339411cd7de9c67e3735e7011b7766b4fefbb1054"
+  },
+  "source_implementation_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/retained-mixed-playback-independent-source-peer.json",
+    "bytes": 9278,
+    "sha256": "6397c337f155dd6df50107fa5c963dcc0f14c3a21ad303836c59f54b073fe1cd"
+  },
+  "component_authorization": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-component-decision-v2.json",
+    "bytes": 4401,
+    "sha256": "e6cd05d93c47999c2cdfdd7dadbd4ed9f7f64941fa8ca106845b3febd0d2456c"
+  },
+  "duration_policy": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-native-duration-policy.json",
+    "bytes": 1581,
+    "sha256": "ff59b6019f8a39aebc8013c7227decc395a67202ee86d31154485e03e85abd9b"
+  },
+  "actual_doctor_card_approval": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/scene10-doctor-card-visual-acceptance.json",
+    "bytes": 1861,
+    "sha256": "0c1efb1d98a00577558ba114c104cb19fddaadfc8c785372ee49d77d5577aee2"
+  },
+  "checks": {
+    "exact_frozen_script_hashes_match": true,
+    "python_AST_and_shell_syntax_pass": true,
+    "worktree_first_sys_path_editable_finder_removal": true,
+    "clean_exact_SOURCE_COMMIT_required_stage_and_render": true,
+    "actual_native_approval_hash_is_separate_from_component_authorization": true,
+    "native_min28_actualN_ge840_and_source_match_root_approval": true,
+    "owning_checked_home_runs_before_any_stage_directory_write": true,
+    "native_all14_evidence_bindings_and_root_visual_approval_required_by_owning_helper": true,
+    "no_UI_or_gate_bypass": true,
+    "all100audio14catalogs_13reviews_canonical_legacy_inputs_checked_and_retained": true,
+    "all_other12spec_inputs_preserved_both_visual_and_scenes": true,
+    "source_native_video_receipt_and_poster_copied_byte_exact": true,
+    "doctor_rootapproved_png_and_provenance_historical_source_retained": true,
+    "composite_truthful_falsecapture_truepixels_reference_origin_null_install_identity": true,
+    "fullnativeN_no_trim_owning_concat_command": true,
+    "doctor_first5111_plus_N_879frames_and_total9167_plus_N": true,
+    "owning_mixed_timing_sets_preserve_visual_intervals_without_complete_native_claim": true,
+    "actual_render_command_log_returncode_and_outputhash_bound": true,
+    "fresh_stage_exclusive_copies_and_logs_preserve_failures": true,
+    "owned10G_lease_with_phase2G_then8G_and_finally_removal": true,
+    "no_install_synthesis_native_or_gpu_commands_in_staging_jobs": true
+  },
+  "limits": [
+    "Source-only review; neither script nor staging/rendering, helper imports, app, browser, model or native job executed by peer.",
+    "Actual strict native/video/frame/source/profile/cleanup acceptance remains mandatory. Requested28s does not inventN; actual approval supplies observed fullN.",
+    "Successful render writes a factual receipt/timing, not final publication acceptance. Protected retained validator, owning finish/full-decode/allPTS, audio/browser/candidate/readback/Pages/record checks remain required downstream.",
+    "Existing legacyPerformance818 selected frames remain retained; no fullrawlegacyclip or wholefreshcapture/hearing claim."
+  ],
+  "resource_cap": "1G; owned lease removed in finally"
+}

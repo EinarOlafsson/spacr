@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "status": "owning_tests_passed_ready_for_independent_source_peer",
+  "lesson": "04_platform_installers",
+  "source_parent": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "capture_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 103117,
+      "sha256": "026441d007817bb7c67c2b8cef6d8e8429e8af1ad991b9641a9ecc08abe8f6c8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "bytes": 6438,
+      "sha256": "99a152244dc558938a460327c1cf21e3af5ed941673818e13e14b531a0cb3150"
+    }
+  ],
+  "unchanged_previous_files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retained_visual_refresh.py",
+      "bytes": 32978,
+      "sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_mixed_visual_refresh.py",
+      "bytes": 18430,
+      "sha256": "ea7d490b6c6101d497d53e6e602a7c04c07b60228605d4408cdf64a49cc64842"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_lesson.py",
+      "bytes": 40917,
+      "sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py",
+      "bytes": 9847,
+      "sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c"
+    }
+  ],
+  "tests": {
+    "passed": 225,
+    "seconds": 70.46,
+    "terminal_exit_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/retained-static-clock-tests-r3.log",
+      "bytes": 376,
+      "sha256": "a48101f3ff180770bc3e4fc278ff48c5f91aedd432057292f8c0e4e095656257"
+    },
+    "cap": "4G",
+    "CPU_only": true,
+    "software_Chrome": true,
+    "accelerated_video_decode": false,
+    "own_lease_removed": true,
+    "actual_browser_cases": 7,
+    "existing_browser_fixtures_unmodified": true,
+    "global_fixture_patch": false
+  },
+  "previous_224_owning_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/retained-mixed-playback-owning-tests.json",
+    "bytes": 5175,
+    "sha256": "2a7b9774f5ceb6734a9fa5292ff949cf848c2dae988b22fc4b91656c8afec652"
+  },
+  "preserved_attempts": [
+    {
+      "log": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/retained-static-clock-tests-r1.log",
+        "bytes": 9989,
+        "sha256": "3ce708f3322bad7cc5affc888ec6cf236d70fc28301e58c09697b5f5dfec3068"
+      },
+      "passed": 223,
+      "failed": 2,
+      "terminal_exit_status": 1,
+      "details": "New direct seek required audible play without trusted user activation; fixed test uses actual chapter click and owning paused-seek cue protocol. Unchanged complete-native verifier also strictly rejected deliberately injected range waiting."
+    },
+    {
+      "log": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/retained-static-clock-tests-r2.log",
+        "bytes": 254,
+        "sha256": "9f8f6a2c69c4842e341a5654861716dee013b061e63c16e0208a8483cb5ee6bf"
+      },
+      "terminal_exit_status": -15,
+      "accepted": false,
+      "details": "External global zero-range-delay attempt interrupted and exact owned descendants terminated after root requested original fixtures unchanged. Not counted."
+    }
+  ],
+  "checks": {
+    "source_delta_exact_authorized2paths": true,
+    "app_capture_policy_and_all_other_sources_unchanged": true,
+    "elapsed_mapping_both_directions_only_when_preserve_and_native_topflags_true": true,
+    "static_chapter_button_actual_AV_clock_error_lt_point15": true,
+    "static_caption_VTT_and_active_cue_match_actual_audio_clock": true,
+    "inverse_static_tail_clamped_to_current_scene": true,
+    "flag_absent_static_interpolation_unchanged": true,
+    "existing_complete_native_and_legacy_cases_pass": true,
+    "production_verifier_thresholds_timeouts_unchanged": true
+  },
+  "limits": [
+    "Actual repaired04 browser matrix previously failed; this owning synthetic regression is source/test evidence, not actual production playback acceptance.",
+    "No recapture/reencode/audio changes or source commit by author. Native capture remains K4; final player successor commit is root-owned and not invented here."
+  ]
+}

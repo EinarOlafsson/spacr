@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_utc": "2026-10-15T19:43:36.734611+00:00",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04_packet.py",
+      "bytes": 8714,
+      "sha256": "ff8161af7f0e1e7ccd45386778bfea23b4af901b2e22f05c400f1e58d78dfeb1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04-USAGE.txt",
+      "bytes": 2267,
+      "sha256": "ffc068197d7e576f278f25f986e06ce808a1bb05cc8f422edc89d3f4c8a76c97"
+    }
+  ],
+  "owner_preparation": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/completed04-assembler-source-preparation.json",
+    "bytes": 1842,
+    "sha256": "921f26033939c09e3a1f96a1d3acbc6ff450999a8277140208c45799df151e17"
+  },
+  "required_exporter_snapshot_correction": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/export_completed04_checkpoint.py",
+    "bytes": 26893,
+    "sha256": "8d5dc6a5382acf71b32d8045bd217b7906cb48c6694a9dc1cba567ac51cdf0b2"
+  },
+  "checks": {
+    "Python_AST_valid": true,
+    "actual_final_export_and_exact_root_finalreview_SHA_required": true,
+    "source_K4_and_C02_baseline_bound": true,
+    "actual_checkpoint_count_plus3_derived": true,
+    "actual851Home_total10018_and_true_preserveflag_required": true,
+    "no_wholefresh_or_complete_raw_native_claim": true,
+    "separate_actual_nativeapproval_exactexport_and_finalreview_binding": true,
+    "source_review_does_not_create_future_native_or_publication_evidence": true,
+    "all148_or_actual_dynamic_checkpoint_rows_SHA_size_safe_path_closedcoverage": true,
+    "all13reviews_100audio_14objects_83others_retention_counts_bound_to_actualexport": true,
+    "final_master_timing_candidate_manifest_and_record_publication_Pages_receipts_exactbound": true,
+    "small_full_export_sourcehandoff_doctorcard_and_explicit_boundary_files_copied": true,
+    "no_symlink_traversal_or_overwrite_privateoutput": true,
+    "all_video_audio_payload_suffixes_rejected_before_output_creation": true,
+    "input_and_copied_SHA_size_rechecked": true,
+    "no_execution_or_acceptance_authored_by_assembler": true
+  },
+  "limits": [
+    "Source-only static/read review; assembler/exporter not executed and no completed packet or future final acceptance implied.",
+    "Actual851technicalcapture exists, but visual acceptance, full repairedmaster/browser/HF/Pages/record/export/finalreview must be real prerequisites at run time.",
+    "Exported audio-retention identities are metadata/receipt bindings, not copying audio payloads or fresh listening/phoneme/native-speaker approval.",
+    "Closed completed-packet file inventory and hashes must still be independently verified after actual assembly."
+  ],
+  "resource_cap": "1G; owned lease removed in finally"
+}

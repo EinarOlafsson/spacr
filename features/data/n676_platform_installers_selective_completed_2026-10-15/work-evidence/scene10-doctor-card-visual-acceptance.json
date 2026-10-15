@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "scene": 10,
+  "accepted": true,
+  "reviewed_utc": "2026-10-15T17:20:13.223830+00:00",
+  "image": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/scene10-doctor-command-reference/05_doctor.png",
+    "bytes": 176607,
+    "sha256": "af843fc43126a768f6690d41756a037287602a064dfb8c8b306e7e666cbaed1a"
+  },
+  "generator_provenance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/scene10-doctor-command-reference/provenance.json",
+    "bytes": 877,
+    "sha256": "4cee6ddf98c1d77497504529dc5b1c07230f12786cea3fb98da5cdbd4b841bb2"
+  },
+  "owning_render_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/scene10-doctor-card-render-receipt.json",
+    "bytes": 3997,
+    "sha256": "1a8f586423c9a28e6ab26f66d069072625f61adcf4556c3fa68f21a721498646"
+  },
+  "generator_source": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py",
+    "bytes": 9847,
+    "sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c"
+  },
+  "findings": [
+    "Complete doctor command, historical results, backend/CZI explanation and footer are readable with no clipping.",
+    "Card explicitly identifies generated command reference rather than recorded terminal output.",
+    "Historical1.5.1.3 CPU result is distinguished from a new run.",
+    "No Spaceout wording appears on the replacement card."
+  ],
+  "terminal_output_fabricated": false,
+  "installation_or_environment_commands_executed": false,
+  "limits": [
+    "Root viewed the actual3840x2160PNG displayed at2048x1152.",
+    "No new doctor/installer execution, native capture, final composite or publication acceptance is claimed."
+  ]
+}

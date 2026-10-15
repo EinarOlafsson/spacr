@@ -1,0 +1,11 @@
+{
+  "commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "version": "1.5.1.4",
+  "module": "home",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorial-current/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": true,
+  "selected_scenes": "13_current_nightly_home"
+}

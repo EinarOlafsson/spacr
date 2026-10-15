@@ -1,0 +1,92 @@
+{
+  "schema": 2,
+  "lesson": "04_platform_installers",
+  "status": "targeted_video_repair_authorized_not_completed",
+  "accepted": true,
+  "acceptance_scope": "Authorizes only the two specified repairs; no future capture/publication acceptance.",
+  "created_utc": "2026-10-15T17:32:10.306080+00:00",
+  "source_preimage": "50da1bd9bfd59f9042019a1e20b602fcfae86c24",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/release-manifest.json",
+    "bytes": 1179996,
+    "sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439"
+  },
+  "audio": "KEEP",
+  "captions": "KEEP",
+  "replacement_scenes": [
+    9,
+    10
+  ],
+  "component_assessments": {
+    "video": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-component-assessment.json",
+      "bytes": 20231,
+      "sha256": "15a1de2cb7d4ff07404f159933843adaddf6491e593ac4bd6429a41eee1d843b"
+    },
+    "audio": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/audio-component-assessment.json",
+      "bytes": 187690,
+      "sha256": "aaadbe8b1152b3eece9864c28ed7c216e2aedf742058c69f1332286c6fc0a024"
+    },
+    "captions": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/caption-component-assessment.json",
+      "bytes": 17203,
+      "sha256": "ddb0b6e68348933d57a281514daff2dd3eb74148310e3bd32e26990f50e154ac"
+    }
+  },
+  "performance_keep_followup": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/performance-state-source-scan.json",
+    "bytes": 3877,
+    "sha256": "9fd60fb70444b5a373fd714d4cdfe2b69489359c104c8789a24391e54565dcda"
+  },
+  "doctor_card_approval": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/scene10-doctor-card-visual-acceptance.json",
+    "bytes": 1861,
+    "sha256": "0c1efb1d98a00577558ba114c104cb19fddaadfc8c785372ee49d77d5577aee2"
+  },
+  "repairs": [
+    {
+      "scene": 9,
+      "visual": "13_current_nightly_home",
+      "first_frame": 5111,
+      "reason": "Published Home omits Organism; current normal GUI supports the category named in unchanged narration.",
+      "required": "Fresh full strict-gated GNOME Home capture, alpha/Spaceout off; no trimming, loop, stretch or speedup.",
+      "frame_count_policy": "Actual complete native N >=840, verified from captured source; full N used at30fps1x."
+    },
+    {
+      "scene": 10,
+      "visual": "05_doctor",
+      "frame_count": 879,
+      "reason": "Published terminal contains Spaceout wording; standing instruction removes it from all recordings.",
+      "required": "Use exact root-approved generated command/reference card with truthful historical CPU summary.",
+      "first_frame_policy": "5111 + actual native N"
+    }
+  ],
+  "retention": {
+    "other_scenes_kept": 12,
+    "audio_and_sidecars_kept": 100,
+    "catalog_lesson_objects_kept": 14,
+    "fps": 30,
+    "legacy_performance_frames": 818,
+    "legacy_performance_selection_seconds": 27.266666666666666,
+    "baseline_total_frames": 10007,
+    "baseline_native_home_frames": 840,
+    "new_total_frames_policy": "10007 + actual native N - 840",
+    "other_scene_durations_preserved": true,
+    "downstream_clock_shift_seconds_policy": "(actual native N - 840)/30"
+  },
+  "fresh_native_capture_accepted": false,
+  "published": false,
+  "limits": [
+    "Existing audio assessed technically; no hearing/native-speaker or complete-word signoff.",
+    "Existing video assessment is sampled plus bounded Performance action/state review, not whole watching.",
+    "Old Performance remains legacy selection; no whole-composition complete-native-clip claim.",
+    "Fixed840-frame capture cannot be guaranteed by the unchanged GNOME stop-recording lifecycle; all actual frames must be retained and later scene clocks shift truthfully."
+  ],
+  "supersedes": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-component-decision.json",
+    "bytes": 3484,
+    "sha256": "48959f634aff43cbec64c1c3b416e0e97ad4a4ff711bda8537c41d2f3a004e42"
+  },
+  "native_duration_policy": "Consume complete actual native source at1x; do not force or trim to840frames. Requested28s is a minimum; normal capture stop latency determines actual N."
+}

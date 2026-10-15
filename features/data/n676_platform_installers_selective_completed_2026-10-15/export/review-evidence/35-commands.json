@@ -1,0 +1,55 @@
+[
+  {
+    "scene": "01_python_version",
+    "command": [
+      "python",
+      "--version"
+    ],
+    "output": "Python 3.12.13\n",
+    "returncode": 0,
+    "accepted": true
+  },
+  {
+    "scene": "02_installer_backend",
+    "command": [
+      "python",
+      "-c",
+      "import json; from pathlib import Path; print(json.dumps(json.loads(Path('/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/install-profile.json').read_text()), indent=2))"
+    ],
+    "output": "{\n  \"active_backend\": \"cpu\",\n  \"consent\": {\n    \"collected\": false,\n    \"report_issues\": false,\n    \"share_diagnostics\": false,\n    \"sign_in_now\": false\n  },\n  \"created_utc\": \"2026-10-06T04:32:54.587282+00:00\",\n  \"cuda_available\": false,\n  \"detected_accelerator\": \"nvidia\",\n  \"machine\": \"x86_64\",\n  \"mps_available\": false,\n  \"platform\": \"linux\",\n  \"requested_backend\": \"cpu\",\n  \"schema\": 1,\n  \"torch_cuda_build\": null,\n  \"torch_version\": \"2.14.1+cpu\"\n}\n",
+    "returncode": 0,
+    "accepted": true
+  },
+  {
+    "scene": "03_installed_versions",
+    "command": [
+      "python",
+      "-c",
+      "import sys,spacr,PySide6; print(\"Python:\", sys.executable); print(\"spaCR:\", spacr.__version__); print(\"Qt:\", PySide6.__version__); print(\"Package:\", spacr.__file__)"
+    ],
+    "output": "Python: /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/bin/python\nspaCR: 1.5.1.3\nQt: 6.11.2\nPackage: /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py\n",
+    "returncode": 0,
+    "accepted": true
+  },
+  {
+    "scene": "04_installed_launcher",
+    "command": [
+      "python",
+      "-c",
+      "from pathlib import Path; p=Path('/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/bin/spacr'); print(p); print(p.read_text())"
+    ],
+    "output": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/bin/spacr\n#!/usr/bin/env sh\nexec \"/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/bin/python\" -m spacr.qt \"$@\"\n\n",
+    "returncode": 0,
+    "accepted": true
+  },
+  {
+    "scene": "05_doctor",
+    "command": [
+      "spacr-doctor",
+      "--no-gpu-probe"
+    ],
+    "output": "PASS  python              Python 3.12.13 satisfies requires-python !=3.14.1,<3.15,>=3.9.\n                          interpreter: /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/bin/python\nPASS  spacr package       spacr 1.5.1.3 imports from /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr.\nPASS  running checkout    Not inside a spaCR checkout; runs from /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages.\n                          import spacr  -> /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr\n                          editable install: none (installed as a copy)\nPASS  duplicate installs  One importable spacr package: /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr.\nPASS  distributions       spacr 1.5.1.3 is the only spaCR distribution.\n                          /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr-1.5.1.3.dist-info\nPASS  console scripts     All 17 installed spaCR commands resolve.\nPASS  PATH                `spacr-doctor` on PATH comes from /tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv.\nPASS  qt extra            Qt GUI available (PySide6 6.11.2).\nPASS  display             A display server is reachable.\nPASS  core imports        All 13 core dependencies import.\nWARN  optional extras     1 optional extras are half-installed and will fail when their feature is used.\n                          czi: missing pylibCZIrw\n                          installed: fractal, lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike\n                          fix: python -m pip install \"spacr[czi]\"\nPASS  installer backend   The installer selected cpu; torch currently uses cpu (accelerator detected at install: nvidia).\nPASS  torch               torch 2.14.1+cpu (CPU-only build).\nSKIP  gpu                 CUDA/ROCm devices are deliberately hidden by CUDA_VISIBLE_DEVICES=''; no GPU probe was run.\n                          Segmentation (Cellpose): CPU — CPU only — expect minutes per image\n                          Model training: CPU — CPU only — slow but works\n                          Model inference / classification: CPU — CPU only\n                          Live backdrop and spaceout: GPU — GPU shader\n                          UMAP / t-SNE / clustering: CPU — CPU — cuML is built for CUDA only\n                          fix: Keep this restriction for CPU execution. Remove the visibility restriction before diagnosing those GPUs.\nPASS  cellpose            cellpose 4.2.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.\nSKIP  declared pins       Not inside a spaCR checkout; nothing to cross-check.\nSKIP  database            No database given.\n                          fix: spacr-doctor --db /path/to/plate/measurements/measurements.db\nSKIP  settings            No settings file given.\n                          fix: spacr-doctor --settings settings.csv --app measure\n\n13 passed, 1 warnings, 0 failed, 0 errored, 4 skipped\n",
+    "returncode": 0,
+    "accepted": true
+  }
+]
