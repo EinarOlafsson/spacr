@@ -268,3 +268,18 @@ No wholemodule extraction, catalog hand insertion, exemptions or generated
 runtime edits. Canonical extraction/generation/runtime closure remains pending;
 the backend's scientific caveats above remain unchanged. Receipt:
 features/data/564_reference_channels_2026-10-14/localization-receipt.json.
+
+2026-10-15 — Current-source backend integration and actual runtime lookup:
+The F564 reference preservation, F562 read-only identity join and F535 grouped
+tabular holdout components were integrated together with Home-B exact scoped
+extractor ownership. Normal writers emit ten reviewed diagnostics in each of
+nine locales, preserving all 10,491 unrelated source-current targets per
+locale. Actual lookup and finite owning cohort: 179 PASS, exit 0, 87.95 s.
+Root independently reviewed exact code diffs and found no blocking code issue;
+this is limited source review, not scientific/native/translation signoff.
+Receipt: features/data/scientific_backends_integration_2026-10-15/. Parent
+scientific, native and whole-feature acceptance limits remain as recorded.
+Normal full nine-locale runtime audit exit 1: 37 existing foreign N700
+error-report captions remain exact English (sv4/de3/es7/zh_CN7/pt7/hi3/ko3/is2/fr1).
+Raw failure is retained in the integration receipt. Nightly implementation
+publication does not claim green global CI/release or waive this owner gap.

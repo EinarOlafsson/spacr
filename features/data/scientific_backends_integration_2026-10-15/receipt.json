@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-15",
+  "source_components": {
+    "F564": [
+      "d78d36ae2ce",
+      "ec35fdb98a0"
+    ],
+    "F562": [
+      "4bfa517ed4c",
+      "c42118ee07d"
+    ],
+    "F535": [
+      "9146a31a4e3"
+    ]
+  },
+  "extractor_owner": "715f069b682 (Home-B); F564 scope already public",
+  "root_peer_review": "No blocking code issue in exact source diffs; limited source review only, not scientific/native/translation signoff",
+  "runtime_method": "Normal canonical extraction/reviewed_runtime_translations/candidate gates/write_english/write_language. Every unrelated committed source-current target preserved; AST snapshot rechecked before writing.",
+  "scientific_limits": [
+    "Counterfactual reference preservation is not trained structure loss or biological identity acceptance",
+    "MIL alias correctness is not real-screen efficacy",
+    "Well-disjoint tabular holdout is not image/Torch route acceptance or held-out biological accuracy"
+  ],
+  "independent_translation_review": "Not claimed; nine-locale source-bound AI technical review inputs",
+  "owning": {
+    "passed": 179,
+    "exit": 0,
+    "seconds": 87.95
+  },
+  "runtime_generation_exit": 0,
+  "source_sha256": {
+    "spacr/attribution.py": "5feb0d79f47630e82c3f0308ede453dce38e5628418fc789dd8b8034351e7085",
+    "spacr/embeddings.py": "dd76f1ba8320765e635855e4cac1c3c487e0fd92da0464e4e3bd8fe6e9b508f3",
+    "spacr/measure.py": "fef2d7ded571f56b398d5f8fbedd9d51825020f69723edfa95fc26a6189bda1b",
+    "tools/build_i18n_catalogs.py": "62a6ebc0839eb88ee6e352ba888c9af2c345ea24a52bf6e5561c8958b15ec91c"
+  },
+  "global_runtime_audit": {
+    "exit": 1,
+    "foreign_N700_exact_English_rows": {
+      "sv": 4,
+      "de": 3,
+      "es": 7,
+      "zh_CN": 7,
+      "pt": 7,
+      "hi": 3,
+      "ko": 3,
+      "is": 2,
+      "fr": 1
+    },
+    "raw_log": "full-runtime-audit.log.gz",
+    "raw_log_sha256": "3fe6e142cb481435323d4ecd972c11591b3594ee08c55273d1473535b3239e57",
+    "policy": "Nightly implementation publication authorized by root with exact foreign failures; not global CI/release acceptance. No N700 source/targets changed and no gate waived."
+  }
+}
