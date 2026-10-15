@@ -67,7 +67,7 @@
     "Backend algorithm/statistic unchanged; this selects the reference, not a new calibration method",
     "The full unchanged13-case arrival negative suite was an avoidable verification expansion; future merge verification stays scoped to actual positive arrival/source proof and changed artifacts."
   ],
-  "final_acceptance": "PASS combined merged source; normal publication next",
+  "final_acceptance": "PASS;87distinct cases retained with21merged-context and1doc-only-context repeats, normal publication next",
   "source_sha256": {
     "spacr/intensity_rescale.py": "5b2b18a72df195021e5b065d0f54d34a301be854fe1ccc5610940cf05dc4d604",
     "spacr/settings.py": "bdcd24255e3177f107090e47e7549e6fe630c08d1b0e50d510c420fce5ad00e2",
@@ -365,5 +365,20 @@
     "arrival_retired": 151,
     "arrival_changed": 30,
     "distinct_total_still": 87
+  },
+  "final_doc_only_reconciliation": {
+    "public_base": "7b6abe591ff",
+    "executable_ast": "Identical incoming4widget executable AST; only public docstring prose changed",
+    "own_source": "Four source files byte-identical0ba0b912918",
+    "normal_tools": [
+      "build_setting_consumer_map.py",
+      "settings_flow.py --rst",
+      "build_help_search_index.py"
+    ],
+    "exact_field_artifact_case": {
+      "passed": 1,
+      "seconds": 0.58
+    },
+    "unchanged_87_not_repeated": true
   }
 }

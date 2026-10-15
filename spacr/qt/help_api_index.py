@@ -11532,7 +11532,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.volcano_explorer.VolcanoExplorer.set_style', 'Restyle the plot and push the new values into the controls.'),
     ('spacr.qt.widgets.volcano_explorer.VolcanoExplorer.style', 'How the volcano is currently drawn.'),
     ('spacr.qt.widgets.volume_view', "Camera arithmetic for the Gate Editor's 3D volume."),
-    ('spacr.qt.widgets.volume_view.angles_from_axes', 'The ``(elev, azim, roll)`` that make matplotlib draw this frame.'),
+    ('spacr.qt.widgets.volume_view.angles_from_axes', 'Return ``(elev, azim, roll)`` in degrees for the supplied screen axes.'),
     ('spacr.qt.widgets.volume_view.rotate_about_world', 'Turn the volume about one of its own data axes.'),
     ('spacr.qt.widgets.volume_view.trackball', 'Turn the view as if the volume were grabbed and dragged.'),
     ('spacr.qt.widgets.volume_view.view_axes', 'The screen axes matplotlib builds from three camera angles.'),
