@@ -168,3 +168,89 @@ def test_the_sample_keeps_every_judgement_when_it_grows(project):
     with sqlite3.connect(database) as db:
         rows = dict(db.execute("SELECT png_path, real FROM png_list"))
     assert len(rows) == 3 and rows[first[0]] == 2
+
+
+def _fingerprint_sample_project(tmp_path):
+    root = tmp_path / 'fingerprint_project'
+    parents = []
+    crops = []
+    for kind in sampler.TYPES:
+        folder = root / kind / 'plate_A' / 'measurements'
+        folder.mkdir(parents=True)
+        crop = folder.parent / 'crop.png'
+        crop.write_bytes(b'original crop bytes ' + kind.encode())
+        database = folder / 'measurements.db'
+        with sqlite3.connect(database) as db:
+            db.execute('CREATE TABLE png_list (png_path TEXT, plateID TEXT, real INTEGER)')
+            db.execute('INSERT INTO png_list VALUES (?, ?, ?)', (str(crop), 'plate_A', 2))
+        parents.append(database)
+        crops.append(crop)
+    return root, parents, crops
+
+
+def test_sample_fingerprints_new_crops_without_inheriting_parent_judgements(tmp_path, monkeypatch, capsys):
+    import hashlib
+
+    root, parents, crops = _fingerprint_sample_project(tmp_path)
+    before = {path: path.read_bytes() for path in parents + crops}
+    connect = sqlite3.connect
+    source_connections = []
+
+    def tracked_connect(path, *args, **kwargs):
+        if isinstance(path, str) and path.startswith('file:'):
+            source_connections.append((path, kwargs.get('uri')))
+        return connect(path, *args, **kwargs)
+
+    monkeypatch.setattr(sampler.sqlite3, 'connect', tracked_connect)
+    assert sampler.main(['--root', str(root), '--per-type', '1']) == 0
+    assert len(source_connections) == 3
+    assert all(path.endswith('?mode=ro') and uri is True for path, uri in source_connections)
+    for kind, crop in zip(sampler.TYPES, crops):
+        with connect(root / 'annotation_sample' / kind / 'measurements/measurements.db') as db:
+            row = db.execute('SELECT real, sample_png_sha256, sample_png_bytes FROM png_list').fetchone()
+        raw = before[crop]
+        assert row == (None, hashlib.sha256(raw).hexdigest(), len(raw))
+    assert all(path.read_bytes() == content for path, content in before.items())
+    import json
+
+    reports = [json.loads(line) for line in capsys.readouterr().out.splitlines() if line.startswith('{')]
+    assert len(reports) == 3
+    assert all(record['parent_label_candidates_unverified'] == 1 for record in reports)
+    assert all(record['legacy_label_transfer_performed'] is False for record in reports)
+
+
+def test_sample_does_not_backfill_hashes_or_replace_legacy_judgements(tmp_path, capsys):
+    root, parents, crops = _fingerprint_sample_project(tmp_path)
+    for kind, crop in zip(sampler.TYPES, crops):
+        folder = root / 'annotation_sample' / kind / 'measurements'
+        folder.mkdir(parents=True)
+        with sqlite3.connect(folder / 'measurements.db') as db:
+            db.execute('CREATE TABLE png_list (png_path TEXT PRIMARY KEY, file_name TEXT, plateID TEXT, rowID TEXT, columnID TEXT, fieldID TEXT, prcfo TEXT, object_id TEXT, dataset_plate TEXT, real INTEGER)')
+            db.execute('INSERT INTO png_list (png_path, real) VALUES (?, ?)', (str(crop), 1))
+    assert sampler.main(['--root', str(root), '--per-type', '1']) == 0
+    for kind in sampler.TYPES:
+        with sqlite3.connect(root / 'annotation_sample' / kind / 'measurements/measurements.db') as db:
+            assert db.execute('SELECT real, sample_png_sha256, sample_png_bytes FROM png_list').fetchone() == (1, None, None)
+    import json
+
+    reports = [json.loads(line) for line in capsys.readouterr().out.splitlines() if line.startswith('{')]
+    assert len(reports) == 3
+    assert all(record['legacy_labels_without_pixel_provenance'] == 1 for record in reports)
+    assert all(record['legacy_label_transfer_performed'] is False for record in reports)
+    assert all(record['annotation_time_binding'] is False for record in reports)
+
+
+def test_sample_rerun_preserves_the_original_preannotation_fingerprint(tmp_path):
+    import hashlib
+
+    root, parents, crops = _fingerprint_sample_project(tmp_path)
+    original = [hashlib.sha256(path.read_bytes()).hexdigest() for path in crops]
+    sampler.main(['--root', str(root), '--per-type', '1'])
+    for kind, crop in zip(sampler.TYPES, crops):
+        with sqlite3.connect(root / 'annotation_sample' / kind / 'measurements/measurements.db') as db:
+            db.execute('UPDATE png_list SET real = 1')
+        crop.write_bytes(b'changed pixels after the sample was created')
+    sampler.main(['--root', str(root), '--per-type', '1'])
+    for kind, digest in zip(sampler.TYPES, original):
+        with sqlite3.connect(root / 'annotation_sample' / kind / 'measurements/measurements.db') as db:
+            assert db.execute('SELECT real, sample_png_sha256 FROM png_list').fetchone() == (1, digest)
