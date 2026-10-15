@@ -1,0 +1,12 @@
+{
+  "language": "is",
+  "source": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "source_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "context": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "context_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "translation": "Sá fjórði, :class:`HostedProvider`, þarf hvorki CLI né reikning: hann spyr millilið spaCR, sem svarar með ókeypis hýstu líkani, og er sjálfgefinn þegar enginn hinna þriggja er bæði uppsettur og innskráður (:func:`default_provider`).",
+  "translation_sha256": "990892da62901637bc50b0719a64b564bd75c48040737c846a472e3bef6d1d13",
+  "label": null,
+  "label_status": "Pending CI exact current block inventory; no guessed label",
+  "review_kind": "AI technical draft; independent technical review pending; no human or native-speaker signoff"
+}
