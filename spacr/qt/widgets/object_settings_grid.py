@@ -71,11 +71,12 @@ from .sortable_table import install_sorting
 __all__ = ["AUTO_TEXT", "OFF_TEXT", "ObjectSettingsGrid",
            "ObjectSettingsModel"]
 
-#: What an unset value reads as. ``None`` means "work it out" for most of
-#: these, and an empty cell would read as "nobody has filled this in yet",
-#: which is a different claim. An object diameter is the exception: its
-#: ``None`` is the magnification default, drawn greyed (item 696).
 AUTO_TEXT = "auto"
+"""What an unset value reads as. ``None`` means "work it out" for most of
+these, and an empty cell would read as "nobody has filled this in yet",
+which is a different claim. An object diameter is the exception: its
+``None`` is the magnification default, drawn greyed (item 696).
+"""
 
 #: What an unset CHANNEL reads as, and it is not "auto".
 #:

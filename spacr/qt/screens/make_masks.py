@@ -405,12 +405,13 @@ MIN_VIEWPORT = 8
 #: are usually the entire reason the field looks black.
 PERCENTILE_DECIMALS = 6
 
-#: Fields of at least this many pixels keep their display percentiles
-#: between refreshes (:meth:`_MaskCanvas._display_bounds`). Smaller fields
-#: recompute them, which costs little and follows an array edited in place.
-#: One megapixel: the two percentiles cost 23 ms a refresh on the lesson's
-#: 2,000 px field, which a 2,048 px bound left out.
 _DISPLAY_BOUNDS_CACHE_PIXELS = 1024 * 1024
+"""Fields of at least this many pixels keep their display percentiles
+between refreshes (:meth:`_MaskCanvas._display_bounds`). Smaller fields
+recompute them, which costs little and follows an array edited in place.
+One megapixel: the two percentiles cost 23 ms a refresh on the lesson's
+2,000 px field, which a 2,048 px bound left out.
+"""
 
 #: Starting width of the settings pane, in pixels, and the width it is
 #: put back at when the settings button turns it on again after a session
@@ -1127,11 +1128,12 @@ def _warm_the_save_path() -> None:
     thread.start()
 
 
-#: A Wand click on a field of at least this many pixels floods off the GUI
-#: thread. A capped flood on the lesson's 2,000 px field is a watershed over
-#: most of a megapixel, three times: 0.4 s to 2 s of a frozen window. Below
-#: this a flood costs a frame or two and still lands before the release.
 _WAND_THREAD_PIXELS = 1_000_000
+"""A Wand click on a field of at least this many pixels floods off the GUI
+thread. A capped flood on the lesson's 2,000 px field is a watershed over
+most of a megapixel, three times: 0.4 s to 2 s of a frozen window. Below
+this a flood costs a frame or two and still lands before the release.
+"""
 
 
 class _WandRequest(NamedTuple):
@@ -1159,11 +1161,12 @@ class _WandRequest(NamedTuple):
     tail: dict
 
 
-#: A mask of at least this many pixels has its readout's objects numbered
-#: off the GUI thread. :class:`spacr.qt.mask_engine.ObjectLookup` costs
-#: 55 ms on the lesson's 2,000 px field, and the readout asks for a new one
-#: after every edit while the mouse rests on the canvas.
 _LOOKUP_THREAD_PIXELS = 1_000_000
+"""A mask of at least this many pixels has its readout's objects numbered
+off the GUI thread. :class:`spacr.qt.mask_engine.ObjectLookup` costs
+55 ms on the lesson's 2,000 px field, and the readout asks for a new one
+after every edit while the mouse rests on the canvas.
+"""
 
 
 class _LookupRequest(NamedTuple):
@@ -1364,9 +1367,10 @@ class _MaskCanvas(QLabel):
         self._wand_worker = None
         self._wand_request: Optional[_WandRequest] = None
         self._wand_cursor = None
-        #: None floods on a worker for a field of :data:`_WAND_THREAD_PIXELS`
-        #: or more; True or False forces either way.
         self.wand_threaded: Optional[bool] = None
+        """None floods on a worker for a field of :data:`_WAND_THREAD_PIXELS`
+        or more; True or False forces either way.
+        """
         self.wand_ready.connect(self._take_wand)
         self._lookup_worker = None
         self._lookup_asked: Optional[_LookupRequest] = None
@@ -1439,21 +1443,26 @@ class _MaskCanvas(QLabel):
         self._gesture_button = None
         self.manual_ids = False
         self._brush_value = 255
-        #: The label the last brush stroke on this field painted, or None.
-        #: A Shift stroke paints it again (item 697).
         self._stroke_label: Optional[int] = None
-        #: The open brush stroke still paints a label of its own that it
-        #: gives up for the first object it touches.
+        """The label the last brush stroke on this field painted, or None.
+        A Shift stroke paints it again (item 697).
+        """
         self._stroke_pending = False
-        #: The open brush stroke was started with Shift and continues
-        #: :attr:`_stroke_label`.
+        """The open brush stroke still paints a label of its own that it
+        gives up for the first object it touches.
+        """
         self._stroke_shift = False
-        #: Where the continued label lay before a Shift stroke, as a boolean
-        #: mask, or None; and whether the stroke has reached it yet.
+        """The open brush stroke was started with Shift and continues
+        :attr:`_stroke_label`.
+        """
         self._stroke_origin: Optional[np.ndarray] = None
+        """Where the continued label lay before a Shift stroke, as a boolean
+        mask, or None; and whether the stroke has reached it yet.
+        """
         self._stroke_joined = False
-        #: What :attr:`volume_neighbours` returned when the open stroke began.
         self._stroke_context = None
+        """What :attr:`volume_neighbours` returned when the open stroke began.
+        """
 
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"background: {active_palette()['bg']};")
@@ -1480,11 +1489,12 @@ class _MaskCanvas(QLabel):
         #: While a volume is open: what the brush paints, as a callable
         #: returning the chosen 3-D object ID; None paints as in 2-D.
         self.volume_label = None
-        #: While a volume is open: a callable returning ``(free, sections)``,
-        #: the first object ID the volume does not use and the label
-        #: sections on either side of the one shown, shaped as it is. A brush
-        #: stroke touching an object in one of them extends that object.
         self.volume_neighbours = None
+        """While a volume is open: a callable returning ``(free, sections)``,
+        the first object ID the volume does not use and the label
+        sections on either side of the one shown, shaped as it is. A brush
+        stroke touching an object in one of them extends that object.
+        """
         #: While the Z wheel is on: called with +1 or -1 per wheel notch to
         #: change the slice instead of zooming.
         self.slice_wheel = None
@@ -5156,12 +5166,13 @@ def _box_levels(image: np.ndarray, box, lower_pct: float,
     return low, high
 
 
-#: ``(dtype, black, white) -> the pixel each value is drawn as``, for the
-#: last few levels the box and the canvas were drawn at. At most four: the
-#: box's levels change when it moves over a different region, the canvas
-#: keeps its own, and a table for levels nobody is looking at any more is
-#: 256 KB held for nothing.
 _BOX_GREY_TABLE: dict = {}
+"""``(dtype, black, white) -> the pixel each value is drawn as``, for the
+last few levels the box and the canvas were drawn at. At most four: the
+box's levels change when it moves over a different region, the canvas
+keeps its own, and a table for levels nobody is looking at any more is
+256 KB held for nothing.
+"""
 
 
 def _rgb32(rgb: np.ndarray) -> np.ndarray:
