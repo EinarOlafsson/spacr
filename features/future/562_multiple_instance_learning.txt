@@ -136,3 +136,27 @@ WHAT IS LEFT
     Left: nothing in code. Note: no GUI step writes crop_embedding yet
     (only spacr.active_learning._store_crop_embeddings); new captions await
     the catalog lane (_AWAITING_CATALOG_REBUILD). GPU runs optional.
+
+2026-10-14 — Original Home: well-label identity/read-only join repaired (alpha).
+The stored-embedding MIL reader now resolves each full/short/compact well key
+individually, so mixed legitimate spellings no longer silently lose labels.
+Conflicting duplicate or alias assignments refuse; a short key matching the
+same row/column on multiple plates refuses and requests the full identifier.
+Agreeing aliases remain valid, absent labels stay absent, unrelated table wells
+are ignored, and label input frames remain untouched. Both embedding and crop
+SQLite reads explicitly disable migration and use read-only connections; source
+bytes remain unchanged on successful and refused joins, and a missing database
+is not created. Existing encoder/UMAP/render/schema/widget source is untouched.
+Validation15 owning MIL cases PASS/actualexit0/5.47s, including actual temporary
+SQLite joins, two-plate identity, conflicts, mixed spellings and original
+planted-responder MIL checks. First9PASS/5test path-type failures are retained;
+after correcting string-path byte checks,5real migration mutations were exposed
+and fixed by read-only reads, with original failures retained. No biological
+accuracy, real-screen or GPU acceptance inferred from these synthetic cases.
+Two new exact diagnostics have18 source-hash-bound AI technical translations in
+all9locales; normal contextualization/candidate gates pass all18, actualexit0.
+Parent independent review, Home-B one-function extractor scope and normal
+runtime generation remain pending. No generated catalog rows inserted here.
+Existing ALPHA_FEATURES[562] and literal widget gates remain unchanged; whole
+F562 scientific/publication acceptance is not newly claimed by this repair.
+Receipt:features/data/562_well_label_identity_2026-10-14/.

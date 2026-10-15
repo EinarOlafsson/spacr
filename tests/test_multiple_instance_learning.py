@@ -6,6 +6,8 @@ held-out well prediction beats a classifier on each well's mean cell.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -144,3 +146,77 @@ def test_a_database_without_stored_embeddings_is_refused(tmp_path):
     db, labels = _embedded_project(tmp_path / "e")
     with pytest.raises(ValueError, match="no 'well_label' column"):
         _mil_frame_from_db(db, labels.drop(columns="well_label"))
+
+
+def test_mil_labels_resolve_mixed_full_short_and_compact_keys_without_losing_wells(tmp_path):
+    from spacr.embeddings import _mil_frame_from_db
+    db, _ = _embedded_project(tmp_path)
+    labels = pd.DataFrame({'well': ['plate1_A_1', 'A_2', 'A3', 'plate1_B_1', 'B2'], 'well_label': [0, 1, 0, 1, 0]})
+    before = labels.copy(deep=True)
+    database_before = Path(db).read_bytes()
+    frame = _mil_frame_from_db(db, labels)
+    assert Path(db).read_bytes() == database_before
+    expected = {'plate1_A_1': 0, 'plate1_A_2': 1, 'plate1_A_3': 0, 'plate1_B_1': 1, 'plate1_B_2': 0}
+    for well, group in frame.groupby('wellID'):
+        if well in expected:
+            assert group.well_label.eq(expected[well]).all()
+        else:
+            assert group.well_label.isna().all()
+    pd.testing.assert_frame_equal(labels, before)
+
+
+@pytest.mark.parametrize('keys', [['A1', 'A1'], ['A1', 'plate1_A_1'], ['A_1', 'A1']])
+def test_mil_conflicting_duplicate_or_alias_labels_are_refused(tmp_path, keys):
+    from spacr.embeddings import _mil_frame_from_db
+    db, _ = _embedded_project(tmp_path)
+    before = Path(db).read_bytes()
+    labels = pd.DataFrame({'well': keys, 'well_label': [0, 1]})
+    with pytest.raises(ValueError, match='conflicting labels'):
+        _mil_frame_from_db(db, labels)
+    assert Path(db).read_bytes() == before
+
+
+def test_mil_agreeing_duplicate_and_alias_labels_and_missing_values_are_safe(tmp_path):
+    from spacr.embeddings import _mil_frame_from_db
+    db, _ = _embedded_project(tmp_path)
+    labels = pd.DataFrame({'well': ['A1', 'A1', 'A_1', 'plate1_A_1', 'A1', None, 'Z99'], 'well_label': [1, 1, 1, 1, np.nan, 0, 1]})
+    frame = _mil_frame_from_db(db, labels)
+    assert frame.loc[frame.wellID.eq('plate1_A_1'), 'well_label'].eq(1).all()
+    assert frame.loc[~frame.wellID.eq('plate1_A_1'), 'well_label'].isna().all()
+
+
+def _two_plate_mil_project(tmp_path):
+    import sqlite3
+    db, _ = _embedded_project(tmp_path)
+    with sqlite3.connect(db) as connection:
+        connection.execute("UPDATE png_list SET prcfo=replace(prcfo, 'plate1_B_', 'plate2_A_'), plateID='plate2', rowID='A' WHERE rowID='B'")
+        connection.execute("UPDATE crop_embedding SET prcfo=replace(prcfo, 'plate1_B_', 'plate2_A_')")
+    return db
+
+
+@pytest.mark.parametrize('key', ['A1', 'A_1'])
+def test_mil_short_well_labels_never_cross_plate_boundaries(tmp_path, key):
+    from spacr.embeddings import _mil_frame_from_db
+    db = _two_plate_mil_project(tmp_path)
+    before = Path(db).read_bytes()
+    with pytest.raises(ValueError, match='ambiguous across plates'):
+        _mil_frame_from_db(db, pd.DataFrame({'well': [key], 'well_label': [1]}))
+    assert Path(db).read_bytes() == before
+
+
+def test_mil_full_well_keys_keep_two_plates_separate(tmp_path):
+    from spacr.embeddings import _mil_frame_from_db
+    db = _two_plate_mil_project(tmp_path)
+    labels = pd.DataFrame({'wellID': ['plate1_A_1', 'plate2_A_1'], 'well_label': [0, 1]})
+    frame = _mil_frame_from_db(db, labels)
+    assert frame.loc[frame.wellID.eq('plate1_A_1'), 'well_label'].eq(0).all()
+    assert frame.loc[frame.wellID.eq('plate2_A_1'), 'well_label'].eq(1).all()
+    assert frame.loc[~frame.wellID.isin(labels.wellID), 'well_label'].isna().all()
+
+
+def test_mil_missing_database_refuses_without_creating_it(tmp_path):
+    from spacr.embeddings import _mil_frame_from_db
+    missing = tmp_path / 'missing.db'
+    with pytest.raises(ValueError, match='no stored crop embeddings'):
+        _mil_frame_from_db(missing)
+    assert not missing.exists()
