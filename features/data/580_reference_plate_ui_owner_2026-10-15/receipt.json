@@ -1,0 +1,39 @@
+{
+  "scope": "Exact requested F580 owner UI adapter; no planner/default/schema/alpha registry or derived artifact edits. Private delivery requires domain integration.",
+  "baseline_source": "348c63b842a18663a364a746f3b277bcef5efdc8",
+  "baseline": {
+    "failed": 4,
+    "passed": 3,
+    "seconds": 3.0
+  },
+  "after": {
+    "passed": 7,
+    "seconds": 3.25,
+    "memory_cap": "2G",
+    "threads": 1,
+    "qt": "offscreen",
+    "small_owning_cohort_outside_heavy_lock": true
+  },
+  "covered": [
+    "Exact Measure/key control gets literal objectName before preview hook; three unrelated app/key combinations unchanged",
+    "Preview snapshot includes selected reference and deep-copies mutable settings",
+    "Actual dialog invalidates old gains when reference selection changes",
+    "Actual dialog explains named/blank choice"
+  ],
+  "dependencies": [
+    "Original Home registers new blank-default string setting, planner and alpha widget membership",
+    "Original Home supplies nine exact runtime source reviews and normal generation; old preview caption retirement must be source-bound",
+    "Source guide sentence needs normal guide localization/publication with domain batch"
+  ],
+  "limitations": [
+    "No actual new-setting AppScreen/alpha visibility or planner parity acceptance in this isolated adapter; domain owner owns those checks",
+    "No new biological/scientific/paired-session acquisition acceptance",
+    "No model/network/GPU/live-data/whole-suite or final CI"
+  ],
+  "sha256": {
+    "spacr/qt/screens/settings_model.py": "6ad2843744686efe17db8f131284db5cf99b214874949cbd94715255f574a2a5",
+    "spacr/qt/widgets/calibration_preview.py": "c359e075a35738a12ddddb3d0b994fc072dfb88a1b0a33429e77f6153251fd1c",
+    "docs/source/measure_live.rst": "c241fe071859bb1f3fc770c94b857d3536bf46cb048acaa48ae154799903b031",
+    "tests/qt/test_reference_plate_preview_owner_f580.py": "34547dbf9866a0d558ffbb6bd7fcfe15642f895a64e9afb72a7b264e44376edd"
+  }
+}

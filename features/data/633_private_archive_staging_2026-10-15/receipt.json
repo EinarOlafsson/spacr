@@ -1,0 +1,54 @@
+{
+  "scope": "N633 native example archive stream staging ownership; F288 targeted regression evidence only, not full CI or coverage closure",
+  "base": "9ade0f545242f8199c53d8cefd0cb2297b7d5b67",
+  "baseline": {
+    "failed": 6,
+    "seconds": 1.22,
+    "run": "locked-baseline",
+    "actual_two_thread_barrier": true
+  },
+  "owning": {
+    "passed": 7,
+    "seconds": 0.79,
+    "common_heavy_lock": true,
+    "memory_cap": "2G",
+    "thread_limit": 1,
+    "existing_HTTP_URL_chunk_and_progress_contract": true
+  },
+  "proofs": [
+    "Overlapping same-name attempts publish their own complete streams in completion order",
+    "Pre-existing deterministic .part file and symlink plus foreign target remain untouched",
+    "Interrupted/short/cancelled attempts preserve last-good destination and unrelated partial bytes",
+    "Own random staging files removed after success/failure"
+  ],
+  "source_docstring_signature_unchanged": true,
+  "source_sha256": "6c8425a0b2d8672b3e39eaeb2768c54bb987f4b9086a5591d9222dfd5e95e0e2",
+  "limits": [
+    "Published archives inherit privately created staging mode0600; no old public0644 mode guarantee",
+    "No locks ordering different valid archive identities that share a basename; last completed publication wins as before",
+    "Other Qt workers have separate transfer loops and are not closed by this narrow generic helper repair",
+    "No actual network/dataset publication, full CI, coverage-floor or human/native acceptance claim"
+  ],
+  "resource_exception": {
+    "cancelled_own_unstarted_waiter": 971801,
+    "waiter_exit": 143,
+    "native_test_child_before_cancel": false,
+    "single_root_authorized_light_attempt": {
+      "exit": 255,
+      "seconds": 2.43,
+      "maximum_RSS_KiB": 350536,
+      "no_output_or_JUnit": true,
+      "not_native_acceptance": true,
+      "no_repeat": true
+    },
+    "normal_locked_baseline_and_owning_afterwards": true
+  },
+  "root_source_peer": "Parent root approved exact proposed-source.patch before publication; no additional tests requested",
+  "publication": "Normal source-identical merge completed; push follows this evidence commit",
+  "normal_reconciliation": {
+    "merged_public": "694070a9c0c",
+    "own_source_byte_identical_to_tested": "41bad4432dd",
+    "unchanged_native_cases_not_repeated": true,
+    "no_generated_API_or_runtime_source_change": true
+  }
+}

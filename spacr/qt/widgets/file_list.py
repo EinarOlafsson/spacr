@@ -1287,6 +1287,8 @@ class FilePathListWidget(QWidget):
         self._single = bool(single)
         self._allow_folders = bool(allow_folders) and not self._single
         self._last_directory = ""
+        self._path_drop_generation = 0
+        self._pending_path_drops = []
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -1385,6 +1387,8 @@ class FilePathListWidget(QWidget):
             iterable of paths; surrounding quotes and placeholder values are
             dropped.
         """
+        self._path_drop_generation += 1
+        self._pending_path_drops.clear()
         before = self.paths()
         self._list.clear()
         paths = self._coerce(value)
@@ -1480,7 +1484,12 @@ class FilePathListWidget(QWidget):
 
     def _folder_members(self, folder: str) -> List[str]:
         """Matching files one level inside ``folder``, sorted for stable order."""
-        extensions = _KIND_EXTENSIONS.get(self._kind, ())
+        return self._folder_members_for_kind(folder, self._kind)
+
+    @staticmethod
+    def _folder_members_for_kind(folder: str, kind: str) -> List[str]:
+        """Return sorted matching files using a captured kind without a widget."""
+        extensions = _KIND_EXTENSIONS.get(kind, ())
         try:
             names = sorted(os.listdir(folder))
         except OSError:
@@ -1534,6 +1543,8 @@ class FilePathListWidget(QWidget):
 
     def clear(self) -> None:
         """Drop every path, and say so only if there was anything to drop."""
+        self._path_drop_generation += 1
+        self._pending_path_drops.clear()
         if self._list.count():
             self._list.clear()
             self._refresh_hint()
@@ -1688,9 +1699,55 @@ class FilePathListWidget(QWidget):
         if not paths:
             event.ignore()
             return
-        self.add_paths(paths)
+        if self._single:
+            self.add_paths(paths)
+        else:
+            self._queue_dropped_paths(paths)
         event.acceptProposedAction()
 
+    def _queue_dropped_paths(self, paths) -> None:
+        """Expand dropped paths on the owned scanner and deliver in drop order."""
+        from ..dnd_handlers import _scanner_for
+
+        incoming = self._coerce(paths)
+        kind = self._kind
+        slot = {"paths": None, "generation": self._path_drop_generation}
+        self._pending_path_drops.append(slot)
+
+        def collect():
+            """Resolve folder members on a worker without touching widgets."""
+            resolved = []
+            try:
+                for raw in incoming:
+                    path = os.path.abspath(os.path.expanduser(raw))
+                    if os.path.isdir(path):
+                        resolved.extend(FilePathListWidget._folder_members_for_kind(path, kind))
+                    else:
+                        resolved.append(path)
+            except Exception as error:
+                LOG.error("%s", error, exc_info=True)
+            return resolved
+
+        def landed(resolved):
+            """Append ready drops on the GUI thread unless their contents were replaced."""
+            slot["paths"] = resolved
+            while self._pending_path_drops and self._pending_path_drops[0]["paths"] is not None:
+                ready = self._pending_path_drops.pop(0)
+                if ready["generation"] != self._path_drop_generation:
+                    continue
+                added = sum(int(self._append(path)) for path in ready["paths"])
+                if added:
+                    self._refresh_hint()
+                    self.value_changed.emit()
+                    self.contents_changed.emit()
+
+        scanner = _scanner_for(self)
+        try:
+            if scanner is None or not scanner.submit(collect, landed):
+                landed([])
+        except Exception as error:
+            LOG.error("%s", error, exc_info=True)
+            landed([])
 
     def pick_files(self) -> int:
         """Open the file dialog and take what is chosen.

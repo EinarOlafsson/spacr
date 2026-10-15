@@ -1,0 +1,42 @@
+{
+  "scope": "Private N698 exact178 source translations; no publication until all9 reviewed normal writer/callbacks. sv/de normal gate passed; es corrected after first rejection, second five-locale preflight active.",
+  "criteria": [
+    "Exact178 source/hash and formatfields",
+    "Technical semantic parity: no invented masks/logits/probability/calibration; boxes differ from masks",
+    "Correct biological plaque/well/field meanings",
+    "Preserve axes/commands/filenames/bounds/README newline semantics",
+    "No native-speaker or hosted/scientific acceptance claim"
+  ],
+  "files": [
+    {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/features/data/698_web_caption_extractor_2026-10-15/new-sources.json",
+      "immutable_snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/31626b0fc404974ed6cd6aa0cd23b616fb86e7eae7d203582edcc0d66f4c54b7-698_web_caption_extractor_2026-10-15-new-sources.json",
+      "sha256": "31626b0fc404974ed6cd6aa0cd23b616fb86e7eae7d203582edcc0d66f4c54b7"
+    },
+    {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/sv/2026-10-15-web-mask-generator.json",
+      "immutable_snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/1aeb8cdb4d60bb1d4b0aaa2b5a0a4f449bb836df307465749818b14fd8d57f2c-sv-2026-10-15-web-mask-generator.json",
+      "sha256": "1aeb8cdb4d60bb1d4b0aaa2b5a0a4f449bb836df307465749818b14fd8d57f2c"
+    },
+    {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-web-mask-generator.json",
+      "immutable_snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/b4e447655e0b7ae0682643ae2fa879896cb35ba32f39f441a34fc61df633859b-de-2026-10-15-web-mask-generator.json",
+      "sha256": "b4e447655e0b7ae0682643ae2fa879896cb35ba32f39f441a34fc61df633859b"
+    },
+    {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-web-mask-generator.json",
+      "immutable_snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/267cb4a95b090cf95d745dd4d5655e155de4d823830484bcae6c97b5241af451-es-2026-10-15-web-mask-generator.json",
+      "sha256": "267cb4a95b090cf95d745dd4d5655e155de4d823830484bcae6c97b5241af451"
+    },
+    {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-web-mask-generator.json",
+      "immutable_snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/8f8e3ea5ea5914fc122eb04f861cfd74d55621e0fadc0c42469ad90abeb23d2c-zh_CN-2026-10-15-web-mask-generator.json",
+      "sha256": "8f8e3ea5ea5914fc122eb04f861cfd74d55621e0fadc0c42469ad90abeb23d2c"
+    },
+    {
+      "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/docs/i18n/reviewed/runtime/fr/2026-10-15-web-mask-generator.json",
+      "immutable_snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/a7aeadf05f309f8362cf08e9a0a9684dfcf00c0ec8f7b7eb2ee1638bed2e7857-fr-2026-10-15-web-mask-generator.json",
+      "sha256": "a7aeadf05f309f8362cf08e9a0a9684dfcf00c0ec8f7b7eb2ee1638bed2e7857"
+    }
+  ]
+}

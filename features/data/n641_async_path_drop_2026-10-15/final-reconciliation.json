@@ -1,0 +1,13 @@
+{
+  "incoming_tip": "fd3ffb2e268f333971ac574dacb7b23e5f128bcd",
+  "merged_head": "d6af9a366c94c1bcb2ec013556c359c16ddd0fad",
+  "incoming_changed_paths_preserved_identically": 134,
+  "tested_FilePathListWidget_AST_identical": true,
+  "source_sha256": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
+  "normal_API_tool_byte_identical_since_source_current_audit": true,
+  "normal_API_imported_callables_AST_identical": true,
+  "review_v2_file_pins": 9,
+  "current_source_and_context_unchanged": true,
+  "reuse": "No automatic global collector or unchanged Qt rerun. Runtime extractor addition does not change these unchanged API source/context functions.",
+  "acceptance": "Six distinct new lifecycle/order/refusal cases plus existing URL/invalid-drop case PASS; no full CI/native smoothness claim."
+}

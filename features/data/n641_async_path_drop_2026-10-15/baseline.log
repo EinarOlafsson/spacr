@@ -1,0 +1,27 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_drop_returns_while_enumeration_is_blocked_then_delivers_once _______
+tests/qt/test_file_list_drop_worker_641.py:68: in test_drop_returns_while_enumeration_is_blocked_then_delivers_once
+    assert _drop(listing, [folder])
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/qt/test_file_list_drop_worker_641.py:29: in _drop
+    widget.dropEvent(event)
+spacr/qt/widgets/file_list.py:1683: in dropEvent
+    self.add_paths(paths)
+spacr/qt/widgets/file_list.py:1463: in add_paths
+    for member in self._folder_members(expanded):
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+spacr/qt/widgets/file_list.py:1477: in _folder_members
+    names = sorted(os.listdir(folder))
+                   ^^^^^^^^^^^^^^^^^^
+tests/qt/test_file_list_drop_worker_641.py:52: in listdir
+    assert threading.get_ident() != main, 'Folder enumeration ran on the GUI thread'
+E   AssertionError: Folder enumeration ran on the GUI thread
+E   assert 128458936014656 != 128458936014656
+E    +  where 128458936014656 = <built-in function get_ident>()
+E    +    where <built-in function get_ident> = threading.get_ident
+----------------------------- Captured Qt messages -----------------------------
+QtWarningMsg: This plugin does not support propagateSizeHints()
+=========================== short test summary info ============================
+FAILED tests/qt/test_file_list_drop_worker_641.py::test_drop_returns_while_enumeration_is_blocked_then_delivers_once
+1 failed in 4.19s

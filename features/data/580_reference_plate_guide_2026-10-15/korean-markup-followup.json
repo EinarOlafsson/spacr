@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "scope": "Korean-only phrasing repair so both strong and inline literal markup terminate in normal RST; alpha label and setting literal unchanged.",
+  "old_target": "**알파 기능 표시**를 활성화하면 강도 보정에서 ``intensity_calibration_reference_plate``에 참조 플레이트 이름을 선택적으로 지정할 수 있습니다. 이름순으로 첫 번째 플레이트를 사용하려면 비워 두세요.",
+  "new_target": "**알파 기능 표시** 옵션을 활성화하면 강도 보정에서 ``intensity_calibration_reference_plate`` 항목에 참조 플레이트 이름을 선택적으로 지정할 수 있습니다. 이름순으로 첫 번째 플레이트를 사용하려면 비워 두세요.",
+  "old_target_sha256": "f8ff77f9a99a668ed6e8ff8a109d0b59a5b44f30ee2f8597e84dd4f6dc4caa9c",
+  "new_target_sha256": "57220383a5913055977d970719b9e9aef80bc13da429d027e70fde78c74680c7",
+  "before_normal_message_problems": [
+    "Inline strong start-string without end-string.",
+    "Inline literal start-string without end-string.",
+    "bold spans do not render as written",
+    "literal spans do not render as written"
+  ],
+  "validator": "tools.build_guide_i18n.message_problems with normal load_glossary(language), including actual docutils inline markup parser",
+  "after_nine_inputs": [
+    {
+      "language": "de",
+      "problems": [],
+      "target_sha256": "ddd7695a53a7271324753aa28dbf1a0490501ec89d64307448fb33a7f4a2e1e8"
+    },
+    {
+      "language": "es",
+      "problems": [],
+      "target_sha256": "60de6ce3bdc5f0ba11dab10da91ffd563edb5c24763c346725bc6210d124b8f8"
+    },
+    {
+      "language": "fr",
+      "problems": [],
+      "target_sha256": "e59d537bd0b31bdc6ba1c0228c8bbd632be5ac2173879ea0a92fc7a28a28fd13"
+    },
+    {
+      "language": "hi",
+      "problems": [],
+      "target_sha256": "675fb2aa622753deefd8fd7caf1fda904752ec69f30157915eec7d329366d72c"
+    },
+    {
+      "language": "is",
+      "problems": [],
+      "target_sha256": "d750e318776fff7b91f3868f96dc4ee6b12ee851ad663ed1efcd8fad48d8fb1b"
+    },
+    {
+      "language": "ko",
+      "problems": [],
+      "target_sha256": "57220383a5913055977d970719b9e9aef80bc13da429d027e70fde78c74680c7"
+    },
+    {
+      "language": "pt",
+      "problems": [],
+      "target_sha256": "cd40a89ba391378f650faf7a37f2c8467540c6ec195cfb1aae57ff76a0fe4042"
+    },
+    {
+      "language": "sv",
+      "problems": [],
+      "target_sha256": "93ba0169ffa752d0e5b7f9d33115d724fe59c112d9646e13633adddd048f75ca"
+    },
+    {
+      "language": "zh_CN",
+      "problems": [],
+      "target_sha256": "55c58c9f1bd6332ea95a537497137e8f674f21e6d09ee3b66b8cca3d775983e8"
+    }
+  ],
+  "native_speaker_claim": false,
+  "guide_catalog_writer_run": false
+}

@@ -11,6 +11,20 @@ changes, native capture, scientific acceptance or tutorial publication. Work
 owns any fresh recording; its held recorder and earlier native failure remain
 separate evidence. This is a source unblock, not tutorial completion.
 
+## 2026-10-15 — WS → Home: public Map Barcodes reached; default reference privacy repair held
+
+Actual12 turn50 stopped1 before archivechooser02 after onlyopening01.
+Home → Map Barcodes worked; unchanged privacyguard rejected visibledefault
+gRNA CSV underROOTresources. App0/cleanup[]; no12science/wholeacceptance.
+Hold e88f6531779fc1bc472747b0632b53e0eda919fd durableobserver51PASS14.05s;
+new a583deacd0d443853f1779a7366a6529cd8e77c3 privatelycopies genuine3defaults
+and uses actual Choosefile dialogs for readonly FilePathListWidget fields,
+including existing04/11 selectors. Owning22PASS2.55s/8warnings+HIGHpeerPASS.
+Exactpatches/logs/failure/cleanup: features/data/
+n676_map_barcodes_private_reference_fix_2026-10-15/.
+Fresh51PREPARED ONLY; root owns marker/queue. No12audio/stage/pub/liveSpace
+claim. No policy/gate/app changes or oldclip reuse. Other packets unchanged.
+
 ## 2026-10-15 — WS → Home: Classify alpha-off public route blocked; earlier stable inference retracted
 
 Actual11 turn48 stopped1 before footage: no Classify Home/sidebar route.
@@ -42,8 +56,8 @@ Packet: features/data/n676_invasion_legend_and_freeze_blocker_2026-10-15/.
 Scene14 starts before completionwait and should finish with actual completed
 outputs; no English/13translation correction identified from current evidence.
 09 remains published/pushed;24 remains documented blocked. No liveSpace claim.
-No further26diagnostics/rerecording authorized;26helpers frozen/no staging or
-audio. Next11 is PREPARED ONLY pending its own API review/root launch;10 lacks
+No further unchanged26 retries or profiling are planned;26helpers stay frozen
+pending a concrete fix, with no staging or audio. Next11 is PREPARED ONLY pending its own API review/root launch;10 lacks
 a nativeGNOME terminal adapter.24proposal and14pin remain preserved.
 
 ## 2026-10-15 Original Home → Work: lesson24 current-panel proposal for owner review
