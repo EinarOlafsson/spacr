@@ -178,7 +178,10 @@
       "source_sha256": "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
       "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
       "translation": "Help > Show startup animation。带徽标的黑色容器回到窗口上，保持两秒，然后像启动时一样被吹散。即使 Preferences > 动画 > 启动动画已关闭也会播放；在辅助功能 > 减少动态效果下，徽标保持后用一秒淡出。点击或按任意键可跳过。窗口的大小、状态和键盘焦点保持原样。",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#2",
