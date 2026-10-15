@@ -1,0 +1,7 @@
+{
+  "test_every_app_has_a_stage_and_it_is_written_down_once": false,
+  "test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for": true,
+  "test_every_app_carries_the_maturity_it_was_given": true,
+  "test_an_unassessed_module_never_reads_stable": true,
+  "test_no_module_reads_stable_without_somebody_having_said_so": true
+}

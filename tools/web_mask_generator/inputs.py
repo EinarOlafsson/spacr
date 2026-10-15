@@ -19,6 +19,7 @@ DEFAULT_MAX_FILE_BYTES = 64 * 1024 * 1024
 DEFAULT_MAX_DECODED_BYTES = 256 * 1024 * 1024
 DEFAULT_MAX_PLANE_PIXELS = 25_000_000
 MAX_PDF_PAGES = 256
+DEFAULT_MAX_CZI_SCENES = 4096
 
 
 def _integer(value, name, minimum=0):
@@ -40,13 +41,134 @@ def _file(path, max_file_bytes):
     return path
 
 
-def describe_upload(path, *, max_file_bytes=DEFAULT_MAX_FILE_BYTES):
+def _legacy_czi_entries(handle, max_decoded_bytes, max_scenes):
+    """Validate global legacy canvas headers and retain per-scene absolute bounds."""
+    from types import SimpleNamespace
+    from spacr.convert import _legacy_czi_series
+
+    try:
+        axes = str(handle.axes or "").upper()
+        raw_shape, raw_start = tuple(handle.shape), tuple(handle.start)
+        if (len(axes) != len(set(axes)) or axes.count("Y") != 1
+                or axes.count("X") != 1 or len(axes) != len(raw_shape)
+                or len(axes) != len(raw_start)
+                or any(isinstance(v, (bool, np.bool_))
+                       or not isinstance(v, (int, np.integer)) for v in raw_shape + raw_start)
+                or any(v <= 0 for v in raw_shape)):
+            raise ValueError
+        shape, start = tuple(map(int, raw_shape)), tuple(map(int, raw_start))
+        dtype = np.dtype(handle.dtype)
+        if dtype.kind not in "buif":
+            raise ValueError
+    except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as error:
+        raise ValueError(tr("The image does not declare unambiguous spatial axes.")) from error
+    _check_size(shape, dtype, max_decoded_bytes)
+    try:
+        canvas = dict(zip(axes, zip(start, shape)))
+        blocks = list(handle.filtered_subblock_directory)
+        scene_intervals = []
+        for block in blocks:
+            block_axes = str(block.axes or "").upper()
+            block_start, block_shape = tuple(block.start), tuple(block.shape)
+            if (set(block_axes) != set(axes) or len(block_axes) != len(set(block_axes))
+                    or len(block_axes) != len(block_start)
+                    or len(block_axes) != len(block_shape)
+                    or any(isinstance(v, (bool, np.bool_))
+                           or not isinstance(v, (int, np.integer))
+                           for v in block_start + block_shape)
+                    or any(v <= 0 for v in block_shape)):
+                raise ValueError
+            for axis, block_origin, block_size in zip(block_axes, block_start, block_shape):
+                origin, size = canvas[axis]
+                low = int(block_origin)
+                high = low + int(block_size)
+                if not origin <= low < high <= origin + size:
+                    raise ValueError
+            if "S" in block_axes:
+                index = block_axes.index("S")
+                low = int(block_start[index])
+                scene_intervals.append((low, low + int(block_shape[index])))
+            else:
+                scene_intervals.append((0, 1))
+    except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as error:
+        raise ValueError(tr("The image does not declare unambiguous spatial axes.")) from error
+    scene_count, previous_stop = 0, None
+    for low, high in sorted(scene_intervals):
+        scene_count += max(0, high - max(low, previous_stop if previous_stop is not None else low))
+        previous_stop = max(high, previous_stop if previous_stop is not None else high)
+        if scene_count > max_scenes:
+            raise ValueError(tr("The CZI exceeds the configured scene limit."))
+    try:
+        rows = _legacy_czi_series(SimpleNamespace(
+            filtered_subblock_directory=blocks, axes=axes, dtype=dtype))
+        if "S" not in axes and len(rows) > 1:
+            raise ValueError
+        entries = []
+        for row in rows:
+            scene = int(row["czi_scene"])
+            if "S" in canvas and not canvas["S"][0] <= scene < sum(canvas["S"]):
+                raise ValueError
+            bounds = row["czi_bounds"]
+            if set(bounds) != set(axes) - {"S"}:
+                raise ValueError
+            for axis, (low, high) in bounds.items():
+                origin, size = canvas[axis]
+                if not origin <= low < high <= origin + size:
+                    raise ValueError
+            own_axes = row["axes"]
+            own_shape = [int(size) for size in row["shape"]]
+            if (len(own_axes) != len(own_shape)
+                    or any(size <= 0 for size in own_shape)):
+                raise ValueError
+            entries.append({"shape": own_shape, "axes": own_axes,
+                            "dtype": str(dtype), "scene_id": scene,
+                            "legacy_czi": {"axes": axes, "shape": list(shape),
+                                           "start": list(start),
+                                           "bounds": {key: list(value) for key, value in bounds.items()}}})
+        return entries
+    except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as error:
+        raise ValueError(tr("The image does not declare unambiguous spatial axes.")) from error
+
+
+def _read_legacy_czi_scene(handle, info, max_decoded_bytes, max_scenes):
+    """Bound the full old-reader allocation before extracting the declared scene."""
+    current = _legacy_czi_entries(handle, max_decoded_bytes, max_scenes)
+    if info not in current:
+        raise ValueError(tr("The image does not declare unambiguous spatial axes."))
+    legacy = info["legacy_czi"]
+    dtype = np.dtype(info["dtype"])
+    _check_size(legacy["shape"], dtype, max_decoded_bytes)
+    selection = []
+    for axis, origin in zip(legacy["axes"], legacy["start"]):
+        if axis == "S":
+            selection.append(info["scene_id"] - origin)
+        else:
+            low, high = legacy["bounds"][axis]
+            selection.append(low - origin if axis not in info["axes"]
+                             else slice(low - origin, high - origin))
+    array = np.asarray(handle.asarray())
+    if array.shape != tuple(legacy["shape"]) or array.dtype != dtype:
+        raise ValueError(tr("The image does not declare unambiguous spatial axes."))
+    array = array[tuple(selection)]
+    if array.shape != tuple(info["shape"]):
+        raise ValueError(tr("The image does not declare unambiguous spatial axes."))
+    return array
+
+
+def describe_upload(path, *, max_file_bytes=DEFAULT_MAX_FILE_BYTES,
+                    max_decoded_bytes=DEFAULT_MAX_DECODED_BYTES,
+                    max_scenes=DEFAULT_MAX_CZI_SCENES):
     """Read choices from headers without decoding image pixel buffers.
 
     PDF entries describe page sizes in points; image entries describe actual
     dimensions/axes. Unsupported optional vendor readers are refused explicitly.
+    Legacy CZI scene expansion is bounded by positive ``max_scenes`` (4096 by
+    default), independently of the complete-canvas decoded-byte budget. The
+    current CZI reader route is unchanged and does not use this legacy-only cap.
     """
     path = _file(path, max_file_bytes)
+    _integer(max_decoded_bytes, "max_decoded_bytes", 1)
+    _integer(max_scenes, "max_scenes", 1)
     suffix = path.suffix.lower()
     if suffix in (".tif", ".tiff"):
         with tifffile.TiffFile(path) as handle:
@@ -70,11 +192,14 @@ def describe_upload(path, *, max_file_bytes=DEFAULT_MAX_FILE_BYTES):
         except ImportError as error:
             raise ValueError(tr("CZI uploads require the optional czifile reader.")) from error
         with czifile.CziFile(path) as handle:
-            if not hasattr(handle, "scenes"):
+            if hasattr(handle, "scenes"):
+                entries = [{"shape": list(scene.shape), "axes": scene.axes,
+                            "dtype": str(scene.dtype), "scene_id": identifier}
+                           for identifier, scene in handle.scenes.items()]
+            elif hasattr(handle, "filtered_subblock_directory"):
+                entries = _legacy_czi_entries(handle, max_decoded_bytes, max_scenes)
+            else:
                 raise ValueError(tr("CZI uploads require a czifile reader with explicit scene metadata."))
-            entries = [{"shape": list(scene.shape), "axes": scene.axes,
-                        "dtype": str(scene.dtype), "scene_id": identifier}
-                       for identifier, scene in handle.scenes.items()]
         if not entries:
             raise ValueError(tr("The CZI declares no readable scenes."))
         return {"format": "CZI", "series": entries}
@@ -146,11 +271,14 @@ def read_upload_plane(
     max_file_bytes=DEFAULT_MAX_FILE_BYTES,
     max_decoded_bytes=DEFAULT_MAX_DECODED_BYTES,
     max_plane_pixels=DEFAULT_MAX_PLANE_PIXELS,
+    max_scenes=DEFAULT_MAX_CZI_SCENES,
 ):
     """Decode a selected YX/CYX plane with an explicit selection receipt.
 
-    TIFF currently decodes the complete selected series, so the decoded-byte
-    limit is checked against that entire series *before* reading pixels. PDF
+    TIFF decodes the complete selected series; legacy CZI decodes its entire
+    declared multi-scene canvas. The decoded-byte limit is checked against
+    that complete allocation before reading pixels. Legacy scene metadata is
+    also limited by ``max_scenes`` before expanding subblock scene intervals. PDF
     pages render on white at the requested DPI; their pixels are page renderings,
     not calibrated microscope acquisitions. No remote files are fetched.
     """
@@ -158,7 +286,8 @@ def read_upload_plane(
     for name, value in (("max_decoded_bytes", max_decoded_bytes), ("max_plane_pixels", max_plane_pixels), ("pdf_dpi", pdf_dpi)):
         _integer(value, name, 1)
     series, page = _integer(series, "series"), _integer(page, "page")
-    description = describe_upload(path, max_file_bytes=max_file_bytes)
+    description = describe_upload(path, max_file_bytes=max_file_bytes,
+                                  max_decoded_bytes=max_decoded_bytes, max_scenes=max_scenes)
     if description["format"] == "PDF":
         if series != 0 or indices:
             raise ValueError(tr("PDF input uses page selection, not image series or axes."))
@@ -196,7 +325,10 @@ def read_upload_plane(
         elif description["format"] == "CZI":
             import czifile
             with czifile.CziFile(path) as handle:
-                array = handle.scenes[info["scene_id"]].asarray()
+                if "legacy_czi" in info:
+                    array = _read_legacy_czi_scene(handle, info, max_decoded_bytes, max_scenes)
+                else:
+                    array = handle.scenes[info["scene_id"]].asarray()
         elif description["format"] == "ND2":
             from nd2reader import ND2Reader
             with ND2Reader(str(path)) as handle:

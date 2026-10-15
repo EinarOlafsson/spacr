@@ -49,7 +49,7 @@ occur before TIFF decode or PDF render. Unsupported palette/multiframe ordinary
 images and unsupported vendor reader versions are refused explicitly.
 
 Python dependencies are the existing spaCR NumPy, pandas, tifffile,
-scikit-image and Pillow packages, with `pypdfium2` required only for PDF input, scene-aware `czifile` for CZI,
+scikit-image and Pillow packages, with `pypdfium2` required only for PDF input, `czifile` with scene or subblock metadata for CZI,
 and `nd2reader` for supported ND2 versions.
 No dependency is installed automatically by these components.
 
@@ -58,9 +58,19 @@ Optional microscopy adapters retain explicit scene/position, T/Z and channel
 choices. Current scene-aware czifile reads CZI scenes without blending them.
 ND2Reader reads the selected position/time/Z/channel frames; reader-decoded
 pixel values/dtypes are preserved. The decoded-byte preflight remains
-conservative against the described whole series. Unsupported ND2 metadata
-without declared X/Y dimensions is refused, and legacy czifile APIs without
-scene metadata are refused rather than guessing scene identity. CPU acceptance
+conservative against the described whole series. Legacy czifile readers use
+explicit subblock scene bounds and retain absolute origins. Since those readers
+decode the complete multi-scene canvas, its full declared allocation must fit
+the byte budget before scene metadata expansion or any pixel decode. Legacy
+metadata also has an independent positive-integer `max_scenes` limit, default
+4096 distinct scenes, checked before expanding subblock scene ranges. Repeated
+subblocks for one scene do not count twice. Both `describe_upload` and
+`read_upload_plane` accept an explicit limit override. This scene-count limit
+applies only to the legacy reader route; the current CZI pixel route is unchanged.
+Scene/time/Z/channel selection
+never blends scenes or guesses missing metadata. Unsupported ND2 metadata
+without declared X/Y dimensions and CZI without scene or subblock metadata
+are refused. CPU acceptance
 uses repository CZI fixtures and an already-cached public OME ND2 fixture;
 CI skips the latter if unavailable, and never downloads it implicitly.
 

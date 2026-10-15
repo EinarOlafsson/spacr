@@ -201,9 +201,13 @@ def test_file_list_accepts_a_real_drop(qtbot, csv_folder):
     mime.setUrls([QUrl.fromLocalFile(str(csv_folder / "plate1.csv"))])
     event = QDropEvent(QPointF(5, 5), Qt.CopyAction, mime, Qt.LeftButton,
                        Qt.NoModifier)
-    widget.dropEvent(event)
-    assert event.isAccepted()
+    with qtbot.waitSignal(widget.contents_changed, timeout=1000):
+        widget.dropEvent(event)
+        assert event.isAccepted()
+    qtbot.waitUntil(lambda: not widget._dnd_scanner.is_busy(), timeout=1000)
     assert len(widget.get_value()) == 1
+    assert widget.get_value() == [str(csv_folder / "plate1.csv")]
+    assert widget._pending_path_drops == []
 
 
 def test_path_settings_render_as_file_pickers(qtbot):
