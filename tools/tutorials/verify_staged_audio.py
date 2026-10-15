@@ -15,14 +15,18 @@ from pathlib import Path
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--lesson', required=True)
     parser.add_argument('--languages', nargs='+', required=True)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     parser.add_argument('--retained-narration', action='store_true',
                         help='Require byte-identical original tracks and catalogs instead of a new runtime')
-    args = parser.parse_args()
+    parser.add_argument('--retained-from', type=Path,
+                        help='Original workspace for retained catalogs/audio; requires retained-narration')
+    args = parser.parse_args(argv)
+    if args.retained_from is not None and not args.retained_narration:
+        raise ValueError('Use retained-from only with retained-narration')
     os.environ['SPACR_TUTORIAL_WORKSPACE'] = str(args.stage.resolve())
     os.environ.setdefault('USE_TF', '0')
     sys.path.insert(0, str(REPO / 'tools/tutorials/authoring/tools'))
@@ -30,7 +34,7 @@ def main():
 
     if args.retained_narration:
         from retain_narration import retained_sources
-        retained_sources(args.stage, DEFAULT_STAGE.parent,
+        retained_sources(args.stage, args.retained_from if args.retained_from is not None else DEFAULT_STAGE.parent,
                          REPO / 'docs/source/_extra/tutorials/catalog', args.lesson,
                          {lang: values[1] for lang, values in verify.LANGUAGES.items()},
                          require_staged=True)

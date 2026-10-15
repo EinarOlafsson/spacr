@@ -21,6 +21,61 @@ def test_equal_catalogs_pass_and_each_changed_source_fails():
             require_unchanged_lesson(*sources)
 
 
+@pytest.mark.parametrize('previous', [None, {'en': ['af_heart']}])
+def test_explicit_inventory_allows_only_generated_original_inventory_expansion(previous):
+    inventory = {'en': ['af_heart', 'am_adam'], 'fr': ['ff_siwis']}
+    original = {'id': 'lesson', 'scenes': [{'narration': 'Original.'}]}
+    if previous is not None:
+        original['narration_voices'] = previous
+    published = {**deepcopy(original), 'narration_voices': inventory}
+    require_unchanged_lesson(original, published, deepcopy(published), voice_inventory=inventory)
+    with pytest.raises(ValueError):
+        require_unchanged_lesson(original, published, deepcopy(published))
+    assert original.get('narration_voices') == previous
+
+
+def test_published_voice_order_can_differ_from_renderer_without_changing_catalogs():
+    inventory = {'en': ['am_adam', 'af_heart'], 'fr': ['ff_siwis']}
+    published_inventory = {'fr': ['ff_siwis'], 'en': ['af_heart', 'am_adam']}
+    original = {'id': 'lesson', 'narration_voices': {'en': ['af_heart']}}
+    published = {'id': 'lesson', 'narration_voices': deepcopy(published_inventory)}
+    staged = deepcopy(published)
+    require_unchanged_lesson(original, published, staged, voice_inventory=inventory)
+    assert published['narration_voices'] == published_inventory and staged == published
+    assert original['narration_voices'] == {'en': ['af_heart']}
+
+
+@pytest.mark.parametrize('invalid', [{'en': ['af_heart', 'af_heart']},
+                                     {'en': 'af_heart'}, {'en': [None]},
+                                     {'other': ['af_heart']}, {'en': ['other']}])
+def test_published_inventory_must_have_exact_languages_unique_typed_voices(invalid):
+    original = {'id': 'lesson'}
+    published = {'id': 'lesson', 'narration_voices': invalid}
+    with pytest.raises(ValueError):
+        require_unchanged_lesson(original, published, deepcopy(published),
+                                 voice_inventory={'en': ['af_heart']})
+
+
+@pytest.mark.parametrize('change', ['source_narration', 'published_extra', 'staged_inventory',
+                                  'published_inventory', 'old_unknown', 'old_duplicate', 'old_voice_type'])
+def test_explicit_inventory_never_allows_catalog_or_voice_drift(change):
+    inventory = {'en': ['af_heart', 'am_adam'], 'fr': ['ff_siwis']}
+    original = {'id': 'lesson', 'scenes': [{'narration': 'Original.'}],
+                'narration_voices': {'en': ['af_heart']}}
+    published = {**deepcopy(original), 'narration_voices': deepcopy(inventory)}
+    staged = deepcopy(published)
+    if change == 'source_narration': original['scenes'][0]['narration'] = 'Changed.'
+    if change == 'published_extra': published['extra'] = staged['extra'] = True
+    if change == 'staged_inventory': staged['narration_voices']['en'] = ['af_heart']
+    if change == 'published_inventory':
+        published['narration_voices']['en'] = staged['narration_voices']['en'] = ['af_heart']
+    if change == 'old_unknown': original['narration_voices'] = {'en': ['unknown']}
+    if change == 'old_duplicate': original['narration_voices'] = {'en': ['af_heart', 'af_heart']}
+    if change == 'old_voice_type': original['narration_voices'] = {'en': 'af_heart'}
+    with pytest.raises(ValueError):
+        require_unchanged_lesson(original, published, staged, voice_inventory=inventory)
+
+
 @pytest.fixture
 def timing():
     lesson = {'id': 'lesson', 'scenes': [{'narration': 'Original.'}]}

@@ -82,7 +82,9 @@ def reconcile_browser(report, lesson, language, voice, caption, audio_hash, scen
         raise ValueError('Invalid or unsynchronised browser clocks')
 
 
-def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None):
+def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None, retained_from=None):
+    if retained_from is not None and not retained_narration:
+        raise ValueError('Use retained-from only with retained-narration')
     if Path(lesson_id).name != lesson_id or lesson_id in {'.', '..'}:
         raise ValueError('Expected one lesson identity')
     stage = Path(stage).resolve()
@@ -94,7 +96,8 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
     if retained_narration:
         from retain_narration import retained_sources
         from stage_lesson import REPO
-        retention = retained_sources(stage, Path(renderer).resolve().parents[1],
+        original = Path(retained_from) if retained_from is not None else Path(renderer).resolve().parents[1]
+        retention = retained_sources(stage, original,
             Path(baseline) if baseline is not None else REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
             require_staged=True)
     expected = {(language, voice) for language, voices in inventory.items() for voice in voices}
@@ -107,7 +110,10 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             raise ValueError('Catalog identity or scene count differs')
         translated = matches[0]
         if language == 'en':
-            if translated != english:
+            compared = dict(translated)
+            if retained_narration:
+                compared.pop('narration_voices', None)
+            if compared != english:
                 raise ValueError('Staged English differs from the rendered lesson')
         elif not retained_narration:
             review = read(folder / f'review.{language}.json')
@@ -164,15 +170,21 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             'native_speaker_signoff': False, 'human_listening_review': False, 'published': False}
 
 
-if __name__ == '__main__':
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--lesson', required=True)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     parser.add_argument('--retained-narration', action='store_true',
                         help='Require exact original/published catalogs and unchanged original audio/timings')
-    args = parser.parse_args()
+    parser.add_argument('--retained-from', type=Path,
+                        help='Original workspace for retained catalogs/audio; requires retained-narration')
+    args = parser.parse_args(argv)
     result = check(args.stage, args.lesson, REPO / 'tools/tutorials/authoring/tools/render_all_voices.py',
-                   retained_narration=args.retained_narration)
+                   retained_narration=args.retained_narration, retained_from=args.retained_from)
     write(args.stage / 'production' / args.lesson / 'final-artifact-checks.json', result)
     print(f"{args.lesson}: {result['unique_final_tracks']} final tracks, "
           f"{len(result['browser_reports'])} browser checks, matching sources; not published.")
+
+
+if __name__ == '__main__':
+    main()

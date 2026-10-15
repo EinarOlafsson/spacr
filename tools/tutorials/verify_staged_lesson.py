@@ -151,7 +151,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             pass
 
 
-def main():
+def main(argv=None):
     global DEFAULT_STAGE, WORKSPACE
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE,
@@ -164,13 +164,17 @@ def main():
                         help='Check every native English caption at its recorded speech midpoint')
     parser.add_argument('--retained-media', action='store_true',
                         help='Require unchanged original catalogs and media, with no staged override')
+    parser.add_argument('--retain-visual-from', type=Path,
+                        help='Check a bounded visual refresh against this published baseline')
     parser.add_argument('--web-rendition', action='store_true',
                         help='Check the verified private 1440p copy, preserving original browser reports')
     parser.add_argument('--candidate-player', action='store_true',
                         help='Serve the exact private authoring player source, including native timing and lesson redirects; no publication')
     parser.add_argument('--native-boundary-clocks', action='store_true',
                         help='Measure actual normal-speed media clocks across a recorded scene boundary')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.retain_visual_from is not None and args.retained_media:
+        parser.error('A visual refresh cannot also retain unchanged whole media')
     if args.sentence_cues and (args.language != 'en' or args.caption_language):
         parser.error('--sentence-cues requires English narration and its native captions')
     DEFAULT_STAGE = args.stage.resolve()
@@ -200,8 +204,12 @@ def main():
         item['poster'] = f"{item['id']}/poster.jpg"
         item['silent'] = f"{item['id']}/video/{item['id']}_silent.mp4"
         if item['id'] == args.lesson:
-            from native_live_timing import checked_native_timing
-            native_timings = checked_native_timing(DEFAULT_STAGE, item['id'])
+            if args.retain_visual_from is not None:
+                from retained_visual_refresh import checked_retained_visual_timing
+                native_timings = checked_retained_visual_timing(DEFAULT_STAGE, item['id'], args.retain_visual_from)
+            else:
+                from native_live_timing import checked_native_timing
+                native_timings = checked_native_timing(DEFAULT_STAGE, item['id'])
             if native_timings is not None:
                 if not args.candidate_player:
                     raise ValueError('Native footage acceptance requires the source-bound candidate player')
