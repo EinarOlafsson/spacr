@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-15T18:21:03.330723+00:00",
+  "scope": "read-only bounded original N441 two-real-example research; no source edits/generation/models/pixel downloads",
+  "current_regex_file_sha256": "e9d7292bdf72df2fa71d1a07ce347eb5d3b813da96da8fb2b62f350e32bbdd95",
+  "cases": [
+    {
+      "key": "cytation",
+      "name": "A1_01_1_1_Phase Contrast_001.tif",
+      "source": "https://github.com/glencoesoftware/bioformats2raw/blob/f5440e9996908f2a108560961635ac9bc6693e3c/src/test/java/com/glencoesoftware/bioformats2raw/test/BioTekTest.java",
+      "kind": "upstream real-world-derived filename; some channel/wavelength sanitization explicitly disclosed",
+      "eligible": "conditional: requires maintainer acceptance of disclosed sanitization",
+      "matches_current_regex": true,
+      "groups": {
+        "wellID": "A1",
+        "AID": "",
+        "laserID": "1",
+        "fieldID": "1",
+        "chanID": "Phase Contrast",
+        "timeID": "001"
+      }
+    },
+    {
+      "key": "cytation",
+      "name": "A1_01_1_2_Phase Contrast_001.tif",
+      "source": "https://github.com/glencoesoftware/bioformats2raw/blob/f5440e9996908f2a108560961635ac9bc6693e3c/src/test/java/com/glencoesoftware/bioformats2raw/test/BioTekTest.java",
+      "kind": "upstream real-world-derived filename; some channel/wavelength sanitization explicitly disclosed",
+      "eligible": "conditional: requires maintainer acceptance of disclosed sanitization",
+      "matches_current_regex": true,
+      "groups": {
+        "wellID": "A1",
+        "AID": "",
+        "laserID": "1",
+        "fieldID": "2",
+        "chanID": "Phase Contrast",
+        "timeID": "001"
+      }
+    },
+    {
+      "key": "evos",
+      "name": "image_0002_Top Slide_R_p00_0_A01f00d0.TIF",
+      "source": "https://documents.thermofisher.com/TFS-Assets/LSG/manuals/MAN0018326_EVOS_M7000_Imaging_System_UG.pdf",
+      "kind": "vendor actual Next filename UI screenshot; printed page41/PDFpage43 visually inspected",
+      "eligible": "no: observed variant lacks mandatory z block, no parser change authorized",
+      "matches_current_regex": false,
+      "groups": null
+    },
+    {
+      "key": "scanr",
+      "name": "--W00002--P00001--Z00000--T00000--nucleus-dapi.tif",
+      "source": "https://downloads.openmicroscopy.org/images/ScanR/idr0009/0307-10--2007-05-30/data/",
+      "kind": "actual original data directory listing; no pixels downloaded",
+      "eligible": "no for current record: lacks well-name prefix; W is numeric index requiring metadata",
+      "matches_current_regex": false,
+      "groups": null
+    },
+    {
+      "key": "scanr",
+      "name": "--W00002--P00001--Z00000--T00000--pm-647.tif",
+      "source": "https://downloads.openmicroscopy.org/images/ScanR/idr0009/0307-10--2007-05-30/data/",
+      "kind": "actual original data directory listing; no pixels downloaded",
+      "eligible": "no for current record: lacks well-name prefix; W is numeric index requiring metadata",
+      "matches_current_regex": false,
+      "groups": null
+    },
+    {
+      "key": "scanr",
+      "name": "A1--W00001--P00001--Z00000--T00000--mCherry1",
+      "source": "https://forum.knime.com/t/combining-images-to-stack/2119",
+      "kind": "original acquisition user basename, extension not printed",
+      "eligible": "no complete filename claim: do not append inferred extension",
+      "matches_current_regex": false,
+      "groups": null
+    },
+    {
+      "key": "zeiss_zen_split_tiles",
+      "name": "mydata_S00001_T00001_C00001.tiff",
+      "source": "https://github.com/zeiss-microscopy/OAD/blob/master/Scripts/Data_Tools/SaveSingeTiles_to_Folder.py",
+      "kind": "existing constructed example from vendor macro algorithm, not observed data listing",
+      "eligible": "no: cannot recategorize constructed example as observed",
+      "matches_current_regex": true,
+      "groups": {
+        "plateID": "mydata",
+        "wellID": "00001",
+        "fieldID": "00001",
+        "chanID": "00001"
+      }
+    }
+  ],
+  "source_hashes": {
+    "BioTekTest.java": "4aacb5bd471670228c04257fd35e660b404c435e53cab7637a3f2af5b5620d0b",
+    "ome-scanr-data-list.html": "b7710b69b381168ac186ce60620358781622b6014145d954dab39bfd07e1def8",
+    "tmp/pdfs/evos-m7000.pdf": "9151b27411afe0171f81770b90ab773dcee8e5e8eecf2dd3abeeffd0b60aec5c",
+    "tmp/pdfs/evos-page43.png": "1e91520d5bafd7c3fac1522e9ca5b6e0d8ac38dd6db8ab0d4406f79d8fd49cc3"
+  },
+  "biotek_git_blob": "0623ea4c6072a0fabaa152c3ca6ab63a9ec74e71",
+  "remaining": {
+    "cytation": "two matching upstream real-world-derived names now recovered; exact sanitization disclosed, not claim of unchanged raw bytes",
+    "evos": "second actual screenshot is incompatible variant; second passing observed filename still absent",
+    "scanr": "two actual original data filenames recovered but incompatible leading prefix; current well-named record still lacks two complete observed names",
+    "zeiss_zen_split_tiles": "observed output names not found in bounded search; vendor macro defines construction only"
+  },
+  "no_claims": [
+    "No unchanged raw filename assurance for sanitized upstream cases",
+    "No proof no further public examples exist",
+    "No whole-feature completion",
+    "No regex extension or inferred metadata"
+  ],
+  "proposal": "Approve only adding the two Cytation examples plus exact upstream provenance/sanitization caveat, leaving provisional unless confirmation policy expressly accepts it. Preserve all four legacy patterns and all other records; run existing convention evidence/cross-match tests once if approved."
+}

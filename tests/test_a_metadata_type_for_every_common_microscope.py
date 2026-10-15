@@ -197,9 +197,10 @@ def test_every_record_carries_the_evidence_for_itself(record):
     CONFIRMED NEEDS TWO EXAMPLES AND PROVISIONAL NEEDS ONE. One filename
     proves a pattern can parse something; two proves it parses a FAMILY, and
     that is the difference between a convention and a screenshot. Where only
-    one could be sourced -- EVOS, ScanR, Cytation -- the record says
-    provisional and the dropdown shows it, which is the honest outcome and
-    not a failure.
+    one could be sourced -- EVOS and ScanR -- the record says provisional.
+    Cytation also remains provisional because its additional upstream
+    real-world-derived names disclose sanitization. The dropdown shows this
+    evidence limit rather than treating a matching example as confirmation.
     """
     for field in ("key", "label", "vendor", "instrument", "pattern",
                   "groups", "source", "status"):
@@ -324,3 +325,26 @@ def test_the_convention_table_reaches_the_settings_spec_menu():
                    if record["status"] == "provisional"}
     for value, label in choices:
         assert ("provisional" in label) == (value in provisional)
+
+
+def test_cytation_real_world_derived_examples_keep_their_provenance_caveat():
+    """Upstream sanitized acquisition names remain provisional evidence."""
+    record = _metadata_convention("cytation")
+    names = (
+        "A1_01_1_1_Phase Contrast_001.tif",
+        "A1_01_1_2_Phase Contrast_001.tif",
+    )
+    assert set(names) <= set(record["examples"])
+    assert "A1ROI1_02_1_1_Bright Field_High Contrast_003.tif" in record["examples"]
+    assert record["status"] == "provisional"
+    assert "f5440e9996908f2a108560961635ac9bc6693e3c" in record["source"]
+    assert "BioTekTest.java" in record["source"]
+    assert "sanitization" in record["source"]
+    assert "not unchanged raw filenames" in record["source"]
+    for field, name in enumerate(names, start=1):
+        match = re.fullmatch(_metadata_pattern("cytation", "tif"), name)
+        assert match is not None
+        assert match.group("wellID") == "A1"
+        assert int(match.group("fieldID")) == field
+        assert match.group("chanID") == "Phase Contrast"
+        assert match.group("timeID") == "001"

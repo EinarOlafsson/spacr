@@ -406,3 +406,5 @@ independent exactsource/API peer confirms0newAPIarrivals.18runtime records
 require ordinary source/hashrebinding; no catalog/wholeitem acceptance claimed.
 Literal two-REAL-example gaps remain unresolved, without assumed maintainer
 waiver or invented filenames. Evidence:data/441_provisional_warning_truth_2026-10-15/.
+
+2026-10-15 — Private Cytation evidence amendment: two additional Phase Contrast names from pinned upstream bioformats2raw BioTekTest real-world-derived cases now carry the explicit channel/wavelength sanitization caveat. Original example, pattern and provisional status retained; all other18 records/all19 patterns unchanged. New provenance baseline1FAIL1.15s becomes9focusedPASS8.07s (78unrelated deselected). See features/data/441_cytation_sourced_examples_2026-10-15/. No whole-item completion: EVOS/ScanR matching raw-name and Zeiss observed-output evidence remains incomplete; normal nine-locale UI closure is separately pending.
