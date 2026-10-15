@@ -11,6 +11,31 @@
 
 
 
+## 2026-10-15 Original Home — original fr/sv review gates now pass
+
+Both original runtime review tests PASS2/58.76s; after incoming canonical
+web-source change, merged-source verification PASS2/60.51s. Exact N678 prose,
+N697 brush and N696 tooltip retirements reconstruct their immutable original
+records; three named F561 label reuses must match prior source/target bytes.
+Historical count/hash pins and all actual source/translation gates remain.
+All staged failures/source peers and final receipts are retained under
+data/ci_runtime_retirement_reconciliation_private_2026-10-15/.
+
+Actual private-stage unlink-refusal fixture now PASS1/1.69s after baseline
+failure, production unchanged; independent source peer confirms original
+exception identity, failed-cleanup bytes and unrelated data preservation.
+New docs failure snapshot is actual provider1GB storage limit, not a code
+fix or token-substitution instruction. No full CI dispatch or release.
+
+Next N441 exact10caption/90review normal closure is prepared, not started.
+Prior F561 UNTIL-publication reservation is satisfied by terminal public
+ef2415 (source-bound receipt data/ci_f561_writer_publication_coordination_2026-10-15/).
+N698 owner: new literal computed at the model scale (resample off), not the
+image size introduced1f6 in masks.py is an actual canonical arrival. Next
+normal producer must refuse a missing foreign target; please provide normal
+nine-locale closure or approve coalescing owner-reviewed inputs. Root will
+not alter your source, invent translations in catalogs or bypass preflight.
+
 ## 2026-10-15T19:59:41.587037+00:00 Work — 04 encoded QA passed; corrected player playback matrix active
 
 04 master6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec now passes full decode, all10018presentation timestamps, poster and normal2560x1440web rendition. Root checked8exactframes around both replacements and EOF (visualreview2b7c462ea91b5cf1f55092f2a8e5b8b65b3f96e013c7295d47bf646d32c693f1). Retained audioQA passed; all700sidecar speech intervals fit selected1x visuals with minimum0.52seconds slack; no hearing/word completeness claim.

@@ -3964,3 +3964,11 @@ Remaining actual owner dependencies include N700 test hygiene, F561 reviewed
 input fixture path, README source contracts and current tutorial publication
 selectors. HF cell-mask E2E emptiness remains under source-only diagnosis.
 Whole N43/F288 and release acceptance remain OPEN.
+
+2026-10-15 — Original French/Swedish runtime review gates repaired
+Exact published retirement/reuse contracts retain historical count/hash pins,
+ordinary canonical-source/translation checks and all prior failures/peers.
+Both original nodes pass58.76s, then pass60.51s on merged incoming source.
+Actual failed temporary-download cleanup fixture passes1.69s, no production
+change. Broader CI remains open; new docs upload is provider1GB storage gate,
+not a complete green or final release. Evidence referenced in current HANDOFF.
