@@ -120,3 +120,82 @@ def pinned_external_sources(external: Mapping[str,object], *,
     assert all(projected[key]==row['source'] for key,row in baseline.items())
     return {table:{key:source for (name,key),source in projected.items() if name==table}
             for table in TABLE_NAMES}
+
+
+def refresh_arrival_contract() -> dict:
+    """Rebuild the current delta from canonical sources and exact locale reviews.
+
+    The immutable baseline and its body hash are retained. Every arrival or
+    changed body must have a matching current review record in all nine
+    languages; generated catalog values and hashes must match those records.
+    """
+    import importlib
+    import build_i18n_catalogs as builder
+
+    previous = load_arrival_contract()
+    baseline = _records(previous['baseline'])
+    signature = _sha('\0'.join(
+        f'{table}\0{key}\0{baseline[(table,key)]["source_sha256"]}'
+        for table,key in sorted(baseline)))
+    assert signature == PINNED_BASELINE_SOURCE_HASH_SHA256, 'historical caption bodies changed'
+    canonical = builder.canonical_sources()
+    external = {table: canonical[name] for table,name in TABLE_NAMES.items()}
+    actual = _source_rows(external)
+    proof_index = {}
+    catalogs = {}
+    for language in LANGUAGES:
+        builder.reviewed_runtime_translations(language)
+        catalogs[language] = importlib.import_module(f'spacr.qt.i18n_catalogs.{language}')
+        for path in sorted((builder.REVIEWED_RUNTIME_DIR / language).glob('*.json')):
+            raw = path.read_bytes()
+            payload = json.loads(raw)
+            for record in payload['records']:
+                key = (language, record['table'], record['key'], record['source'], record['translation'])
+                proof = {'path':str(path.relative_to(ROOT)),
+                         'file_sha256':hashlib.sha256(raw).hexdigest(),
+                         'record_sha256':_sha(json.dumps(record,ensure_ascii=False,sort_keys=True))}
+                proof_index.setdefault(key, []).append(proof)
+
+    def current_record(identity):
+        table,key = identity
+        source = actual[identity]
+        row = {'table':table,'key':key,'source':source,'source_sha256':_sha(source),
+               'reviewed_evidence':{}}
+        for language in LANGUAGES:
+            catalog = catalogs[language]
+            assert catalog.SOURCE_HASHES.get(identity) == row['source_sha256'], 'stale caption arrival catalog hash'
+            target = getattr(catalog,table)[key]
+            proof_key = (language,TABLE_NAMES[table],key,source,target)
+            proofs = proof_index.get(proof_key)
+            assert proofs, f'caption arrival lacks explicit reviewed record: {language}/{identity}'
+            row['reviewed_evidence'][language] = {
+                'translation':target,'translation_sha256':_sha(target),
+                'matching_review_records':proofs}
+        return row
+
+    updated = dict(previous)
+    updated['added'] = [current_record(key) for key in sorted(actual.keys()-baseline.keys())]
+    updated['retired'] = [baseline[key] for key in sorted(baseline.keys()-actual.keys())]
+    updated['changed'] = [
+        {'before':baseline[key],'after':current_record(key)}
+        for key in sorted(actual.keys() & baseline.keys())
+        if actual[key] != baseline[key]['source']]
+    counts = {table:sum(name==table for name,key in baseline) for table in TABLE_NAMES}
+    identity = _sha('\0'.join(f'{table}\0{key}' for table,key in sorted(baseline)))
+    pinned_external_sources(external, original_counts=counts,
+                            original_identity_sha256=identity, contract=updated)
+    assert updated['baseline'] == previous['baseline']
+    FIXTURE.write_bytes(gzip.compress(
+        (json.dumps(updated,ensure_ascii=False,sort_keys=True,indent=2)+'\n').encode('utf-8'),
+        mtime=0))
+    return {name:len(updated[name]) for name in ('baseline','added','retired','changed')}
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--refresh', action='store_true', required=True,
+                        help='regenerate the delta after authoring all required locale reviews')
+    parser.parse_args()
+    print(json.dumps(refresh_arrival_contract(), sort_keys=True))

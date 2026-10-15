@@ -813,8 +813,8 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
          "on the GPU" if gpu else "CPU only"),
         ("Live backdrop and spaceout", display_gpu,
          "GPU shader" if display_gpu else "CPU renderer"),
-        ("UMAP / t-SNE / clustering", found.is_cuda,
-         "on the GPU via cuML" if found.is_cuda
+        ("UMAP / t-SNE / clustering", gpu and found.is_cuda,
+         "on the GPU via cuML" if gpu and found.is_cuda
          else "CPU — cuML is built for CUDA only"),
     ]
     return tuple(rows)

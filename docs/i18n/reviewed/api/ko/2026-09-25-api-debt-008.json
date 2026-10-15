@@ -4460,7 +4460,7 @@
     },
     {
       "context": "the leave event; passed to the base class and otherwise not read.",
-      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#2",
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#1",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the leave event; passed to the base class and otherwise not read.",
       "source_sha256": "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56",

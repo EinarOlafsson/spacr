@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Optional
 
 from PySide6.QtCore import QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPainter, QPalette, QPen, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -322,6 +322,8 @@ class _FigureCell(QFrame):
         self.letter = letter
         self.live_key = live_key
         self._pixmap = pixmap
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(str(title or letter.upper() or live_key or index + 1))
         #: The last width :meth:`fit_to` was given, so the cell can be drawn
         #: again at a new pixel density without the grid re-measuring.
         self._fit_width = 0
@@ -399,6 +401,33 @@ class _FigureCell(QFrame):
         place on every cell but the first.
         """
         self.menu_requested.emit(self.index, self.mapToGlobal(point))
+
+    def paintEvent(self, event):
+        """Draw the tile and its visible keyboard-focus border.
+
+        :param event: paint request delivered to the figure tile.
+        """
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                painter.setPen(QPen(self.palette().color(QPalette.Highlight), 2))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def keyPressEvent(self, event):
+        """Open the focused tile with an unmodified activation key.
+
+        :param event: key event delivered to the figure tile.
+        """
+        if (self.hasFocus() and event.modifiers() == Qt.NoModifier
+                and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)):
+            self.clicked.emit(self.index)
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def mousePressEvent(self, event):  # noqa: N802 - Qt naming
         """Open the figure on a left click; leave a right click to the menu.

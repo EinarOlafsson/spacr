@@ -385,7 +385,58 @@ def test_nightly_verification_waits_for_matching_publication(tmp_path, monkeypat
     monkeypatch.setattr(publisher.time, 'sleep', sleeps.append)
     assert publisher.verify_nightly(space, attempts=2, interval=1) == 'nightly-sha'
     assert sleeps == [1]
-    assert len(calls) == 3
+    assert len(calls) == 4
+
+
+@pytest.mark.parametrize('homepage_state', ['stale', 'missing'])
+def test_matching_receipts_cannot_verify_a_stale_or_missing_homepage(
+        tmp_path, monkeypatch, homepage_state):
+    import io
+    from urllib.error import HTTPError
+    import publish_docs_channels as publisher
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    requests = []
+
+    def fetch(request, timeout):
+        name = request.full_url.split('/')[-1].split('?')[0]
+        requests.append(name)
+        if name == 'index.html':
+            if homepage_state == 'missing':
+                raise HTTPError(request.full_url, 404, 'Not found', {}, None)
+            return io.BytesIO(b'<body>Previous documentation</body>')
+        return io.BytesIO((space / name).read_bytes())
+
+    monkeypatch.setattr(publisher, 'urlopen', fetch)
+    with pytest.raises(RuntimeError, match='Nightly deployment unverified'):
+        publisher.verify_nightly(space, attempts=2, interval=0)
+    assert requests == ['publication.json', 'channels.json', 'index.html'] * 2
+
+
+def test_nightly_verification_waits_for_the_actual_homepage_bytes(tmp_path, monkeypatch):
+    import io
+    import publish_docs_channels as publisher
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    index = (space / 'index.html').read_bytes()
+    homepage_reads = []
+    sleeps = []
+
+    def fetch(request, timeout):
+        name = request.full_url.split('/')[-1].split('?')[0]
+        assert timeout == 15
+        assert request.get_header('Cache-control') == 'no-cache'
+        if name == 'index.html':
+            homepage_reads.append(request.full_url)
+            if len(homepage_reads) == 1:
+                return io.BytesIO(index + b' stale trailing bytes')
+        return io.BytesIO((space / name).read_bytes())
+
+    monkeypatch.setattr(publisher, 'urlopen', fetch)
+    monkeypatch.setattr(publisher.time, 'sleep', sleeps.append)
+    assert publisher.verify_nightly(space, attempts=2, interval=1) == 'nightly-sha'
+    assert len(homepage_reads) == 2
+    assert sleeps == [1]
 
 
 def test_incompatible_catalog_is_registered_and_english_is_publishable(tmp_path):

@@ -1,0 +1,142 @@
+{
+  "CP_prob": [
+    "spacr.plaque.segment_plaque_image"
+  ],
+  "agg_type": [
+    "spacr.regression_summary._fitted_section"
+  ],
+  "analysis_mode": [
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary._is_nonparametric"
+  ],
+  "analysis_unit": [
+    "spacr.regression_summary._fitted_section"
+  ],
+  "colony_min_area_px": [
+    "spacr.plaque._count_colony_plate"
+  ],
+  "colony_plated_volume_ul": [
+    "spacr.plaque._count_colony_plate"
+  ],
+  "colony_threshold": [
+    "spacr.plaque._count_colony_plate"
+  ],
+  "custom_model_path": [
+    "spacr.deep_spacr._cross_validate_model",
+    "spacr.deep_spacr._fit_one",
+    "spacr.deep_spacr.train_test_model"
+  ],
+  "dependent_variable": [
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary._formula"
+  ],
+  "diameter": [
+    "spacr.plaque.segment_plaque_image"
+  ],
+  "exclude_grnas": [
+    "spacr.regression_summary._excluded_section"
+  ],
+  "fdr_alpha": [
+    "spacr.regression_summary._call_section",
+    "spacr.regression_summary._critical_p",
+    "spacr.regression_summary._cut"
+  ],
+  "flow_threshold": [
+    "spacr.plaque.segment_plaque_image"
+  ],
+  "fraction_threshold": [
+    "spacr.regression_summary._excluded_section"
+  ],
+  "guide_permutation_block": [
+    "spacr.regression_summary._blocking",
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary._formula"
+  ],
+  "guide_permutations": [
+    "spacr.regression_summary._permutation_count"
+  ],
+  "inference": [
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary._is_nonparametric"
+  ],
+  "lasso_n_boot": [
+    "spacr.regression_summary._selection_frequency"
+  ],
+  "lasso_selection_threshold": [
+    "spacr.regression_summary._hit_mask",
+    "spacr.regression_summary._selection_frequency"
+  ],
+  "level": [
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary._formula"
+  ],
+  "microscope_interval_seconds": [
+    "spacr.core._microscope_acquire"
+  ],
+  "microscope_max_events": [
+    "spacr.core._microscope_events"
+  ],
+  "microscope_timepoints": [
+    "spacr.core._microscope_acquire"
+  ],
+  "min_cells_per_well": [
+    "spacr.regression_summary._excluded_section"
+  ],
+  "model_path": [
+    "spacr.deep_spacr.apply_model_to_tar",
+    "spacr.deep_spacr.deep_spacr",
+    "spacr.deep_spacr.generate_activation_map"
+  ],
+  "model_plate_position": [
+    "spacr.regression_summary._blocking",
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary._formula"
+  ],
+  "multiple_testing_method": [
+    "spacr.regression_summary._method"
+  ],
+  "nontargeting_control_grnas": [
+    "spacr.regression_summary._effect_size_cut"
+  ],
+  "p_threshold_alpha": [
+    "spacr.regression_summary._cut"
+  ],
+  "p_threshold_kind": [
+    "spacr.regression_summary._cut"
+  ],
+  "plaque_pixels_per_um": [
+    "spacr.plaque._count_colony_plate"
+  ],
+  "positive_control_id": [
+    "spacr.regression_summary._call_section"
+  ],
+  "random_row_column_effects": [
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary._formula"
+  ],
+  "regression_backend": [
+    "spacr.regression_summary._fitted_section"
+  ],
+  "regression_type": [
+    "spacr.regression_summary._fitted_section",
+    "spacr.regression_summary.model_identity_line"
+  ],
+  "resume_checkpoint": [
+    "spacr.deep_spacr.train_test_model"
+  ],
+  "transform": [
+    "spacr.regression_summary._fitted_section"
+  ],
+  "watch_idle_minutes": [
+    "spacr.core._watch_check_settings"
+  ],
+  "watch_poll_seconds": [
+    "spacr.core._watch_check_settings"
+  ],
+  "watch_settle_seconds": [
+    "spacr.core._watch_check_settings"
+  ],
+  "well_diameter_mm": [
+    "spacr.plaque._count_colony_plate"
+  ]
+}

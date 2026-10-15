@@ -102,3 +102,28 @@ VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_tooltips.py, test
   before;58 focused lifecycle/policy tests pass after in30.45s. No caption,
   API or preference change. Linux offscreen/Qt6.12/6G/GPU hidden; no native
   Windows/macOS claim. Proof: data/506_delegate_tooltip_off_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B table/delegate help now survives the native expiry
+  A real QTableWidget ToolTipRole tooltip still expired after Qt's default
+  ten seconds even while its cell stayed hovered. Successful delayed replay
+  now refreshes the same native text with the existing hour-long HOLD_MS.
+  Qt ignores duration-only changes to unchanged text/owner, so the refresh
+  passes through no owner and back to the real widget; no second popup is made.
+  The new actual-table case fails before. Final focused cohort: 29 passed in
+  18.04 s, including master off, four-second delay and delegate replay.
+  An isolated existing delay test exposed a separate setup inconsistency:
+  synthetic Enter targeted the label while the actual cursor was over its
+  background. Its real cursor now rests on the label; all timing assertions
+  and timeouts are unchanged. Original failure, event trace and correction
+  receipt remain separate from the runtime hold proof.
+  Qt 6.12/Linux offscreen/6G/GPU hidden, serialized with the Home-B heavy lock.
+  No API/caption changes or native Windows/macOS acceptance claim. Proof:
+  data/506_delegate_tooltip_hold_2026-10-14/receipt.json.
+
+2026-10-14 Home-B — source-current tooltip API locale refresh
+Normal API translation reuse regenerated the nine non-English leaveEvent entries
+after the obsolete shorter-grace paragraph was removed. Existing two paragraphs,
+translation provenance and all 13,398 other symbols per locale are unchanged;
+review record parameter index follows the removed paragraph. Eighteen retained
+blocks pass source/context gates; four focused tests PASS in16.95s. No human or
+native-speaker review is claimed. Receipt: features/data/506_tooltip_api_refresh_2026-10-14/.

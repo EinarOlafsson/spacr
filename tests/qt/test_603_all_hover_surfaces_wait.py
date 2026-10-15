@@ -98,6 +98,7 @@ def test_native_four_second_delay_and_view_owned_help(hovered, qtbot):
     policy.install_tooltip_policy()
     hovered.setToolTip('Native four seconds')
     try:
+        QCursor.setPos(hovered.mapToGlobal(hovered.rect().center()))
         QApplication.sendEvent(hovered, QEvent(QEvent.Enter))
         qtbot.wait(3750)
         assert not QToolTip.isVisible()
