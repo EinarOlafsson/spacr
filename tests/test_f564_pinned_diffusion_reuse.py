@@ -1,6 +1,7 @@
 """Pinned local reuse mechanics with random tiny weights, never quality evidence."""
 import copy
 import hashlib
+import os
 import pickle
 
 import pytest
@@ -301,7 +302,7 @@ def test_selected_input_cannot_be_overwritten_by_report_output(sample, monkeypat
     model, crops, description, generator, payload, path = sample
     output = path.parent / 'counterfactual_summary.csv'
     if alias:
-        output.hardlink_to(path)
+        os.link(path, output)
     else:
         path.rename(output)
         path = output
