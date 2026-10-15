@@ -1,0 +1,54 @@
+{
+  "mode": "normal exact review lookup and write_language; preserve every unrelated source-current target",
+  "locales": {
+    "sv": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "de": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "es": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "zh_CN": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "pt": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "hi": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "ko": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "is": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    },
+    "fr": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10773
+    }
+  },
+  "normal_full_nine_runtime_audit_exit": 0,
+  "normal_arrivals": {
+    "baseline": 9833,
+    "added": 1092,
+    "retired": 151,
+    "changed": 31
+  },
+  "source_file_sha256_unchanged": {
+    "spacr/psf_pipeline.py": "4b7e4d9e5385cdbbf67224bb0af1f6625f5611bb6b5131ec34d1e38fafe3285d",
+    "tools/build_i18n_catalogs.py": "af63469004b439e3174f3bd42896806795801cba2865cb1f15b380abe58f19ff",
+    "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "tests/test_unmix_channel_boundary_f538.py": "bf4a5797facd66da076595d46412642505efa80ec12b203d31f1815adfa6e886"
+  }
+}

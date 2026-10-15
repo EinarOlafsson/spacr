@@ -199,3 +199,16 @@ valid physical-order/scalar cases,2new0dfloat/string cases and3actual Measure
 fraction/bool/duplicate cases. Unchanged42candidate cohort was not repeated;
 its original source scope remains explicit. Nine approved technical target
 texts remain unchanged; final9locale callbacks/normal closure still pending.
+
+2026-10-15 — Physical-channel selection coherent runtime closure.
+Owner082e31d0f6f plus independent32ebd94fef7 extracts only the approved
+_prepare_unmixing diagnostic. Final root source/9target peer adopted with
+records unchanged. One normal writer installs1diagnostic perlocale while
+preserving10,773 unrelated current targets each. Actual full9runtimeaudit
+PASS and normal immutable arrivals PASS:9833baseline/1092added/
+151retired/31changed. Only9newactual Measuretyped-bool localized
+refusals run after installation:9PASS,zero skips, no control reads or partial
+provenance output; input arrays/files/settings unchanged. Initial42owning and
+final15affected source scopes retained, not repeated. Original collector and
+4source/tool/test hashes exact across closure. No handgenerated captions,
+API orphan targets, matrix/scientific/wholefeature/fullCI acceptance claims.
