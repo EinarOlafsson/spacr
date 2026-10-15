@@ -63,3 +63,15 @@ classifier fitting, model accuracy, biological acceptance or native-speaker
 signoff is claimed. No new selector or per-run device field was added; the
 historical device preference remains unchanged. Exact receipts and failure
 proofs: features/data/594_existing_table_selection_2026-10-15/.
+
+2026-10-15 — COHERENT PUBLICATION WITH FINITE-FEATURE GUARD
+The exact checked table-selection source and API symbol were preserved while
+normal-merging the full F561/N180/memory, N633 and terminal source deliveries.
+One ordinary two-scope runtime writer combines this tooltip with F562's one
+finite-conversion refusal, preserving all10,768 unrelated rows per locale,
+including178 web captions and12 DINO captions. Normal arrival refresh keeps
+the9833 immutable baseline and reports1088 additions/151 retirements/31
+changed sources. N594's37 and F562's42 prior distinct owning checks were not
+rerun unchanged. The English-only languages=0 inventory audit is not claimed
+as a new full unrelated nine-locale safety audit. Exact source, target and
+unrelated API-symbol preservation proofs are included in the same receipt.

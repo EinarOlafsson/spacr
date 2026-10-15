@@ -243,3 +243,13 @@ full nine-locale runtime audit PASS; normal immutable arrivals PASS with
 9833baseline/1076added/151retired/30changed. Source hashes unchanged throughout.
 Evidence:data/562_finite_features_2026-10-15/. Scientific efficacy, actual model
 training, fullCI/release and whole-feature acceptance remain separate/open.
+
+2026-10-15 — FINITE-CONVERSION GUARD COHERENT PUBLICATION
+The exact42-case checked source/reviews are normal-merged with N594's existing
+table selection. One ordinary combined two-scope runtime writer validates
+both reviewed rows in all nine locales and preserves10,768 unrelated rows
+per locale, including178 web and12 DINO captions. Normal arrival refresh
+reports9833 baseline/1088 added/151 retired/31 changed. Source and review
+hashes remain exact to d25e03edf02; no unchanged42-case/model/training run
+was repeated. Whole F562 scientific/feature acceptance remains separate.
+Combined evidence: features/data/594_existing_table_selection_2026-10-15/.

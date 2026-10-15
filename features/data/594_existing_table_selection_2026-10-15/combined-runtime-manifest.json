@@ -1,0 +1,13 @@
+{
+  "current_sources": [
+    "Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+    "Multiple-instance feature values must remain finite when converted to float32."
+  ],
+  "retired_sources": [
+    "Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm']."
+  ],
+  "review_names": [
+    "2026-10-15-n594-table-selection.json",
+    "2026-10-15-mil-finite-features.json"
+  ]
+}

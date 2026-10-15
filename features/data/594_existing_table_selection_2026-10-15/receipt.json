@@ -1,5 +1,5 @@
 {
-  "scope": "N594 existing ML table choice, coherent native loader/fit-boundary component with owner-reviewed runtime/API help; normal publication pending",
+  "scope": "N594 existing ML table choice, coherent native loader/fit-boundary component with owner-reviewed runtime/API help; coalesced with independent F562 finite-conversion guard",
   "baseline_source": "e8a17831f29a73857ba4f94975f633f990692b68",
   "baseline": {
     "failed": 1,
@@ -24,9 +24,7 @@
     "Malformed, duplicate, unknown and anchor-free choices refuse before settings writer or DB reader",
     "Optional crop+annotation preserves authoritative exact o1=1,o2=0,o4=0 labels, many_to_one join and no duplicate target suffixes"
   ],
-  "held": [
-    "Normal reconcile/source identity and push after N698 publication hold released"
-  ],
+  "held": [],
   "scientific_limits": "No classifier fitting/model accuracy, biological labels, GPU, network, live data or new scientific cohort/join policy",
   "artifacts": {
     "passed": 18,
@@ -60,5 +58,26 @@
     "independent_peer": "../594_api_peer_review_2026-10-15/receipt.json",
     "source_and_target_hashes_verified_after_adoption": true,
     "no_duplicate_writer": true
+  },
+  "combined_publication": {
+    "public_base": "67e37853676e682e33b372f4f0cd04ecce629f2c",
+    "hard_coherent_source": "d25e03edf02",
+    "N594_distinct_owning_passed": 37,
+    "F562_prior_distinct_owning_passed": 42,
+    "unchanged_checks_not_repeated": true,
+    "nine_locales_two_exact_rows": true,
+    "unrelated_rows_preserved_per_locale": 10768,
+    "all_N698_178_and_F561_12_current_targets_preserved": true,
+    "normal_arrival": {
+      "added": 1088,
+      "baseline": 9833,
+      "changed": 31,
+      "retired": 151
+    },
+    "normal_English_inventory_only": "languages=0/settings1274/categories242/ui7925/modules77; not a new full9locale unrelated safety audit",
+    "API_current_own_symbol_and_every_unrelated_public_symbol_preserved": true,
+    "one_normal_combined_runtime_writer": true,
+    "earlier_unstarted_waiter_cancelled_exit143": "cancelled-coalescing-waiter.json.gz",
+    "normal_reconcile_and_push": "follows this final source-preserving commit"
   }
 }
