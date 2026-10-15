@@ -47,9 +47,9 @@
     "scope": "Direct normal AutoAPI visibility decision for existing module-level private helper; no full census or gate modification",
     "tool_sha256": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad"
   },
-  "review": "Parent approved exact proposal with fixed ASCII prefix refinement; final publication peer requested",
+  "review": "Independent root exact final source peer APPROVED a1062d2; root-final-peer.json binds current source. No additional unchanged9 rerun required.",
   "resource": "BlankCUDA/offscreen/oneprocess/common heavy.lock/cap6G, private disposable fixtures, no live data/network/GPU",
   "held": [
-    "Final exact source review and normal public merge/push"
+    "Normal publication after N337 source publication"
   ]
 }
