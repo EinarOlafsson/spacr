@@ -382,3 +382,19 @@ signatures and captions remain unchanged. Source peer and actual failures/logs:
 features/data/n420_incremental_ansi_terminal_2026-10-15/. This covers only
 currently supported escape families using local stand-ins, not vendor login,
 browser/network/native Windows or whole-item420 acceptance. No full CI run.
+
+2026-10-15 — Embedded terminal CRLF normalization spans reads.
+A current-source baseline reproduced6FAIL/2PASS: split CRLF and mixed ANSI
+formatting produced extra newlines. LF and aggregate standalone-CR controls
+already passed. The reader now carries at most one unfinished visible trailing
+CR, strips supported complete ANSI once, and uses the same CRLF/CR normalization
+policy as the unchanged public helper. NonLF continuation preserves a loneCR;
+EOF flushes it once. There is no timer/debounce/new helper or caption.
+Independent peer caught a double-ANSI-pass compatibility flaw in the unapplied
+proposal; its malformed nested-escape counterexample is now a regression.
+Final46PASS12.60s includes9new cases and all37 existing ANSI/UTF8/URL/localPTY
+lifecycle checks. Focused module96.15%; changed read method fully covered with
+no exclusions. Original prose/signatures/public helper ASTs are unchanged.
+Source peer, original failures and actual logs: features/data/
+n420_terminal_newline_boundaries_2026-10-15/. No vendor/browser/network/native
+Windows, universal terminal emulation, whole-item420 or full-CI claim.
