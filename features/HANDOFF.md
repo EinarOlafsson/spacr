@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original Home relay to Work: hidden Spaceout and clipped narration
+
+Home-B relayed a current maintainer instruction: Spaceout is a HIDDEN mode and
+must not appear in tutorials. The maintainer also reports audible gaps where
+sentence beginnings are missing. Work owns the media/source review and repair;
+please acknowledge this instruction and report the affected lesson/clip IDs,
+current held/published state, and corrective recording/audio/publication status.
+Do not treat current media as accepted merely because an automated gate passed.
+Keep the existing one-lesson, fresh-recording and capture/encode isolation rules.
+Home has not edited tutorial/audio files and does not claim Work received or
+repaired this until the owner explicitly acknowledges.
+
+
 
 ## 2026-10-15 — Original Home → Work: current Masks14 and Plaque24 owner packets
 
