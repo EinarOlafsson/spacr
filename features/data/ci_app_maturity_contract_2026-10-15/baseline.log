@@ -1,0 +1,104 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+________ test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for ________
+
+    def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
+        """Every alpha and every beta module, named one at a time.
+    
+        Spelling the lists out means a quiet drift fails here rather than
+        being noticed in a screenshot. The counts are read off the lists
+        instead of typed beside them: folding modules into their hosts is
+        taking keys out of both lists, and a literal count would fail for the
+        list being right rather than for it being wrong."""
+        from spacr.qt.app import app_stage
+        from spacr.settings import _alpha_names
+    
+        by_stage: dict = {}
+        for key, _name, _desc, _section in APPS:
+            if key in _alpha_names("apps"):
+                continue
+            by_stage.setdefault(app_stage(key), set()).add(key)
+>       assert by_stage["alpha"] == ALPHA_MODULES
+E       AssertionError: assert {'align', 'ba...ed_jobs', ...} == {'align', 'ba...browser', ...}
+E         
+E         Extra items in the right set:
+E         'classify_merged'
+E         Use -v to get more diff
+
+tests/qt/test_home_v2.py:999: AssertionError
+_________________ test_an_unassessed_module_never_reads_stable _________________
+
+    def test_an_unassessed_module_never_reads_stable():
+        """The same rule from the other side, over the live registry."""
+        import spacr.qt
+        from spacr.qt.app import app_stage
+        spacr.qt.register_self_registering_modules()
+        for key in maturity.unassessed_apps():
+>           assert app_stage(key) in ("alpha", "beta"), (
+                f"{key} is unassessed and reads {app_stage(key)!r}")
+E           AssertionError: toxoplasma is unassessed and reads 'stable'
+E           assert 'stable' in ('alpha', 'beta')
+E            +  where 'stable' = <function app_stage at 0x75de5b1bd8a0>('toxoplasma')
+
+tests/qt/test_app_maturity.py:219: AssertionError
+_________ test_no_module_reads_stable_without_somebody_having_said_so __________
+
+    def test_no_module_reads_stable_without_somebody_having_said_so():
+        """The bug, stated directly.
+    
+        Eight apps — the seven core-pipeline modules and Recruitment — were
+        reading "stable" because ``APP_STAGE.get(key, STAGE_STABLE)`` says so
+        for a key nobody ever wrote down, not because anybody signed them off.
+        After ``apply()`` every app reading stable is one this file names.
+        """
+        import spacr.qt
+        from spacr.qt.app import APPS, app_stage
+        spacr.qt.register_self_registering_modules()
+        silent = [key for key, *_rest in APPS
+                  if app_stage(key) == "stable"
+                  and key not in maturity.assessed_keys()]
+>       assert not silent, (
+            f"these modules read as stable and nobody assessed them: {silent}")
+E       AssertionError: these modules read as stable and nobody assessed them: ['toxoplasma']
+E       assert not ['toxoplasma']
+
+tests/qt/test_app_maturity.py:209: AssertionError
+_______________ test_every_app_carries_the_maturity_it_was_given _______________
+
+    def test_every_app_carries_the_maturity_it_was_given():
+        """The other axis, one entry at a time.
+    
+        Thirty-two alpha, four beta, six stable. The alpha column is the
+        one that keeps growing and the beta and stable columns have not
+        moved in a long time, which is the true shape of this project: an
+        app arrives "built and reachable, not yet trusted end to end", and
+        only use promotes it. Illumination, Barcode QC, Layer Viewer and
+        Graph Builder arrived that way; so did Power / Design, AnnData
+        Export and Run Compare; and so did Hit List, Methods & Results,
+        Pipeline Graph and the Prediction Profiler; and so do Experiment
+        Design and the QC Dashboard.
+    
+        Signing an app off is deleting a line from ``APP_STAGE`` and from
+        here; nothing else moves, which is the whole point of maturity not
+        being a section."""
+        actual = {key: app_stage(key) for key, *_r in APPS}
+        expected = {key: EXPECTED_STAGES.get(key, "stable")
+                    for key, *_r in APPS}
+>       assert actual == expected, (
+            "an app changed maturity. That is allowed — record it in "
+            "EXPECTED_STAGES in the same commit.")
+E       AssertionError: an app changed maturity. That is allowed — record it in EXPECTED_STAGES in the same commit.
+E       assert {'align': 'al... 'alpha', ...} == {'align': 'al... 'alpha', ...}
+E         
+E         Omitting 47 identical items, use -vv to show
+E         Differing items:
+E         {'classify_merged': 'stable'} != {'classify_merged': 'alpha'}
+E         Use -v to get more diff
+
+tests/qt/test_cov_qt_app.py:433: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qt/test_home_v2.py::test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for
+FAILED tests/qt/test_app_maturity.py::test_an_unassessed_module_never_reads_stable
+FAILED tests/qt/test_app_maturity.py::test_no_module_reads_stable_without_somebody_having_said_so
+FAILED tests/qt/test_cov_qt_app.py::test_every_app_carries_the_maturity_it_was_given
+4 failed in 2.44s
