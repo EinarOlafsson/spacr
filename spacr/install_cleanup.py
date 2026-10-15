@@ -2948,22 +2948,23 @@ def _macos_online_version(value):
     return parts + (0,) * (4 - len(parts))
 
 
-def _runtime_identity_command(python, version=None, *, prefix=None, minimum=False):
+def _runtime_identity_command(python, version=None, *, prefix=None, minimum=False, previous_version=None):
     """Probe the imported application and its owning wheel in a fresh process.
 
     :param python: exact interpreter used by the desktop launcher.
     :param version: requested release; None checks identity without a version pin.
     :param prefix: expected Python environment; derived from python when omitted.
     :param minimum: permit a newer version for an existing non-downgrade adapter.
+    :param previous_version: verified installed release that the replacement must not downgrade.
     :returns: isolated interpreter argv that emits a verified JSON receipt.
     """
     expected = json.dumps({"python": os.path.abspath(python), "version": version,
                            "prefix": prefix or os.path.dirname(os.path.dirname(python)),
-                           "minimum": bool(minimum)})
+                           "minimum": bool(minimum), "previous_version": previous_version})
     probe = '''import json, os, sys
 from pathlib import Path
 from importlib.metadata import distribution
-from packaging.version import Version
+from packaging.version import InvalidVersion, Version
 import spacr
 from spacr._version import __version__ as shipped
 expected = json.loads(sys.argv[1])
@@ -2983,14 +2984,72 @@ assert observed == Version(str(shipped)) == Version(dist.version), 'Imported cod
 normalize = lambda path: os.path.normcase(os.path.realpath(path))
 assert normalize(sys.executable) == normalize(expected['python']), 'Launcher interpreter differs'
 assert normalize(sys.prefix) == normalize(expected['prefix']), 'Launcher environment differs'
+if expected['previous_version'] is not None:
+    try:
+        previous = Version(expected['previous_version'])
+    except InvalidVersion:
+        print(json.dumps({'verified': False, 'reason': 'previous_runtime_version_invalid'}))
+        sys.exit(2)
+    if observed < previous:
+        print(json.dumps({'verified': False, 'reason': 'runtime_downgrade_refused',
+                          'previous_version': str(previous), 'staged_version': str(observed)}))
+        sys.exit(2)
 if expected['version'] is not None:
     requested = Version(str(expected['version']))
     assert observed >= requested if expected['minimum'] else observed == requested, 'Requested spaCR version differs'
 print(json.dumps({'verified': True, 'version': str(observed), 'module': str(actual),
                   'python': sys.executable, 'prefix': sys.prefix,
-                  'distribution': dist.metadata['Name'], 'requested_version': expected['version']}))
+                  'distribution': dist.metadata['Name'], 'requested_version': expected['version'],
+                  'previous_version': expected['previous_version']}))
 '''
     return [python, "-I", "-c", probe, expected]
+
+
+def _retiring_runtime_identity(prefix):
+    """Read one private installed wheel identity without importing its application dependencies."""
+    if not os.path.lexists(prefix):
+        return None
+    prefix = os.path.abspath(prefix)
+    python = os.path.join(prefix, "Scripts", "python.exe") if os.name == "nt" else os.path.join(prefix, "bin", "python")
+    probe = '''import ast, json, os, sys
+from pathlib import Path
+from importlib.metadata import distributions
+from importlib.util import find_spec
+expected = os.path.normcase(os.path.realpath(sys.argv[1]))
+assert os.path.normcase(os.path.realpath(sys.prefix)) == expected, 'Previous environment differs'
+assert Path(sys.argv[1]).is_dir(), 'Previous environment is not a directory'
+owners = [d for d in distributions() if d.metadata.get('Name', '').lower().replace('_', '-') in ('spacr', 'spacr-nightly')]
+assert len(owners) == 1, 'Previous application distribution is ambiguous or missing'
+dist = owners[0]
+module = Path(dist.locate_file('spacr/__init__.py')).resolve()
+assert module.is_file(), 'Previous application files are missing'
+spec = find_spec('spacr')
+assert spec is not None and spec.origin and Path(spec.origin).resolve() == module, 'Previous application import is shadowed'
+assert os.path.commonpath([expected, os.path.normcase(str(module))]) == expected, 'Previous application is outside its environment'
+assert os.path.commonpath([expected, os.path.normcase(os.path.realpath(dist.locate_file('')))]) == expected, 'Previous metadata is outside its environment'
+direct = json.loads(dist.read_text('direct_url.json') or '{}')
+assert not direct.get('dir_info', {}).get('editable'), 'Previous application is editable'
+version = dist.version
+assert isinstance(version, str) and version.strip(), 'Previous application version is missing'
+shipped = module.with_name('_version.py')
+if shipped.exists():
+    values = [node.value.value for node in ast.parse(shipped.read_text()).body
+              if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == '__version__' for target in node.targets)
+              and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)]
+    assert values == [version], 'Previous code and distribution versions differ'
+print(json.dumps({'verified': True, 'version': version, 'prefix': sys.prefix,
+                  'module': str(module), 'distribution': dist.metadata['Name']}))
+'''
+    code, output = _run([python, "-I", "-B", "-c", probe, prefix], timeout=30)
+    if code:
+        raise ValueError("previous_runtime_identity_unverified")
+    try:
+        identity = json.loads(output)
+        if identity.get("verified") is not True or not isinstance(identity.get("version"), str):
+            raise ValueError("previous_runtime_identity_unverified")
+    except (ValueError, AttributeError, TypeError) as error:
+        raise ValueError("previous_runtime_identity_unverified") from error
+    return identity
 
 
 def _macos_online_commands(record, version, workdir):
@@ -4023,8 +4082,14 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
                 print(json.dumps({"verified": False, "reason": "user_data_inside_runtime",
                                   "preserved_paths": retained}))
                 return 2
+        try:
+            previous = _retiring_runtime_identity(args.retiring_prefix) if args.retiring_prefix else None
+        except (OSError, ValueError, subprocess.SubprocessError):
+            print(json.dumps({"verified": False, "reason": "previous_runtime_identity_unverified"}))
+            return 2
         code, output = _run(_runtime_identity_command(
-            args.python, args.version, prefix=args.prefix, minimum=args.minimum), timeout=30)
+            args.python, args.version, prefix=args.prefix, minimum=args.minimum,
+            previous_version=previous["version"] if previous else None), timeout=30)
         print(output.strip())
         return code
     if args.command == "recover-macos-frozen":

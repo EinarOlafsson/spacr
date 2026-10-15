@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Direct exact-source AI technical translation review; independent parent review requested; no native-speaker signoff",
+  "note": "Only the new Storage move completion callback and corrected model-pack staging paragraph. Source commit3f43a4637adf6d3fade4d7d29d296d5c79d5dd5c; blocks extracted through normal public_docstrings and translatable_blocks. No generated catalog edited.",
+  "records": [
+    {
+      "label": "spacr.qt.preferences._StoragePage.relocate.finished#0",
+      "source": "Retarget a matching remembered model cache, then report the move.",
+      "source_sha256": "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+      "context": "Retarget a matching remembered model cache, then report the move.",
+      "translation": "Redirige un cache de modèles mémorisé correspondant, puis signale le déplacement.",
+      "review_basis": "AI technical comparison against the current function and the underlying worker/downloader. Preserves result tuple/literals and install reference; no checksum or cache-completeness guarantee added. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._StoragePage.relocate.finished#1",
+      "source": "Worker ``(moved, detail)`` pair. On success, ``detail`` is the destination path; otherwise it explains the failure. A missing result is treated as a failed move.",
+      "source_sha256": "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2",
+      "context": "Worker ``(moved, detail)`` pair. On success, ``detail`` is the destination path; otherwise it explains the failure. A missing result is treated as a failed move.",
+      "translation": "Paire ``(moved, detail)`` renvoyée par le traitement en arrière-plan. En cas de réussite, ``detail`` est le chemin de destination ; sinon, il décrit l’échec. Un résultat absent est traité comme un déplacement ayant échoué.",
+      "review_basis": "AI technical comparison against the current function and the underlying worker/downloader. Preserves result tuple/literals and install reference; no checksum or cache-completeness guarantee added. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.model_zoo.download_bundled_models#2",
+      "source": "The downloader stages the whole pack in a temporary sibling directory and atomically renames the completed directory into place after every download succeeds. It does not verify published checksums and trusts an existing non-empty cache without checking its completeness or origin. Prefer a catalogue entry with a hash and :func:`install` when checksum verification is required.",
+      "source_sha256": "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
+      "context": "The downloader stages the whole pack in a temporary sibling directory and atomically renames the completed directory into place after every download succeeds. It does not verify published checksums and trusts an existing non-empty cache without checking its completeness or origin. Prefer a catalogue entry with a hash and :func:`install` when checksum verification is required.",
+      "translation": "Le téléchargeur prépare le paquet entier dans un répertoire temporaire de même parent, puis renomme atomiquement le répertoire complet à son emplacement de destination après la réussite de tous les téléchargements. Il ne vérifie pas les sommes de contrôle publiées et fait confiance à un cache existant non vide sans vérifier son exhaustivité ni son origine. Privilégiez une entrée du catalogue avec une empreinte et :func:`install` lorsqu’une vérification de somme de contrôle est nécessaire.",
+      "review_basis": "AI technical comparison against the current function and the underlying worker/downloader. Preserves result tuple/literals and install reference; no checksum or cache-completeness guarantee added. No human/native-speaker signoff."
+    }
+  ]
+}

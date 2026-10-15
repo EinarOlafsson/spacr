@@ -51113,17 +51113,17 @@
       "source_blocks_sha256": [
         "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
         "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
-        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+        "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
         "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
         "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
         "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
       ],
-      "source_sha256": "9f02bf48144c1d1c1ca3fd9c6705d7bac19afef67d3c89f754b8ee431a02da92",
-      "text": "通过现有下载器填写包装 Hugging Face 模型包。\n\n薄,故意在 :func:`spacr.utils.download_models` - 下载器 spaCR 已经飞行,而一个 :func:`spacr.submodules.analyze_plaques` 依赖于它. 它是 *不* 重新实施在这里,所以有一个代码路径填补 ``resources/models`` 和一个地方修复,当 repo 移动时。\n\n它也是不可密切的路径:这个功能没有支票,直接写到目的地的文件名,并在文件夹不空时将整个拖动。 更喜欢用哈希和:func:`install`的目录输入; 这项功能允许动物园提供遗产包。\n\n``spacr.utils`` 进口 torch,所以它在这里进口,而不是模块级别。\n\n:param kwargs: 转到 :func:`spacr.utils.download_models`。\n:returns: 地点的指南包降落在。",
+      "source_sha256": "ce4bf62fa42aaf4eaa1bdb8eca89a0abb4823633c1b62f4bdb2ea16296676f37",
+      "text": "通过现有下载器填写包装 Hugging Face 模型包。\n\n薄,故意在 :func:`spacr.utils.download_models` - 下载器 spaCR 已经飞行,而一个 :func:`spacr.submodules.analyze_plaques` 依赖于它. 它是 *不* 重新实施在这里,所以有一个代码路径填补 ``resources/models`` 和一个地方修复,当 repo 移动时。\n\n下载器先将整个模型包暂存到临时同级目录中，所有下载成功后，再以原子重命名操作将完整目录放到目标位置。它不验证已发布的校验和，也不会检查现有非空缓存的完整性或来源便直接信任该缓存。如果需要校验和验证，应优先使用带有哈希值的目录条目和 :func:`install`。\n\n``spacr.utils`` 进口 torch,所以它在这里进口,而不是模块级别。\n\n:param kwargs: 转到 :func:`spacr.utils.download_models`。\n:returns: 地点的指南包降落在。",
       "translation_source_blocks_sha256": [
         "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
         "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
-        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+        "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
         "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
         "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
         "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
@@ -89579,6 +89579,18 @@
       "text": "带工具提示和占位文本的文本字段。",
       "translation_source_blocks_sha256": [
         "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2"
+      ]
+    },
+    "spacr.qt.preferences._StoragePage.relocate.finished": {
+      "source_blocks_sha256": [
+        "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+        "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2"
+      ],
+      "source_sha256": "669fadd144339fe5af2da4fe8046188c8998d2589b7591522647ff2661d5e0cf",
+      "text": "重定向匹配的已记住模型缓存，然后报告移动结果。\n\n:param result: 后台任务返回的 ``(moved, detail)`` 二元组。成功时，``detail`` 是目标路径；否则，它说明失败原因。缺少结果时按移动失败处理。",
+      "translation_source_blocks_sha256": [
+        "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+        "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2"
       ]
     },
     "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
