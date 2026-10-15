@@ -45,7 +45,7 @@ import logging
 import weakref
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QPoint, QTimer, Qt, Signal, Slot
+from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QTimer, Qt, Signal, Slot
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QApplication, QToolTip
 
@@ -492,7 +492,7 @@ class _TooltipFilter(QObject):
             self._replay(widget)
             return
         try:
-            QToolTip.showText(self._pos, self._text, None)
+            QToolTip.showText(self._pos, self._text, None, QRect(), HOLD_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not show a tooltip", exc_info=True)
             return
