@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="5.429" timestamp="2026-10-15T16:21:16.839381-04:00" hostname="olafsson"><testcase classname="tests.qt.test_the_preview_path_does_not_push_its_row" name="test_the_live_model_row_offers_the_zoo" time="4.088"><failure message="AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.">tests/qt/test_the_preview_path_does_not_push_its_row.py:97: in test_the_live_model_row_offers_the_zoo
+    panel._choose_a_preview_model()
+spacr/qt/widgets/live_preview.py:3830: in _choose_a_preview_model
+    if dialog.exec() != QDialog.Accepted:
+       ^^^^^^^^^^^^^
+tests/qt/conftest.py:861: in _refuse
+    raise AssertionError(
+E   AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.</failure></testcase><testcase classname="tests.qt.test_the_preview_path_does_not_push_its_row" name="test_a_model_not_in_the_menu_is_added_rather_than_ignored" time="0.156"><failure message="AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.">tests/qt/test_the_preview_path_does_not_push_its_row.py:112: in test_a_model_not_in_the_menu_is_added_rather_than_ignored
+    panel._choose_a_preview_model()
+spacr/qt/widgets/live_preview.py:3830: in _choose_a_preview_model
+    if dialog.exec() != QDialog.Accepted:
+       ^^^^^^^^^^^^^
+tests/qt/conftest.py:861: in _refuse
+    raise AssertionError(
+E   AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.</failure></testcase><testcase classname="tests.qt.test_the_preview_path_does_not_push_its_row" name="test_cancelling_the_picker_leaves_the_model_alone" time="0.166"><failure message="AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.">tests/qt/test_the_preview_path_does_not_push_its_row.py:123: in test_cancelling_the_picker_leaves_the_model_alone
+    panel._choose_a_preview_model()
+spacr/qt/widgets/live_preview.py:3830: in _choose_a_preview_model
+    if dialog.exec() != QDialog.Accepted:
+       ^^^^^^^^^^^^^
+tests/qt/conftest.py:861: in _refuse
+    raise AssertionError(
+E   AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.</failure></testcase></testsuite></testsuites>

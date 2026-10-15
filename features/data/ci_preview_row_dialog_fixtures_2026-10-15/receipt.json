@@ -1,0 +1,85 @@
+{
+  "status": "EXACT_THREE_GENERIC_LEGACY_PREVIEW_CASES_PASS_ROOT_PEER_PENDING",
+  "scope": "tests/qt/test_the_preview_path_does_not_push_its_row.py",
+  "exact_nodes": [
+    "test_a_model_not_in_the_menu_is_added_rather_than_ignored",
+    "test_cancelling_the_picker_leaves_the_model_alone",
+    "test_the_live_model_row_offers_the_zoo"
+  ],
+  "input_head": "7400ba06777e08505ca4b3d85a3847a30e66deea",
+  "relevant_public_preimages": "8abed212c9eb2c59e69bcec2b56a94f09d6120ea",
+  "cause": "Oldchoose_model mocks areunused by actualLivePreviewPanel picker; realheadlessmodalguard correctly refused allthree originals.",
+  "repair": "Onlythree testbodies stub realModelZooPicker factory. Accepted exactchosenpaths and explicitNone trustcapsule; Rejected dialog forbids chosen_path read.",
+  "preservation": {
+    "test_before_sha256": "52a529f085cf0a79b930166404cf19dd2e33c21ebd6af48f7ce8e367c038fab8",
+    "test_after_sha256": "b73dd8fa9c1796df235607669da7194f8413b42d1f59357596ce3f2d557a4e6e",
+    "all_original_module_assert_ASTs_exact": 12,
+    "all4_original_affected_assert_ASTs_exact": true,
+    "outside3testbodies_entire_module_AST_exact": true,
+    "all_production_and_actual_modal_guard_source_bytes_unchanged": true,
+    "fixture_interface": "Real ModelZooPicker(kinds,parent) factory shape; Accepted chosen_path exactoriginalstrings with explicit_chosen_referenceNone; Rejected chosen_path fails ifread. No production chooser method replaced."
+  },
+  "actual_production_modal_guard_pins": {
+    "spacr/qt/widgets/live_preview.py": "58047f4092a416949a90f5e1f3dcd06b95acee242f2dd108a8f7da1afc7407a1",
+    "spacr/qt/widgets/model_zoo_picker.py": "4b7159f6aaffbd2faf4593d331d696ce0b1421bdd4f32d8091aee735afcd71e8",
+    "spacr/model_zoo.py": "59b217fc365d7d8f063dd03ddc8f6f155949c83b54a18afb8ae375eda28ec0a9",
+    "tests/qt/conftest.py": "901a9e4cf81fafc5cef5684ba858cd75d08ecb60c6cbfba12463feea9cb70cd3"
+  },
+  "baseline": {
+    "actual_exit": 1,
+    "failed": 3,
+    "seconds": 5.42,
+    "error": "ActualheadlessModelZooPicker.exec guard"
+  },
+  "final": {
+    "actual_exit": 0,
+    "passed": 3,
+    "seconds": 2.75,
+    "skipped": 0
+  },
+  "resource": {
+    "pid": 3020356,
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68175.scope",
+    "memory_max": "4294967296",
+    "memory_swap_max": "0",
+    "cpus_allowed": [
+      0
+    ],
+    "pyside6": "6.12.0",
+    "qt": "6.12.0"
+  },
+  "network": {
+    "baseline": {
+      "blocked_network_events": [
+        "socket.getaddrinfo"
+      ]
+    },
+    "final": {
+      "blocked_network_events": [
+        "socket.getaddrinfo"
+      ]
+    }
+  },
+  "static_checks": "FullRuff/fatalE9F63F7F82 andgitdiffcheckPASS; localimports sortedbefore finalrun.",
+  "limits": "No production/picker/preview/modelresolver/N702feature code or other tests changed. No model/checkpoint/inference or successful externalnetwork connection: exactlyone DNSattempt wasBLOCKED ineachrun and isretained inrawnetwork receipts. No sourcecollector/writer/native/fullCI claim; unaffected path/layout cases were not rerun.",
+  "files": {
+    "pytest-driver.py": "29f90d2e54b726b938c5a5841c8c5474ac1dbab3d6e04b37352fdadabe9a1a35",
+    "final.xml": "18286f2ecda772da85f664bf9e5ea4d8953ece53cfe64d3bb77759142a6427fd",
+    "baseline.log": "ede0b62f9ee54084dbec9ec207a39d9f8c8825735b4defe9aca88ab8f4522de0",
+    "ruff-full.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "ruff-imports.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "input-pins.json": "822f4c2a6f03254df035fcdd5b280ace4eeb9f11d492a3d14b249f0258e6e935",
+    "baseline-network.json": "5dd2945b9a132d786fdc546cec4b7834e96482ecce96f260bd546b3874993c42",
+    "final.log": "256b7261e9629952022b4ac6df21074954e8445b84467c8b29a2903ac5e034a0",
+    "source-proof.json": "e4a40ca7865d33383ef0e52b5679c131f108f1ac73e5b90a01c231972d67be20",
+    "final-startup.json": "7dfa68cf01a32b4a74175628e455139de016e9f27197ba45365ed4ce7dc6bd95",
+    "baseline.xml": "98f147dcbfbc7124c5728da1246c1f77346e71af7311e89fe187df34b7949943",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "ruff-fatal.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "final-network.json": "5dd2945b9a132d786fdc546cec4b7834e96482ecce96f260bd546b3874993c42",
+    "test-only.patch": "e2c8e7631b2790d3d580820861bd7c890f95c2e065b57e33bdcc57e8f98dc071",
+    "run.sh": "92409ef1c0367e70aaa9d5876e1d5d69bb677ad8a30608f1135a6ba285c17c33",
+    "baseline-startup.json": "01382f217f5b158bb3e8055ca778021343eec0c25caacea8ff5679e2f30c73ea",
+    "final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}
