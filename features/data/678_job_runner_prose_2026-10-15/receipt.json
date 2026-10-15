@@ -2,7 +2,7 @@
   "schema": 1,
   "source": "spacr/qt/job_runner.py",
   "source_before_sha256": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b",
-  "source_after_sha256": "707a06b5f86998762585cdba88810a7362d7a5fbedfc2693cac722516c359d81",
+  "source_after_sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706",
   "published_base": "bca8cc7eb0c2a5824aa4701b20d700a894a2b58d",
   "source_matches_current_origin_nightly_before": true,
   "executable_ast_unchanged": true,
@@ -22,7 +22,7 @@
       "symbol": "spacr.qt.job_runner.shutdown_all",
       "disposition": "revised",
       "before": "Stop every live JobRunner. Returns how many were asked.\n\n    Call once on the way out, before Qt starts destroying widgets. Every\n    runner is cancelled first, so all their threads are asked to stop at the\n    same moment, and then they are waited for against ONE deadline: a window\n    with ten busy screens quits in ``timeout_ms``, not ten times that. A\n    runner that cannot stop in time is parked by `bridge.drain_thread` rather\n    than terminated, so this is bounded.\n\n    :param timeout_ms: the total wait budget across every runner.\n    ",
-      "after": "Cancel live runners; return how many shutdown calls completed normally.\n\n    Call before Qt starts destroying widgets. All runners are cancelled\n    before any wait, then share one ``timeout_ms`` wait deadline. This\n    bounds thread waiting, not the total application exit time. Threads\n    that outlast the budget are parked by\n    :func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown\n    calls are logged, excluded from the return count, and do not stop the\n    remaining runners from being processed.\n\n    :param timeout_ms: the total wait budget across every runner.\n    "
+      "after": "Cancel live runners; return how many shutdown calls completed normally.\n\n    Call before Qt starts destroying widgets. Cancellation is requested for\n    all runners before any wait, then they share one ``timeout_ms`` wait deadline. This\n    bounds thread waiting, not the total application exit time. Threads\n    that outlast the budget are parked by\n    :func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown\n    calls are logged, excluded from the return count, and do not stop the\n    remaining runners from being processed.\n\n    :param timeout_ms: the total wait budget across every runner.\n    "
     },
     {
       "symbol": "spacr.qt.job_runner.JobRunner",
@@ -106,7 +106,7 @@
     {
       "symbol": "spacr.qt.job_runner.shutdown_all",
       "before": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Every\nrunner is cancelled first, so all their threads are asked to stop at the\nsame moment, and then they are waited for against ONE deadline: a window\nwith ten busy screens quits in ``timeout_ms``, not ten times that. A\nrunner that cannot stop in time is parked by `bridge.drain_thread` rather\nthan terminated, so this is bounded.\n\n:param timeout_ms: the total wait budget across every runner.",
-      "after": "Cancel live runners; return how many shutdown calls completed normally.\n\nCall before Qt starts destroying widgets. All runners are cancelled\nbefore any wait, then share one ``timeout_ms`` wait deadline. This\nbounds thread waiting, not the total application exit time. Threads\nthat outlast the budget are parked by\n:func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown\ncalls are logged, excluded from the return count, and do not stop the\nremaining runners from being processed.\n\n:param timeout_ms: the total wait budget across every runner."
+      "after": "Cancel live runners; return how many shutdown calls completed normally.\n\nCall before Qt starts destroying widgets. Cancellation is requested for\nall runners before any wait, then they share one ``timeout_ms`` wait deadline. This\nbounds thread waiting, not the total application exit time. Threads\nthat outlast the budget are parked by\n:func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown\ncalls are logged, excluded from the return count, and do not stop the\nremaining runners from being processed.\n\n:param timeout_ms: the total wait budget across every runner."
     },
     {
       "symbol": "spacr.qt.job_runner.JobRunner",

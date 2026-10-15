@@ -79,8 +79,8 @@ SHUTDOWN_BUDGET_MS = 2000
 def shutdown_all(timeout_ms: int = SHUTDOWN_BUDGET_MS) -> int:
     """Cancel live runners; return how many shutdown calls completed normally.
 
-    Call before Qt starts destroying widgets. All runners are cancelled
-    before any wait, then share one ``timeout_ms`` wait deadline. This
+    Call before Qt starts destroying widgets. Cancellation is requested for
+    all runners before any wait, then they share one ``timeout_ms`` wait deadline. This
     bounds thread waiting, not the total application exit time. Threads
     that outlast the budget are parked by
     :func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown
