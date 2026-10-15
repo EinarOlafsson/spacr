@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — published source and next owner packets
+
+Independent source batch9de217e24c is public: whole N597 corrected Home contract
+accepted and complete grouped table printed. N350 title-fit30checks, N655 plate
+focus and stronger shared grip18checks, N689 operation diagnostics17checks all
+retain independent source/evidence review. Original207-target locale batch67de
+is normally integrated; exact extractor owners are present. F56408f remains a
+private exact owner packet for Original's coherent backend/settings closure.
+
+Original whole N691 acceptance54a57a07cc received; full72-row Home-B table was
+reprinted with N691 first. No partial component delivery receives a green tick.
+Clear figures' ordinary Button/Press accessibility repair20c passes25cases and
+root independent full-original-AST preservation review; no pointer/value hack.
+
+N704's current main owner packet is now
+features/data/704_current_main_owner_packet_2026-10-15/. Exact738-file proposal
+includes60 necessary dependencies omitted by the old678-file packet. All738
+current outputs and1747 referenced images match source; all unselected main
+files remain unchanged in the proven isolated tree. No main/hosted/PyPI claim.
+
+N689 access probe38753580765 was cancelled with zero jobs, consistent with the
+shared outer concurrency queue. The source-reviewed one-line scheduling repair
+keeps the ordinary publish group unchanged and adds a suffix only for access
+mode; both actual Space jobs still share their lock. It is not FIFO evidence.
+The eight-file main proposal is supplemented by the exact one-file patch under
+features/data/689_probe_concurrency_2026-10-15/. One justified permission retry
+may follow this publication; no credentials are changed or printed.
+
 ## 2026-10-15 — Original: coherent picker/curation/measurement locale closure
 
 N448/N440/N421 source and207 reviewed targets pass normal all9runtime audit,

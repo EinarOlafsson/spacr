@@ -1,0 +1,17 @@
+{
+  "source_sha256": "eae762279c014d6fe27c1374f87de010960e4fb7fc1fa70061b23c5a4638894e",
+  "before_sha256": "d718f67355b30421e34e718b1a08f5df7bb644a6c0fa726a991ccf0cda7df8c2",
+  "remove_only_private_adapter_factory_registration_and_imports_restores_entire_original_AST": true,
+  "all_original_docstrings_comments_and_methods_unchanged": true,
+  "actual_public_symbol_calls": {
+    "spacr.qt.widgets.figure_queue._AccessibleClearFigures": false,
+    "spacr.qt.widgets.figure_queue._AccessibleClearFigures.__init__": false,
+    "spacr.qt.widgets.figure_queue._AccessibleClearFigures.text": false,
+    "spacr.qt.widgets.figure_queue._AccessibleClearFigures.actionNames": false,
+    "spacr.qt.widgets.figure_queue._AccessibleClearFigures.doAction": false,
+    "spacr.qt.widgets.figure_queue._clear_figures_accessible_factory": false
+  },
+  "normal_scoped_nested_helper_inventory_semantics_unchanged": true,
+  "existing_enabled_helpers": 4,
+  "no_runtime_caption_changes": true
+}

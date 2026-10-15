@@ -1,0 +1,83 @@
+N704 CURRENT README / READABLE-TEXT PROMOTION PACKET
+==================================================
+
+This is an unapplied, documentation-only packet for Original Home's established
+end-stage main-promotion lane. It does not authorize a separate publication,
+release, or change to the shared checkout. No main branch or service was changed.
+
+Immutable pins
+--------------
+Target main: e0bedd1534d71708f65b60a2d9e24b6328d4ce9d
+Source nightly: 9263977fc9b977be880ca783d6716d2c6c4aeb6c
+Coordinator: 40c379e307e66b6855dabb5b157aac2bb1866fb1
+The selected outputs are byte/mode-identical on source nightly and coordinator.
+Verified isolated candidate tree: 7aab6b60a3925efff264a11143f4925c1c4ab147
+Uncompressed patch SHA256:
+1af8dc31ea5938a95742af1de430d15b7b518dd541a44b160200d0fbc5477d9d
+
+Why the historical 678-file packet is now insufficient
+-----------------------------------------------------
+The current normal-generated READMEs contain two additional panels per language:
+hardware-support-2 and generated-model-zoo-3. Their 20 readable pages and 40
+phone/desktop SVGs are absent from main and the old packet. Promoting the current
+READMEs with only the old list would introduce those missing destinations/images.
+added-dependencies.json binds each of these 60 files to its referring README.
+
+The coherent scope is exactly 738 files: ten READMEs, 670 readable pages,
+17 model pages plus their index, and 40 new SVG assets. The historical 678 files
+are all retained; 19 now have updated source bytes. All 1,707 historical images
+remain identical on main and nightly; the 40 additional images bring the current
+referenced set to 1,747. There are no model binaries or duplicate standalone
+images in this packet. The new SVG bytes occur only inside the compressed patch.
+
+Scope and verification
+----------------------
+manifest.json.gz records every selected file's source/main hashes and Git modes,
+all 1,747 current image hashes, all direct local README references, the exact
+19 historical changes, and authoring/tool/test pins. The historical manifest,
+file list and actual renderer/implementation receipts are preserved separately.
+No README, model, image, or package generator was rerun for this packet.
+
+The preparation script used an isolated GIT_INDEX_FILE loaded from target main.
+git apply --cached --check and git apply --cached both passed. Every selected
+candidate blob/mode equals nightly; every unselected main blob/mode is unchanged.
+All direct local README links/images exist in that candidate. This is a path
+and byte proof, not fragment, browser, HTTP, or current rendered acceptance.
+
+Owner application (only in the owner's separate clean promotion worktree)
+-------------------------------------------------------------------------
+Keep this packet outside the target worktree or reference its absolute path.
+Use the exact target main pin above; if main has advanced, refresh/reconcile the
+packet against the new pin instead of applying it blindly. Do not cherry-pick
+the implementation commits broadly, edit generated outputs, or use a shared tree.
+
+Example local preparation, substituting actual absolute paths:
+
+  packet=/absolute/path/to/704_current_main_owner_packet_2026-10-15
+  scratch=/mnt/wd4tb/scratch/n704-owner-promotion
+  mkdir -p "$scratch"
+  gzip -dc "$packet/readme-docs-only.patch.gz" > "$scratch/readme-docs-only.patch"
+  sha256sum "$scratch/readme-docs-only.patch"
+
+In that clean, owner-controlled worktree at the target main pin:
+
+  git apply --check "$scratch/readme-docs-only.patch"
+  git apply --index "$scratch/readme-docs-only.patch"
+  candidate=$(git write-tree)
+  python "$packet/verify_packet.py" --repo "$PWD" --candidate "$candidate"
+
+The verifier requires exactly this 738-file change against the pinned main and
+checks all promoted/source image bytes. Run it before combining unrelated
+promotion packets. Follow the existing owner review/publication procedure;
+this packet contains no remote-push, deployment, or package-upload command.
+
+Remaining N704 acceptance
+-------------------------
+The preserved historical PyPI renderer tests covered the then-current 65 English
+panels; they are not fresh 67-panel or hosted acceptance. The real setup.py
+pypi_readme function is AST-identical to the historically tested function and
+intentionally resolves relative links to main. Main currently has no readable
+text pages. Following owner publication, verify actual GitHub and PyPI rendered
+links and destination leading text/structured values across all ten locale routes,
+including the two newer panels. The existing release lane owns any PyPI release.
+No whole-item completion or hosted availability is claimed here.
