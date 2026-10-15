@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-15",
+  "baseline_commit": "279fec641fb368374550a9e9e39707a1748a036a",
+  "before": {
+    "failed": 8,
+    "passed": 3,
+    "deselected": 70,
+    "seconds": 4.85,
+    "exit": 1
+  },
+  "after": {
+    "passed": 11,
+    "deselected": 70,
+    "seconds": 3.92,
+    "exit": 0
+  },
+  "source_sha256": {
+    "tools/web_mask_generator/app.py": "b283fa4ebe2cc53e3528a27663368b5012008f5ec1ab3bd0f073468ab8d2b580",
+    "tools/web_mask_generator/examples.py": "bde92452ea75ba7a054132c4244419976e44e42f236a5682aa59fcecd92f8eab"
+  },
+  "scope": [
+    "Preview floor/ceil+image clipping before indexing, refusing empty/reversed/nonfinite boxes",
+    "NUL filename rejected in approved example validation before session/network/file creation"
+  ],
+  "limits": [
+    "Tiny actual ZIP/no-network input contracts; no native biology/deployment/GPU claim",
+    "Six tools-only all-family commits still require integration against current public N696; private backend dependency is not delivered"
+  ]
+}

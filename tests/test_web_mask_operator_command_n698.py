@@ -51,3 +51,39 @@ def test_missing_model_provenance_is_refused_before_inference(tmp_path, monkeypa
     with pytest.raises(SystemExit) as error:
         run.main([str(tmp_path / "input.tif"), "--native-scale"])
     assert error.value.code == 2
+
+
+@pytest.mark.parametrize('family', ['toxoplasma_well_detector', *run.OBJECT_ROLES])
+def test_remaining_operator_routes_have_family_specific_settings(arguments, monkeypatch, family):
+    called = []
+    def adapter(output, **kw):
+        called.append(kw)
+        return output
+    monkeypatch.setattr(run, 'run_mask_download', adapter)
+    monkeypatch.setattr(run, 'run_well_download', adapter)
+    extra = [] if family == 'toxoplasma_well_detector' else ['--settings-json', '{"background": 123}']
+    assert run.main(arguments + ['--family', family, '--magnification', '40'] + extra) == 0
+    settings = called[0]['effective_settings']
+    if family == 'toxoplasma_well_detector':
+        assert settings == {'confidence': 0.25, 'min_axis_ratio': 0.7, 'imgsz': 640}
+        assert 'family' not in called[0]
+    else:
+        assert called[0]['family'] == family
+        assert settings['diameter'] is None and settings['magnification'] == 40 and settings['background'] == 123
+        assert settings['CP_prob'] == (-1 if run.OBJECT_ROLES[family] == 'pathogen' else 0)
+
+
+@pytest.mark.parametrize('extra', ['bad', '[]', '{"checkpoint": "/client"}'])
+def test_mask_operator_rejects_invalid_advanced_settings(arguments, monkeypatch, extra):
+    monkeypatch.setattr(run, 'run_mask_download', lambda *a, **kw: pytest.fail('invalid settings ran model'))
+    with pytest.raises(SystemExit):
+        run.main(arguments + ['--family', 'live_cell', '--settings-json', extra])
+
+
+def test_generic_cli_auto_and_nonmask_setting_refusal(arguments, monkeypatch):
+    called = []
+    monkeypatch.setattr(run, 'run_mask_download', lambda output, **kw: called.append(kw) or output)
+    assert run.main(arguments + ['--family', 'live_cell', '--native-scale']) == 0
+    assert called[0]['effective_settings']['diameter'] == 'auto'
+    with pytest.raises(SystemExit):
+        run.main(arguments + ['--native-scale', '--settings-json', '{"background": 10}'])

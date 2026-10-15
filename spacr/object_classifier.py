@@ -564,19 +564,47 @@ def _annotated_real_crops(databases: Sequence[str], column: str = "real"):
         group never puts one well on both sides.
     :raises ValueError: a database without the column.
     """
+    import hashlib
+    from pathlib import Path
+
     import pandas as pd
+
+    from .qt.i18n import tr
 
     from .tabular import read_table
 
     frames = []
     for database in databases:
-        frame = read_table(database, table="png_list", report=None)
+        frame = read_table(database, table="png_list", report=None,
+                           migrate=False, read_only=True)
         if column not in frame.columns:
             raise ValueError(f"{database} has no {column!r} column in "
                              f"png_list; annotate it in Annotate first")
         calls = pd.to_numeric(frame[column], errors="coerce")
         frame = frame.loc[calls.isin([1, 2])].copy()
         frame["real"] = calls.loc[frame.index] == 1
+        for _, record in frame.iterrows():
+            digest = record.get("sample_png_sha256")
+            size = record.get("sample_png_bytes")
+            has_digest = not pd.isna(digest) and str(digest).strip() != ""
+            has_size = not pd.isna(size)
+            if not has_digest and not has_size:
+                continue
+            message = tr("Annotated crop {path} no longer matches its sample-creation fingerprint.", path=str(record["png_path"]))
+            try:
+                expected = str(digest).strip().lower()
+                if not has_digest or not has_size or len(expected) != 64:
+                    raise ValueError(message)
+                if isinstance(size, (bool, np.bool_)):
+                    raise ValueError(message)
+                count = int(size)
+                if count < 0 or (not isinstance(size, str) and count != size):
+                    raise ValueError(message)
+                pixels = Path(str(record["png_path"])).read_bytes()
+                if len(pixels) != count or hashlib.sha256(pixels).hexdigest() != expected:
+                    raise ValueError(message)
+            except (OSError, TypeError, ValueError, OverflowError):
+                raise ValueError(message) from None
         names = frame["png_path"].map(lambda p: os.path.splitext(
             os.path.basename(str(p)))[0].rsplit("_", 3))
         plates = (frame["dataset_plate"].astype(str)
@@ -587,7 +615,12 @@ def _annotated_real_crops(databases: Sequence[str], column: str = "real"):
         frames.append(frame[["png_path", "real", "group"]])
     if not frames:
         return pd.DataFrame(columns=["png_path", "real", "group"])
-    return pd.concat(frames, ignore_index=True)
+    combined = pd.concat(frames, ignore_index=True)
+    identities = combined["png_path"].map(lambda path: os.path.realpath(str(path)))
+    for _, rows in combined.groupby(identities, sort=False):
+        if rows["real"].nunique(dropna=False) != 1 or rows["group"].nunique(dropna=False) != 1:
+            raise ValueError(tr("Annotated crop {path} has conflicting labels or acquisition identities.", path=str(rows.iloc[0]["png_path"])))
+    return combined.loc[~identities.duplicated()].reset_index(drop=True)
 
 
 def _real_scorecard(truth: np.ndarray, probability: np.ndarray,

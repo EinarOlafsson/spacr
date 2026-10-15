@@ -1762,7 +1762,7 @@ def analyze_plaques(settings):
                     'area_vs_image_median': (float(region.area) / median
                                              if median else None),
                     'perimeter_px': float(region.perimeter),
-                    'equivalent_diameter_px': float(region.equivalent_diameter),
+                    'equivalent_diameter_px': float(region.equivalent_diameter_area),
                     'eccentricity': float(region.eccentricity),
                     'solidity': float(region.solidity),
                     'centroid_y': float(region.centroid[0]),

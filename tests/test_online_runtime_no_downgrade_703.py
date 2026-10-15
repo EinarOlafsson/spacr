@@ -91,7 +91,7 @@ def test_older_staged_runtime_cannot_replace_newer_even_with_broken_import(tmp_p
 
 
 @pytest.mark.parametrize('damage', ['missing-python', 'missing-metadata', 'different-code',
-                                    'duplicate-owner', 'editable', 'malformed-metadata', 'shadow', 'file'])
+                                    'duplicate-owner', 'editable', 'malformed-metadata', 'shadow', 'linked-metadata', 'file'])
 def test_untrusted_previous_identity_is_refused_without_modifying_either_runtime(tmp_path, damage):
     old = tmp_path / 'previous runtime'
     if damage == 'file':
@@ -116,6 +116,13 @@ def test_untrusted_previous_identity_is_refused_without_modifying_either_runtime
             (shadow / 'spacr/__init__.py').write_text('raise RuntimeError("never execute this")\n')
             (package.parent / 'foreign.pth').write_text(
                 f'import sys; sys.path.insert(0, {str(shadow)!r})\n')
+        elif damage == 'linked-metadata':
+            outside = tmp_path / 'unrelated package metadata'
+            shutil.move(str(info), str(outside))
+            try:
+                info.symlink_to(outside, target_is_directory=True)
+            except OSError:
+                pytest.skip('native filesystem does not permit disposable directory symlinks')
         elif damage == 'malformed-metadata':
             (info / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr\n')
     python, _, _ = _runtime(tmp_path / 'staged runtime', '1.5.1.5', with_packaging=True)

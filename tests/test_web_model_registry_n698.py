@@ -23,7 +23,7 @@ def test_required_model_classes_and_current_desktop_defaults_are_preserved():
             assert entry["repo_type"] == source["repo_type"]
             assert "checkpoint" not in entry
             assert entry["output_kind"] == ("boxes" if source["kind"] == "detector" else "labels")
-            assert entry["inference_adapter"] == ("plaque" if family["family"] == "toxoplasma_plaque" else None)
+            assert entry["inference_adapter"] == ("plaque" if family["family"] == "toxoplasma_plaque" else "well_detector" if source["kind"] == "detector" else "masks")
 
 
 def test_alternatives_never_silently_replace_current_default():
