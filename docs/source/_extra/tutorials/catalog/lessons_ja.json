@@ -1654,7 +1654,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは4つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。",
+          "narration": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは3つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。",
           "focus": [
             360,
             380,
@@ -1663,11 +1663,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは4つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。"
+          "speech_text": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは3つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。"
         },
         {
           "visual": "20_suggestions",
-          "narration": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上のすべての切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。",
+          "narration": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上の未ラベルの切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。",
           "focus": [
             350,
             250,
@@ -1675,11 +1675,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上のすべての切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。"
+          "speech_text": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上の未ラベルの切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。"
         },
         {
           "visual": "21_judged",
-          "narration": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答も記録され、却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。",
+          "narration": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答もNextで保存するまでは未保存の変更です。却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。",
           "focus": [
             350,
             250,
@@ -1687,7 +1687,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答も記録され、却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。"
+          "speech_text": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答もNextで保存するまでは未保存の変更です。却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。"
         },
         {
           "visual": "17_generate_database_entry",
@@ -1714,7 +1714,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

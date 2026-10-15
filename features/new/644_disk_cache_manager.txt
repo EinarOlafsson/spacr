@@ -90,3 +90,14 @@ TORCH_HOME/HF_HOME names instead of arbitrary CI variables; its precedence
 assertions remain intact. Fatal Ruff/index/diff checks pass. No live cache,
 user data, GPU or fullCI operation.
 Evidence: data/644_cache_environment_allowlist_2026-10-14/receipt.json.
+
+2026-10-15 — malformed cache-location values no longer become environment paths:
+Startup now accepts only nonempty string paths without embedded NUL from
+cache_locations.json. Null/bool/numeric/container values and whitespace-only
+strings remain inert; a valid sibling still applies. Non-mapping JSON stays
+inert and explicit outside environment values remain authoritative. Reader
+and startup application preserve the original metadata bytes. Twelve native
+baseline cases failed before the repair; the focused metadata/environment
+cohort now passes28 in1.64seconds under a2G cap. No UI/caption changes or real
+cache/model/network/GPU/fullCI operations. Evidence:
+data/644_cache_location_path_types_2026-10-15/receipt.json.

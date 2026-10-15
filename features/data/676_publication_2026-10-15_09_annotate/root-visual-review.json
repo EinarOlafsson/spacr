@@ -1,0 +1,38 @@
+{
+  "reviewed_by": "root",
+  "scope": "Sampled actual native-video frames plus application/SQL/source evidence; not continuous human playback or listening",
+  "images": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/root-native-review/06_annotation_settings.png",
+      "sha256": "7d42029896eb8221b58ea2ad2525b0b46679a486eab332a658b471f00165a7d3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/root-native-review/11_display_colour_settings.png",
+      "sha256": "64908e0b5cd63a35401889dc752b9a7c6bd25d541b03789ea9d3538256691bb7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/english-review-images/21_judged_terminal.png",
+      "sha256": "b1cb5bae66ba3fa7bba4489299f07406c23b287c82acd7fa45654a52fdb619c2"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/english-review-images/19_labels_for_suggest_terminal.png",
+      "sha256": "dd93e443285a1027e077736e045d8457580d3ee1a8defc37a4db43d605385341"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/english-review-images/20_suggestions_terminal.png",
+      "sha256": "16a16b7647748faa9ae02ce81d92dac36afbdf175545a1a98dbcf17b931b61bf"
+    }
+  ],
+  "findings": [
+    "06 shows genuine new tutorial_demo_01 annotation column in Settings.",
+    "11 shows actual CMY selection in Channel colours.",
+    "19 shows saved labelling and three wells supported by SQL/driver receipt.",
+    "20 shows14 question-mark suggestions and six existing labels, not all20 crops suggested.",
+    "21 shows one confirmed and one rejected suggestion,12 remaining, and2 unsaved changes."
+  ],
+  "english_raw_sha256": "ceee8ce2de783460094e489297d0c5bb2d55eb4b1770689fbe4c99d4643852a9",
+  "all22_narrative_scenes_reviewed_by_medium": true,
+  "three_changed_sentences_peer_reviewed_by_high": true,
+  "human_listening_review": false,
+  "native_speaker_signoff": false
+}

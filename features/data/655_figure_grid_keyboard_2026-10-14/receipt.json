@@ -1,0 +1,77 @@
+{
+  "item": "N655",
+  "scope": "Keyboard reachability, activation, naming and visible focus for saved/live figure-grid tiles",
+  "source_base": "d328512c7db1cb4c73d2a7caa02b20dda7fea7ce",
+  "before": {
+    "failed": 14,
+    "passed": 3,
+    "seconds": 4.64,
+    "test_snapshot": "before-test.py.gz"
+  },
+  "initial_candidate": {
+    "passed": 38,
+    "failed": 2,
+    "seconds": 26.7,
+    "patch": "initial-candidate.patch",
+    "retained_failures": [
+      "The first traversal assertion stopped at a sibling button before finishing Qt creation-order focus traversal.",
+      "The stylesheet-only focus border did not paint; actual pixel validation rejected it."
+    ]
+  },
+  "after": {
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 22.71
+  },
+  "repairs": [
+    "Figure cells take StrongFocus, allowing normal Tab traversal.",
+    "Unmodified Return, numeric Enter and Space emit the existing clicked signal only when the tile owns focus.",
+    "Saved figures retain their original sparse queue indices; live and pinned panels retain their existing key routing.",
+    "QAccessible names reuse the existing caption, panel letter or live key, with numeric index fallback.",
+    "The focused tile paints a two-pixel palette Highlight border, ending its QPainter in finally. Mouse handlers and tile geometry are unchanged."
+  ],
+  "test_harness_notes": [
+    "Initial setup-abort.log is preserved. The first fixture returned children without retaining their top-level host; changing it to yield retains the host for the test. Initial layout is settled and null focus now produces an assertion rather than a QTest abort.",
+    "The final Tab case checks one complete focus cycle rather than assuming Qt creation order equals visual layout order; it still requires every saved/live tile and a reachable exit button."
+  ],
+  "owning_files": [
+    "tests/qt/test_655_figure_grid_keyboard.py",
+    "tests/qt/test_cov_wf_qt_widgets_figure_grid_view.py",
+    "tests/qt/test_471c_figures_sections_fold.py",
+    "tests/qt/test_every_live_tile_opens.py"
+  ],
+  "environment": {
+    "python": "3.12.13",
+    "qt": "6.12.0",
+    "platform": "Linux offscreen",
+    "memory_cap": "6G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "serialization": "flock /mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock"
+  },
+  "source_sha256": {
+    "spacr/qt/widgets/figure_grid_view.py": "a5e2a009cc39b182a4e3ab191a5b9581465c5d25aa3859c015d7e7e521a6aaaa",
+    "tests/qt/test_655_figure_grid_keyboard.py": "8b13a2fcf5dfe74c0807cc4b05117321618ec1088324106aa8861e37500cf884"
+  },
+  "new_captions": false,
+  "rendered_api_catalog_arrival": false,
+  "api_reason": "The normal public_docstrings collector excludes the private _FigureCell class, including its new event overrides.",
+  "limits": [
+    "No full N655 completion claim.",
+    "QAccessible metadata and offscreen rendering are verified; this is not external-reader speech or native Windows/macOS acceptance.",
+    "No general shortcut-map, tutorial or whole-application keyboard audit is claimed."
+  ],
+  "replay": "bash features/data/655_figure_grid_keyboard_2026-10-14/run.sh tests/qt/test_655_figure_grid_keyboard.py tests/qt/test_cov_wf_qt_widgets_figure_grid_view.py tests/qt/test_471c_figures_sections_fold.py tests/qt/test_every_live_tile_opens.py",
+  "payload_sha256": {
+    "before-test.py.gz": "c9145aa2e87ac63bf61087af3fd989250610b671d2801fed7152c79fb755d38a",
+    "before.log.gz": "ae5a3cb84631de6ba4cfb3c42bce55fda0cc2e9b82102f82d394bbdb9736efe5",
+    "before.xml.gz": "fac6f055ea0e2019640ba32862210606dc5eca32f968c895cb2b7efdeab3b5d0",
+    "initial-candidate.patch": "0efb5b721f0e5281df3fc3cf7c88ab010d7db0510be43c36737963be5cba584e",
+    "owning-final.log.gz": "3b7d013aaa1acfb3d9628e63d55d3c3467c18999e027300ff3182748eed60f0f",
+    "owning-final.xml.gz": "243de05237831bb285c9e4f887621162247f593b9a08e84882c6a64468471961",
+    "owning.log.gz": "73fb10609c76f700c98c23017c42fa7934dd2cd78be7e06d9b060ffdfd5baace",
+    "owning.xml.gz": "797bd0a01766d0c380794bff28e2c4de844479da08298bc1b7aa2a60010fbfb6",
+    "run.sh": "29aa2bb00e7194339bbbc8d5b7db77303b0791e16b447708048fbe4004835dec",
+    "setup-abort.log.gz": "f4324115b3b6f06c4b60cde5efb84d9c4771bfd093beeb8b583c7729cf9ba7c2"
+  }
+}

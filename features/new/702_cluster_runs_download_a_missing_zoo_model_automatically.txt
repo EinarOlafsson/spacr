@@ -393,3 +393,19 @@ are separate provenance. Planning avoids provider discovery and HTTP. No
 private offline-caption policy was silently adopted. Real weights, scientific
 parity, native cluster acceptance and finalCI remain open; parent702 partial.
 Evidence: data/702_integrated_model_runtime_2026-10-14/receipt.json.
+
+2026-10-14 — legacy explicit bundled-pack corruption repair:
+The bulk dataset downloader stages every file in a private sibling folder,
+flushes successful bytes and publishes the complete directory atomically only
+after all streams finish. Failed streams/publication clean staging and leave
+the final empty cache retryable. Existing private cache bytes remain untouched;
+a file arriving during download prevents publication. Flattened basename
+collisions refuse before acquisition; retry streams truncate private staged
+bytes and close HTTP responses. Hugging Face remains a dataset repository.
+Three native baseline failures were reproduced (one passing preservation case).
+After the repair, six existing contracts pass in9.64seconds and eight native
+cases pass in7.81seconds, including seven new corruption/preservation cases.
+Existing nonempty legacy packs remain trusted without a manifest; abrupt OS
+termination may leave a hidden staging sibling, never a final partial pack.
+No real network/model/GPU/fullCI or native other-OS acceptance. Parent702 partial.
+Evidence: data/702_atomic_bulk_model_download_2026-10-14/receipt.json.
