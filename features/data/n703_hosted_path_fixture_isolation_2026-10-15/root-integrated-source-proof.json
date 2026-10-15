@@ -1,0 +1,14 @@
+{
+  "integration_pin": "6fa1c1a26ef24a84ade392a0d05c5ce5c016a69f",
+  "production_files_exact_to_owning_baselines": {
+    "spacr/install_cleanup.py": "3448c838e77cb9a4fb6c95127fce2c733645c546124b86282f72a8ddcf100837",
+    "spacr/settings.py": "2e32842aa7190fbb930b34fe7eadbc7057bd881e2bb51fd42f11bdf083654267",
+    "spacr/object.py": "bb71c885726aa4f52c878f4d038b61748f8772f8a3b5d363bdd0be98d425ab26",
+    "spacr/utils.py": "d76be1ceb647fb3db120458c0d56e1d17bbb24632d7ce2d1f9479dd48d9c077d"
+  },
+  "source_peers": {
+    "features/data/n703_hosted_path_fixture_isolation_2026-10-15/independent-source-peer.json": "13f1cf1af287d4d2774bb71f0c3f4767ef1660119451a4f81308791948903dc5",
+    "features/data/696_ci_diameter_caption_contract_2026-10-15/independent-source-peer.json": "2e2a9ff63fcbf0bf929d06dc41351c999f7843a0438c0e4ac4e66aef8705bb01"
+  },
+  "test_scope": "Two fixture bodies and one diagnostic assertion only; no production or guard changes."
+}
