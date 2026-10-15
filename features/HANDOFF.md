@@ -12943,3 +12943,27 @@ captions preserved). Two failures before/13PASS after; precise function/source
 receipt in features/data/562_535_caption_owners_2026-10-15/. F564 four-owner
 extraction already public4c8a696df01. No backend/source reviews/catalog edits;
 Original Home owns scoped normal generation and feature acceptance.
+
+## 2026-10-15 Home-B — picture and shortcut prose plus270 reviewed API targets
+
+Corrected picture-export raster/PDF/DPI and callback-timing descriptions, and
+shortcut declared/installed/discovered bindings, registry-index navigation and
+overlay/modal behavior. Executable AST is unchanged for both source files.
+Normal scoped generation refreshed30blocks in10symbols across9locales.
+Independent technical review accepted72picture targets and198shortcut targets;
+four peer-found Spanish/Swedish defects were corrected before final generation.
+Eight explicitly authorized shifted constructor targets were repaired, while
+the other10 remain exact. Old review text survives in precise retirement
+receipts (72picture/108shortcut rows). The coordinator independently verified
+peer source hashes, all10owned records and preservation of13,394 unrelated
+records per locale. Evidence: features/data/678_picture_shortcut_catalogs_2026-10-15/
+and its two independent peer-review directories. This closes this bounded
+N678 batch, not whole N678 or native-speaker acceptance. No runtime caption,
+immutable arrival baseline, validator, model decoding or finalCI changed.
+
+UMAP misleading prose/caption is the next coherent private source/API/runtime
+batch. N698 static web-caption extraction is delivered privately as owner
+commits d1fe28327d4+55b96d555ab (38focused checks); Original Home owns its
+178new canonical source reviews/normal generation before source publication.
+Exact source/hash list and newline normalization identities are in that
+branch's features/data/698_web_caption_extractor_2026-10-15/.

@@ -1,0 +1,42 @@
+{
+  "source_behavior_ast_unchanged": true,
+  "peer_source_hashes_match": true,
+  "locales": {
+    "de": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "es": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "fr": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "hi": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "is": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "ko": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "pt": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "sv": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    },
+    "zh_CN": {
+      "unrelated_preserved": 13394,
+      "owned_approved": 10
+    }
+  }
+}
