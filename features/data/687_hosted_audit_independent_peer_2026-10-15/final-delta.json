@@ -1,0 +1,26 @@
+{
+  "decision": "ACCEPT final invalid-measurement abort delta",
+  "source_commit": "b14274551821eeac2af191bb5ff8a42e48e4de5a",
+  "previous_source_commit": "2e0faf852e20660f9b9606ed810d67a9eb22263b",
+  "historical_peer_commit": "85976a931f",
+  "files_sha256": {
+    "src/.github/workflows/website-audit.yml": "ec90dddf085a3d3be322c717b5f3e7ed88871a3c9cf1ac8375dc3801ff59bdbd",
+    "src/.github/scripts/website-audit.mjs": "03c87a54618a90d6fcbca6e8c11140438c3a0b2054e0ca7ed156b0c567747757",
+    "tools/website-audit.test.mjs": "610595bc7c330ff564e3577171e8e9f3e67df54176d5bdacdae5978091fd9316"
+  },
+  "delta_review": [
+    "Only the invalid-measurement catch changes: emit exact failing sample, then throw; no further Chrome child or success result starts.",
+    "Valid below-threshold measurements still collect all15 and yield failure, so no threshold cherry-picking is introduced.",
+    "Top-level promise catch reports JSON refusal and nonzero exit; no secrets or extra logging source introduced.",
+    "New actual-audit injected-child-failure case asserts one attempt, recorded invalid measurement and absent success result.",
+    "Owner23-case log read, not rerun. All previously reviewed workflow/limits/URL/build/byte/report mechanisms unchanged."
+  ],
+  "test_log_sha256": "71490202bb23100e2418f07e4838b7a6ec6a884f0be745321f709217976db37c",
+  "test_gzip_sha256": "2931016f01fe4d73b51be50855b703aba8f83c47b2ed0a3fbedad841a05f0dc5",
+  "findings": [],
+  "limits": [
+    "No hosted audit/score or publication executed by this reviewer.",
+    "Aborting avoids contaminating further samples; not a claim that every timed-out Chrome descendant was forcibly killed.",
+    "Chrome remains captured per run, not pinned to one cross-run release."
+  ]
+}
