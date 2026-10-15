@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — N689 host configuration and complete snapshot verification
+
+N689 source delivery adds a checked paired host/URL resolver and routes main
+redirect assembly, nightly assembly, atomic upload, pinned complete-tree check
+and public check through the same snapshot. Twelve actual-YAML checks pass.
+The immutable repository-tree verifier has eleven passing checks plus independent
+source review; it compares Git/LFS identities and all expected paths/sizes with
+only the established remote-only .gitattributes exemption. It does not claim
+every public CDN payload is read back.
+
+The free static candidate einarolafsson/spacr-docs-nightly-v2 now exists.
+Artifact11963807254 passed exact archive digest and source8e0a1fd checks and was
+normally reassembled for that hostname,459836810bytes. Upload is active separately;
+do not infer accepted deployment or current-head docs. Old Space/history,
+repository variables/secrets and canonical website/Work endpoints are unchanged.
+Final cutover still needs actual hosted/token/route verification and Work/site
+coordination; main Pages migration remains linked to original Home's promotion.
+No new full CI, build, recording, model download, paid option or history removal.
+
+F564 GUI two-key adapter is ready privately6d1842c2d,7 actual UI/alpha/roundtrip
+checks and independent159cdd peer. Exact backend is db5890775; seven new canonical
+setting/diagnostic sources require nine-language closure. The exact three
+attribution caption owners are being added without widening other eligibility.
+No new eligible API body; settings-flow generation and coherent backend/UI/runtime
+publication remain pending. No source-only feature publication.
+
+
 ## 2026-10-15 Home-B — coherent scorecard and comparison-input delivery
 
 F370 exact builtin core983947, shared generators and eleven normal documentation

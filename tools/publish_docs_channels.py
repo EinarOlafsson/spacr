@@ -360,6 +360,63 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
     return info.oid
 
 
+def verify_space_tree(site: Path, space: str, revision: str) -> dict:
+    """Match every assembled file against one immutable uploaded Space revision.
+
+    Git blobs and LFS objects use their respective content identities. This
+    verifies the repository snapshot, separately from public-host deployment.
+    """
+    if not re.fullmatch(r"[0-9a-f]{40}", revision):
+        raise ValueError("Expected an immutable full Space commit")
+    record = json.loads((site / "channels.json").read_text())["channels"]["nightly"]
+    if not (site / "index.html").is_file() or not (site / "README.md").is_file():
+        raise ValueError("Expected an assembled nightly site")
+    from huggingface_hub import HfApi
+    from huggingface_hub.hf_api import RepoFile, RepoFolder
+
+    local = {path.relative_to(site).as_posix(): path for path in site.rglob("*")
+             if path.is_file() and not {".git", ".cache"}.intersection(path.relative_to(site).parts)}
+    remote = {}
+    for entry in HfApi().list_repo_tree(space, repo_type="space", revision=revision,
+                                       recursive=True):
+        if isinstance(entry, RepoFolder):
+            continue
+        if not isinstance(entry, RepoFile) or entry.path in remote:
+            raise ValueError("Unexpected or duplicate Space tree entry")
+        remote[entry.path] = entry
+    missing = local.keys() - remote.keys()
+    extra = remote.keys() - local.keys() - {".gitattributes"}
+    if missing or extra:
+        raise ValueError(f"Space tree paths differ: missing={sorted(missing)}, extra={sorted(extra)}")
+    total = 0
+    for name, path in local.items():
+        before = path.stat()
+        git_hash = hashlib.sha1(f"blob {before.st_size}\0".encode())
+        content_hash = hashlib.sha256()
+        size = 0
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                git_hash.update(chunk)
+                content_hash.update(chunk)
+                size += len(chunk)
+        after = path.stat()
+        if (before.st_size, before.st_mtime_ns, before.st_ino) != (
+                after.st_size, after.st_mtime_ns, after.st_ino) or size != before.st_size:
+            raise ValueError(f"Local file changed during Space verification: {name}")
+        entry = remote[name]
+        if entry.size != size:
+            raise ValueError(f"Space file size differs: {name}")
+        if entry.lfs is not None:
+            matches = entry.lfs.size == size and entry.lfs.sha256 == content_hash.hexdigest()
+        else:
+            matches = entry.blob_id == git_hash.hexdigest()
+        if not matches:
+            raise ValueError(f"Space file content differs: {name}")
+        total += size
+    return {"space": space, "revision": revision, "source_commit": record["commit"],
+            "files_verified": len(local), "bytes_verified": total}
+
+
 def _public_index_matches(expected: bytes, received: bytes, url: str) -> bool:
     """Allow only the observed static-Space creator script around exact bytes."""
     if received == expected:
@@ -445,6 +502,10 @@ def main(argv=None) -> int:
     verify.add_argument("--url", default=NIGHTLY_URL)
     verify.add_argument("--attempts", type=int, default=30)
     verify.add_argument("--interval", type=float, default=10)
+    tree = sub.add_parser("verify-space-tree")
+    tree.add_argument("--site", type=Path, required=True)
+    tree.add_argument("--space", required=True)
+    tree.add_argument("--revision", required=True)
     args = parser.parse_args(argv)
     if args.command == "configure":
         # Load only the compatibility extension from the publisher's tools.
@@ -475,6 +536,8 @@ def main(argv=None) -> int:
                                           args.nightly_url)))
     elif args.command == "verify-nightly":
         print(verify_nightly(args.site, args.url, args.attempts, args.interval))
+    elif args.command == "verify-space-tree":
+        print(json.dumps(verify_space_tree(args.site, args.space, args.revision)))
     else:
         print(upload_nightly(args.site, args.space))
     return 0

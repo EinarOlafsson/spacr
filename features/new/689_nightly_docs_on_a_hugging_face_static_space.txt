@@ -182,3 +182,27 @@ Full HF metadata inventory also proves a historical partial-upload mix:
 homepage/receipt alone certifies neither full tree nor current-source docs.
 Quota recovery, atomic coherent redeployment and main-only Pages/redirect
 remain open. See689_deployed_file_footprint_2026-10-15/.
+
+2026-10-15 — Configurable host and immutable complete-tree verification.
+The workflow resolves one checked HF_DOCS_SPACE/HF_DOCS_URL pair and passes it
+to both assemblers, the atomic uploader, immutable repository-tree check and
+public deployment check. Partial/mismatched targets fail before publication;
+with neither variable set the previous address remains the default.
+Twelve checks execute the actual YAML resolver and default/custom tiny-site
+assembly/publication command sequence. The new verify-space-tree CLI checks all
+expected paths, file sizes and Git/LFS content identities at a full immutable
+Space commit. Eleven focused checks pass; independent source review confirms
+the remote-only .gitattributes exemption and bounded stable-artifact scope.
+This is distinct from public-host freshness or downloading every remote file.
+
+A separate FREE PUBLIC STATIC candidate, einarolafsson/spacr-docs-nightly-v2,
+was created without paid hardware/storage options; old Space/history and all
+canonical variables/links remain unchanged. Existing artifact11963807254 was
+downloaded with its exact published SHA256 and reassembled normally for the new
+host: source8e0a1fdbead894e544b3c55a7e7d2efbd84df851,459836810bytes.
+That older build is not relabeled as the current nightly source. Candidate
+upload/readback and coordinated URL/token/Pages cutover remain separate pending
+gates. No full CI, Sphinx build, tutorial recording or media regeneration.
+Evidence: data/689_configurable_host_2026-10-15/,
+data/689_space_tree_verifier_2026-10-15/ and
+data/689_space_tree_verifier_peer_2026-10-15/.
