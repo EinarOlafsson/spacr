@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "source": "spaCR could not safely finish uninstalling. See the details above; your data has been kept.",
+  "source_sha256": "9d2fcbee27f5661fc50df39d9ccd8789d28e0f0c6f53451c0b4c0464787c3f74",
+  "review_basis": "AI technical review (Codex), exact source. Preserves safe uninstall failure, details location and retained user data. No human/native-speaker signoff. Packaging locale JSON remains authoritative input to its normal renderer.",
+  "translations": {
+    "sv": "spaCR kunde inte slutföra avinstallationen säkert. Se informationen ovan; dina data har behållits.",
+    "de": "spaCR konnte die Deinstallation nicht sicher abschließen. Siehe die Details oben; Ihre Daten wurden beibehalten.",
+    "es": "spaCR no pudo terminar la desinstalación de forma segura. Consulte los detalles anteriores; sus datos se han conservado.",
+    "zh_CN": "spaCR 无法安全完成卸载。请查看上方详情；您的数据已保留。",
+    "pt": "O spaCR não conseguiu concluir a desinstalação com segurança. Consulte os detalhes acima; os seus dados foram preservados.",
+    "hi": "spaCR सुरक्षित रूप से अनइंस्टॉल पूरा नहीं कर सका। ऊपर विवरण देखें; आपका डेटा सुरक्षित रखा गया है।",
+    "ko": "spaCR를 안전하게 제거하지 못했습니다. 위의 세부 정보를 확인하세요. 데이터는 보존되었습니다.",
+    "is": "spaCR gat ekki lokið fjarlægingu á öruggan hátt. Sjá nánari upplýsingar hér að ofan; gögnin þín hafa verið varðveitt.",
+    "fr": "spaCR n’a pas pu terminer la désinstallation en toute sécurité. Consultez les détails ci-dessus ; vos données ont été conservées."
+  }
+}

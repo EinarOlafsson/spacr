@@ -76,5 +76,6 @@
   "gui_retry": "Erneut versuchen",
   "gui_cancelled": "Installation abgebrochen. Vor einem erneuten Versuch das Protokoll prüfen.",
   "gui_failed": "Installation oder Start fehlgeschlagen. Protokoll prüfen und in diesem Fenster erneut versuchen.",
-  "gui_stopping": "Installation wird angehalten und die vorherige Laufzeitumgebung wiederhergestellt…"
+  "gui_stopping": "Installation wird angehalten und die vorherige Laufzeitumgebung wiederhergestellt…",
+  "nsis_uninstall_failed": "spaCR konnte die Deinstallation nicht sicher abschließen. Siehe die Details oben; Ihre Daten wurden beibehalten."
 }

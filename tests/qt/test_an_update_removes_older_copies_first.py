@@ -85,7 +85,7 @@ class _Window:
         self.closed = True
 
 
-@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1"])
+@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1"])
 def frozen_window(qtbot, monkeypatch, tmp_path, request):
     from types import SimpleNamespace
     from PySide6.QtWidgets import QMainWindow
@@ -102,6 +102,8 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
             self._closing = False
             self._screens = {}
             self._update_version = "1.5.1.1"
+            self._stack = SimpleNamespace(currentWidget=lambda: SimpleNamespace(
+                app_key="mask", _settings_model=SimpleNamespace(collect=lambda: {"src": "/private-images"})))
 
         def _confirm_old_installs(self, records):
             assert request.param == "macos-frozen-v1", "online upgrades must not offer deletion"
@@ -113,10 +115,11 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
 
     work = tmp_path / "helper"
     work.mkdir(mode=0o700)
+    pip = request.param == "pip-private-posix-v1"
     online = request.param == "macos-online-uv-v1"
     record = install_cleanup.InstallRecord(
-        "installer", "macos-runtime" if online else "macos-app", "macos",
-        str(tmp_path / ("Application Support" if online else "spaCR.app")), running=True)
+        "environment" if pip else "installer", "venv" if pip else "macos-runtime" if online else "macos-app",
+        "linux" if pip else "macos", str(tmp_path / ("venv" if pip else "Application Support" if online else "spaCR.app")), running=True)
     monkeypatch.setattr(install_cleanup, "_macos_online_update_record",
                         lambda records: record if online else None)
     plan = {"adapter": request.param, "command": ["inert-helper"],
@@ -298,56 +301,42 @@ def test_accepting_an_update_starts_by_finding_old_copies(monkeypatch):
     assert window.events == [], "nothing is deleted or installed before the list"
 
 
-def test_the_list_is_shown_then_old_copies_deleted_then_the_update_installed(
-        monkeypatch, tmp_path):
-    messages = _Messages(monkeypatch)
-    old = _record(tmp_path, "installer", "old")
-    env = _record(tmp_path, "environment", "env")
-    window = _Window(ticked=(env.root,))
-    _fake_remover(window, monkeypatch)
-
-    window._on_old_installs_found([old, env])
-
-    assert window.events == [
-        "shown", ("delete", "installer", False), ("delete", "environment", True),
-        "install", ("upgrade done", (0, "ok"))]
-    assert window.workers == ["upgrade"] and not messages.warnings
-
-
-def test_nothing_is_installed_when_an_old_copy_could_not_be_removed(
-        monkeypatch, tmp_path):
+@pytest.mark.parametrize("old_copies", [False, True])
+def test_unidentified_active_environment_never_deletes_or_installs(monkeypatch, tmp_path, old_copies):
     messages = _Messages(monkeypatch)
     window = _Window()
-    _fake_remover(window, monkeypatch, fail_on=("installer",))
+    _fake_remover(window, monkeypatch)
+    monkeypatch.setattr(install_cleanup, "start_update_helper", lambda *args, **kwargs:
+                        {"command": None, "error": "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."})
+    records = [_record(tmp_path, "installer", "old")] if old_copies else []
+    window._on_old_installs_found(records)
+    assert window.events == [] and window.workers == [] and not window.closed
+    assert "package manager" in messages.warnings[-1][1]
 
-    window._on_old_installs_found([_record(tmp_path, "installer", "old")])
 
-    assert "install" not in window.events
-    assert "stopped before installing" in messages.warnings[0][1]
-    assert "in use" in messages.warnings[0][1]
+def test_pip_environment_handoff_keeps_every_other_copy(monkeypatch, tmp_path):
+    messages = _Messages(monkeypatch)
+    window = _Window()
+    _fake_remover(window, monkeypatch)
+    calls = []
+    monkeypatch.setattr(install_cleanup, "start_update_helper", lambda records, version, ticked:
+                        calls.append((records, version, ticked)) or {"command": None, "error": "preparation refused"})
+    here = _record(tmp_path, "environment", "active", running=True)
+    other = _record(tmp_path, "installer", "other")
+    window._on_old_installs_found([here, other])
+    assert calls == [([here, other], "9.9.9", ())]
+    assert window.events == [] and window.workers == []
+    assert not window.closed and messages.warnings
 
 
-def test_cancelling_the_list_deletes_and_installs_nothing(monkeypatch, tmp_path):
+def test_cancelling_an_installer_retirement_list_starts_no_helper(monkeypatch, tmp_path):
     _Messages(monkeypatch)
     window = _Window(ticked=None)
     _fake_remover(window, monkeypatch)
-
-    window._on_old_installs_found([_record(tmp_path, "installer", "old")])
-
+    monkeypatch.setattr(install_cleanup, "start_update_helper", lambda *args, **kwargs:
+                        pytest.fail("Cancelled cleanup cannot prepare a helper"))
+    window._on_old_installs_found([_record(tmp_path, "installer", "active", running=True)])
     assert window.events == ["shown"] and window.workers == []
-
-
-def test_with_nothing_old_to_show_the_update_goes_straight_to_installing(
-        monkeypatch, tmp_path):
-    _Messages(monkeypatch)
-    window = _Window()
-    _fake_remover(window, monkeypatch)
-    here = _record(tmp_path, "environment", "this-env", running=True)
-
-    window._on_old_installs_found([here])
-
-    assert "shown" not in window.events
-    assert window.events[-2:] == ["install", ("upgrade done", (0, "ok"))]
 
 
 def test_a_running_desktop_copy_hands_deleting_and_installing_to_a_helper(
@@ -548,3 +537,56 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
         DIALOG_CAPTIONS[6].format(error=_marked(REASONS[-1])))
     assert messages.informations == [
         (_title, _marked(DIALOG_CAPTIONS[4].format(version="9.9.9")))]
+
+
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1"], indirect=True)
+def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_window, monkeypatch):
+    from spacr import restart_state
+    state = frozen_window
+    state.handshake.ready()
+    monkeypatch.setattr(qt_app.QMessageBox, 'information', lambda *args: qt_app.QMessageBox.Ok)
+    state.window._poll_frozen_update()
+    assert restart_state.peek()['module'] == 'mask'
+    assert restart_state.peek()['settings'] == {'src': '/private-images'}
+    assert (state.work / 'approved.json').exists()
+    restart_state.discard()
+
+
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1"], indirect=True)
+def test_pip_handoff_refuses_unsaved_state_without_closing_or_approval(frozen_window, monkeypatch):
+    from spacr import restart_state
+    state = frozen_window
+    state.handshake.ready()
+    monkeypatch.setattr(qt_app.QMessageBox, 'information', lambda *args: qt_app.QMessageBox.Ok)
+    monkeypatch.setattr(restart_state, 'save', lambda **kwargs: None)
+    state.window._poll_frozen_update()
+    assert state.window.isVisible()
+    assert not (state.work / 'approved.json').exists()
+    assert (state.work / 'cancelled.json').exists()
+    assert 'could not be saved' in state.messages.warnings[-1][1]
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_private_pip_refusal_and_settings_failure_use_reviewed_locale(
+        qapp, monkeypatch, language):
+    """Real runtime lookup shows the exact reviewed message at both refusal points."""
+    import json
+    from types import SimpleNamespace
+    from spacr import restart_state
+    from spacr.qt import i18n
+
+    reviews = json.loads((Path(__file__).resolve().parents[2] / "docs" / "i18n" /
+                          "reviewed" / "runtime" / language /
+                          "2026-10-14-n703-private-pip-handoff.json").read_text())
+    expected = {row["source"]: row["translation"] for row in reviews["records"]}
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+    reason = install_cleanup._PRIVATE_PIP_UPDATE_ERROR
+    assert qt_app.MainWindow._removal_reason_text(reason) == expected[reason]
+    seen = []
+    monkeypatch.setattr(qt_app.QMessageBox, "warning", lambda _parent, _title, text: seen.append(text))
+    monkeypatch.setattr(restart_state, "save", lambda **_values: None)
+    window = SimpleNamespace(_stack=SimpleNamespace(currentWidget=lambda: None))
+    assert qt_app.MainWindow._save_pip_update_restart(window) is False
+    source = "The current settings could not be saved. The update was cancelled and this window will stay open."
+    assert seen == [expected[source]]
+    assert all(value != source for source, value in expected.items())

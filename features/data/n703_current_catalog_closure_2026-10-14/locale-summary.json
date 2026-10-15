@@ -1,0 +1,12 @@
+[
+  {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "9",
+    "time": "3.184",
+    "timestamp": "2026-10-14T23:54:47.234441-04:00",
+    "hostname": "olafsson"
+  }
+]

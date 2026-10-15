@@ -232,3 +232,255 @@ needed. Fatal Ruff passed. No live environment, network, accounts or GPU were
 used. This engine component does not yet replace the generic pip GUI route:
 a deferred shutdown/ownership handoff is the next implementation step. Shared,
 Conda and Windows activation and native platform acceptance remain open.
+
+
+2026-10-14 22:53 EDT — Home private POSIX pip GUI shutdown handoff
+Implemented the deferred GUI route for dedicated owner-controlled POSIX pip
+virtual environments. Preparation runs outside the installation, reports readiness
+without changing it, and requires authenticated approval plus actual process exit.
+The GUI preserves the selected module/settings before approving shutdown; a
+settings-write failure or close veto cancels the update. The helper rechecks actual
+interpreter/package identity after exit so a stale offered release cannot replace
+a runtime another updater has changed. It stages pip in a sibling clone, verifies
+dependencies/imported code/version, atomically exchanges directories, and retains
+the previous runtime. A relaunch failure restores the old runtime. No running
+GUI path falls back to a live pip mutation.
+
+Offline CPU acceptance uses real temporary venvs and fake wheels only. Initial
+fixture-permission and preserved macOS log-prefix failures were corrected and
+retained in scratch; production owner-only directory checks were not relaxed.
+Current owning backend15 PASS, GUI45 PASS and the unchanged macOS/update contract
+passes are separate source-bound evidence, not hosted/native acceptance. Two new
+runtime messages and two changed API paragraphs have exact-source AI technical
+reviews in all nine locales; no human/native-speaker signoff is claimed.
+
+N703 remains PARTIAL. Shared/Conda/Windows pip replacement is refused safely and
+still needs an explicit supported adapter. The legacy public in-place pip helper
+has not acquired transactional guarantees. Native macOS/Windows install/update,
+real desktop relaunch and current full hosted CI remain unverified. No real user
+environment, data, model cache or launcher was modified by these checks.
+
+Final handoff acceptance: 94 distinct current owning cases passed (15 backend,
+45 GUI handoff, 20 existing macOS online, 5 restart, 9 actual locale lookup cases).
+The nine-locale tests exercise the real refusal mapper and actual settings-save
+warning against their exact review values. Normal scoped runtime generation and
+English audit passed, preserving every unrelated current translation. Caption-arrival refresh remains PENDING on the combined integration source.
+This older private base has no refresh CLI; an invocation with --refresh exited0
+without doing a check and is explicitly not counted as acceptance. The actual
+combined N700 review hold remains owned by its source lane.
+English API audit passed for13474symbols; all18 exact API and18 exact runtime
+review records were authored as AI technical reviews. Fatal Ruff passed.
+Raw source/exit/JUnit receipts remain in
+/mnt/wd4tb/scratch/n703-pip-handoff-20261014/handoff-delivery-receipt.json.
+
+
+2026-10-14 23:02 EDT — Home retained private POSIX runtime recovery
+Added explicit recover-runtime TRANSACTION --pid PREVIOUS_DESKTOP_PID for a
+retained, committed private POSIX runtime update. Run the helper with a Python
+interpreter outside both runtime directories. It requires the original private
+owner-only journal, unchanged directory device/inode identities and source/file
+content/modes, and the desktop process to have exited. Volatile __pycache__
+directories may differ; Python source, installed metadata and other files may not.
+It checks actual retained package/interpreter identity, atomically restores the
+old runtime, verifies it again at the original prefix, and keeps the newer runtime
+at the retained path. Failed restored identity exchanges back. The command never
+runs a package installer, removes either copy or automatically launches spaCR.
+
+Future update journals now bind both runtime directories and their inventories.
+An interrupted rollback can be completed from the actual directory orientation;
+a repeated successful recovery is idempotent. Legacy journals, altered content,
+shared directories, active desktop processes and an existing update lock refuse
+without changing either runtime. This does not recover arbitrary interrupted
+staging/activation or remove a stale update lock; those gaps remain explicit.
+
+Necessary offline cohort: 23 PASS, actual exit0 (14 new recovery cases plus9 pip
+transaction regressions), using real temporary venvs/fake wheels and actual Linux
+atomic exchanges. No real environment/user data or network was touched. Fatal
+Ruff passed. No public API paragraph, runtime UI caption or nested helper arrived,
+so the existing source-bound locale outputs remain applicable. Native macOS and
+Windows acceptance, shared/Conda/Windows replacement, current full hosted CI and
+release acceptance remain open. Raw receipts:
+/mnt/wd4tb/scratch/n703-runtime-recovery-20261014/owning.xml and owning.exit.
+
+
+2026-10-14 23:07 EDT — Home Linux generated-uninstaller preservation
+The Linux online installer's generated uninstaller now delegates to the existing
+shared remover with an explicit --only-root selection. It no longer recursively
+deletes the complete installation root or unconditionally deletes launcher paths.
+Only one recognized canonical installer root can be selected; other installs
+remain untouched and a targeted request cannot implicitly purge user data.
+Declared data/cache/model locations, known data folders and unknown root entries
+retain the existing preservation semantics. Literal uninstaller path metadata
+lets the finder retire only launchers still pointing to this installation.
+
+Actual disposable-tree subprocess proofs cover application retirement alongside
+preserved cache/models/test_data/outputs/unknown experiment folders and configured
+data nested inside the runtime, a second installation left intact, changed
+launchers retained, and unrecognized/symlink/global-purge refusal. Full necessary
+online-installer contract file plus five new tests:74 PASS, actualexit0/2.71s.
+Fatal Ruff, shell syntax and diff checks passed. No real installer/environment,
+user data, model cache or network was touched. This is Linux uninstaller behavior;
+it does not certify installer launch/update or native Windows/macOS acceptance.
+Windows NSIS's default root-recursive deletion still needs equivalent safe wiring.
+
+
+2026-10-14 23:14 EDT — Home Windows NSIS preservation wiring (native pending)
+Replaced the online NSIS uninstaller's recursive installation-root deletion with
+an extracted, noninteractive PowerShell helper. The installed interpreter first
+copies only its own installer-managed base Python and stdlib cleanup module into
+a private outside temporary folder. Shared/external Python, wrong interpreter or
+prefix, linked runtime content, nonempty/inside folders and declared data inside
+the base runtime refuse preparation. The copied helper requires its interpreter,
+prefix and cleanup module to resolve outside the selected installation before
+using the same targeted shared remover as Linux. No package download/install,
+account setup or terminal question occurs in this default removal path.
+
+The shared remover lists retained folders in NSIS's details pane, preserves data,
+cache/model and unknown folders and handles only matching launchers/registrations.
+NSIS removes the leftover root only when empty; it no longer independently wipes
+all Start Menu/desktop/registry entries or recursively removes the whole root.
+A safe failure message has exact-source AI technical review in all9 installer
+locales; the normal installer renderer emits every native LangString. Review:
+features/evidence/n703_windows_uninstall_20261014/locale-review.json.
+
+85 PASS, actualexit0/3.18s:11 new copy/refusal/outside-guard/NSIS routing/locale
+renderer contracts,5 actual Linux disposable-tree subprocess cases and69 existing
+online-installer contracts. Fixtures contain tiny fake managed runtime files;
+no real Python environment, user data, model cache or network was copied/changed.
+Fatal Ruff and diff checks passed. PowerShell and NSIS are unavailable on this
+Linux host: native syntax parsing, actual managed-Windows-Python relocation,
+active desktop/file-lock behavior and native uninstall/data retention remain
+PENDING. This is implemented wiring with CPU contracts, not Windows acceptance,
+installer/update success, current hosted full-CI green or parent N703 completion.
+Raw evidence: /mnt/wd4tb/scratch/n703-windows-uninstall-20261014/delivery-receipt.json.
+
+
+2026-10-14 23:22 EDT — Home CLI translation correction; artifact hold
+Review correctly found new unwrapped CLI help/refusal strings in the private
+Linux/Windows uninstall and retained-runtime changes. All9 newly introduced
+argparse/help/refusal/error-template strings now use literal tr calls. The private
+translation adapter uses spaCR's real catalog when importable and a stdlib-only
+formatted English fallback for an extracted helper without spaCR/Qt. It adds no
+public or nested helper. Exact current-source AI technical reviews for all9
+captions in all9 locales are in 2026-10-14-n703-uninstall-cli.json; all81 candidates
+passed the normal translation validity checker. No human/native review is claimed.
+
+Actual18 PASS/exit0 validate the Linux disposable-tree removals, Windows
+preparation/routing/outside guard, standalone formatting fallback and literal
+tr-call source contract. Nine real locale lookup/help tests are prepared but
+PENDING generated catalogs. The normal runtime writer refused preflight: this
+base's extractor does not scan spacr/install_cleanup.py, so none of these9 sources
+are canonical UI arrivals. No generated output was written, no caption was planted
+in an unrelated GUI source, and no unowned extractor or arrival fixture was edited.
+The extractor owner must add this actual source path with its owning contract,
+then normal generation and the9 locale tests must pass before publication. The
+combined N700 review/arrival hold remains separate. Earlier claims of no caption
+arrival apply to neither this correction nor the newly found CLI strings.
+Raw evidence: /mnt/wd4tb/scratch/n703-uninstall-cli-i18n-20261014/runtime-v2.log,
+owning.xml and owning.exit. Normal runtime generation is NOT claimed passed.
+
+
+2026-10-14 23:30 EDT — Home Linux desktop installer window (native pending)
+Implemented a normal desktop route for the online .run installer when a display
+is present, with explicit --gui support and preserved explicit noninteractive,
+headless/dry-run and child paths. It uses Zenity and Bash5.1+, reusing only existing
+reviewed installer captions. Three privacy/account checkboxes default off; only
+current selections reach an isolated backend. Existing command-line opt-ins are
+not silently retained after the user unticks them in the window. The backend
+receives consent-collected/skip-system-deps/no-launch, so this path never asks
+Terminal questions or installs optional system dependencies.
+
+The window streams the actual backend log. Closing it signals only the child's
+own process group and waits for its existing rollback/cleanup before returning.
+Backend failures retain their actual code and log with no automatic retry; normal
+success closes the progress window and launches only after the backend exits.
+Missing Zenity/Bash support refuses before payload mutation. Logs remain in the
+protected spaCR cache. Missing desktop dependencies, native GTK display/launch,
+OS-specific cancellation phase boundaries and actual installed application
+startup remain PENDING; this is not complete Linux desktop availability.
+
+83 distinct necessary cases passed:69 unchanged online-installer contracts,
+7 owning stub-dialog/disposable-child cases and7 actual Bash routing cases.
+Initial74PASS/2FAIL is preserved: an instantaneous success stub could finish before
+the dialog executed. The corrected fixture uses a deterministic dialog-ready FIFO,
+keeps its assertions, and installs its rollback trap before the first progress
+message; all7 cases passed after that correction. Production source was unchanged
+between those runs. Routing establishes X11/Wayland defaults, explicit GUI,
+no-display CLI, consent-collected/no-launch and child behavior. No real Zenity,
+desktop, capture, package install, user environment, GPU or network was used.
+Fatal Ruff, shell syntax and diff checks passed. Parent N703/full hosted release
+acceptance and the separate CLI extractor/catalog/combined N700 holds remain open.
+Raw receipts: /mnt/wd4tb/scratch/n703-linux-gui-20261014/{owning,closure,routing}.xml.
+
+
+2026-10-14 23:42 EDT — Home installer sidecar rollback consistency
+Closed the ordinary installer rollback gap where the old venv could be restored
+while runtime-identity.json, install-profile.json or launchers still described the
+new release. A stdlib helper snapshots only the explicit installer-owned sidecars
+before exchange, preserving bytes, modes, timestamps, symlinks and absence. It
+validates backup directory/journal/content/parent bindings before restoration,
+atomically restores files and retains backups for safe retry. Unknown user data
+is not included in this operation. A failed restoration keeps the work directory
+and its evidence rather than deleting the only previous metadata copies.
+
+Linux's final identity probe now writes to a staging receipt and publishes it
+only after successful verification, avoiding writes through a preexisting receipt
+symlink. Its existing EXIT rollback restores matching sidecars after the runtime.
+Windows captures a verified UTF-8 receipt without BOM, uses the same metadata
+snapshot/restore helper, preserves the original exception and recovery evidence,
+and does not attempt rollback from an already committed/partially retired backup.
+Its native PowerShell parsing and execution remain PENDING.
+
+13 PASS, actualexit0/3.02s:12 new real disposable-file/subprocess/helper/Linux
+EXIT-trap contracts and one existing stage-before-replace ordering check. These
+prove repeated restore, old bytes/modes/symlinks/absence, target-directory/userdata
+preservation, corrupt/link/traversal/duplicate/parent refusal before writes, old
+runtime+sidecar consistency and retained proof when rollback metadata is damaged.
+No real environment, user data, account, desktop, GPU or network was touched.
+Fatal Ruff, shell syntax and diff checks passed. One new literal tr CLI help row
+has all9 exact-source AI technical reviews; all9 pass normal candidate validation.
+Its normal generated output/locale lookup is PENDING the already-owned extractor
+source-path prerequisite and combined arrival closure, not claimed passed.
+Native OS/install/update acceptance and parent N703/full-CI remain open.
+Raw evidence: /mnt/wd4tb/scratch/n703-installer-sidecars-20261014/owning.xml and
+owning.exit; source/remaining scope is recorded in delivery-receipt.json there.
+
+
+2026-10-14 23:54 EDT — Current-nightly installer integration and CLI locale closure
+Integrated the seven private N703 source deliveries onto current public nightly,
+reusing the already-public pip transaction engine. The owner-provided extractor
+now includes install_cleanup.py. Normal runtime generation wrote all nine
+reviewed locales for the ten formerly held CLI captions, preserving EVERY
+unrelated source-current target; English/catalog source audit passed. Normal
+scoped generation verified both owned API symbols for all nine locales, preserved
+every unrelated localized symbol and passed the 13,474-symbol English audit.
+The ordinary source-history writer pruned one no-longer-referenced historical
+English entry; no generated artifact was hand-merged.
+
+63 distinct owning checks now PASS on this combined source. The initial run
+passed61 with two German/Icelandic help assertions failing because argparse
+wrapped compound words at hyphens under an unspecified terminal width. The
+fixture now fixes COLUMNS=240; its exact review/rendered-text assertions are
+unchanged, and all nine affected language cases passed. Nine additional metadata
+help locale cases passed in the first cohort. Original failures remain in WD
+scratch. The three GUI handoff methods exactly match the prior45PASS delivery,
+so that unchanged cohort was reused. Fatal Ruff, Bash syntax and diff checks pass.
+
+Global caption-arrival acceptance remains HELD: the public arrival tool still
+has neither a refresh callable nor CLI. No no-op invocation is counted as a
+check, no fixture was hand-edited, and root's separate N700 review hold is not
+waived. Native Windows/macOS/Linux installer acceptance, unsupported shared
+Python/frozen Debian adapters, full hosted CI and parentN703 remain open. The
+Debian outside helper exists but lacks a privileged verified rollback transaction;
+its refusal is retained and no real dpkg/root/package operation was run.
+Source-bound receipt: features/data/n703_current_catalog_closure_2026-10-14/.
+
+2026-10-15 00:05 EDT — Actual public caption-arrival refresh, explicit foreign hold
+Fetched and normally merged public helper e7a8e58a698, then executed its real
+--refresh command under the shared capped lock. Actualexit1: caption arrival
+lacks explicit reviewed record: sv/('UI', 'AI Error report'). The fixture is
+unchanged. This supersedes the earlier missing-tool hold with an observed
+N700-owned missing-review refusal. No waiver, manual fixture edit, model sweep
+or N700 source change was made. N703 runtime/API/63 owning PASS scope is
+unchanged; global acceptance remains held. Exact source/tool hashes and raw
+refusal are in features/data/n703_current_catalog_closure_2026-10-14/.

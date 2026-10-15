@@ -53,3 +53,14 @@ worker. Separate-process/remote-host live-run detection and native fork/OS
 acceptance are not established by these tests. No real jobs, logs, annotations,
 models, caches, user data, GPU or external provider operation was touched.
 Evidence: data/643_worker_run_prune_protection_2026-10-14/receipt.json.
+
+2026-10-15 — misleading log-like data names are never age-pruned:
+The log candidate check now requires an actual .log ending or .log followed
+by a numeric rotation. Mere .log substrings no longer admit old data such as
+spacr-results.log.csv, spacr.log-notes.txt, spacr.log.backup or spacr.log.1.csv.
+The same exact guard revalidates deletion plans, so a stale/forged candidate
+cannot bypass it. Native baseline4FAIL/1PASS4.00seconds; the focused existing
+storage/pruning/active-worker cohort plus five native cases passes45 in
+6.93seconds under a2G cap. Actual logs and rotations remain deletable. No live
+logs/data/model/network/GPU/fullCI operations or UI/caption changes.
+Evidence: data/643_exact_log_suffix_pruning_2026-10-15/receipt.json.

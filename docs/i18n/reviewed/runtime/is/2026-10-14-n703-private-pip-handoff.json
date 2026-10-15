@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Codex); no human/native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed.",
+      "source": "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed.",
+      "source_sha256": "722f1ca3225040d040456d24138c1ffaea129399768a2df4d6a736435dfe6af0",
+      "translation": "Þetta umhverfi þarf sinn pakkastjóra; spaCR getur ekki skipt því út á öruggan hátt. Engu var breytt."
+    },
+    {
+      "table": "ui",
+      "key": "The current settings could not be saved. The update was cancelled and this window will stay open.",
+      "source": "The current settings could not be saved. The update was cancelled and this window will stay open.",
+      "source_sha256": "13a8b6173acf13ecaa1596d86d079525e589e9f6010dc12b159d039119935a78",
+      "translation": "Ekki tókst að vista núverandi stillingar. Hætt var við uppfærsluna og þessi gluggi verður áfram opinn."
+    }
+  ]
+}
