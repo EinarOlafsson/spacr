@@ -338,3 +338,18 @@ decision of 2026-10-10)
 - tools/build_hit_example_dataset.py writes CC BY 4.0 from now on.
   spacr/example_archives.py and the tests carry no licence text for these
   sets, so nothing else changed.
+
+2026-10-15 — INDEPENDENT EXAMPLE ARCHIVE DOWNLOAD STAGING
+The shared native download_archive helper now holds a unique private sibling
+staging file for each stream. Overlapping downloads of the same basename no
+longer truncate/unlink one another's .part file. Existing deterministic .part
+files or symlinks are left untouched, including their target bytes. Short,
+interrupted and progress-cancelled streams preserve the last good archive and
+remove only their own allocated staging path; normal size, HTTP URL, chunk
+size, progress and final replace behavior remain unchanged. Published files
+inherit private0600 staging permissions. Six native failures reproduce on
+the predecessor; seven owning cases pass after the narrow repair, including
+an actual two-thread barrier and the existing progress contract. API prose
+and signatures are unchanged. Separate Qt stream loops and whole-module
+example-data availability remain separate scopes; no network or full CI was
+run. Receipt: features/data/633_private_archive_staging_2026-10-15/.

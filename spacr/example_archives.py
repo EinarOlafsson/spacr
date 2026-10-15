@@ -600,16 +600,20 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
         bigger one.
     """
     import requests
+    import tempfile
     url = (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
              f"{file_name}?download=true")
     dst = Path(dest_dir) / Path(file_name).name
-    part = dst.with_name(dst.name + ".part")
+    part = None
     resp = requests.get(url, stream=True, timeout=30)
     resp.raise_for_status()
     expected = _content_length(resp)
     written = 0
     try:
-        with part.open("wb") as fh:
+        with tempfile.NamedTemporaryFile(mode="wb", dir=dst.parent,
+                                         prefix="." + dst.name + ".",
+                                         suffix=".part", delete=False) as fh:
+            part = Path(fh.name)
             for chunk in resp.iter_content(chunk_size=chunk_size):
                 if chunk:
                     fh.write(chunk)
@@ -623,10 +627,11 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
             )
         os.replace(part, dst)
     except BaseException:
-        try:
-            part.unlink()
-        except OSError:
-            pass
+        if part is not None:
+            try:
+                part.unlink()
+            except OSError:
+                pass
         raise
     return dst
 
