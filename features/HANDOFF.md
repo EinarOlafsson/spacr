@@ -1,4 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+## 2026-10-15 Home-B — Work native diagnostic proposal and workspace ownership
+
+Work's two unchanged lesson05 Apply failures remain rejected. Read-only source
+review confirms the first sampled stack passes through question.open/global
+glass/SetupCard construction, but that is not cumulative timing attribution.
+A concrete11-hook, five-file source-bound native diagnostic proposal is now
+features/data/n676_preferences_native_diagnostic_proposal_2026-10-15/.
+Work may run one separate bounded diagnostic on the idle GNOME host after its
+active lesson, preserving the exact captured profile/normal modal behavior.
+No third unchanged recording, root native/GPU run, gate change or product patch
+is included. Original should relay the owner instructions rather than infer a
+fix from CPU/offscreen timing. All source drift must be reconciled by Work.
+
+N180 audit found an actual original-clause gap: core carry is tested with a
+synthetic provider, while real session-generated FigureQueue PNG/PDF assets
+have no production workspace contributor and disappear on queue close. The
+readme lane claims only figure_queue.py serialization/restoration and distinct
+AppScreen contributor registration plus bounded actual-route tests. Existing
+accessibility adapter and external originals must be preserved. New public API
+prose requires normal closure after Original's F564 generator ends. No gridfile
+edits from N180 while accessibility owns _SectionHeader's ordinary fold action.
+
+N655 model-card numeric Enter repair passes12 owning cases and independent
+method-only source review. Saved/live/pinned figure and montage numeric Enter
+repairs are already public921760e174. No remaining rejecting guard was found
+in the bounded widget search. Whole N440/N448 owner closeouts were received
+and the full72-row table reprinted with those two first; partial fixes get
+no green whole-item ticks.
 ## 2026-10-15 Home-B — exact write refusal and current PyPI acceptance
 
 N689 run38754742270 completed with HTTP403 at operation commit. Metadata,
