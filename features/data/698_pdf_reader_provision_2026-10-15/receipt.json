@@ -1,0 +1,59 @@
+{
+  "base": "5609560d98802ca3d75e67538dcd828257905c60",
+  "scope": "N698 optional PDF dependency provision in CI dev and web Space deployment",
+  "production_runtime_source_unchanged": true,
+  "test_source_unchanged": true,
+  "three_file_source_proof": {
+    "setup.py": {
+      "base_sha256": "587a0d66ecd473786f3bbbc4beace55448076f17f23dd9f33b89332a84a51512",
+      "final_sha256": "747e7e12f20ef783ee29b53365e775c47872753ced0eb615739774074098efab",
+      "only_addition": "            'pypdfium2>=5.13.0,<6',\n",
+      "all_prior_bytes_unchanged": true
+    },
+    ".github/constraints/minimum-py39.txt": {
+      "base_sha256": "395c425412ea45a8a3afdac9afdd7db7878c6dcde72de6b2273a83bf982ba18f",
+      "final_sha256": "1bc261e1e95e066977bf2efc6274e97b395757f47e90603c38f6396997209b29",
+      "only_addition": "pypdfium2==5.13.0\n",
+      "all_prior_bytes_unchanged": true
+    },
+    "tools/web_mask_generator/requirements-space.txt": {
+      "base_sha256": "6e47d3fb0c1b4c3bf6969c705838ef4b7f3ea968bf2156ebbad1134d011c6989",
+      "final_sha256": "ec196b07c768adb94fff3eef512460f762165820e1de2cc4f86127dcbb54db22",
+      "only_addition": "pypdfium2==5.13.0\n",
+      "all_prior_bytes_unchanged": true
+    }
+  },
+  "baseline": "Hosted run38699600639 source8fc2aa56: seven unconditional existing PDF cases fail with absent pypdfium2. Retained excerpts; no intentional hiding/uninstalling reader in local environment.",
+  "verification": {
+    "passed": 11,
+    "seconds": 1.26,
+    "actual_existing_pdf_cases": 7,
+    "existing_metadata_profile_cases": 4,
+    "reader_used": "already installed pypdfium2 5.13.0; no installation",
+    "resources": "background/shared heavy.lock/capped8G/blankCUDA/offscreen"
+  },
+  "primary_sources": [
+    {
+      "url": "https://pypi.org/pypi/pypdfium2/5.13.0/json",
+      "observation": "RequiresPython>=3.6; unyanked py3-none wheels include manylinux_2_17 x86_64/aarch64, macOS13arm/x86,Windowsamd64; rawresponsehash in pypi-wheel-proof.json"
+    },
+    {
+      "url": "https://pypdfium2-team.github.io/pypdfium2/platforms.html",
+      "observation": "Upstream documents platform-specific prebuilt distribution and macOS13 minimum for current releases"
+    }
+  ],
+  "python39_evidence": "python39-wheel-tag-proof.json checks release RequiresPython and compatible_tags forcp39; metadata compatibility only, no Python3.9 native execution",
+  "deployment_parity": "Space pins same exact5.13.0 as minimum; no web extra exists, so existing web requirements is provision route",
+  "preserved": [
+    "all existing dependency bounds/floors",
+    "all prior three-file bytes",
+    "all runtime algorithms/tests/gates",
+    "optional PDF error/refusal behavior"
+  ],
+  "limits": [
+    "No clean environment resolver/install certification",
+    "No native macOS/Windows platform acceptance; current wheels macOS13+",
+    "No actual hosted CI rerun or live web deployment",
+    "No CZI changes, no model inference/downloads"
+  ]
+}

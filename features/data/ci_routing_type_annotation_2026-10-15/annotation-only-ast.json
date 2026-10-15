@@ -1,0 +1,8 @@
+{
+  "base": "7706bf18ae0d8580055f544ac0255b4f3d653c9e",
+  "before": "eb8fb1c0c28aff97dc9735c079f9389b4d684ae28f7a269ac1403dba0bde64d4",
+  "after": "f82c9da06ad9d43d3deb077db71efd5b91e0d692ba6a1efc833c00ef2a1c0dbf",
+  "local_list_str_annotation_only": true,
+  "all_executable_ast_otherwise_identical": true,
+  "pytest_not_run": "Annotation-only source; original tests/assertions unchanged."
+}

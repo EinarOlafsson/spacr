@@ -1,0 +1,34 @@
+{
+  "hosted_run": 38699600639,
+  "job": 116306019084,
+  "job_label": "Lint / types / complexity",
+  "failed_sha": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+  "current_candidate": "7706bf18ae0d8580055f544ac0255b4f3d653c9e",
+  "raw_job_sha256": "972a2ab3bb6fbf9a04902e55c4ce72ff256a1fd6f61130921fd957e0aa1212c2",
+  "failed_source_file": "tests/test_ci_suite_classification.py",
+  "failed_source_sha256": "eb8fb1c0c28aff97dc9735c079f9389b4d684ae28f7a269ac1403dba0bde64d4",
+  "same_source_as_failed_host": true,
+  "actual_diagnostics": [
+    "tests/test_ci_suite_classification.py:319: Need type annotation for assigned [var-annotated]"
+  ],
+  "actual_prior_pass": [
+    "fatal Ruff spacr tests E9,F63,F7,F82",
+    "full Ruff maintained quality-target set"
+  ],
+  "not_reached": [
+    "Xenon B/B/A maintained-target complexity"
+  ],
+  "proposed_scope": "Only assigned local annotation list[str] in existing routing test; preserve executable value and all assertions/config/thresholds.",
+  "tools": {
+    "hosted_mypy": "1.20.2",
+    "installed_mypy": "1.20.2",
+    "hosted_Ruff": "0.17.0",
+    "installed_Ruff": "0.16.3"
+  },
+  "proposed_checks": [
+    "Normal mypy only maintained changed file",
+    "Normal Ruff only changed maintained file",
+    "Configured Xenon B/B/A only changed maintained file if installed; do not infer full quality set."
+  ],
+  "no_changes_yet": true
+}

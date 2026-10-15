@@ -1,0 +1,14 @@
+{
+  "nightly_followup": {
+    "terminal-receipt.json.gz": "3e6a8e0e1a1a4ad5d1dc315af00d4029f4ed1d53a0e914083a91fe56506de18e",
+    "dependency-plan.json.gz": "6f5626ad25998fe7f68bb8b7477c3ff78160a0e9708d9caa8607bdb45c8cef99",
+    "owning.exit.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "source-pins.json.gz": "2cdf7e3a770f04814eea44b46b40a7bf021cd2a55f0ecd3c853c1463450af16e",
+    "owning.log.gz": "43442f7d4c1277b0de91b252e258c4507139847d4166f80c6da72d4ff80abd27",
+    "owning.sh.gz": "cd0d33bee874c56af817b8cb11af2da01db1ae99ab9e3884c2b994b34641d5b2",
+    "hosted-node.log.gz": "b33889d0624660b2c381a0faf917478c35d76f0eff27f91b48120735a1c81b38",
+    "owning.xml.gz": "cc909dc945847852adff6dd670504cdc128b35699aa79e03c0bd054bf3578a18"
+  },
+  "independent_dependency_peer_sha256": "d2fecc04dbb26e17ed56c73103dd605d861c9027951241969b0acc7ef9af9ba2",
+  "result": "Two additional original Nightly cases pass6.41s;26 original transaction cases not repeated; scopes distinct. No fullCI/native claim."
+}
