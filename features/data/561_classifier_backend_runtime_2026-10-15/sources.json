@@ -1,0 +1,16 @@
+{
+  "source_files_sha256": {
+    "spacr/qt/screens/embeddings.py": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+    "spacr/embeddings.py": "965148f2ec847f40df8e3d0c8bd79a7cc2d9f7693d184013936c1f1843a9efbf",
+    "spacr/torch_artifacts.py": "34dcae10260adb94af207aca56c884d86d78260e3a8abd1d8c5f7727c666d496"
+  },
+  "sources": [
+    {
+      "table": "ui",
+      "key": "Own-DINO classifier settings, checkpoint or input are incompatible.",
+      "source": "Own-DINO classifier settings, checkpoint or input are incompatible.",
+      "source_sha256": "407f3fc822a4d83c4c1f0d1aac9e2bbb59d6ab816453ae80243483bc7a33257b"
+    }
+  ],
+  "possibly_removed_ui": []
+}
