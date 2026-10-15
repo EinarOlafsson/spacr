@@ -501,6 +501,8 @@ def save(
                 continue
             source = Path(record["path"])
             digest = record.get("sha256") or hash_file(source) or ""
+            if digest:
+                record["sha256"] = digest
             target_name = f"{digest[:16]}__{_safe_name(source)}" if digest else _safe_name(source)
             target = files_root / target_name
             try:
@@ -587,6 +589,40 @@ def has_workspace(run_dir: Any) -> bool:
 
 
 
+def _carried_file_path(root: Path, copied: Any) -> Optional[Path]:
+    """Resolve a carried file only inside the bundle's dedicated files directory."""
+    if not isinstance(copied, str) or not copied or Path(copied).is_absolute():
+        return None
+    try:
+        root = root.resolve()
+        candidate = (root / copied).resolve()
+        return candidate if candidate.is_relative_to(root / FILES_DIR) else None
+    except (OSError, RuntimeError, ValueError):
+        return None
+
+
+def _restore_file_paths(value: Any, replacements: Mapping[str, str], depth: int = 0) -> Any:
+    """Copy JSON-like state while replacing exact verified file references."""
+    if depth > 12:
+        return value
+    if isinstance(value, str):
+        if value in replacements:
+            return replacements[value]
+        if _looks_like_a_path(value):
+            try:
+                return replacements.get(str(Path(value).expanduser()), value)
+            except (OSError, RuntimeError, ValueError):
+                return value
+        return value
+    if isinstance(value, Mapping):
+        return {key: _restore_file_paths(item, replacements, depth + 1) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_restore_file_paths(item, replacements, depth + 1) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_restore_file_paths(item, replacements, depth + 1) for item in value)
+    return value
+
+
 def check_files(doc: Mapping[str, Any], *, run_dir: Any = None) -> List[Dict[str, Any]]:
     """Check the current state of every file in a workspace document.
 
@@ -606,18 +642,26 @@ def check_files(doc: Mapping[str, Any], *, run_dir: Any = None) -> List[Dict[str
         path = Path(str(record.get("path", "")))
         entry = {"role": record.get("role", ""), "path": str(path)}
         copied = record.get("copied")
-        bundled = (root / copied) if (root is not None and copied) else None
+        bundled = _carried_file_path(root, copied) if root is not None and copied else None
         if path.exists():
             digest = record.get("sha256")
             if record.get("kind") == "file" and digest:
                 entry["state"] = "present" if hash_file(path) == digest else "changed"
             else:
                 entry["state"] = "present"
-        elif bundled is not None and bundled.exists():
-            entry["state"] = "carried"
+        elif bundled is not None and bundled.is_file():
+            digest = record.get("sha256")
+            observed = hash_file(bundled) if digest else None
             entry["path"] = str(bundled)
+            if digest and observed == digest:
+                entry["state"] = "carried"
+            else:
+                entry["state"] = "changed" if digest and observed else "missing"
+                entry["skipped"] = "copied_digest_mismatch" if digest and observed else "copied_digest_unverified"
         else:
             entry["state"] = "missing"
+            if copied and root is not None and bundled is None:
+                entry["skipped"] = "copied_path_outside_bundle"
         if record.get("skipped"):
             entry["skipped"] = record["skipped"]
         out.append(entry)
@@ -647,6 +691,11 @@ def restore(
     if not isinstance(sections, Mapping):
         report["skipped"].append({"section": "", "why": "no sections in the document"})
         return report
+    report["files"] = check_files(doc, run_dir=run_dir)
+    originals = [record for record in doc.get("files") or [] if isinstance(record, Mapping)]
+    replacements = {str(record["path"]): entry["path"]
+                    for record, entry in zip(originals, report["files"])
+                    if entry["state"] == "carried"}
     for name in sorted(sections):
         state = sections[name]
         if not isinstance(state, Mapping):
@@ -656,7 +705,7 @@ def restore(
         if source is None:
             report["skipped"].append({"section": name, "why": "nothing on screen owns it"})
             continue
-        payload = {k: v for k, v in state.items() if k not in _RESERVED}
+        payload = _restore_file_paths({k: v for k, v in state.items() if k not in _RESERVED}, replacements)
         try:
             if callable(source) and not isinstance(source, Mapping):
                 source = source()
@@ -677,7 +726,6 @@ def restore(
             report["skipped"].append({"section": name, "why": "the panel declined it"})
         else:
             report["restored"].append(name)
-    report["files"] = check_files(doc, run_dir=run_dir)
     return report
 
 
@@ -759,4 +807,6 @@ def report_text(report: Mapping[str, Any]) -> str:
                if f.get("state") in ("missing", "changed")]
     for entry in trouble:
         lines.append(f"  {entry['state']} — {entry.get('role', '')}: {entry.get('path', '')}")
+        if entry.get("skipped"):
+            lines.append(f"    {entry['skipped']}")
     return "\n".join(lines)
