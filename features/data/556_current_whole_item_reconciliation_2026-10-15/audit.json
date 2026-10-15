@@ -1,0 +1,944 @@
+{
+  "public_base": "a559ba334b258a83be33e8d292daee1f1e9daec5",
+  "dialog_class_sha256": "14a6508cb1f6d48f7568498e284af3996bd8fb0cbf97c3760eec4a243510dffb",
+  "dialog_class_exact_public_source": true,
+  "fourcaption_result": "All36 exact current source-bound reviewed targets pass actual normal review-loader gates and equal compiled runtime ui_text; class compact/static tr targets also inventoried. Scoped metadata only, no global collector/model/test replay.",
+  "languages": {
+    "sv": {
+      "review_path": "docs/i18n/reviewed/runtime/sv/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "a9f04d6a58ba39ce6bd0678550b0a3f812937bf2ad00416b385653ad95568598",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "b16e1dcb646631ca968048000eead4f590c6ec360f9006f78c3d00ad5b7f5586",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "ddbc2e183d2d9f3fb1ef78ca0c7579f79d70e679d7f6734993a70c5221565a5a",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "505c227d8d6d2ae098c50488c719a527aece1eab676e275b90f7daab8c814349",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "16f92076b3f0b0baece917409c70f149318106efeaa7c205f926d2828e6de788",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "Följ även bakåt",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "Välj en mapp för SAM2-resultaten",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "Klicka på ett objekt för att markera dess startpunkt.",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "Klart. Klicka på ett objekt i en felaktig bildruta och propagera igen.",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "Nytt objekt",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "Objekt",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "Överför",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "Propagera innan du sparar.",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "Propagerar…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 misslyckades: {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "SAM2-spårning",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "Spara",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "Sparat i {folder}",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "Skriv de propagerade etiketterna (TIFF), spårtabellen med varje dottercells föräldraspår (CSV) samt de seeds och inställningar som användes till en sam2-mapp bredvid filmen.",
+          "has_translation": true
+        }
+      ]
+    },
+    "de": {
+      "review_path": "docs/i18n/reviewed/runtime/de/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "7b590f23745fba536741f39a8c62880791ab1db30998a7e9b7b8d0d3d2145ea1",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "19ed95329320ecb8371666717b943fc0880cd04fb8106179388df14abec248bb",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "43f3febfb16b49367526a54f92dc110b1d56102905203943ac8cdca18b332670",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "a451597f08654a1f6bbd5614200601194781dc79cb826940cca207801795ac5e",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "fb2d84a9f28765a1a75d6dbb4e867995f02e83a71a0395554028a30859ab271b",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "Auch rückwärts verfolgen",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "Ordner für die SAM2-Ergebnisse wählen",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "Klicken Sie auf ein Objekt, um es als Startpunkt zu setzen.",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "Fertig. Klicken Sie auf einem fehlerhaften Bild auf ein Objekt und propagieren Sie erneut.",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "Neues Objekt",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "Objekt",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "Übernehmen",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "Vor dem Speichern propagieren.",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "Propagierung läuft…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 fehlgeschlagen: {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "SAM2-Verfolgung",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "Speichern",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "Gespeichert in {folder}",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "Die propagierten Labels (TIFF), die Track-Tabelle mit dem Eltern-Track jeder Tochterzelle (CSV) sowie die verwendeten Seeds und Einstellungen in einen sam2-Ordner neben dem Film schreiben.",
+          "has_translation": true
+        }
+      ]
+    },
+    "es": {
+      "review_path": "docs/i18n/reviewed/runtime/es/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "58e35ebb6bcaafe0a81decb247e933f41eee728a1c2d22b58f54592f73d1a903",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "fed2f48173a3f2dcd738f67e10cf8582fd396a9ce3ab1ce32a55ac380adcd65f",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "ba38b4c3b963a04df6c1beb18585ef5fc9fc3bccd24fbf56e3b686d0d8444e95",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "0dbfc6d9e38cc990f6572a212433cf15da874e5563a8699bacc952b8461907cd",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "b35f66fc0bb928cc35f5d98d9c788ff2df4c89a15c39fc91ae4819b6c495d561",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "Seguir también hacia atrás",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "Elija una carpeta para los resultados de SAM2",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "Haz clic en un objeto para marcarlo como semilla.",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "Listo. Haz clic en un objeto en un fotograma erróneo y vuelve a propagar.",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "Nuevo objeto",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "Objeto",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "Propagar",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "Propague antes de guardar.",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "Propagando…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 falló: {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "Seguimiento con SAM2",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "Guardar",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "Guardado en {folder}",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "Escribir las etiquetas propagadas (TIFF), la tabla de trayectorias con la trayectoria progenitora de cada hija (CSV) y las semillas y la configuración usadas en una carpeta sam2 junto a la película.",
+          "has_translation": true
+        }
+      ]
+    },
+    "zh_CN": {
+      "review_path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "bc89e28082ec04f23870e9bf0845ea4db31b3532b729fca9620ed9d4d7bf0668",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "21e127acc81f84fcd2f35c9e4c9eb0ab63c1d2c7f782f4eaf67dec4e26989ec0",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "b250c4c2d18ea491e5eb24989d447226bb1f43273e5fe20ee2b47fabc324f9b9",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "b7ab93805836851425f52cfaa4484f32944689211f28f083d4c3f35de208b171",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "1cd8e64a5672117641349460a6142981200dddd078d14ee7264d56bad6f64efc",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "同时向后追踪",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "选择保存 SAM2 结果的文件夹",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "点击对象以设置种子。",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "完成。在出错的帧上点击对象，然后再次传播。",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "新对象",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "对象",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "应用",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "请先传播再保存。",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "正在传播…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 失败：{error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "SAM2 追踪",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "保存",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "已保存到 {folder}",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "将传播后的标签（TIFF）、记录每个子细胞父轨迹的轨迹表（CSV）以及所用的种子和设置写入影片旁的 sam2 文件夹。",
+          "has_translation": true
+        }
+      ]
+    },
+    "fr": {
+      "review_path": "docs/i18n/reviewed/runtime/fr/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "4d6c3e3a230c627807fa3cadead2d0625690c8a5c91f45f58e944523cfefccfb",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "721f0c78fa2e67bb4a3c8e3a08bf5645267bb6dfc7effcd8a52b171c49dd6a79",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "37d8ce2d6288885b91623499c7387d124f6581c7d45218dcc525e2485781323e",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "fae4a8b716734ee812457da75deb6441562bdf9bc4349e8cb86f3f0b718dd177",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "dcd65041a36d3726902d258c98c38db8c6392f6d4b3f458268bebc4548cf6018",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "Suivre aussi en arrière",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "Choisissez un dossier pour les résultats SAM2",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "Cliquez sur un objet pour l'amorcer.",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "Terminé. Cliquez sur un objet dans une image erronée et propagez à nouveau.",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "Nouvel objet",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "Objet",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "Propager",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "Propagez avant d’enregistrer.",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "Propagation…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "Échec de SAM2 : {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "Suivi SAM2",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "Enregistrer",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "Enregistré dans {folder}",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "Écrire les étiquettes propagées (TIFF), la table des trajectoires avec la trajectoire parente de chaque fille (CSV) ainsi que les graines et paramètres utilisés dans un dossier sam2 à côté du film.",
+          "has_translation": true
+        }
+      ]
+    },
+    "pt": {
+      "review_path": "docs/i18n/reviewed/runtime/pt/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "52485f061a49ca755e6960f5e0eece020dae3a2c0494b33691271c8dc572ef8d",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "8c65684916e414aea13c08eeedb3927649cabec3ecede789ff089a8f05989a29",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "aa6746f20b886a6df3474a8e233768aa7748563531c414f698c2e259ff99788c",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "2a787495a9f69dc4edc33d8705284658499681f1b60a630d2e9c728dbde9e759",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "ff2a8163d220fcc422a4638976cb2bad1a1b227e9b130ac32a4dfaa835dd9b3a",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "Seguir também para trás",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "Escolha uma pasta para os resultados do SAM2",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "Clique em um objeto para marcá-lo como semente.",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "Concluído. Clique em um objeto em um quadro errado e propague novamente.",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "Novo objeto",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "Objeto",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "Propagar",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "Propague antes de salvar.",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "Propagando…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 falhou: {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "Rastreamento com SAM2",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "Salvar",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "Salvo em {folder}",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "Gravar os rótulos propagados (TIFF), a tabela de trajetórias com a trajetória parental de cada filha (CSV) e as sementes e configurações usadas em uma pasta sam2 ao lado do filme.",
+          "has_translation": true
+        }
+      ]
+    },
+    "hi": {
+      "review_path": "docs/i18n/reviewed/runtime/hi/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "b2cb4bf52be6c25fcd9b039e615ee108ad5ffefacd58f4681fd0490ddba033aa",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "41a0b0fa6c5c44981a0bac75797b512fc115653974e5b933d06b68627370a55d",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "5998a1b7ca181e2b0dcee7113f4c342897c06e9669813e865dcc08a20b988e0e",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "5185759bd4cb7bef1268b23e91ba54d6bce5037f4d67bb1ac1999619ae022cb6",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "5921d12e0d26cffa2440eda81dbfa98885ea07a49fd0b2be37d9e115ffe0922b",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "पीछे की ओर भी ट्रैक करें",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "SAM2 परिणामों के लिए फ़ोल्डर चुनें",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "किसी वस्तु को सीड करने के लिए उस पर क्लिक करें।",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "पूरा हुआ। किसी गलत फ़्रेम पर वस्तु पर क्लिक करें और फिर से प्रसारित करें।",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "नई वस्तु",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "ऑब्जेक्ट",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "लागू करें",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "सहेजने से पहले प्रसारित करें।",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "प्रसारित किया जा रहा है…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 विफल रहा: {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "SAM2 ट्रैकिंग",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "सहेजें",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "{folder} में सहेजा गया",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "प्रसारित लेबल (TIFF), हर संतति कोशिका के मूल ट्रैक वाली ट्रैक तालिका (CSV) और उपयोग किए गए सीड व सेटिंग्स को फ़िल्म के पास एक sam2 फ़ोल्डर में लिखें।",
+          "has_translation": true
+        }
+      ]
+    },
+    "ko": {
+      "review_path": "docs/i18n/reviewed/runtime/ko/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "63d4cffaae2214eba3f2aac581eb31d68c4c1264fc5f5009d26773502250f1a3",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "43400b492b94972704ae1f4ccc7939c4380a7bf5ce21cd61d94721d59a22104d",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "de0814bb5c462723ef329bbdfabdd857da01485bd3f02a2d0f727c4d854f4f40",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "5f8283332ff2a517936ba066413276033632a3c30989f7ee88ee3ff1c87bcec7",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "7a467448e96add0b7cc9ea5cf9cf4b9f5900ff6548959558fc40b2d98abb6145",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "역방향으로도 추적",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "SAM2 결과를 저장할 폴더 선택",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "객체를 클릭해 시드를 지정하세요.",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "완료되었습니다. 잘못된 프레임에서 객체를 클릭하고 다시 전파하세요.",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "새 객체",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "객체",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "전파",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "저장하기 전에 전파하세요.",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "전파 중…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 실패: {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "SAM2 추적",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "저장",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "{folder}에 저장됨",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "전파된 레이블(TIFF), 각 딸세포의 부모 궤적이 담긴 궤적 테이블(CSV), 사용한 시드와 설정을 영상 옆의 sam2 폴더에 씁니다.",
+          "has_translation": true
+        }
+      ]
+    },
+    "is": {
+      "review_path": "docs/i18n/reviewed/runtime/is/2026-10-04-runtime-debt-thirteenth-pass-sam2-save.json",
+      "review_sha256": "929b4783d423620b3eafd13a71458c4785ca20c6c4344974ad8a242fbe29ee61",
+      "exact4": [
+        {
+          "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+          "target_sha256": "ace000fad1af648ee455d6d9a2146c670c6b415a338be6f571a443db2bb178b2",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+          "target_sha256": "fe54ec2b72b19ba69e000e2289a52b892bb37b160895d4572d34d877c09a56cc",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+          "target_sha256": "4967c29458690fbab8ce0fb471f4cfb6baf532c0127daf786afe5094d57acff6",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        },
+        {
+          "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+          "target_sha256": "4d701209838668a04fa86388ade5b53c9f12ed5cbc4ba490f553a1980fc7425d",
+          "compiled_exact": true,
+          "normal_review_gates": true
+        }
+      ],
+      "all_class_tr_captions": [
+        {
+          "source": "Also follow backward",
+          "actual_runtime_target": "Rekja einnig aftur á bak",
+          "has_translation": true
+        },
+        {
+          "source": "Choose a folder for the SAM2 results",
+          "actual_runtime_target": "Veldu möppu fyrir SAM2-niðurstöðurnar",
+          "has_translation": true
+        },
+        {
+          "source": "Click an object to seed it.",
+          "actual_runtime_target": "Smelltu á hlut til að setja upphafspunkt hans.",
+          "has_translation": true
+        },
+        {
+          "source": "Done. Click an object on a wrong frame and propagate again.",
+          "actual_runtime_target": "Lokið. Smelltu á hlut í röngum ramma og dreifðu aftur.",
+          "has_translation": true
+        },
+        {
+          "source": "New object",
+          "actual_runtime_target": "Nýr hlutur",
+          "has_translation": true
+        },
+        {
+          "source": "Object",
+          "actual_runtime_target": "Hlutur",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate",
+          "actual_runtime_target": "Yfirfæra",
+          "has_translation": true
+        },
+        {
+          "source": "Propagate before saving.",
+          "actual_runtime_target": "Dreifðu áður en þú vistar.",
+          "has_translation": true
+        },
+        {
+          "source": "Propagating…",
+          "actual_runtime_target": "Dreifi…",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 failed: {error}",
+          "actual_runtime_target": "SAM2 mistókst: {error}",
+          "has_translation": true
+        },
+        {
+          "source": "SAM2 tracking",
+          "actual_runtime_target": "SAM2-rakning",
+          "has_translation": true
+        },
+        {
+          "source": "Save",
+          "actual_runtime_target": "Vista",
+          "has_translation": true
+        },
+        {
+          "source": "Saved to {folder}",
+          "actual_runtime_target": "Vistað í {folder}",
+          "has_translation": true
+        },
+        {
+          "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+          "actual_runtime_target": "Skrifa dreifðu merkin (TIFF), ferlatöfluna með foreldraferli hverrar dótturfrumu (CSV) og fræin og stillingarnar sem voru notaðar í sam2-möppu við hlið myndarinnar.",
+          "has_translation": true
+        }
+      ]
+    }
+  },
+  "historical_donewhen_rawlogs": {
+    "/mnt/wd4tb/scratch/556/gpu_u373.log": {
+      "sha256": "e532005171047505650efa339142a5815406cb644360fce76c00121c283e61fc",
+      "bytes": 751,
+      "text": "2026-10-03T21:13:10-04:00 [lane3-556-sam2-u373] queued (pid 2797328, /mnt/firecuda2/Claude/repo/spacr)\n2026-10-03T21:13:10-04:00 [lane3-556-sam2-u373] holds the queue; waiting for 360s idle and 600s since the last turn\n2026-10-03T21:23:15-04:00 [lane3-556-sam2-u373] START: timeout 30m /mnt/wd4tb/scratch/556/gpu.sh /mnt/wd4tb/scratch/556/u373_01_115.npz u373_01_115\n{\"name\": \"iou-stitcher\", \"det\": 1.0, \"tra\": 1.0, \"switches\": 0, \"tracks_with_switches\": 0, \"gt_tracks\": 8, \"seconds\": 12.5}\nSAM2 followed 8 cell objects through 115 frames in 37.3 s on cuda.\n{\"name\": \"sam2-tiny-cuda\", \"det\": 0.9882, \"tra\": 0.9726, \"switches\": 25, \"tracks_with_switches\": 1, \"gt_tracks\": 8, \"seconds\": 93.3}\n2026-10-03T21:25:30-04:00 [lane3-556-sam2-u373] FINISH rc=0\n"
+    },
+    "/mnt/wd4tb/scratch/556/gpu_hela.log": {
+      "sha256": "c9e5cb1d29e358f89781086b992444e7383889809ebb895ffd9351951a2e579f",
+      "bytes": 760,
+      "text": "2026-10-03T21:25:30-04:00 [lane3-556-sam2-hela] queued (pid 2816257, /mnt/firecuda2/Claude/repo/spacr)\n2026-10-03T21:25:30-04:00 [lane3-556-sam2-hela] holds the queue; waiting for 360s idle and 600s since the last turn\n2026-10-03T21:35:35-04:00 [lane3-556-sam2-hela] START: timeout 30m /mnt/wd4tb/scratch/556/gpu.sh /mnt/wd4tb/scratch/556/hela_01_84.npz hela_01_84\n{\"name\": \"iou-stitcher\", \"det\": 0.9857, \"tra\": 0.9832, \"switches\": 8, \"tracks_with_switches\": 4, \"gt_tracks\": 38, \"seconds\": 15.2}\nSAM2 followed 48 cell objects through 84 frames in 152.2 s on cuda.\n{\"name\": \"sam2-tiny-cuda\", \"det\": 0.9009, \"tra\": 0.8687, \"switches\": 61, \"tracks_with_switches\": 16, \"gt_tracks\": 38, \"seconds\": 205.9}\n2026-10-03T21:39:44-04:00 [lane3-556-sam2-hela] FINISH rc=0\n"
+    },
+    "/mnt/wd4tb/scratch/556/eval/trackastra.out": {
+      "sha256": "f60a68b84f2e3f99c77c5dcf61caf0bf851933abfccc229f73a3bdb80382ba70",
+      "bytes": 543,
+      "text": "u373_01_115.npz {\"name\": \"trackastra-general_2d-cpu\", \"det\": 1.0, \"tra\": 1.0, \"switches\": 0, \"tracks_with_switches\": 0, \"gt_tracks\": 8}\nu373_01_115.npz {\"name\": \"sam2-tiny-cuda\", \"det\": 0.9882, \"tra\": 0.9726, \"switches\": 25, \"tracks_with_switches\": 1, \"gt_tracks\": 8}\nhela_01_84.npz {\"name\": \"trackastra-general_2d-cpu\", \"det\": 0.9804, \"tra\": 0.9786, \"switches\": 4, \"tracks_with_switches\": 2, \"gt_tracks\": 38}\nhela_01_84.npz {\"name\": \"sam2-tiny-cuda\", \"det\": 0.9009, \"tra\": 0.8687, \"switches\": 61, \"tracks_with_switches\": 16, \"gt_tracks\": 38}\n"
+    }
+  },
+  "scope_limits": "Historical realmovie CTC comparison preserved, not rerun or newly extended; no tutorial requirement in original request, Timeflows export explicitly superseded per item. Whole-item decision remains root review."
+}
