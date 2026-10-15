@@ -66,6 +66,7 @@ def test_true_fetches_the_default_well_detector(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    monkeypatch.setattr(model_zoo, "_on_the_qt_gui_thread", lambda: False)
 
     def fetch(chosen, destination):
         calls.append((chosen, Path(destination)))
@@ -281,6 +282,7 @@ def test_a_plaque_model_zoo_key_is_fetched(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    monkeypatch.setattr(model_zoo, "_on_the_qt_gui_thread", lambda: False)
 
     def fetch(chosen, destination):
         calls.append((chosen, Path(destination)))

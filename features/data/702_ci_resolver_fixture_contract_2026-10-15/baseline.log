@@ -1,0 +1,35 @@
+..FF                                                                     [100%]
+=================================== FAILURES ===================================
+_______________ test_prefixed_model_validation_does_not_download _______________
+
+remote_model = (ModelEntry(key='remote_cells', name='remote_cells.CP_model', kind='cellpose', source='community', path='', uri='https...rained_by='unknown', metrics={}, notes=(), verified=False, settings_path='', licence=''), b'test checkpoint bytes', [])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x747e48085100>
+
+    def test_prefixed_model_validation_does_not_download(remote_model, monkeypatch):
+        entry, payload, requests = remote_model
+        from dataclasses import replace
+        from spacr._segmentation_backends import _prefixed_model, _prefixed_model_ok
+        monkeypatch.setattr(zoo, "catalogue", lambda **_kwargs: [
+            replace(entry, kind="stardist")])
+>       assert _prefixed_model_ok("stardist:" + entry.key)
+E       AssertionError: assert False
+E        +  where False = <function _prefixed_model_ok at 0x747f900902c0>(('stardist:' + 'remote_cells'))
+E        +    where 'remote_cells' = ModelEntry(key='remote_cells', name='remote_cells.CP_model', kind='cellpose', source='community', path='', uri='https:...ytes=0, trained_on='unknown', trained_by='unknown', metrics={}, notes=(), verified=False, settings_path='', licence='').key
+
+tests/test_missing_model_downloads.py:133: AssertionError
+________ test_preflight_recognizes_downloadable_model_without_fetching _________
+
+remote_model = (ModelEntry(key='remote_cells', name='remote_cells.CP_model', kind='cellpose', source='community', path='', uri='https...rained_by='unknown', metrics={}, notes=(), verified=False, settings_path='', licence=''), b'test checkpoint bytes', [])
+
+    def test_preflight_recognizes_downloadable_model_without_fetching(remote_model):
+        entry, _payload, requests = remote_model
+        expected = zoo._ensure_model_file(entry.key, kinds=("cellpose",), download=False)
+>       assert expected.name == entry.name
+               ^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'name'
+
+tests/test_missing_model_downloads.py:56: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_missing_model_downloads.py::test_prefixed_model_validation_does_not_download
+FAILED tests/test_missing_model_downloads.py::test_preflight_recognizes_downloadable_model_without_fetching
+2 failed, 2 passed in 6.77s
