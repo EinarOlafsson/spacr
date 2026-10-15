@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-15",
+  "status": "targeted_test_repair_passed",
+  "source_base": "3ed17e347af0bf443134f7c93bb3c8ba4b8811d4",
+  "hosted_failure": {
+    "run": 38774384694,
+    "head": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+    "job": 116568856180,
+    "node": "tests/qt/test_toggle_painter_finalization.py::test_painter_is_ended_even_when_a_paint_stage_raises[focus_rect]"
+  },
+  "cause": "The test injected its focus-ring error into the removed QStyle PE_FrameFocusRect route. Current Toggle draws the ring directly through QPainter.drawRoundedRect. The production finalization try/finally is unchanged.",
+  "repair": "Inject the same focus_rect RuntimeError only for the actual inset focus rectangle; retain the PE_Widget stage and all original parameter values, RuntimeError expectations and painter inactivity assertions.",
+  "baseline": {
+    "exit": 1,
+    "failed": 1,
+    "seconds": 4.4
+  },
+  "final": {
+    "exit": 0,
+    "passed": 7,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1.82
+  },
+  "checks": {
+    "ruff": "PASS",
+    "diff_check": "PASS",
+    "production_bytes_unchanged": true,
+    "all_original_assertion_ASTs_unchanged": true,
+    "scenario_list_unchanged": true
+  },
+  "source_review": "Root approved exact test-only scope via shared mailbox before mutation. Rectangle guard distinguishes focus ring from the track drawing.",
+  "limits": [
+    "Targeted Qt6.12/offscreen native QImage painter contracts only.",
+    "No complete CI/release/feature acceptance claim."
+  ],
+  "tool_attempts": [
+    {
+      "command": "/home/olafsson/anaconda3/envs/spacr/bin/ruff",
+      "result": "Executable absent; not counted as a check."
+    },
+    {
+      "command": "/home/olafsson/.local/bin/ruff check --no-cache tests/qt/test_toggle_painter_finalization.py",
+      "result": "PASS"
+    }
+  ],
+  "evidence_files": {
+    "baseline.log": {
+      "sha256": "49d14c1ea85c51e87297e1dc708c27f18638c1d2cc5084cfe5e7810a5f2a6b24",
+      "bytes": 1059
+    },
+    "baseline.xml": {
+      "sha256": "650abcdec0025f645f2d7be38d7b582fb5841d8aa9dbe4e63f7110205a2b7af8",
+      "bytes": 780
+    },
+    "baseline.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "baseline-startup.json": {
+      "sha256": "d2e60488a64850bd9bd14369e66f441bbd5b2c64ef592a5eb19797c5f10edb6f",
+      "bytes": 237
+    },
+    "final.log": {
+      "sha256": "6350e553abafed9c4f5758f47f3efbf404c7da9a7e751aec1c6190fb5ea71138",
+      "bytes": 404
+    },
+    "final.xml": {
+      "sha256": "d40dfccdab1f656a7edc1cbe331ace7bc2d3b053fc3c9798ec49efdd43d1171c",
+      "bytes": 1288
+    },
+    "final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "final-startup.json": {
+      "sha256": "bf161ab8ad599b31e3f3c220b1eb9f5f5816b1417fbee3bf41bb567ea18fff3c",
+      "bytes": 237
+    },
+    "ruff.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "source-before.json": {
+      "sha256": "3bbb69cbce145684176b522be7c408ddf7573c4a453fdb5ebdd119db1bc95175",
+      "bytes": 834
+    },
+    "source-proof.json": {
+      "sha256": "f6072c03bb778390d6250e096c4809f02e7a243a405b8fbe1e6e4c4d3f576989",
+      "bytes": 695
+    },
+    "proposed.patch": {
+      "sha256": "0af1cda749ef9b58750e14514986c1bd73dd3bc4d15a52933cbc4c578ad132b8",
+      "bytes": 1057
+    },
+    "run.sh": {
+      "sha256": "2084125f3055ca28fd3269d74a66eba53b233da636156d1d285dce12c741005e",
+      "bytes": 1005
+    },
+    "pytest-driver.py": {
+      "sha256": "80976ef621d9ce81b59c945421242496d7a76e37c6021494c721855e3ee32293",
+      "bytes": 1216
+    }
+  }
+}
