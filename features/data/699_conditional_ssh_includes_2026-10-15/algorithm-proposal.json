@@ -3,10 +3,11 @@
     "spacr/remote_execution.py::_ssh_config_directives",
     "spacr/remote_execution.py::_ssh_lookup"
   ],
-  "representation": "Retain existing (keyword, values) stream; add balanced private __include_start/__include_end tuples around EACH actual included file visit, not root files. Discovery already ignores non-host tuples.",
-  "lookup": "Maintain stack of active states at include entry. __include_start pushes current active; Host uses all(saved include states) AND existing wildcard/negation match. __include_end ALWAYS restores saved parent active, matching native OpenSSH recursive scope. Existing __top/Match/first-value logic preserved.",
+  "representation": "Existing pair stream with nonstring None-key markers: (None,top), (None,include_start), (None,include_end). All parsed user keywords remain strings; unsupported synthetic-looking text cannot activate frame controls.",
+  "lookup": "Push current active on None/include_start; child Host requires all enclosing saved active states AND existing matcher. None/include_end ALWAYS restores saved parent active. None/top resets each root. Old text __top is now ordinary unsupported text, not an internal directive.",
   "native_evidence": "native-include-scope-controls.json proves active parent restored even when child ends in nonmatching Host; inactive parent remains inactive despite child Host*. Four actual private ssh-G controls, no user/system config or connection.",
   "preserved": "No Match evaluation/ssh-G passive discovery, no new tr/helper/API signature/docstring, no authentication/session/UI changes, all existing file/count/cycle limits and default precedence stay.",
   "tests": "Actual native ssh-G controlled fixtures matching/nonmatching parent, wildcard/negation, nested includes, parent-after-include scope, glob-file boundaries and first-value wins; actual source discovery Match-exec sentinel never executed.",
-  "source_rule": "Private marker strings are representation tokens, no user-visible captions. Existing private/nested docstrings remain accurate and byte-unchanged; normal scoped inventory proof before publication."
+  "source_rule": "Private marker strings are representation tokens, no user-visible captions. Existing private/nested docstrings remain accurate and byte-unchanged; normal scoped inventory proof before publication.",
+  "history": "Initial string marker proposal is retained separately; root peer required unambiguous internal keys and approved migrating oldtop marker too. Final source/source proof/native tests are authoritative."
 }
