@@ -14,25 +14,11 @@
       "translation": "Placa de referencia para calibración de intensidad"
     },
     {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_reference_plate",
-      "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
-      "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
-      "translation": "Identificador de la placa de referencia en los nombres de los archivos combinados, como plate2. Deje el campo vacío para usar la primera placa por orden de nombre. La placa seleccionada debe estar presente en esta ejecución. Predeterminado: vacío."
-    },
-    {
       "table": "ui",
       "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
       "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
       "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
       "translation": "Se usa la placa de referencia seleccionada; deje el campo vacío para usar la primera placa por orden de nombre."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration",
-      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-      "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
-      "translation": "Calibra intensidades entre sesiones de adquisición antes de medir: cada placa es una sesión, se miden las microesferas o pocillos de referencia fotografiados en cada placa, y los canales de intensidad de cada placa se escalan para que sus pocillos de referencia coincidan con los de la placa de referencia seleccionada; si el ajuste de placa de referencia está vacío, se usa la primera placa por nombre. Esto corrige la deriva de exposición, lámpara y detector entre días a nivel de imagen, a diferencia de la corrección de lotes de las tablas. Las ganancias se registran en measurements.db:intensity_rescale. Valor predeterminado: False."
     }
   ],
   "independent_review": {
@@ -48,5 +34,25 @@
     "receipt": "toggle-tooltip-peer-review.json",
     "receipt_sha256": "6189043edffb2ee602c0eb8cb8175d8a3ee3674e24f517f6001a56bc9bd3dedd",
     "decision": "approved exact amended toggle tooltip"
-  }
+  },
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+      "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+      "translation": "Identificador de la placa de referencia en los nombres de los archivos combinados, como plate2. Deje el campo vacío para usar la primera placa por orden de nombre. La placa seleccionada debe estar presente en esta ejecución. Predeterminado: vacío.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+      "translation": "Calibra intensidades entre sesiones de adquisición antes de medir: cada placa es una sesión, se miden las microesferas o pocillos de referencia fotografiados en cada placa, y los canales de intensidad de cada placa se escalan para que sus pocillos de referencia coincidan con los de la placa de referencia seleccionada; si el ajuste de placa de referencia está vacío, se usa la primera placa por nombre. Esto corrige la deriva de exposición, lámpara y detector entre días a nivel de imagen, a diferencia de la corrección de lotes de las tablas. Las ganancias se registran en measurements.db:intensity_rescale. Valor predeterminado: False.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+    }
+  ]
 }

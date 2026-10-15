@@ -1,0 +1,97 @@
+{
+  "runtime": {
+    "sv": {
+      "status": "PASS",
+      "count": 18
+    },
+    "de": {
+      "status": "PASS",
+      "count": 18
+    },
+    "es": {
+      "status": "PASS",
+      "count": 18
+    },
+    "zh_CN": {
+      "status": "PASS",
+      "count": 18
+    },
+    "pt": {
+      "status": "PASS",
+      "count": 18,
+      "followup": "Only required column identifier quoted; normal loader unchanged."
+    },
+    "hi": {
+      "status": "PASS",
+      "count": 18
+    },
+    "ko": {
+      "status": "PASS",
+      "count": 18
+    },
+    "is": {
+      "status": "PASS",
+      "count": 18
+    },
+    "fr": {
+      "status": "PASS",
+      "count": 18
+    }
+  },
+  "api": {
+    "sv": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "de": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "es": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "zh_CN": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "pt": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "hi": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "ko": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "is": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    },
+    "fr": {
+      "status": "PASS",
+      "count": 1,
+      "source_context": "Passed before initial harness reached the wrong-arity inline-parser call.",
+      "inline": "Actual one-argument parser now invoked; no product change."
+    }
+  }
+}
