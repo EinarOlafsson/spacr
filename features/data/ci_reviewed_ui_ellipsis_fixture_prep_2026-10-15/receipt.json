@@ -1,0 +1,76 @@
+{
+  "status": "PREPARED PRIVATE ONLY; waiting for coherent ordinary table/review/catalog producer before any test",
+  "base": "b39706cd22588dfe14fc8c7e1d88be3bba008ad0",
+  "adopted_owner_commit": "31ebba325b6c8beb74b7d87a26e7f08040297ee6",
+  "generic_test": "tests/test_i18n_reviewed_ui.py",
+  "test_sha256": "f41ebabce71a872c30dee21d5b1813bd92fd91da848df1aca8852a805f29f468",
+  "fixture": "tests/data/release_contracts/reviewed_ui_vocabulary_arrivals_2026-10-15.json",
+  "fixture_original_sha256": "97f6aceccdcfc6021f514ac6440f9707fbc6f041ef0f2626498926dd82c3fed2",
+  "fixture_corrected_sha256": "a553ed55c89e3d092c1603eecc44d89c307cd04e43cc91ea8ff12d6faec9d0de",
+  "preimage_drift": false,
+  "historical_pins_unchanged": {
+    "REVIEWED_UI_SOURCE_COUNT": 99,
+    "REVIEWED_UI_SOURCE_SHA256": "2297822cfe2c67022c3897dfb0d26790b5f4651b69278e6c6b02b2faf6b29036",
+    "REVIEWED_UI_CONTENT_SHA256": "e10495ddb859192ac68deda6c017eaa06e0ff3a58fd8587437ab017e4d631c65"
+  },
+  "named_arrivals": 56,
+  "named_retirements": [
+    "SSH authentication was denied. Test the connection to try again."
+  ],
+  "changes": [
+    {
+      "source": "Choose folder…",
+      "language": "de",
+      "before": "Ordner auswählen...",
+      "after": "Ordner auswählen…"
+    },
+    {
+      "source": "Choose folder…",
+      "language": "es",
+      "before": "Elegir carpeta...",
+      "after": "Elegir carpeta…"
+    },
+    {
+      "source": "Choose folder…",
+      "language": "fr",
+      "before": "Choisir un dossier...",
+      "after": "Choisir un dossier…"
+    },
+    {
+      "source": "Choose folder…",
+      "language": "hi",
+      "before": "फ़ोल्डर चुनें...",
+      "after": "फ़ोल्डर चुनें…"
+    },
+    {
+      "source": "Choose folder…",
+      "language": "pt",
+      "before": "Escolha a pasta...",
+      "after": "Escolha a pasta…"
+    },
+    {
+      "source": "Choose folder…",
+      "language": "sv",
+      "before": "Välj katalog...",
+      "after": "Välj katalog…"
+    }
+  ],
+  "preservation": [
+    "Generic test bytes exactly match private31eb owner inverse; original Unicode-ellipsis negative assertion retained.",
+    "Only six target string scalars differ in new arrival fixture; every source key, language key, other target, retirement row and metadata field exact.",
+    "Original bad fixture bytes archived explicitly as preimage evidence; current fixture does not freeze the known bad suffixes.",
+    "No authoritative table/review/catalog/source/N699 implementation or item/N699-specific-test edits by this lane."
+  ],
+  "future_validation": "Only after Root signals normal-catalog terminal: original vocabulary node plus actual six compiled-locale consumers on coherent source. No baseline replay or broad collector.",
+  "execution": "No pytest, module/application import, model, collector, writer, network, account/service operation or push.",
+  "cherry_pick_directory_rename_warning": {
+    "message": "Git directory rename split on old evidence folder",
+    "resolution": "No unmerged index entries or source conflicts. Verified exact seven incoming paths and all five committed evidence blobs against31eb; retained original paths, no guessed relocation. Only six approved fixture scalars differ.",
+    "source_drift": false
+  },
+  "archival_probe_correction": "Initial evidence check mistakenly required sparse incoming artifacts to be physical files; FileNotFoundError retained as a preparation error, no tests/writer/source acceptance inferred. Corrected proof compares actual committed Git blobs, then archives exact original fixture.",
+  "files": {
+    "arrival-fixture.preimage.json": "97f6aceccdcfc6021f514ac6440f9707fbc6f041ef0f2626498926dd82c3fed2",
+    "fixture-six-targets.patch": "f56a07401c7018e3ee9586a3455d2090c86699e3da8e0df26cad5edb1b25549f"
+  }
+}

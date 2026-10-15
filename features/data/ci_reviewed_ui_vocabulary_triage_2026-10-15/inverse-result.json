@@ -1,0 +1,26 @@
+{
+  "base": "ff1c6f60696e96200224abbfd6c3e52e3df6b191",
+  "test_sha256": "f41ebabce71a872c30dee21d5b1813bd92fd91da848df1aca8852a805f29f468",
+  "contract_sha256": "97f6aceccdcfc6021f514ac6440f9707fbc6f041ef0f2626498926dd82c3fed2",
+  "unchanged_product_sha256": "8171e245be1bcf2d03920afba338a779b8a53bd0cf58e6ccee1439f9b51c18d5",
+  "changed_functions": [
+    "test_reviewed_ui_vocabulary_is_complete_and_pinned"
+  ],
+  "historical_pins_unchanged": true,
+  "baseline": "1 failed in3.78s at154vs99",
+  "final": "1 failed in2.19s; inverse and historical hashes passed, original ellipsis assertion exposes existing Choose folder… row violation",
+  "remaining_owner_issue": {
+    "source": "Choose folder…",
+    "arrival": "e847dfed19",
+    "owner": "Claude N699; no mutation authorized",
+    "violating_targets": {
+      "de": "Ordner auswählen...",
+      "es": "Elegir carpeta...",
+      "fr": "Choisir un dossier...",
+      "hi": "फ़ोल्डर चुनें...",
+      "pt": "Escolha a pasta...",
+      "sv": "Välj katalog..."
+    }
+  },
+  "limitations": "No passing original-node claim. No product/catalog/target edits, weakened gate, or repeated tests."
+}
