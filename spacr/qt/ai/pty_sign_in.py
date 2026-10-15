@@ -195,6 +195,7 @@ class SignInDialog(QDialog):
         self.setWindowTitle(tr("Sign in to {name}", name=title))
         self._open_url = open_url or (lambda url: QDesktopServices.openUrl(QUrl(url)))
         self._urls: List[str] = []
+        self._url_pending = ""
         self.succeeded: Optional[bool] = None
         layout = QVBoxLayout(self)
         self._intro = QLabel(tr(
@@ -246,13 +247,20 @@ class SignInDialog(QDialog):
         if text:
             self.log.moveCursor(QTextCursor.End)
             self.log.insertPlainText(text)
-            for url in find_urls(text):
-                if url not in self._urls:
-                    self._urls.append(url)
-                    self._link.setText(url)
-                    self.open_btn.setEnabled(True)
-                    if len(self._urls) == 1:
-                        self._open_url(url)
+        pending = self._url_pending + text
+        if code is None:
+            parts = re.split(r"(\s+)", pending)
+            self._url_pending = parts.pop()
+            complete = "".join(parts)
+        else:
+            complete, self._url_pending = pending, ""
+        for url in find_urls(complete):
+            if url not in self._urls:
+                self._urls.append(url)
+                self._link.setText(url)
+                self.open_btn.setEnabled(True)
+                if len(self._urls) == 1:
+                    self._open_url(url)
         if code is not None:
             self._timer.stop()
             self.succeeded = code == 0

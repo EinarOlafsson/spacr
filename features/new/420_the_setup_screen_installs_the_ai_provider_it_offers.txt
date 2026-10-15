@@ -349,3 +349,20 @@ authentication/cancellation contracts and runtime captions are unchanged.
 Evidence: features/data/n420_incremental_terminal_utf8_2026-10-15/.
 This is transport correctness using local stand-ins, not vendor authentication,
 Windows fallback/native desktop acceptance or whole-item420 completion.
+
+2026-10-15 — Embedded sign-in URLs wait for actual token completion.
+A current-source actual-dialog baseline reproduced7FAIL/1PASS when URL scheme,
+host or path spans reads, multiple URLs arrive across reads, or cancellation
+happens before the URL finishes. The prior code opened valid truncated prefixes
+and never reconstructed split schemes. The complete-URL control already passed.
+The dialog now carries its unfinished final whitespace token. Only a delimiter
+or known process exit permits URL parsing; exit flushes a final URL without a
+newline even when the last read is empty. There is no timing debounce. Existing
+first automatic open, order/dedup/latest manual open and cancellation remain.
+Final source17PASS10.64s: eight new URL cases plus nine existing local terminal
+lifecycle checks. Current _tick28/28statements and14/14branches, no exclusions;
+focused module93.43%. All original API prose/signatures/captions unchanged.
+Evidence: features/data/n420_fragmented_signin_urls_2026-10-15/. Browser callback
+is mocked; no vendor/account/network acceptance. Complete ANSI-sequence cleanup
+is preserved; internally fragmented ANSI parsing remains a separate transport
+issue. No Windows/native desktop/whole-item420 completion is claimed.
