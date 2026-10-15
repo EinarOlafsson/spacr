@@ -51112,17 +51112,17 @@
       "source_blocks_sha256": [
         "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
         "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
-        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+        "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
         "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
         "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
         "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
       ],
-      "source_sha256": "9f02bf48144c1d1c1ca3fd9c6705d7bac19afef67d3c89f754b8ee431a02da92",
-      "text": "Tirez le pack de modèles Hugging Face livré via le téléchargeur existant.\n\nEnveloppe légère et délibérée de :func:`spacr.utils.download_models` — le téléchargeur déjà fourni par spaCR et celui dont dépend :func:`spacr.submodules.analyze_plaques`. Il n’est *pas* réimplémenté ici : un seul chemin de code remplit ``resources/models`` et un seul emplacement devra être corrigé si le dépôt déménage.\n\nC'est aussi le chemin non vérifié : cette fonction n'a pas de somme de contrôle, écrit directement au nom du fichier de destination, et saute toute la traction lorsque le dossier n'est pas vide. Préférez une entrée de catalogue avec un hash et :func:`install` ; cette fonction permet au zoo d'offrir également le paquet héritage.\n\n``spacr.utils`` importe torch, donc il est importé ici et non au niveau du module. Rien d'autre dans ce module n'y parvient.\n\n:param kwargs: transmis à :func:`spacr.utils.download_models`.\n:returns: le répertoire local dans lequel le pack a atterri.",
+      "source_sha256": "ce4bf62fa42aaf4eaa1bdb8eca89a0abb4823633c1b62f4bdb2ea16296676f37",
+      "text": "Tirez le pack de modèles Hugging Face livré via le téléchargeur existant.\n\nEnveloppe légère et délibérée de :func:`spacr.utils.download_models` — le téléchargeur déjà fourni par spaCR et celui dont dépend :func:`spacr.submodules.analyze_plaques`. Il n’est *pas* réimplémenté ici : un seul chemin de code remplit ``resources/models`` et un seul emplacement devra être corrigé si le dépôt déménage.\n\nLe téléchargeur prépare le paquet entier dans un répertoire temporaire de même parent, puis renomme atomiquement le répertoire complet à son emplacement de destination après la réussite de tous les téléchargements. Il ne vérifie pas les sommes de contrôle publiées et fait confiance à un cache existant non vide sans vérifier son exhaustivité ni son origine. Privilégiez une entrée du catalogue avec une empreinte et :func:`install` lorsqu’une vérification de somme de contrôle est nécessaire.\n\n``spacr.utils`` importe torch, donc il est importé ici et non au niveau du module. Rien d'autre dans ce module n'y parvient.\n\n:param kwargs: transmis à :func:`spacr.utils.download_models`.\n:returns: le répertoire local dans lequel le pack a atterri.",
       "translation_source_blocks_sha256": [
         "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
         "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
-        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+        "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
         "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
         "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
         "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
@@ -89578,6 +89578,18 @@
       "text": "Un champ de texte avec son infobulle et son texte indicatif.",
       "translation_source_blocks_sha256": [
         "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2"
+      ]
+    },
+    "spacr.qt.preferences._StoragePage.relocate.finished": {
+      "source_blocks_sha256": [
+        "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+        "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2"
+      ],
+      "source_sha256": "669fadd144339fe5af2da4fe8046188c8998d2589b7591522647ff2661d5e0cf",
+      "text": "Redirige un cache de modèles mémorisé correspondant, puis signale le déplacement.\n\n:param result: Paire ``(moved, detail)`` renvoyée par le traitement en arrière-plan. En cas de réussite, ``detail`` est le chemin de destination ; sinon, il décrit l’échec. Un résultat absent est traité comme un déplacement ayant échoué.",
+      "translation_source_blocks_sha256": [
+        "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+        "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2"
       ]
     },
     "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {

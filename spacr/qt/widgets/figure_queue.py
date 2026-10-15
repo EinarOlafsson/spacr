@@ -2,10 +2,10 @@
 
 The panel combines a thumbnail strip, forward/back controls, a position label,
 and a zoomable full-resolution view. Every arriving figure is written to a
-temporary PNG. The newest 100 full-resolution ``QPixmap`` objects remain in
-memory; older entries reload their PNG on demand, while thumbnails stay in
-memory. Clearing the queue or destroying its owner removes the temporary
-directory.
+temporary PNG. Full-resolution ``QPixmap`` objects use a least-recently-used
+cache, limited by the ``ram_cap`` entry count (100 by default). Evicted entries
+reload their PNG on demand, while thumbnails stay in memory. Clearing the
+queue or destroying its owner removes the temporary directory.
 
 In PDF mode, the PNG preview appears immediately and a worker rasterizes the
 vector page at 2,200 pixels before replacing it. This keeps the GUI responsive
@@ -96,7 +96,8 @@ def figure_text_items(fig):
     rendering worker.
 
     :param fig: Matplotlib figure to inspect.
-    :returns: Text objects in traversal order, with duplicate objects removed.
+    :returns: Text objects in traversal order, omitting missing entries.
+        Repeated references are retained.
     """
     items = []
     for ax in getattr(fig, "axes", ()):
@@ -864,10 +865,10 @@ def _release_queue_figures(figures, *_args) -> None:
 class FigureQueue(QWidget):
     """Scrollable, RAM-bounded gallery of pipeline figures.
 
-    :param ram_cap: how many bytes of figures the gallery may hold. Older
-        figures are dropped to stay under it, which is what "RAM-bounded"
-        above means -- a pipeline emitting hundreds of figures must not grow
-        without limit.
+    :param ram_cap: maximum number of full-resolution pixmaps in the RAM
+        cache, 100 by default. Least-recently-used entries are evicted;
+        their PNG files remain available for reloading. This is an entry
+        count, not a byte limit or a limit on all process memory.
     :param parent: parent widget.
     """
 
@@ -882,8 +883,8 @@ class FigureQueue(QWidget):
     def __init__(self, ram_cap: int = RAM_CAP, parent=None):
         """Build the figure queue.
 
-        :param ram_cap: how many bytes of full-resolution pixmaps to keep in
-            memory; older ones are evicted by least-recent use.
+        :param ram_cap: maximum number of full-resolution pixmaps to cache
+            in memory, 100 by default; entries are evicted by least-recent use.
         :param parent: parent widget, or ``None``.
         """
         super().__init__(parent)

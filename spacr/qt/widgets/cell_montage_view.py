@@ -8,10 +8,10 @@ layouts. The crop mask plane and channels come from :class:`spacr.crops.CropSpec
 or, by default, the run's ``measurements.db`` metadata.
 
 Image reads run through :class:`spacr.qt.job_runner.JobRunner` and only the
-GUI-thread completion handler updates widgets. Converting at most 300 crops to
-``QPixmap`` remains on the GUI thread because QPixmap is not transferable
-across threads; the recorded 224-pixel thumbnail conversion takes about
-21 milliseconds for 300 crops.
+GUI-thread completion handler updates widgets. The montage cap limits the
+selected objects and defaults to :data:`spacr.cell_montage.MAX_OBJECTS`
+(2,000). Converting image arrays to ``QPixmap`` occurs on the GUI thread;
+image loading and crop selection occur in the worker.
 
 The tab stays visible when crops are unavailable and reports the reason in its
 status, tooltip, and disabled action. Crop-source discovery is cached after a

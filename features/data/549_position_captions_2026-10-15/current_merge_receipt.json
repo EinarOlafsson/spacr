@@ -1,0 +1,61 @@
+{
+  "base": "88bc251b8ac1f7dd540624eaf1a3078b82dec397",
+  "mode": "Independent parent semantic comparison after three-way generated-locale merge; no hand edits",
+  "locales": [
+    {
+      "locale": "sv",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "de",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "es",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "zh_CN",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "pt",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "hi",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "ko",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "is",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    },
+    {
+      "locale": "fr",
+      "new_ui_rows": 2,
+      "new_hashes": 2,
+      "every_preexisting_assignment_preserved": true
+    }
+  ],
+  "english": "Regenerated separately by normal canonical source tool to resolve generated frozenset conflict."
+}

@@ -38,8 +38,14 @@
     "thresholds_unchanged": true
   },
   "normal_documentation_generation": {
-    "status": "Actual exit1: enabled published Home-B preferences relocation callback lacks docstring; narrow owner fix requested. API/help writer cannot proceed until owner source repaired.",
-    "raw_log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/final-generated.log"
+    "status": "Owner docstring repair now published in beab10b1087; normal English API source writer, English audit, and Help index writer all actual exit0.",
+    "symbols": 13478,
+    "raw_log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/owner-repaired-generated.log",
+    "generated_sha256": {
+      "docs/source/_static/i18n/api/en.json": "c659b9a447dffb1245b854b4a86a2b385291ba1a4225055e6ac699498c516c04",
+      "spacr/qt/help_api_index.py": "7e03a682dc5e33c2d8f83018973d067d4d4d9ad7f78854e92798a775f2e3df59"
+    },
+    "remaining": "Home-B owns nine-locale API prose refresh for its new callback/download docstrings. Global N700 caption/native tutorial/full CI/release gates remain open."
   },
   "exact_owner_approved_widgets": {
     "spacr/qt/widgets/object_settings_grid.py": "9caa0afca39d68d263907fa52367a944d8067c256a17363b4a54c773ba637305",

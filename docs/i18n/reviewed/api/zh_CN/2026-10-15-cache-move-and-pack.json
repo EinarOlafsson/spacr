@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Direct exact-source AI technical translation review; independent parent review requested; no native-speaker signoff",
+  "note": "Only the new Storage move completion callback and corrected model-pack staging paragraph. Source commit3f43a4637adf6d3fade4d7d29d296d5c79d5dd5c; blocks extracted through normal public_docstrings and translatable_blocks. No generated catalog edited.",
+  "records": [
+    {
+      "label": "spacr.qt.preferences._StoragePage.relocate.finished#0",
+      "source": "Retarget a matching remembered model cache, then report the move.",
+      "source_sha256": "89a097bf2ccdc2a13a49d7272eefd542935bb5375d613eaf8b08b11bb98ebae8",
+      "context": "Retarget a matching remembered model cache, then report the move.",
+      "translation": "重定向匹配的已记住模型缓存，然后报告移动结果。",
+      "review_basis": "AI technical comparison against the current function and the underlying worker/downloader. Preserves result tuple/literals and install reference; no checksum or cache-completeness guarantee added. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._StoragePage.relocate.finished#1",
+      "source": "Worker ``(moved, detail)`` pair. On success, ``detail`` is the destination path; otherwise it explains the failure. A missing result is treated as a failed move.",
+      "source_sha256": "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2",
+      "context": "Worker ``(moved, detail)`` pair. On success, ``detail`` is the destination path; otherwise it explains the failure. A missing result is treated as a failed move.",
+      "translation": "后台任务返回的 ``(moved, detail)`` 二元组。成功时，``detail`` 是目标路径；否则，它说明失败原因。缺少结果时按移动失败处理。",
+      "review_basis": "AI technical comparison against the current function and the underlying worker/downloader. Preserves result tuple/literals and install reference; no checksum or cache-completeness guarantee added. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.model_zoo.download_bundled_models#2",
+      "source": "The downloader stages the whole pack in a temporary sibling directory and atomically renames the completed directory into place after every download succeeds. It does not verify published checksums and trusts an existing non-empty cache without checking its completeness or origin. Prefer a catalogue entry with a hash and :func:`install` when checksum verification is required.",
+      "source_sha256": "7a0c6ee2ae131b51e5e1a7797969ffa15a73a50a3ae759134ce5e6a546bb79f2",
+      "context": "The downloader stages the whole pack in a temporary sibling directory and atomically renames the completed directory into place after every download succeeds. It does not verify published checksums and trusts an existing non-empty cache without checking its completeness or origin. Prefer a catalogue entry with a hash and :func:`install` when checksum verification is required.",
+      "translation": "下载器先将整个模型包暂存到临时同级目录中，所有下载成功后，再以原子重命名操作将完整目录放到目标位置。它不验证已发布的校验和，也不会检查现有非空缓存的完整性或来源便直接信任该缓存。如果需要校验和验证，应优先使用带有哈希值的目录条目和 :func:`install`。",
+      "review_basis": "AI technical comparison against the current function and the underlying worker/downloader. Preserves result tuple/literals and install reference; no checksum or cache-completeness guarantee added. No human/native-speaker signoff."
+    }
+  ]
+}

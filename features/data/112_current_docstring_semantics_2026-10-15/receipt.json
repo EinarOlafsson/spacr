@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "item": "N112",
+  "date": "2026-10-15",
+  "reviewer": "Home-B coordinator",
+  "source_commit": "3385aeaac26",
+  "scope": "Two concrete source/docstring repairs, not the whole semantic sweep",
+  "findings": [
+    {
+      "symbol": "spacr.qt.preferences._StoragePage.relocate.finished",
+      "before": "No docstring; enabled nested-helper documentation collector refuses generation.",
+      "after": "Documents moved/detail worker pair, destination or failure detail, absent-result handling.",
+      "code_evidence": "Callback unpacks result or(False,empty); retargets remembered model path only on models success and exact source match, then reports result."
+    },
+    {
+      "symbol": "spacr.model_zoo.download_bundled_models",
+      "before": "Claimed downloader writes directly to final filenames.",
+      "after": "Documents whole-pack sibling staging and atomic directory rename; explicitly retains no-published-checksum and existing nonempty-cache trust limits.",
+      "code_evidence": "spacr.utils.download_models uses TemporaryDirectory sibling, closes/fsyncs each stream, publishes directory after all streams, returns immediately for existing nonempty destination."
+    }
+  ],
+  "verification": [
+    {
+      "path": "spacr/model_zoo.py",
+      "before_sha256": "bdaec5f113eed2f1b70be18447e7d0f3d0c8bc222d0e0ae4cdb38bf47cd5f9df",
+      "after_sha256": "3f6760c363e4ec2be7584e101c44101e4d5872c14e251acbb784679d4579e7cd",
+      "behavior_ast_unchanged": true
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "before_sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+      "after_sha256": "ef094ec30cca6fe95dd9f40387d16ce2f3d22953ea8748957c3a9f65fb5a0358",
+      "behavior_ast_unchanged": true
+    }
+  ],
+  "derived_artifacts": "Separate normal API review/generation underway; not certified by this receipt.",
+  "limits": [
+    "No package-wide semantic coverage claimed.",
+    "No native-speaker review or fresh download/network/hardware acceptance claimed.",
+    "No changed parameter, behavior, schema or ratchet."
+  ]
+}

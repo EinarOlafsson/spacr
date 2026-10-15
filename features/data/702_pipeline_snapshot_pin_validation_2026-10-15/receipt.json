@@ -1,0 +1,26 @@
+{
+  "item": 702,
+  "scope": "Pipeline save_settings validates supplied pins before any output write",
+  "baseline": {
+    "failed": 7,
+    "passed": 2,
+    "seconds": 8.88
+  },
+  "owning": {
+    "passed": 17,
+    "seconds": 12.0,
+    "memory_cap": "6G",
+    "coordination": "shared heavy.lock"
+  },
+  "new_cases": 9,
+  "behavior": [
+    "Only supplied model_metadata invokes existing schema/identity validation.",
+    "Invalid schema/binding/hash/filename/version/kind/null metadata refuses before existing CSV/JSON outputs are opened.",
+    "Valid pins retain exact nested values/opaque versions in real CSV/JSON output.",
+    "No inference, enrichment, model hash read, acquisition, catalogue/provider/network access.",
+    "Legacy settings without model_metadata do not call pin validator and retain prior behavior."
+  ],
+  "limitations": [
+    "Pure native fixture settings/output bytes; no models/GPU/network/fullCI or whole702 closure."
+  ]
+}

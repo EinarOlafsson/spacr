@@ -3088,10 +3088,9 @@ def focus_ring_colour(theme: str = "dark") -> str:
 def focus_ring_qss(theme: str = "dark") -> str:
     """The rules that put a thick ring round the keyboard-focused control.
 
-    Preferences > Appearance > Accessibility > Stronger focus outlines. A
-    1 px accent border is the only focus mark the themes draw, and on a
-    busy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX`
-    wide in :func:`focus_ring_colour`.
+    Preferences > Appearance > Accessibility > Stronger focus outlines.
+    These rules replace the listed widgets' normal focus borders with a
+    :data:`FOCUS_RING_PX`-pixel border in :func:`focus_ring_colour`.
 
     :param theme: one of :data:`THEMES`.
     :returns: QSS, appended last by :func:`stylesheet` while the

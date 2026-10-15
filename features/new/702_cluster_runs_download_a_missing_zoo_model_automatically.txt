@@ -519,6 +519,17 @@ The POSIX native expansion cases explicitly skip other OSes; no native cluster,
 scientific model loading, network/GPU/fullCI or whole-item acceptance is claimed.
 Evidence: data/702_unavailable_origin_home_2026-10-15/receipt.json.
 
+2026-10-15 — pipeline snapshot writer validates supplied pins before output:
+utils.save_settings now invokes the existing schema/identity validator only
+when model_metadata is supplied, before opening either output. Malformed
+schema/binding/hash/filename/version/kind/null metadata cannot replace existing
+CSV/JSON snapshots. Valid metadata and opaque versions round-trip verbatim;
+legacy settings without metadata retain their old behavior and fast path.
+This performs no model I/O, enrichment, provider discovery or acquisition.
+Native baseline7FAIL/2PASS8.88seconds; nine new actual writer/output-preservation
+cases plus existing legacy snapshot/N693/roundtrip contracts pass17 in12seconds
+under6G/shared lock. No model/inference/GPU/network/fullCI or whole-item closure.
+Evidence: data/702_pipeline_snapshot_pin_validation_2026-10-15/receipt.json.
 2026-10-15 — direct Cellpose apply/test APIs honor verified model pins:
 The public apply_cellpose_model/test_cellpose_model constructors now use the
 shared exact pinned-cellpose helper, or the existing legacy base resolver.

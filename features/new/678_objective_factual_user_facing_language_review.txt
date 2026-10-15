@@ -96,3 +96,17 @@ runtime translations of the rewritten text are now stale and are left
 for the workstation's translation pass; a12 lists the changed English
 keys of hand-translated UI rows. This is the Home share only; docs,
 guides and narration remain with the workstation.
+
+2026-10-15 — Home-B bounded loading/preferences/theme follow-up.
+Reviewed 23 selected source docstrings against current implementation: 17
+retained, six revised. Corrected the loading module's obsolete claim that
+pipeline imports must run on the GUI thread, its unconditional preload
+lifetime, three stale Startup animation navigation descriptions, and the
+focus-ring description's universal one-pixel claim. The eager preloader
+uses a worker and GUI timer; ordinary startup defaults to on-demand imports.
+No visible caption, signature, runtime or scientific behavior changed: the
+three complete executable ASTs match after removing docstrings. Normal API
+source extraction and nine-locale paragraph review remain with the shared
+API lane. This does not complete N678 or claim review of every paragraph in
+these files. Source-bound before/after/retained ledger:
+features/data/678_loading_preferences_theme_2026-10-15/receipt.json.
