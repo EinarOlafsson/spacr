@@ -983,8 +983,8 @@
       "display_id": "N84a",
       "state": "complete",
       "status": "R",
-      "display_owner": "W",
-      "display_group": "Tutorials — Work ownership, excluded from Home split",
+      "display_owner": "Prior",
+      "display_group": "Annotation, classification, explanation and cell selection",
       "display_description": "classify controls and the location column",
       "active_assignment": false
     },
@@ -5130,8 +5130,8 @@
       "display_id": "N472",
       "state": "complete",
       "status": "R",
-      "display_owner": "Prior",
-      "display_group": "Installation, updates, environments, lifecycle and cluster access",
+      "display_owner": "W",
+      "display_group": "Tutorials — Work ownership, excluded from Home split",
       "display_description": "how the modules connect after installation",
       "active_assignment": false
     },

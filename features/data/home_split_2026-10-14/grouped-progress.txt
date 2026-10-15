@@ -70,7 +70,7 @@
 | N681 | R | — | Prior | numeric hosted test count badge |
 | N683 | R | — | Prior | token free prepared item publication |
 
-**Installation, updates, environments, lifecycle and cluster access (55)**
+**Installation, updates, environments, lifecycle and cluster access (54)**
 
 | Item | Percent done | Time left | Owner | Detailed description |
 |---|---|---|---|---|
@@ -100,7 +100,6 @@
 | N416 | R | — | Prior | update removes every older spacr first |
 | N420 | P | — | A | setup screen installs the ai provider it offers |
 | N469 | R | — | Prior | figure reader installs into its own environment |
-| N472 | R | — | Prior | how the modules connect after installation |
 | F476 | R | — | Prior | secondary objects grown from a primary mask |
 | N483 | R | — | Prior | pipeline overviews and spacr flowchart |
 | F491 | R | — | Prior | release 1 5 1 0 |
@@ -658,7 +657,7 @@
 | N633 | P | — | A | test data for every module |
 | N640 | R | — | Prior | measure adds original filename columns |
 
-**Annotation, classification, explanation and cell selection (34)**
+**Annotation, classification, explanation and cell selection (35)**
 
 | Item | Percent done | Time left | Owner | Detailed description |
 |---|---|---|---|---|
@@ -667,6 +666,7 @@
 | N19 | R | — | Prior | classify module unification |
 | N21 | R | — | Prior | annotate drop api dots |
 | N37 | P | — | A | classify settings overhaul |
+| N84a | R | — | Prior | classify controls and the location column |
 | N87 | R | — | Prior | pr 74 display order in annotate |
 | N94 | P | — | A | train test splits must group by well |
 | N97 | P | — | A | classify segfaults on duplicate openmp runtimes |
@@ -745,10 +745,10 @@
 | Item | Percent done | Time left | Owner | Detailed description |
 |---|---|---|---|---|
 | N48 | R | — | W | optimize the tutorials |
-| N84a | R | — | W | classify controls and the location column |
 | N84b | P | — | W | natural voice narration skill |
 | N358 | P | — | W | redo every core module tutorial with live data |
 | N447 | R | — | W | tutorial videos show the current spacr only |
+| N472 | R | — | W | how the modules connect after installation |
 | N676 | H | — | W | Tutorial refresh: lesson43 pipeline complete;20 stalled;09 pending;24/26 source blockers |
 
 **Error reporting and free hosted AI — Claude ownership (1)**

@@ -12617,3 +12617,13 @@ receiptb589369871 is integrated;106PASS plusAT-SPI/Orca1415nodes. N689 atomic
 upload/live-readback repairf4ffbb51f1 integrated with34PASS; historic Space
 quota remainsunresolved, nohistorydeletion/paidchange. No wholefeature/release
 completion is inferred from these completed repairs.
+
+2026-10-14 — Maintainer overnight execution override (both Home sessions)
+Continue assigned implementation through the night until the morning progress
+request. All agents stay on owned handoff items; do not stop at handoff/blockers.
+Defer finalCI/release/other external gates until other items completed. On push
+rejection fetch and normalmerge preserving both sessions, retry; if irreconcilable
+preserve separate LOCAL branch (originonlymain/nightly) and move to another item.
+Home-B current files: READMEhardwareN323 worker; tooltipsN506 worker; Spaceout
+fractalN530 worker; coordinator integration+remaininganalysisitems. Exact file
+claims follow through privateHANDOFF/mailboxes. No overlap with OriginalHome115.
