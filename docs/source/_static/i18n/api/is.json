@@ -82350,64 +82350,64 @@
     },
     "spacr.qt.laptop_mode": {
       "source_blocks_sha256": [
-        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
-        "d33c0d4d0045796a3a06aef69c6706e5295870356288fd51137396fca2f7f60e",
-        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
-        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+        "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+        "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+        "c4f4dc6104a1cb2030a0d6288cfce1b03fc25118abcc101dcb223f8e151bb3f9",
+        "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61"
       ],
-      "source_sha256": "b056b4336030223d0fefd11b8fa7a2fb8f8fc3487d7c7fdd35e337422cc50fc0",
-      "text": "Farið vel á litlu vélinu án þess að verða smá notkun.\n\nÞetta er niðurstaðan sem náð er eftir venjulegum upplifunum. Það snúa niður dekorative rendering kostnaður í stað þess að fjarlægja notkun eiginleika.\n\nÞað er ekkert hér að breyta það sem meðhöndlun ákvarðanir. Hver sett sem það ber er um hvernig notkun er DRAWN.\n\nÞað er valið sjálfkrafa, það er hægt að eyðileggja á hvaða hátt og það segir hvað það eyðilegt - aðferð sem örugglega gerir notkun öðruvísi er einn sem enginn getur degið.",
+      "source_sha256": "9d3f275ab4a63201eb33741855e6b942f2baab8c52c941ef6b213f6858c8c153",
+      "text": "Mælir takmarkanir vélbúnaðar og bælir niður skrautbakgrunn fyrir þetta ferli.\n\nÁkvarðanir byggðar á vélbúnaði nota fjölda nýtanlegra CPU, vinnsluminni og yfirskipunina ``SPACR_LAPTOP_MODE``. Við ræsingu GUI er í staðinn send skýr ákvörðun út frá völdu afkastastigi; vélbúnaðarlesturinn er til greiningar.\n\nNiðurbælingin hefur áhrif á teikningu bakgrunnsins. Þessi eining stillir hvorki mörk vinnuþráða né greiningarbreytur og kemur ekki í stað vistaðra hreyfimyndastillinga.\n\n``apply`` setur ``SPACR_NO_BACKDROP`` þegar óskað er eftir niðurbælingu og skrautbakgrunnurinn er virkur. Við afvirkjun er aðeins fjarlægð niðurbæling sem þessi eining bjó til; fyrirliggjandi yfirskipun vegna endurheimtar eftir hrun er varðveitt.",
       "translation_source_blocks_sha256": [
-        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
-        "d33c0d4d0045796a3a06aef69c6706e5295870356288fd51137396fca2f7f60e",
-        "90480b66e0997f15671e2aa2cf8efdff2b6c73dd38d0350a667b55b7ba5e4bf6",
-        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+        "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+        "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+        "74918d4beb558100d912e14b1ce897911d92b8324c50e05cb55ca68c6f0f56d4",
+        "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61"
       ]
     },
     "spacr.qt.laptop_mode.apply": {
       "source_blocks_sha256": [
-        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
-        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
-        "39633c9008297a57422460fe23b3a8bea53cb256b6dc42f34f4eac990c2be100",
-        "ff0abfd1859c9289e0136896b93680b63806bb4fe25b1fb5d01c5b8898662f87"
+        "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+        "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+        "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+        "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5"
       ],
-      "source_sha256": "c52d6c858e0a88a825be430f8dd53df41999a52ab654ec46743a5af9f0e51a23",
-      "text": "Hugsaðu eða hættuðu aðferðina. endurheimtir það sem var ákveðið og það sem breytist.\n\n:param on: svarið er áreiðanlegt; ``None`` mætur vélinn.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` heitir hvert hlut sem virkilega er gerður, þannig að hringandi getur sagt hvað gerðist í stað þess að segja það.\n\nSjá :data:`_NO_BACKDROP` fyrir hvers vegna: þetta er ákvörðun um einhvern meðferð á einum vélum, og notandinn geymt forrit er ekki þessar modúlar til að svara.",
+      "source_sha256": "1b10d6900cb0e03a04971ff50236a98fb25f338bcf7cc88f912824a661332785",
+      "text": "Beitir niðurbælingu bakgrunns fyrir viðkomandi ferli og tilkynnir ákvörðun og aðgerðir.\n\n:param on: skýr ákvörðun; ``None`` notar :func:`wanted`, þar með talið vélbúnaðarlestur þess og yfirskipun umhverfisins.\n:returns: vörpun með ``on``, ``why`` og ``changed``. ``on`` er ákvörðunin; ``changed`` telur upp aðgerðir sem voru raunverulega framkvæmdar og getur verið tómt.\n\nNiðurbælingin gildir aðeins fyrir viðkomandi ferli og kemur ekki í stað vistaðrar hreyfimyndastillingar. Við afvirkjun er aðeins hreinsuð niðurbæling sem þessi eining bjó til og fyrirliggjandi yfirskipun vegna endurheimtar eftir hrun er varðveitt.",
       "translation_source_blocks_sha256": [
-        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
-        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
-        "39633c9008297a57422460fe23b3a8bea53cb256b6dc42f34f4eac990c2be100",
-        "ce569c7006a699745ff3f87b2537af113bb249200be810a7c76a020f0a0d633f"
+        "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+        "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+        "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+        "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5"
       ]
     },
     "spacr.qt.laptop_mode.describe": {
       "source_blocks_sha256": [
-        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+        "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846"
       ],
-      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
-      "text": "Fullur ákvörðun sem einn blokk, fyrir upphafi log.",
+      "source_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "text": "Sníður vélbúnaðarmiðaða ákvörðun og áhrifalýsingar fyrir greiningarannála.",
       "translation_source_blocks_sha256": [
-        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+        "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846"
       ]
     },
     "spacr.qt.laptop_mode.measure": {
       "source_blocks_sha256": [
-        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+        "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05"
       ],
-      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
-      "text": "Það sem ákvörðun er gert frá, þannig að það er hægt að vita og prófa.",
+      "source_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "text": "Skilar fjölda CPU, vinnsluminni, viðmiðunarfánum og þáttaðri yfirskipun.",
       "translation_source_blocks_sha256": [
-        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+        "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05"
       ]
     },
     "spacr.qt.laptop_mode.override": {
       "source_blocks_sha256": [
-        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+        "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88"
       ],
-      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
-      "text": "Það sem umhverfið segir, eða None þegar það segir ekkert.",
+      "source_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "text": "Þáttar yfirskipun umhverfisins; skilar ``None`` ef hana vantar eða hún er óþekkt.",
       "translation_source_blocks_sha256": [
-        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+        "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88"
       ]
     },
     "spacr.qt.laptop_mode.total_memory_gib": {
@@ -82422,38 +82422,38 @@
     },
     "spacr.qt.laptop_mode.usable_cores": {
       "source_blocks_sha256": [
-        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
-        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+        "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+        "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5"
       ],
-      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
-      "text": "Cores þetta ferli getur virkilega notað, ekki cores sem vélin hefur.\n\n`os.sched_getaffinity` þar sem það er til: container eða skiptandi getur pinð ferlið til minna en `cpu_count` skýringar, og pinning er nákvæmlega aðstæður þessi leið er fyrir.",
+      "source_sha256": "e5eb6f66da16d5b3607710a14439c9cad49a88d33e586fa5fa5f2e91455fa804",
+      "text": "Skilar fjölda CPU í leyfðri örgjörvabindingu ferlisins og notar ``os.cpu_count`` til vara.\n\n``os.sched_getaffinity`` tekur tillit til bindingar ferlisins þegar fallið er tiltækt. Ef það er ekki tiltækt eða bregst er tilkynntur fjöldi CPU notaður í staðinn. Niðurstaðan er að minnsta kosti einn; varaleiðin mælir ekki takmarkanir bindingarinnar.",
       "translation_source_blocks_sha256": [
-        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
-        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+        "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+        "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5"
       ]
     },
     "spacr.qt.laptop_mode.wanted": {
       "source_blocks_sha256": [
-        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
-        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+        "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+        "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723"
       ],
-      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
-      "text": "Hvað á að fara í tölvupósti, og orð sem segir hvers vegna.\n\n:returns: ``(on, why)``. ástæðan er alltaf vinsamlegur, þar á meðal þegar svarið er ekki -- \"spaCR decided not to\" er hlutur sem notandi segir og einhver ætti að vera fær um að skoða.",
+      "source_sha256": "ae2d6184c93bafb4c0366d02d5962ab94168c0853d165d88c50a9878fd18961a",
+      "text": "Skilar vélbúnaðarmiðaðri ákvörðun um fartölvuham og skýringu hennar.\n\n:returns: ``(on, why)``. Ástæðan er alltaf fyllt út, einnig þegar ákvörðunin er að hafa haminn óvirkan. Skýr yfirskipun umhverfisins hefur forgang fram yfir viðmiðunarfána fyrir kjarnafjölda og vinnsluminni.",
       "translation_source_blocks_sha256": [
-        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
-        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+        "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+        "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723"
       ]
     },
     "spacr.qt.laptop_mode.what_it_turns_down": {
       "source_blocks_sha256": [
-        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
-        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+        "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+        "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216"
       ],
-      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
-      "text": "Hver hluti breytist aðferð, og hvað notandi tapar af því.\n\nÞað er ekkert hér að lesa af vinnuflokk, þannig að meðferð ákvarðanir sömu svarið í hverjum stöðu - sem er loforð sem gerir sjálfkrafa ákvörðun viðkomandi alls.",
+      "source_sha256": "084d16f773c3751933b1872da8d40c9c3e0eda043b7adf28185af4c11f576974",
+      "text": "Skilar lýsingum á hreyfimyndum og óskerpu í bakgrunni sem notaðar eru við greiningu.\n\nHvert par inniheldur heiti áhrifa og lýsingu þeirra fyrir UI-athugasemdir og annála. Þetta fall skilar texta; :func:`apply` framkvæmir niðurbælingu bakgrunnsins fyrir viðkomandi ferli.",
       "translation_source_blocks_sha256": [
-        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
-        "8a7a63cdcf93686621f8610c132750a316daec957429fe3140bdf2456fdb68e7"
+        "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+        "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216"
       ]
     },
     "spacr.qt.layer_viewer": {
@@ -86772,42 +86772,42 @@
     },
     "spacr.qt.memory_budget": {
       "source_blocks_sha256": [
-        "7dee1bb5f7c9b5d23474f893c3d14ce8e6ed29158711c2c731d455aa7ab70845",
-        "e8113a41d8118dcd9279bcf26c3df16c9da8bbd10092277d03c2b467d515965f",
-        "990dc5f29bac1f3305b275eaffe47e17b713dde972d5c8c4a6e687edafa9af44"
+        "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+        "c58bbd9144a04712a3e43730f51eb31206fa4de45fc39af9e363370a6b35390a",
+        "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa"
       ],
-      "source_sha256": "d127c85059819ad3412bbebd07a8038482d386d5a8997ffec054d659011a9d9d",
-      "text": "Hvað spaCR er leyft að halda, og hvenær það þarf að gefa það aftur.\n\nÞrír settingar, og orðin er mikilvægt. Höfuðhæðin kemur fyrst: það segir hversu mikið af vélinni verður að vera frjáls fyrir allt annað, og hinir tveir eru margt þar til eitthvað segir hvenær til að nota þá.\n\nÞað sem þetta gerir ekki er að hlaða upp bókasafn, og ekkert hér er nefnd eins og það gerir. Miður á þessari vél: innfang torch kostar 477 MB, fjarlægja hver torch innfang frá `sys.modules` og safna tilbúinn 0 af því, og 63 af sameiginlegum hlutum hans vera mapped. CPython hefur aldrei stuðlað að hlaðu upp C útgáfu. Það sem hægt er að koma aftur er caches, þyngd móta og GPU útgáfur, þannig að það er það sem þeir stjórna - og hlaða innfang til fyrstu notkun er sanngjarn form af \"load when called\", sem er ástæða þess að ákvarðanir sem aldrei opnar djuplearning modul aldrei borga 477MB.",
+      "source_sha256": "c88e4eb03ecde594812d4d30f9fe1a2151ba284cc4cf043ed5314a6d98bf7f63",
+      "text": "Reglur um brottnám færslna úr skyndiminni og mælingar á tiltæku minni hýsitölvunnar.\n\nTímamörk aðgerðaleysis og stærðarþak skyndiminnis ákvarða lyklana sem ``what_to_drop`` velur. Aðskilda skilyrðisfallið ``headroom_is_short`` ber tiltækt minni hýsitölvunnar saman við stillt viðmiðunarmark. Kallendur beita þessum reglum og losa tilföng.\n\nÞessi eining fjarlægir hvorki Python-einingar né forritasöfn með vélakóða úr minni. Brottnámsáætlanir tilgreina skyndiminnisfærslur; kallendur ákveða hvaða tilföng má losa. Reglurnar tryggja ekki ákveðna minnkun á minni ferlisins eða GPU-minnisúthlutunum.",
       "translation_source_blocks_sha256": [
-        "7dee1bb5f7c9b5d23474f893c3d14ce8e6ed29158711c2c731d455aa7ab70845",
-        "ce824dfa2a1bec3fe844b6dc7defdbfa3bdb5d158cc9153985bb5b6c2c557058",
-        "2fbaf85de9f84b1538889b58d786600eb2419e5f2487dbaf8db7c71623a5716e"
+        "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+        "a006f7cbffea16de4f4f1b11893ab286685a0c6b93b35187e848ccb90044259c",
+        "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa"
       ]
     },
     "spacr.qt.memory_budget.free_megabytes": {
       "source_blocks_sha256": [
-        "335bd8baecef403e0f0429c1114aa3d46d65d84c36989c0af807043ad5d74727",
-        "39138f50b3a0525405ef5dd18f5e1f1c097448add5200fc859576a69a489d00b"
+        "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+        "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb"
       ],
-      "source_sha256": "725ac9fb54575611439b5f6a9176b9c98b9d2e1193880a84890c2608534301ae",
-      "text": "Hversu mikið minningu málið hefur frjáls núna.\n\n:returns: Megabytes, eða ``None`` þegar það er ekki hægt að mæta - í því tilfelli að höfuðherbergi lóð er ekki gert og segir það í stað þess að gleyma.",
+      "source_sha256": "90b4c7ec1305c5821ac72ede14eaf20da4aab17a5b9fddea9ff5e98df245979b",
+      "text": "Skilar tiltæku minni hýsitölvunnar í mebibætum.\n\n:returns: ``psutil.virtual_memory().available`` deilt með ``1024**2``, eða ``None`` ef mælingin mistekst.",
       "translation_source_blocks_sha256": [
-        "335bd8baecef403e0f0429c1114aa3d46d65d84c36989c0af807043ad5d74727",
-        "39138f50b3a0525405ef5dd18f5e1f1c097448add5200fc859576a69a489d00b"
+        "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+        "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb"
       ]
     },
     "spacr.qt.memory_budget.headroom_is_short": {
       "source_blocks_sha256": [
-        "a0201766d2334e4ed9a927ef5c0efe72b5bb216662973cac624d8c3b5d460c82",
-        "98608cc4fe30c11e66e37def0b64da7ad24b46456b8d8c3e2a15f94f6000d725",
-        "4a56c5e9c0578f16c5dc2093870adb26269f48380b2c7f49897ece632a37c8a9"
+        "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+        "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+        "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027"
       ],
-      "source_sha256": "7c0c7ce6f21e8248b69f8cb394c911e663f5780444a199b4b54fb43d39256858",
-      "text": "Vegna þess að frjáls minningu hefur fallið undir gulli.\n\n:param floor_mb: Lesið frá forritum þegar fyrirgefið er.\n:returns: ``False`` þegar minningu er ekki hægt að mæla - cache sem ekki er hægt að sýna að vera vandamálið er ekki kastað á áhyggjur.",
+      "source_sha256": "e355f34b6c9814bafb021d8745fcff8303b03b40297c2a1d3e224c9997dd428f",
+      "text": "Prófar hvort tiltækt minni hýsitölvunnar sé undir stilltu viðmiðunarmarki.\n\n:param floor_mb: viðmiðunarmark í mebibætum; lesið úr stillingum ef því er sleppt.\n:returns: ``False`` ef ekki er hægt að lesa minnið eða nauðsynlega stillingu; annars niðurstaða samanburðar tiltæks minnis við viðmiðunarmarkið.",
       "translation_source_blocks_sha256": [
-        "a0201766d2334e4ed9a927ef5c0efe72b5bb216662973cac624d8c3b5d460c82",
-        "98608cc4fe30c11e66e37def0b64da7ad24b46456b8d8c3e2a15f94f6000d725",
-        "4a56c5e9c0578f16c5dc2093870adb26269f48380b2c7f49897ece632a37c8a9"
+        "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+        "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+        "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027"
       ]
     },
     "spacr.qt.memory_budget.recommended_for": {
@@ -86826,26 +86826,26 @@
     },
     "spacr.qt.memory_budget.what_to_drop": {
       "source_blocks_sha256": [
-        "42ce74dd9aad550c5b96cebf035510c46639364a8688e1bc1dc6c1f84f47c30f",
+        "31af9ce76aff459d4c3179c000db0bdb43c6503ec8570c3138467fa97fc8d6cf",
         "6c2fb2d25b2ecddad109250e3d7c80810b00c3ac25114877347add35e8e0eb69",
         "7aad11250c3144958b20cc43b94d429df587350d39d938779eeb8c5cad07aca4",
         "0ba4e87629bcae4a11eb3ff5a3f6cb596d8b65b826863b2a077e0c633f7f524b",
         "d64accbbd8381ffc1449b95c53a4735cebae4a9065ad2e68cebd2a5d6db7c539",
-        "a39afc7eacade24ad70fcf24dd569c0d279ec5a768f486c85a54f115f8445479",
-        "cacfbfd07a2f73a883e233de8269be4aa7da60e7306154141f03ad837ca4e0ad",
-        "488dc0c3970d5b8cce09d8716a8f248cf17ac094c437f86166136aa5b7c01efe"
+        "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+        "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+        "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06"
       ],
-      "source_sha256": "8bbe5fb5c2e871179f6cd4317be8e37d3aa6eca8a7f1af28cf5324501dd4e313",
-      "text": "Hvaða cache inntali ætti að fara, eldri idle fyrst.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: Núverandi tími, sem er í gegnum svo próf getur valið það.\n:param idle_minutes: Óþægilegt tími; frá ákvarðanum þegar yfirgefið.\n:param ceiling_mb: Stæð loft; frá forritum þegar yfirgefið.\n:returns: Að hætta, til þess að kasta þá.\n\nTveir ástæður, notað í orði. Allt í dag lengur en tími út fer vegna þess að ekkert er að nota það. Þá, ef það sem er eftir er enn yfir takinu, það minnsta nýlega notað fara þar til það passar - þannig að cache undir þreytingu gefur upp það sem það er minna líklegt að vilja næsta en hvað sem gerist að ná fyrst.\n\nEin innfang er aldrei hættir vegna þess að vera stór einn: stærð ákveður ORDER af þremur, og óþekktur ákveður hvort það gerist.",
+      "source_sha256": "fbf221dfff9accbb558a9b54980aeb249f59363f7d586c25169188125475d6a5",
+      "text": "Velur skyndiminnislykla eftir tímamörkum aðgerðaleysis og síðan eftirstandandi heildarstærð.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: Núverandi tími, sem er í gegnum svo próf getur valið það.\n:param idle_minutes: Óþægilegt tími; frá ákvarðanum þegar yfirgefið.\n:param ceiling_mb: Stæð loft; frá forritum þegar yfirgefið.\n:returns: strengjalyklar sem á að fjarlægja, í valröð.\n\nFærslur sem eru eldri en tímamörkin eru valdar fyrst, í inntaksröð. Ef eftirstandandi heildarstærð fer yfir þakið eru fleiri færslur valdar frá þeirri sem lengst er síðan var notuð til þeirrar sem síðast var notuð, þar til heildin rúmast.\n\nStærðin ákvarðar hvort frekara brottnám sé nauðsynlegt, ekki röðunina. Þakið getur valið færslur þótt engin fari yfir tímamörk aðgerðaleysis. Þetta hjálparfall athugar hvorki minnissvigrúm hýsitölvunnar né hvort færslur séu í notkun; kallendur verða að afhenda færslur sem má fjarlægja.",
       "translation_source_blocks_sha256": [
-        "42ce74dd9aad550c5b96cebf035510c46639364a8688e1bc1dc6c1f84f47c30f",
+        "f65cf0e510dbbf748ed78bd5af1393b69b148ff5e3c940ca6a0cb87c8d9d95f9",
         "6c2fb2d25b2ecddad109250e3d7c80810b00c3ac25114877347add35e8e0eb69",
         "7aad11250c3144958b20cc43b94d429df587350d39d938779eeb8c5cad07aca4",
         "0ba4e87629bcae4a11eb3ff5a3f6cb596d8b65b826863b2a077e0c633f7f524b",
         "d64accbbd8381ffc1449b95c53a4735cebae4a9065ad2e68cebd2a5d6db7c539",
-        "a39afc7eacade24ad70fcf24dd569c0d279ec5a768f486c85a54f115f8445479",
-        "2ca45fa78178bfc1617e002ef59cff6772e250edd5ddb3bdd152429d031ea566",
-        "488dc0c3970d5b8cce09d8716a8f248cf17ac094c437f86166136aa5b7c01efe"
+        "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+        "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+        "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06"
       ]
     },
     "spacr.qt.menus": {
