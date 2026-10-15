@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review; independent semantic peer requested; no native-speaker signoff",
+  "note": "Four actually eligible new public event handlers; nine new blocks per locale. Existing source prose/review inputs untouched; normal validators retained.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source": "Paint the label and its cached outline while it has keyboard focus.",
+      "context": "Paint the label and its cached outline while it has keyboard focus.",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "키보드 포커스가 있는 동안 레이블과 캐시된 윤곽선을 그립니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source": "paint request, passed to QLabel before drawing the outline.",
+      "context": "paint request, passed to QLabel before drawing the outline.",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "윤곽선을 그리기 전에 QLabel에 전달되는 그리기 요청입니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source": "Repaint the outline when keyboard focus enters the toggle.",
+      "context": "Repaint the outline when keyboard focus enters the toggle.",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "토글이 키보드 포커스를 받으면 윤곽선을 다시 그립니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source": "focus-entry event, forwarded to QLabel.",
+      "context": "focus-entry event, forwarded to QLabel.",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "QLabel에 전달되는 포커스 진입 이벤트입니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source": "Remove the outline when keyboard focus leaves the toggle.",
+      "context": "Remove the outline when keyboard focus leaves the toggle.",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "키보드 포커스가 토글을 떠나면 윤곽선을 제거합니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source": "focus-exit event, forwarded to QLabel.",
+      "context": "focus-exit event, forwarded to QLabel.",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "QLabel에 전달되는 포커스 이탈 이벤트입니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source": "Toggle once on unmodified Space, Return or numeric Enter while focused.",
+      "context": "Toggle once on unmodified Space, Return or numeric Enter while focused.",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "포커스가 있을 때 보조 키 없이 Space, Return 또는 숫자 키패드 Enter로 한 번 전환합니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source": "Automatic key repeats are consumed without changing state. Other key events are forwarded to QLabel. Activation uses :meth:`setChecked`, preserving the existing state-change signal and routing connections.",
+      "context": "Automatic key repeats are consumed without changing state. Other key events are forwarded to QLabel. Activation uses :meth:`setChecked`, preserving the existing state-change signal and routing connections.",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "자동 키 반복 이벤트는 상태를 변경하지 않고 처리됩니다. 다른 키 이벤트는 QLabel에 전달됩니다. 활성화에는 :meth:`setChecked` 메서드를 사용하며 기존 상태 변경 신호와 라우팅 연결을 유지합니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source": "key-press event delivered to the toggle.",
+      "context": "key-press event delivered to the toggle.",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "토글에 전달된 키 누름 이벤트입니다.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    }
+  ]
+}

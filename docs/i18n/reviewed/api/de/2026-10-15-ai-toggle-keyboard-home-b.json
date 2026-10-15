@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review; independent semantic peer requested; no native-speaker signoff",
+  "note": "Four actually eligible new public event handlers; nine new blocks per locale. Existing source prose/review inputs untouched; normal validators retained.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source": "Paint the label and its cached outline while it has keyboard focus.",
+      "context": "Paint the label and its cached outline while it has keyboard focus.",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Das Label und seine zwischengespeicherte Umrandung zeichnen, solange es den Tastaturfokus hat.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source": "paint request, passed to QLabel before drawing the outline.",
+      "context": "paint request, passed to QLabel before drawing the outline.",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Zeichenanforderung, die vor dem Zeichnen der Umrandung an QLabel übergeben wird.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source": "Repaint the outline when keyboard focus enters the toggle.",
+      "context": "Repaint the outline when keyboard focus enters the toggle.",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Die Umrandung neu zeichnen, wenn der Umschalter den Tastaturfokus erhält.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source": "focus-entry event, forwarded to QLabel.",
+      "context": "focus-entry event, forwarded to QLabel.",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Ereignis beim Erhalten des Fokus, das an QLabel weitergeleitet wird.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source": "Remove the outline when keyboard focus leaves the toggle.",
+      "context": "Remove the outline when keyboard focus leaves the toggle.",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Die Umrandung entfernen, wenn der Tastaturfokus den Umschalter verlässt.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source": "focus-exit event, forwarded to QLabel.",
+      "context": "focus-exit event, forwarded to QLabel.",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Ereignis beim Verlieren des Fokus, das an QLabel weitergeleitet wird.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source": "Toggle once on unmodified Space, Return or numeric Enter while focused.",
+      "context": "Toggle once on unmodified Space, Return or numeric Enter while focused.",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Bei Fokus einmal mit Leertaste, Return oder numerischem Enter ohne Modifikatortasten umschalten.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source": "Automatic key repeats are consumed without changing state. Other key events are forwarded to QLabel. Activation uses :meth:`setChecked`, preserving the existing state-change signal and routing connections.",
+      "context": "Automatic key repeats are consumed without changing state. Other key events are forwarded to QLabel. Activation uses :meth:`setChecked`, preserving the existing state-change signal and routing connections.",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Automatische Tastenwiederholungen werden ohne Zustandsänderung verarbeitet. Andere Tastenereignisse werden an QLabel weitergeleitet. Die Aktivierung verwendet :meth:`setChecked` und erhält das vorhandene Signal für Zustandsänderungen sowie die Routing-Verbindungen.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source": "key-press event delivered to the toggle.",
+      "context": "key-press event delivered to the toggle.",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "previous_same_source_indexes": [],
+      "kind": "new public method",
+      "translation": "Tastendruckereignis, das an den Umschalter zugestellt wird.",
+      "review_basis": "Exact-source technical translation of keyboard focus painting, modifier-free single activation, consumed automatic repeats, QLabel forwarding and existing setChecked signals/routing. Protected API references retained. No native-speaker claim."
+    }
+  ]
+}
