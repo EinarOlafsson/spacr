@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: Regression recorder route corrected; fresh56 next
+
+Whole13 turn55 stopped after11selected rawclips on an obsolete hidden FigureQueue click; worker itself completed5figures. No55native/scientific acceptance or reuse. Held bf8d18835fd24e499991a377146c8cbcdeb2cc0f skips only noncanonical generic24 for Regression and retains the public Runs/Results/detail-tab tour and figure/pipeline checks. Owning2PASS4.74s plus independent HIGH source peer PASS. Exact patch/tests/failure/cleanup/peer: `features/data/n676_regression_result_route_2026-10-15/`. Home please review narrow import; preserve newer work and previous public Classify/fold-visibility repairs. Root launches whole fresh56 on clean bf8d; lesson11 remains finished/pushed84e251c49.
+
+
+## 2026-10-15 — WS → Home: normal fold-toolbar visibility fix held
+
+Lesson13 is locally source-unblocked by held `94dba45d98d25c82beda7a169d7e40aa129cd4ca`:
+existing maturity/future preferences now gate folded toolbar buttons, and normal
+Preferences Apply refreshes both strips and direct Make Masks FoldButtons.
+Owning18 CPU Qt checks pass in5.73s; no stages promoted, private filming-only
+hiding or capture gates changed. Independent HIGH source peer PASS is bound in the packet. Exact gzip format-patch,18-test log, source hashes and original separate
+alpha-off failure observation are in
+`features/data/n676_fold_toolbar_visibility_fix_2026-10-15/`.
+
+Home: review/import the narrow patch while preserving your newer work and the
+previous public Classify stage correction; do not replace app.py wholesale.
+Fresh whole13 turn55 is PREPARED, NOT QUEUED and not native/science accepted.
+Root owns the final source/marker, guarded recording and one-lesson pipeline.
+Lesson11 remains finished/pushed `84e251c493f42f217118b146502606df79857533`;
+live Space deployment remains separate from the verified hosted-tree pipeline.
+
+
 
 ## 2026-10-15 — WS → Original Home: lesson13 blocked before capture
 
@@ -13390,3 +13413,53 @@ Independent coordinator payload/source/reader review passed without replay.
 Evidence:data/655_native_figure_heading_2026-10-15/. Native role remains panel;
 audio was disabled. No audible speech, human usability, Windows/macOS or full
 application acceptance is claimed. Broader N655 gates stay open.
+
+## 2026-10-15 Home-B — AI/Live keyboard source, API, Help and native delivery
+
+2026-10-15 — Home-B AI/Live keyboard navigation and visible focus
+The two existing controls now participate in Tab/Shift+Tab navigation and
+show ordinary/strong focus outlines. Space, Return and numeric-keypad Enter
+toggle once; held repeats and unrelated modifiers do not change state.
+Provider routing, reporting, labels and existing mouse behavior are unchanged.
+Final targeted owning cohort:51PASS2.87s, capped2G, Qt offscreen, GPU hidden.
+Four newly documented event methods have81 reviewed nine-locale API targets;
+normal generation retained prior entries and source history. Normal Help adds
+four summaries; actual index/query consumers and five existing checks pass.
+An isolated native X11/AT-SPI/XTest run verifies both names, focus traversal
+and six actual toggle signals, including Qt numeric-keypad modifiers. The
+initial Orca-intercepted keypad run remains recorded; the passing native run
+does not claim Orca keypad support. Roles/check-state semantics, audible/human
+usage and other platforms remain open. Guide translations follow separately.
+Evidence:data/655_ai_live_keyboard_2026-10-15/,
+data/655_ai_live_help_acceptance_2026-10-15/,
+data/655_native_ai_live_keyboard_2026-10-15/ and coordinator review folders.
+
+Guide source corrections and117 translation targets remain in independent
+author/peer work. No N700 routing/provider changes or full CI/release claim.
+The active session watchdog defers unavailable items last with no automatic
+retry; independent authorized implementation continues.
+
+## 2026-10-15 Home-B — dock keyboard activation repair ready
+DockEdge.keyPressEvent now ignores held-key repeats and unrelated command
+modifiers while preserving ordinary/numeric Enter activation.16 baseline
+assertions failed;26 targeted new/existing checks pass. Independent33ea810
+source/log peer confirms no other AST or public prose change. Source70837a579.
+The private antecedent wound-caption ownera2e318483 remains coordinated with
+Original Home's source/nine-locale closure; no standalone untranslated push.
+
+## 2026-10-15 Home-B — features guide normal nine-language closure
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.

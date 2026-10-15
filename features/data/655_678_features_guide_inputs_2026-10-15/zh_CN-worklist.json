@@ -1,0 +1,106 @@
+[
+  {
+    "domain": "features",
+    "msgid": "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When ``pred`` is selected and a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A missing response-column error lists available score-table columns to help you choose a valid response.",
+    "msgstr": "``dependent_variable`` 是响应变量，其下拉列表提供所选一个或多个评分文件中的数值列；如果存在 ``pred``，它会排在首位。列表不提供 ``plateID``、``rowID``、``columnID``、``fieldID``、``objectID`` 和 ``count`` 等标识符列。文件更改时，列表会从每个文件的表头及前 200 行中读取。已保存但文件中不存在的值会保留并标记。``pred`` 是分类器写出的概率：Classify 将其保存为 tar 文件旁的 ``<date>_<dataset>_<model>_result.csv``，ML 评分则将其保存为 ``results/<model>/<features>/results.csv``。当选择了 ``pred`` 而评分文件没有 ``pred`` 列时，字段下方的提示会说明这一情况，列出上述两个输出文件及可用的列；spaCR 不会替您选择响应变量。响应列缺失错误会列出评分表中的可用列，帮助您选择有效的响应变量。",
+    "source_sha256": "799a0804038a9a55ca77e3470f7ac181d9518137ae7230e237b5de1c0f5c2a42",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Starting spaCR",
+    "msgstr": "启动 spaCR",
+    "source_sha256": "91568eddbef9f8af1915c46504ca52976eee9dff39142449540c6e012cfea166",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away.",
+    "msgstr": "spaCR 启动时会显示一个黑色容器，其中以照片马赛克呈现 spaCR 标志。窗口加载时标志保持静止，随后马赛克逐块飘散，容器淡出，露出窗口。点击或按键可跳过此过程。取消勾选 **偏好 → 外观 → Animation → 启动动画** 时（此时仅显示马赛克，不播放动画）、开启 **减少动态效果** 时，以及环境变量 ``SPACR_NO_SPLASH`` 设为 ``1`` 时（此时完全不显示马赛克），此动画过程均关闭。**帮助 → 显示启动动画** 可在已打开的窗口内重新播放，即使启动动画已关闭；开启减少动态效果时，标志会先保持静止，再淡出消失。",
+    "source_sha256": "6b823be805233201895a1a53e9d891473503fe3caed422bbe6f4a30a08d0036c",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered.",
+    "msgstr": "窗口默认以 **Borderless** 模式打开：没有标题栏，占满所在屏幕的工作区，并可通过菜单栏拖动；菜单栏最右端的图标用于最小化、最大化和关闭窗口。取消勾选 **帮助 → 窗口 → 无边框窗口**，即可改用平台自带的带边框窗口。此选择会被保存。",
+    "source_sha256": "d5626a1b3e9b98f97d7b8c222136086ed4b409bf88005acdc933e7c352394426",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Settings files",
+    "msgstr": "设置文件",
+    "source_sha256": "2d6c5fe003de86d50b7f079edb4a095bc4d4f0b7f90a6b35b16117eb50fa5a8b",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Use **Export settings…**, next to **Import settings…**, to save the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates.",
+    "msgstr": "使用 **导入设置…** 旁的 **导出设置…**，可将表单当前值保存为设置 CSV，而不运行任何任务。在 Distributed Jobs 屏幕上，**保存设置 CSV…** 会保存由 **远程提交…** 发送的设置快照。两种方式都写出 ``spacr-run --settings`` 读取的文件；有关设置模板，请参阅 :ref:`通过图形界面保存设置文件 <settings-files-from-the-gui>` 和 :doc:`shortcuts_and_templates`。",
+    "source_sha256": "26f972718de43f032b739bf6bc0af0ae0737511ed80f4e7739efadc9a942ba1b",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Gate Editor keys and overlapping elements",
+    "msgstr": "Gate Editor 按键与重叠元素",
+    "source_sha256": "56fa61c9802a12c7edbdb5d3d46cb6e0a3f15f7f330e1dd90558254b0f0f4cfd",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:",
+    "msgstr": "Gate Editor 拥有焦点时，这些键用于选择拖动模式，并在 3D 中选择平面或轴。它们列在 **更改快捷键** 中，作用域为 *Gate Editor*，可在那里重新绑定：",
+    "source_sha256": "ae212c0c3f2f2041783d7881500da20326d7ac6a4c2c11c6850161f410d12bf1",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;",
+    "msgstr": "**Shift+E** 选择编辑，**Shift+S** 选择 Spin (free)，**Shift+D** 选择绘制；",
+    "source_sha256": "f6a9264ff0c9d69c7b0f3d512a036459ae9295743cf796e8e777ded7fcb767b0",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead.",
+    "msgstr": "**Shift+X**、**Shift+Y** 和 **Shift+Z** 分别选择 X、Y 或 Z 平面。如果在按下 **Shift+S** 后的 1.5 秒内按下这些键，则改为选择旋转轴。",
+    "source_sha256": "ad5812a74d9ab6468202b1d2e530d9604267466f4cc6c3ab911c296152004c0c",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The initial click grabs the nearest anchor under the pointer, if any; otherwise it grabs the nearest sheet. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list.",
+    "msgstr": "Make Masks 的 True 3D 视图使用相同按键。在 3D 编辑模式或 2D 中，如果点击位置有多个面或锚点，鼠标下的元素会高亮显示，并在图表左上角的 **点击处的元素** 下按层顺序列出，同层中面排在锚点前；最上层为蓝色，其余为白色。首次点击优先抓取指针下最近的锚点（如果存在）；否则抓取最近的面。点击列表行或按上、下方向键，可选择下次点击同一重叠位置时选中并移动的元素。按 **Escape**、点击空白处、离开编辑模式、在 2D 与 3D 之间切换或替换 gate 集合都会关闭列表。",
+    "source_sha256": "ab272cc4f85101b929531352c1abf70a1ae3d7835e65b545245f8571a8a6c92b",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`.",
+    "msgstr": "使用 :kbd:`Tab` 或 :kbd:`Shift+Tab` 移动到 **人工智能** 或 **实时**。轮廓会显示哪个标签拥有键盘焦点。在未按住其他键的情况下，按 :kbd:`Space`、:kbd:`Return` 或数字键盘上的 :kbd:`Enter` 来开启或关闭它。按住一个键只会切换一次。 如果屏幕阅读器会自行处理数字键盘的 :kbd:`Enter`，请使用 :kbd:`Space` 或 :kbd:`Return`。",
+    "source_sha256": "bf98e3fbd780de19bb0b6ba6389d6026db7049aaf08119551286240b5642cbd6",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.",
+    "msgstr": "Make Masks 用于手动修正掩膜，并在顶部提供 Cellpose 工作流程。其画布有十种工具：Brush、Erase、擦除对象、魔棒、绘制、边界框、分割 / 合并、Zoom、重新裁剪和标尺。魔棒默认添加区域；按住 Ctrl 并点击可移除区域。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、色阶、检测设置、主次掩膜配对、保存和测量。体数据（TIFF 堆栈、OME-TIFF 和 MRC）在同一视图中打开，带有切片滑块和包含默认、正交及 True 3D 的 View 列表；电子显微图像（``.dm3``、``.dm4``、``.mrc``）提供对比度预设。请参阅 :ref:`3D 体数据 <mm-volumes>` 和 :ref:`电子显微图像 <mm-tem>`。",
+    "source_sha256": "05b6f9398099bc19e7d20eaa45069f18577576ac7bcb0f2d8a3c4933ac53928a",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  }
+]

@@ -703,8 +703,13 @@ class DockEdge(QWidget):
 
         :param event: key press; Space, Return and Enter toggle the dock.
         """
-        if event.key() in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter):
-            self.set_collapsed(not self._collapsed)
+        key = event.key()
+        modifiers = event.modifiers()
+        if (key in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter)
+                and (modifiers == Qt.NoModifier
+                     or (key == Qt.Key_Enter and modifiers == Qt.KeypadModifier))):
+            if not event.isAutoRepeat():
+                self.set_collapsed(not self._collapsed)
             event.accept()
             return
         super().keyPressEvent(event)

@@ -1,0 +1,25 @@
+{
+  "base": "1055f93c9a2f69a51c6d00f7825cc3b2564fa144",
+  "scope": "Existing DockEdge.keyPressEvent only: consume automatic repeats without toggling; accept ordinary Space/Return/Enter and native numeric Enter; forward unrelated modified keys. No caption/API prose, mouse/resize/state/paint/persistence change.",
+  "source_sha256": "a9b65ea4ad0805f9e0e945ff9876a5dc45822378bd167ff097843507d897a9c9",
+  "test_sha256": "b0bde247b66069096b16a840133e099dab3f042acd4dbd00a43161f21d38c468",
+  "ast_outside_existing_handler_exact": true,
+  "initial_harness_failure": "Host local variable lost its final Python reference when fixture returned the child;16 deleted-widget errors. Retained script/log. Fixed fixture uses yield, keeps parent alive through each real-widget test; no product change before baseline.",
+  "baseline": "16 failed in1.93s: actual repeat state flips and modified-key collapse assertions.",
+  "final": "26 passed in3.79s; wall6.14s;579944KiB RSS;2G/thread1/offscreen/privateconfig/GPUhidden. Includes16newcases and10existing collapse/glyph/mouse/resize cases.",
+  "logs": {
+    "fixture-before": {
+      "sha256": "4e6bee28db7a1eda69ff68a23db3fb9db36e86837a53d56f70eebfea76ef5e79",
+      "gzip": "fixture-before.log.gz"
+    },
+    "baseline": {
+      "sha256": "70016d49eca5886bc73e4fb785b54408d019e416900dac1ae1bc913d47cbcfac",
+      "gzip": "baseline.log.gz"
+    },
+    "final": {
+      "sha256": "41e24f4a2945c7d655d197ede10768cbe27905813d76e2b449f109529377e1a9",
+      "gzip": "final.log.gz"
+    }
+  },
+  "limits": "Linux offscreen real-widget keyboard-event dispatch, not native/human or full N655 acceptance. No final CI/release."
+}

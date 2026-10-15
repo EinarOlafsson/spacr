@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "result": "PASS",
+  "final_source_commit": "0289c7d9ca64d96bea454f50d4ec6fd8d38b8fe7",
+  "source_chain": [
+    "558913bda17785d8e46ea83f7f650082f0537607",
+    "4041faffb",
+    "0289c7d9ca64d96bea454f50d4ec6fd8d38b8fe7"
+  ],
+  "reviewed_messages": 12,
+  "corrected_paragraphs": 4,
+  "retained_messages": 8,
+  "obsolete_message_disposition": "The single obsolete catalog message is the exact shorter Make Masks paragraph, replaced by the expanded current volume/TEM paragraph. Normal full-domain catalog update may retire it.",
+  "independence": "Reviewer did not author the12 pre-existing English messages, subsequent English corrections, or their runtime implementations. Reviewer did author AiToggleLabel behavior; the separate new keyboard paragraph has only source-owner consistency acknowledgement here, not independent widget/source approval.",
+  "review": "Each exact arrival was read against actual implementation/control paths named in reviewed12.json; source hashes bind the reviewed snapshot. All are features.rst general guide content, not tutorial recordings or lesson scripts.",
+  "file_sha256": {
+    "docs/source/features.rst": "fb28dbdf1f9215a43d1a3fa0fdd7e97f5d64002a7cd5b34cc661d91f93bd3399",
+    "docs/source/make_masks.rst": "328e6e742181da9be0fcdfc1fa2a4746dd223378b108a22fa47f45fb404899a4",
+    "spacr/qt/screens/app_screen.py": "9d8a9c714c461ab46171cfdd5eea3c345553c55e737813f12f67f47ec28ab37c",
+    "spacr/qt/screens/distributed_jobs.py": "5ba00885ec476b22257c88215598b73fe5c942ae4041e2bce05346070717cf97",
+    "spacr/qt/screens/settings_model.py": "6ad2843744686efe17db8f131284db5cf99b214874949cbd94715255f574a2a5",
+    "spacr/qt/screens/make_masks.py": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d",
+    "spacr/qt/mask_engine.py": "e48da20fe4f2a5d950f318a8877c20c269f0b28fa4186b8276cb9595964f3e92",
+    "spacr/qt/widgets/gate_editor.py": "84b94268efed23a09813410602c10c43170dca7accbb4741f0718b471a7d60de",
+    "spacr/qt/shortcuts.py": "2956073d782df3eeacc5fda277d24948e8dd795a49c60ac992519405802e3f38",
+    "spacr/qt/preferences.py": "b1b9edbc6729cf4e62e38cdfb31d6490a5c9e71857070e922975c6da99e26b47",
+    "spacr/qt/widgets/loading_screen.py": "ae3bf21dc0ac27b29f21d2dcd2e53f905270947a0af3ef47bfe5e0c061667855",
+    "spacr/qt/app.py": "512630cb15f2c7f25d6b9d2cf5ef838c3374367ee373712ec45a4fab1c689561",
+    "spacr/columns.py": "c713426ecf3ef9ed9ee2652857714282547d6794a6e851fcc6a05fece0dfbc16",
+    "spacr/io.py": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+    "spacr/ml.py": "2890f274f0f2b4e93f56c7203e0d4b8d7214d7999fbfcc818929718ff7298880",
+    "spacr/deep_spacr.py": "4f12c083a88c064cc9cff099910ef99952ddb726cca1cec25fb024de37c028ad",
+    "spacr/utils.py": "d76be1ceb647fb3db120458c0d56e1d17bbb24632d7ce2d1f9479dd48d9c077d"
+  },
+  "original_owner_manifest_sha256": "e63b3b1cf9d2046ec7305f3291d1cff3d5e02a7c41b4359ad37f656d05e42b0e",
+  "boundary": [
+    "Read-only source/semantic review; no application/scientific execution, tests, generator, canonical collector, catalog edits or tutorial changes.",
+    "Final twelve source paragraphs shown in reviewed12.json are normalized readbacks for review; the owner retains sole normal gettext extraction/import authority.",
+    "Four factual corrections preserve runtime: navigation path, overlap default selection, conditional response note/error scope, and actual export-control scope.",
+    "No language-target/native-speaker review is claimed; website peer owns forthcoming117 targets.",
+    "New keyboard paragraph fallback is consistent with actual native probe2042dde60d8 and owner e1f97 source, but is excluded from the independent12-message count."
+  ]
+}
