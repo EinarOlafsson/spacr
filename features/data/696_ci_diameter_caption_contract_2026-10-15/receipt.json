@@ -1,0 +1,50 @@
+{
+  "item": "N696 hosted CI stale diagnostic contract",
+  "base": "9bffdf47e60d07ff2e721c3604bc4b785822cbec",
+  "hosted_run": 38699600639,
+  "hosted_failing_sha": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+  "scope": "test-only exact translated diagnostic assertion; production fallback and localized source unchanged",
+  "baseline": {
+    "failed": 3,
+    "passed": 0,
+    "seconds": 10.61,
+    "reason": "old English human-label substring; magnification fallback equality already passes"
+  },
+  "verification": {
+    "affected_original_cases": {
+      "passed": 3,
+      "seconds": 9.3
+    },
+    "existing_controls": {
+      "passed": 42,
+      "seconds": 6.31,
+      "localized_diagnostics": 27,
+      "magnification_formula": 2,
+      "auto": 9,
+      "blank": 4
+    },
+    "total_distinct_current_pass": 45,
+    "resource": "background, shared heavy.lock, capped8G, CUDA blank, offscreen"
+  },
+  "source_proof": "source-comparison.json; test-scope-proof.json",
+  "preserved": "All original invalid input/role parameters; fallback diameter; minimum and maximum size; N696 blank-vs-auto semantics; exact all9locale accepted diagnostics",
+  "not_claimed": [
+    "production defect repaired",
+    "full CI pass",
+    "native segmentation/model acceptance",
+    "whole N696 closure"
+  ],
+  "artifacts": {
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "baseline.log": "586e5b672f89291dec93eb0c2b748055c106b1e0fd67f67b5e8f486ca8d76d30",
+    "controls.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "controls.log": "527db752b7a73a19865f536f88e82a0555d319f880b8eb890c3ace17c1c6047d",
+    "controls.sh": "e7d4a0abf6530fffec3443f41a7d2b0155dfb5b11da390a899ce2a3f87851e8c",
+    "fixed.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "fixed.log": "8bd09bf36ca91d1cc3640f6ec0526e5bb7ed3062fbf3584fff17f8919263ec8b",
+    "fixed.sh": "1961e5495939c4091f32f6c3461f43cc298d15067d09d9b3cb62fe0bf592f999",
+    "reproduce.sh": "a0919ada704e49b1358760f9d6f2f277cef1de24929fefab3abe6a7c2ec83e23",
+    "source-comparison.json": "63cb65d590e4dffbd45af284168c36cfb0fc97f46620115c55b73f9d74fd2fc7",
+    "test-scope-proof.json": "90cdd771037a8d206c61112b01b46cb4bbae1de926997ab364fefe525606a5f0"
+  }
+}
