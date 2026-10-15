@@ -1543,7 +1543,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
             "counterfactual_condition", "counterfactual_target",
             "counterfactual_generator", "counterfactual_strength",
-            "counterfactual_structure_weight",
+            "counterfactual_structure_weight", "counterfactual_checkpoint",
+            "counterfactual_checkpoint_sha256",
         )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs", "ram_guard",
@@ -6452,6 +6453,10 @@ def attach_api_tooltip(
             widget.setObjectName("ActivationCounterfactualStrength")
         elif key == "counterfactual_structure_weight":
             widget.setObjectName("ActivationCounterfactualStructureWeight")
+        elif key == "counterfactual_checkpoint":
+            widget.setObjectName("ActivationCounterfactualCheckpoint")
+        elif key == "counterfactual_checkpoint_sha256":
+            widget.setObjectName("ActivationCounterfactualCheckpointSHA256")
     if app_key == "measure":
         if key == "intensity_calibration_sessions":
             widget.setObjectName("IntensityCalibrationSessions")
@@ -10454,6 +10459,15 @@ class SettingsWidgets:
         :param key: the setting the plain control edits.
         :param widget: the control just built.
         """
+        if (key == "counterfactual_checkpoint" and self.app_key == "activation"
+                and isinstance(widget, QLineEdit)):
+            from PySide6.QtWidgets import QStyle
+            from ..i18n import tr
+            action = widget.addAction(
+                widget.style().standardIcon(QStyle.SP_DirOpenIcon),
+                QLineEdit.TrailingPosition)
+            action.setToolTip(tr("Choose file…"))
+            action.triggered.connect(partial(self._choose_counterfactual_checkpoint, widget))
         if (key == "src" and self.app_key in ("mask", "measure")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)
@@ -10463,6 +10477,15 @@ class SettingsWidgets:
         if (key == "measurement_backend_target" and self.app_key == "measure"
                 and isinstance(widget, QLineEdit)):
             _add_measurement_migration_action(widget)
+
+    def _choose_counterfactual_checkpoint(self, widget, checked=False):
+        """Commit a local path without reading it or changing its SHA or generator."""
+        from PySide6.QtWidgets import QFileDialog
+        from ..i18n import tr
+        path, _ = QFileDialog.getOpenFileName(widget, tr("Choose file…"), widget.text())
+        if path:
+            widget.setText(path)
+            widget.editingFinished.emit()
 
     @staticmethod
     def _build_plain(plan) -> QWidget:
@@ -10791,6 +10814,9 @@ class SettingsWidgets:
 
     def _canonical(self, key: str, value: Any) -> Any:
         """Put a widget's answer into the one form the setting is stored in."""
+        if (self.app_key == "activation" and value is None
+                and key in {"counterfactual_checkpoint", "counterfactual_checkpoint_sha256"}):
+            return ""
         where = self.CANONICAL_READERS.get(key)
         if where is None:
             return value
