@@ -519,7 +519,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
     native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
                   "07_mask", "08_measure", "14_make_masks",
-                  "80_image_analysis_pathways", "82_toxoplasma"}
+                  "43_illumination", "80_image_analysis_pathways", "82_toxoplasma"}
     original_ids = {"18_motility", "19_train_cellpose", "20_cellpose_masks", "24_plaque",
                     "74_import_images", "85_host_pathogen", "87_alpha_features"}
     assert visual_references == {

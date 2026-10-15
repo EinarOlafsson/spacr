@@ -1,0 +1,19 @@
+{
+  "scope": "Owner-supplied coherent Work43 generated checkpoint import",
+  "files_verified": 148,
+  "snapshot_bytes": 113423321,
+  "export_manifest_sha256": "5d40e0a3011cc6bd955115bdd70b125327b23a3857d1a951c24e26e500938a4f",
+  "old_checkpoint_backup": "/mnt/wd4tb/scratch/work43-import-20261014/previous-release-candidate",
+  "local_backup_branch": "codex-before-work43-checkpoint-20261014",
+  "immutable_publication_revision": "2cae1e4c0c5a2525d04e7e733485f4f8fa135c73",
+  "limits": [
+    "Local hash/import checks, not fresh remote verification",
+    "Public Space deployment still unverified"
+  ],
+  "targeted_checks": {
+    "passed": 33,
+    "seconds": 1.34,
+    "actual_exit": 0,
+    "scope": "Owner native-arrival audit and docs media-budget module"
+  }
+}

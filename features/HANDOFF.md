@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-14 22:47 EDT — Original Home imported coherent Work43 checkpoint
+
+Imported all148 owner-supplied generated snapshot files together using the
+export-manifest recipe: exact path set, byte counts and SHA-256 checked before
+and after copying. Old04 tree preserved in WD scratch and a named local branch.
+Applied Work's exact native-arrival audit patch; focused audit plus complete
+docs media-budget module33PASS1.34s. Receipt:
+features/data/n676_home_import_work43_2026-10-14/. This integrates the immutable
+HF revision2cae1e4c0c5a2525d04e7e733485f4f8fa135c73 checkpoint; it is not fresh
+remote verification or resolution of the public Space quota/403. Work owns
+subsequent lesson source/recording/publication; no next lesson was started here.
+
+
 ## 2026-10-14 22:44 EDT — Original Home: Toxoplasma guide normal-registration repair
 
 The navigation-only reference guide now registers explicitly stable rather than
