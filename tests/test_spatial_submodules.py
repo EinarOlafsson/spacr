@@ -410,6 +410,38 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
 
 
 
+def test_zero_qv_map_replaces_report_symlink_without_touching_target(tmp_path):
+    import pathlib
+
+    source = xenium_slide(tmp_path / "bundle")
+    dst = tmp_path / "fields"
+    oe.run_spatial_masks(_mask_settings(source, dst))
+    settings = {"spatial_source": source, "spatial_masks_dir": str(dst),
+                "spatial_objects": "cell", "spatial_pathogen_genes": "CHIKV*",
+                "spatial_min_pathogen_transcripts": 2,
+                "spatial_anndata": False}
+    first = oe.run_spatial_map(settings)
+    output = pathlib.Path(first["output"])
+    report_path = output / "spatial_map_report.json"
+    outside = tmp_path / "outside-owned-by-user.json"
+    outside_bytes = b'{"owner": "user", "keep": "exact bytes"}\n'
+    outside.write_bytes(outside_bytes)
+    report_path.unlink()
+    report_path.symlink_to(outside)
+    prior_files = {str(path): pathlib.Path(path).read_bytes()
+                   for key, path in first["files"].items() if key != "overlay"}
+
+    zero = oe.run_spatial_map(dict(settings, spatial_min_qv=100))
+    assert outside.read_bytes() == outside_bytes
+    assert not report_path.is_symlink()
+    report = json.loads(report_path.read_text())
+    assert report["objects"]["cell"]["objects"] == zero["points"] == 0
+    assert set(report["files"]) == {"overlay"}
+    assert report["messages"] == ["No object received any count."]
+    assert {name: pathlib.Path(name).read_bytes() for name in prior_files} == prior_files
+    assert not list(output.glob(".spatial_map_report-*.json"))
+
+
 @pytest.mark.parametrize("keep_other_slide", [False, True])
 def test_zero_visium_coverage_replaces_only_current_field_rows(
         tmp_path, keep_other_slide):

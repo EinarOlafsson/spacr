@@ -577,3 +577,16 @@ The feature remains alpha/partial overall.
     prose, signatures, comments and all other AST remain exact. Evidence:
     data/534_empty_spot_coverage_2026-10-15/receipt.json. A separate report
     symlink write guard is pending; scientific/data/GPU acceptance remains open.
+
+2026-10-15 — Map reports replace symlinks without changing outside files.
+    The report reader refused symlink provenance, but the existing report
+    writer still followed that symlink and overwrote its external target.
+    One real map/rerun case reproduced the outside-byte change (1FAIL6.93s).
+    Both report writes now serialize identically into a temporary sibling
+    and atomically replace the report path. The outside file remains exact,
+    the current zero-result report is regular, and unverified old analyses
+    remain preserved. The new control and affected verified-retirement route
+    both pass (2PASS9.18s,2G/thread1); no extra nine-case replay occurred.
+    Evidence: data/534_report_symlink_preservation_2026-10-15/receipt.json.
+    This completes the report-path guard pending in the preceding note;
+    no whole-map transaction, scientific/data/GPU or whole-item claim is made.

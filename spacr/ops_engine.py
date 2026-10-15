@@ -4085,6 +4085,7 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """
     import hashlib
     import json
+    import tempfile
 
     import pandas as pd
     from matplotlib.figure import Figure
@@ -4375,8 +4376,15 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
         owned["files"][name] = digest.hexdigest()
     summary["analysis_output_ownership"] = {"version": 1, "runs": runs}
     report = {key: value for key, value in summary.items()}
-    with open(report_path, "w", encoding="utf-8") as handle:
-        json.dump(report, handle, indent=1, default=str)
+    descriptor, pending_report = tempfile.mkstemp(
+        prefix=".spatial_map_report-", suffix=".json", dir=output)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(report, handle, indent=1, default=str)
+        os.replace(pending_report, report_path)
+    finally:
+        if os.path.exists(pending_report):
+            os.remove(pending_report)
     if not len(obs):
         retired = []
         for name, expected in owned["files"].items():
@@ -4395,8 +4403,15 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
         if retired:
             for name in retired:
                 del owned["files"][name]
-            with open(report_path, "w", encoding="utf-8") as handle:
-                json.dump(report, handle, indent=1, default=str)
+            descriptor, pending_report = tempfile.mkstemp(
+                prefix=".spatial_map_report-", suffix=".json", dir=output)
+            try:
+                with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                    json.dump(report, handle, indent=1, default=str)
+                os.replace(pending_report, report_path)
+            finally:
+                if os.path.exists(pending_report):
+                    os.remove(pending_report)
     _say(f"spatial map: {summary['objects'][host]['objects']} {host} objects "
          f"counted from {summary['points_in_fields']} of {total} points")
     summary["obs"] = obs

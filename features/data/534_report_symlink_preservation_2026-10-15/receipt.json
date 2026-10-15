@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-15",
+  "item": "F534",
+  "scope": "Replace the map report path without following a symlink to an outside user file.",
+  "base_commit": "a200a855ec2c47290c34736a1c16221eb68a3ab1",
+  "source_before_sha256": "65171db46616dcbfbddb7044e71301752713b888b16f31b5f790f237ff8631d0",
+  "source_after_sha256": "5a53012e2afd6563cad501f09a70deb5b73c4a1595838ce495334ca2a9ea49a5",
+  "test_after_sha256": "d888aadf7a1579c4838b00848eb7139d3fa3aa1a6dad34bf3ef570e2caf96e22",
+  "baseline": {
+    "failed": 1,
+    "deselected": 28,
+    "seconds": 6.93,
+    "exit": 1,
+    "actual_failure": "First real map, replace report with symlink to external user JSON, valid zero-QV rerun overwrites external target bytes."
+  },
+  "final": {
+    "passed": 2,
+    "deselected": 27,
+    "seconds": 9.18,
+    "wall_seconds": 12.25,
+    "peak_rss_KiB": 1720268,
+    "exit": 0
+  },
+  "resources": {
+    "cap": "2G",
+    "threads": 1,
+    "CUDA_VISIBLE_DEVICES": ""
+  },
+  "change": "Both existing report writes use a temporary regular sibling, identical json.dump(indent=1, default=str) with UTF-8, then os.replace; finally removes only that temporary path if publication did not consume it. No helper or API introduced.",
+  "checks": [
+    "Actual external target bytes remain exact and the final current report is a regular file with zero-result content",
+    "Untrusted report symlink does not authorize retirement of earlier analysis outputs",
+    "Existing verified-ledger test exercises both initial report publication and final post-retirement report replacement",
+    "No temporary report files remain after successful publication"
+  ],
+  "scope_proof": {
+    "only_existing_run_spatial_map_body_changes": true,
+    "all_other_AST_equal": true,
+    "signatures_docstrings_comments_equal": true,
+    "new_caption_or_API_arrivals": 0
+  },
+  "limits": [
+    "This is a bounded report-path repair, not a whole-map transaction or adversarial concurrent-directory protection.",
+    "Legacy unverified analyses remain preserved. Scientific/data/GPU and whole-item acceptance remain open."
+  ],
+  "artifacts": {
+    "before.log.gz": {
+      "sha256": "7d14270f8bb2fabdfd42d08b98a00106f02eb0767c5f115873842090b40284c9",
+      "decoded_sha256": "ff903a46bb60635e9fd31a35acff61fb766e1d21417145e09580a2f32ff69540"
+    },
+    "before.time.gz": {
+      "sha256": "697a5f282664d333a865a4748f8900ed27f5d3ac2b5156e6cc717856a1ada464",
+      "decoded_sha256": "78011fbebcae3d9d5e0d2d6ca12ffbc189710841dd5f6e3ce055df706574ee8a"
+    },
+    "before.exit.gz": {
+      "sha256": "d381e5a9b7c1c71b5fb3fef202103bf4b6098ce288f148735de1ecf61d4e3b75",
+      "decoded_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "after.log.gz": {
+      "sha256": "3da08a9e77ef99bd388bcecb3c59d720031574483bf79878cce1150f52e5fe5e",
+      "decoded_sha256": "72828220f88a2563e98532a12ff163c64619437afdaef67de30f82abb3154340"
+    },
+    "after.time.gz": {
+      "sha256": "89c9df34a169ddf0894e5f40504ad9e6bbc61f9bb9e287993e3f6241518ad9f8",
+      "decoded_sha256": "f7417891617fb31e3661d9c9404675a1b9634d97476788cd6551f7757a33097f"
+    },
+    "after.exit.gz": {
+      "sha256": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "baseline.sh": {
+      "sha256": "76c86925ab6b92fa086473733532719f742dc28efb7469c040992ecc2c1e247f",
+      "decoded_sha256": "76c86925ab6b92fa086473733532719f742dc28efb7469c040992ecc2c1e247f"
+    },
+    "after.sh": {
+      "sha256": "0e8aebdaaea9caf4b588ca6c6341a828d4e982cef44686bf77e2ed605e5ea885",
+      "decoded_sha256": "0e8aebdaaea9caf4b588ca6c6341a828d4e982cef44686bf77e2ed605e5ea885"
+    }
+  }
+}
