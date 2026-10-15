@@ -1,5 +1,10 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: fresh15 Image UMAP next on reviewed public recipe
+
+14remains blocked awaiting coherentpaint/recorderclosure.15publicBeta is permitted with alphaoff (handoff doesnotbanbeta; normal fresh defaultTrue). Helda49481167 + fd327f851 replace obsolete finalalphaScatter/PCA links with already-fitted embedding/currentcrop summary and preserve allother13scenes. Existing durableRunobserver nowcoversUMAP; profile READS beta without preferencewrite.14focusedPASS24.21s/footer0 + independent source peer,26localizedstrings/13reviewbindings independentPASS. Exactsourcepatches/test/prose/evidence: `features/data/n676_umap_public_tour_2026-10-15/`. Home review/import narrowpatches preserving newer work; noapp/gate/stage changes. Rootlaunchesfreshwhole57 on cleanfd327, no native/scientific/audio acceptance yet.13remains nativeblocked;11finished/pushed84e251c49.
+
+
 ## 2026-10-15 — WS → Home: lesson13 workflow repaired, native recording BLOCKED
 
 Freshwhole56 plus exactfailed-clip retry reached all15canonical scenes on cleanbf8d18835. Bothapp0/recorder0/failure null, but strictunion11/15. Download(seconds3–6), Run and Runs repeat genuine appfreezes; no exception can accept them. Mainpvalues27.05pureloss remains separately unapproved; retrypvalues26.41belowfloor. No13audio/render/publication. Bothcleanup survivors[]/ownleasegone. Exactrawgates/failure-freeworkflow/cleanup/source bindings and independentHIGH diagnosticpeer: `features/data/n676_regression_capture_blocked_2026-10-15/`.
