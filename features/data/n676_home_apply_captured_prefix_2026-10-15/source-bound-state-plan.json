@@ -1,0 +1,46 @@
+{
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "captured_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+  "live_driver_sha256": "d64f8926aebb3faa041493d0a4e28483b83ce2765be7fc87c31d7cfa932eb24c",
+  "live_driver_identical_to_captured_git_blob": true,
+  "recorded_theme_sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a",
+  "exact_old_pre_apply_runtime_snapshot_available": false,
+  "source_prefix_lines": [
+    408,
+    513
+  ],
+  "source_apply_lines": [
+    515,
+    553
+  ],
+  "source_order": [
+    "Performance current-profile combo popup, retained current item",
+    "General visible combo/sliders hover",
+    "Appearance visible tooltip controls hover",
+    "Theme open/Animation closed; four public scrolls",
+    "Theme closed/Animation open; three public scrolls",
+    "Four popup animation settings: disabled hover, or real arrow edits with original restored and main unchanged",
+    "Animation header revealed; Animation collapsed",
+    "Begin Apply clip; Theme opened; opacity60 to55; physical Apply; modal defaultRevert; button hover; late physicalRevert to60"
+  ],
+  "known_state_from_source_only": {
+    "one_preferences_dialog": true,
+    "before_apply_scene_theme_open": false,
+    "animation_open": false,
+    "page": "Appearance",
+    "saved_opacity": 60,
+    "pending_confirmation": false
+  },
+  "unknown_historical_runtime": [
+    "exact tab/index/fold/scroll coordinates at pre-Apply instant",
+    "exact pending widgets/modals and per-window geometries",
+    "exact mutable draft values beyond verified source checks"
+  ],
+  "new_run_snapshot": "Record only class/known public labels, geometry, tab/fold/scroll, pending-modal Boolean, known opacity and restoration flags into memory before Apply; flush after clip/failure. Never label it historical state.",
+  "comparison_changes": [
+    "worker physical input while normal Qt loop runs, no QtTest monkeypatch",
+    "pre-Apply prior scene-length recording holds omitted; public control actions retained",
+    "same app/profile/full sampler/compositor/strict gate; source/external helper inventories retained"
+  ],
+  "limits": "This is Work-owned recorder-context comparison, not a second owner observational diagnostic. No new observational app wrappers/product patch. One complete clip;300s incl postprocess plus shared30scleanup. Prior failures remain failed; a pass does not prove cause."
+}

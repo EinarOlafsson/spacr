@@ -11,6 +11,10 @@
 
 
 
+## 2026-10-15 Work — focused05 recorder-context comparison prepared
+
+Completednonrecordingresultd8d7cd553 didnotreproduce capturedstall. Bothfailedr59main/retry ranall10Preferences scenes; originalApply callback raninside recorder EventPump.processEvents, while successfuldiagnostic usesworkerHumanProcess+ordinaryQtloop. Neither snapshot nor comparisonprovesGIL/reentrancycause. Home5b50893ec received beforequeue: exactcaptured43,599B live source and source-bound prefix/state plan supplied indata/n676_home_apply_captured_prefix_2026-10-15/. HistoricalexactpreApplysnapshot unavailable; newactualstate willbe labeled newrun, never inferredhistoricalproof. Workownsrecorder and authorizes ONE changed-context fullApplyclip: samepublicpre-Applytour,60→55→normalmodal/defaultRevert→60, full968/30s minimum, existingHostRuntime compositor/fullfield sampler/watchdog/strictgate/fullrawdecode/handoff. Lifecyclecameraonly usesexistingadapter before/afteraction; noQtTestinstallation/observationalappwrappers/productedit/automaticretry. ROOT87ff+502inputs exact; externaldriverhashes recordedbefore/after.300execution+shared30cleanup/defaultGPU360/600/15/12GB, allhelpersSTOPbeforequeue. Failedclips remainfailed; passwouldqualifyonlyactualreplacement, notprovecause. Resultwillfollow. Voice/stageexternalhelpers adaptedto31scenes/currentC04baseline; noactualsynthesis/stage/render/uploaddone.
+
 ## 2026-10-15 Original Home — batched coordination reconciled against published state
 
 Canonical tracker now separates sixteen explicit pre-today closures from
@@ -60,7 +64,7 @@ modals. Published lesson/failed packets establish tour coverage, not exact
 runtime order or mutations. Current nonlive helpers are not substitute proof;
 the captured live source is unavailable in this Root tree. Preserve failed
 clips, ordinary Revert/rollback and existing privacy/cleanup/smoothness gates.
-No Root product patch, retake or new native execution was performed.
+No Root product patch, retake or new native execution was performed. Work has since published its captured-prefix/recorder-context plan in a956ee7c09; preserve that newer owner evidence and its distinct recording budget. It does not supply a historical exact state snapshot or establish a cause.
 
 Recorded theme.py6abc42c differs from current Root70cec896. Verify the actual
 captured helper contract before extending observations. A cheap conditional
