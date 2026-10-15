@@ -385,3 +385,19 @@ archive; universal mounted-filesystem acceptance is not claimed. Existing
 valid-target policy remains unchanged. No API prose/caption, network/model/
 GPU/live data/fullCI or whole-item closure. Evidence:
 data/633_measure_array_publication_2026-10-15/receipt.json.
+
+2026-10-15 — INVALID OLD MEASURE TARGETS KEEP THEIR INTACT TRANSPORT
+Before deleting a redundant .npz, existing .npy targets now map read-only as
+numeric NPY and close. Invalid/empty/truncated, NPZ-disguised or object-pickle
+targets use the existing warning and retain both files byte-identically. No
+target rewrite or pickle deserialization is performed. Actual native baseline
+proves zero/truncated old targets previously deleted their intact transport;
+the11-case predecessor5FAIL6PASS1.18seconds includes six already-valid numeric
+controls. Final13 cases pass0.94seconds, including old-valid-target/corrupt-
+source and actual CLI expansion. Empty vector/axis, scalar, Fortran order and
+structured numeric arrays keep the existing byte-identical winning policy.
+New-target staging source is unchanged and its earlier seven cases are not
+repeated. This is static format validation, not checksum/pixel/scientific
+integrity; concurrent mutation after validation remains outside scope. No API
+prose/caption/model/network/GPU/live data/fullCI or whole-item closure. Evidence:
+data/633_existing_array_validation_2026-10-15/receipt.json.
