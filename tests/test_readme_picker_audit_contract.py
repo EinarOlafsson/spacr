@@ -73,13 +73,14 @@ def test_normal_picker_accepts_equivalent_html_quote_syntax(audit_readme):
     PICKER.replace('.. raw:: html', ''),
     PICKER.replace('</a>', ''),
     PICKER.replace('</picture>', ''),
+    PICKER.replace('<a href="README.md">', '<![unexpected]><a href="README.md">'),
     PICKER.replace('<a href="README.md">', '&lt;a href="README.md"&gt;').replace('</a>', '&lt;/a&gt;'),
 ], ids=[
     'wrong-target', 'missing-href', 'misleading-target-substring', 'data-href-is-not-link',
     'duplicate-href', 'only-outside-anchor', 'only-outside-rst-target',
     'missing-begin', 'missing-end', 'duplicate-picker', 'reversed-markers',
     'marker-substring', 'code-instead-of-raw', 'no-raw-directive',
-    'unclosed-anchor', 'unclosed-picture', 'escaped-anchor',
+    'unclosed-anchor', 'unclosed-picture', 'unknown_html_declaration', 'escaped-anchor',
 ])
 def test_broken_picker_cannot_pass_on_incidental_text(audit_readme, text):
     code, errors = audit_readme(text)
