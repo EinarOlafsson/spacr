@@ -1,0 +1,62 @@
+{
+  "published_baseline": "23f694a67",
+  "normal_artifact": "c1f87e27c",
+  "source_sha256": {
+    "spacr/qt/widgets/ai_toggle_label.py": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46"
+  },
+  "all10catalogs": {
+    "es": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "a625f443a7e39221b4049d2de654240d5eedaf47a80d7124d5245b49e3131ef9"
+    },
+    "is": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "762ca27d3ca02e86ec06394f9812c772730c2123e6fbcdaef6083da5e869bfb7"
+    },
+    "zh_CN": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "5e5d0bf07b8a69c9ea39e0befbad74e7901e1c9b974dd136b1be6eb68a9208c0"
+    },
+    "fr": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "9e1b2ab96307ebdd3e94f260c41fb069e79974e5d749c8635b04bb028d6ea703"
+    },
+    "sv": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "1905e81943c37d1377eaa238c2416a60d1409bb0db48cb85dd42c9cc4d1e0dc0"
+    },
+    "pt": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "8b42cdcb08a4b733255d078a8238e04d07ea5d37ee7810865c060b062dbb427b"
+    },
+    "hi": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "6a09b672865f5a2d20167b467ba426877379a8d0e6c44f7ec270975351000903"
+    },
+    "en": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13484,
+      "sha256": "eb0291aa523a6693e9a719a11f793afcb8c409268ff69c5cfc9c0c99ba0897e3"
+    },
+    "ko": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "316dc810aeec6e24d973e0cdf8080a5e839c611b7cf867d4b18785c6ede827b0"
+    },
+    "de": {
+      "owned4_exact_artifact": true,
+      "unrelated_exact_public_records": 13410,
+      "sha256": "9694931359dc215ace0757067381a72e5758844f8cd8fd52a279d0b2c764ea80"
+    }
+  },
+  "source_history_exact": true,
+  "English_owned_exact_current_AST": true,
+  "limitations": "Scoped readback only; no repeated generator, runtime collection or whole-package acceptance."
+}
