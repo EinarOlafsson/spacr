@@ -1,0 +1,14 @@
+{
+  "baseline_ref": "8f6aec59f",
+  "source": "spacr/qt/help_search.py",
+  "before_sha256": "ff7eefc9931bf1765d2488c773cfd41d1fc66c3a28a6a3d3ee36383f7799e8bd",
+  "after_sha256": "dbc3da84d595a80fdacb858a403195eae3cdf8e3614c49526ea68efa77091b41",
+  "only_existing_function_body_changed": "local_docstring",
+  "all_other_ast_equal": true,
+  "public_docstring_unchanged": true,
+  "all_comments_unchanged": true,
+  "new_definitions": 0,
+  "no_new_runtime_captions": true,
+  "test_file": "tests/qt/test_help_local_docstring_lexical_scope.py",
+  "test_sha256": "47dc162e3b59bba9fb16dbf21cada1d90cd5e40e17854ca134edf02feeb05e8a"
+}
