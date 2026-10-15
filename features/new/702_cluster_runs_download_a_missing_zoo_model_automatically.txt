@@ -224,3 +224,22 @@ locales; normal scoped writers preserve unrelated records and the English
 manifest audit verifies13474symbols. No new runtime captions, weights, GPU,
 fullCI or native remote cluster acceptance. Parent702 remains partial.
 Evidence: data/702_gui_model_identity_2026-10-14/receipt.json.
+
+2026-10-14 — pinned runtime resolver verifies exact bytes before use:
+A shared settings-aware resolver now verifies a pinned supplied local file
+against its recorded SHA, preserving and refusing wrong bytes. Matching
+local bytes remain usable when the trusted catalogue is absent; known raw
+catalogue contradictions still fail. Missing files resolve the exact trusted
+raw key/version-status/version/filename/kind/hash conjunction, so an obsolete
+laptop basename does not force current-name substitution. Provider discovery
+is not consulted. Original settings and requested_value remain untouched.
+
+The already selected identity reuses the existing cache/OS lock/acquisition
+policy through a factored private helper. Planning returns the intended cache
+path without fetching, and actual returned bytes are verified before a
+consumer receives them. Nine native fixture cases plus the finite resolver,
+recorded-schema, ambiguity and coalescing cohort passed78tests in9.11seconds,
+exit0. Runtime callers/provenance wiring follows; trusted external raw
+catalogues, all-consumer acceptance and offline caption artifacts remain
+open. No real weights/network/GPU/fullCI; parent702 stays partial.
+Evidence: data/702_pinned_runtime_byte_resolution_2026-10-14/receipt.json.
