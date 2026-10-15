@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from spacr import embeddings as emb
-from test_own_dino_classifier import checkpoint
+from tests.test_own_dino_classifier import checkpoint as checkpoint
 
 
 @pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
