@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Technical translation; coordinator independent semantic review; no native-speaker signoff",
+  "source_commit": "bf9b5dd0ba97fd1ba2bb2f9a76950321cc4d749d",
+  "source_file_sha256": {
+    "spacr/qt/widgets/figure_queue.py": "779188b8b59b1420cc5421ce035f20f8b3f8ab35ba04bad2473fe9f724ba0382",
+    "spacr/qt/screens/app_screen.py": "e112f07502a6a7791391f6c0e8cb3673b5cb70937a9927f4491ff4a4e99214bc"
+  },
+  "records": [
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source": "Record ordered figure files, titles, run sections and the selected slot.",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "context": "Record ordered figure files, titles, run sections and the selected slot.",
+      "context_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "translation": "记录按顺序排列的图文件、标题、运行分区和选中的位置。",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source": "Queue-owned PNG previews and sibling PDF pages within the current workspace per-file budget are marked for carrying even in reference mode. External files and larger files remain references. Live Python figures and their pickled cache files are never included.",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "context": "Work list-owned PNG previews and sibling PDF pages within the current workspace per-file budget are marked for carrying even in reference mode. External files and larger files remain references. Live Python figures and their pickled cache files are never included.",
+      "context_sha256": "4f0f8c1d46a845a9837f59c28d6b8b3da7195382bd2a51119565e488a98edbe4",
+      "translation": "属于队列的 PNG 预览及其配套 PDF 页面，若未超过工作区当前的单文件大小限额，即使在引用模式下也会标记为随包携带。外部文件和较大文件仍保留为引用。内存中的 Python 图对象及其 pickle 缓存文件绝不会包含在内。",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source": "plain state for :meth:`apply_workspace_state`, including the workspace's explicit carry inventory.",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "context": "plain state for :meth:`apply_workspace_state`, including the workspace's explicit carry inventory.",
+      "context_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "translation": "供 :meth:`apply_workspace_state` 使用的普通状态数据，包括工作区明确列出的随包携带文件清单。",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source": "Restore saved previews without executing or reconstructing figures.",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "context": "Restore saved previews without executing or reconstructing figures.",
+      "context_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "translation": "恢复保存的预览，而不执行或重建图对象。",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source": "Available PNG and PDF files are copied into fresh queue-owned storage; the workspace bundle and original files are left untouched. Missing previews retain their slots for the normal unavailable-image display. The workspace restore report separately identifies missing files. Invalid state or invalid image formats leave this queue unchanged.",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "context": "Available PNG and PDF files are copied into fresh queue-owned storage; the workspace bundle and original files are left untouched. Missing previews retain their slots for the normal unavailable-image display. The workspace restore report separately identifies missing files. Invalid state or invalid image formats leave this queue unchanged.",
+      "context_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "translation": "可用的 PNG 和 PDF 文件会复制到队列所有的新存储位置；工作区包和原始文件保持不变。缺失的预览保留其位置，以显示通常的图像不可用提示。工作区恢复报告会单独列出缺失的文件。无效的状态或图像格式不会改变此队列。",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source": "state from :meth:`workspace_state`, with carried paths already resolved by the workspace restorer.",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "context": "state from :meth:`workspace_state`, with carried paths already resolved by the workspace restorer.",
+      "context_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "translation": "来自 :meth:`workspace_state` 的状态，其中随包携带文件的路径已由工作区恢复程序解析。",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source": "whether the state was accepted. Files exceeding the current per-file copy budget raise an error reported by the restorer.",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "context": "whether the state was accepted. Files exceeding the current per-file copy budget raise an error reported by the restorer.",
+      "context_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "translation": "是否接受了该状态。超过当前单文件复制限额的文件会引发错误，由恢复程序报告。",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    }
+  ]
+}
