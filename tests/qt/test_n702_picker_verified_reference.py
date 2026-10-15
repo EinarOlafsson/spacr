@@ -456,3 +456,53 @@ def test_failed_pin_commit_is_refused_and_restores_previously_absent_or_present_
     assert len(messages) == 1
     assert field.text() == raw_before
     assert model.collect() == before
+
+
+@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
+def test_actual_worker_start_status_uses_its_reviewed_locale(
+        selected_model, qtbot, monkeypatch, qapp, language):
+    import json
+    from pathlib import Path
+    import threading
+    from PySide6.QtCore import QThread
+    from spacr.qt import i18n
+
+    source = 'Checking the selected model file…'
+    review_dir = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language)
+    records = []
+    for review_path in review_dir.glob('*.json'):
+        review = json.loads(review_path.read_text())
+        records.extend(row for row in review.get('records', [])
+                       if row.get('source') == source and row.get('table') == 'ui')
+    assert records, 'The normal reviewed runtime input must be installed first'
+    expected_targets = {row['translation'] for row in records}
+    assert len(expected_targets) == 1
+    expected = expected_targets.pop()
+    assert expected != source
+    assert all(row['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
+               for row in records)
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+    picker = local_picker(selected_model, qtbot)
+    entered, release = threading.Event(), threading.Event()
+    actual = zoo._verified_model_reference
+    threads = []
+
+    def delayed(*args, **kwargs):
+        threads.append(QThread.currentThread())
+        entered.set()
+        assert release.wait(3)
+        return actual(*args, **kwargs)
+
+    monkeypatch.setattr(zoo, '_verified_model_reference', delayed)
+    try:
+        picker._accept_selected()
+        qtbot.waitUntil(entered.is_set)
+        assert threads[0] is not qapp.thread()
+        assert picker.chosen_path() is None
+        assert picker.status.text() == expected
+        assert not picker.use_button.isEnabled()
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: picker.chosen_path() is not None)
+    assert picker.chosen_path() == str(selected_model[0])
+    assert dict(picker._chosen_reference.record)['sha256'] == selected_model[1]['sha256']
