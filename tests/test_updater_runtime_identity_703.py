@@ -1,4 +1,5 @@
 """A desktop update verifies actual code and keeps the previous user data."""
+import hashlib
 import importlib.util
 import json
 import os
@@ -156,3 +157,49 @@ def test_cli_minimum_version_keeps_newer_runtime_without_weakening_exact_install
     assert result.returncode == expected_code, result.stderr
     if minimum:
         assert json.loads(result.stdout)['version'] == '1.5.1.5'
+
+
+def _identity_file_inventory(root):
+    return {str(path.relative_to(root)): ('link', os.readlink(path)) if path.is_symlink()
+            else ('file', hashlib.sha256(path.read_bytes()).hexdigest())
+            for path in root.rglob('*') if '__pycache__' not in path.parts
+            and (path.is_file() or path.is_symlink())}
+
+
+@pytest.mark.parametrize('foreign', ['application-and-metadata', 'linked-application', 'metadata', 'linked-metadata'])
+def test_private_runtime_rejects_external_application_or_distribution(runtime, tmp_path, foreign):
+    root, python, package, info = runtime
+    outside = tmp_path / 'unrelated application'
+    outside.mkdir()
+    if foreign in ('application-and-metadata', 'linked-application'):
+        shutil.move(str(package), str(outside / 'spacr'))
+    if foreign in ('application-and-metadata', 'metadata'):
+        shutil.move(str(info), str(outside / info.name))
+        (package.parent / 'foreign-wheel.pth').write_text(str(outside) + '\n')
+    if foreign == 'linked-metadata':
+        shutil.move(str(info), str(outside / info.name))
+        try:
+            info.symlink_to(outside / info.name, target_is_directory=True)
+        except OSError:
+            pytest.skip('native filesystem does not permit disposable directory symlinks')
+    elif foreign == 'linked-application':
+        try:
+            package.symlink_to(outside / 'spacr', target_is_directory=True)
+        except OSError:
+            pytest.skip('native filesystem does not permit disposable directory symlinks')
+    elif foreign == 'metadata':
+        try:
+            (outside / 'spacr').symlink_to(package, target_is_directory=True)
+        except OSError:
+            pytest.skip('native filesystem does not permit disposable directory symlinks')
+    retained = outside / 'model weights.bin'
+    retained.write_bytes(b'keep unrelated model and user files exactly')
+    before = _identity_file_inventory(tmp_path)
+    result = subprocess.run(cleanup._runtime_identity_command(
+        str(python), '1.5.1.5', prefix=str(root)),
+        text=True, capture_output=True, timeout=15)
+    assert result.returncode != 0, result.stdout + result.stderr
+    expected = ('Application distribution is outside the launcher environment' if foreign in ('metadata', 'linked-metadata')
+                else 'Imported application is outside the launcher environment')
+    assert expected in result.stdout + result.stderr
+    assert _identity_file_inventory(tmp_path) == before

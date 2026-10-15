@@ -546,3 +546,19 @@ native settings/journal writes are exercised; constructor/evaluation are
 recording stand-ins. No actual model/inference/GPU/network/fullCI or scientific
 parity acceptance. These direct APIs remain outside CLI registration; parent
 702 stays partial. Evidence: data/702_direct_cellpose_api_pins_2026-10-15/receipt.json.
+
+2026-10-15 — CSV imports preserve exact requests and opaque pin metadata:
+CLI and utils readers now decode supplied metadata without coercing its
+contents, validate against raw requested strings, and apply ordinary legacy
+coercion only elsewhere. Pinned001/true/None/nan remain strings; opaque nested
+versions/null stay intact. JSON and Python-literal metadata are accepted.
+Malformed or conflicting pinned rows refuse; identical duplicates and unrelated
+legacy duplicates retain compatibility. Explicit utils custom headers remain
+supported. Input files stay unchanged. A local-file stamp guards utils'
+metadata-only raw reread against mixing settings and pins across replacement.
+Immutable-source native baseline22FAIL/11PASS11.23seconds; final34new cases plus
+CLI/legacy-utils/recorded-identity/batch cohorts pass446 in18.56seconds under6G/
+shared lock, with one existing runpy warning. Real pipeline writer/reader native
+roundtrips and concurrent replacement are exercised; no model I/O, enrichment,
+provider discovery, network/GPU/fullCI or whole-item closure. Parent702 partial.
+Evidence: data/702_csv_request_pin_preservation_2026-10-15/receipt.json.
