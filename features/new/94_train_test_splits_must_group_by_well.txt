@@ -245,3 +245,14 @@ wells. The image/Torch phase path remains a separate owner scope; this note does
 not claim all later callers or all scientific efficacy accepted. Exact one-source
 nine-locale reviews pass normal candidate gates; normal owner extraction/runtime
 integration pending. Receipt:features/data/535_tabular_grouped_split_2026-10-14/.
+
+2026-10-15 — Original Home: remaining image/Torch cell-cycle route repaired
+in _phases_by_torch. Private field split and hardcoded downstream field setting
+replaced by shared requested/default-well grouping; actual SplitReport is
+persisted beside the model and returned.27 targeted cases PASS (7.98s, exit0),
+including intercepted actual dataset/trainer boundaries, strict unavailable
+holdout refusal,9actual localized callbacks, native synthetic independent
+outer/inner well proof and5existing tabular checks. Slow actual training/GPU
+not run; biological phase acceptance and full release CI remain open. Exact
+source/translation-owner review pending; no whole94 closure inferred.
+Evidence:data/535_torch_grouped_split_2026-10-15/.

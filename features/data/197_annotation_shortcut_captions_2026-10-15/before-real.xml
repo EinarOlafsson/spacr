@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="11.876" timestamp="2026-10-15T00:49:30.300454-04:00" hostname="olafsson"><testcase classname="tests.qt.test_197_annotation_navigation_captions" name="test_annotation_map_describes_the_actual_navigation[16777234-0-Move focus left]" time="7.170"><failure message="AssertionError: assert {'Left': 'Pre...evious image'} == {'Left': 'Mov...revious page'}&#10;  &#10;  Differing items:&#10;  {'PageDown': 'Next image'} != {'PageDown': 'Next page'}&#10;  {'Left': 'Previous image'} != {'Left': 'Move focus left'}&#10;  {'PageUp': 'Previous image'} != {'PageUp': 'Previous page'}&#10;  Use -v to get more diff">qtbot = &lt;pytestqt.qtbot.QtBot object at 0x7e4ce46f37d0&gt;
+screen = &lt;spacr.qt.screens.annotate.AnnotateScreen(0x5d7f2c5fe540) at 0x7e4ce590b9c0&gt;
+key = &lt;Key.Key_Left: 16777234&gt;, target = 0, caption = 'Move focus left'
+
+    @pytest.mark.parametrize("key, target, caption", [
+        (Qt.Key_Left, 0, "Move focus left"),
+        (Qt.Key_Right, 2, "Move focus right"),
+    ])
+    def test_annotation_map_describes_the_actual_navigation(qtbot, screen,
+                                                            key, target, caption):
+        try:
+            page = tuple(screen._page_paths)
+            offset = screen._offset
+            screen._set_focus_slot(1)
+            QApplication.sendEvent(screen, QKeyEvent(QEvent.KeyPress, key,
+                                                      Qt.NoModifier))
+            assert screen._focus_slot == target
+            assert screen._offset == offset
+            assert tuple(screen._page_paths) == page
+    
+            screen._spacr_screen_holders["PageDown"].activated.emit()
+            qtbot.waitUntil(lambda: tuple(screen._page_paths) != page,
+                            timeout=5000)
+            assert screen._offset == offset + screen._settings.page_size
+            screen._spacr_screen_holders["PageUp"].activated.emit()
+            qtbot.waitUntil(lambda: tuple(screen._page_paths) == page,
+                            timeout=5000)
+            assert screen._offset == offset
+    
+            default = QKeySequence(key).toString(QKeySequence.PortableText)
+            shown = [spec for spec in shortcuts.mapped()
+                     if spec.scope == "the Annotate screen" and spec.keys == default]
+            assert len(shown) == 1
+            page_labels = {spec.keys: spec.label for spec in shortcuts.mapped()
+                           if spec.scope == "the Annotate screen"
+                           and spec.keys in ("PageUp", "PageDown")}
+&gt;           assert {default: shown[0].label, **page_labels} == {
+                default: caption, "PageUp": "Previous page", "PageDown": "Next page"}
+E               AssertionError: assert {'Left': 'Pre...evious image'} == {'Left': 'Mov...revious page'}
+E                 
+E                 Differing items:
+E                 {'PageDown': 'Next image'} != {'PageDown': 'Next page'}
+E                 {'Left': 'Previous image'} != {'Left': 'Move focus left'}
+E                 {'PageUp': 'Previous image'} != {'PageUp': 'Previous page'}
+E                 Use -v to get more diff
+
+tests/qt/test_197_annotation_navigation_captions.py:74: AssertionError</failure></testcase><testcase classname="tests.qt.test_197_annotation_navigation_captions" name="test_annotation_map_describes_the_actual_navigation[16777236-2-Move focus right]" time="3.073"><failure message="AssertionError: assert {'PageDown': ... 'Next image'} == {'PageDown': ... focus right'}&#10;  &#10;  Differing items:&#10;  {'PageDown': 'Next image'} != {'PageDown': 'Next page'}&#10;  {'PageUp': 'Previous image'} != {'PageUp': 'Previous page'}&#10;  {'Right': 'Next image'} != {'Right': 'Move focus right'}&#10;  Use -v to get more diff">qtbot = &lt;pytestqt.qtbot.QtBot object at 0x7e4ce0d1b200&gt;
+screen = &lt;spacr.qt.screens.annotate.AnnotateScreen(0x5d7f2dca7f90) at 0x7e4ce2072b00&gt;
+key = &lt;Key.Key_Right: 16777236&gt;, target = 2, caption = 'Move focus right'
+
+    @pytest.mark.parametrize("key, target, caption", [
+        (Qt.Key_Left, 0, "Move focus left"),
+        (Qt.Key_Right, 2, "Move focus right"),
+    ])
+    def test_annotation_map_describes_the_actual_navigation(qtbot, screen,
+                                                            key, target, caption):
+        try:
+            page = tuple(screen._page_paths)
+            offset = screen._offset
+            screen._set_focus_slot(1)
+            QApplication.sendEvent(screen, QKeyEvent(QEvent.KeyPress, key,
+                                                      Qt.NoModifier))
+            assert screen._focus_slot == target
+            assert screen._offset == offset
+            assert tuple(screen._page_paths) == page
+    
+            screen._spacr_screen_holders["PageDown"].activated.emit()
+            qtbot.waitUntil(lambda: tuple(screen._page_paths) != page,
+                            timeout=5000)
+            assert screen._offset == offset + screen._settings.page_size
+            screen._spacr_screen_holders["PageUp"].activated.emit()
+            qtbot.waitUntil(lambda: tuple(screen._page_paths) == page,
+                            timeout=5000)
+            assert screen._offset == offset
+    
+            default = QKeySequence(key).toString(QKeySequence.PortableText)
+            shown = [spec for spec in shortcuts.mapped()
+                     if spec.scope == "the Annotate screen" and spec.keys == default]
+            assert len(shown) == 1
+            page_labels = {spec.keys: spec.label for spec in shortcuts.mapped()
+                           if spec.scope == "the Annotate screen"
+                           and spec.keys in ("PageUp", "PageDown")}
+&gt;           assert {default: shown[0].label, **page_labels} == {
+                default: caption, "PageUp": "Previous page", "PageDown": "Next page"}
+E               AssertionError: assert {'PageDown': ... 'Next image'} == {'PageDown': ... focus right'}
+E                 
+E                 Differing items:
+E                 {'PageDown': 'Next image'} != {'PageDown': 'Next page'}
+E                 {'PageUp': 'Previous image'} != {'PageUp': 'Previous page'}
+E                 {'Right': 'Next image'} != {'Right': 'Move focus right'}
+E                 Use -v to get more diff
+
+tests/qt/test_197_annotation_navigation_captions.py:74: AssertionError</failure></testcase><testcase classname="tests.qt.test_197_annotation_navigation_captions" name="test_other_screen_arrows_keep_their_image_navigation_captions" time="0.327" /></testsuite></testsuites>
