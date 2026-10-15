@@ -1,0 +1,36 @@
+{
+  "status": "PLAN ONLY; no collector, imports, writer or pytest executed",
+  "source_head": "3a38d63054b45d7fa2cc21c0bf3de6403184d90a",
+  "source_pins": {
+    "spacr/qt/screens/settings_model.py": "356fd0f2b258e58135d3f71b5a4e11c00dd2c2eac8a8653b0c7cac1924f1ada7",
+    "spacr/regex_infer.py": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce",
+    "tools/build_i18n_catalogs.py": "d381b2ee60486219a5caf029f3dea7611722ffb4c9424f2a81c830e59908ace7"
+  },
+  "input_count": 90,
+  "owned_ui_sources": {
+    "[provisional]": "c4c4af58e7ace819eb0c7338e4be02738fc53a4b52cdab4bf7d490eb0e566ed0",
+    "Looks like:  {example}": "d04790fbc2edea1a5eef72fd6b590a5f00492b9276207afdc9d41375a24b66ba",
+    "This convention is provisional. Check its example and test your folder before running.": "8a5788b36e4014721e161f6fa4804f1c6263cf4d06bad462e23a08162b2a3ea0",
+    "Reading the folder…": "14f3f763e528a78c3caaabbe9c49195d1d25eae9597fe9f5e50251b580b59f0a",
+    "No image files in that folder.": "1dcd06f75dc52d247f90f52c1449946b8735d335954255e1450efc8a95bafb85",
+    "All {total} .{extension} files parse.": "83dcef9065d4facb51a49c97ad99bd74a84ac8457385ef80a1c44cc03f680fba",
+    "{matched} of {total} files parse. The first that does not: {first}": "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+    "No built-in convention can read any of these {total} names. Write a custom_regex, or run Import, which reads the folder names too.": "e328f2234bbe00bcf01bf4b0d0e637330ffac1e00bb2aac973007c980e55ffc2",
+    "Of {total} files:": "530e6ed47a6137ac71b1dff5ad6b9ad2f07f207231f1847008e9414214dea651",
+    "{matched} of {total} — {label}  ({key})": "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb"
+  },
+  "required_input_pins": 6686,
+  "F561_ef2415_ancestor": true,
+  "driver_sha256": "51285c4d689efc17c2a18ffe6aa3e4e0fe091aa156d9fdc8ba9ee8a6feb960ce",
+  "config_sha256": "7674b6aa66ecd83065a01f59df29e809a2f109c7e3de303f17f7358394fc776d",
+  "pipeline": [
+    "Root seals clean actual finalHEAD and all source/tool/review pins; ready remains false until authorized",
+    "One genuine canonical collector, exact10 UI/hash match",
+    "All9 ordinary reviewed_runtime_translations loaders reuse real snapshot; strict candidate/source/context gates retained",
+    "Preflight all9 before first write; every unrelated committed target must be current, retained and identical, including sourcehashes",
+    "Normal write_english/write_language; all90 installed rows and every foreign target/sourcehash proved",
+    "Normal full9 runtime audit; immutable caption arrival refresh; fresh original collector equality; source/input byte identity",
+    "Separate actual9 Qt widget callbacks only after producer terminal; no backend/test replay"
+  ],
+  "resource": "One background serialized commonheavy.lock,8G,blankCUDA/offscreen/CPU1; no models/download/decode. Root final slot/pin review required."
+}
