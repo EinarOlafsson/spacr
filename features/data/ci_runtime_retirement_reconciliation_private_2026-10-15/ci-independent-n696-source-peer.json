@@ -1,0 +1,17 @@
+{
+  "status": "INDEPENDENT_SOURCE_PEER_ACCEPT_ONLY_N696_DELTA_RUNTIME_PENDING",
+  "reviewed_commit": "b37bc6dc4621ed4366d42b213761f61dfe4101ff",
+  "parent": "125e707a9ee1149fcf0c10a1ca77b57ebb18d8b4",
+  "source_sha256": "6589ff1d7e65c301d882da7559e323344a3e92425363c5e95e4ae0217020e9c6",
+  "parent_source_sha256": "6e00fdaf9f2897ea4e261e9d605c05b27c6491f4fb90933e725f0d0105dc42aa",
+  "patch_sha256": "578e18249974ff9677e6260f250cef896585eb19ed8b62add2403c678a931dae",
+  "outside_runtime_debt_sources_AST_exact": true,
+  "source_scope": "Only test helper body changed. No production, current review, catalog, tool, frozen report or archive mutation.",
+  "retirement_guard": "Adds exactly archived old source SHA a2aa5f4df3c6ae4f4615b6e4c4fcd3fb3c24f7e7207120071239dc2e5f0d2527 to existing two; retired list count exactly3, source hashes checked, full current-list inverse unchanged, retired-source absence unchanged.",
+  "historical_originals": "Original count131 (hi166) unchanged; full inverse implies current128 forfr/sv. No historical ceiling/digest increase or lowered original count.",
+  "replacement_guard": "Exactly one setting_tooltips/robustness_diameter_factors row in active ordinary review file; exact replacement SHA872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1; source literal recomputed SHA; actual reviewed translation equality; current canonical tooltip equality. Existing timelapse guard preserved and canonical collection reused once.",
+  "prior_metadata_proof": "ci-independent-metadata-proof.json independently binds actual deletion0a1059a098, immutable131row archives, exact one-row published deletion, actual current settings literal and both compiled translations/hashes. All relevant Git blobs remain identical at this review pin.",
+  "findings": [],
+  "runtime_status": "Pending. Latest setup sparse missing615 fixture failure is not semantic acceptance. Root owns materialization and two-node run. No whole test/fullCI pass certified.",
+  "review_execution": "Git/AST/hash metadata only; no imports/tests/collectors/writers/model/network. Live working-tree switch was detected; final review binds immutable b37bc6dc46 instead."
+}
