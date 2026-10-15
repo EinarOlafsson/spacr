@@ -108,10 +108,10 @@ header and its first 200 rows when the files change. A saved value that is not
 in the file is kept and flagged. ``pred`` is the probability a classifier
 writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to
 the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``.
-When a score file has no ``pred`` column, a note under the field says so,
-names those two outputs and lists the columns that can be used; spaCR does not
-pick a response for you. A run whose response is not a numeric column of the
-score file stops with the same list.
+When ``pred`` is selected and a score file has no ``pred`` column, a note
+under the field says so, names those two outputs and lists the columns that
+can be used; spaCR does not pick a response for you. A missing response-column
+error lists available score-table columns to help you choose a valid response.
 
 Planning, quality control and exploration
 -----------------------------------------
@@ -233,8 +233,8 @@ Picking up where you left off
 Settings files
 --------------
 
-**Export settings…**, next to **Import settings…** on every module screen,
-saves the form's current values as a settings CSV without running anything.
+Use **Export settings…**, next to **Import settings…**, to save the form's
+current values as a settings CSV without running anything.
 On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a
 **Submit remote…** sent. Both write the file that ``spacr-run --settings``
 reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>`
@@ -322,7 +322,8 @@ all text has a contrast ratio of at least 7:1 against its background.
 Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline
 shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or
 numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off.
-Holding a key switches it only once.
+Holding a key switches it only once. If your screen reader handles
+numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`.
 
 **Preferences → Appearance → Accessibility** gathers the settings that help
 most:
