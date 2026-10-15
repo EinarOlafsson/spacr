@@ -1419,6 +1419,10 @@ def _backbone_scorecards(crops: Any, labels: Sequence[Any],
     import pandas as pd
 
     array = np.asarray(crops, dtype=np.float32)
+    if array.ndim != 4 or len(labels) != len(array):
+        from .qt.i18n import tr
+        raise EmbeddingError(tr(
+            "Provide a four-dimensional crop stack and one label per crop."))
     keys = [f"crop{i}" for i in range(array.shape[0])]
     named = dict(zip(keys, labels))
     rows = []

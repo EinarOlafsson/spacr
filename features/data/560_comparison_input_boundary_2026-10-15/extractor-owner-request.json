@@ -1,0 +1,20 @@
+{
+  "request": "Exact existing embeddings top-level diagnostic owner addition only; allpreviousownersretained",
+  "owner": "Home-B tools/build_i18n_catalogs.py",
+  "module": "spacr/embeddings.py",
+  "symbols": [
+    "_backbone_scorecards"
+  ],
+  "source_sha256": "d64ddef0b98e23e519f19f480e12da0326ea4f860bd5b3995a670e829ec15f7d",
+  "symbol_sha256": "462a84690a5f44213c4df0d9f7313a2c2b5c284e469b0ea1a17f26f978d71d34",
+  "tool_sha256": "e534cb131ccbdcf630632ff37e6ad5b2450f6fe8c60066f6c96a6790e2e6c697",
+  "literal_tr_sources": [
+    "Provide a four-dimensional crop stack and one label per crop."
+  ],
+  "normal_runtime_filename": "2026-10-15-foundation-comparison-input.json",
+  "known_checks": {
+    "baseline": "5FAIL1PASS1.12s",
+    "owning": "6PASS0.67s"
+  },
+  "normal_api": "No changeddoc/signature/nestedhelperdefinitions; existing private top-level function absent committednormalEnglishmanifest. WholemoduleAST recoversoriginal afterremoving4lineguard. No API target created."
+}

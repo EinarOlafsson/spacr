@@ -1,0 +1,34 @@
+{
+  "item": "F560",
+  "base": "207bb4adea49932d0c857f19c408170a1e962d5f",
+  "item_file": "features/future/560_foundation_model_embeddings.txt",
+  "item_file_sha256": "9a0dc8e99aa0a1f383d83eef3569eb713c9db0cd381765a516273d3b234aa1d8",
+  "done_when": "Embeddings from each backbone separate known phenotypes on a labelled set (kNN accuracy / mAP) compared with current backbones.",
+  "current_recorded_implementation": [
+    "Foundation adapters and explicitCellDINO localfactory/SHA/channelmapping exist",
+    "_backbone_scorecards loops same declared cropstack across requested specs; _retrieval_scorecard fullranking/self-exclusion/chance metrics alreadyimplemented",
+    "GUI labeltable+scorecard and foundationpicker exist; choose_labels enforces rowcount when an embedding alreadyexists",
+    "Dated2026-10-06notes record12real expert fluorescence comparison scores and6checkpointdigests/current-source replay; these are historical sourceboundacceptance, not newtests bythisassessment"
+  ],
+  "remaining_external_scientific_gate": [
+    "Latest2026-10-15item note records officialCellDINO pretrainedaccess request/emailedURLs prerequisite; noaccessrequested/weightsdownloaded bythisagent",
+    "OfficialCellDINO humanlabel/cohort comparison/nativeGPU and finalhostedacceptance remain. Do not replacewith syntheticfactory or claim allbackbones complete."
+  ],
+  "concrete_actionable_software_gap": {
+    "symbol": "embeddings._backbone_scorecards",
+    "contract": "labels: one class per crop, in order",
+    "observed": "Actual exact helper uses dict(zip(keys,labels)) without rowcount validation:3labels for4crops scores onlyfirst3;5labels for4 silentlydiscards5th. Valid4retained. ASTisolated actualcaller interception observed no newscientific metrics.",
+    "proposal_only": "Validate NHWC stack and len(labels)==N before any embed_array/model call; refuse mismatch precisely. Preserve intentional blanks asunlabelled rows and all ranking/math/channel/scaling algorithms; no GUI/modelenvironment changes. Need parentgrant/sourcepeer beforeedit.",
+    "scope_limit": "This is a small software correctness defect, not the remaining scientificcomparison or a wholeF560 completion route."
+  },
+  "symbol_sha256": {
+    "_backbone_scorecards": "ede9a05ebc364c704586f174c4972d7813f4426b963ec3d562259b462f53f301",
+    "_retrieval_scorecard": "616fa8703962a2b81ff03966492bd958f7495ece6e006679a187a7433e9b7419",
+    "_scored_encoder_entry": "3e6c2ec301ba58731df072f42e09f1a8ff8056f1aee7016727ef2564902ef7a0",
+    "_foundation_encoder": "394ef0310eb2b8329106881cf4e992035d29a7dcf6334ce10984581db38b658f",
+    "_weights_on_disk": "b1bc1d25f4e460ce557a5fa64c1e09bc6cc940f2d6eff8a819bf318ba51139c4"
+  },
+  "no_source_edits": true,
+  "no_model_test_or_inference": true,
+  "counterexample": "counterexample.json"
+}
