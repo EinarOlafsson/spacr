@@ -297,7 +297,8 @@ def _card_text(entry: Mapping[str, Any]) -> str:
     metrics = entry.get("metrics") or {}
     bits = [str(entry.get("versus_stock") or "")]
     bits += [str(note) for note in entry.get("notes") or ()]
-    bits += [f"{name} {value}" for name, value in metrics.items()]
+    bits += [f"{name} {value}" for name, value in metrics.items()
+             if name not in ("historical_scorecards", "scorecard_provenance")]
     return " ".join(bits)
 
 
