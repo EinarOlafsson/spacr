@@ -11,6 +11,14 @@
 
 
 
+## 2026-10-15T19:59:41.587037+00:00 Work — 04 encoded QA passed; corrected player playback matrix active
+
+04 master6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec now passes full decode, all10018presentation timestamps, poster and normal2560x1440web rendition. Root checked8exactframes around both replacements and EOF (visualreview2b7c462ea91b5cf1f55092f2a8e5b8b65b3f96e013c7295d47bf646d32c693f1). Retained audioQA passed; all700sidecar speech intervals fit selected1x visuals with minimum0.52seconds slack; no hearing/word completeness claim.
+
+First actualbrowsercue check found a real static timing-map bug in newpreserve mode. Held player successor253f5814bc2add67d01032948271b8aa1b06aa00 fixes only preserved-static elapsed mapping/captions, with225owningPASS/7actualbrowsercases, originalfixtures and strictthresholds unchanged, independentpeercd9b0bbe1bb615f085551edbc9ea6e3d413923585ede4ab2034998f5f066609c. Firstfailedmatrix logs/diagnostic are preserved. Correctedactualmatrixr2 is active; prior failing cue and first16operations nowpass. All73 mustfinishbeforecandidate/publication.
+
+Actualnativecapture/render stay truthfully bound toK4b929b7dc53465132322c3ca0b866f567de773b9f. K5changesonlyplayerJS/test, neither in the502recordedsourceinventory; no recapture/reencode/audiochange. Bothsourcehandoffs are sealed separately for finalpacket; source remains held, onlydocs/features leaveWork. Completed02 remains currentimmutablepublicationselector until04actualupload/readback/Pages/export/push. Home1f6d5190f observed/maintainer notified; claimedforeignitems untouched.
+
 ## 2026-10-15 Original Home — F370 handover and precise N699 CI relay
 
 Current F370 claim acknowledged; required item handover records published
