@@ -1,0 +1,1315 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "reviewed_commit": "982ac3c7832",
+  "reviewer": "Home-B website_686_687; independent of the translation target author; author of the English laptop-mode corrections",
+  "review_kind": "Independent AI technical semantic review; no human or native-speaker signoff",
+  "scope": "261 committed source/translation pairs: 29 changed blocks in 12 API symbols, nine locales",
+  "decision": "All 261 PASS without target corrections",
+  "source_files": {
+    "spacr/qt/memory_budget.py": {
+      "commit": "a48984fffa73f396f79f8b8d8cf4fc1ed65c6336",
+      "sha256": "110d3e45355109b48357559e74a22410384c3653ad1a3ba50fd7eabc2ebaab30"
+    },
+    "spacr/qt/laptop_mode.py": {
+      "commit": "a8457f61cf07251adfb316aede69d5ff5cdaec2f",
+      "sha256": "a7b94afdf29cbc9b5f88609d54cea97811e3ec36c6513f0fa4c215cfea69c024"
+    }
+  },
+  "source_snapshot_sha256": "c55e13bd1439853097ed667f4e976cc4c48eab89334bcc744ae10348d18e5730",
+  "review_files_sha256": {
+    "docs/i18n/reviewed/api/de/2026-10-15-memory-laptop-contracts.json": "090c39b37d3d4dd7be399edf86a5e2892063b5d9105d08454473e7b223efa012",
+    "docs/i18n/reviewed/api/es/2026-10-15-memory-laptop-contracts.json": "7b4dc8c8a394f5368bf30c85b968be69ae7de1783cfbc764a2c057f6deb7df43",
+    "docs/i18n/reviewed/api/fr/2026-10-15-memory-laptop-contracts.json": "b9372cfad2f90bb767ed79a87acfdbda8b52fac8080152ef8c9c05d8cfbf1afb",
+    "docs/i18n/reviewed/api/hi/2026-10-15-memory-laptop-contracts.json": "0ae79f8112fd9b92321207186e07f3f78a6c4c1406312c5a6bfe5ea602a4b0da",
+    "docs/i18n/reviewed/api/is/2026-10-15-memory-laptop-contracts.json": "789678efa245adb2dd7f9d31074b2e1333648838837dae8fc8b47624b28f29c9",
+    "docs/i18n/reviewed/api/ko/2026-10-15-memory-laptop-contracts.json": "3d2e0764821ce0dd11ec17f20cd11610131096b626635b5f09b13e45e79ad6ef",
+    "docs/i18n/reviewed/api/pt/2026-10-15-memory-laptop-contracts.json": "e9175020dce37b38415dea5a1200d2d40f3ec74c784d2401307d5522b0666be2",
+    "docs/i18n/reviewed/api/sv/2026-10-15-memory-laptop-contracts.json": "b3fa9efe5edf1b6c946f7af19a9fd772ffe45a27c04fcb901af4b1a0d61b5e05",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-memory-laptop-contracts.json": "cf988b2a14f4ca54f659806dd1b934af8f7622cf0386c767b005a9055e1c90c1"
+  },
+  "coverage": [
+    {
+      "label": "spacr.qt.memory_budget#0",
+      "source_sha256": "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+      "context_sha256": "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+      "technical_semantics": "Cache eviction policy and available host-memory measurements, not guaranteed memory release.",
+      "targets": {
+        "de": {
+          "translation_sha256": "7328735c5e4abf4345e00f3df1e8b9bfde6649348d9cf0ce8a3a93ab92668b8c",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "1265f5eab7fd2b08189704b85a537c5ac070e518295c87b0f1cfd50d80bfdbdc",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "8f7172f741a1c06144002283dbb2a0b1dcaaa92b63978eb994875b13cb243829",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "7f3e0aaf17e17754d16fdb72ca3d9c9b804e04aa7ee10c20a82ec328df4623c4",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "0f2e49d9143e8118600c44d4b661bf7180105ca5debc271a28e57578ab09c6b4",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "06ea2b8c0ef108fa1fe7a174966edb174384348a06535552031600cc9f2ab7ba",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "ecdc4f6dba039ea5e88bc8ae0f37374b80374677938ed2732ccf3ca7ec86c4de",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "b04fc57917fb060a5e594c3c8ae4b859486a060fd12faacb2b9dfede9c12c442",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "713896148abd4af29e50e3e00e4171c70643f6fe98bb3bd796053c28dcca338d",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget#1",
+      "source_sha256": "c58bbd9144a04712a3e43730f51eb31206fa4de45fc39af9e363370a6b35390a",
+      "context_sha256": "a006f7cbffea16de4f4f1b11893ab286685a0c6b93b35187e848ccb90044259c",
+      "technical_semantics": "Idle timeout plus ceiling select cache keys; separate headroom predicate compares available host memory; callers apply policy and clean resources.",
+      "targets": {
+        "de": {
+          "translation_sha256": "fc0f2500b64d64749d76257288c2c822b072067710b46a853d12e9f115f8dcad",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "50af06e14106b5bd82ff0865420e52c3e5e340c0d13261fa342870de9a7faed5",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "cfb025540f34c5d9687ea1e7ede320619fe6fd40b957232dfb641e77cb3a136b",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "9e4eaed87503a70b7575c0f7cc9022f9fa1d3094e87e872af4a6baf3e4fd0016",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "a0c61f7fdc6ebd07ed91dc5054f3d65b7088adeea8a304a5755bdb6f65466a01",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "94e7c9cfad641acba40aa8c8f02ef7aa70d9730995a1bea65552278fab6ffaeb",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "d33e89258eb2d99ebb42f2acbda4c70aba96ed0c47a2291ae8159abaeea685b9",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "00d8c151d6fc5fa1a3ec3cdbefdc69b479496ddb7f7a33636d138c7fa02aeda2",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "b91e51ce6afea5eab90fb99f760aec91ed6347f966c15ef120e8b4af3db86b6d",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget#2",
+      "source_sha256": "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa",
+      "context_sha256": "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa",
+      "technical_semantics": "No Python/native library unloading; plans only identify entries; callers choose resources; no guaranteed process/GPU reduction.",
+      "targets": {
+        "de": {
+          "translation_sha256": "00707de1a3030d14ce5940bfe57f8e7569718625025480339d03e462baae4e26",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "ce4bef04fbe789306771a2d7a14d7f40cd61823ea33c984584e56dd0f621a0dc",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "cbf0cac7881b22da7da58e557709361a4d2975ad066b813c56e7d094aec86396",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "2931c5b6ca968ec03561f1e79744a444f24e979a5d08d8b3f691ed24598472c9",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "59cd354edbf8facea455c031183e69bf2f55a39289011a0035f8dba5af7bb98f",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "123c65035221b60b9551efc7959c2efd24f1cba3247b559c9b4146b303bbdb1d",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "073708e78d499392c0185d96bce8099f1e847a9bf69703718a268b805e0f1db5",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "1e22427eaa64e50681157a8b30b6c2f3ef8b5b3e54c775c56fed2fc7123330e0",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "7b03c9d79b65b3191c5c2aef37e32d714d51986667610c482d59e35b4df9e053",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.free_megabytes#0",
+      "source_sha256": "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+      "context_sha256": "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+      "technical_semantics": "Available host memory in mebibytes, not free-only memory or decimal megabytes.",
+      "targets": {
+        "de": {
+          "translation_sha256": "4b1184a26704b8437e1590113de5d2abf81f5d55f385bc6aa7732150b40e8944",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "29761499a9cdaf3a76d502f4d68d43f776f42e34a25019ba33e576f6939262ea",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "cad5fbb89f46177943c6724f69043af892a0c4a6adfa718f84c49d4db3e03097",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "38fa4561d75578b7b0c09557c479e8a30ee4ed164b4eb9537280e78bf74f90fe",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "1c70784166391eecdd3c9092373c1b167da031687e8788e7e42b67ef41a1add7",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "a41af700609535456551c4edabf76529a5849ee6590cbe026ba2d0b895940823",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "05c5f8b9743b485f885095bf63fbd7bb3e2c7be0000be9351f34d73bbb5fb388",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "ee57c9ebe0028d5e6e55a6795b3350b31c4ebb0b889c43e83130fec2f33759e9",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "7df4831bd159ae9a32b225dac67305e8e6b512316e644bd920fc9d4dcd816c97",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.free_megabytes#1",
+      "source_sha256": "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb",
+      "context_sha256": "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb",
+      "technical_semantics": "Exact psutil.virtual_memory().available divided by 1024**2; measurement failure returns None.",
+      "targets": {
+        "de": {
+          "translation_sha256": "2f5efb0504ca1c57a7c7fa316c20d063524ab50a6cd001de0590b63d9b7c69cd",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "fe627d22a39ccd522d085d02e518d07ca08ba5940d46df248afe2008d20bb827",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "b388f5e538a3352de0adaafc43491ba8f9bb7c45da25cfe9a11769f2ac8c50e8",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "da5ee524feb10a15552dd88a4f2bc55c332db3569cc106631ddf25967712c424",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "2d8744c110bb222a2bf9e3c502364546145a1cec1e4964fb128cfbe401d41e1b",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "1724f691e2802f14c9fedd1a9998a6b31573014a08160ba359ab46cc1fd520ac",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "8499b5febaffe730584e39af76f73b3bbc4085f138caa18cdeee26e157f0f0df",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "7e614c66d3e92bc99b72d78e58558980a641e9e2827f1afb0fc4bf7575d59fb1",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "da2ef1a325d0550a63fc78a14202d314089e313df940767a5338a86fdb74aed8",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#0",
+      "source_sha256": "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+      "context_sha256": "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+      "technical_semantics": "Available host memory strictly below configured threshold.",
+      "targets": {
+        "de": {
+          "translation_sha256": "81cd7352da6f1514682982182e02cd645e7c5a7aedd046cb18b9a4820a19cb77",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "95c933a996d83b76eccfac7427cf3116bf06b2695d9fd2c158d959a837f6ae52",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "aaf3adbf1c342c915df656501fdf4d3dcc60e6d38d8617d6826c16003bc49810",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "cdfc7704d77108f6385db5d65d363714b9f743edae719ea51e20eb5b7fc6dc02",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "e7d309de2d52538255968287bccffe46100ec4af24bea669fdec9c60c41a105f",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "d252e9bdf65cafe183ebad63ffa63eb5854b5f2a0e192f0625a78e12e26229f5",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "dde7609871918f18c9fadbf1832b7b44e702c8695334810be352588221614f9c",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "6c7b518222741f525345ebf82ea061fab607e7072753a34ac6ca1dc415b4a158",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "1304880f2e91a962ac837ca50c6dd12202b4e9eac11b600c799b0423869fbd1e",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#1",
+      "source_sha256": "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+      "context_sha256": "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+      "technical_semantics": "Threshold in mebibytes; read preference if parameter omitted.",
+      "targets": {
+        "de": {
+          "translation_sha256": "3787819c274b8b470c68d05f5a0ae5e9d5fede8005330ca70bcff7b0b36cd4b8",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "b81ff07db1c882299e4647ebe9c23885939e77b4fca3f7da5a99496dd5bedecf",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "1c6c539a996ef7fa0ee338aa883d0319f79adad6d43f99dc0b258b7b70d232dc",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "17d65a1865f3de8e94b188a73bba2bda75c9a2f39c726e847aa99cf3e7af03a6",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "bd0c1dad54bba0cb1ffd23bb7a661a205c5892e98e10f86fe1f251e41af87194",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "48630b465a876e7791ccbfdfd664244a43c701be3fa5709d4334b3756d3123a9",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "78264b1c6d237e68125932ef93682ce4cccae62a3ae0e1ad86f14bdc0946d9ff",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "79a24f4b7fd7e90866cf4150ef83761aa25938921f0c5a7f0c88837b38f5cb8a",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "751af7e3b59dd14946723f825725795f71422a6e210a1e979ff88f262966e341",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#2",
+      "source_sha256": "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027",
+      "context_sha256": "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027",
+      "technical_semantics": "False if memory or required preference unreadable; otherwise threshold comparison.",
+      "targets": {
+        "de": {
+          "translation_sha256": "6aa1dda71d33071ace78c9de6bf9ec0cb6fcf154476e2376e0fd2daa844489ee",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "0ed6934b60184056fb7f549b7c26ff82f63cee161c0b2b4cec0541b88a5e06cd",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "44663c49a89bf1186f7347c93dfa94d15a6e8327add2cc7a1909ee9be7c7355d",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "f8f672ac7c4fc1903e878fa57de983bc753b279562ccc9a9e0317cf05410d240",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "6fda7c811f5064ec7b7695286a1932412879a6cb5dcfde6ea47341dd84379eea",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "f0fe2c3206501431106fdb9e968e43cce512b4ec8c6937a1503ea56de60a4c53",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "803a519e1a81a29c270aedfdeb47aac460f74561165547868d4a4cf01bb16816",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "e80b20da71b200d627bb4b9de821da5aa294944c039cef046208b01d778531a6",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "7e48b92fb6ee09f7a18ef2c260b210948f87ddf6d6d5821041e98bbf4b0d9c0b",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#0",
+      "source_sha256": "31af9ce76aff459d4c3179c000db0bdb43c6503ec8570c3138467fa97fc8d6cf",
+      "context_sha256": "f65cf0e510dbbf748ed78bd5af1393b69b148ff5e3c940ca6a0cb87c8d9d95f9",
+      "technical_semantics": "Cache keys selected first by idle timeout then remaining total size.",
+      "targets": {
+        "de": {
+          "translation_sha256": "06fd1392f55002815510e8ac136bc93fd3338a18a3fb0191b3d516bfe56b306b",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "0175082ca8c5aba4ea4f5c5a4713834e8186643013c4654886c9986e73740fef",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "6c6f79ad5f7b1a16087b327048fdbcdaef9b1a48e7c554ebfacf3999bde7eda4",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "83a7605420f6991b92cc681824553c8d00850ee6d621a3f2442c0caf197bcc79",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "26a4c9c0a78a17c9896954e102923796d58a0f598d274d3b5060b4611648d5c0",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "7c3ffcb3bf7c7c0dbf9f565243b252780b016e12e8012d1b65f3b754095bfe05",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "f1aa986ad4db95fdd94fc7b53f6e857ae62ff3e9b8280a5019261c5622eda454",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "8adb6c5e94b728965377a995dc0e8a6cdf535539554597cfd9d6bab3fa458e6e",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "090b53749f6bda1a34d4971abeb52783cceca88d9440ff11fbb0148f3a57a85c",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#5",
+      "source_sha256": "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+      "context_sha256": "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+      "technical_semantics": "String keys returned in selection order.",
+      "targets": {
+        "de": {
+          "translation_sha256": "d222ea57a21aa4b4211dcc5e942a0c2f18384e49b24138f343993e0e45f89a7f",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "53e098965c9d2cb03700facf87027f3c304a306109416e17873683b7a4552dfe",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "49a52366561520d8169ba04c61229ac385a135a59f57d28341bd06810a10dfd6",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "a775910b51f0ec6fe332ec4a6ed2bec97f144d69bf34a80e43ef83ec6d753095",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "9c3d43ad4a72d59857a311fee0377313f8e3bfcb8b6464e4c7069b2bd6cbe688",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "fdd1a34a36e5f12dac984867db491b56fdbf9b185a2064684c6aee1540eb3bb6",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "2b98c7126fb1af14c2e85de913bd1f57b0ce0e6eb3b8bbf58b4e14311a924ae9",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "2a2a32e1b66818c2090d2175c0dae81ac4f6e80e35b192d81e5edc1595bc9a76",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "3fa3de82b33ebefb5f816cb0d2078a0a21245809ba3a1f6ccab9ebe407d829fb",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#6",
+      "source_sha256": "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+      "context_sha256": "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+      "technical_semantics": "Expired entries first in input order; excess remaining total evicts least to most recently used until within ceiling.",
+      "targets": {
+        "de": {
+          "translation_sha256": "d66b0ff5d2ee4338907fc6deb41d30bedc0dd5535b01763c3bc08b1d35db25e8",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "4de5b8b2ed394ae435b05b6f8934fbdd318a1ab2bcfa5ddc5c8be39511c5f5e1",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "84c7c40cba103a3e3eb6bcc24192a85d30139cb1da550d1f5d20a8903ea4bb99",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "3c51ec7b4d0d9d8ee85cd28f50e743ab4b993877fc013605ae36bc9f84a6e572",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "5558b770c4e96552731d6cb071a21a3c0a6e2aa7c7732fa7b8c65f9a93f2c56f",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "54651790a44a9930ae9facf709d402574540b54353467f0f1b7c2cd2ad9495e3",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "2e3417f52b38bca575569f21c2afa27318ae58a5d8c34e0b9b158213c7349b5d",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "1a0851c78d1549fe8dd1f369d3e75c70e16d42ffd25f71619035f9129a0f32ea",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "37852a64ff89bd429f7a29e8e7bd600edfcd75f844703bf1aca9f0556f02575d",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#7",
+      "source_sha256": "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06",
+      "context_sha256": "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06",
+      "technical_semantics": "Size triggers extra eviction but does not rank; ceiling may evict without expired entries; no headroom/in-use test; callers provide eligible entries.",
+      "targets": {
+        "de": {
+          "translation_sha256": "02ced89f34c5bc9eb81af1132f4422b2fefdd9f3df983c1535da350c12254578",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "86072d20c34d073852b785a6cb181df4074b045e467c0ef80085ebb41a03eac2",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "f77fbc5f1a1fddb5a0493ccbe323648df536bc36ec00076903dc24cadcd9eb5e",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "21746fa2c5284809220534cc102104a212a69015aacc047b0e9d2b2146b27ee1",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "c0618d27a1aad7ec6ff1223e21cb261878ff921d9574a70e45421feb06276e94",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "114b97ceff186bad825ba5d8f4cb0e3260152c48b56ff573d770f4ecbc3f3e70",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "0cc4a56c6d083acd2995862a2c4c9b5fed3ce85f264662bd9401a4d1ca8f2abd",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "56fe2a1df6744738c2c0e84b696401b790d17f1b00863b2c43e71cd0c38205c1",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "54985074694ea52d5098372e702af6dc92d25ba1bed46b011e9be49fee00ca23",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode#0",
+      "source_sha256": "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+      "context_sha256": "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+      "technical_semantics": "Hardware constraints measured and ambient backdrop suppressed for current process.",
+      "targets": {
+        "de": {
+          "translation_sha256": "41ca6ac0cd1be73b469a1727c971c05c352ec4f445e533e8d5da669862082cc2",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "1942bdbd8be0564f620a36070d7be57e4279bbe0c41bb07a5244ae1fa26cb111",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "d1debfaa7071c5cec3916e4f634968b7a9e52c96b1a10f381dab6cc413e87fee",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "71eabc49437d9fa581f9c965a56fad0583660be2918ba9c524b1715a0d9808a8",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "86959dcc5446a3fe7deea64a61610fdd19ca6421e4795658359ec54c6b7e9699",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "f242f8056ed3216e0df21fc25eb603e439255ef95796fe7ae82f1e69eb0fec2d",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "016eb9699c73e61be8baa1d51c6272353b1a8c486909387ce14fa1458774a8d4",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "312b82b3fc93e475537b80b5e397fdbde4fb787e3b1d3f92121acad313699338",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "205771b9654aca76b9c53f4d1a268bc37aa28f6ebbade7e1f9f651d8376f35e5",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode#1",
+      "source_sha256": "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+      "context_sha256": "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+      "technical_semantics": "Hardware helper uses usable CPU count, physical memory and SPACR_LAPTOP_MODE; GUI uses explicit selected performance-level decision with diagnostic hardware reading.",
+      "targets": {
+        "de": {
+          "translation_sha256": "f8901fb4063c37a8983f9af8dff4e59a1f135ac472785f143265f922c22fec89",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "cb2c985b96519f438ed26145f48e7611b1fae32647b98c416b1bd98a9363c639",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "93de166543b26e0b2964474ebaa96ff2568ef8ae7e452718c8bd5fc06e949585",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "129d8e60f938f62682dd54e642b00ebb1fa03e728374c76ba4126b644255d635",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "094b56ebc1847af4051be4a2a37bb446c6fff976ada84bcb0fab9f6869507012",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "5c3009cdb29870d1a4ee939ca85ed9d1dc897ed2872d9b5a26a622a96a8278f6",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "d22287703ced8eac845e63d8392392dad87d0e14c28afb4f21742bb972faa4ef",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "8468fe5664bdfcd5cf45c44781ff6248a433e712dc1b2a473fb9235b7f9b2cdb",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "75269b76d31b10442da05ddc87ed22be7a234c1d8bd15610f98f8d05485f43e9",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode#2",
+      "source_sha256": "c4f4dc6104a1cb2030a0d6288cfce1b03fc25118abcc101dcb223f8e151bb3f9",
+      "context_sha256": "74918d4beb558100d912e14b1ce897911d92b8324c50e05cb55ca68c6f0f56d4",
+      "technical_semantics": "Backdrop rendering only; no worker-thread limits, analysis parameters or stored animation-preference replacement.",
+      "targets": {
+        "de": {
+          "translation_sha256": "ce8d0ae59b26a33dfb52adad2ba376db06ae1857cdd74e72951c5978c28b02b8",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "a84a632da21112c904e280c0de4bee67f5cfc82598cc8a008e4ad128befc5cf9",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "c1d82f37cc0a10fadc4845821ec8e0694f0535f2fd9c23247b423e1205885558",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "4d3fda333f401a83e9c5ea6c5e51e36657f305f153f5717ba2cb6790dd07ee2d",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "6d8bd2c4b0fb5d008692208a6655e508127f38eb1b94ecac9d419f15f8ee8971",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "a2dc1b196a6744d651cd653f870e2089df17aac7f1bc935742c1287f0b8fa476",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "bcf9a877a0adb8fbde034ebc5c6577243c9ed5464799f2fa696a447cc8e61367",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "a1aaf7081de83e7c31366e2fadbe5fb44ef90c083da2147ccd74f144c6a18121",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "35c5406a6bc436c42baf4f738ada494b0f3ce617c2c03dbb42b528ac8ced7b74",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode#3",
+      "source_sha256": "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61",
+      "context_sha256": "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61",
+      "technical_semantics": "apply sets SPACR_NO_BACKDROP only when suppression requested and ambient backdrop enabled; disabling clears own suppression only and retains pre-existing crash-recovery override.",
+      "targets": {
+        "de": {
+          "translation_sha256": "b137ea5a5dd5afaaf46d2f4401a2fa4d8dfe5890412eab29d12f7ed325097a22",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "f788822f006fa3a09d4171fbebf2810a23914e50df702958936c6b995d83c75b",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "a8f672d4cf7e7e23fe02dcd3cf2206b0e88b7944449fb297206f09d0e0fb5be5",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "a734db8ba3a34527db3745dcf92bc78edea02aeae5c2d802eea38a31cfb027a6",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "fd14fb54901a399fe0a467aeded5e872c5d6032e69cdf96ff0735d2688dc000d",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "fdd392b22791b6c2b641011c19696eaf90a8d706cc389bf9d3781afb77c4cd99",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "a34f3b9a6083695968e288810b4378e48027823690153495557b9ff91991aa7b",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "846de5db2ea71be6a1afcb742148466587a9dc0504b953b94e8b636b93fc63ef",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "87ea7c2dd43f17a2a017c2e695ad4c595a3c72a2cc59697325a56521616775a3",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.usable_cores#0",
+      "source_sha256": "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+      "context_sha256": "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+      "technical_semantics": "CPU affinity count with os.cpu_count fallback.",
+      "targets": {
+        "de": {
+          "translation_sha256": "d4c4732f79a1e127f58217a8aa0e778a1d54e5164e42bd872d06652eb6624d63",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "d1ed9e1a43f61ecf58918aaa4762187182789b8b2e6065b2f4cbd94a0967f9b9",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "ef5cd51fbb319eb2fd893ffcc9657bba42d3b7e0d3c6a2a4d4be5e005633d928",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "5c3d72a72a7a8894d4f59efb5cfe81faf77677985a3adddc98045acafb0c2be5",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "5e4c1e3a539b3bbf9e11ccfe7eab0b66096f8f9fe12111d6e3a3c6fb56ba17f9",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "f41995c1c12bea090b192bac3f7faa0edc755016aadf1c726f131897bf0e3352",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "8f95cb772169467715a43efa73f57e8e2be3145be8724c2587be6519b3cc1f6b",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "371fbda37061e0d416ec2dda6d999dfb29b1c4b97260017ae78830473850d9a5",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "8d39c43ca6d17a15c81dbdfa5281daf4686ac8c59abe5d2162d9b3b3f9e50dcf",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.usable_cores#1",
+      "source_sha256": "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5",
+      "context_sha256": "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5",
+      "technical_semantics": "os.sched_getaffinity accounts for pinning where available; failure/unavailability falls back to reported CPU count; at least one; fallback cannot measure affinity limits.",
+      "targets": {
+        "de": {
+          "translation_sha256": "053ed29e4050f51b3f7b38a3f14aa3c257e5413dd9e5f255a56df6828c3b4cf3",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "fa843e640f6dae079bc00d81caaa73deaa1d73e6e60bcc2eba01e3fbd802ae28",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "489faa5306e5c1688cd28718e5217f18fe974c024f7a3bb79c92626ab56d5409",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "edbaceb48ad94338792e69986f2bdc67cf7ed204d92b8e29edcb4270a5a25991",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "7cc64995ba073d4f0ecb65fac1e6c36fa9a37fba6d5e1675e5bf30a7b6e7bcb8",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "9549b2d355428a71e30797b4898738379a9d55a86c7217925364e699160d58b2",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "2110ab08d6be1b7e9eaca78311ca7a37b5bcaace2a70d28f6b95f3e165d21c69",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "dc7f79a899244d7e0b23f35d9a29da0bdee3de33c5421f36aecd876c3266e88a",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "3f0455cc284787e11ccbf1f7a966cf0107449315e2d17875889ce5300721d22b",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.override#0",
+      "source_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "context_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "technical_semantics": "Environment override parsed; None for absent or unrecognized input.",
+      "targets": {
+        "de": {
+          "translation_sha256": "0a57c205801b0711f8c37f00078617e1133e631e510a42248e0d5a979ae88aaf",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "685ed68413cfa0d7e9d890e132f0c86c8ca0627b4fbc40bccd8cdbb0deee9a7d",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "82a8f8cd7fd58161deea251f5420de84eb725569e64445938be751ed9a66f379",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "f3c13f15d8ea08fc65e42c0923351efda5f38e9245745905793da2fc618da09a",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "f43acc9ed2a15d6f05ef08905f38815dfe07c5f794f363c32dd91f71e4a6ab32",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "f4f97bc34dced4029ebb427946f2e0e482785300509873485945b72679693ef0",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "75f15a0e56d30ba0d471f13c25da2a560caaf228c0fb8757c05fef0c59200af7",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "e95baca8b91774a3a1266b65f394797d8996b09c80bf05ecfa39a4620109938f",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "37579c4b0f97796fe1574fe8af71cbc451fd940e9c11431f1aeafff9fe811957",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.measure#0",
+      "source_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "context_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "technical_semantics": "Returns CPU count, physical memory, threshold flags, parsed override.",
+      "targets": {
+        "de": {
+          "translation_sha256": "af3665b8dd47678dd5a7f75f840173022bdd85aed57457299f307911a04960bf",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "6103b38462eb36e87b4a63d992971a0b4bb9131ebbce7320c2924986a3fdfdde",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "c4d3f4396002a839f51515af748d7f3499e22ca792654ef8bd31e6ed61baa12f",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "90ed2753bfdff51292dd4dd708e6ab2848e76fa758c905fffbce88fb8dcf9b53",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "65aff0b98a45838a57e74707519c421906c81121c2990e5fd4bb65e364b1a793",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "4034f1afa56bd65fbfbef6f5a3235cceecb48d3e7671c200c014033cb486a79c",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "14dd6732a5d641dfddacfcf7e2dd23b8d575cc22f600b64391c36224f0b7e5fb",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "15fb1c64d00a586a3c64acf3df846799d1d0e79492efc745c5614fef92099c53",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "408a2cf6ec58e23c2169ae87989b84aa89397329f1b3376510cd5de02198f6e8",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.wanted#0",
+      "source_sha256": "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+      "context_sha256": "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+      "technical_semantics": "Hardware-based laptop-mode decision plus explanation; not necessarily applied GUI level.",
+      "targets": {
+        "de": {
+          "translation_sha256": "8f47b6d93eaed0e2f1c16e540688280f6288ad970b5bee2a3528cc8cbea47598",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "0bbc0ab57b22687cb700f348e07e9fd60f1d06eee605d2ef2bba27da1759f2c5",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "8ceae5c1220ebd84221bfb761d5ba462171f65a11f72df290b0b8b7b3aaa293e",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "8be5a8fb5e985683786273dfb74d56851604ea3e58c43bde26b8ef6b4e1f612f",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "89899718a10ffaeaaf0e67b7bc82d65e9ae59d43daf971190e6a0b461b7ae5c5",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "5fb4a62fa5afa0e5637f25d4e022219ec546c88b1903710cf58728dc2ee9226b",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "65f27dc9f1b79639a75c4042ae8706dea2ba019cf940a30e43ca950cd041f1cd",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "f3e1f8f01281108a8df44d5f9a8a504f90b880e40c7dc24343c2d6b1a162e35f",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "a96b0187369f790f38d6b4eab5413e05a24d403c2207496a744d507dcfc3424c",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.wanted#1",
+      "source_sha256": "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723",
+      "context_sha256": "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723",
+      "technical_semantics": "Exact (on, why); explanation always present even off; explicit environment override precedes CPU/memory threshold flags.",
+      "targets": {
+        "de": {
+          "translation_sha256": "72b230a610de4d5f44519dc140f0f461f020a926e02de2ee1bb5e8352d225347",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "6b59b4945d746682e9c9b91765ae5b1c655f1b31954becfca396f496d53827c4",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "18366bfea35fb4929a1cb3e61382d683047e50eec2e40bf831fff7364e34fc02",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "4b39cda2d46caaefb9e92d140e94d9d9b3ccf2f35e41534f95246ce5725d6721",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "e5ef2f8794dc9613686dd539d7c24b06d6f13d1a9594dafa8a10b612e6f2980b",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "243ea9945dbbb4c7d41c32f5514ba817257331dfcd0721284651c17684927541",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "a147aa8c9eb8e530fa3b345cf17eb8a5526b028ce0ef0136c26e208325d2b079",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "cc7d67dd94b1c1ce052f9b1a6edd740670916ae74f15954a292a2c231cc476c2",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "aed64c14ba27598dfe3bb2e4d7911770bbfb8965fc2a7cbe414e6693eda41e45",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.what_it_turns_down#0",
+      "source_sha256": "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+      "context_sha256": "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+      "technical_semantics": "Returns diagnostic animation and backdrop-blur descriptions.",
+      "targets": {
+        "de": {
+          "translation_sha256": "0ae5c1588b1ad6d5f9f2c31e83c744746fac7eab9b3ff08358dbfd929f8e5514",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "8d80feb53bf490a90a1c974954e755dd43ed0d82b7c6064cf36490123712e68c",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "e35cb642205c7d7d8c4fd5591e3b655cfe4c1ad2c1f6d1346ac7cfc81c3a714f",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "e17511d044e85070fc781000d5b58a46679438b5c01d2fa92da1eb14ee308bd8",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "82489e2c8fb71c34f8011e0fa79024a17c5562286725717b76e1c4f97c56a782",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "fb5144c1f8743d14f794bac0b852ecb30c07ae8cf4a573aa47214bf54da3c8ed",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "b03c18cc4af1d75cc627e70d5de32a7c20ddd440438688c606e9261f6e80117e",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "d94f16e8917fc80ce79ac9e9c74fcdd2ad975eef55dcfe4ca183f36b0b08f6a9",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "3c700e5a186e3d8426a0ce5c5a1908aeed2c0afb58217a2134a75d554bda0d32",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.what_it_turns_down#1",
+      "source_sha256": "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216",
+      "context_sha256": "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216",
+      "technical_semantics": "Effect-name/description pairs for UI notes/logs; function only returns text; apply performs process-local suppression.",
+      "targets": {
+        "de": {
+          "translation_sha256": "3444de1fd3a44adac84556d8e58d54cb38b61f9fdcce256e8fa30e27ad9ea0f6",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "b9363f585aff8bf3d67cd56a16560cc6952c3abd48d225e4952f2749ecb909ac",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "81e686b58cec6cda80f5d6bdea5dff00dc1ae51e2242010beeb0ad1df42ac5ba",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "f7006466b0a7a87f66cf55d3b00656cada58f9588475659a18dcc1af71b01926",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "50548a7aef38523393f894ee5a60942b998e85ce9bbba5f5a871a1e3d5803a8b",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "9c5f878973bfebec740e3ef8c3a9e30dd67b6cdbe1025a248b53db1dcf1483fe",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "0ed5dd83a49d9e833e972132eaeca66df387827e758ed3086bcdc1a8869a06c5",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "7e45348a306eabdd4a329f34a0ca4c0d313d869d25dab7ce28f7f0e1f23179f9",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "b281012828a6ea837f962ed795fdda05865f9d1e645cd51b161ee5cbfeda8105",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.describe#0",
+      "source_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "context_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "technical_semantics": "Formats hardware decision and effect descriptions for diagnostic logs.",
+      "targets": {
+        "de": {
+          "translation_sha256": "11a3365679b83279e4468eb7adb417ed5b1442a3bacf016a3c764d39580f9c73",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "3cad8aa1451314406c95d92006b24927dc751efb7bfc6850a8b453f436d848d1",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "c6bd3d6853056ac609b63bb852c817ab319729dead5e8ddad5e4b82758949cbe",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "49a2ac1995e8fba460456a2c60aaad3432731273972f7ad608b8f7f710d968bb",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "4778d89d4c2d8fa110fe6bc417ac45b74cbcf2fcf4b1a094c42c4c2fb9ac2ceb",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "e02c850920698fd5852c48607cb34dd17a70ac7d789072a879d0ea560e4e268e",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "81dc744fe6c818da2b071420834ff7fc698acd7847f2888e530998b6d4292ed7",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "fc65ffda83c2ba2d9f8dd0fcfd2aeb7bf6599321932490ed0b4e57207b487163",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "0b8d81869a343591673eb7790d243e47d229292ae5b8510e19e07cd6bae66067",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#0",
+      "source_sha256": "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+      "context_sha256": "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+      "technical_semantics": "Applies process-local backdrop suppression and reports decision/actions.",
+      "targets": {
+        "de": {
+          "translation_sha256": "9d5b9c830dc048fd8a6f0ee58e93348a0cbd0007b2acf263534cb5319e30d502",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "b52d9d6c4a5723685c9aa7c87e58225ff95d0eeece0c928a494c0897a1b7c95e",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "c38ae640dc8bc1a72fd755be90826eaeb3a274444b20a427e617d1ae391d98b2",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "36de65bead927f68fcd0cd4151ac5d3f6f3cfe656f4b323f3519a7da2dedc606",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "5e70d84d74610e85f70613e5afad2e6f92d9c2683d0d9746f34e1b9e37005cc0",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "11b05b70e3eb9a09f283c744767364788fd3bfc011de201e59cf9f23f87e2edf",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "5395228330a5bb17339f136f1ee15e03de991835e8366637b1511e4b08ad0435",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "fdd1fc75d110ae2161ea826b5fc23aee2c0e99591b1f8a33e155898296bf48bf",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "c9962b50b27bc8a42e0fe0f8c3f30c6fa00206ce16c4b6492d92f435621a566a",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#1",
+      "source_sha256": "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+      "context_sha256": "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+      "technical_semantics": "Explicit on decision; None delegates to wanted including hardware/environment override.",
+      "targets": {
+        "de": {
+          "translation_sha256": "f6063e601f9c1143cd776a24342f3f329df3f1a9f7c1b8933902f743d29696a3",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "f56041bfaa485b7cb83ae0a81c2ff03856dd82e9d0740d159654194cdb47bb86",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "2d528d2c999429507e5fe2abf79a17bb8771051f5b9d339d8ce984f9b6b6fe6e",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "d677ed1ae3b9e3f1df51a9ef09e378f662e05d902ac9283eb9daeaec1d69230d",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "e609ce56676eede8f37fea2a5da8c5ae74a47586375b201fd8f74b070eef85ae",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "dac8147c40e8d6575c5d16bb1d3deb9f5ab8feda5cf9c895bd3a88a834d64b81",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "f96c9e5f64b5843e45d6e510f8288ac2e1be6a0ca8009fd0df5381ecbf13cb0f",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "6979958b39c26a6feeb4a81602214ef2840a51583a42d1167bbbaf2a878f37f2",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "b0f700aa105f6df36119a252aa94b95ecdb755e31bbbb7b4efea5417a78f13af",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#2",
+      "source_sha256": "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+      "context_sha256": "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+      "technical_semantics": "Mapping on/why/changed; on is decision; changed lists actually performed actions and may be empty.",
+      "targets": {
+        "de": {
+          "translation_sha256": "0ba57f537458c94ddbd559e7af18157e8aa7493299f0efa5247c7e3ceebecb8f",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "9c2e7deba96fb1491f4760f256cae198302d8129843edd21aa57395f41e94bc4",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "34fdfd98117a63af9733f663704c45f10e989c040a342f7c87f8aa48919a5419",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "50941361b298ed43ae2a68d63b500ae223ab2dc3e698ec5723f3123ddfdd6718",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "737b41ef83c2acd018dd2c2ab1bb065abd45c254fad3e8d4a16b88411ca9b312",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "40705ab59c2598796c922376032664a35c435e40a30a885e9bff0b629adc2093",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "bd8cc9da01474882280979414be84b62fb2b0ce69e9b4015769df47064b99f84",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "e12c944fda6c23a75b51b1906a92871e22c8e1f978ed09b17c469256d1f55512",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "1884e88785b93a787ff71121acd58f25f9ce4faddf270425713f6b3fbd435760",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#3",
+      "source_sha256": "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5",
+      "context_sha256": "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5",
+      "technical_semantics": "Process-local suppression preserves stored animation preference; disabling clears only own suppression, retaining pre-existing crash-recovery override.",
+      "targets": {
+        "de": {
+          "translation_sha256": "17ccd445ee9f9ac1a3c38bcb59d036b3edfee4ffe6871ee4c91f0c2f17fe0d3b",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "f22dde7ad3c0eef04f8775d39cdce584ee0849d52a805a07bcc222851f335281",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "66894e071d4bd8ec381c2a35569fc823f3b78352b846cc11a42afebd02fe0603",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "526e9da6690e40fa10c028e707ddd153778dec76000ad5a22d64eda19ffdf811",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "a0eb24d6a2a31c1ebaf71368a366205c35ac6af8ea17b15fbf840bd68f15ca6a",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "59c5403ce8f69a61526c7b7678dd70b7ed6eb0c68a5128dc1dafa452d9593e22",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "28944ea059bd29dd92c3df2052e55dc95baebfaed1ee2ce94c7cd02796332c6f",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "889c94fbe262b6427f5c2498bb9fefa79b4e2cd89999ff17abaac6884506671f",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "45780aea065ef46a9aab76214a7560a9f63570a92edf6f862c2ba92c189841ad",
+          "decision": "PASS"
+        }
+      }
+    }
+  ],
+  "checks": "Every committed source, context and translation exactly matches the independently read frozen language drafts. Exact implementation file hashes match the reviewed source commits. Normal source/context, inline-markup and selected-doc loader gates remain the author's checks; this reviewer did not duplicate the normal writer or collector.",
+  "limitations": [
+    "Technical semantics and preserved literal/role references reviewed; no human or native-speaker linguistic acceptance claimed.",
+    "Only the 29 changed blocks are covered; unchanged translations and other symbols are outside this independent review.",
+    "No runtime behavior, rendering, scientific acceptance, global documentation freshness or whole N678 completion inferred."
+  ]
+}
