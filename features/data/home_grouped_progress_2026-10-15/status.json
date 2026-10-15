@@ -299,7 +299,7 @@
       "percent_done": 90,
       "time_left_hours": "4–8 + platform",
       "owner": "Home / assigned owner",
-      "description": "Quiet real-display installed wheel+sdist trace, supported frozen OS matrix and representative CPU/GPU pipeline profiles; GPU only through authorized scheduling. No such run in this audit.",
+      "description": "Fresh source-pinned candidate wheel/sdist built; current Twine and both normal archive gates pass, with927 required runtime files byte-exact in both. Installed functional/native startup and supported-platform acceptance remain.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -450,9 +450,9 @@
       "item": "F561",
       "title": "dino pretraining on own crops",
       "percent_done": 90,
-      "time_left_hours": "2–5 + data",
+      "time_left_hours": "Unknown: recover scorecard",
       "owner": "Home / assigned owner",
-      "description": "Own-classifier training/application, GUI,55 runtime identities,23 API symbols and Help are published; final whole-contract/scientific validation reconciliation remains. Integration is not still pending.",
+      "description": "Original training/embedding/UMAP/classifier software and coherent GUI/API/runtime/Help are published. Historical kNN improvement is recorded, but its primary scorecard/log is unavailable locally; recover original evidence before independent whole-item acceptance.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {

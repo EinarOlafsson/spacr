@@ -192,3 +192,5 @@ features.rst. Training/backend synthetic checks remain as originally scoped;
 no new phenotype, independent-cohort, GPU or scientific acceptance is inferred.
 Initial SDK/history/environment/harness failures remain recorded, not hidden.
 Evidence:561_classifier_* /561_combined_api_* /561_strict_api_arrival_acceptance_*.
+
+2026-10-15 Original independent original-contract reconciliation: all original software uses (resumable pretraining, embeddings/UMAP, fine-tuned classifier, existing-checkpoint/epochs/progress) match current tested publication receipts. No new human-label/multiseed/held-out-plate requirement is imposed. The historical kNN improvement remains recorded, but its primary scorecard_64px.csv/32px and benchmark log were not found in the named local scratch roots or published packets. Original dfe6423548 records prose only; bounded NAS inventory does not map these scratch roots. Independent whole-item numerical acceptance therefore remains unverified pending recovery of existing scorecard and source/input/model identities; no result falsification, artifact destruction, new training or scientific claim inferred.

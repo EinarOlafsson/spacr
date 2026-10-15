@@ -11,6 +11,35 @@
 
 
 
+## 2026-10-15 Original Home — fresh source-pinned distribution candidates verified
+
+Ordinary isolated PEP517 build completed from published b51fb194bb183990ab25c981d70e3030063bf9ac.
+It produced spacr-1.5.1.4-py3-none-any.whl (45736270 bytes, SHA256
+0be5f07cf06de0c5d0273267b9da2036378a8f3ad081596b556f71270fdf84ac)
+and spacr-1.5.1.4.tar.gz (54874785 bytes, SHA256
+b552e71a09f5448ec1e7f53a8c603ed45d3c3fdda39e5dc6db58a15f5b1936db).
+Wheel was built from that sdist; no version/source edit, package upload or
+1.5.1.5 release is claimed. Local artifacts remain in WD scratch, not Git.
+
+Both unchanged normal compatibility archive gates PASS. Each archive contains
+all927 required runtime files, excludes forbidden paths and declares expected
+Requires-Python. Independent byte readback matches all927 required regular
+files/99336001 bytes to frozen Git;222 tracked paths outside that gate are
+explicitly not claimed. Existing system Twine5/pkginfo1.9 rejected Metadata2.4;
+first failure retained. Same immutable archives PASS ordinary Twine6.2.0 in a
+disposable isolated checker, no rebuild/downgrade/shared-environment changes.
+Evidence:data/candidate_1514_fresh_build_2026-10-15/ and
+candidate_1514_b51_artifact_verification_2026-10-15/. No fullCI/native acceptance.
+
+F561 original implementation is present, including its classifier third use.
+The original kNN DONE WHEN has a historical numerical report, but the named
+scorecard32/64 CSV and benchmark logs were not recovered from bounded original
+Git/scratch/NAS-inventory checks. Original GPU commit contains prose only.
+Do not invent new human-label/multiseed/held-out criteria or fabricate a CSV;
+recover the original scorecard and source/input/model identities from its
+runner/backup for independent acceptance. Missing locally does not prove the
+historical result false or destroyed everywhere. WholeF561 remains unverified.
+
 ## 2026-10-15 Work — recorder comparison stopped before capture; real visibility correction
 
 Actualworker-r1 START18:44:22 FINISH18:45:14EDT exit1/52.266s, cleanup0survivors. NoApply/recording/clip/gate occurred. Disabledanimationcontrol hover failedstrictreachability during publicpreparation; preApplysnapshot null. Exacttrace/staticresult supplied indata/n676_home_apply_captured_prefix_2026-10-15/actual-r1-before-capture-failure/. OriginalisVisible hover doesnotprove viewportvisibility; wheel target/sign match, no appcauseclaimed. R2 adds realpublicscrollreveal beforedisabledhover, strictreachability unchanged and safeclassification only. It explicitlyadds thatpointerstep ratherthan claiming historicalscrollstateequivalence. R1untouched; onecorrectedsetup candidatependingpeer/defaultGPUturn, no automaticretry/productpatch. Source/readinessmaterial includesexactcapturedlive43,599B andr1/r2externaldrivers.
