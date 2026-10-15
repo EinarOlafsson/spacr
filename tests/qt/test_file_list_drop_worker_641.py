@@ -1,0 +1,159 @@
+"""Settings-list folder drops keep filesystem work away from the GUI thread."""
+import os
+import threading
+from pathlib import Path
+
+import pytest
+from PySide6.QtCore import QMimeData, QPointF, QUrl, Qt
+from PySide6.QtGui import QDropEvent
+
+from spacr.qt import path_probe
+from spacr.qt.widgets import file_list as files
+
+
+@pytest.fixture
+def listing(qtbot):
+    widget = files.FilePathListWidget(kind='table')
+    qtbot.addWidget(widget)
+    widget.show()
+    yield widget
+    scanner = getattr(widget, '_dnd_scanner', None)
+    if scanner is not None:
+        scanner.shutdown()
+
+
+def _drop(widget, paths):
+    mime = QMimeData()
+    mime.setUrls([QUrl.fromLocalFile(str(path)) for path in paths])
+    event = QDropEvent(QPointF(2, 2), Qt.CopyAction, mime, Qt.LeftButton, Qt.NoModifier)
+    widget.dropEvent(event)
+    return event.isAccepted()
+
+
+def _folder(tmp_path, name='selected'):
+    folder = tmp_path / name
+    folder.mkdir()
+    for name in ('b.csv', 'ignore.png', 'a.csv'):
+        (folder / name).write_text('value\n1\n')
+    (folder / 'not-a-file.csv').mkdir()
+    path_probe.prime(str(folder), True, want_dir=True)
+    return folder
+
+
+def _gate(monkeypatch, folder):
+    original = os.listdir
+    main = threading.get_ident()
+    entered = threading.Event()
+    release = threading.Event()
+    threads = []
+    def listdir(path):
+        if os.fspath(path) == str(folder):
+            threads.append(threading.get_ident())
+            assert threading.get_ident() != main, 'Folder enumeration ran on the GUI thread'
+            entered.set()
+            assert release.wait(5), 'Test did not release the filesystem gate'
+        return original(path)
+    monkeypatch.setattr(files.os, 'listdir', listdir)
+    return entered, release, threads
+
+
+def test_drop_returns_while_enumeration_is_blocked_then_delivers_once(listing, tmp_path, qtbot, monkeypatch):
+    folder = _folder(tmp_path)
+    entered, release, threads = _gate(monkeypatch, folder)
+    values, contents = [], []
+    main = threading.get_ident()
+    listing.value_changed.connect(lambda: values.append(threading.get_ident()))
+    listing.contents_changed.connect(lambda: contents.append(threading.get_ident()))
+    try:
+        assert _drop(listing, [folder])
+        qtbot.waitUntil(entered.is_set)
+        assert listing.paths() == []
+        assert not values and not contents
+        release.set()
+        qtbot.waitUntil(lambda: listing.paths() == [str(folder / 'a.csv'), str(folder / 'b.csv')])
+        assert values == contents == [main]
+        assert threads and all(thread != main for thread in threads)
+    finally:
+        release.set()
+
+
+@pytest.mark.parametrize('replace_contents', [False, True])
+def test_clear_or_replacement_discards_inflight_drop(listing, tmp_path, qtbot, monkeypatch, replace_contents):
+    folder = _folder(tmp_path)
+    entered, release, _ = _gate(monkeypatch, folder)
+    replacement = tmp_path / 'chosen.csv'
+    replacement.write_text('value\n2\n')
+    try:
+        assert _drop(listing, [folder])
+        qtbot.waitUntil(entered.is_set)
+        if replace_contents:
+            listing.set_value([str(replacement)])
+        else:
+            listing.clear()
+        release.set()
+        qtbot.waitUntil(lambda: not listing._dnd_scanner.is_busy())
+        assert listing.paths() == ([str(replacement)] if replace_contents else [])
+    finally:
+        release.set()
+
+
+def test_concurrent_drop_results_keep_input_order_and_deduplicate(listing, tmp_path, qtbot, monkeypatch):
+    first = _folder(tmp_path, 'first')
+    second = _folder(tmp_path, 'second')
+    entered, release, _ = _gate(monkeypatch, first)
+    original = files.os.listdir
+    second_entered = threading.Event()
+    def listing_directory(path):
+        if os.fspath(path) == str(second):
+            second_entered.set()
+        return original(path)
+    monkeypatch.setattr(files.os, 'listdir', listing_directory)
+    try:
+        assert _drop(listing, [first])
+        qtbot.waitUntil(entered.is_set)
+        assert _drop(listing, [second, first / 'a.csv'])
+        qtbot.waitUntil(second_entered.is_set)
+        assert listing.paths() == []
+        release.set()
+        expected = [str(folder / name) for folder in (first, second) for name in ('a.csv', 'b.csv')]
+        qtbot.waitUntil(lambda: listing.paths() == expected)
+    finally:
+        release.set()
+
+
+def test_close_cancels_drop_callback(listing, tmp_path, qtbot, monkeypatch, qapp):
+    folder = _folder(tmp_path)
+    entered, release, _ = _gate(monkeypatch, folder)
+    try:
+        assert _drop(listing, [folder])
+        qtbot.waitUntil(entered.is_set)
+        timer = threading.Timer(0.02, release.set)
+        timer.start()
+        listing.close()
+        qtbot.waitUntil(release.is_set)
+        listing._dnd_scanner.shutdown()
+        qapp.processEvents()
+        assert listing.paths() == []
+    finally:
+        release.set()
+
+
+def test_scanner_refusal_unblocks_later_drop_without_gui_filesystem_work(listing, tmp_path, qtbot, monkeypatch):
+    from spacr.qt import dnd_handlers
+    folder = _folder(tmp_path)
+    original_scanner = dnd_handlers._scanner_for
+    class Refused:
+        def __init__(self, fail=False):
+            self.fail = fail
+        def submit(self, collect, landed):
+            if self.fail:
+                raise RuntimeError('deliberately refused worker')
+            return False
+    for scanner in (None, Refused(), Refused(True)):
+        monkeypatch.setattr(dnd_handlers, '_scanner_for', lambda owner: scanner)
+        assert _drop(listing, [folder])
+        assert listing.paths() == []
+        assert listing._pending_path_drops == []
+    monkeypatch.setattr(dnd_handlers, '_scanner_for', original_scanner)
+    assert _drop(listing, [folder])
+    qtbot.waitUntil(lambda: listing.paths() == [str(folder / 'a.csv'), str(folder / 'b.csv')])

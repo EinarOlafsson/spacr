@@ -1,0 +1,70 @@
+{
+  "scope": "Two N641 nested callback API paragraphs in nine locales, plus normal English source manifest",
+  "source_commit": "0149f55e38ef3e083682f29e216d624347a1d6d0",
+  "source_sha256": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
+  "source_snapshot_files": 669,
+  "selected_sources": {
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.collect": "Resolve folder members on a worker without touching widgets.",
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.landed": "Append ready drops on the GUI thread unless their contents were replaced."
+  },
+  "rows": [
+    {
+      "language": "sv",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "8dfa9302be5e9913af3503684871461e067b054835547aab0ac8e055b0a9f391"
+    },
+    {
+      "language": "de",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "2c0c51964829099866ac9a59bb2104e999a735d6417bdf3e13760ffeb5057fee"
+    },
+    {
+      "language": "es",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "645c8a150e5acde3da0a722caa4ab3c635fd76fa07bb42072e13579c3ae9bcce"
+    },
+    {
+      "language": "zh_CN",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "98be64f9d0edf7e25e25acbcd306d0c3d13efb25e5f747d0d31c096cec8c11cb"
+    },
+    {
+      "language": "pt",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "89790f3af972914dd2d66ababe21702cacca8752f88363bcc38a9ee151aadd5e"
+    },
+    {
+      "language": "hi",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "dc4811e8c31ce31dae18035a11ed128e56c994040b6196375141467d4584d4de"
+    },
+    {
+      "language": "ko",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "f77f677f248316059d25298cd94e2e3cdf11f46f2bdcee738ff41649a213c9a1"
+    },
+    {
+      "language": "is",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "3f221cf2dcc72a3fd86c80d3aa19227494541421fded6687bd6ee6486458462c"
+    },
+    {
+      "language": "fr",
+      "selected": 2,
+      "unrelated_preserved": 13404,
+      "catalog_sha256": "8a950b6a3467f39d87bba1c56f406216ab72267d05f268583992b804d8ffc0f4"
+    }
+  ],
+  "normal_english_audit_exit": 0,
+  "normal_selected_review_and_freshness_gates": "PASS ordinary reviewed_api_block_translations, _translate_api_documents, write_language and reusable_api_translations",
+  "fresh_original_public_collector_comparison": "PASS; all canonical API source texts and Python source-file hashes unchanged",
+  "scope_limit": "No full nine-locale global API or runtime caption audit claimed; unrelated generated records preserved; no model execution"
+}

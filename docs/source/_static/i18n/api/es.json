@@ -142370,6 +142370,26 @@
         "fab8082737168222b47b3c864177c828611b52a0b4ba8895cca1451e039fa0d5"
       ]
     },
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.collect": {
+      "source_blocks_sha256": [
+        "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613"
+      ],
+      "source_sha256": "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613",
+      "text": "Obtenga los archivos de las carpetas en un hilo de trabajo sin acceder a widgets.",
+      "translation_source_blocks_sha256": [
+        "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613"
+      ]
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.landed": {
+      "source_blocks_sha256": [
+        "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296"
+      ],
+      "source_sha256": "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296",
+      "text": "Añada los resultados de los elementos soltados ya preparados en el hilo de la GUI, salvo que se haya sustituido el contenido de la lista.",
+      "translation_source_blocks_sha256": [
+        "278d4d309ffde839b1b42c483dd63b7862c26ab0d277c3d60802ad5e0370ca42"
+      ]
+    },
     "spacr.qt.widgets.file_list.FilePathListWidget.add_paths": {
       "source_blocks_sha256": [
         "0410121533649f038320f31d6359a107ab40faad2d99b17c6447f4ae3a6e03dc",
