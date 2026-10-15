@@ -545,6 +545,8 @@ to its tested premerge source/counts. No unchanged44/native rerun.
     scientific parity or finalCI completion is inferred from this linkage.
     Evidence: data/698_readme_mask_link_2026-10-15/.
 
+2026-10-15 — Home-B publication/status correction
+    README and generated ten-language readable-panel route delivery is public669ac7395e. Existing2434 artifacts remain exact and six guards pass. Configuration site is live fromf138609 with production/Pages success. Actual accepted free inference endpoint/browser export remains unavailable: whole item is NOT complete.
 2026-10-15 — Configured-family startup warm-up prepared privately.
 The old ZeroGPU startup path always required the plaque default, even for an
 operator configuring only a different supported family. Startup now validates

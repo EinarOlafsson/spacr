@@ -1,0 +1,78 @@
+{
+  "base": "1f3635a5c5d68ae624bd60eeaf090405a014896d",
+  "backend_source_commit": "9f46e93d5a839214bc3e203cb3084132f7dd5c1a",
+  "source_file": "spacr/qt/screens/embeddings.py",
+  "source_sha256": "8c375204d113648eaa6ff5e950a8d131f2d91e27cc4a95fac593f2f127cbd4fe",
+  "test_file": "tests/qt/test_own_dino_classifier_controls.py",
+  "test_sha256": "54aae3e8e85018bca0d1535206c0e6c6cfca70eb50df675653f8184177557c4e",
+  "source_scope": [
+    "spacr/qt/screens/embeddings.py"
+  ],
+  "new_test_scope": [
+    "tests/qt/test_own_dino_classifier_controls.py"
+  ],
+  "baseline": "3 FAIL, absent classifier controls/method, 2.64s",
+  "intermediate": "36 PASS and 1 test-fixture enum error in 6.45s; actual Qt QDialog.DialogCode.Accepted correction only; that one actual-dialog test then PASS in 2.61s",
+  "identity_baseline": "1 actual FAIL in 2.68s: pandas inferred label 01 as 1 and acquisition group 001 as 1",
+  "final": "23 classifier cases PASS in 3.92s after reader-only explicit string identity fix; existing 15 pretraining/alpha cases passed the earlier owning cohort and were not rerun after the unrelated reader-only fix",
+  "distinct_cases": 38,
+  "final_wall_seconds": 7.0,
+  "final_peak_rss_kib": 852944,
+  "cap": "4G; GPU hidden; Qt offscreen; thread limits1; shared heavy.lock",
+  "training_claim": "No real training, checkpoint decode, model downloads or scientific validation. Inert trainer boundary with real Qt controls/JobRunner/signals/cancellation.",
+  "consumer_dependency": "Saved classifier consumption is backend-owned and pending. Result is not inserted into the teacher Foundation picker. This is the explicit training/settings/background-lifecycle scope, not full F561 completion.",
+  "alpha": "New literal ObjectNames inherit existing EmbeddingsDinoControls registered F561 container; no new settings keys or registry entries.",
+  "unchanged_existing_functions": [
+    "EmbeddingsScreen._use_embeddings",
+    "EmbeddingsScreen._on_dino_progress",
+    "EmbeddingsScreen._on_dino_failed",
+    "EmbeddingsScreen._on_dino_finished"
+  ],
+  "comments_exact": true,
+  "source_changed_after_final_behavior_run": "Only grammar in existing is_busy doc: its final result -> their final results. Executable behavior is identical to final23-pass source.",
+  "api_changed_bodies": 8,
+  "api_changed_blocks": 11,
+  "new_tr_literals": 35,
+  "logs": {
+    "before.log": {
+      "sha256": "e065400570de2b88d695e70f47ec31fa407b72428de774629dfced8b8fc0c5ca",
+      "compressed_file": "before.log.gz"
+    },
+    "before.time": {
+      "sha256": "c1cb21adb8b22fbdd228a611a8002cc2f283e699929cff3b025e94881c4d3cac",
+      "compressed_file": "before.time.gz"
+    },
+    "after.log": {
+      "sha256": "3b85df66e9bb556d9f2c9329b5ca1e0d0c4ab5db36762548577f473c4d60ab44",
+      "compressed_file": "after.log.gz"
+    },
+    "after.time": {
+      "sha256": "f93cff24721d12bfc6af0300a773b2c045d7ca3d1a9a1a56222753b9866683a8",
+      "compressed_file": "after.time.gz"
+    },
+    "dialog-after.log": {
+      "sha256": "0eb0a32ccd4cf69fdfb8d3db99d594b9b081ac7036b5a1ffa1dc3e958019384f",
+      "compressed_file": "dialog-after.log.gz"
+    },
+    "dialog-after.time": {
+      "sha256": "8ce1ecd11bb7a3cbde7ab684ae30bcb5173a60f23be5ccd7c62238b65690e7b6",
+      "compressed_file": "dialog-after.time.gz"
+    },
+    "identity-before.log": {
+      "sha256": "1327eb4db5e1b715838d60bdfabdf1fe9950e9f9625363b7374881a863c28733",
+      "compressed_file": "identity-before.log.gz"
+    },
+    "identity-before.time": {
+      "sha256": "f4823d13e8fcdcfa8f8b84e2b08cbeeae27bafe03a0dbc853cd7389a5cdef56e",
+      "compressed_file": "identity-before.time.gz"
+    },
+    "identity-after.log": {
+      "sha256": "46b9068a3b4cdbef31f2aa1521319641d7edd703920afb2c9581ff9813bd84a8",
+      "compressed_file": "identity-after.log.gz"
+    },
+    "identity-after.time": {
+      "sha256": "cfde2d07375eaa55b8d7c8d4549ebba1e749f3b7a49d8a006ce3b77f1a9ea852",
+      "compressed_file": "identity-after.time.gz"
+    }
+  }
+}

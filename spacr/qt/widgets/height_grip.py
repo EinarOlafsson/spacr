@@ -22,7 +22,7 @@ Additions made when it moved here:
 from __future__ import annotations
 
 from PySide6.QtCore import QEvent, Qt, Signal
-from PySide6.QtGui import QColor, QPainter
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 from ..theme import make_transparent, _painting_palette
@@ -56,7 +56,9 @@ class HeightGrip(QWidget):
                  parent=None, name: str = "Resize this panel"):
         """Build the grip, bounded so a drag cannot collapse or run away."""
         super().__init__(parent)
+        from .figure_grid_view import _strong_focus_style
 
+        self._strong_focus_ring = _strong_focus_style()
         self._target = target
         self._base_min = int(minimum)
         self._base_max = int(maximum)
@@ -125,6 +127,13 @@ class HeightGrip(QWidget):
                              QEvent.StyleChange)
                 and getattr(self, "_min", None) is not None):
             self._follow_the_font()
+        if event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange,
+                            QEvent.StyleChange, QEvent.PaletteChange,
+                            QEvent.ApplicationPaletteChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
         super().changeEvent(event)
 
     def _follow_the_font(self) -> None:
@@ -203,9 +212,17 @@ class HeightGrip(QWidget):
         """
         P = _painting_palette()
         painter = QPainter(self)
-        lit = self._hovered or self.hasFocus() or self._from_y is not None
-        colour = QColor('#168cff' if lit else P['border_soft'])
-        painter.fillRect(0, self.height() // 2, self.width(), 1, colour)
+        try:
+            lit = self._hovered or self.hasFocus() or self._from_y is not None
+            colour = QColor('#168cff' if lit else P['border_soft'])
+            painter.fillRect(0, self.height() // 2, self.width(), 1, colour)
+            if self.hasFocus() and self._strong_focus_ring:
+                width, colour = self._strong_focus_ring
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+        finally:
+            painter.end()
 
     def enterEvent(self, event):                # noqa: N802 - Qt naming
         """Light the grip as the pointer arrives.

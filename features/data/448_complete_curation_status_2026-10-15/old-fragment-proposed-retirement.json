@@ -1,0 +1,123 @@
+{
+  "source_scan": "rg complete exact phrase over non-generated spacr/tools Python sources, then actual AST exact-literal check",
+  "matched_source_files": [
+    {
+      "path": "spacr/qt/screens/make_masks.py",
+      "sha256": "05acb3006a6f4d1d7f74df9f62c8cc79266afc12f6f7161431de57fa4ae1a5f6",
+      "exact_literal_lines": []
+    }
+  ],
+  "remaining_exact_literals": 0,
+  "scope": "New complete status templates contain phrase as part of fullsentence; no remaining exact literal source. Normal literal extractor replacement is sourcebound. Final global canonical absence must be confirmed by the upcoming ordinary writer before retiring inputs.",
+  "retirement": "Conditional exact9row history-preserving retirement ONLY; archive original full files, keep every other reviewed row. No current review files modified here.",
+  "records": {
+    "de": {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "b36cfa9d04fb382dc442fc367fcec747a65f91eb25592626005c47a1338c330a",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "in dieser Warteschlange sind keine unbewerteten Felder mehr vorhanden"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "es": {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "e2aae75c236ec61c51c06ad74535dd0af1d16b54bddd12cf73a205f6fc737cae",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "no quedan campos sin evaluar en esta cola"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "fr": {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "75bfae5c7ef37af1c84ba303116e7ec0d08b0e2a356775b17f34473fbb9ea19e",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "il ne reste aucun champ non évalué dans cette file"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "hi": {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "80aafd0408f8fdd502f7e9f2c133c6315c2b97fef352150adc23025ee735a2fe",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "इस कतार में निर्णय किए बिना कोई फ़ील्ड नहीं बचा है"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "is": {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "c519db6333ff354e89930a0cf16a36674977d7bc74e13d298cceac1add3807f1",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "engir ómetnir myndreitir eru eftir í þessari biðröð"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "ko": {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "c1f0ed97004c93b14f15b794653eb07143ad5673773e106d620ef675cfcc0b9d",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "이 대기열에 판정되지 않은 시야가 남아 있지 않습니다"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "pt": {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "5ceba2c35c4bb6615857ba8d789a893569299b25c0aec5d205376a17c4bf8830",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "não restam campos sem avaliação nesta fila"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "sv": {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "1328e1d3146dd0e9e3b8e3aabd5b351f1b43037049a4ebaa1c017597c816dbda",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "det finns inga obedömda bildfält kvar i den här kön"
+      },
+      "other_rows_to_preserve": 3
+    },
+    "zh_CN": {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-13-701-hide-judged-fields.json",
+      "file_sha256": "4473ead1dda1e80497e11132947847e7d2141d6d9f39dc1175208926508bae71",
+      "exact_old_row": {
+        "table": "ui",
+        "key": "no unjudged fields are left in this queue",
+        "source": "no unjudged fields are left in this queue",
+        "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+        "translation": "此队列中已没有尚未判定的视野"
+      },
+      "other_rows_to_preserve": 3
+    }
+  }
+}

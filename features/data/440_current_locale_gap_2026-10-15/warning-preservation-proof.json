@@ -1,0 +1,114 @@
+{
+  "initial_attempt": "Stopped on an incorrect one-file-per-locale assumption: Icelandic title record and warningbody in separate active inputs,1record found. No validatorfailure or source drift. Tooltranscript only, no captured rawlog.",
+  "final_exact_scope": {
+    "de": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/de/2026-09-21-runtime-refresh.json",
+          "sha256": "15f9df0b40742eea04f2766c0ae0bc3260c8e1680594928f47724ed17b58fa4c"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "es": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/es/2026-09-21-runtime-ui-first-slice.json",
+          "sha256": "f75674e27a15bc994639bbdca492b31d866c61f6bb8d27186df829517424d3ae"
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/es/2026-09-21-runtime-ui-fourth-slice.json",
+          "sha256": "1a822ec874ebdeb38a58367874908a795f0b14b7f75816cb84946ea89137039c"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "fr": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/fr/2026-09-21-runtime-first-slice.json",
+          "sha256": "a0a7576013682ebd1e81278acda801921db369df2575b1ed1215c15c282457cf"
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/fr/2026-09-21-runtime-fourth-slice.json",
+          "sha256": "c745a4940092960d817b2c77823af204bad71db4abddcb7b38b845bd876bfeb8"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "hi": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/hi/2026-09-25-runtime-debt-captions.json",
+          "sha256": "967ca9bf14f5d019ed78ed87b96ea80af5af80a0aeba490d9e4ee118be8d4780"
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/hi/2026-09-25-runtime-debt-messages.json",
+          "sha256": "7d376c653bebc3291df5cc5075c0ae3838f98b8560dff8c8a1707dd0856f2355"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "is": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/is/2026-09-25-runtime-debt-captions.json",
+          "sha256": "f99172836cad267601d049bc95af21dfae5e813eab3987c5a8e7a073dbc2ce53"
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/is/2026-09-25-runtime-debt-messages.json",
+          "sha256": "2e319b9f97f40999a86a55d451c81a3d9ce74e41c5e30d32112f18420dbf0976"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "ko": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/ko/2026-09-21-runtime-fourth-slice.json",
+          "sha256": "6f35795deee702e7e5f10750e971ca933926eafc6a0bd19d096fff20961f01da"
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/ko/2026-09-25-runtime-debt-messages.json",
+          "sha256": "8ea61c487cfcd94a9b292122bd4fc6325d73a811b463e08ddd8058fc4d810981"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "pt": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/pt/2026-09-21-runtime-first-slice.json",
+          "sha256": "563cd629841d863baf87fbae6b656a8a444bbacfcdc1cfa429b5ddbf46321a6f"
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/pt/2026-09-21-runtime-fourth-slice.json",
+          "sha256": "c3a78879bed6a72f516dfc240242c137421b166053a32ee9e234ae48c643dd5f"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "sv": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/sv/2026-09-21-runtime-ui-refresh.json",
+          "sha256": "1522a3448dfdc6f4304bd034f562767430669c12ed405b8b1f3f59aaedee2fad"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    },
+    "zh_CN": {
+      "review_files": [
+        {
+          "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-runtime-second-slice.json",
+          "sha256": "872318c6800764731318a2048e327e0efb19abdd6a470cda8b76b3532265be71"
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-runtime-sixth-slice.json",
+          "sha256": "7a962d559e059efc9658ecda56986c387d4e21526f46e65860920b0eca8169b8"
+        }
+      ],
+      "exact2normal_gate_and_compiled_match": true
+    }
+  }
+}

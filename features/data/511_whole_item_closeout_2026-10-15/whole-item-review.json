@@ -1,0 +1,384 @@
+{
+  "item": "N511",
+  "revision": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
+  "decision": "Whole original regionprops/filter migration contract is supported; remaining12catalog-row LEFT is stale since2026-09-26. Propose source-bound dated closeout, root review required.",
+  "retired_keys": [
+    "cell_min_area",
+    "cell_max_area",
+    "cell_min_intensity",
+    "cell_max_intensity",
+    "nucleus_min_area",
+    "nucleus_max_area",
+    "nucleus_min_intensity",
+    "nucleus_max_intensity",
+    "pathogen_min_area",
+    "pathogen_max_area",
+    "pathogen_min_intensity",
+    "pathogen_max_intensity"
+  ],
+  "catalogs": {
+    "en": {
+      "path": "spacr/qt/i18n_catalogs/en.py",
+      "sha256": "fbe1af09f4339393c6390bc62442349e057a5b7d5b0ae8cfe4238ab06a7fd274",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "sv": {
+      "path": "spacr/qt/i18n_catalogs/sv.py",
+      "sha256": "7746cb4f64c12f0bbbfc71c9a87b13e3b6e8d134e72713c37a234ef119431613",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "de": {
+      "path": "spacr/qt/i18n_catalogs/de.py",
+      "sha256": "fa1b5f06a461ba63d17995a6a27a41c0f33275eb8f628228e4c0f87d3f05b089",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "es": {
+      "path": "spacr/qt/i18n_catalogs/es.py",
+      "sha256": "c95adf0e6efae67339fc07694a5e14542200e9e330a5f993482ecff1f6e10333",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "zh_CN": {
+      "path": "spacr/qt/i18n_catalogs/zh_CN.py",
+      "sha256": "5a78c7946c2fd8c01e7994700d1ce860102bf07fca3486a3ce6e720c046c7bf8",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "pt": {
+      "path": "spacr/qt/i18n_catalogs/pt.py",
+      "sha256": "4280844fa65e513a65ff6d9e7f815e5975022de4ef1d4ff5ba770e02a2c7c7fa",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "hi": {
+      "path": "spacr/qt/i18n_catalogs/hi.py",
+      "sha256": "c379ad102a7c5d1937b44a713e7ce42e5488b56e43eb6d9c4e04523af3edc569",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "ko": {
+      "path": "spacr/qt/i18n_catalogs/ko.py",
+      "sha256": "b6da87ea343a0c3c0bdd101596171a92cf9114c5168f7194f93fd0f4b8635524",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "is": {
+      "path": "spacr/qt/i18n_catalogs/is.py",
+      "sha256": "f4a8139c45a02529e30928bf17962b4ed04384723128e7594896916643076e30",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    },
+    "fr": {
+      "path": "spacr/qt/i18n_catalogs/fr.py",
+      "sha256": "59378890432de6e5e18b32818d4011fe5f17f4ee22bfedf0d464d8a49055da7a",
+      "retired12_all_absent": true,
+      "retained_object_filters_current_source_hashes_match_English": true
+    }
+  },
+  "named_owner_review_records": {
+    "docs/i18n/reviewed/runtime/sv/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "269949a9f04d10946d2831b934c6b0788aee653de415562e912fb7562649e17b",
+      "active_retired12_records": 0,
+      "retained_records": 22
+    },
+    "docs/i18n/reviewed/runtime/sv/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "a431159f4ba8176b6145c25125435800c78917be644dea2cf5f359b43e0ca662",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/de/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "9bdb8242f9275c1411540ac420915393c0c43ed70612e6133d4b021d62bdd146",
+      "active_retired12_records": 0,
+      "retained_records": 22
+    },
+    "docs/i18n/reviewed/runtime/de/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "12500253b84570144f8b6138e999c0a581794965b1f5b30b89f89951a1d838cb",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/es/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "47289b0bbbfe82a99f759d85aebf4476e4d019f409ad8f1ebef13412fe0ffce5",
+      "active_retired12_records": 0,
+      "retained_records": 22
+    },
+    "docs/i18n/reviewed/runtime/es/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "5c1b8b2a2468c6d93be1b1cbaa9e043e08b761711444d9bd815ae232c1afb111",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "5a1b8b0b9601c989fcb1c7174c51ab2b38fa665cf89034ebde3a8715d9f643e7",
+      "active_retired12_records": 0,
+      "retained_records": 32
+    },
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "5ef543a16daf9626babc2c23902a33f7123b9dc151ad06de9621330c70221980",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/pt/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "8689caabda101dabfcb1142df42f1a394a7e22afba69158518f44917eac56e6d",
+      "active_retired12_records": 0,
+      "retained_records": 32
+    },
+    "docs/i18n/reviewed/runtime/pt/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "b3d3fd01190e3adee5c472fc65d4f3cd6922514d91dedc7a4ce5bd55f39576af",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/hi/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "68748a41cb03d2ab2e70e3f40a562b2e5998dc215a120842e5dec65287618729",
+      "active_retired12_records": 0,
+      "retained_records": 32
+    },
+    "docs/i18n/reviewed/runtime/hi/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "7f8981cf757608ccc02729665058fa7fe85cdb5605be9107baf4c66de1765790",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/ko/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "3d9669df31f84ca91cc4b1832d2eaff922b8be836eaa3c1b77b21b63d7081e80",
+      "active_retired12_records": 0,
+      "retained_records": 32
+    },
+    "docs/i18n/reviewed/runtime/ko/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "5bdfbdf58033a205d329dc39aac65069fd8ee1f3d59a50647162f8bf2bf82374",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/is/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "60c75fe4e75caca667c18fd2ca3ec2e5f2718e3af8a62dc5bf7fdc8dbbd378d5",
+      "active_retired12_records": 0,
+      "retained_records": 32
+    },
+    "docs/i18n/reviewed/runtime/is/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "e43150b439be5e88484d1495f18c321fc624ef81ab5de5f1a5563847b280a4e6",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    },
+    "docs/i18n/reviewed/runtime/fr/2026-09-15-mask-mean-bounds.json": {
+      "sha256": "6cc05d407cfa889247fd206ee9e213e2b09e3680bae7b13e3b8c9317e8321266",
+      "active_retired12_records": 0,
+      "retained_records": 32
+    },
+    "docs/i18n/reviewed/runtime/fr/2026-09-25-runtime-debt-second-pass-setting-help.json": {
+      "sha256": "3c5dbfd2f3ffbc985be0e27a15b277f8ced13beae10869bbbb7be38712df9bad",
+      "active_retired12_records": 0,
+      "retained_records": 27
+    }
+  },
+  "sourceproof": {
+    "spacr/qt/mask_engine.py": {
+      "sha256": "7343faf71f85b62560707d862574c9c14a278bc5f3d2f5429f3de224a47dedac",
+      "hosted_owning_symbols_ast_unchanged": {
+        "_filter_catalogue": true,
+        "filter_properties": true,
+        "normalise_filters": true,
+        "legacy_filters": true,
+        "settings_filters": true,
+        "filter_removals": true,
+        "apply_filters": true,
+        "filter_report": true,
+        "filter_objects": true,
+        "object_filter_area_floor": true,
+        "parse_object_filters": true
+      }
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d",
+      "hosted_owning_symbols_ast_unchanged": {
+        "ObjectFilterList": true,
+        "MakeMasksScreen.apply_object_filter": true,
+        "MakeMasksScreen._filter_base": true
+      }
+    },
+    "spacr/settings.py": {
+      "sha256": "4086e6c580497725f539aab9df48eb24abbb209a912863442a9a200a0e131c18",
+      "hosted_owning_symbols_ast_unchanged": {
+        "_fold_object_bounds": true
+      }
+    },
+    "spacr/utils.py": {
+      "sha256": "ff0831fd6c842df15b79315e247dec08672a930edfecde9e6ec4384f7a3c6bf5",
+      "hosted_owning_symbols_ast_unchanged": {
+        "_filter_objects": true
+      }
+    },
+    "tests/qt/test_make_masks_filters_are_any_regionprop.py": {
+      "sha256": "57931d29715499a9ca2869bddf46cd68268fe99c40e7296c0e18f5ac4e22c588",
+      "whole_file_identical_to_hosted": true
+    },
+    "tests/test_object_filters_are_any_regionprop.py": {
+      "sha256": "5145600274e110af9b301276cf802fb2640e6960f86db02f7b989a713f5c5fcc",
+      "whole_file_identical_to_hosted": true
+    }
+  },
+  "hosted_evidence": {
+    "run": 38699600639,
+    "source": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+    "overall_run": "FAILED overall; only literal selected owning results reused",
+    "groups": [
+      {
+        "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+        "file": "tests/test_object_filters_are_any_regionprop.py",
+        "counts": {
+          "PASSED": 34
+        }
+      },
+      {
+        "job": "Coverage shard 11 of 12",
+        "file": "tests/test_object_filters_are_any_regionprop.py",
+        "counts": {
+          "PASSED": 36
+        }
+      },
+      {
+        "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+        "file": "tests/qt/test_make_masks_filters_are_any_regionprop.py",
+        "counts": {
+          "PASSED": 8
+        }
+      },
+      {
+        "job": "Coverage shard 6 of 12",
+        "file": "tests/qt/test_make_masks_filters_are_any_regionprop.py",
+        "counts": {
+          "PASSED": 8
+        }
+      },
+      {
+        "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+        "file": "tests/test_object_filters_are_any_regionprop.py",
+        "counts": {
+          "PASSED": 36
+        }
+      }
+    ]
+  },
+  "scope": "Scalar regionprops available for actual mask/intensity context; opt-in add/remove rows, exact mask provenance, shared MakeMasks/generation filtering, old12bound load migration with explicit-list precedence and invalid-value refusal. Non-scalar properties remain intentionally excluded as documented.",
+  "missing_software_or_localization_at_original_contract": [],
+  "not_in_scope": [
+    "Organelle min-area/intensity family explicitly retained as segmentation settings by maintainer choice; do not retire them",
+    "No native-speaker/scientific/fullCI guarantee; no new tests/collector/model/generator or catalog/review mutations"
+  ],
+  "provenance": {
+    "en_retirement": "f303cc63c13828f5dc26af0ebe9ddd3463647bb7 normal EN regeneration2026-09-26",
+    "nine_retirement_commits": [
+      "e00bcfc0cb",
+      "6b55dbfa10",
+      "f7464c5d15",
+      "f2795a6657",
+      "1a543ce282",
+      "b36b381799",
+      "b092fc230f",
+      "bcc7dcd4a4",
+      "cc369ff695"
+    ],
+    "current_normal_consumer_tool": "tools/build_setting_consumer_map.py explicitly dates twelve-key catalog retirement2026-09-26 and CATALOG_ONLY_UNREAD=()",
+    "literal12key_retirement_proofs": {
+      "is": {
+        "normal_regeneration_commit": "e00bcfc0cbcc6f3a937c49208c813cf72004382f",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "hi": {
+        "normal_regeneration_commit": "6b55dbfa10541009580a6fa2c194eddb4b4e55bf",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "ko": {
+        "normal_regeneration_commit": "f7464c5d159e2f9c4582c2ebf9dfca6bb1af3c5c",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "zh_CN": {
+        "normal_regeneration_commit": "f2795a6657c9aa169a8d057439a7a5753b723d0f",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "pt": {
+        "normal_regeneration_commit": "1a543ce282ff1a2878ea3fa1e3f40054cca10867",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "sv": {
+        "normal_regeneration_commit": "b36b38179929666a340d1ef783169e8ad23ee230",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "fr": {
+        "normal_regeneration_commit": "b092fc230f7147fe5bb10670ad3b605f77e9edd1",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "es": {
+        "normal_regeneration_commit": "bcc7dcd4a49ce26b329ba27709a534eac82ece09",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "de": {
+        "normal_regeneration_commit": "cc369ff6958d15fa0d01fca126f69645549781b6",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      },
+      "en": {
+        "normal_regeneration_commit": "f303cc63c13828f5dc26af0ebe9ddd3463647bb7",
+        "all12_existing_before_absent_after": true,
+        "ancestor_current": true
+      }
+    }
+  },
+  "method": "Read immutable git objects with stdlib AST/literal metadata only; no canonical full collector, import/application/runtime/test/model call. Current catalogs+source hashmaps inspect each named key, preserve every artifact byte/history.",
+  "review_metadata_scan": {
+    "exact12key_regex": true,
+    "all_runtime_review_records_including_archives_have_no_such_key": true,
+    "git_grep_exit": 1,
+    "interpretation": "No active stale review row or archived row for these exact twelve setting identities; no deletion/history mutation performed."
+  },
+  "contract_mapping": [
+    {
+      "requirement": "Add/remove opt-in scalar regionprop filter rows that fit image/intensity availability",
+      "owning_nodes": [
+        "test_without_an_image_only_shape_properties_are_offered",
+        "test_an_open_field_offers_every_scalar_regionprop",
+        "test_add_a_filter_adds_one_row_with_min_max_and_remove",
+        "test_every_scalar_regionprop_is_offered_and_nothing_else"
+      ]
+    },
+    {
+      "requirement": "DONE WHEN previously not hard-coded property filters, records provenance, removing restores exact objects",
+      "owning_nodes": [
+        "test_a_never_hard_coded_property_hides_objects_and_remove_restores",
+        "test_a_property_spacr_never_hard_coded_filters_objects",
+        "test_removing_one_of_two_rows_restores_only_what_it_hid",
+        "test_an_edit_made_between_filter_runs_survives_removing_a_row"
+      ]
+    },
+    {
+      "requirement": "Shared generation/editor semantics and per-object serialization",
+      "owning_nodes": [
+        "test_the_editor_and_a_mask_run_agree_on_the_same_list",
+        "test_mask_generation_gives_the_labels_make_masks_gives",
+        "test_the_setting_is_per_object_type"
+      ]
+    },
+    {
+      "requirement": "Maintainer-approved old12-bound retirement without old saved-setting loss",
+      "owning_nodes": [
+        "test_the_retired_bounds_are_no_longer_mask_settings",
+        "test_an_old_settings_file_is_migrated_into_rows_on_load",
+        "test_the_mask_defaults_fold_a_script_that_still_passes_the_old_names",
+        "test_a_row_the_file_already_has_wins_over_a_retired_bound",
+        "test_an_unusable_retired_bound_is_left_for_the_run_to_refuse",
+        "test_a_migrated_file_filters_exactly_as_the_old_bounds_did"
+      ]
+    },
+    {
+      "requirement": "Twelve catalog rows and stale source bindings retired",
+      "evidence": "twelve-key-current-bindings.json and ten normal regeneration producer commits prove all12 keys absent; no manual row deletion/gate change"
+    }
+  ]
+}

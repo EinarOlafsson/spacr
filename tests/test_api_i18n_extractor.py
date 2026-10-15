@@ -1629,6 +1629,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     )
     assert not late_reviewed_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **late_reviewed_arrivals}
+    classifier_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "561_classifier_api_arrivals_2026-10-15.json").read_text())
+    assert len(classifier_arrivals) == 19
+    assert {key: docs[key] for key in classifier_arrivals} == classifier_arrivals
+    assert not classifier_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **classifier_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -2066,6 +2076,7 @@ def test_documented_dunders_exclude_init_private_and_package_forwarders():
         "spacr.qt.dialogs.detach_all_dialogs._Filter.__init__",
         "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.__init__",
         "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.__init__",
+        "spacr.embeddings._dino_classifier_from_config.Classifier.__init__",
         "spacr.embeddings._dino_network.Head.__init__",
         "spacr.embeddings._mil_fit._Attention.__init__",
         "spacr.embeddings._subcell_model.Pooled.__init__",

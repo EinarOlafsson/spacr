@@ -1,0 +1,87 @@
+{
+  "base": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
+  "patch_sha256": "6da2136676bb78441d57e9964d2a1091c8b38ddc8cee6f440a51fda992f9dd77",
+  "inventory": [
+    {
+      "file": "spacr/measure.py",
+      "symbol": "measure_from_field_table",
+      "line": 12738,
+      "source": "Writing the merged arrays for {count} field(s)...",
+      "values": {
+        "count": "len(table.rows)"
+      }
+    },
+    {
+      "file": "spacr/measure.py",
+      "symbol": "measure_from_field_table",
+      "line": 12742,
+      "source": "Wrote {count} field(s). Measuring them now; this is the Measure module's own run.",
+      "values": {
+        "count": "len(written['stems'])"
+      }
+    },
+    {
+      "file": "spacr/qt/screens/measure_inputs.py",
+      "symbol": "MeasureInputsScreen._on_failed",
+      "line": 505,
+      "source": "The run stopped: {message}",
+      "values": {
+        "message": "message"
+      }
+    },
+    {
+      "file": "spacr/qt/screens/measure_inputs.py",
+      "symbol": "MeasureInputsScreen._on_done",
+      "line": 520,
+      "source": "Measured {count} field(s).",
+      "values": {
+        "count": "len(self._result.get('stems', []))"
+      }
+    },
+    {
+      "file": "spacr/qt/screens/measure_inputs.py",
+      "symbol": "MeasureInputsScreen._on_done",
+      "line": 521,
+      "source": "Database: {path}",
+      "values": {
+        "path": "db_path"
+      }
+    },
+    {
+      "file": "spacr/qt/screens/measure_inputs.py",
+      "symbol": "MeasureInputsScreen._on_done",
+      "line": 515,
+      "source": "The run produced no result.",
+      "values": {}
+    },
+    {
+      "file": "spacr/qt/screens/measure_inputs.py",
+      "symbol": "MeasureInputsScreen._on_done",
+      "line": 524,
+      "source": "WARNING: the database is not where it was expected.",
+      "values": {}
+    },
+    {
+      "file": "spacr/qt/widgets/measure_input_table.py",
+      "symbol": "MeasureInputTable._files_found",
+      "line": 306,
+      "source": "Some of what was dropped could not be read: {trouble}",
+      "values": {
+        "trouble": "trouble"
+      }
+    },
+    {
+      "file": "spacr/qt/widgets/measure_input_table.py",
+      "symbol": "MeasureInputTable._scan_failed",
+      "line": 320,
+      "source": "What was dropped could not be read: {message}",
+      "values": {
+        "message": "message"
+      }
+    }
+  ],
+  "sourceproof": "All owning public/private/nested symbol names, signatures and docstrings unchanged. Exactly9tr literal templates introduced at five granted function sites; imports only extra behavior. Originalvalues/order/signals/exceptionguards unchanged. No FEATURES restoration/OrganizeForMeasure mutation.",
+  "extractor_owner_request": "Home-B grant tools/build_i18n_catalogs.py actual measure.py diagnostic_owners: add ONLY measure_from_field_table so2complete tr progress templates collected. No extractor edits made. UI modules already inventoried.",
+  "test_plan": "One bounded baseline of new actual localized output tests on unchanged source: true Swedish generated catalog/i18n translator, real Qt log/status callbacks/signals, actual stage emissions with heavy measure algorithm isolated at existing seam; preserve all dynamicvalues/resultidentity/order. After reviewed source+normal9catalog writer, run those final tests once against actual generatedtargets, not injectedtranslatedtr mocks. Existing17/18cohorts not repeated.",
+  "normal_closure": "Private source until Home-B F561 writer terminal/onecoalescedN448N440N421 writer.9exacttechnicalreviewdrafts later; no model/globalcollector now."
+}

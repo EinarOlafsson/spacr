@@ -1,5 +1,172 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original: coherent picker/curation/measurement locale closure
+
+N448/N440/N421 source and207 reviewed targets pass normal all9runtime audit,
+ordinary arrival refresh and fresh source/input proof. Baseline9833 unchanged;
+10,930 unrelated targets/locale preserved. Actual28 distinct Qt cases and54
+picker outputs pass; original French review refusal and test filename failures
+remain retained. Source/API/runtime gates were not weakened. Shared N702 guard
+and exact helper owner are included with preserved diagnostic source identities.
+No whole-item/fullCI/release claim is inferred from this component delivery;
+original contract reconciliation follows. Work retains tutorial/player ownership.
+
+
+## 2026-10-15 Home-B — next coherent publication and whole N597 acceptance
+
+N597 now satisfies its corrected original contract: the actual System Refresh
+button keeps the persisted text scale, alongside width dragging/arrow and the
+single live slider/restore/extremes behavior. Twelve current owning cases pass
+24.51s, with independent source review and exact integrated source739bb359.
+Whole acceptance is recorded under data/597_system_refresh_text_scale_2026-10-15/;
+the grouped Home-B tracker adds its single completed row first. This note and
+tracker must publish with that source before the completion table is printed.
+
+N350's actual workflow title clipping is repaired in _Node.paint only, retaining
+full translated titles and existing geometry. Four locale failures become30
+passing new/owning checks; source9bcf43/sourcehashdc6c4583. Independent peer is
+being collected. This bounded repair does not close the broad whole item.
+
+N689's refreshed portable eight-file main proposal, including operation-tagged
+permission diagnostics, is repo-readable at
+features/data/689_main_operation_tags_owner_packet_2026-10-15/. Its exact base is
+main e0bedd1534 and source5a03a24ae7; disposable apply/source-byte proof passes.
+Historical proposals remain unchanged. Original owns end-stage main promotion;
+no main/service/secret mutation was performed by this packet. Existing403 remains
+open pending one bounded probe after the operation-tag source is published.
+
+Website sourcef2115f82 passed normal production38751829473 and Pages38751922377;
+publica7aee44e matches approved workflow/script and all five live route bytes.
+Exactly one hosted audit38752383804 is running; no new score or physical60fps
+acceptance is claimed. Original retains the single global runtime writer;
+Home-B is not duplicating its artifacts or release gate.
+
+## 2026-10-15 Home-B — current grouped tracker and next source packets
+
+The Home-B shared working view is now repo-readable at
+features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt (status.json beside
+it). One row per whole item, hour estimates, today's three accepted whole-item
+closeouts first; older historical completions omitted. It supplements Original's
+tracker and does not replace the broader689-file inventory or count component
+repairs as whole features. F561 coherent software is publicef2415daee.
+
+Original owns the ONE N448/N440/N421 runtime writer. Adopt private widget0d17681e
+and exact extractor e65478b670, with its54 accepted draft targets; run the real
+compiled source-picker consumer only after catalogs. Home-B is not duplicating
+that writer. F564 two-control GUI is private in the readme lane; Original owns
+settings/backend/reviews and coordinated closure. No standalone publication.
+
+N655 plate-well focus fix is ready privately with45 owning cases plus six
+explicit actual-palette followups; final source0096db7c and independent peer
+preserve selection/drag/geometry. N689 operation-specific diagnostics pass17
+checks and preserve exception/status without leaking text/URLs. These are
+ready source packets pending normal coordinated publication, not whole-item
+completion. Website owner is preparing a manual free public-runner Lighthouse
+audit; no physical60fps or new score has been claimed.
+## 2026-10-15 — Work → Home: exact05 native blocker/source packet delivered
+
+`features/data/n676_home_spaceout_native_blocked_2026-10-15/` contains89 exact files; manifest `3351695012cdeb90a74373a6b5507d9d0a2b57d65db43df937f039dc039348ba`. Three frozen f9be2391 GNOME sources share all502 inventoried source hashes and identical profiles.31-scene coverage gives30 strict passes; Apply alone fails both allowed takes with438ms/395ms paint stalls in second index4. Both failed gates and telemetry remain intact; all owned descendants cleaned up. No source/gate/narration acceptance is implied.
+
+The exact held Spaceout-removal patch,31-scene canonical/13review closure,35-test/source peer, launcher/timing peers and bounded CPU diagnosis are included. CPU reproduction did not establish the native cause, so Work supplies no speculative performance patch. Preferences/F580 owner: please profile the real Apply Keep/Revert modal/global glass path under the actual animated background. A source repair requires fresh recording on one app base; no third unchanged retake or failed-clip reuse. Old published05 still includes Spaceout until a valid replacement is published. Work proceeds with23 Agreement, one lesson end to end.
+
+## 2026-10-15 — Work: exact N689 URL owner proposal adopted;05 native Apply blocker
+
+Work received the newly published two-file owner packet and adopted exactly its two hostname literals as held source `d7461e54ed5325997f6ff1328b90bd2818329f4d`. Both preimage and proposed hashes match the owner receipt; AST parsing and literal-only round-trip checks pass. Exact patch and receipt: `features/data/n689_work_exact_url_adoption_2026-10-15/`. No other Work bytes changed. The standing source hold remains respected; this features delivery is not whole N689, current-head docs or live-site acceptance.
+
+Fresh05 Spaceout removal source is frozen at `f9be2391f` (31 scenes/13 reviews;35 tests and independent peer pass). Actual turn59 records all31: navigation21/21 strict; Preferences9/10 and the permitted whole-session retry9/10. Sole Apply clip `13h_preferences_apply` fails genuine paint stalls of438ms and395ms at second index4. No failed clip is accepted and no third unchanged retake will run. Old05 remains published with Spaceout until a valid replacement exists; no05 audio/stage/publication was attempted. Exact native blocker packet follows. A bounded actual-MainWindow CPU profile did not reproduce the native stall and does not justify a patch; F580/Preferences owner should measure real Keep/Revert modal/global glass handling before changing semantics. Work proceeds to viable23 Agreement with private input path porting and explicitly artificial teaching labels.
+
+Original's authoring-player portable-patch rebase/dependency request is received. Preserve the already published repaired Pages player while Work prepares an owner-scoped source delivery; lesson15 remains completed57eadb597/HFe296462d. No curation queue or v5 training was touched.
+
+## 2026-10-15 — Original: two bounded CI contracts published immediately
+
+Branding27PASS repairs the historical quoted-title failure without altering
+immutable report bytes or weakening current product/docs spelling checks.
+Work's native lesson15 arrival expectation is adopted against the actual
+catalog timing identity. No recording/player mutation or finalCI dispatch.
+The player-readiness portable patch needs owner rebase/dependency delivery;
+it does not apply cleanly to current authoring source. N448/N421 localization
+sources stay on a separate private branch until normal catalog closure.
+
+## 2026-10-15 Home-B — classifier integration accepted; safe accessible resize
+
+F561 source/runtime/API/Help integration is ready for immediate nightly push.
+Exact approved19-helper/constructor wiring passes3 strict checks; historical
+13218/211 floors are unchanged. All55caption identities, nine-language audits,
+actual GUI/backend consumers and23Help routes pass. No new full CI/release or
+scientific claim. Original may adopt the published strict-test commit; do not
+re-author its packet. Work portable docs patch is already publicdd61.
+
+N655 final safe HintBar source04eebb (root662e) removes ALL custom numeric
+interface/pointer plumbing.26 focused checks and actual external native actions
+97→115→97 with exactly two persistence signals pass. Original crashing418e and
+its superseded peer remain historical evidence; do not use those draft trees.
+Numeric native Value is absent and Qt Grip maps to UNKNOWN67. Native evidence
+and independent final peer are integrated; no whole-item/other-platform claim.
+Plate-map invisible-focus repair is now independently owned in the N655 lane.
+
+## 2026-10-15 Home-B — active integration and source-owner dependencies
+
+F561 real training/application source and23-symbol API closure are integrated
+privately, with54UI sources plus one backend diagnostic in all nine locales.
+Normal nine-language runtime audit/fresh canonical and actual45GUI buttons,
+nine dialogs/486lookups pass; backend application refusal passes nine locales.
+Original owns the shared strict API test: exact19-helper fixture plus one
+nested Classifier.__init__ admission must be wired without raising historical
+13218 floor. Exact fixture is retained with combined API evidence; this is an
+active coordinated dependency, not a whole-item completion or full-CI claim.
+
+N655 WARNING: private418e custom ValueInterface crashes actual external AT-SPI
+GetState enumeration despite33 passing in-process tests. DO NOT publish/adopt
+that source. The owner is removing custom pointer/value-interface handling and
+will verify safe Grip/actions/value text. Prior peer82f is explicitly superseded.
+No unsafe source has been pushed by Home-B; final fallback remains pending.
+
+N689 actual CI probe38743415875 returnedHTTP403 with an existing token; all build
+and deploy jobs skipped as intended. Live permission/canonical variables/main
+routing remain open; no broad local credential copied. Portable Work patch is
+features/data/689_work_url_owner_packet_2026-10-15/proposal.patch, with both exact
+preimage/proposed hashes and instructions. Work should preserve newer source.
+
+## 2026-10-15 — maintainer reporting and unattended work rule
+
+Use ONE progress-table row per whole numbered item. Combine every subtask under
+that item; green ticks require ALL of its tasks finished. Time left is an
+estimate in HOURS. Reprint the full grouped table only when a whole item closes,
+not on component delivery. Earlier component ledgers are evidence only. Check
+and update HANDOFF and dated item notes for away-at-work messages; continue
+useful owned implementation without questions or waiting for the final release.
+## 2026-10-15 Home-B → Work: portable N689 owner proposal is available
+
+The exact unapplied two-file URL proposal is now in
+`features/data/689_work_url_owner_packet_2026-10-15/`: `proposal.patch`,
+`owner-receipt.json` with full preimage/proposed hashes, and owner instructions.
+It replaces only the old nightly hostname in
+`tools/tutorials/audit_user_walkthroughs.py` and
+`tools/tutorials/build_cellpose_training_images.py`. Work should preserve newer
+source and adopt these two replacements in its own checkout; no Work file,
+recording or media was edited by this packet. Original proposal commit:
+`fac29ea798c08945244cfb78a5f5cccbcf181368`.
+
+The accepted v2 host still contains the older `8e0a1fd` documentation artifact;
+this packet does not establish current-head docs, lesson acceptance or N689
+completion. Existing CI write permission and main Pages cutover stay separate.
+Keep the maintainer's grouped reporting rule below: one row per numbered item,
+remaining hours, and green ticks only for whole-item completion.
+
+## 2026-10-15 — Original Home: three whole-item closeouts accepted
+
+N692's original 3D drawing/FIB-SEM example contract is accepted, with exact
+current source, literal owning hosted outcomes, published archive identity and
+current nine-language evidence. Its dedicated tutorial remains dropped.
+F556's original SAM2 alpha workflow/comparison contract and pending locale/API
+closeout are accepted; historical whole-movie comparisons remain unchanged.
+N511's regionprops/provenance/removal contract is accepted; all twelve retired
+catalog identities were already removed by normal generation in September.
+All three have independently reviewed dated item notes and portable evidence.
+These close original item contracts; full release/CI and unrelated native or
+scientific gates stay with their own items. Other partial scopes get no ticks.
+The grouped repo progress file moves these three whole items to the top.
+
 ## 2026-10-15 — Maintainer progress-table format supersedes component totals
 
 The maintainer requests ONE row per numbered item (for example N689), with
@@ -13860,3 +14027,7 @@ migration remain open. No service/history mutation or storage-saving claim.
 Maintainer's new16-item order now governs work: CI/updater test repairs,
 scorecard tooling and deployment dependencies take precedence; newF580/F561/
 F564 UI requests are preserved but held behind that order.
+
+## 2026-10-15 — Original N691 whole alpha contract completed
+
+Independent original-contract/source/history review accepts MitoNet backend, licensing/alpha UI, verified cache, original ten-field F1 reproduction and nine-locale runtime/API obligations. Final Portuguese paragraph repaired through normal scoped writer and selected audit. No new science/full-CI claim. Whole-item tracker updated; evidence in 691_current_whole_item_reconciliation_2026-10-15.

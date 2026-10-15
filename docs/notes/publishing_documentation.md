@@ -121,3 +121,11 @@ records its exact source commit.
 Use `tools/tutorials/publish_release_candidate.py` to verify and promote a ready
 media subset. Finishing every translation and voice is not required before
 publishing independently verified lessons.
+
+The isolated access check reports a fixed, nonsecret ``operation`` on failure:
+``metadata``, ``tree``, ``readme``, ``commit`` or ``readback``. The original
+exception class and HTTP status are retained; exception messages, credentials
+and request URLs are omitted. A 403 at an early read boundary does not prove
+that the commit endpoint was reached. Check the reported boundary before
+adjusting the selected Space permissions. The original run38743415875 predates
+this field and cannot identify its failing boundary retrospectively.

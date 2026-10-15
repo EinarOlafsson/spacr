@@ -217,3 +217,34 @@ future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
 
 VERIFIED 2026-10-04: Keep and Discard buttons on the offscreen Make Masks screen; test_keep_and_discard_mark_the_field passes; 1 referenced test files pass.
+
+2026-10-15 — Whole-item audit found a real remaining status localization gap.
+The button captions/tooltips already have reviewed catalogue entries, but the
+actual _advance_after_verdict still assembled raw English verdict/status text.
+Eight complete tr templates now cover Keep/Discard across moved, empty queue,
+last field and no-move outcomes, preserving existing English text, field names,
+navigation/order/return values and the no-deletion meaning. Actual callback and
+_StatusLabel baseline:8FrenchFAIL8EnglishPASS3.35s, with all four states and
+private image/mask/CSV preservation checks. Seventy-two exact target drafts pass
+the scoped normal source/context/markup/semantic gates; independent review and
+ordinary full runtime/arrival generation remain required. The existing lowercase
+queue fragment has nine precisely identified old review rows; retire only with
+normal globalcanonical absence confirmation, preserve original history and all
+other rows. Final16cases plus9actual locale callbacks are prepared and remain
+unrun until real catalogues exist; no injected translations or whole-item
+completion is claimed. Method public prose/signature and all other AST remain
+unchanged. Evidence: features/data/448_complete_curation_status_2026-10-15/.
+
+2026-10-15 — Complete status translations and real compiled consumers verified.
+    Eight complete status templates/72 independent targets are now generated
+    normally in all nine locales. Normal full runtime audit0, unchanged9833
+    arrival baseline and fresh original source proof pass;10,930 unrelated
+    targets per locale remain exact. Global canonical absence permits retiring
+    exactly nine old fragment review rows with full original archives. Actual
+    callbacks/status labels pass16English/French cases plus9all-locale cases.
+    The first combined consumer run had19PASS/9test-path failures before those
+    nine callbacks; correcting only the prepared review filename gives9PASS
+    2.35s, with no generator or successful-case replay. No deletion/navigation
+    semantics, signatures or public docs changed. Evidence:
+    data/448_440_421_runtime_closure_2026-10-15/. Whole original acceptance
+    reconciliation remains separate from this bounded translation delivery.

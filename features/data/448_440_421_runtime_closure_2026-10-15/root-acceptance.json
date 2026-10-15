@@ -1,0 +1,36 @@
+{
+  "scope": "Coherent runtime software/localization closure, not whole-item/fullCI/release acceptance",
+  "normal_producer": "all9review/candidate/writer/audit0/arrival/freshoriginalcanonical+source/review/filepins PASS; baseline9833 unchanged",
+  "owned_ui_sources": 23,
+  "owned_locale_targets": 207,
+  "foreign_targets_preserved_per_locale": 10930,
+  "actual_consumers": {
+    "first_run": "19PASS9FAIL13.82s; nine failures only wrong prepared review filename, before callback assertions",
+    "passed_original_nodes": [
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-moved-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-moved-fr]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-empty-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-empty-fr]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-last-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-last-fr]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-other-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[True-other-fr]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-moved-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-moved-fr]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-empty-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-empty-fr]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-last-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-last-fr]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-other-en]",
+      "tests.qt.test_n448_complete_curation_status::test_actual_verdict_status_is_complete_and_preserves_navigation[False-other-fr]",
+      "tests.qt.test_n421_legacy_measurement_output_translations::test_stage_messages_reach_the_real_log_in_swedish",
+      "tests.qt.test_n421_legacy_measurement_output_translations::test_result_failure_messages_preserve_payloads_and_signal_order",
+      "tests.qt.test_n421_legacy_measurement_output_translations::test_scan_failure_writes_are_localized_without_changing_scan_flow"
+    ],
+    "correction": "Only test input filename changed to installed approved normal review filename; no assertion/product/translation change or generator replay",
+    "nine_previously_unexecuted_callback_cases": "9PASS2.35s after filename fix",
+    "picker": "54 actual compiled-widget captions, canonical source IDs/default2/preferences/language roundtrip PASS"
+  },
+  "no_duplicate_tests": "Original successful19 cases and actualpicker54 not rerun after test path correction",
+  "limits": "No actual model inference/nativeGPU/cluster/science/fullCI or standalone feature completion implied"
+}

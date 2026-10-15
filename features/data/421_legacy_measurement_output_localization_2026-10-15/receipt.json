@@ -1,0 +1,94 @@
+{
+  "scope": "N421 retained public legacy measurement stage/log/scan output localization; no FEATURES restoration",
+  "base": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
+  "source": "Exact independently approved3source snapshots;9trcomplete templates/5methods; whole AST identical after inverse9wrappers+3imports; signatures/prose/algorithms/order/dynamicvalues/guards unchanged",
+  "baseline": {
+    "first": "3FAIL13.75s actualexit1; first2actualSwedish-output failures; scanner initially expected4writes rather than actual3",
+    "corrected_scanner_only": "1FAIL4.38s actualexit1; all structural/payload/order controls pass before actual English-vs-Swedish output assertion",
+    "distinct_output_families": 3,
+    "measurement": "Real tinyTIFF/table project writes and Qt log/status/signals; only heavy measure_crop stubbed; no injected tr or catalog translations",
+    "test_sha256": "f668e7f307f0daa5439114deb26979c31f0deeb850e0edaf254b9efca0a578a9",
+    "raw": "Exact logs/XML gzip archives, original scratch unchanged"
+  },
+  "reviews": [
+    {
+      "language": "sv",
+      "draft_input_sha256": "d4cac0947a06fa5b7fa0464beb9193cc44945cdfb4b59876289005628e39880d",
+      "approved_path": "docs/i18n/reviewed/runtime/sv/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "77af7519d7357c1ccd26b96de5e76ac49cf6817a6048402c764395ba8fc2c73b",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "de",
+      "draft_input_sha256": "f84b6a548459e8ea5ef27ac7b8351ba04311476270c2bdcf9d747fd8d0f780cb",
+      "approved_path": "docs/i18n/reviewed/runtime/de/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "60c15db0d4d5f998dca74bd164bc1336fb1448eafdcc1ed7a58a43cc2ba30c98",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "es",
+      "draft_input_sha256": "2dcc3de156f3d0c8e204597f266d93dd9d84978779fa41e13158a093fc4f54f7",
+      "approved_path": "docs/i18n/reviewed/runtime/es/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "70be50dd9658326a92af38025d36f364f29712b313c639d2fab54af1f528fb11",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "zh_CN",
+      "draft_input_sha256": "181424810e6cafa3abec036b351137b8f51cce69b9c26a3471e2730863ea64fc",
+      "approved_path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "1957e7957ff24cc129bbc3cecc3f41f5c1b83215663f84cf6ce065f5ecf2e787",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "pt",
+      "draft_input_sha256": "b6b1a2c580614a4a3c88a9020adb4728e406d01ffbaaa51129409a36ab4114bb",
+      "approved_path": "docs/i18n/reviewed/runtime/pt/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "621de237f49b79a0988f9a628708b2906af3ea8bc5b7a78dbe13a9110c5349a6",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "hi",
+      "draft_input_sha256": "e050e1c3c1c3f0ea6557733cefe195f3ce41a0d19411c3b8132aed254558f286",
+      "approved_path": "docs/i18n/reviewed/runtime/hi/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "bc3cec3d177fe2cc14709415558946645e2c0832edb2a263cc986793d8cf35dc",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "ko",
+      "draft_input_sha256": "f70564eccc306da54e3044d8cab1dbe314fc111a9fce800c10d358dee731105b",
+      "approved_path": "docs/i18n/reviewed/runtime/ko/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "ec07e26eb6dd90edec629e43be6140715e6e169706733a787d2d2627f66ee0cc",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "is",
+      "draft_input_sha256": "0d9e40f252922e4c827dccfe4fbaff7799205438ca0bcacdd2a0950a417e697c",
+      "approved_path": "docs/i18n/reviewed/runtime/is/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "4bf7af2019b56851dca7f6aea1abef7aca96e3404e4bfbcbbd98f74dd7001533",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    },
+    {
+      "language": "fr",
+      "draft_input_sha256": "35c970b5edb361df9b216ec43db4e61f9f4428afd8745f804df6074c379ac835",
+      "approved_path": "docs/i18n/reviewed/runtime/fr/2026-10-15-hand-drawn-measurement-outputs.json",
+      "approved_sha256": "abafa7b5384ee167f2b10c9e3bfd111bbb2426a83892953b0604d9cad53b6caf",
+      "records_exactly_equal_peer_reviewed_input": true,
+      "only_metadata_change": "review_kind reflects completed independent peer rather than draft pending"
+    }
+  ],
+  "review_provenance": "81source-bound technical targets reviewed by author and root; old immutable draft bytes/hash inputs retained; final active records exactly equal peer-reviewed records, metadata only marks completed peer",
+  "normal_dependency": "Home-B exact measure_from_field_table extractor grant and coalescedN448/N440/N421 normal9catalog/arrival closure pending. No normal writer/extractor edits by this lane.",
+  "final_tests": "NOT RUN. Run only3new actual-output cases after genuine normalgenerated catalogs; existing17/18owning cohorts not repeated.",
+  "api": "No docstrings/signatures/newhelper targets changed; no new APIprose generation obligation",
+  "publication": "PRIVATE component only; do not publish source-only or claim wholeN421/native/fullCI completion",
+  "archive_validation": "Initial cached whitespace check reported literal unified-patch context spaces; original proposal now gzip archived exact-byte, SHA256 unchanged after decompression. Private unpublished commit amended before delivery; no source or target changes. Final cached diff check required before amendment.",
+  "proposed_patch_gzip_original_sha256": "6da2136676bb78441d57e9964d2a1091c8b38ddc8cee6f440a51fda992f9dd77"
+}

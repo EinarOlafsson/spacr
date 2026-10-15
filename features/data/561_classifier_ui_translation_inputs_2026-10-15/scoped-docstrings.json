@@ -1,0 +1,10 @@
+{
+  "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": "Whether crop loading, embedding or either own-DINO training action is in flight.\n\nIncludes both training runners until their workers have retired,\neven after their final results have reached the screen.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": "Discard pending results and drain all runners before the widget goes.\n\nCrop loading and classifier training are asked to stop first; further\ntraining progress is ignored.\nEach ``shutdown`` waits a bounded time, then parks any worker that\noutlasts it. A parked training worker can finish writing its checkpoint\nwithout updating this closed GUI view; it is not forcibly terminated.\n\n:param event: Qt's close event, passed to the base class unchanged.\n    The close is accepted even if a worker must be parked.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": "Choose an explicit row-aligned label and acquisition-group table.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.start": "Retain the form when a path or metadata validation refuses the run.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.cancelled": "Honor both the application's worker cancellation and the local stop.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.done": "Publish actual artifact metadata only to the run's original crop selection.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.progress": "Relay worker progress without reading or changing GUI widgets.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.work": "Filter the frozen row selection before calling the real trainer on raw planes."
+}

@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr
 from .sortable_table import install_sorting, table_item
 from ...object_roles import ORGANELLE_ROLES, organelle_label
 
@@ -302,7 +303,7 @@ class MeasureInputTable(QWidget):
         found, trouble = answer if answer else ((), "")
         if trouble:
             self._regex_status.setText(
-                f"Some of what was dropped could not be read: {trouble}")
+                tr("Some of what was dropped could not be read: {trouble}", trouble=trouble))
         self.add_paths(list(found or ()))
 
     def _scan_failed(self, message: str) -> None:
@@ -316,7 +317,7 @@ class MeasureInputTable(QWidget):
         """
         try:
             self._regex_status.setText(
-                f"What was dropped could not be read: {message}")
+                tr("What was dropped could not be read: {message}", message=message))
         except RuntimeError:
             pass
 

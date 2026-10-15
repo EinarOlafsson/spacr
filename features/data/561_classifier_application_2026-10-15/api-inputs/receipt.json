@@ -1,0 +1,16 @@
+{
+  "source_commit": "03647f0827274824ab26c361259dc022a858d342",
+  "source_frozen": true,
+  "normal_visibility": "Exact two-file source snapshots, unchanged normal visible/render/clean/block and enabled nested-helper inventory/entries; no global source/runtime collector or decoder",
+  "new_symbols": [
+    "spacr.embeddings._dino_classifier_from_config.Classifier.features",
+    "spacr.embeddings._dino_classifier_apply.refuse"
+  ],
+  "changed_symbol": "spacr.torch_artifacts.load_model_artifact#2",
+  "private_top_level_apply_excluded": true,
+  "new_targets": 27,
+  "normal_target_gates": "All3 exact blocks\u00d79locales pass normal reviewed_api_block_translations; original canonical/context/markup/script/semantic gates unchanged",
+  "prior_inputs": "All81 original draft rows preserved byte-identically; normal loader proves only9old stream#2 rows stale and needing ordinary retired/history-preserving supersession",
+  "pending": "Independent27target peer; Home-B exact normal installed records, API/English/help generation with final UI source; no source-only or orphan publication",
+  "no_claim": "No native/human translation review or fullF561 scientific acceptance"
+}

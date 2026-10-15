@@ -1,0 +1,11 @@
+{
+  "status": "PASS_READY_FOR_COORDINATED_WRITER",
+  "tests": "4 passed,56deselected in1.12s",
+  "scope": "N440: exactly module-level _SOURCE_TOOLTIPS literal string values in widgets/model_zoo_picker.py; existing literal heading extraction unchanged. N421: only top-level measure_from_field_table joins existing diagnostic owners.",
+  "negative_boundaries": "Private keys, other dictionaries/modules, local shadows/nested metadata and same-name nested/class backend helpers excluded.",
+  "files_sha256": {
+    "tools/build_i18n_catalogs.py": "39fefad7923eab27f539304b8bf8ab5d298472e67cb78e3b8707120a60957f96",
+    "tests/test_runtime_backend_caption_owners.py": "e756cc734e44335abbb28e96923e6acfd4e7e0a1c527785f9806774c4d70ef68"
+  },
+  "publication": "No source-only push. Original owns one coalesced N448/N440/N421 catalog writer and actual compiled consumers."
+}

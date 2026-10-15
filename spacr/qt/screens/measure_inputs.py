@@ -54,6 +54,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
+from ..i18n import tr
 from ..widgets.card import Card
 from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
 from ..widgets.collapsible_section import CollapsibleSection
@@ -500,7 +501,8 @@ class MeasureInputsScreen(QDialog):
         try:
             self._result = None
             self._set_running(False)
-            self._log.appendPlainText(f"The run stopped: {message}")
+            self._log.appendPlainText(
+                tr("The run stopped: {message}", message=message))
             self.run_finished.emit(None)
         except RuntimeError:
             pass
@@ -510,16 +512,16 @@ class MeasureInputsScreen(QDialog):
         self._result = result if isinstance(result, dict) else None
         self._set_running(False)
         if self._result is None:
-            self._log.appendPlainText("The run produced no result.")
+            self._log.appendPlainText(tr("The run produced no result."))
             self.run_finished.emit(None)
             return
         db_path = self._result.get('db_path', '')
         self._log.appendPlainText(
-            f"Measured {len(self._result.get('stems', []))} field(s).")
-        self._log.appendPlainText(f"Database: {db_path}")
+            tr("Measured {count} field(s).", count=len(self._result.get('stems', []))))
+        self._log.appendPlainText(tr("Database: {path}", path=db_path))
         if not self._result.get('db_exists'):
             self._log.appendPlainText(
-                "WARNING: the database is not where it was expected.")
+                tr("WARNING: the database is not where it was expected."))
         self.run_finished.emit(self._result)
 
     def closeEvent(self, event):  # noqa: N802 - Qt contract

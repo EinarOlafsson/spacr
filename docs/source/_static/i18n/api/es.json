@@ -23002,6 +23002,66 @@
         "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee"
       ]
     },
+    "spacr.embeddings._dino_classifier_apply.refuse": {
+      "source_blocks_sha256": [
+        "2864fd3a7ef70a63c5139577fa80f69e03754ebff2a26a3beb2fbd17766396dc"
+      ],
+      "source_sha256": "2864fd3a7ef70a63c5139577fa80f69e03754ebff2a26a3beb2fbd17766396dc",
+      "text": "Rechazar una aplicación incompatible del clasificador Own-DINO.",
+      "translation_source_blocks_sha256": [
+        "11e507f6e99e995030de773fbdf586b289ada7783325e006d6f53eb87ab4258c"
+      ]
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.__init__": {
+      "source_blocks_sha256": [
+        "5b2472abedb9eaaba48438ce717baa8ba507fc126f6295c7bab0f1b931c67435"
+      ],
+      "source_sha256": "5b2472abedb9eaaba48438ce717baa8ba507fc126f6295c7bab0f1b931c67435",
+      "text": "Conectar la escala registrada, el codificador teacher y una cabeza de clasificación sin entrenar.",
+      "translation_source_blocks_sha256": [
+        "5b2472abedb9eaaba48438ce717baa8ba507fc126f6295c7bab0f1b931c67435"
+      ]
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.features": {
+      "source_blocks_sha256": [
+        "8337910fbd701a016a6d6d9b4d7b96f32b4471ef5ab4da9b3dcdf50804d8e77e"
+      ],
+      "source_sha256": "8337910fbd701a016a6d6d9b4d7b96f32b4471ef5ab4da9b3dcdf50804d8e77e",
+      "text": "Escalar los planos NCHW sin procesar seleccionados y devolver las características registradas del codificador.",
+      "translation_source_blocks_sha256": [
+        "438b58adec1695c6710916e21e8f3bca85d0698f60e11856f768c10e3668be0c"
+      ]
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.forward": {
+      "source_blocks_sha256": [
+        "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d"
+      ],
+      "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+      "text": "Escalar los planos sin procesar seleccionados en formato NCHW y devolver los logits de clase.",
+      "translation_source_blocks_sha256": [
+        "8345bc2e31ecbde1ba2c7ce1d3dbcb50a6fdf73864dd6ca1612ebdeb88a2a6e3"
+      ]
+    },
+    "spacr.embeddings._dino_classifier_from_config.Classifier.train": {
+      "source_blocks_sha256": [
+        "1273266a542bf66cc8a46d2ffc2363c8909a437bd8b177d2297a42192c66ad53"
+      ],
+      "source_sha256": "1273266a542bf66cc8a46d2ffc2363c8909a437bd8b177d2297a42192c66ad53",
+      "text": "Mantener un teacher congelado en modo de evaluación mientras se entrena su cabeza de clasificación.",
+      "translation_source_blocks_sha256": [
+        "1273266a542bf66cc8a46d2ffc2363c8909a437bd8b177d2297a42192c66ad53"
+      ]
+    },
+    "spacr.embeddings._dino_classifier_from_config.refuse": {
+      "source_blocks_sha256": [
+        "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87"
+      ],
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "text": "Rechazar un contrato incompatible del clasificador Own-DINO.",
+      "translation_source_blocks_sha256": [
+        "32943cd2e77e597fb002f060377d515e15bffc0ab03fd2d5c8409f290c7faaa5"
+      ]
+    },
     "spacr.embeddings._dino_encoder.run": {
       "source_blocks_sha256": [
         "3c13f9973e023830a028114f092b87b73d36c278f1724e2dd3c23e11216c714f",
@@ -23014,6 +23074,26 @@
         "89c2919c0424e49a1547c6fa7c2415a24805fe463afdd6bd8adca0a67e52cfee",
         "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
+      ]
+    },
+    "spacr.embeddings._dino_finetune_classifier.refuse": {
+      "source_blocks_sha256": [
+        "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87"
+      ],
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "text": "Rechazar un contrato incompatible del clasificador Own-DINO.",
+      "translation_source_blocks_sha256": [
+        "32943cd2e77e597fb002f060377d515e15bffc0ab03fd2d5c8409f290c7faaa5"
+      ]
+    },
+    "spacr.embeddings._dino_finetune_classifier.stop_if_requested": {
+      "source_blocks_sha256": [
+        "ec310f360d92289b41084c3d4cc0158201ba4b544939cb84ea378650a1058988"
+      ],
+      "source_sha256": "ec310f360d92289b41084c3d4cc0158201ba4b544939cb84ea378650a1058988",
+      "text": "Detenerse entre lotes cuando el llamador solicite la cancelación.",
+      "translation_source_blocks_sha256": [
+        "ec310f360d92289b41084c3d4cc0158201ba4b544939cb84ea378650a1058988"
       ]
     },
     "spacr.embeddings._dino_network.Head.__init__": {
@@ -101478,6 +101558,26 @@
         "128fe41d91f1e1aa86f6c114185d5f4d972f115cb8c1329beba95bf1ecbf6e65"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.finished": {
+      "source_blocks_sha256": [
+        "878d2e481199a504f1389703f1803831f0e9321380a975bc99adf5140d005634"
+      ],
+      "source_sha256": "878d2e481199a504f1389703f1803831f0e9321380a975bc99adf5140d005634",
+      "text": "Conservar las salidas solo para la selección de recortes de imagen que siga vigente y no se haya cancelado.",
+      "translation_source_blocks_sha256": [
+        "0ad0f9c21b479640cd9ebba0cf929ca696b05c9bc5e9c0f19c800da3186ed06a"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.work": {
+      "source_blocks_sha256": [
+        "cbf6262bdf4f5c22821cfc4671c5551914f2fe2e4e114ec7666bc3aa6d21156f"
+      ],
+      "source_sha256": "cbf6262bdf4f5c22821cfc4671c5551914f2fe2e4e114ec7666bc3aa6d21156f",
+      "text": "Aplicar el artefacto real a los recortes de imagen completos, en bruto y sin modificar, con el eje de canales al final.",
+      "translation_source_blocks_sha256": [
+        "18bc62ec7b4be3fb3272aaf2f8b398a376395721f5079bf2bd5100b45cde3504"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping": {
       "source_blocks_sha256": [
         "8591452059e7055f6313220c494a847dadf8ba8e8e73a88687ff09ba6a66a06d"
@@ -101506,6 +101606,26 @@
       "text": "El quinto plano solo corresponde a la función de creación de Cell Painting.",
       "translation_source_blocks_sha256": [
         "cabe1e8a5b080e931aa03c9d15c3f927197488091876888d2edc97d0561cf7ab"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": {
+      "source_blocks_sha256": [
+        "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d"
+      ],
+      "source_sha256": "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d",
+      "text": "Elegir una tabla explícita de etiquetas y grupos de adquisición alineada por filas.",
+      "translation_source_blocks_sha256": [
+        "dfc24c0d9d553b07180ae740744c2094443d7f548fa2fbf0d8728eef634e3a2d"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.start": {
+      "source_blocks_sha256": [
+        "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c"
+      ],
+      "source_sha256": "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c",
+      "text": "Conservar el formulario cuando una ruta o la validación de metadatos impide la ejecución.",
+      "translation_source_blocks_sha256": [
+        "223da7b6574d0d8acd784872fe3187a7c2e5343db511d728f8da1f4c1507a56c"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_well_labels.work": {
@@ -101582,6 +101702,26 @@
         "d800051117df0ab69d4c6603c550137fe078060bf7b51d574d0e7b7a25543551"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.finished": {
+      "source_blocks_sha256": [
+        "6bbdadd9d4d29b5e5b69b72287b7597682f307430825a3793943262ea0da9e9a"
+      ],
+      "source_sha256": "6bbdadd9d4d29b5e5b69b72287b7597682f307430825a3793943262ea0da9e9a",
+      "text": "Informar de la instantánea exportada solo mientras su resultado de origen siga vigente.",
+      "translation_source_blocks_sha256": [
+        "6bbdadd9d4d29b5e5b69b72287b7597682f307430825a3793943262ea0da9e9a"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.work": {
+      "source_blocks_sha256": [
+        "40a4395cee6abd5955aab1c9fc4d2a82c48025ebead2d5455b7901d51b3b31b5"
+      ],
+      "source_sha256": "40a4395cee6abd5955aab1c9fc4d2a82c48025ebead2d5455b7901d51b3b31b5",
+      "text": "Escribir cada columna de salida con los nombres de clase guardados y la procedencia de los canales.",
+      "translation_source_blocks_sha256": [
+        "40a4395cee6abd5955aab1c9fc4d2a82c48025ebead2d5455b7901d51b3b31b5"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished": {
       "source_blocks_sha256": [
         "036efa6e9a1898f018f2c164935673cc64590df8e21756a1c55c2d7da9cc94c0"
@@ -101602,6 +101742,16 @@
         "2cc5102e4547028891243e8bfd3e32b2122ef8c632d9f1d0d278361fe65bfd59"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._show_classifier_application.show_view": {
+      "source_blocks_sha256": [
+        "93743ba21e3852d83a30b6a0490ed09e9c7029b97a9a2ce6069296364d58ec3e"
+      ],
+      "source_sha256": "93743ba21e3852d83a30b6a0490ed09e9c7029b97a9a2ce6069296364d58ec3e",
+      "text": "Representar la salida real seleccionada sin volver a ejecutar ni modificar el modelo.",
+      "translation_source_blocks_sha256": [
+        "93743ba21e3852d83a30b6a0490ed09e9c7029b97a9a2ce6069296364d58ec3e"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping": {
       "source_blocks_sha256": [
         "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
@@ -101610,6 +101760,46 @@
       "text": "Guardar únicamente una selección completa de cuatro índices y cerrar después.",
       "translation_source_blocks_sha256": [
         "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.cancelled": {
+      "source_blocks_sha256": [
+        "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481"
+      ],
+      "source_sha256": "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481",
+      "text": "Respetar tanto la cancelación del hilo de trabajo de la aplicación como la parada local.",
+      "translation_source_blocks_sha256": [
+        "c8b1b7275df02a10cccee73d50383a30c3a1de7acdc5ee89ff901216f72e3481"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.done": {
+      "source_blocks_sha256": [
+        "5025d1ff47db522f1ebb91376a6025b03e3fca7a92b9c7e8a8277dd7a749c465"
+      ],
+      "source_sha256": "5025d1ff47db522f1ebb91376a6025b03e3fca7a92b9c7e8a8277dd7a749c465",
+      "text": "Publicar los metadatos reales del artefacto solo para la selección original de recortes de la ejecución.",
+      "translation_source_blocks_sha256": [
+        "f7f628b5dd285973c4fc528c101c21b7619c7240082d84ffb2a106e57cd69a26"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.progress": {
+      "source_blocks_sha256": [
+        "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab"
+      ],
+      "source_sha256": "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab",
+      "text": "Transmitir el progreso del hilo de trabajo sin leer ni cambiar widgets de la GUI.",
+      "translation_source_blocks_sha256": [
+        "4b460dd85c24964557b08e2ff4543985f50d5abf318f14e664babf1e898753ab"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._train_dino_classifier.work": {
+      "source_blocks_sha256": [
+        "aa52ccaceed27f154d2135f659fca029345f06b601276b12bb6dd3362b3a84ad"
+      ],
+      "source_sha256": "aa52ccaceed27f154d2135f659fca029345f06b601276b12bb6dd3362b3a84ad",
+      "text": "Filtrar la selección fija de filas antes de llamar al entrenador real con los planos sin procesar.",
+      "translation_source_blocks_sha256": [
+        "d7eda7faf5f18f5bcbfe72ae2c6357b8ea8f618049ad7d3215070c42cf2186c3"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {
@@ -101636,15 +101826,15 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
       "source_blocks_sha256": [
-        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
-        "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "95d43d42dd769dd22770b9adce4fe31be10d4aa987ac334486a359f19e9c433b",
+        "b7a7ceb67d5f33f86e3f369fcbcb42d48fa0c4117d270e6777184c857a1192aa",
         "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ],
-      "source_sha256": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24",
-      "text": "Descartar los resultados pendientes y finalizar la gestión de ambos ejecutores antes de eliminar el widget.\n\nPrimero se activa la bandera de parada de los recortes y se ignoran los avisos posteriores de progreso de DINO. Cada ``shutdown`` espera un tiempo limitado y luego deja aparcados los hilos de trabajo que sigan activos. Un hilo de entrenamiento aparcado puede terminar de escribir su punto de control sin actualizar esta pantalla cerrada; no se termina a la fuerza.\n\n:param event: Evento de cierre de Qt, que se pasa sin cambios a la clase base. El cierre se acepta aunque sea necesario aparcar un hilo de trabajo.",
+      "source_sha256": "d326c6aae41e90c27faca7c270f397ea084662bcb9b4c5656f77ca03afe0c185",
+      "text": "Descartar los resultados pendientes y finalizar todos los ejecutores antes de retirar el widget.\n\nPrimero se solicita detener la carga de recortes y el entrenamiento del clasificador; se ignora el progreso posterior del entrenamiento. Cada ``shutdown`` espera un tiempo limitado y después aparca los hilos de trabajo que sigan activos. Un hilo de entrenamiento aparcado puede terminar de escribir su punto de control sin actualizar esta vista cerrada de la GUI; no se termina por la fuerza.\n\n:param event: Evento de cierre de Qt, que se pasa sin cambios a la clase base. El cierre se acepta aunque sea necesario aparcar un hilo de trabajo.",
       "translation_source_blocks_sha256": [
-        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
-        "dc8984a0772acbe6fa05f1014241b462faca9a8104a04bf160fbb045badc9d3c",
+        "95d43d42dd769dd22770b9adce4fe31be10d4aa987ac334486a359f19e9c433b",
+        "a8910fd2c3cceb76b3437bb11591ff061516e790fb1188d2d461645a763d0582",
         "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ]
     },
@@ -101714,14 +101904,14 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
-        "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
-        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
+        "120441c091d7112f425351b6a36e80330d23b72fd287fcd605cf0835cc095d46",
+        "7d56e2a1bc3c6e82cb5924fd911f2b6670a9fd2a7b10a1f73318e70916a8f6b6"
       ],
-      "source_sha256": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
-      "text": "Indica si está en curso una carga de recortes de imagen, una tarea de embeddings o un preentrenamiento DINO.\n\nIncluye el ejecutor independiente de DINO hasta que su hilo de trabajo haya finalizado, incluso después de que su resultado final haya llegado a la pantalla.",
+      "source_sha256": "6c460ea1abfa706e0b3a023c8061f68205fa191bc83f58a1e2774f275cefb7d3",
+      "text": "Indica si está en curso la carga de recortes de imagen, la generación de embeddings, el entrenamiento o la aplicación de un clasificador.\n\nIncluye los ejecutores de entrenamiento y aplicación hasta que sus hilos de trabajo se hayan retirado del registro, incluso después de que sus resultados finales hayan llegado a la vista de la interfaz gráfica.",
       "translation_source_blocks_sha256": [
-        "bf89ba6600a5433def77648af0ff21cb9c67ac483b0fc988658088c17fe5d065",
-        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
+        "b6a20f0c9d525841057f764e034012e29acb9a3744df9dd55e0dcedfc2a10189",
+        "7d56e2a1bc3c6e82cb5924fd911f2b6670a9fd2a7b10a1f73318e70916a8f6b6"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
@@ -199972,13 +200162,13 @@
     },
     "spacr.torch_artifacts.build_model_from_configuration": {
       "source_blocks_sha256": [
-        "bac10dca9f59bb6357b5fe5cf11955168ac7b9a012ece997e980bcc526dae64a",
+        "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
         "b6d922f5eb251049c83900c6898718a5f78b6a36665c5eb59586746d8f384e84"
       ],
-      "source_sha256": "2fe3657246ccc9ff3243032bc41d0f1fc17798fa2b047bbcb29e06c98e05badc",
-      "text": "Reconstruir un :class:`TorchModel` sin pesas preentrenadas.\n\n:param config: configuración grabada del modelo-constructor.",
+      "source_sha256": "12af3b30d68df2cc3eda6747a6cd7c350a2f1ff23588715887db0502825a93ca",
+      "text": "Reconstruir un clasificador registrado sin descargar pesos preentrenados.\n\n:param config: configuración grabada del modelo-constructor.",
       "translation_source_blocks_sha256": [
-        "bac10dca9f59bb6357b5fe5cf11955168ac7b9a012ece997e980bcc526dae64a",
+        "342d09c9cff6b3493f51185f798f92f6a286c863951f0cca792dd04cb1f889f0",
         "b6d922f5eb251049c83900c6898718a5f78b6a36665c5eb59586746d8f384e84"
       ]
     },
@@ -200006,19 +200196,21 @@
       "source_blocks_sha256": [
         "443dc3d96e5c8c4f2602c91cde6046a1518e192620f6b5192a8e3cb970ffae0c",
         "f245c0b804076329bfb976f0a4f0af710cf659965a467e784ad405e9463fc07d",
-        "a2fd2ff271aea2943181118a2ad857965623abd78339facd75c7a2917a251f6f",
+        "038a2b3fcd0e7be92e27693e060e6b784ff6e4a34b2a062d14a46ec9c926ab96",
+        "d9819ce6c6afcd220bb834fa7253f4f65ff98347b818515441caaa20fae17d56",
         "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
         "7b921b35638c5b974a942388181d43cd58fd4312a80a45f5889c2030d5fb281a",
         "69e2b9673d27f5349676b27867ed33bc9469885762dd84e29a732207b06a449e",
         "125e83d67fede0e746d1f4557942a0c4483e7538df2c3a044db0c532cfcd5e11",
         "53afac37d6c8b1f9fcfffd78c6e4c69626619869997bac5b77c7ea91a1d6f4a5"
       ],
-      "source_sha256": "ee5eb2ad085ad22f84dce71ef36ce20b01fd84ae68aad3714320ad647ff79881",
-      "text": "Cargar artefactos actuales y antiguos puntos de control de mapeo de módulos completos/claves de estado.\n\nLa asignación de valor clave de metadatos devuelta siempre contiene ``legacy``. Los artefactos actuales conservan su estado optimizador/programador/RNG para que los llamantes puedan reanudar el entrenamiento.\n\n:param path: control para leer. Descomprimido con ``weights_only=False``, por lo que sólo los archivos en los que confía son seguros para pasar.\n:param map_location: reenviado a :func:`torch.load`. El valor predeterminado de ``cpu`` permite una carga de control entrenada con GPU en una máquina sin un GPU; una cadena de dispositivo no reconocida lanza ``RuntimeError`` desde torch.\n:param model: ``None`` reconstruye la arquitectura desde la configuración grabada -- una asignación de valor de clave de estado vacío legado no registra ninguna, por lo que ``maxvit_t`` se asume silenciosamente. Un módulo pasado aquí se carga en su lugar y se devuelve como el mismo objeto; para archivos de módulo completo heredado se ignora y el propio módulo del archivo vuelve.\n:param strict: reenviado a ``load_state_dict``; ``True`` lanza ``RuntimeError`` en cualquier desajuste de teclas, ``False`` tolera las claves perdidas e inesperadas por lo que una arquitectura descompuesta carga silenciosamente con partes todavía inicializadas al azar.\n:raises ValueError: el archivo no es ni un módulo ni una asignación de puntos de control, su ``artifact_version`` no es el soportado, no se encontró ninguna asignación de valor de clave de estado, o los nombres de configuración no se proporcionaron arquitectura y no se proporcionó ``model`` .\n:returns: ``(model, metadata)``.",
+      "source_sha256": "1eefeeca99be76755874a66dd641629afdf218b3f109ecbc734fc6fdd2712875",
+      "text": "Cargar artefactos actuales y antiguos puntos de control de mapeo de módulos completos/claves de estado.\n\nLa asignación de valor clave de metadatos devuelta siempre contiene ``legacy``. Los artefactos actuales conservan su estado optimizador/programador/RNG para que los llamantes puedan reanudar el entrenamiento.\n\n:param path: checkpoint que se leerá, o un flujo binario que permita buscar posiciones solo con ``weights_only=True``. El comportamiento predeterminado heredado deserializa archivos de confianza mediante pickle.\n:param weights_only: Cuando es verdadero, usar solo archivos locales y la decodificación restringida de tensores y valores primitivos; rechazar los datos pickle no admitidos sin reintentar de forma insegura.\n:param map_location: reenviado a :func:`torch.load`. El valor predeterminado de ``cpu`` permite una carga de control entrenada con GPU en una máquina sin un GPU; una cadena de dispositivo no reconocida lanza ``RuntimeError`` desde torch.\n:param model: ``None`` reconstruye la arquitectura desde la configuración grabada -- una asignación de valor de clave de estado vacío legado no registra ninguna, por lo que ``maxvit_t`` se asume silenciosamente. Un módulo pasado aquí se carga en su lugar y se devuelve como el mismo objeto; para archivos de módulo completo heredado se ignora y el propio módulo del archivo vuelve.\n:param strict: reenviado a ``load_state_dict``; ``True`` lanza ``RuntimeError`` en cualquier desajuste de teclas, ``False`` tolera las claves perdidas e inesperadas por lo que una arquitectura descompuesta carga silenciosamente con partes todavía inicializadas al azar.\n:raises ValueError: el archivo no es ni un módulo ni una asignación de puntos de control, su ``artifact_version`` no es el soportado, no se encontró ninguna asignación de valor de clave de estado, o los nombres de configuración no se proporcionaron arquitectura y no se proporcionó ``model`` .\n:returns: ``(model, metadata)``.",
       "translation_source_blocks_sha256": [
         "05a9018517b62192e5b4391ea70a4d855adebc68eed83522f2ddb7744441accd",
         "6e2e16b6fadc3052003367d318192bfd2dafc4c1ec35fff74c3343941e400aaf",
-        "a2fd2ff271aea2943181118a2ad857965623abd78339facd75c7a2917a251f6f",
+        "038a2b3fcd0e7be92e27693e060e6b784ff6e4a34b2a062d14a46ec9c926ab96",
+        "d9819ce6c6afcd220bb834fa7253f4f65ff98347b818515441caaa20fae17d56",
         "76d45b608b8c265c42d67695144667cbd26dd0b15b06023da96ca81f236e6dc3",
         "5c92fc5f69138377a53bdafc939d340f18256f22a0c2667eb8f4ce94dd517f85",
         "9f5cd0b716e6557e08c5a8c165b837f91b6ddaa336338d75277d06fa7fc33fee",

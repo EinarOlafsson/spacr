@@ -201,3 +201,18 @@ translated and half not, which is worse than a dialog that is consistently
 English until 316 reaches it.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-15 — Original/Home-B exact picker locale gap repaired coherently.
+    Five existing tooltip values and the community heading now have54 exact
+    independent targets, normal owning extraction and actual rendering. Source
+    defaults, IDs, partitions and preferences remain unchanged; both existing
+    warning rows already passed and were preserved. Ten owner Qt cases pass;
+    the actual compiled consumer verifies54outputs, defaulttwo sources, source
+    IDs and English/locale round trips. Normal full9runtime audit0 and fresh
+    source/arrival proof pass, preserving10,930 foreign targets per locale.
+    The initial ordinary French refusal retained a pronoun that dropped the
+    second protected spaCR mention; the exact independently reviewed corrected
+    sentence passes unchanged gates. Original failed checkpoint is retained.
+    Evidence:data/440_source_picker_rendering_2026-10-15/ and
+    data/448_440_421_runtime_closure_2026-10-15/. This records the final locale
+    software component, pending original whole-contract reconciliation.

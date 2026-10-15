@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical translation independently reviewed against exact source; no human/native-speaker signoff",
+  "review": "Exactly the five original source-heading tooltip texts and spaCR community displaycaption. Preserve all scientific/model/brand/API names, unvetted status, source/default/data identities and existing separate warnings. Source extraction/widget adoption remains with Home-B.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+      "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+      "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+      "translation": "Los pesos estándar de Cellpose-SAM, que Cellpose descarga y verifica por sí mismo."
+    },
+    {
+      "table": "ui",
+      "key": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+      "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+      "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+      "translation": "Modelos entrenados por el mantenedor de spaCR y por usuarios de spaCR, cada uno con la ficha utilizada para su evaluación."
+    },
+    {
+      "table": "ui",
+      "key": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+      "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+      "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+      "translation": "Modelos subidos por otros usuarios de spaCR mediante el botón Añadir. Nadie ha comprobado qué son, con qué se entrenaron ni si las puntuaciones que comunican son reales."
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose models published on bioimage.io, read through its artifact API.",
+      "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+      "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+      "translation": "Modelos de Cellpose publicados en bioimage.io, leídos mediante su API de artefactos."
+    },
+    {
+      "table": "ui",
+      "key": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+      "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+      "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+      "translation": "Los modelos propios del backend de Cellpose 3 — cyto, cyto2, cyto3 y nuclei — y el backend que los ejecuta."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR community",
+      "source": "spaCR community",
+      "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+      "translation": "Comunidad de spaCR"
+    }
+  ]
+}

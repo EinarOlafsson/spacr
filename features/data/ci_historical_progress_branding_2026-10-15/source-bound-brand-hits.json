@@ -1,0 +1,122 @@
+[
+  {
+    "report_line": 101,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/89_colourblind_mode_rgb_as_cmyk.txt",
+    "quoted_source_sha256": "3398ee50ff88f8daa589bb7a4514cec03ea4ff88f9aa95710f94655266a88ab6",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N89 \u2014 A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS"
+  },
+  {
+    "report_line": 280,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/268_spacr_must_run_on_a_laptop.txt",
+    "quoted_source_sha256": "62fffe81ae87ae0f316308e1758fae439305ebfa516f6d2881beccb11c62d8f4",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N268 \u2014 SPACR MUST RUN WELL ON A LAPTOP -- OPTIMISE FIRST, DISABLE SECOND"
+  },
+  {
+    "report_line": 281,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/269_the_macos_application_menu.txt",
+    "quoted_source_sha256": "5d08e940a86120a7942eaf2bbfdd49541cf6d8e918bf06ec0bccac15c8d9d04b",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N269 \u2014 ON MACOS, PREFERENCES AND QUIT ARE IN A MENU THAT IS NOT CALLED SPACR"
+  },
+  {
+    "report_line": 319,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/309_one_settings_store_with_one_name.txt",
+    "quoted_source_sha256": "1182d9aedbf8c720fbf2c6ebdf633d472e0813ad6235322b4baffb641d36986d",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N309 \u2014 SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES"
+  },
+  {
+    "report_line": 319,
+    "spelling": "SpaCR",
+    "quoted_source": "features/new/309_one_settings_store_with_one_name.txt",
+    "quoted_source_sha256": "1182d9aedbf8c720fbf2c6ebdf633d472e0813ad6235322b4baffb641d36986d",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N309 \u2014 SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES"
+  },
+  {
+    "report_line": 322,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/312_spacr_records_what_each_process_and_thread_cost.txt",
+    "quoted_source_sha256": "d7f25d572bc32dafa7c1f76ce0613a7f3a9d824f4583dcfb8785aaa67514f82c",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N312 \u2014 SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING"
+  },
+  {
+    "report_line": 435,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/429_a_stack_file_spacr_wrote_is_one_it_can_read.txt",
+    "quoted_source_sha256": "0a49e700893449f8d0f48a8b559b64df1d79f2f199b9beceff57298c39d8092b",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N429 \u2014 A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE"
+  },
+  {
+    "report_line": 438,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/432_a_failed_run_offers_the_report_it_promised.txt",
+    "quoted_source_sha256": "25645131a79b9e2103568c316836e86d70a3ed5016485a2c48f8fa5741ef6837",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N432 \u2014 A FAILED RUN SAYS WHERE ITS REPORT AND ITS AI EXPLANATION WENT"
+  },
+  {
+    "report_line": 440,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/434_the_local_spacr_checkout_is_missing_a_git_object.txt",
+    "quoted_source_sha256": "704dbf48a887d1a8caf41acaa781a3504a41a5756b146222bbbe627ef8982fcb",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N434 \u2014 THE LOCAL SPACR CHECKOUT IS MISSING A GIT OBJECT, SO IT CAN NO LONGER FETCH"
+  },
+  {
+    "report_line": 475,
+    "spelling": "SPACR",
+    "quoted_source": "features/future/475_spotnet_for_spot_detection.txt",
+    "quoted_source_sha256": "f594d7333c146d2e74e16c635ffdee344b3e52c94d9fcbf988a1da2e1d34ae08",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "F475 \u2014 SPOTNET IN THE MODEL ZOO, AND WHERE SPACR COULD USE IT"
+  },
+  {
+    "report_line": 483,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/483_pipeline_overviews_and_spacr_flowchart.txt",
+    "quoted_source_sha256": "af059941a96b47bd8e0f8cfbf0d95e19e82e1b25ec48980a0f1ab8e36b965e5f",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N483 \u2014 PIPELINE OVERVIEWS AND THE SPACR MODULE FLOWCHART"
+  },
+  {
+    "report_line": 638,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/643_prune_the_spacr_home_folder.txt",
+    "quoted_source_sha256": "71ea170a89bf29183d7dfe47e78fe11d9ff2c4b21f6294e17ea7886e18d55d71",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N643 \u2014 PRUNE THE SPACR HOME FOLDER"
+  },
+  {
+    "report_line": 669,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/675_conda_forge_update_to_latest_spacr_release.txt",
+    "quoted_source_sha256": "d8d88bead1332b4399bd1d6843d98192eab00643e59feb2729848c622b6bb7cf",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N675 \u2014 UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE"
+  },
+  {
+    "report_line": 670,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/676_installation_home_image_analysis_and_toxoplasma_tutorial_refresh.txt",
+    "quoted_source_sha256": "cead1a0d86c756e5db433fb53740c256ca9e83d545572b96b84d50fb25d4a73b",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N676 \u2014 INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS"
+  },
+  {
+    "report_line": 672,
+    "spelling": "SPACR",
+    "quoted_source": "features/new/678_objective_factual_user_facing_language_review.txt",
+    "quoted_source_sha256": "7065d3fd98cc4aa275d273cb1ee663c34a9c70aa10e916f980c743db420291a5",
+    "offending_spelling_present_in_actual_historical_source": true,
+    "report_row_title": "N678 \u2014 OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR"
+  }
+]

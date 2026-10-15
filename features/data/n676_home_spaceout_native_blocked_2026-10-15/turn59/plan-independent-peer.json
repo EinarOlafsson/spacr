@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "status": "PASS bounded independent metadata peer",
+  "plan_evidence_sha256": "9f0ca954d6e16b57a56e2820b9d14a08b816b7bda78495c7a89882ba05b8dc77",
+  "plan_sha256": "f0942a08c62967525b4ae436d9900cfc4b7ecb57f73191e6b9af10fd3fc88680",
+  "script_sha256": "e799208690be049d63e3e5d76db1adb3666b24940ace2874c739191558f56721",
+  "prior_action_plan": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/plans/home-05-04-clips.json",
+    "sha256": "d326f0386881a3492c5785d4bcf3506d46e703c2f8cc7110f1834cdc576b0ab6"
+  },
+  "canonical_sha256": "8be61a39d6fe9cb1cc44c14ed10b33fc3e8c7b5243ea682f5fe3a822e9b42347",
+  "normalized_english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+  "baseline_release_manifest_sha256": "d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa",
+  "checks": {
+    "sidecars": 50,
+    "current_reviews_bound": 13,
+    "remaining_scene_texts_per_sidecar_exact": 31,
+    "render_inputs_texts_also_exact": true,
+    "plan_scene_order_and_set_exact": true,
+    "all_prior_action_tail_lower_bounds_preserved": true,
+    "all_matching_50voice_duration_ceiling_plus_four_bounds_preserved": true,
+    "total_seconds_exact_decimal": "773.057"
+  },
+  "qualification": "Original plan evidence baseline_manifest_sha256 is null because script looks for manifest.json; independently bound actual release-manifest.json here. No change to original.",
+  "limits": [
+    "Metadata and declared duration planning only; no audible/listening/runtime or native capture acceptance.",
+    "New current-runtime whole narration assemblies remain required; no old whole-track adoption.",
+    "No tests, jobs, audio/model imports or capture executed."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "language": "zh_CN",
+  "records": 8,
+  "changed_targets": 4,
+  "normal_review_loader": "PASS unchanged source/context/hash/markup/semantic/script gates on source-bound8-caption snapshot",
+  "projected_peer_file_exact": true,
+  "source_unmodified": true,
+  "other68targets_not_rerun": true,
+  "file_sha256": "235aae74a4e2e7f1799ae4be6a9d4a3bbd72bd9cefe727ecf892240505625e8a"
+}

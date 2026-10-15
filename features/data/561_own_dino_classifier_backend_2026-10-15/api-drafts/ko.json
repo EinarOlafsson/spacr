@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical translation and self-review; no human/native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.Classifier.__init__#0",
+      "source": "Attach recorded scaling, teacher encoder and an untrained head.",
+      "context": "Attach recorded scaling, teacher encoder and an untrained head.",
+      "source_sha256": "5b2472abedb9eaaba48438ce717baa8ba507fc126f6295c7bab0f1b931c67435",
+      "translation": "기록된 스케일링, teacher 인코더 및 학습되지 않은 분류 헤드를 연결합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.Classifier.forward#0",
+      "source": "Scale selected raw NCHW planes and return class logits.",
+      "context": "Scale selected raw NCHW planes and return class logits.",
+      "source_sha256": "a59f16c9501e20bfc4226ab6060b58ea5bf70f6cd7681fe9fb06476986ffc90d",
+      "translation": "선택한 원시 NCHW 이미지 평면을 스케일링하고 클래스 로짓을 반환합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.Classifier.train#0",
+      "source": "Keep a frozen teacher in evaluation mode while training its head.",
+      "context": "Keep a frozen teacher in evaluation mode while training its head.",
+      "source_sha256": "1273266a542bf66cc8a46d2ffc2363c8909a437bd8b177d2297a42192c66ad53",
+      "translation": "동결된 teacher의 분류 헤드를 학습하는 동안 teacher를 평가 모드로 유지합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.refuse#0",
+      "source": "Refuse an incompatible own-DINO classifier contract.",
+      "context": "Refuse an incompatible own-DINO classifier contract.",
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "translation": "Own-DINO 분류기의 호환되지 않는 계약을 거부합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_finetune_classifier.refuse#0",
+      "source": "Refuse an incompatible own-DINO classifier contract.",
+      "context": "Refuse an incompatible own-DINO classifier contract.",
+      "source_sha256": "080f79317b1279909f81c769e130fb68fcfe6de470640ccad4fd10f83bb75f87",
+      "translation": "Own-DINO 분류기의 호환되지 않는 계약을 거부합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_finetune_classifier.stop_if_requested#0",
+      "source": "Stop between batches when the caller requests cancellation.",
+      "context": "Stop between batches when the caller requests cancellation.",
+      "source_sha256": "ec310f360d92289b41084c3d4cc0158201ba4b544939cb84ea378650a1058988",
+      "translation": "호출자가 취소를 요청하면 배치 사이에서 중지합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.torch_artifacts.build_model_from_configuration#0",
+      "source": "Reconstruct a recorded classifier without pretrained downloads.",
+      "context": "Reconstruct a recorded classifier without pretrained downloads.",
+      "source_sha256": "c11ed0335f90ac0b77955898efdbbdbd6046a954f87381ae129ef709c8630207",
+      "translation": "사전 학습 가중치를 다운로드하지 않고 기록된 분류기를 재구성합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.torch_artifacts.load_model_artifact#2",
+      "source": "checkpoint to read. The legacy default unpickles trusted files.",
+      "context": "checkpoint to read. The legacy default unpickles trusted files.",
+      "source_sha256": "c896db38a418f2f6e70ef65df6f205891a529e8b769d91beee8c702947528613",
+      "translation": "읽을 체크포인트입니다. 기존 기본 동작은 신뢰할 수 있는 파일을 pickle로 역직렬화합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    },
+    {
+      "label": "spacr.torch_artifacts.load_model_artifact#3",
+      "source": "use restricted tensor-and-primitive decoding and local files only when true; unsupported pickles refuse without unsafe retry.",
+      "context": "use restricted tensor-and-primitive decoding and local files only when true; unsupported pickles refuse without unsafe retry.",
+      "source_sha256": "d9819ce6c6afcd220bb834fa7253f4f65ff98347b818515441caaa20fae17d56",
+      "translation": "참이면 로컬 파일과 텐서 및 기본 값의 제한된 디코딩만 사용합니다. 지원하지 않는 pickle 데이터는 안전하지 않은 재시도 없이 거부합니다.",
+      "review_basis": "Exact-source AI technical translation and self-review: teacher freeze/evaluation mode versus trainable head, raw NCHW planes/logits, local-only restricted tensor/primitive load versus legacy trusted pickle; no pretrained download or scientific claim. Independent peer and normal source/candidate gates required."
+    }
+  ]
+}
