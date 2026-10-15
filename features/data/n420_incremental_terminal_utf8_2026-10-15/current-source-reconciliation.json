@@ -1,0 +1,9 @@
+{
+  "incoming_tip": "e8aaaca4fe5b7b9d6aa27dfc43a4bcb2de1c3033",
+  "source_sha256": "7cdb3051a1a5a9fcd03e400b2ac915e80dc9979698ee67890836590bd51405c0",
+  "current_API_docstrings_and_signatures": "AST-identical to current public source, every module/class/function",
+  "current_Help_index": "Exact incoming bytes preserved; API summary prose unchanged",
+  "normal_API_source_schema": "Hashes canonical doc text/blocks only, not Python file line positions; unchanged original prose/signatures needs no translation or collector rerun",
+  "tests": "Source remains exact17PASS source, _pump14/14statements+6/6branches; no unchanged rerun",
+  "scope": "N420 UTF8 read transport only"
+}
