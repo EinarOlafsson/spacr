@@ -700,3 +700,18 @@ Maintainer steps left (your HF account, free tier only):
    site-src data/mask-examples.json (enables the Space's own example button).
 Then: one hosted run per tab and one WebGPU run on a real GPU browser to close
 the acceptance (label count / IoU >= 0.99 vs desktop, 10 MB TIFF timing).
+2026-10-15 Claude Home — Cellpose-style page + hosted ValueError fixed
+- Maintainer's "ValueError" reproduced by replaying the site's default hosted
+  request through the Space service on CPU with the real toxoplasma_pv_v4
+  weights: build_result_zip raised "flows must have shape (2, Y, X)" because
+  pathogen models (pv, toxoplasma_from_cellmask, toxoplasma_from_hoechst) run
+  with resample off and Cellpose returns flows/cell probability at the model
+  scale; ZeroGPU showed only the class name. masks.py now reports them
+  unavailable (same reason as the browser route) and app.py turns request
+  ValueErrors into gr.Error. Same replay now succeeds (4 objects).
+  Re-upload tools/web_mask_generator/app.py AND masks.py to the Space.
+- site-src 19af6af: drop zone becomes the image viewer immediately; controls
+  beside it (route, channels, diameter+auto, flow, cell probability, Run with
+  progress); result viewer with image/masks/outlines/flows/cell probability
+  (boxes for wells) + opacity; object count, mean area; ZIP, mask PNG/TIFF,
+  CSV downloads; translated friendly errors with technical details.
