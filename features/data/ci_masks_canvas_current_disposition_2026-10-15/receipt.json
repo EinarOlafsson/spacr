@@ -1,0 +1,27 @@
+{
+  "decision": "No change justified by current targeted result; old hosted discrepancy remains unclassified",
+  "source_base": "71a2ae8367cfb8167c2ac8c7b8da868f30f15ed2",
+  "node": "tests/qt/test_make_masks_toolbar.py::test_the_canvas_takes_the_space_the_settings_give_up",
+  "actual_result": "Original unchanged node1PASS4.43s zero skips; core0/offscreen/capped8G oneCPU",
+  "original_limits_preserved": {
+    "splitter_overhead": 60,
+    "shortcut_width": "<= Pane.extent",
+    "settings_restore_tolerance": 8,
+    "canvas_room": "before+settingswidth-overhead"
+  },
+  "source_pins": {
+    "spacr/qt/screens/make_masks.py": "05acb3006a6f4d1d7f74df9f62c8cc79266afc12f6f7161431de57fa4ae1a5f6",
+    "tests/qt/test_make_masks_toolbar.py": "45b1bcb104464840de74cf70f984c7fc98c5ba54dc7a4e12da1f0bb296d80067",
+    "spacr/qt/widgets/collapsible_splitter.py": "4ff0c314aaaf9d75608cc9a4328ac364e83ea563f380369bcd0c2853b837a1da"
+  },
+  "hosted5727_comparison": {
+    "whole_test_byte_identical": true,
+    "exact_owning_function_asts_equal": {
+      "_build_view_pane": true,
+      "_build_shortcut_panel": true,
+      "_on_toggle_settings": true
+    }
+  },
+  "old386_observation": "Original38699600639 log assertion shortcut_panel.width252 <= pane.extent230 failed after canvasgrowth assertion passed. Current _shortcut_panel is fullverticalShortcuts+Console column and pane.extent remembered opening width, independentlydraggable. This semantic observation does not prove a replacement assertion or production defect.",
+  "remaining": "Need actual affected hostedenvironment geometry/font/minimum-size evidence if failure persists; no local retry/broadcohort/assertion ceilingincrease/source mutation."
+}

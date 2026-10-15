@@ -31,7 +31,7 @@ def graph(monkeypatch):
             yield
 
     def gpu(**options):
-        assert options == {'duration': 120}
+        assert options == {'duration': app.gpu_seconds}
 
         def decorate(function):
             @functools.wraps(function)
@@ -143,3 +143,13 @@ def test_dynamic_ui_channel_choices_retain_api_compatibility(graph, tmp_path):
     assert choices.choices == [('Channel 1', 0), ('Channel 2', 1)]
     assert choices.preprocess([1]) == [1]
     assert calls == []
+
+
+def test_gpu_reservation_scales_with_upload_and_stays_bounded(tmp_path):
+    small = tmp_path / 'small.tif'
+    small.write_bytes(b'0' * 1000)
+    large = tmp_path / 'large.tif'
+    large.write_bytes(b'0' * 64_000_000)
+    assert app.gpu_seconds(str(small), {}) == 40
+    assert app.gpu_seconds(str(large), {}) == 120
+    assert app.gpu_seconds(str(tmp_path / 'missing.tif'), {}) == 40

@@ -749,3 +749,17 @@ normal current-source reconciliation after the active runtime/API producer.
 Evidence:data/702_checksum_failure_context_2026-10-15/receipt.json.
 
 2026-10-15 Original — WHOLE ORIGINAL N702 ACCEPTED. Root reconciled all six clauses and twelve source-bound evidence receipts. Exact missing models resolve by trusted identity without fallback; success logs retain setting/request/key/raw publisher version/SHA/path; unknown and corrupt-byte failures name the actual setting/identity while preserving integrity refusal types. Offline copy guidance/provider tripwires, actual two-process download coalescing, verified picker/grid/LivePreview/classifier CSV provenance are accepted. Normal nine-language18 runtime/nine API targets plus18 N702 guide targets pass;18 prior N699 guide gaps are separately recorded. Postfix genuine canonical equality and normal Help pass;22 distinct actual localized/Help consumers accepted across explicitly staged runs. Evidence: features/data/702_whole_item_acceptance_2026-10-15/. No added real-cluster/GPU/scientific acceptance gate; final full CI and release remain separate.
+
+2026-10-15 — HANDOVER to Claude Home (current maintainer claim).
+Whole original six-clause contract was accepted and published b5724d096e;
+source-bound acceptance is in data/702_whole_item_acceptance_2026-10-15/.
+All resolver/export/offline/log/translation/guide working changes are already
+public; no unpushed N702 implementation branch differs from the accepted
+source. Already-working CI fixture repair b9208041dc (public cherry9fe6a3485d)
+uses real legacy cyto2 identity/offline native-cache policy and an explicit
+local checkpoint for snapshots, preserving all input/cache/request evidence.
+Its three original failures become3PASS; independent source/log peer retained.
+It was prepared before takeover and is published with this handover.
+Original has stopped N702 implementation/code/tests/docs work. Broader CI43/288
+and703 continue per the maintainer notice. Final hosted CI/release remain
+separate; no new real-cluster/GPU/scientific gate is invented for this item.

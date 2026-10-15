@@ -250,9 +250,26 @@ def test_the_zoo_buttons_ask_for_the_prefixed_kinds(qapp, monkeypatch):
         return "stardist:2D_versatile_fluo"
 
     monkeypatch.setattr(mzp, "choose_model", choose)
+    class Picker:
+        _chosen_reference = None
+
+        def __init__(self, kinds, parent):
+            assert parent is host
+            asked.append(kinds)
+
+        def exec(self):
+            from PySide6.QtWidgets import QDialog
+
+            return QDialog.Accepted
+
+        def chosen_path(self):
+            return "stardist:2D_versatile_fluo"
+
+    monkeypatch.setattr(mzp, "ModelZooPicker", Picker)
     host = types.SimpleNamespace(_model_box=QComboBox())
     LP.LivePreviewPanel._choose_a_preview_model(host)
     assert asked == [model_zoo._mask_model_kinds()]
+    assert host._selected_model_reference is None
     assert host._model_box.currentText() == "stardist:2D_versatile_fluo"
     stored = []
     grid = types.SimpleNamespace(

@@ -1,0 +1,39 @@
+--- a/tests/test_own_dino_classifier_locales.py
++++ b/tests/test_own_dino_classifier_locales.py
+@@ -1,4 +1,6 @@
+ """Actual installed runtime translations at own-DINO classifier boundaries."""
++import hashlib
++import importlib
+ import json
+ from pathlib import Path
+ 
+@@ -14,12 +16,25 @@
+                                                language, boundary):
+     import numpy as np
+ 
+-    review_path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime'
+-                   / language / '2026-10-15-own-dino-classifier.json')
+-    reviews = json.loads(review_path.read_text())['records']
+     source = ('Own-DINO classifier settings, checkpoint or input are incompatible.'
+               if boundary == 'invalid' else 'Classifier training stopped.')
+-    expected = next(r['translation'] for r in reviews if r['source'] == source)
++    review_name = ('2026-10-15-f561-classifier-backend-home-b.json'
++                   if boundary == 'invalid' else
++                   '2026-10-15-f561-classifier-ui-runtime-home-b.json')
++    review_path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime'
++                   / language / review_name)
++    reviews = json.loads(review_path.read_text())['records']
++    matched = [row for row in reviews
++               if row['table'] == 'ui' and row['key'] == source
++               and row['source'] == source]
++    assert len(matched) == 1
++    record = matched[0]
++    expected = record['translation']
++    source_hash = hashlib.sha256(source.encode('utf-8')).hexdigest()
++    assert record['source_sha256'] == source_hash
++    catalogue = importlib.import_module(f'spacr.qt.i18n_catalogs.{language}')
++    assert catalogue.SOURCE_HASHES[('UI', source)] == source_hash
++    assert catalogue.UI[source] == expected
+     assert expected != source
+     monkeypatch.setenv('SPACR_LANGUAGE', language)
+     path, _, _ = checkpoint()

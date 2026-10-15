@@ -1,0 +1,23 @@
+{
+  "base": "a5c494a0d1bfb2f22000ced208262880ff323830",
+  "result": "Original single exactnode1PASS1.98s zero skips; all style/layout assertions unchanged",
+  "hosted_actual_error": "Qt event-loop CollapsibleSplitter Hide eventFilter\u2192_flush_extents reads missing _extents_timer AttributeError. Not any pointsize73/alpha0.4/outline0.6/splitterratio assertion.",
+  "source_pins": {
+    "spacr/qt/widgets/umap_explorer.py": "3434cec3b31798601dec09a5c8c7d11145e0b69a7fc5190442a3246f3b41e34c",
+    "spacr/qt/widgets/collapsible_splitter.py": "4ff0c314aaaf9d75608cc9a4328ac364e83ea563f380369bcd0c2853b837a1da",
+    "tests/qt/test_umap_explorer.py": "8e5fee0ac1225fa6f7d1854dc5f66d2bd7b1d20669b7d2248f73daf3df83c855"
+  },
+  "hosted5727_bytes_equal": {
+    "spacr/qt/widgets/umap_explorer.py": true,
+    "spacr/qt/widgets/collapsible_splitter.py": true,
+    "tests/qt/test_umap_explorer.py": true
+  },
+  "source_diagnosis": "Constructor creates timer beforeinstallEventFilter. Missingattribute is consistent with torn-down Pythonwrapper lifecycle, not yet proven. No guard/source/test assertion edits justified by passingcurrentnode. Need boundedactualQt GC/parent teardown evidence or owningprecedingcase reproducer before proposal.",
+  "preceding_sequence": "Exact hosted preceding theme-test\u2192target sequence2PASS2.96s zero skips; no loop/retry/source mutation",
+  "last_source_owner_evidence": {
+    "commit": "ade471cb234",
+    "date": "2026-10-13",
+    "scope": "Introduced Hide eventFilter\u2192_flush_extents and direct _extents_timer.isActive(); unchanged since. Constructor timer initialization precedes self-filter installation."
+  },
+  "disposition": "Current single1PASS and exactpreceding2PASS do not reproduce teardownerror; no style/layout/testfix claimed. Rootcoordinate sharedwidget owner only if actualnative lifecycle counterexample obtained, not fabricated attribute deletion."
+}

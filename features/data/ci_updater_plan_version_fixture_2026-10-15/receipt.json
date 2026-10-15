@@ -1,0 +1,20 @@
+{
+  "scope": "703test-only successfulupdateplan versionfixture",
+  "source_pins": {
+    "base": "0533d41a7b91ee425015a6465c95c7b6fd969d60",
+    "test_file": "tests/qt/test_an_update_removes_older_copies_first.py",
+    "test_sha256": "67c8f7ba1d1ca702a60f977fe0e192996c99607e4e7673995adfe92faf59cd08",
+    "old_test_sha256": "ab363f739f0b046a61b7f0e6a32da967e3b0da7b1ebe60060b6e9d5d1979836d",
+    "patch_sha256": "10dbec6fb2cc199224ffbcb1e87a630e548ebe4b72b3c43dc34e59772b50c2ec",
+    "production_sha256": "0d0c6109143feadec12a1dafaebae79839f1ccd46a9f918c5efaf89e6c2b81ca",
+    "all_original_assertions_ast_exact": 87,
+    "entire_module_ast_restored_by_removing_only_successful_fakeplan_version": true,
+    "scope": "Successfulmockplan mirrorsactualhelper versionfield9.9.9; no translationexpectation, callback, command, failureplan, OSerrorhandling or installbehavior changed."
+  },
+  "baseline": "Exactonehostedfailure1FAIL2.78s",
+  "final": "Sameone1PASS2.47s,zeroskips",
+  "preservation": "Onlysuccessfulfakeplan getsactualversion9.9.9. Entire87assertASTs andmoduleallotherASTunchanged; versionmessageexpectations/localizedspaCRreasons/rawOSerrors preserved. ProductionMainWindow/actualhelper unchanged.",
+  "execution": "Existingmockupdaterworker/dialogs/privateinstallrecords; no actualpackageupdate/download/account/modaldesktopinteraction. OriginalHL8G/CPU1/offscreen.",
+  "ownership": "ClaudeN702handovernotice4108read; thisis703fixtureonly, no furtherN702implementation.",
+  "limits": "Scopedlocalfixture, not fullCI/updateplatformacceptance."
+}

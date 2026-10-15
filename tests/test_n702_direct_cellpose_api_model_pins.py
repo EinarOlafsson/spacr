@@ -97,7 +97,18 @@ def test_direct_api_constructor_and_journal_use_effective_bytes_while_snapshots_
     elif mode == 'legacy_fetch':
         settings['model_path'] = raw['key']
     else:
-        settings['model_path'] = 'cyto_fake'
+        from spacr import utils
+
+        assert mode == 'legacy_stock'
+        settings['model_path'] = 'cyto2'
+        native_cache = cache / 'native-stock'
+        native_cache.mkdir(parents=True)
+        native_checkpoint = native_cache / 'cpsam'
+        native_checkpoint.write_bytes(payload)
+        monkeypatch.setattr(utils.cp_models, 'MODEL_DIR', native_cache)
+        monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', 'off')
+        input_bytes = {path: path.read_bytes()
+                       for path in Path(settings['src']).rglob('*.tif')}
     if mode == 'pinned_local':
         Path(settings['model_path']).write_bytes(payload)
         monkeypatch.setattr(zoo, 'fetch', lambda *a, **k: pytest.fail('local pin fetched'))
@@ -109,7 +120,7 @@ def test_direct_api_constructor_and_journal_use_effective_bytes_while_snapshots_
     with journal.open_run('direct-api-fixture', settings) as run:
         with pytest.raises(ReachedEvaluation):
             getattr(module, api)(settings)
-    expected = ('cyto_fake' if mode == 'legacy_stock' else original['model_path']
+    expected = ('cpsam' if mode == 'legacy_stock' else original['model_path']
                 if mode.endswith('_local') else str(cache / raw['name']))
     assert calls == [expected]
     assert settings['model_path'] == original['model_path']
@@ -120,6 +131,8 @@ def test_direct_api_constructor_and_journal_use_effective_bytes_while_snapshots_
     manifest = json.loads((run.dir / 'manifest.json').read_text())
     if mode == 'legacy_stock':
         assert manifest['model_files'] == {}
+        assert native_checkpoint.read_bytes() == payload
+        assert {path: path.read_bytes() for path in input_bytes} == input_bytes
     else:
         assert Path(expected).read_bytes() == payload
         recorded = manifest['model_files']['model_path']
