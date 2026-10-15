@@ -2891,6 +2891,15 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # F370: reviewed scientific notation/names and a format-only scorecard
+    # template remain identical. Swedish also spells the metric Precision
+    # identically. These are review decisions, not inventory exclusions.
+    "F1 @ IoU 0.5": {code: "F1 @ IoU 0.5" for code in MODEL_SPECS},
+    "Dice": {code: "Dice" for code in MODEL_SPECS},
+    "{metric}: {value:.4f}": {
+        code: "{metric}: {value:.4f}" for code in MODEL_SPECS
+    },
+    "Precision": {"sv": "Precision"},
     # 316, 2026-09-29: the channel-sort dialog's No button and its no
     # column value are the same word in Spanish.
     "No": {"es": "No"},
