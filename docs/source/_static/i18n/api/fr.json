@@ -177201,17 +177201,17 @@
         "457e69c96245b55fdbbdd60292d19a02453919646aab895ba67861a46e795490",
         "813c19959fbc284ab6e632f2339ab6e3e4d666df3e51ce25261c25dc12196481",
         "e86316fb33392961bd71630ade8e9a4f0ca018edca168ffab52c4dc6686b39ab",
-        "4b9b132532590a97ab0f0e507fe40d78bb1ed499850892493388af963343e363",
-        "49e2df421677335ff6dfa1ed545f6eeb1a4ca6e009c31eb1edd86b0d15520482"
+        "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+        "722c5e2b36795b20cf594924d7d1cfd0164a7e9fcbf8dc6f876430462fb4ed92"
       ],
-      "source_sha256": "4bcaf64be8c468786f816f3e8adbc9bfb1d522afec46956ec126062542708f3e",
-      "text": "Chaque réglage Image UMAP, en direct-éditable contre la figure STATIQUE.\n\nL'explorateur en direct a une fenêtre de paramètres dont les options d'affichage s'appliquent à la figure sur la vue d'application. Ce module fournit l'équivalent pour la vue de l'application -- la figure ordinaire et non vivante de la session de traitement laisse dans :class:`spacr.qt.widgets.figure_queue.FigureQueue`::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nLe coût d'un réglage n'est pas uniforme, et prétendre qu'il le rendrait inutilisable. Trois niveaux, et chaque champ déclare dans lequel il se trouve:\n\n``TIER_STYLE`` settable sur les artistes qui existent déjà -- la taille des points, la couleur des points et l'opacité, la largeur des contours. Microsecondes; rien n'est relu à partir du disque. ``TIER_REDRAW`` a besoin de la figure reprogrammée, mais **à partir de la même embarquation** -- le nombre d'images, le zoom d'image, la taille de la silhouette, quelles couches sont dessinées. Dixièmes de seconde, parce que les vignettes sont relues, de sorte qu'elles sont débloquées. ``TIER_RERUN`` change l'intégration elle-même -- ``n_neighbors``, ``min_dist``, la métrique, le filtre de fonction. Il n'y a pas de moyen honnête d'appliquer l'une de ces options à une figure finie : la recomputation déplace chaque point, et l ́arrangement que l'utilisateur lisait est la valeur totale de la projection.\n\nLe niveau est un fait sur les artistes et les données, pas une politique, c'est pourquoi il vit à côté du domaine plutôt que dans l'appelant.",
+      "source_sha256": "f5b591231b6da111821280a3ed8f98f3119a01f4d9bd0be5f6090294c90aa5de",
+      "text": "Chaque réglage Image UMAP, en direct-éditable contre la figure STATIQUE.\n\nL'explorateur en direct a une fenêtre de paramètres dont les options d'affichage s'appliquent à la figure sur la vue d'application. Ce module fournit l'équivalent pour la vue de l'application -- la figure ordinaire et non vivante de la session de traitement laisse dans :class:`spacr.qt.widgets.figure_queue.FigureQueue`::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nLe coût d'un réglage n'est pas uniforme, et prétendre qu'il le rendrait inutilisable. Trois niveaux, et chaque champ déclare dans lequel il se trouve:\n\n``TIER_STYLE`` se règle sur les objets graphiques existants : taille et couleur des points, opacité et épaisseur des contours. Des microsecondes ; aucune donnée n’est relue sur le disque. ``TIER_REDRAW`` nécessite de retracer la figure, mais **à partir du même plongement** : nombre et zoom des images, taille de la figure et couches affichées. Des dixièmes de seconde, car les miniatures sont relues ; une courte pause entre les modifications est donc attendue. ``TIER_RERUN`` est conservé pour une exécution ultérieure plutôt qu’appliqué à la figure terminée. Ce niveau comprend ``n_neighbors``, ``min_dist``, la métrique et le filtre de caractéristiques, ainsi que des options de regroupement, de disposition de la vue et de sortie. Tous les réglages de ce niveau ne modifient pas les coordonnées du plongement. La boîte de dialogue qui contient le panneau peut copier ces valeurs dans le module par son action Propagate settings lorsqu’un rappel de propagation est disponible.\n\nChaque champ indique comment ce panneau applique ses modifications.",
       "translation_source_blocks_sha256": [
         "457e69c96245b55fdbbdd60292d19a02453919646aab895ba67861a46e795490",
         "3d648de83f2800326ad5bc7f1b57ece34a4ca105866aa33edaf9e2a0b1425507",
         "ac6ce9688855d12bcccd26a920d6a9bc038282906de7eb2589ae09a5ab7f2df7",
-        "4b9b132532590a97ab0f0e507fe40d78bb1ed499850892493388af963343e363",
-        "49e2df421677335ff6dfa1ed545f6eeb1a4ca6e009c31eb1edd86b0d15520482"
+        "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+        "722c5e2b36795b20cf594924d7d1cfd0164a7e9fcbf8dc6f876430462fb4ed92"
       ]
     },
     "spacr.qt.widgets.umap_figure_settings.Field": {
@@ -177219,19 +177219,19 @@
         "1bb1329bc6d2bb19af21d7613e66585089eae193b5bc24385cccef52c00b1221",
         "24b81051d00918cfe9d4e4cce66abe9c8ef8258fce7a12b9ddb155f693967368",
         "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
-        "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+        "8e99e65063d8835ea7d5bd47c1861f1543d131cd034dcaa622ed383fe20f795e",
         "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
         "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
         "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
         "23317f43478a669144bb78f73e1c3f23b0111a33eac48f038e22069c42073bc0"
       ],
-      "source_sha256": "217dfb18d0c5f7458ed254daaf1e8fff4fedda8a01297887b7b9406eca515cb2",
-      "text": "Un paramètre modifiable Image UMAP.\n\n:param key: la clé de réglage.\n:param label: l’étiquette affichée à côté de l’éditeur.\n:param kind: le type d’éditeur : ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` ou ``\"choice\"``.\n:param low: borne inférieure pour un éditeur numérique (inutilisée sinon).\n:param high: borne supérieure pour un éditeur numérique (inutilisée sinon).\n:param tier: ce que demande son application : :data:`TIER_STYLE`, :data:`TIER_REDRAW` ou :data:`TIER_RERUN`.\n:param choices: les options d’un champ ``\"choice\"``.",
+      "source_sha256": "1511c3172149c4cdc00131ecd1fe893d2c6ffa76eba9115ffa91fd60bec94f16",
+      "text": "Un paramètre modifiable Image UMAP.\n\n:param key: la clé de réglage.\n:param label: l’étiquette affichée à côté de l’éditeur.\n:param kind: le type d’éditeur : ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"``, ``\"choice\"`` ou ``\"int_or_none\"``. L’entier pouvant prendre une valeur nulle utilise un éditeur de texte et l’analyseur ``_int_or_none``.\n:param low: borne inférieure pour un éditeur numérique (inutilisée sinon).\n:param high: borne supérieure pour un éditeur numérique (inutilisée sinon).\n:param tier: ce que demande son application : :data:`TIER_STYLE`, :data:`TIER_REDRAW` ou :data:`TIER_RERUN`.\n:param choices: les options d’un champ ``\"choice\"``.",
       "translation_source_blocks_sha256": [
         "1bb1329bc6d2bb19af21d7613e66585089eae193b5bc24385cccef52c00b1221",
         "79730c15a7b095958f83bbfff80171d4e59947d84cd8ba826c7ddead506d975b",
         "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
-        "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+        "8e99e65063d8835ea7d5bd47c1861f1543d131cd034dcaa622ed383fe20f795e",
         "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
         "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
         "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
@@ -177241,7 +177241,7 @@
     "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings": {
       "source_blocks_sha256": [
         "584bea674fa725bc62607e48eedd993c200fd501812c1e1898aa3dc3b8ac8a92",
-        "cf38f19699f0fdfeb4645b36eca07b627472c6a4713001c7e624416193e2c41c",
+        "86371b840bf2432a4a221edd8fa2e7c60c74dec90e74579bc73563d598b7c3fe",
         "cd0bf5d8e47aef516471abd1fec22cb21061510ff19e146784e26a1057c9c7f4",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "4becb852ed5510f8145e36128baaef5c113efc1648850d7d2dd7adf45cbde1c7",
@@ -177249,11 +177249,11 @@
         "f222b0c4442c6f7fcffc31642b01fc43303e7432057ace43fdfd557b360fe0d7",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "94006c022b10299a6b096135e77f9a39dafabfd7a1682466f1789dbf80efc711",
-      "text": "Modifier les paramètres de la figure Image UMAP avec l'application en direct débonzée.\n\nChaque changement émet :attr:`settings_changed` avec le mappage complet de la valeur de la clé après :data:`APPLY_DEBOUNCE_MS`. La fenêtre contenant les paramètres de figure applique le style et redessiner les niveaux immédiatement; les valeurs de re-run-tier sont conservées pour la prochaine exécution d'intégration. Aucune action d'Apply séparée n'est requise.\n\n:param values: les paramètres à ouvrir. ``None`` s'ouvre sur les valeurs par défaut.\n:param parent: widget parent.\nConstruisez le panneau de paramètres Image UMAP, regroupés par une modification.\n\nLes trois niveaux sont le point : les paramètres qui remodelent les points déjà dessinés, les paramètres permettant de redessiner le graphique à partir du même élément d'intégration, de sorte qu'aucun point ne bouge, et les paramètres n'entrent en vigueur qu'à l'exécution suivante.\n\n:param values: les paramètres à ouvrir avec; ``None`` les entrées reviennent aux valeurs par défaut du module.\n:param parent: widget parent, ou ``None``.",
+      "source_sha256": "4ba8ef309eebaa71cfdc7ba1211494a664a438c6fecf65e80a0bdd8043846d32",
+      "text": "Modifier les paramètres de la figure Image UMAP avec l'application en direct débonzée.\n\nChaque modification émet :attr:`settings_changed` avec le dictionnaire complet des réglages après :data:`APPLY_DEBOUNCE_MS`. La fenêtre de réglages de figure contenant le panneau applique les niveaux de style et de retraçage sans action Apply séparée. Les valeurs du niveau de réexécution ne mettent pas à jour la figure actuelle ; la boîte de dialogue peut les transmettre au module pour une exécution ultérieure.\n\n:param values: les paramètres à ouvrir. ``None`` s'ouvre sur les valeurs par défaut.\n:param parent: widget parent.\nConstruisez le panneau de paramètres Image UMAP, regroupés par une modification.\n\nLes trois niveaux sont le point : les paramètres qui remodelent les points déjà dessinés, les paramètres permettant de redessiner le graphique à partir du même élément d'intégration, de sorte qu'aucun point ne bouge, et les paramètres n'entrent en vigueur qu'à l'exécution suivante.\n\n:param values: les paramètres à ouvrir avec; ``None`` les entrées reviennent aux valeurs par défaut du module.\n:param parent: widget parent, ou ``None``.",
       "translation_source_blocks_sha256": [
         "584bea674fa725bc62607e48eedd993c200fd501812c1e1898aa3dc3b8ac8a92",
-        "292826f3ef07d09cc2f64ab82369cd09ebfc922a964c1f287e48969422d68ab5",
+        "85e0a36f772ec567d15c16d04c11795ac6ae8739f790cc1f7d636d4a26fbcd34",
         "cd0bf5d8e47aef516471abd1fec22cb21061510ff19e146784e26a1057c9c7f4",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "4becb852ed5510f8145e36128baaef5c113efc1648850d7d2dd7adf45cbde1c7",

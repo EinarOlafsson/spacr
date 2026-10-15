@@ -177201,17 +177201,17 @@
         "457e69c96245b55fdbbdd60292d19a02453919646aab895ba67861a46e795490",
         "813c19959fbc284ab6e632f2339ab6e3e4d666df3e51ce25261c25dc12196481",
         "e86316fb33392961bd71630ade8e9a4f0ca018edca168ffab52c4dc6686b39ab",
-        "4b9b132532590a97ab0f0e507fe40d78bb1ed499850892493388af963343e363",
-        "49e2df421677335ff6dfa1ed545f6eeb1a4ca6e009c31eb1edd86b0d15520482"
+        "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+        "722c5e2b36795b20cf594924d7d1cfd0164a7e9fcbf8dc6f876430462fb4ed92"
       ],
-      "source_sha256": "4bcaf64be8c468786f816f3e8adbc9bfb1d522afec46956ec126062542708f3e",
-      "text": "Jede Image UMAP Einstellung, live editierbar gegen die STATISCHE Figur.\n\nDer Live-Explorer hat ein Einstellungsfenster, dessen Anzeigeoptionen auf die Abbildung in der Applikationsansicht zutreffen. Dieses Modul liefert das Äquivalent für die Anwendungsansicht -- die gewöhnliche, nicht-live Figur, die die Verarbeitungssitzung in :class:`spacr.qt.widgets.figure_queue.FigureQueue` hinterlässt.::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nDie Kosten für eine Einstellung ist nicht einheitlich, und so zu tun, es ist, würde das Panel unbrauchbar machen. Drei Ebenen, und jedes Feld erklärt, in welchem es ist:\n\n``TIER_STYLE``-Settable für Künstler, die bereits existieren -- Punktgröße, Punktfarbe, Deckkraft, Umrissbreite. Mikrosekunden; Nichts wird von der Festplatte neu gelesen. ``TIER_REDRAW`` benötigt die replottierte Figur, aber **von der gleichen Einbettung** -- Bildanzahl, Bildzoom, Bildgröße, welche Ebenen gezeichnet werden. Zehntel Sekunden, weil die Thumbnails wieder gelesen werden, also sind diese entblößt. ``TIER_RERUN`` ändert die Einbettung selbst -- ``n_neighbors``, ``min_dist``, die Metrik, den Feature-Filter. Es gibt keinen ehrlichen Weg, eine davon auf eine fertige Figur anzuwenden: Recomputing bewegt sich jeden Punkt, und die Anordnung, die der Benutzer las, ist der gesamte Wert der Projektion. Sie sind editierbar und propagiert, und das Panel sagt, sie landen auf dem nächsten Lauf.\n\nDie Ebene ist eine Tatsache über die Künstler und die Daten, nicht eine Politik, weshalb sie neben dem Feld lebt, anstatt in der Anruferin.",
+      "source_sha256": "f5b591231b6da111821280a3ed8f98f3119a01f4d9bd0be5f6090294c90aa5de",
+      "text": "Jede Image UMAP Einstellung, live editierbar gegen die STATISCHE Figur.\n\nDer Live-Explorer hat ein Einstellungsfenster, dessen Anzeigeoptionen auf die Abbildung in der Applikationsansicht zutreffen. Dieses Modul liefert das Äquivalent für die Anwendungsansicht -- die gewöhnliche, nicht-live Figur, die die Verarbeitungssitzung in :class:`spacr.qt.widgets.figure_queue.FigureQueue` hinterlässt.::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nDie Kosten für eine Einstellung ist nicht einheitlich, und so zu tun, es ist, würde das Panel unbrauchbar machen. Drei Ebenen, und jedes Feld erklärt, in welchem es ist:\n\n``TIER_STYLE`` lässt sich an vorhandenen Grafikobjekten einstellen: Punktgröße, Punktfarbe, Deckkraft und Konturbreite. Mikrosekunden; nichts wird erneut von der Festplatte gelesen. ``TIER_REDRAW`` erfordert das erneute Zeichnen der Abbildung, jedoch **aus derselben Einbettung**: Bildanzahl, Bildzoom, Abbildungsgröße und gezeichnete Ebenen. Zehntelsekunden, weil die Vorschaubilder erneut gelesen werden; daher werden rasch aufeinanderfolgende Änderungen verzögert zusammengefasst. ``TIER_RERUN`` wird für einen späteren Lauf aufbewahrt, statt auf die fertige Abbildung angewendet zu werden. Diese Stufe umfasst ``n_neighbors``, ``min_dist``, die Metrik und den Merkmalsfilter sowie Optionen für Clustering, Ansichtslayout und Ausgabe. Nicht jede Einstellung dieser Stufe verändert die Einbettungskoordinaten. Der umgebende Dialog kann diese Werte über seine Aktion Propagate settings in das Modul kopieren, wenn ein entsprechender Übertragungsrückruf verfügbar ist.\n\nJedes Feld legt fest, wie dieses Panel seine Änderungen anwendet.",
       "translation_source_blocks_sha256": [
         "457e69c96245b55fdbbdd60292d19a02453919646aab895ba67861a46e795490",
         "3d648de83f2800326ad5bc7f1b57ece34a4ca105866aa33edaf9e2a0b1425507",
         "ac6ce9688855d12bcccd26a920d6a9bc038282906de7eb2589ae09a5ab7f2df7",
-        "4b9b132532590a97ab0f0e507fe40d78bb1ed499850892493388af963343e363",
-        "49e2df421677335ff6dfa1ed545f6eeb1a4ca6e009c31eb1edd86b0d15520482"
+        "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+        "722c5e2b36795b20cf594924d7d1cfd0164a7e9fcbf8dc6f876430462fb4ed92"
       ]
     },
     "spacr.qt.widgets.umap_figure_settings.Field": {
@@ -177219,19 +177219,19 @@
         "1bb1329bc6d2bb19af21d7613e66585089eae193b5bc24385cccef52c00b1221",
         "24b81051d00918cfe9d4e4cce66abe9c8ef8258fce7a12b9ddb155f693967368",
         "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
-        "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+        "8e99e65063d8835ea7d5bd47c1861f1543d131cd034dcaa622ed383fe20f795e",
         "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
         "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
         "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
         "23317f43478a669144bb78f73e1c3f23b0111a33eac48f038e22069c42073bc0"
       ],
-      "source_sha256": "217dfb18d0c5f7458ed254daaf1e8fff4fedda8a01297887b7b9406eca515cb2",
-      "text": "Eine editierbare Image UMAP Einstellung.\n\n:param key: der Einstellungsschlüssel.\n:param label: die neben dem Editor angezeigte Beschriftung.\n:param kind: der Editortyp: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` oder ``\"choice\"``.\n:param low: Untergrenze für einen numerischen Editor (sonst nicht verwendet).\n:param high: Obergrenze für einen numerischen Editor (sonst nicht verwendet).\n:param tier: was ihre Anwendung erfordert: :data:`TIER_STYLE`, :data:`TIER_REDRAW` oder :data:`TIER_RERUN`.\n:param choices: die Optionen eines ``\"choice\"``-Feldes.",
+      "source_sha256": "1511c3172149c4cdc00131ecd1fe893d2c6ffa76eba9115ffa91fd60bec94f16",
+      "text": "Eine editierbare Image UMAP Einstellung.\n\n:param key: der Einstellungsschlüssel.\n:param label: die neben dem Editor angezeigte Beschriftung.\n:param kind: der Editortyp: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"``, ``\"choice\"`` oder ``\"int_or_none\"``. Der Ganzzahltyp mit zulässigem Leerwert verwendet einen Texteditor und den Parser ``_int_or_none``.\n:param low: Untergrenze für einen numerischen Editor (sonst nicht verwendet).\n:param high: Obergrenze für einen numerischen Editor (sonst nicht verwendet).\n:param tier: was ihre Anwendung erfordert: :data:`TIER_STYLE`, :data:`TIER_REDRAW` oder :data:`TIER_RERUN`.\n:param choices: die Optionen eines ``\"choice\"``-Feldes.",
       "translation_source_blocks_sha256": [
         "1bb1329bc6d2bb19af21d7613e66585089eae193b5bc24385cccef52c00b1221",
         "79730c15a7b095958f83bbfff80171d4e59947d84cd8ba826c7ddead506d975b",
         "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
-        "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+        "8e99e65063d8835ea7d5bd47c1861f1543d131cd034dcaa622ed383fe20f795e",
         "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
         "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
         "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
@@ -177241,7 +177241,7 @@
     "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings": {
       "source_blocks_sha256": [
         "584bea674fa725bc62607e48eedd993c200fd501812c1e1898aa3dc3b8ac8a92",
-        "cf38f19699f0fdfeb4645b36eca07b627472c6a4713001c7e624416193e2c41c",
+        "86371b840bf2432a4a221edd8fa2e7c60c74dec90e74579bc73563d598b7c3fe",
         "cd0bf5d8e47aef516471abd1fec22cb21061510ff19e146784e26a1057c9c7f4",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "4becb852ed5510f8145e36128baaef5c113efc1648850d7d2dd7adf45cbde1c7",
@@ -177249,11 +177249,11 @@
         "f222b0c4442c6f7fcffc31642b01fc43303e7432057ace43fdfd557b360fe0d7",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "94006c022b10299a6b096135e77f9a39dafabfd7a1682466f1789dbf80efc711",
-      "text": "Bearbeiten Sie Image UMAP-Figureinstellungen mit debounced Live-Anwendung.\n\nJede Änderung emittiert :attr:`settings_changed` mit dem kompletten Einstellungs-Schlüsselwert-Mapping nach :data:`APPLY_DEBOUNCE_MS`. Das Fenster, das Figureneinstellungen enthält, gilt sofort für Stil und Ebenen neu zeichnen; Rerun-Tier-Werte werden für den nächsten Einbettungslauf beibehalten. Es ist keine separate Anwenden-Aktion erforderlich.\n\n:param values: Die zu öffnenden Einstellungen. ``None`` wird auf den Standardeinstellungen geöffnet.\n:param parent: übergeordnetes Widget.\nErstellen Sie das Image UMAP-Einstellungen-Panel, gruppiert nach einer Änderung.\n\nDie drei Ebenen sind der Punkt: Einstellungen, die die bereits gezeichneten Punkte neu stylen, Einstellungen, welche den Graphen aus derselben Einbettung neu zeichnen, so dass keine Punktbewegungen stattfinden, und Einstellungen, deren Wirkung erst beim nächsten Lauf erfolgt.\n\n:param values: die Einstellungen, die mit ``None``-Einträgen geöffnet werden sollen, fallen auf die Standardeinstellungen des Moduls zurück.\n:param parent: übergeordnetes Widget oder ``None``.",
+      "source_sha256": "4ba8ef309eebaa71cfdc7ba1211494a664a438c6fecf65e80a0bdd8043846d32",
+      "text": "Bearbeiten Sie Image UMAP-Figureinstellungen mit debounced Live-Anwendung.\n\nJede Änderung sendet :attr:`settings_changed` mit dem vollständigen Einstellungswörterbuch nach :data:`APPLY_DEBOUNCE_MS`. Das umgebende Fenster für Abbildungseinstellungen wendet die Stil- und Neuzeichnungsstufen ohne separate Apply-Aktion an. Werte der Neuberechnungsstufe aktualisieren die aktuelle Abbildung nicht; der umgebende Dialog kann sie für einen späteren Lauf an das Modul übertragen.\n\n:param values: Die zu öffnenden Einstellungen. ``None`` wird auf den Standardeinstellungen geöffnet.\n:param parent: übergeordnetes Widget.\nErstellen Sie das Image UMAP-Einstellungen-Panel, gruppiert nach einer Änderung.\n\nDie drei Ebenen sind der Punkt: Einstellungen, die die bereits gezeichneten Punkte neu stylen, Einstellungen, welche den Graphen aus derselben Einbettung neu zeichnen, so dass keine Punktbewegungen stattfinden, und Einstellungen, deren Wirkung erst beim nächsten Lauf erfolgt.\n\n:param values: die Einstellungen, die mit ``None``-Einträgen geöffnet werden sollen, fallen auf die Standardeinstellungen des Moduls zurück.\n:param parent: übergeordnetes Widget oder ``None``.",
       "translation_source_blocks_sha256": [
         "584bea674fa725bc62607e48eedd993c200fd501812c1e1898aa3dc3b8ac8a92",
-        "292826f3ef07d09cc2f64ab82369cd09ebfc922a964c1f287e48969422d68ab5",
+        "85e0a36f772ec567d15c16d04c11795ac6ae8739f790cc1f7d636d4a26fbcd34",
         "cd0bf5d8e47aef516471abd1fec22cb21061510ff19e146784e26a1057c9c7f4",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "4becb852ed5510f8145e36128baaef5c113efc1648850d7d2dd7adf45cbde1c7",
