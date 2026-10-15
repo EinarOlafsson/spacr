@@ -1,0 +1,10 @@
+{
+  "base": "e63990cd275bd5f9e034eed00000c32b9d4636ce",
+  "test_sha256": "fe6197b546dd705e08ea6c15bd42b34fbb11b4d36f899f25c33c9fa78081a65b",
+  "production_sha256": "6cad184b19b5ad0864a16dd3a389d35d40d039d4f88a921301b3ad8b8828fbba",
+  "outside_exact_test_ast_unchanged": true,
+  "scope": "Exact published full translated warning count2,cell,channel2 replaces stale missing-mask substring; explicit non-ok assertion added. Original rolefilter/duplicate/mapping assertions retained.",
+  "baseline": "1FAIL1.09s stale substring",
+  "intermediate": "1FAIL1.05s author error cs.tr missing module attribute; fixed by actual local tr import",
+  "final": "1PASS1.16s"
+}
