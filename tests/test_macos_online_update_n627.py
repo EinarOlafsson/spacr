@@ -16,7 +16,7 @@ pytestmark = pytest.mark.skipif(os.name == "nt", reason="Models the macOS POSIX 
 
 
 @pytest.fixture
-def installation(tmp_path):
+def installation(tmp_path, monkeypatch):
     root = tmp_path / 'user home' / 'Library' / 'Application Support' / 'spaCR'
     python = root / 'venv/bin/python'
     uv = root / 'bootstrap/uv'
@@ -31,6 +31,8 @@ def installation(tmp_path):
                               root=str(root), python=str(python), version='1.5.0.1', running=True)
     machine = ic._Machine(platform='macos', environ={'HOME': str(tmp_path / 'user home')},
                           fs_root=str(tmp_path), executable=str(python), running_prefix=str(python.parent.parent))
+    monkeypatch.setattr(ic, '_retiring_runtime_identity',
+                        lambda prefix: {'verified': True, 'version': record.version})
     return record, machine, kept
 
 
