@@ -88472,7 +88472,7 @@
     },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
-        "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "ff4b786f254b0a6929401767d7037563708e870fd3cdabd5dfab5f0037333a2b",
         "73ab4389f357f6e1f5b4d23f95aebf7fefdcbf59eec74f4d0783085ad2856206",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88480,12 +88480,12 @@
         "ed6b161e940114d17ea28669fbb1b26693910e0d64e1186ddf4c71ad0d0ec548",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "95aae15a021a0a51368b1de49f71a965d4fb7c22bba748c6db20ecfa86525785",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "f14c2375e1e9be7808544ed8c7744a84ab83f7b735bdc32dc681a8acc78d315a"
       ],
-      "source_sha256": "f06b8c87de7b1feba88655a18b0505e242b1e120f01465b42cd4e6b747e51769",
-      "text": "Vérifiez si les chemins existent, à partir d'un cache, sans bloquer le chemin d'exécution principal GUI.\n\n`spacr/qt/widgets/file_list.py` a demandé `os.path.exists` pour chaque chemin mémorisé, sur le chemin d'exécution principal GUI, de colorer les morceaux rouges. C'est gratuit pour un disque local et il n'est pas libre pour un réseau : mesuré sur un poste de travail, ``os.path.exists`` sur un chemin sous ``/nas_mnt`` -- un montage ``autofs`` avec ``timeout=600`` -- n'était pas retourné après vingt secondes, car la statistique est ce qui déclenche l'automontage et la part était endormie.\n\nUn chemin d'exécution principal GUI bloqué ne ressemble pas à un contrôle de chemin lent. Il ressemble à ceci, et chacun de ces a été signalé comme un défaut séparé le 2026-09-04:\n\n  * \"Opening map barcodes s'écrase spacr\" -- ce n'est pas un crash, c'est un gel sans traceback, ce qui explique pourquoi rien n'a atteint les journaux. Le journal montre `automount request ... triggered by spacr` immédiatement avant chaque force-quit.\n  * \"ce genre de scintillements... plusieurs événements se produisent en vol stationnaire et ils retardent parfois pendant quelques secondes\" -- les événements en vol travaillent sur la liste tandis que le chemin d'exécution indépendant est bloqué et rejoue ensuite dans un éclat.\n  * « Je vois des lueurs millisecondes de parties des vues d'application du module sur la vue d'accueil de l'application » -- les repeintes sont reportées, de sorte que la pile montre ce qu'il n'a pas été donné de temps pour peindre.\n  * \"il semble arriver ... après que j'ai ouvert un ou deux modules\" -- chaque module ajoute ses propres chemins mémorisés, donc il y a plus à stat.\n\nLe code sur le chemin d'exécution principal GUI ne doit donc pas accéder au système de fichiers pour un chemin fourni par l'utilisateur; ce module fournit la vérification qu'il utilise à la place.\n\nLes réponses proviennent d'un cache, immédiatement. Un chemin non encore vu est signalé comme présent et en file d'attente pour une vérification de fond; lorsque la réponse arrive, le cache est mis à jour et :data:`probes` émet, de sorte qu'un widget peut redessiner. La par défaut est optimiste parce qu'une voie brièvement tracée comme manquante puis corrigée est une fausse alarme, alors qu' un chemin brièvement tracé comme présent puis marqué manquante est une mise à jour ordinaire.",
+      "source_sha256": "8f975d046b59926b9611776ffb2d1d75ee46f35c8f86bb12017b523d22ea688b",
+      "text": "Consulter les réponses de chemin en cache, avec une attente limitée facultative pour les chemins inconnus.\n\n`spacr/qt/widgets/file_list.py` a demandé `os.path.exists` pour chaque chemin mémorisé, sur le chemin d'exécution principal GUI, de colorer les morceaux rouges. C'est gratuit pour un disque local et il n'est pas libre pour un réseau : mesuré sur un poste de travail, ``os.path.exists`` sur un chemin sous ``/nas_mnt`` -- un montage ``autofs`` avec ``timeout=600`` -- n'était pas retourné après vingt secondes, car la statistique est ce qui déclenche l'automontage et la part était endormie.\n\nUn chemin d'exécution principal GUI bloqué ne ressemble pas à un contrôle de chemin lent. Il ressemble à ceci, et chacun de ces a été signalé comme un défaut séparé le 2026-09-04:\n\n  * \"Opening map barcodes s'écrase spacr\" -- ce n'est pas un crash, c'est un gel sans traceback, ce qui explique pourquoi rien n'a atteint les journaux. Le journal montre `automount request ... triggered by spacr` immédiatement avant chaque force-quit.\n  * \"ce genre de scintillements... plusieurs événements se produisent en vol stationnaire et ils retardent parfois pendant quelques secondes\" -- les événements en vol travaillent sur la liste tandis que le chemin d'exécution indépendant est bloqué et rejoue ensuite dans un éclat.\n  * « Je vois des lueurs millisecondes de parties des vues d'application du module sur la vue d'accueil de l'application » -- les repeintes sont reportées, de sorte que la pile montre ce qu'il n'a pas été donné de temps pour peindre.\n  * \"il semble arriver ... après que j'ai ouvert un ou deux modules\" -- chaque module ajoute ses propres chemins mémorisés, donc il y a plus à stat.\n\nLe code sur le chemin d'exécution principal GUI ne doit donc pas accéder au système de fichiers pour un chemin fourni par l'utilisateur; ce module fournit la vérification qu'il utilise à la place.\n\nLes vérifications sans attente renvoient immédiatement une réponse en cache ou la valeur ``default`` de l'appelant et placent un chemin inconnu dans la file des vérifications en arrière-plan. La valeur par défaut est ``True`` pour :func:`exists` et ``False`` pour :func:`isdir`. Un résultat en arrière-plan met à jour le cache ; :data:`probes` émet son signal ``answered`` uniquement si la réponse diffère de celle en cache. La valeur d'existence optimiste évite d'afficher un chemin inconnu comme absent pendant sa vérification. Avec ``wait=True``, l'appel attend plutôt de façon synchrone une réponse non encore en cache, comme décrit dans :func:`exists`.",
       "translation_source_blocks_sha256": [
-        "cdaa7fd5673a2e50fc134b90cf0759c67726674d850db77c21ddc3f230ea1ffd",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "bbd99fbc4277d6ab2c8b142445d89accd1ce7e37b570630fff9e1735fab0294c",
         "8f06e14218276da8bbbca54b2eb565d2562e7f5555968ff2e93612db2f5c670a",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88493,7 +88493,7 @@
         "a895f995d2c2b48c9dbf343ef708764f7d2accbbebe7ef9c297a27efe7d891c7",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "7c55325107d2251fcfde00ef8e7489effc892cb2ba5b066407ab70825e3f7de0",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "51681486d062b43539f572a67c1a1c4958927e89217df5a1211ed387e1c150d7"
       ]
     },
     "spacr.qt.path_probe._stat_with_timeout.run": {
@@ -88510,33 +88510,33 @@
     },
     "spacr.qt.path_probe.exists": {
       "source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ],
-      "source_sha256": "bf3c45c4be0c0359905ce0f8cfc614cad2f04cc6d550703bf515a985aa8273b9",
-      "text": "Indique si ``path`` est là, répondu depuis le cache et ne bloque jamais.\n\n:param path: Tout ce que la fausseté est ``False``.\n:param default: que dire alors que la réponse est inconnue. ``True`` par défaut -- voir le module docstring pour la raison pour laquelle la valeur par défaut est optimiste.\n:param want_dir: demander ``isdir`` plutôt que ``exists``. Cached séparément, car un chemin peut exister et ne pas être un répertoire.\n:param wait: lier l'attente par :data:`PROBE_TIMEOUT_S` au lieu de répondre immédiatement à ``default``, et mettre en cache ce qui revient. Pour les appelants dont toute la question est \"is this one missing\" -- voir :func:`isdir` pour la raison pour laquelle la valeur par défaut optimiste est incorrecte pour eux.\n:returns: la réponse en cache, ou ``default`` avec un contrôle en file d'attente.",
+      "source_sha256": "a13153aacb3b08d97a8fc0306f0cad2d129ee2774833a1ac109f04bcfd2095ae",
+      "text": "Renvoyer une réponse de chemin en cache ou vérifier un chemin inconnu.\n\n:param path: Tout ce que la fausseté est ``False``.\n:param default: valeur à renvoyer pour un chemin inconnu lorsque ``wait=False``. ``True`` par défaut ; cette valeur ne détermine pas la réponse à l'expiration du délai d'une vérification avec attente.\n:param want_dir: demander ``isdir`` plutôt que ``exists``. Cached séparément, car un chemin peut exister et ne pas être un répertoire.\n:param wait: renvoyer immédiatement une réponse en cache, ou attendre de façon synchrone jusqu'à :data:`PROBE_TIMEOUT_S` une requête stat non encore en cache, puis mémoriser sa réponse. À l'expiration du délai, ``True`` est renvoyé et mis en cache, même si ``default`` vaut ``False``. Le thread stat n'est pas annulé et son résultat ultérieur ne met pas à jour cette réponse de dépassement de délai en cache.\n:returns: ``False`` pour un chemin évalué comme faux ; sinon une réponse en cache, la valeur ``default`` sans attente avec une vérification en file ou en cours, ou la réponse de la vérification avec attente (``True`` à l'expiration du délai).",
       "translation_source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ]
     },
     "spacr.qt.path_probe.forget": {
       "source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "7d151b084fd4713f314760981aea8f7846c911fd0b8889f5f039cbbede9c51c0",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ],
-      "source_sha256": "a29322b9f3e0fa3dda7fa110774952147dde447783a89c2938c7086518cc9b81",
-      "text": "Déposez ce qui est mis en cache, donc la suivante :func:`exists` demande à nouveau.\n\n:param path: un chemin, ou ``None`` pour tous. Appelé quand l'utilisateur vient de créer ou de supprimer quelque chose et le cache continuerait autrement à répondre avec ce qui était vrai avant.",
+      "source_sha256": "d8e8147a5e7f48dc1ee2ccc0c3adea6d3ee18ffb33ba10d617397d897a6c0b2d",
+      "text": "Supprimer les réponses en cache sans annuler les vérifications en file ou en cours. Un appel ultérieur sans attente à :func:`exists` renvoie sa valeur par défaut tant qu'une vérification existante reste en attente ; il n'en ajoute une nouvelle que si aucune n'est en attente. Une vérification déjà en cours peut remplir de nouveau le cache après cet appel.\n\n:param path: un chemin, ou ``None`` pour tous. Appelé quand l'utilisateur vient de créer ou de supprimer quelque chose et le cache continuerait autrement à répondre avec ce qui était vrai avant.",
       "translation_source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "2c05eef0f9cd3a080044276ca5332d7492ea827fbe62894e5c6cbe599e79914c",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ]
     },
@@ -88545,19 +88545,19 @@
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ],
-      "source_sha256": "bea5e25c01295f90129266f8cba22a2cb761941b402ada350753593360c9127f",
-      "text": "Indique si ``path`` est un répertoire, répondu depuis le cache.\n\n``default`` est False ici et True dans :func:`exists`, et l'asymétrie est délibérée : les appelants de celui-ci choisissent un dossier pour ouvrir une boîte de dialogue, et ouvrir quelque part qui s'avère ne pas exister est pire que l'ouvrir à l'emplacement par défaut.\n\n:param path: le chemin à interroger ; transmis à :func:`exists` avec ``want_dir=True``, si bien que toute valeur fausse donne ``False``.\n:param wait: lier l'attente par :data:`PROBE_TIMEOUT_S` au lieu de répondre immédiatement à ``default``, et mettre en cache ce qui revient.\n\n``wait`` est désactivé par défaut. Le gel de ce module a été écrit à partir de chemins mémorisés -- un passage passif sur tout ce qu'un fichier de paramètres mentionne, sur le chemin d'exécution principal GUI, pour colorer les morceaux rouges. Aucune action utilisateur n'attend sur ce passage, donc répondre à partir du cache et vérifier plus tard ne coûte rien.\n\nL'extension d'un dossier que l'utilisateur vient de laisser tomber ou choisi est la situation opposée. Ils ont effectué une action et attendent son résultat, et le chemin inconnu tourne par défaut \"ajouter les fichiers de ce dossier\" dans \"ajouter ce dossier comme un fichier\" -- silencieusement, et seulement la première fois qu'un chemin est vu. L'attente est limitée par :data:`PROBE_TIMEOUT_S` (5 s), donc un montage dormant coûte au plus cela plutôt que vingt secondes.",
+      "source_sha256": "4d2841f16516d5e9b9453442f9ceee9dc4db5c22b791c9128ecb55495736261e",
+      "text": "Indique si ``path`` est un répertoire, répondu depuis le cache.\n\n``default`` est False ici et True dans :func:`exists`, et l'asymétrie est délibérée : les appelants de celui-ci choisissent un dossier pour ouvrir une boîte de dialogue, et ouvrir quelque part qui s'avère ne pas exister est pire que l'ouvrir à l'emplacement par défaut.\n\n:param path: le chemin à interroger ; transmis à :func:`exists` avec ``want_dir=True``, si bien que toute valeur fausse donne ``False``.\n:param wait: utiliser le mode d'attente synchrone de :func:`exists` pour un chemin non en cache. Sa réponse à l'expiration du délai est ``True``, même si la valeur par défaut sans attente de cette fonction est ``False``.\n\n``wait`` est désactivé par défaut. Le gel de ce module a été écrit à partir de chemins mémorisés -- un passage passif sur tout ce qu'un fichier de paramètres mentionne, sur le chemin d'exécution principal GUI, pour colorer les morceaux rouges. Aucune action utilisateur n'attend sur ce passage, donc répondre à partir du cache et vérifier plus tard ne coûte rien.\n\nDévelopper un dossier que l'utilisateur vient de déposer ou de choisir est la situation inverse. Il a effectué une action et en attend le résultat ; la valeur par défaut pour un chemin inconnu transforme « ajouter les fichiers de ce dossier » en « ajouter ce dossier comme fichier », silencieusement et uniquement à la première rencontre du chemin. Le thread appelant attend jusqu'à :data:`PROBE_TIMEOUT_S` (5 s) la requête stat. À l'expiration du délai, ``True`` est mis en cache sans annuler le thread stat ; la réponse ultérieure de ce thread ne remplace pas le résultat de dépassement de délai en cache.",
       "translation_source_blocks_sha256": [
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "ce88ebfd079963734421049c5a406613dc391fec3bdf470849e8412f7fffa707",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ]
     },
     "spacr.qt.path_probe.known": {
@@ -88574,17 +88574,17 @@
     },
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"
       ],
-      "source_sha256": "21945eb6ed91c7d9713b1e7701fb72fe6be28761f1873c9cc7dd42bb9524f50a",
-      "text": "Enregistrez une réponse que quelqu'un a déjà, sans sonde.\n\nLa boîte de dialogue de fichier vient de nous dire qu'un chemin existe; demander à nouveau au système de fichiers serait une seconde statistique pour un fait déjà en main.\n\n:param path: le chemin sur lequel se trouve la réponse.\n:param answer: ce qui est déjà connu pour être vrai de lui.\n:param want_dir: Enregistrez-le contre :func:`isdir` plutôt que :func:`exists`. Les deux sont mis en cache séparément -- un chemin peut exister et ne pas être un répertoire -- donc un appelant qui sait que les deux doivent le dire deux fois. Sans cela, :func:`isdir` répond avec sa valeur par défaut ``False`` jusqu'à ce qu'une sonde d'arrière-plan soit terminée.",
+      "source_sha256": "e973dd55c7df5f0cbcbec213bc3b26aa08e2134e3a02d177a44dff6ade712cf1",
+      "text": "Mettre en cache une réponse connue sans lancer de vérification.\n\nLa boîte de dialogue de fichiers vient d'indiquer qu'un chemin existe ; interroger à nouveau le système de fichiers serait une seconde requête stat pour un fait déjà connu. Cela efface le marqueur d'attente correspondant, sans annuler une vérification en file ou en cours. Celle-ci peut ensuite remplacer la réponse préchargée et émettre le signal ``answered`` de :data:`probes` si son résultat modifie la valeur en cache. Cet appel lui-même n'émet aucun signal.\n\n:param path: le chemin sur lequel se trouve la réponse.\n:param answer: ce qui est déjà connu pour être vrai de lui.\n:param want_dir: Enregistrez-le contre :func:`isdir` plutôt que :func:`exists`. Les deux sont mis en cache séparément -- un chemin peut exister et ne pas être un répertoire -- donc un appelant qui sait que les deux doivent le dire deux fois. Sans cela, :func:`isdir` répond avec sa valeur par défaut ``False`` jusqu'à ce qu'une sonde d'arrière-plan soit terminée.",
       "translation_source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "4441a6f7065469ded88df3cb3bddb231c35f2b35cba1cd34fd8b67d149d9e11d",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"
