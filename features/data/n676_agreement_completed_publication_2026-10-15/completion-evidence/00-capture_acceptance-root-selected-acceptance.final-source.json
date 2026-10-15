@@ -1,0 +1,147 @@
+{
+  "lesson": "23_agreement",
+  "accepted": true,
+  "whole_capture_accepted": true,
+  "source_commit": "fd7d8234015e5e474af356ac15de6243323b4faa",
+  "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "english_sha256": "afb0b5fe5bddf068e987492a3b2d207b66903638637c40d79da3e79510b361fc",
+  "selected_clips": [
+    {
+      "scene": "02_agreement_fold",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "b216bde1cbf593caa5d12205378c2030783446fc244c8958a6868f3205bb0844",
+      "native_sha256": "13a14fc8ca9e7b95a425a0dd2d754eb5c9e81f26dd20fdbead66d32804fba376",
+      "video_sha256": "c7fd2d0fca546e370114a954b4e43865ade5f51eeec6df8dc3912b5fc7e53e84",
+      "receipt_sha256": "cff630dba5ece580cd705a79648eddddacb6a4485ff7bf2f1a8299b58ab56fd9",
+      "native_frames": 640
+    },
+    {
+      "scene": "04_demo_database",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "7691d385c066ff1ac27dcc3f7b60643afb77be6220b9fa984acd9bec817b2a33",
+      "native_sha256": "770551864e75931a5060e06557bd6f8c169ba6527fb8283615405662c9d8d0cc",
+      "video_sha256": "48ee9bace5ef44a11fee48a4c2e52b8ba3c4d4b3cc5e99e374efe44cfcba03ed",
+      "receipt_sha256": "c42390f6bdd464e2e216cd563bd102b0ae03782220201c2f97c3cc019c403ee3",
+      "native_frames": 831
+    },
+    {
+      "scene": "05_one_column_not_a_comparison",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "59fa5348502eb5e34e46ca3d6b64b5b9a9bfd5988f9075960181e09c69d7df6a",
+      "native_sha256": "c27626babf9862714585e09fb648123247b76a2792c48c411f430cb106577c2e",
+      "video_sha256": "8d28cc2287077dec7bd62aa5be792d420ca4e0ea761740c02638f3b1ef9cfbae",
+      "receipt_sha256": "a1ab77be0e8ac41d154ed207976a0e298fe850b626aa74f2b0d495d9341cdd3b",
+      "native_frames": 545
+    },
+    {
+      "scene": "06_two_columns",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "3834cf204741598319009fd75ad705cc3fa5ae0115f19f0809bd87891cf541aa",
+      "native_sha256": "25d95eb3cb72174d124ce94f6f9d47939cd18fc1a0a4234efff61159e92453d0",
+      "video_sha256": "0e40ffa307071bf295498404cb402ae82b02c46cfb447b17469d3adb7f415109",
+      "receipt_sha256": "20d296d8b6d8340b3295513f97ae29ab2ee145a01d697fca47a9311aed9a4fd2",
+      "native_frames": 905
+    },
+    {
+      "scene": "07_pairwise_results",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "a3ae6a541f7dd7111124e03e22d6708805e14bae2e3a5f7a76dfbc8fd05c5f77",
+      "native_sha256": "9f82f43139f4f16f9c711b03c2e3d656498d901e2b47479146f61fc09b0a14a6",
+      "video_sha256": "5aa8bf5a3a44688030473109197880bc04d6d86eb392987bf3c1e983e65b440f",
+      "receipt_sha256": "9a36c98c344a649d0c9d15187ef590ab0c6212f9c804a45b8810211e11ddc37b",
+      "native_frames": 829
+    },
+    {
+      "scene": "08_confusion_matrix",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "e24324bdef02281a7a355cf0c61bb78dff394dc9fbefa58da940740283c44a34",
+      "native_sha256": "c4ebd50467b95174ff233c04b7a80e9812819f9d58c3cb4776035f2fa97aa283",
+      "video_sha256": "20e61f862f50cbd3a2992331ad4b1e0fd59dbedecddd9b9982bd934a19f49ece",
+      "receipt_sha256": "979ec3121cd2472fbfb39322a357ed59e4f75b663a524175ebc8f0cfba3b3711",
+      "native_frames": 637
+    },
+    {
+      "scene": "09_disagreement_crop_1",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "060acafbd0b9deb657381f5ad0f1af0d391297a55373e318ff6783f8c2d7ec04",
+      "native_sha256": "dd64f956a9621f11a29e3f758a5517bfca15b6c026caf1defc4485561c6caa51",
+      "video_sha256": "8d0c68559368b2c76f21dcaf7715960740207ae5c134e5ff1a38973ddaccc8eb",
+      "receipt_sha256": "9dcf14ec2efa39e289a86ab8d84dd64e73f15950e5d8509dad3e6f32f3e4a507",
+      "native_frames": 660
+    },
+    {
+      "scene": "10_three_columns",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "33e64436d120da976eba134d256f646c8e99377d0fecb8ec7438c654cf305931",
+      "native_sha256": "467c91ccbdb41dc33203e6db35cce03810e584618b32de74ddebb962e6afa14f",
+      "video_sha256": "fc99440831114527a8cdb8da918a643b7d0660a35a35dd91e7a73871c8258a2f",
+      "receipt_sha256": "84a9c19aad2216a1bd342218bb3c5d8ece79796a4ef941445460ce55c3ee2029",
+      "native_frames": 783
+    },
+    {
+      "scene": "11_three_pass_results",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "a3a5ea74572657675fd08047d790d606b2f6760a964085525c0f3f9a432f1138",
+      "native_sha256": "3b6262c18afd7a19536befbe07539d9ef0bba8139db30f0e8a61fa13c26009a3",
+      "video_sha256": "f0e796048aa7bb19d4aebe4fb18eabd5ac16d5357ea2ee30e7e52de22e872853",
+      "receipt_sha256": "1841150b30bc763314490cf463857b2d29ec9c0a89138b48952bd773bd1f821d",
+      "native_frames": 764
+    },
+    {
+      "scene": "12_pairwise_restored",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement",
+      "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+      "decision": "strict_pass",
+      "gate_sha256": "72c9bfa30a666ed7c00bbe9cefe1e830d0c740b696c05c5050b7f5a5074bc103",
+      "native_sha256": "f00ea6d72a85e90b20b6d7bbaf048fc0551d8eea5437356938e0a0d75cd853b3",
+      "video_sha256": "e44658a621568c8e0294f9be55398e38a535b0a8f647432ea6b394ef16f17c54",
+      "receipt_sha256": "486939c26edfa65bd10e294f0193f21113275a0358868e8b4a8411258984524a",
+      "native_frames": 933
+    }
+  ],
+  "native_frames": 7527,
+  "normal_beta_enabled_alpha_off": true,
+  "no_retry_needed": true,
+  "reviewed_at": "2026-10-15T10:55:48.569646-04:00",
+  "independent_capture_science_review_sha256": "8dbbad12c5e4d9527a5f377ee4f87e6f695ca779ea8d323a3cd3e2faa19e2463",
+  "sampled_visual_review_sha256": "7fc6c200c26baf34b828ef8e938e1dfa975ac286fa91de51cf8cb96f350dcaff",
+  "scope": "Root whole native-capture technical acceptance; actual strict gates/source/preservation/runtime arithmetic independently verified. Not audio, full-watch, human/native-speaker, biological or publication acceptance.",
+  "original_capture_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/root-selected-acceptance.json",
+    "bytes": 7398,
+    "sha256": "6562792dd1ebb160d2db07af07dec0c7fd89cb31940a89e05302608a11737c13"
+  },
+  "publication_source_bound_at": "2026-10-15T11:46:27.848368-04:00",
+  "native_arrival_audit": {
+    "commit": "fd7d8234015e5e474af356ac15de6243323b4faa",
+    "parent": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "path": "tests/test_tutorial_release_audit.py",
+    "sha256": "d0726e50174ec8e8f156b3779ec89352e8f3c972ecb5d11d2e1a8df9bc294f47",
+    "tests_passed": 33,
+    "test_exit_code": 0,
+    "applied_only_after_record": true,
+    "test_log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/native-arrival-audit-tests.txt",
+      "bytes": 124,
+      "sha256": "fdfcec4e56da07b928bc15bd8f53410db9c1c4223b96219ae73bff35e393d880"
+    }
+  }
+}

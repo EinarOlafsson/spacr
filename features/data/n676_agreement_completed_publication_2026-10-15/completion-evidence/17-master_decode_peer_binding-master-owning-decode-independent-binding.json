@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "lesson": "23_agreement",
+  "status": "PASS existing root-owned fullDecode/allPTS receipt binding",
+  "root_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/master-full-decode-and-pts.json",
+    "sha256": "add265d5f30d7349714162ac55450cd043922b05bfa90d9c9a6e5edeb7084b85"
+  },
+  "finished_media_audit": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/finished-timing-media-peer.json",
+    "sha256": "0bbf5d26466343d030ed6f84828046125e52403e51696e7629e5bb283bca225f"
+  },
+  "actual_master_and_timing_match": true,
+  "all7527_decode_and_pts_30fps_zero_error_bound": true,
+  "decode_log_progress_pts_hashes_match": true,
+  "duplicate_decode_executed": false,
+  "limits": [
+    "Existing owning root decode and presentation evidence reused; no new decode or viewing/listening/publication acceptance."
+  ]
+}

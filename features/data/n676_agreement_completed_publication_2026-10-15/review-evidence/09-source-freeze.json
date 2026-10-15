@@ -1,0 +1,91 @@
+{
+  "source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "selected": [
+    "23_agreement"
+  ],
+  "lesson_sha256": {
+    "23_agreement": "afb0b5fe5bddf068e987492a3b2d207b66903638637c40d79da3e79510b361fc"
+  },
+  "voice_count": 50,
+  "track_count": 50,
+  "source_dirty": false,
+  "catalog_sha256": {
+    "captions_da.json": "0678fc95107ab75d0036821c42c07c775f25dcb01e7299564c02f8b34f668f65",
+    "captions_de.json": "e40ab3b56ea31957c49c4fe6fa15de15826fe06e97ea8970e38ea5cd6fb01c76",
+    "captions_is.json": "9e07822fe65f31cced857cfe2c87c39327f00bc0f540215625ab6705286d609d",
+    "captions_ko.json": "a0bc5e2eac0523e1df2919e4025dd3872b5c246b338924bb328e76781b996c84",
+    "captions_nb.json": "b315967a498d952843a46796602dd913020d6d7f37dad93a11165a973e9e7855",
+    "captions_sv.json": "6b9c8e5e207cdf9173e0c5152d2cd415b086be40e29f74a6dcf05282d3075fee",
+    "lessons_en.json": "cefbfce4d5c84ee7266ee887a60b09dd4923548c290f134ee34c7df3a9cf4c45",
+    "lessons_es.json": "dfe701647b360208435fc4e688cce6236ca4fbcf434c60f9c2b42a9f49ff8529",
+    "lessons_fr.json": "d990e0a25ee66f55de4c2ac18648e3e620ebe57f46ea7bda58812e183a5169c4",
+    "lessons_hi.json": "61de93160ab6e5b819a978ae3340618ffc8c99ff0cf9c8d49ee2f362d8e799ab",
+    "lessons_it.json": "919011742a852d2b59ade82bb716e8fe0587508292a36e825a17084af0f50ca4",
+    "lessons_ja.json": "be38ac71feab7604d840646a31e74d28d25577863425c090572aca19b6aa2283",
+    "lessons_pt-BR.json": "953f8734535695255886da495ab93c5add765c0ed03ba29f9909b2346df37a1c",
+    "lessons_zh-CN.json": "8dd37dccebe7ccb5898f1d0a7191c7c052ce92c6b1be22e07317db7d64f3168d"
+  },
+  "partitions": [
+    [
+      "af_heart",
+      "af_river",
+      "am_echo",
+      "am_michael",
+      "bf_alice",
+      "bm_daniel",
+      "ef_dora",
+      "hf_alpha",
+      "if_sara",
+      "pm_santa",
+      "jf_tebukuro",
+      "zf_xiaoxiao",
+      "zm_yunxia"
+    ],
+    [
+      "af_aoede",
+      "af_sarah",
+      "am_eric",
+      "am_onyx",
+      "bf_emma",
+      "bm_fable",
+      "em_alex",
+      "hf_beta",
+      "im_nicola",
+      "jf_alpha",
+      "jm_kumo",
+      "zf_xiaoyi",
+      "zm_yunyang"
+    ],
+    [
+      "af_bella",
+      "af_sky",
+      "am_fenrir",
+      "am_puck",
+      "bf_isabella",
+      "bm_george",
+      "em_santa",
+      "hm_omega",
+      "pf_dora",
+      "jf_gongitsune",
+      "zf_xiaobei",
+      "zm_yunjian"
+    ],
+    [
+      "af_jessica",
+      "am_adam",
+      "am_liam",
+      "am_santa",
+      "bf_lily",
+      "bm_lewis",
+      "ff_siwis",
+      "hm_psi",
+      "pm_alex",
+      "jf_nezumi",
+      "zf_xiaoni",
+      "zm_yunxi"
+    ]
+  ],
+  "native_speaker_signoff": false,
+  "listening_review": false,
+  "publication_eligible": false
+}

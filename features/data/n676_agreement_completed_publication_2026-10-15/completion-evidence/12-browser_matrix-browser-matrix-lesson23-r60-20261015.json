@@ -1,0 +1,434 @@
+[
+  {
+    "run": "23_agreement-cues-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 49.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-cues-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-en-af_heart-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.6,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-en-af_heart-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-es-ef_dora-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-es-ef_dora-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-fr-ff_siwis-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-fr-ff_siwis-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-hi-hf_alpha-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-hi-hf_alpha-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-it-if_sara-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-it-if_sara-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-pt-BR-pf_dora-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-pt-BR-pf_dora-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-ja-jf_alpha-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-ja-jf_alpha-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-zh-CN-zf_xiaobei-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-zh-CN-zf_xiaobei-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-en-af_heart-captions-da-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-en-af_heart-captions-da-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-en-af_heart-captions-de-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-en-af_heart-captions-de-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-en-af_heart-captions-is-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-en-af_heart-captions-is-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-en-af_heart-captions-ko-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-en-af_heart-captions-ko-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-en-af_heart-captions-nb-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-en-af_heart-captions-nb-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-master-en-af_heart-captions-sv-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-master-en-af_heart-captions-sv-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_heart-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_heart-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_aoede-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_aoede-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_bella-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_bella-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_jessica-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_jessica-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_river-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_river-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_sarah-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_sarah-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_sky-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_sky-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_adam-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_adam-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_echo-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_echo-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_eric-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_eric-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_fenrir-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_fenrir-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_liam-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_liam-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_michael-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_michael-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_onyx-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_onyx-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_puck-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_puck-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-am_santa-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-am_santa-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bf_alice-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bf_alice-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bf_emma-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bf_emma-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bf_isabella-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bf_isabella-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bf_lily-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bf_lily-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bm_daniel-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bm_daniel-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bm_fable-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bm_fable-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bm_george-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bm_george-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-bm_lewis-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-bm_lewis-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-es-ef_dora-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-es-ef_dora-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-es-em_alex-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-es-em_alex-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-es-em_santa-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-es-em_santa-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-fr-ff_siwis-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-fr-ff_siwis-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-hi-hf_alpha-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-hi-hf_alpha-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-hi-hf_beta-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-hi-hf_beta-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-hi-hm_omega-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.2,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-hi-hm_omega-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-hi-hm_psi-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-hi-hm_psi-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-it-if_sara-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-it-if_sara-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-it-im_nicola-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-it-im_nicola-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-pt-BR-pf_dora-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-pt-BR-pf_dora-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-pt-BR-pm_alex-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-pt-BR-pm_alex-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-pt-BR-pm_santa-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-pt-BR-pm_santa-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-ja-jf_alpha-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-ja-jf_alpha-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-ja-jf_gongitsune-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-ja-jf_gongitsune-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-ja-jf_nezumi-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-ja-jf_nezumi-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-ja-jf_tebukuro-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-ja-jf_tebukuro-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-ja-jm_kumo-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-ja-jm_kumo-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zf_xiaobei-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zf_xiaobei-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zf_xiaoni-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zf_xiaoni-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zf_xiaoxiao-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zf_xiaoxiao-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zf_xiaoyi-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zf_xiaoyi-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zm_yunjian-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zm_yunjian-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zm_yunxi-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zm_yunxi-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zm_yunxia-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zm_yunxia-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-zh-CN-zm_yunyang-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-zh-CN-zm_yunyang-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_heart-captions-da-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_heart-captions-da-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_heart-captions-de-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_heart-captions-de-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_heart-captions-is-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_heart-captions-is-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_heart-captions-ko-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_heart-captions-ko-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_heart-captions-nb-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_heart-captions-nb-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-web-en-af_heart-captions-sv-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-web-en-af_heart-captions-sv-lesson23-r60-20261015.log"
+  },
+  {
+    "run": "23_agreement-completed-matrix-lesson23-r60-20261015",
+    "returncode": 0,
+    "seconds": 0.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-23_agreement-completed-matrix-lesson23-r60-20261015.log"
+  }
+]

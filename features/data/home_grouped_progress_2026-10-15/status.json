@@ -6,6 +6,15 @@
   "historical_scope_ledger": "/mnt/wd4tb/scratch/original-home-today-completion-scopes-20261015.json",
   "rows": [
     {
+      "item": "F549",
+      "title": "Microscope acquisition",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified.",
+      "completion_basis": "Original DONE WHEN independently accepted2026-10-15;11 current owning definitions and14 portable evidence identities verified."
+    },
+    {
       "item": "N197",
       "title": "Page/focus navigation",
       "percent_done": "✅",
@@ -501,15 +510,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "F549",
-      "title": "Microscope acquisition",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F559",
       "title": "deep learning image qc",
       "percent_done": 85,
@@ -602,11 +602,11 @@
     {
       "item": "N626",
       "title": "Partial consolidation",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
+      "percent_done": "✅",
+      "time_left_hours": "0",
       "owner": "Home / assigned owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+      "description": "Historically complete: partial consolidation reports failure, preserves input/state and successful copies, stops downstream actions and supports retry.",
+      "completion_basis": "Original closed2026-10-01; current organizer/backend pins and actual corrected five-case CI receipt verified2026-10-15. Not a new implementation tick."
     },
     {
       "item": "N633",
@@ -623,7 +623,7 @@
       "percent_done": 95,
       "time_left_hours": "1–3",
       "owner": "Home / assigned owner",
-      "description": "Organize buttons and original-preservation repair implemented. Item explicitly leaves translations and tutorials for both buttons with owners; current item-specific catalog/tutorial closure not recorded. No new whole-organizer transaction acceptance.",
+      "description": "Software and189 current localized targets verified; Work must bind existing two-button clips/current layout/publication. Exact owner request relayed.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -695,7 +695,7 @@
       "percent_done": 95,
       "time_left_hours": "1–3",
       "owner": "Home / assigned owner",
-      "description": "TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today.",
+      "description": "Current TEM workflow/runtime/API proof complete; one unchanged French API review awaits ordinary no-op producer/audit after Home-B writer. Requested tutorial withdrawn.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -785,7 +785,8 @@
     "N94",
     "F554",
     "N687",
-    "N197"
+    "N197",
+    "F549"
   ],
   "coordination_reconciliation": "Added seven still-open Home-B items missing from earlier Original subset; authoritative item files and owner receipts retained. Historical pre-today completions need not all be printed."
 }

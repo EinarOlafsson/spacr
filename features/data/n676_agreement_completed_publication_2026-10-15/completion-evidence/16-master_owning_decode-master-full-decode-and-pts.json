@@ -1,0 +1,61 @@
+{
+  "lesson": "23_agreement",
+  "accepted": true,
+  "full_decode_passed": true,
+  "all_frame_presentation_times_match": true,
+  "command": [
+    "ffmpeg",
+    "-hide_banner",
+    "-loglevel",
+    "info",
+    "-xerror",
+    "-err_detect",
+    "explode",
+    "-hwaccel",
+    "none",
+    "-threads",
+    "2",
+    "-i",
+    "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/production/23_agreement/video/23_agreement_silent.mp4",
+    "-map",
+    "0:v:0",
+    "-vf",
+    "showinfo=checksum=0",
+    "-an",
+    "-progress",
+    "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/master-full-decode.progress",
+    "-f",
+    "null",
+    "-"
+  ],
+  "decode_exit_code": 0,
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/production/23_agreement/video/23_agreement_silent.mp4",
+    "bytes": 183616179,
+    "sha256": "26739694b066255cec96777a6b70b10bf906174630bb7d50a48686e1aa6c479d"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/production/23_agreement/video/native-live-timings.json",
+    "sha256": "b6180c0a1b618e164fa8de2a07c74933541ca483e14e6aa16c3fd9049c5efc4b"
+  },
+  "native_frames_retained": 7527,
+  "expected_output_frames": 7527,
+  "decoded_frames": 7527,
+  "pts_frames": 7527,
+  "duration_s": 250.9,
+  "max_pts_error_s": 0.0,
+  "decode_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/master-full-decode.log",
+    "sha256": "6eb912ba99f6b56dda52ca047dea3c38af0fecb4b546e507fdc21a24c43fa2f9"
+  },
+  "decode_progress": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/master-full-decode.progress",
+    "sha256": "4cc2bb2926498ae7bdeabeac9ec1c952b305c6e9087567e0e51a35d8b8ae81e7"
+  },
+  "all_pts": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/master-all-pts.json",
+    "sha256": "0dd9164c46fba19856761c9f7c4e6212e1efd4353ae7403f7d4d32d153cabc86"
+  },
+  "elapsed_s": 39.295,
+  "scope": "Root owning full silent-master software decode and every PTS at30fps; no viewing, listening or publication acceptance."
+}

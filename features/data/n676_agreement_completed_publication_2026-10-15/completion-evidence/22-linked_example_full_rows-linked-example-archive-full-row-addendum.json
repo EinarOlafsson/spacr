@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "base_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/linked-example-archive-independent-peer.json",
+    "sha256": "b1f3787f716cc5c0e690dd529a0d93bb698f3ae319b2dc377998be83c9856ad5"
+  },
+  "archive": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/examples/Agreement_artificial_labels_real_crops.zip",
+    "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c",
+    "bytes": 2143021
+  },
+  "captured_database": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/agreement_runs/DEMO-labels-real-crops-d1d80mk4/measurements/measurements.db",
+    "sha256": "e7e21f04027f75140f7bc842b7d134af51a1af9d862c1c31df6b92d022778825",
+    "bytes": 8192
+  },
+  "full_schema_equal": true,
+  "all21_column_values_and_rowids_equal_for_all16rows": true,
+  "physical_database_sha_equal": false,
+  "scope": "Additional read-only closure confirms full schema and every saved value, beyond the four shared Agreement fields. Different SQLite physical bytes do not represent a row/schema semantic difference.",
+  "no_source_archive_database_or_app_changes": true
+}

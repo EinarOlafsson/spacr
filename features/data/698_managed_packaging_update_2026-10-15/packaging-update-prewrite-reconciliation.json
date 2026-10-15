@@ -1,0 +1,12 @@
+{
+  "time_utc": "2026-10-15T15:47:00.248134+00:00",
+  "head": "66ac681d3040aab1823aed0bf16b4ed5c89589f7",
+  "actual_immutable66_provider_gitattributes": {
+    "path": ".gitattributes",
+    "oid": "f3f49149ace668fa22e292e81918bf0e2671206e",
+    "size": 17519,
+    "lfs": null
+  },
+  "first_driver_mutation_attempts": [],
+  "cause": "Prewrite guard wrongly bound provider attributes to empty creation commit a020 instead of actual first uploaded commit66ac. First upload standardSDKautomatically extends attributes for LFS; all1182sourcebindings unchanged. No remote update attempted."
+}
