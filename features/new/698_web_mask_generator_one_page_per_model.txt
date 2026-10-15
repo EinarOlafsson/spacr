@@ -497,3 +497,18 @@ to its tested premerge source/counts. No unchanged44/native rerun.
     pending independent final peer/publication; no fullCI, deployment, model
     availability or biological acceptance is claimed. PDF provisioning remains
     a separate CI-owner component.
+
+
+2026-10-15 — private legacy resource-preflight correction
+    Independent peer blocked initial private source: scene expansion happened
+    before raw interval containment and caller-specific full-canvas byte guards.
+    Both now precede desktop metadata expansion. A separate configurable positive
+    integer max_scenes defaults to4096 distinct legacy scenes; interval-union
+    counting preserves repeated subblocks and sparse scene IDs without allocating
+    scene dictionaries first. Current CZI pixel handling is unchanged.
+    Actual finite reproductions3FAIL+2FAIL and affected7PASS/final27PASS are
+    retained, plus final2current-native and2old-reader-harness fixture passes.
+    One precise new caption has nine private drafts. Source remains PRIVATE
+    until independent final peer and normal runtime catalogs/actual locale
+    callbacks close; no hosted fullCI or universal/native/scientific claim.
+    Evidence: data/698_legacy_czi_uploads_2026-10-15/resource-correction/.

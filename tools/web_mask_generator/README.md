@@ -61,7 +61,13 @@ pixel values/dtypes are preserved. The decoded-byte preflight remains
 conservative against the described whole series. Legacy czifile readers use
 explicit subblock scene bounds and retain absolute origins. Since those readers
 decode the complete multi-scene canvas, its full declared allocation must fit
-the byte budget before any pixels are decoded. Scene/time/Z/channel selection
+the byte budget before scene metadata expansion or any pixel decode. Legacy
+metadata also has an independent positive-integer `max_scenes` limit, default
+4096 distinct scenes, checked before expanding subblock scene ranges. Repeated
+subblocks for one scene do not count twice. Both `describe_upload` and
+`read_upload_plane` accept an explicit limit override. This scene-count limit
+applies only to the legacy reader route; the current CZI pixel route is unchanged.
+Scene/time/Z/channel selection
 never blends scenes or guesses missing metadata. Unsupported ND2 metadata
 without declared X/Y dimensions and CZI without scene or subblock metadata
 are refused. CPU acceptance
