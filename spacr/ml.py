@@ -8828,8 +8828,9 @@ def generate_ml_scores(settings):
     """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
     Reads the measurement store selected by ``measurement_backend`` from
-    :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/
-    cytoplasm feature tables, uses the wells marked as
+    :func:`spacr.measure.measure_crop`, merges the object feature tables
+    selected by ``tables`` using their existing parent-object joins, uses
+    the wells marked as
     ``positive_control`` / ``negative_control`` (or an annotation column)
     as training labels, delegates fitting to :func:`ml_analysis`, and
     writes per-object predictions, permutation and feature-importance
@@ -8841,8 +8842,13 @@ def generate_ml_scores(settings):
         - ``src`` (str or list) — folder(s) containing the measurements.
         - ``measurement_backend`` / ``measurement_backend_target`` — select
           the SQLite, DuckDB, Parquet or PostgreSQL measurement store.
+        - ``tables`` (list or tuple) — unique registered object-table names,
+          optionally including ``png_list``; at least one object table is
+          required. When absent, reads ``cell``, ``nucleus``, ``pathogen`` and
+          ``cytoplasm`` in that order. Selected tables retain the shared
+          reader's existing joins and nucleus/pathogen limits.
         - ``channel_of_interest`` — 0-based channel for the recruitment
-          ratio feature; also drives table selection.
+          ratio feature.
         - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,
           ``'random_forest'``.
         - ``positive_control`` / ``negative_control`` — well IDs (e.g.
@@ -8863,8 +8869,9 @@ def generate_ml_scores(settings):
         and ``plate_heatmap`` is the plate-heatmap ``matplotlib``
         figure. The CSVs and figures are written to ``results/`` as a
         side effect; their paths are not returned.
-    :raises ValueError: if ``annotation_column`` is set but the
-        ``png_list`` table lacks ``prcfo`` / that column, its object IDs do
+    :raises ValueError: if ``tables`` is empty, duplicated, contains an
+        unknown table or has no object table; or if ``annotation_column`` is
+        set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do
         not join to the measurements, it contains fewer than two observed
         classes, or if ``heatmap_feature`` is not among the trained features.
 
@@ -8894,6 +8901,16 @@ def generate_ml_scores(settings):
                               migrate_prediction_columns)
 
     settings = set_default_analyze_screen(settings)
+    from .object_roles import ALL_ROLES
+    tables = settings.get('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
+    allowed_tables = frozenset(ALL_ROLES) | {'png_list'}
+    if (not isinstance(tables, (list, tuple)) or not tables
+            or any(not isinstance(name, str) or name not in allowed_tables for name in tables)
+            or len(set(tables)) != len(tables)
+            or not set(tables).intersection(ALL_ROLES)):
+        from .qt.i18n import tr
+        raise ValueError(tr("Bad settings") + f": tables={tables!r}")
+    tables = list(tables)
     save_settings(settings, name='generate_ml_scores', show=True)
     _flowview_advance("tables")
 
@@ -8915,7 +8932,6 @@ def generate_ml_scores(settings):
                 and db_loc[0] in measurement_stores):
             continue
         measurement_stores.append(db_loc[0])
-        tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
         
         dft, _ = _read_and_merge_data(db_loc, 
                                     tables,
@@ -8957,6 +8973,7 @@ def generate_ml_scores(settings):
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         measurement_rows = len(df)
         annotation_rows = len(annotated_df)
+        df = df.drop(columns=[_label_column], errors='ignore')
         df = annotated_df.merge(df, left_index=True, right_index=True,
                                 validate='many_to_one')
         if df.empty:

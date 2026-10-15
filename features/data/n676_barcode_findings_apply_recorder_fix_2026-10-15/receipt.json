@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "lesson": "12_map_barcodes",
+  "held_recorder_commit": "aecdcf2915b149bdaa4d669e4aa2616ca22db863",
+  "tests": {
+    "passed": 24,
+    "seconds": 2.58,
+    "terminal_exit": 0
+  },
+  "independent_peer": "HIGH PASS as reported byroot",
+  "turn51": {
+    "rc": 1,
+    "raw_native_clips": [
+      "01_module.native.mp4",
+      "02_archive_bounded_choice.native.mp4",
+      "04_reference_tables.native.mp4",
+      "06_live_search_progress.native.mp4",
+      "07_search_verdicts.native.mp4",
+      "07b_guide_verdicts.native.mp4",
+      "07c_row_verdicts.native.mp4"
+    ],
+    "search_reads_each_mate": 10000,
+    "proposed_window_length": 89,
+    "proposal_applied": false,
+    "mapping_executed": false,
+    "whole_capture_accepted": false,
+    "cause": "Real row-verdict findings layout visibility guard failed before Apply; rawfailure retained."
+  },
+  "repair": "Bounded realphysicalwheel scrolling exposes rowfindings while preservingstrictvisibilityguard. Selected canonical09 now includesactualApplyclick/readback; legacy10 retainsfollow-up poststate.",
+  "fresh52": "prepared only; no marker/queue/acceptance claimed here",
+  "audio_staging_or_publication": false,
+  "files": [
+    {
+      "file": "findings-apply-tests.txt",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson12-r51/findings-apply-tests-final-r2.log",
+      "sha256": "f6326f943f087460e56a7a44b77857306af2b3c02e9f8275f64a13c7846a5a5a",
+      "bytes": 1994
+    },
+    {
+      "file": "turn51-host-run.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson12-r51/host-run.json",
+      "sha256": "8f3ae19a1e1934dea4152abd47460b1092a284b57ebcea3c4db3f46a250c89bb",
+      "bytes": 1092
+    },
+    {
+      "file": "aecdcf2915b149bdaa4d669e4aa2616ca22db863.patch",
+      "sha256": "339eb939d20a996ab7ed4cf28ddb425dfc9c694bca229bf24b4a5d8f9b569287",
+      "bytes": 10050
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "reviewer": "Original Home root, independent AI technical peer, no native/human signoff",
+  "decision": "APPROVED all9 exact source-bound records",
+  "review": "Each target preserves multiple-instance feature values, finite requirement and float32 conversion; no promise of calibrated model output or scientific accuracy. Literal type name preserved. Normal source/current review/writer gates still required.",
+  "files": [
+    {
+      "language": "de",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-mil-finite-features.json",
+      "sha256": "c71270d22fe93faa1b4f02e132d174a813c81ea1f2691b947767203581e5ab76",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "c61dcfcf657aae1f7b15cbacd86eb4a9ef1833660aee829c33e3cbb88d03604a"
+    },
+    {
+      "language": "es",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-mil-finite-features.json",
+      "sha256": "b65a8e1f53c53af53f2168d65cc3491600ea135573bfe12df3aa05aa972543e2",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "6054876c83b1e8d594e05d7d3b3915c2a0bbd47a5183c1e55239d8d4d962e87a"
+    },
+    {
+      "language": "fr",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/fr/2026-10-15-mil-finite-features.json",
+      "sha256": "dbae672f2f8bb6d608131dde6646f60d023629fab60712297911fcb145d614d8",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "69c94ad9986c4f10b691623a89d91f847e1de9e89e82d225be9ed6cdad55efa0"
+    },
+    {
+      "language": "hi",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/hi/2026-10-15-mil-finite-features.json",
+      "sha256": "b1581f61ce5e6510d56b716b04870eae55c02cbfab64d1ae1a8dd63410bf274f",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "f2fd8e29d0d1c1c84ae632174d2e490e3468b1eb9faeb6a2ef705004536399c2"
+    },
+    {
+      "language": "is",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/is/2026-10-15-mil-finite-features.json",
+      "sha256": "fd9e21d6044580d8ca33946b075ba54be003ab44b07333eed093c293ec6450a0",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "d75e71c2c5befc46cd4b926a30cdbb66cfc1afa1f54fb96b12c13bb979bfb692"
+    },
+    {
+      "language": "ko",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/ko/2026-10-15-mil-finite-features.json",
+      "sha256": "1d3e1a552974b3aad2aed7524355d1708a29130ab909af50498faa01702dd1e5",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "d53aeba13415b54915266dc9d730a553894a393b3138ccc39753fdbef4223711"
+    },
+    {
+      "language": "pt",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/pt/2026-10-15-mil-finite-features.json",
+      "sha256": "904f942f33eed9458df34a255c7d77641eab8592469f03327a97669252cb1d77",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "7cd30fd567b80d1b1f546adf5cca115650c85a14753605c562d3a83b2390391f"
+    },
+    {
+      "language": "sv",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/sv/2026-10-15-mil-finite-features.json",
+      "sha256": "235d25c6a6d781503fc9d1eead1e00fa3e8a98cb60b0f596cc02c8a3dfd6a05c",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "8a40a41b1cdfc51e35d50f011bc1182397c5c3c8187d32e73e372217f39882bb"
+    },
+    {
+      "language": "zh_CN",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f562-finite-features-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-mil-finite-features.json",
+      "sha256": "cf4a7951643c83d85650e1aba628c0f5b05860079381ee15555e0a19038869ab",
+      "source_sha256": "35b033508fd4f873ded2b03301a6de27052be6bd728dd1a6fb27be31cd59d05e",
+      "translation_sha256": "cf5a5e0ddd9cbafe3498d88522d508a846d5ec58de39805e300e618a221dcc24"
+    }
+  ]
+}

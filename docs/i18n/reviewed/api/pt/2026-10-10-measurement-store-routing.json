@@ -6,7 +6,10 @@
       "label": "spacr.ml.generate_ml_scores#1",
       "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
       "source_sha256": "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
-      "translation": "Lê o armazenamento de medições selecionado por ``measurement_backend`` a partir de :func:`spacr.measure.measure_crop`, mescla as tabelas de características de célula/núcleo/patógeno/ citoplasma, usa os poços marcados como ``positive_control`` / ``negative_control`` (ou uma coluna de anotação) como rótulos de treinamento, delega o ajuste a :func:`ml_analysis` e grava as previsões por objeto, as tabelas de permutação e de importância de características, além de um mapa de calor da placa, em ``results/`` na primeira pasta de origem."
+      "translation": "Lê o armazenamento de medições selecionado por ``measurement_backend`` a partir de :func:`spacr.measure.measure_crop`, mescla as tabelas de características de célula/núcleo/patógeno/ citoplasma, usa os poços marcados como ``positive_control`` / ``negative_control`` (ou uma coluna de anotação) como rótulos de treinamento, delega o ajuste a :func:`ml_analysis` e grava as previsões por objeto, as tabelas de permutação e de importância de características, além de um mapa de calor da placa, em ``results/`` na primeira pasta de origem.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "context": "``src`` (str or list) — folder(s) containing the measurements.",

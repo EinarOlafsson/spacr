@@ -1653,7 +1653,7 @@ SETTING_API_TARGETS_BY_MODULE = {
     't_axis': {'spacr.core': ('', False)},
     't_axis_order': {'spacr.core': ('', False)},
     't_stack': {'spacr.core': ('', False)},
-    'tables': {'spacr.core': ('generate_image_umap', True), 'spacr.ml': ('interpret_vision_model', False), 'spacr.submodules': ('analyze_percent_positive', True)},
+    'tables': {'spacr.core': ('generate_image_umap', True), 'spacr.ml': ('generate_ml_scores', True), 'spacr.submodules': ('analyze_percent_positive', True)},
     'tar_path': {'spacr.deep_spacr': ('apply_model_to_tar', True)},
     'target': {'spacr.submodules': ('analyze_recruitment', True)},
     'target_gene': {'spacr.hit_investigation': ('investigate_hit', True)},
