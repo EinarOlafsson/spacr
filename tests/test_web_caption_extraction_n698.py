@@ -102,6 +102,7 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
         "install_cleanup.py", "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
+        "_lineage_trees.py",
     ):
         (source_root / filename).write_text("")
     monkeypatch.setattr(builder, "_indirect_runtime_ui_sources", set)
