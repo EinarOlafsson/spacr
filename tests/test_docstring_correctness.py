@@ -2174,6 +2174,7 @@ def _validated_prior_699_callables(callables):
         "runner": ("str", "'spacr-run'"), "poll_seconds": ("int", "10"),
         "ssh_options": ("Dict[str, str]", "field(default_factory=dict)"),
         "ssh_interactive": ("bool", "False"),
+        "ssh_keychain": ("bool", "False"),
     }
     assert fields == expected_fields
     assert profile.category == "dataclass_constructor"
@@ -2185,7 +2186,7 @@ def _validated_prior_699_callables(callables):
     assert profile.variant_count == 1
     assert profile.docless_variant_count == profile.constructor_prose_variant_count == 0
     assert not profile.accepts_arbitrary_keywords
-    additions = {"ssh_options", "ssh_interactive"}
+    additions = {"ssh_options", "ssh_interactive", "ssh_keychain"}
     assert not additions & profile.required_parameters
     prior = replace(profile, parameters=profile.parameters - additions,
                     accepted_documented_parameters=(
