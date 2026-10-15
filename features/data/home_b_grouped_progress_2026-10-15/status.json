@@ -2,7 +2,7 @@
   "date": "2026-10-15",
   "format": "One row per numbered item; whole-item ticks only; estimated remaining active hours; external waits may be unknown. Historical completed items omitted.",
   "source": "Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/today rows retained with current owner updates.",
-  "latest_home_b_public": "c457283835",
+  "latest_home_b_public": "bcdf081f6a",
   "rows": [
     {
       "item": "N180",
@@ -12,6 +12,15 @@
       "owner": "Home-B / shared owner",
       "description": "Complete original workspace contract accepted: real session figures/PDFs survive save/close/restore, missing-PNG resave repaired, nine-language API/runtime and actual Help/search consumers pass.",
       "completion_basis": "Whole original A–D/five criteria independently accepted2026-10-15;18 owning cases/overlapping3 followups, normal63API+9runtime/full9audit and actual finalconsumersPASS."
+    },
+    {
+      "item": "F549",
+      "title": "Microscope acquisition",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified.",
+      "completion_basis": "Original DONE WHEN independently accepted2026-10-15;11 current owning definitions and14 portable evidence identities verified."
     },
     {
       "item": "N197",
@@ -253,7 +262,7 @@
       "percent_done": 70,
       "time_left_hours": "12–24+",
       "owner": "Home",
-      "description": "Configuration website live and verified in English/Swedish; hosted GPU and WebGPU inference unavailable. Three-caption backend closure active.",
+      "description": "Configuration site built; free hosted source upload and packaging correction verified across1182files. Actual hosted build/inference acceptance remains.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -428,15 +437,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "F549",
-      "title": "Microscope acquisition",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home-B / shared owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F559",
       "title": "deep learning image qc",
       "percent_done": 85,
@@ -575,9 +575,9 @@
       "item": "N690",
       "title": "make masks for tem images",
       "percent_done": 95,
-      "time_left_hours": "1–3",
+      "time_left_hours": "0.5–1",
       "owner": "Home",
-      "description": "TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today.",
+      "description": "Current runtime/source checks pass; original tutorial obligation explicitly dropped by Work. One existing French API paragraph review/normal selected audit queued after N180.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
