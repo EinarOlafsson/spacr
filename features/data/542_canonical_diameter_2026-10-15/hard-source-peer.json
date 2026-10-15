@@ -1,0 +1,35 @@
+{
+  "reviewer": "hard_overnight independent static source peer; no runtime import or execution",
+  "decision": "APPROVE exact two canonical region property-name replacements",
+  "source_pin": "67e37853676e682e33b372f4f0cd04ecce629f2c",
+  "path": "spacr/plaque.py",
+  "before_sha256": "7ec32f1a3bbafe0efe8a3f095c597b124dff35a14530752b1672ce3c463963c3",
+  "after_sha256": "a31905b17c96ec90e5e44c54542567f39c81b901dd39907eeeafffedf7c24dc5",
+  "exact_text_only_two_property_names": true,
+  "ast_semantics_identical_after_reversing_only_two_attr_names": true,
+  "all_string_number_tokens_and_line_count_unchanged": true,
+  "changed_attributes": [
+    {
+      "function": "_find_dish",
+      "line": 639,
+      "new_attribute": "equivalent_diameter_area"
+    },
+    {
+      "function": "_measure_colonies",
+      "line": 1277,
+      "new_attribute": "equivalent_diameter_area"
+    }
+  ],
+  "corroboration": {
+    "path": "features/data/n676_plaque_current_preview_blocker_2026-10-15/diameter-alias-proof.json",
+    "sha256": "347cdd1a3be4bc60afd9c26b238e89d1834274138776109b7afbab268a2d5caf",
+    "skimage_version": "0.26.0",
+    "all_five_geometries_exact_equal": true,
+    "scope": "Existing Work24 property geometry proof corroborates alias equivalence. Its runtime source was submodules.py, not these two functions; peer did not execute it."
+  },
+  "limits": [
+    "No independent runtime or scientific acceptance claim.",
+    "Existing geometry/physical-unit/dish-selection owning checks remain root responsibility.",
+    "No threshold, scaling, rounding, data field, literals, documentation, translations or generated artifacts changed."
+  ]
+}

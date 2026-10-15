@@ -248,3 +248,13 @@ The CSV dilution tooltip and guide paragraph are now source-bound and
 technically AI-reviewed in all nine languages. Standard runtime generation,
 exact target verification and complete guide coverage audit pass.
 See features/data/615_preview_controls_runtime_2026-10-01.json.
+
+2026-10-15 — CANONICAL DIAMETER PROPERTY IN EXISTING MEASUREMENT
+The colony-row measurement and largest-disc dish fallback now read
+RegionProperties.equivalent_diameter_area instead of its deprecated alias.
+Only those two attribute names changed; scaling, output fields, thresholds,
+alpha registration, prose and all user captions remain unchanged. Five
+existing geometry/physical-unit/dish-selection checks pass in4.79s. Existing
+unrelated morphology/axis/NumPy warnings remain visible in the raw log.
+Evidence: features/data/542_canonical_diameter_2026-10-15/. This does not
+claim new biological accuracy, native-platform acceptance or tutorial output.
