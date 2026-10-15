@@ -2,20 +2,21 @@
   "component": "Legacy exact-key acquisition and offline model policy",
   "publication": "coherent nightly implementation; global caption/full-audit/release acceptance remains open",
   "validation": {
-    "owning_tests": 275,
-    "seconds": 29.16,
+    "owning_tests": 287,
+    "seconds": 39.03,
     "exit_code": 0,
     "locales": 9,
     "new_caption_review_rows": 9,
-    "writer": "normal source/review validators and write_language; unrelated committed source-current rows preserved"
+    "writer": "normal source/review validators and write_language; unrelated committed source-current rows preserved",
+    "log": "/mnt/wd4tb/scratch/n702-pinned-export-20261014/relocated-integrated.log"
   },
   "source_sha256": {
-    "spacr/model_zoo.py": "bc8a7253b5704e3ba167091e77a563959b1c7f48727d9b1328cffd1f45610a1f",
+    "spacr/model_zoo.py": "0f7757858e27c75ea3dc5ba70228ff38a3a74817229d2f32fe77cf26bc2275e2",
     "spacr/deep_spacr.py": "4f12c083a88c064cc9cff099910ef99952ddb726cca1cec25fb024de37c028ad",
-    "spacr/submodules.py": "0960a10f41b2e644f482f37f84ea279ab1fe134ec526f9b62f6c72660859b41b",
+    "spacr/submodules.py": "ce4dc40d7abce7905edbf918c8ffcf61357bd7802306d3c96e72f7f298c2a15e",
     "tests/test_n702_offline_model_resolution.py": "8b6a417e2715ae26f5bee4e9d383d2031bbac4e6381622ab2e2ea96838128737",
     "tests/test_n702_legacy_missing_consumer_paths.py": "350ee3b59ea001afb03a175d8f9259cdd81c48ffc689228634ef131187e8be89",
-    "tests/test_n702_legacy_keys_share_acquisition.py": "ae896266a3bf51353c804b0b3dc6d7af8f9105b6c65e7042714ac806cc5c3867"
+    "tests/test_n702_legacy_keys_share_acquisition.py": "067b51c44291205e77f71d0c69e3da73f5c7e26f0c10436daddddad00280c6ee"
   },
   "contract_status": {
     "root_direct_cli_attempt": "no-op: current public caption module has no CLI; not claimed as a validation pass",
@@ -27,10 +28,11 @@
     "External raw catalogue planning and whole N702 acceptance remain open."
   ],
   "current_public_merge": {
-    "own_tested_source_files_unchanged": 6,
+    "own_tested_source_files_unchanged": "superseded by fresh 287-test run after model-cache interoperability merge",
     "offline_targets_and_hashes_verified_after_merge": 9,
     "english_source_generator": "actual exit0;1273settings/242categories/7661UI",
-    "generated_conflict_resolution": "published English baseline restored, then normal sources-only regeneration; no hand merge"
+    "generated_conflict_resolution": "published English baseline restored, then normal sources-only regeneration; no hand merge",
+    "cache_interoperability": "Four real legacy consumers and pinned offline resolution use relocated cache; central model-cache destination retained."
   },
   "known_foreign_gates": {
     "caption_refresh": "Actual current-public helper observed exit1 in installer/scientific integration: missing sv/UI/AI Error report explicit review; root does not claim executing that same check again.",
