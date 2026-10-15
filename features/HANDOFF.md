@@ -1,4 +1,10 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+
+## 2026-10-15T11:37:38.878191-04:00 — Work:23 full candidate accepted; immutable readback running
+
+Agreement23 has10/10 strict native clips,7527completeframes/250.9s at1x,50/50 current-runtime audio QA,13 official reviews, full master/web decode and timing checks,72/72 browser-matrix steps and84/84 candidate routes. Other83 lesson objects remain exact completed15baseline. Prepublication independent peer325be9c2840fa37dc8ce389611394425b072c07a1320b423d213f88bbc32af2a binds actual candidate manifest8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4 and145-file checkpoint. Source remains heldd7461e54e; no source push.
+
+Actual HF upload to n676-gnome23-r60-20261015 has transferred; full immutable5368-file readback is running, past3000files, currently respecting media-host rate-limit retries. No verified tag/Pages/record/nightly completion claimed yet. Work continues this lesson through final publication before another native capture. Separate bounded05 native diagnostic proposal is being adapted read-only; no third unchanged05retake or native execution.25Recruitment has existing inputs but recorder Import-settings/worker-observer gaps, queued after active work. No curation/v5 jobs touched; no human hearing/fullwatch/biological/liveSpace acceptance claimed.
 ## 2026-10-15 Home-B — Work native diagnostic proposal and workspace ownership
 
 Work's two unchanged lesson05 Apply failures remain rejected. Read-only source
