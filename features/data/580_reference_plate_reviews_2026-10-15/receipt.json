@@ -67,7 +67,7 @@
     "Backend algorithm/statistic unchanged; this selects the reference, not a new calibration method",
     "The full unchanged13-case arrival negative suite was an avoidable verification expansion; future merge verification stays scoped to actual positive arrival/source proof and changed artifacts."
   ],
-  "final_acceptance": "PASS;87distinct cases retained with21merged-context and1doc-only-context repeats, normal publication next",
+  "final_acceptance": "PASS; normal publication after final source-identical/generation proofs",
   "source_sha256": {
     "spacr/intensity_rescale.py": "5b2b18a72df195021e5b065d0f54d34a301be854fe1ccc5610940cf05dc4d604",
     "spacr/settings.py": "bdcd24255e3177f107090e47e7549e6fe630c08d1b0e50d510c420fce5ad00e2",
@@ -380,5 +380,20 @@
       "seconds": 0.58
     },
     "unchanged_87_not_repeated": true
+  },
+  "final_runtime_reconciliation": {
+    "public_base": "c98f0cd6bd73ba26e3075693edce2ef13479f2c3",
+    "own_source": "Four application files byte-identical to tested0ba0b912918",
+    "ordinary_runtime_review_candidate_gates": "PASS all9 locales,36 exact current targets",
+    "unrelated_values_preserved_per_locale": 10575,
+    "english_source_audit": "PASS languages=0 only; no full merged nine-locale audit claimed",
+    "normal_arrival_refresh": {
+      "baseline": 9833,
+      "added": 897,
+      "changed": 30,
+      "retired": 151
+    },
+    "tests_not_repeated": "Unchanged87 and previous21 merged-context tests retained; unrelated source body deltas do not alter own functions",
+    "publication_races": "Three normal non-fast-forward pushes reconciled without force; final owner-coordinated publication window"
   }
 }

@@ -1,0 +1,49 @@
+{
+  "source_peer_hashes_verified": true,
+  "reviewed_target_pairs": 54,
+  "baseline": "44c8ba49f30",
+  "expected_artifact": "73ada1ae0f9",
+  "locales": {
+    "en": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13474
+    },
+    "sv": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "de": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "es": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "fr": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "pt": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "is": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "hi": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "ko": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    },
+    "zh_CN": {
+      "owned_symbols_exact": 4,
+      "unrelated_records_preserved": 13400
+    }
+  },
+  "runtime_arrivals": "post-merge-arrivals-receipt.json; unchanged immutable 9833-entry baseline"
+}
