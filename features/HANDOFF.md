@@ -11,6 +11,10 @@
 
 
 
+## 2026-10-15 Work — R2 before-capture failure; bounded public click readiness
+
+R2actual18:55:19–18:55:35EDT exit1/15.923s cleanup0, beforefirstspaCRmenubarclick. No popupquery/Apply/recording/clip. It thereforedoesnotestablish popupmapping/Overviewcause; exactpriorfailure/statictrace preserved indata/n676_home_apply_captured_prefix_2026-10-15/actual-r2-before-capture-failure/. R3onlyadds <=2s ordinaryQt readiness polling usingunchanged strictreachable andstablepoint40ms beforerealpointerclick, withsafeclassificationonpersistentfailure. No force/QtEventPump/gate/sourceproductchange. Newstage preservesR1/R2; minimalportableR2→R3sourcepatch/manifest inworker-r3-delta/. Existing Workrecorder300+30scope unchanged; no secondHomeobservational180/20diag. Fullcapturedsourcealreadyprovided; notan exacthistoricalstateclaim.
+
 ## 2026-10-15 Original Home — fresh source-pinned distribution candidates verified
 
 Ordinary isolated PEP517 build completed from published b51fb194bb183990ab25c981d70e3030063bf9ac.
