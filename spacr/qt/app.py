@@ -5113,7 +5113,7 @@ class MainWindow(QMainWindow):
                    error=self._removal_reason_text(
                        str(plan.get("error")))))
             return
-        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1"} and plan.get("handshake"):
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "linux-deb-v1"} and plan.get("handshake"):
             from PySide6.QtCore import QTimer
 
             self._frozen_update_plan = plan
@@ -5189,7 +5189,13 @@ class MainWindow(QMainWindow):
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
             self._frozen_update_timer.stop()
-            if self._frozen_update_plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1"}:
+            if self._frozen_update_plan.get("adapter") == "linux-deb-v1":
+                message = tr(
+                    "spaCR will close before updating its Debian package. "
+                    "A graphical administrator authorization window will open. "
+                    "The previous package will be retained for rollback. "
+                    "Your data and caches will be kept.")
+            elif self._frozen_update_plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1"}:
                 message = tr(
                     "This will reinstall spaCR in its current environment. "
                     "spaCR will close before the update starts. "
@@ -5204,7 +5210,7 @@ class MainWindow(QMainWindow):
                 self._cancel_frozen_update()
                 return
             handshake.check()
-            if (self._frozen_update_plan.get("adapter") == "pip-private-posix-v1"
+            if (self._frozen_update_plan.get("adapter") in {"pip-private-posix-v1", "linux-deb-v1"}
                     and not self._save_pip_update_restart()):
                 self._cancel_frozen_update()
                 return
