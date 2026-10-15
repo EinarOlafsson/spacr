@@ -1,0 +1,112 @@
+{
+  "status": "READ_ONLY_SOURCE_BOUND_DIAGNOSTIC_PROPOSAL_NOT_EXECUTED",
+  "coordinator_commit": "41f5980185bb43755b447c85159ae85cb348af62",
+  "work_original_source": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "source_bindings": {
+    "spacr/qt/preferences.py": {
+      "sha256": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680",
+      "hooks": {
+        "_in_one_store": {
+          "line": 764,
+          "end_line": 767,
+          "ast_sha256": "366c00a02a82d2150f560bc06e40484abf9aae50eccf0ab60d2e5bc844ddad28"
+        },
+        "apply_preferences_to_app": {
+          "line": 7672,
+          "end_line": 7814,
+          "ast_sha256": "f014328d6103ba20af726f07ab0f877b62381c3e071ffeee1027183f64e697e5"
+        },
+        "_refresh_owner_window": {
+          "line": 12109,
+          "end_line": 12180,
+          "ast_sha256": "209333a047f2fd6db7f400013c7b7c80b606fb243535065def667c87e7ef58e8"
+        }
+      }
+    },
+    "spacr/qt/widgets/glass.py": {
+      "sha256": "0a30f850192003a63e6edfcfb0363187062c87ff849eca65a2c4ae2568474766",
+      "hooks": {
+        "glass": {
+          "line": 806,
+          "end_line": 829,
+          "ast_sha256": "a47efefaa66e484c4aa18b2d3962fbf2d58200bb8baea6a5cf11b13944324bed"
+        },
+        "_glass_held": {
+          "line": 832,
+          "end_line": 870,
+          "ast_sha256": "be8638af3003a40e8cf1183f5016f7e0e477243fb423d3c11267e575d494e7d1"
+        },
+        "_GlassInstaller.eventFilter": {
+          "line": 1007,
+          "end_line": 1040,
+          "ast_sha256": "c4a83eb4a4d28ded6e4c3a692d38db94b699849c3b0ce84786379e730596d696"
+        }
+      }
+    },
+    "spacr/qt/widgets/setup_card.py": {
+      "sha256": "1e18095eb0017b4c2ebd2abe6f575c79f712f99b0b67682ce2a17223bb50e3fc",
+      "hooks": {
+        "SetupCard.__init__": {
+          "line": 93,
+          "end_line": 155,
+          "ast_sha256": "cc6cbaaf08eade1200f6f68720d122e8c1362ef53b9c334875fdecfe4932f0a6"
+        }
+      }
+    },
+    "spacr/qt/theme.py": {
+      "sha256": "70cec896248a67fb9ace7d247175a0a05eb6eb22e6a091ad5bf59b5839851a76",
+      "hooks": {
+        "_one_sheet_for": {
+          "line": 3865,
+          "end_line": 3913,
+          "ast_sha256": "c2de2274a7ff8f91011b1882464a7f539627e608108c0a560cc7a728ce27ad87"
+        },
+        "_sheet_one_window": {
+          "line": 4054,
+          "end_line": 4082,
+          "ast_sha256": "1c94c7622af5d198139b6be5fb8ead2a6f98012799dacc26f3e8a8de25baf73e"
+        },
+        "_repolish_the_tagged": {
+          "line": 3916,
+          "end_line": 3933,
+          "ast_sha256": "32166e23cdfd12a53797242cf57c406c409cf1f899f650115ed9c9c35b21a5e1"
+        }
+      }
+    },
+    "spacr/qt/app.py": {
+      "sha256": "0d0c6109143feadec12a1dafaebae79839f1ccd46a9f918c5efaf89e6c2b81ca",
+      "hooks": {
+        "MainWindow.refresh_after_preferences": {
+          "line": 4668,
+          "end_line": 4703,
+          "ast_sha256": "e4d8af2a5ea842616a843ead83a64522daffe2c24f4b0a04e5338eef8efa1d90"
+        }
+      }
+    }
+  },
+  "existing_native_evidence": [
+    {
+      "stage": "lesson05-r59-prefs",
+      "gui_gaps_s": [
+        [
+          4.103,
+          4.541
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "stage": "lesson05-r59-prefs-b",
+      "gui_gaps_s": [
+        [
+          4.185,
+          4.58
+        ]
+      ],
+      "passed": false
+    }
+  ],
+  "first_stack": "Apply -> question.open -> global glass eventFilter -> glass -> _glass_held -> SetupCard.__init__. Single watchdog stack is a location sample, not cumulative phase attribution.",
+  "cpu_evidence": "Existing CPU/offscreen realWindow profile did not reproduce native stall and includes a normal notice absent from capture profile; do not infer a source fix.",
+  "mutations_or_runs": "No product, recorder, gate, preferences, protected job, GPU/native process, service or recording changed or run."
+}

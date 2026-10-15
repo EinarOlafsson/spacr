@@ -1,0 +1,70 @@
+{
+  "status": "PRIVATE45inputs; four settings targets/locale need independent technical peer, prior diagnostic9 exact",
+  "public_baseline": "54a57a07ccbdd940ae04015b7ea9e5d1eee67a38",
+  "private_integration": "f9c80c4170c8aa69c7addce1d36be7042a51dea8",
+  "files": {
+    "de": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/de.json",
+      "sha256": "57e19018885332612704b94e2ede87729f1d9db0564daf8a3145d526b2c836b0",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "es": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/es.json",
+      "sha256": "01b0d59719e1a598f8bed13b0ef5ca23784cc7d4a4d2a513bae361140058262d",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "fr": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/fr.json",
+      "sha256": "85f9c4e01acdb5c4b86a4dc18f593cbbcdc290bfe03a507a1073c1e23a60fa56",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/hi.json",
+      "sha256": "68e86b8608c5621142691d80c207e601b609e55091451f2bfc7d7791db7669cc",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "is": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/is.json",
+      "sha256": "f1790fd498c7d4ff76fb703e9eae25f51ca773ecc52b7d6dd348325fa29e8109",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "ko": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/ko.json",
+      "sha256": "aa2633f9ad6123370d671c63237b72c3b923e7e44b7418a50b2d26df2dd43405",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "pt": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/pt.json",
+      "sha256": "02b56c14fd7b6267735e81faaac04c7267bcab87237d01dddf706741e6548d49",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/sv.json",
+      "sha256": "1b5401c378bdcd4eba3d13c8d024747a6614aa91a2d159f1183b8a29f58c4533",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    },
+    "zh_CN": {
+      "path": "/mnt/wd4tb/scratch/f564-pretrained-backbone-plan-20261015/runtime-complete-drafts/zh_CN.json",
+      "sha256": "15a88d8d062a9313ee05347ce78aad8afbab6a301ef50016fe41640111480764",
+      "records": 5,
+      "diagnostic_previous_peer_exact": true
+    }
+  },
+  "source_sha256": {
+    "spacr/settings.py": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5",
+    "spacr/qt/screens/settings_model.py": "97f14a0f2a6349d583cd82501d9939a8fb485377b6f209224f301e5a59703c7f",
+    "spacr/attribution.py": "108d9bd05a7fbfa09d73ec5cd7c18062c772c17cc97c46a10410e10f39e3804c",
+    "spacr/deep_spacr.py": "920cfff243175833e7a1234e327b56ed2c5da792897bfb7559764666e24bf950",
+    "tools/build_i18n_catalogs.py": "e9729ab5fbe53e74f57ee20e75947d9ce55773c9b87c5758e06c772e26772407"
+  },
+  "gates": "Source/key/hash/token-count/self-review only; no canonical collector/reviewloader/write/audit/arrival/callback/publication claimed.",
+  "correction": "Only French checkpoint-tooltip training-route parcours\u2192voie, independently root-approved; initial45peer/attempt preserved."
+}

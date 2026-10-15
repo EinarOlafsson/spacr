@@ -1,0 +1,83 @@
+N698 managed-startup provisioning proposal — source review before mutation
+
+Observed public base: d05aa3058a18abad52e59d15b829e2b45cf28b0d.
+This already publishes the reviewed managed6.17.3 launch and early spaces import.
+No source changes, downloads, application/model imports or tests made for this plan.
+
+Owned source paths proposed:
+- NEW tools/web_mask_generator/provision.py: Linux managed-startup adapter plus
+  explicit manifest-generation entry; no new spacr module.
+- tools/web_mask_generator/space_app.py: __main__-only bootstrap call AFTER the
+  existing optional early spaces import, BEFORE calling app.main(). No action
+  on mere import and no change to CPU/unset/default local launch.
+- NEW tools/web_mask_generator/space/models.json: normal tool-generated immutable
+ 17-version provisioning manifest from approved public metadata, not hand-maintained.
+- tools/web_mask_generator/space/README.md and ordinary web README: exact opt-in,
+  controlled cache and limits. Existing root requirements need no new package.
+- NEW owning protocol/entry tests and source/evidence only. No app.py/service.py,
+  model_zoo/settings, site/recorder, F564 or other owner files.
+
+Startup selection and no unprovisioned advertised versions
+1. Only execution as the managed entrypoint's __main__, ZERO_GPU==1 AND a
+   separate SPACR_WEB_PROVISION_MODELS==1 enables network provisioning. Both flags
+   are operator environment, never visitor fields. Existing local path mapping
+   and no-default-download app.main/build_app stay unchanged otherwise. Selected
+   bootstrap refuses a preexisting nonempty SPACR_WEB_MODELS_JSON rather than
+   overwriting a contradictory operator mapping.
+2. Before opening network/cache output, compare the full approved manifest key
+   set and each family's kind/repo identity/path/SHA against actual registry
+   model_families(). Require ALL advertised versions (currently8families/17keys),
+   no unknown/missing/duplicate entry and no silent older/default substitution.
+   Resolve source_url exactly to a trusted HTTPS HF model/dataset repo, preserving
+   explicit repo_type; reject traversal/absolute files. The shared
+   einarolafsson/models catalogue is DATASET, not a model. Current17weights are
+   all specific MODEL repos. Each row requires40lowerhex immutable revision,
+   exact filename,64hex SHA and positive integer byte size (notbool).
+3. Build models.json only with the normal new preparation command from the
+   already-reviewed public metadata snapshot: it has all17 immutable revisions,
+   exact filenames/sizes and LFS SHA agreement. Bind the relevant deployed source
+   files and a canonical registry identity projection in the manifest. A source
+   change requires a fresh tool-produced manifest and staging proof, never bypass.
+
+Controlled cache and bounded transport
+4. Use an operator-only cache root (default beneath ~/.cache/spacr/web-managed),
+   not user data/model_zoo caches. Require a real private owner directory/marker;
+   reject symlinks/foreign marker/unsafe entries instead of deleting them. Linux
+   advisory lease serializes provisioning in this managed runtime. Namespace
+   content by approved manifest digest. Filenames use only validated key/SHA.
+5. Reuse a regular nonsymlink cache file only after exact size and streamed SHA
+   validation. Unknown/corrupt existing target refuses without overwriting it.
+   Check available space for still-missing declared payload plus one-file staging
+   margin before acquisition. No arbitrary directory cleanup or cache pruning.
+6. Stream ONLY the exact immutable HF HTTPS file URL, built from validated
+   repo_type/repo_id/revision/filename. Public unauthenticated urllib transport:
+   no ambient HF token/secrets, model import or provider. One-MiB reads, finite
+   timeout/total startup deadline, exact byte limit and SHA before installation.
+   No retry/fallback. Use private sibling temporary file, fsync, no-overwrite
+   atomic link/commit; on failure remove only this invocation's temporary file.
+   Existing verified checkpoints remain intact. Never run or unpickle weights.
+7. Only after ALL17 verify, write a private atomic provenance/path receipt bound
+   to source/manifest/catalogue hashes. Derive the JSON mapping passed to the
+   existing SPACR_WEB_MODELS_JSON consumer from that complete receipt. No service
+   startup/advertisement with partial availability; downloaded earlier valid files
+   may remain for a later explicit retry, but no partial map is installed.
+
+Diagnostics and tests
+8. Use existing accurate translated checkpoint refusal for identity/byte failures,
+   standard OSError(errno...) for filesystem failures; no new unreviewed user
+   literal. The extra explicit-env contradiction may use a machine diagnostic
+   code in structured operator-only receipt, not a new product caption; if that
+   cannot remain accurate, author one complete literal with normal9closure.
+9. Offline fixture tests use tiny real disposable files and explicit transport
+   doubles ONLY. Cover full positive map/restart reuse; missing/unknown/duplicate
+   keys and mutated source/manifest before network; model-vs-DATASET URL; wrong
+   rev/path/SHA/size/truncated/oversize/timeout/hash mismatch; foreign existing
+   cache/target and symlink refusal; interrupted download preserves good files;
+   one active provisioner; no launch or map after partial failure; exact opt-in
+   entry ordering and CPU/default/mere-import no download. A real local transport
+   stream is fine, but no HTTP server/network/real weights/GPU is needed.
+
+Scope limits: trusted local metadata/file provisioning mechanics only. All17
+weights total17,077,359,443 bytes; no such payload acquired here. Actual free
+Space creation/build/disk-capacity/native CUDA/inference/cancellation/scientific
+parity/site endpoint remain separate, no paid or account actions requested.

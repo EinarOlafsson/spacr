@@ -1,7 +1,7 @@
-CURRENT ORIGINAL HOME PROGRESS — 2026-10-15
+CURRENT COMBINED HOME PROGRESS — 2026-10-15
 
-One row per numbered item. Hours estimates; external unknowns remain explicit.
-Green ticks mean whole original contracts accepted.
+Remaining items and recorded completions; one row per numbered item.
+Hours are estimates; external unknowns remain explicit.
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
@@ -22,11 +22,11 @@ Green ticks mean whole original contracts accepted.
 | N704 — Readable README panels | 90% | 1–3 | Home-B / Home | See current owner delivery and remaining acceptance gates. |
 | N676 — Tutorials, including lesson14 | 65% | 12–24+ | Work | 09/11/15 verified media checkpoints;05 hidden Spaceout repair next; requested remaining lessons Work-owned. |
 | N702 — cluster runs download a missing zoo model automatically | 90% | 2–4 + external | Home / assigned owner | Actual clean remote cluster run resolves/downloads required zoo model and completes readback; requires real job/site/user inputs. Do not replay owning model tests or install backends speculatively. |
-| N689 — HF documentation and Pages | 85% | 2–4 + external | Home-B / Home | See current owner delivery and remaining acceptance gates. |
+| N689 — HF documentation and Pages | 85% | 2–4 + external | Home-B / Home | Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain. |
 | F560 — foundation model embeddings | 90% | Unknown | Home / assigned owner | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
 | F370 — every published model carries its scorecard | 90% | 2–6 + data | Home / assigned owner | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
 | N678 — New-string translations | 90% | 2–4 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
-| N698 — web mask generator one page per model | 70% | 12–24+ | Home / assigned owner | Configuration website live and verified in English/Swedish; hosted GPU and WebGPU inference unavailable. Three-caption backend closure active. |
+| N698 — web mask generator one page per model | 70% | 12–24+ | Home / assigned owner | Configuration live; managed launch16/import9 checks published. Explicit immutable-weight provisioning in progress; hosted GPU/browser acceptance remains. |
 | N699 — cluster submit reads ssh config and handles mfa | 90% | Unknown | Home / assigned owner | Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here. |
 | N03 — five order dependent qt failures | ✅ | 0 | Home / assigned owner | Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps. |
 | N76 — more than one organelle | ✅ | 0 | Home / assigned owner | Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed. |
@@ -49,7 +49,7 @@ Green ticks mean whole original contracts accepted.
 | N429 — stack file spacr wrote is one it can read | 95% | Unknown | Home / assigned owner | Reporter confirmation on real macOS external volume remains; item names consolidated API translation obligation whose later closure is not recertified here. |
 | N441 — metadata type for every common microscope | 90% | 1–3 | Home / assigned owner | Named real-name/channel-folder corpus gaps (Incucyte/IN CELL/LAS X/etc) are unsupported inputs or separate Import work; consolidated9-language obligation still item-local pending, not invented vendor formats. |
 | N449 — a classification wrapper around any cellpose model | 75% | Unknown | Home / assigned owner | Actual per-vacuole hand counts, original parasite-stain planes/provenance and independent split/merge labels; then train/score/publish heads. Existing model-count labels did not beat PV area; no head shipped. Locate Work truth before asking for duplicate annotation. |
-| N468 — plaque assay has plaque and figure modes | 95% | 1–3 | Home / assigned owner | Plaque/Figure implementation and later native table/geometry repairs recorded. The item still leaves59new/changed locale entries in the translation backlog; current closure is not documented here. Work24recorder/native tutorial blocker is a separate child, not proof of an application regression. |
+| N468 — plaque assay has plaque and figure modes | 95% | 1–3 | Easy / Home | Plaque/Figure original contract and59-caption debt being reconciled against current source/catalogs. |
 | F470 — object crops from the cross channel ground truth to judge every label | 80% | Unknown | Home / assigned owner | Finish expert real/not-real annotation with historical pixel identity, then train/score/publish per-type heads, clean/republish datasets and retrain/rescore cross-channel models. New hashes/read-only guards cannot validate legacy labels without historical fingerprints. |
 | N517 — drop files as well as folders in make masks and plaque | ✅ | 0 | Home / assigned owner | No file/folder-drop software contract work recorded left; implementation plus current18native/offscreen preservation checks recorded. The historical real-app maintainer check remains separate from source completion. |
 | N526 — plaque assay reads any number of pdfs and images | ✅ | 0 | Home / assigned owner | No arbitraryPDF/image batch software contract work recorded left; distinct output allocator fixed with current11cases. That bounded fixture is not a new realPDF-render/model or cross-batch provenance claim. |
@@ -64,7 +64,7 @@ Green ticks mean whole original contracts accepted.
 | F559 — deep learning image qc | 85% | Unknown | Home / assigned owner | Expert non-blur debris/bubble/saturation/empty-field labels or existing truth-table location, plus maintainer shipped-weight/package-data decision. Blur calibration and UI/editor built; synthetic data does not replace expert labels. |
 | F561 — dino pretraining on own crops | 90% | 2–5 + data | Home / assigned owner | Safe own-classifier application29PASS; final UI/API/runtime integration active, scientific acceptance separate. |
 | F562 — multiple instance learning | 90% | Unknown | Home / assigned owner | MIL algorithm, column form and stored-embedding reader/safety are implemented. Recorded known-responder validation uses resampled real-cell spike-in wells rather than independent titrated wells; actual screen/result-production and generalization remain to reconcile (historical note says noGUI crop_embedding producer). No new real-screen/MIL efficacy claim from join/numeric guards. |
-| F564 — generative counterfactuals | 85% | 8–24 + data | Home / assigned owner | Structure objective, inversion-strength controls and locales published; larger latent backbone and biological validation remain. |
+| F564 — generative counterfactuals | 85% | 8–24 + data | Home / assigned owner | Safe pinned local diffusion-checkpoint reuse, alpha GUI,45 language targets and normal derived artifacts complete; larger latent and biological validation remain. |
 | F567 — deep event detection on tracks | 90% | Unknown | Home / assigned owner | VideoMAE CPU/CUDA numerical and GUI plumbing are recorded; annotated held-out Toxoplasma event precision/recall/timing and final integrated/native CSV-loader acceptance remain. Stored-parent fix does not validate event biology or arbitrary-size IDs. |
 | F580 — cross session intensity calibration | 95% | Unknown | Home / assigned owner | Session/bead software, viewport fix and locales published; known-exposure acquisition acceptance remains. |
 | F586 — apptainer singularity images | 85% | 3–6 + cluster | Home / assigned owner | Root release gate first; publish SIF, maintainer package public visibility, anonymous oras pull, actual Slurm CPU and --nv job evidence. No package/account/resource mutation here. |
@@ -78,8 +78,15 @@ Green ticks mean whole original contracts accepted.
 | N643 — prune the spacr home folder | ✅ | 0 | Home / assigned owner | Use current purge-before-targeted retirement assertion; do not repeat71 or touch live run/data trees. Unknown/corrupt journals intentionally require manual review. |
 | N644 — disk cache manager | ✅ | 0 | Home / assigned owner | No further direct-var audit. Reopen only on actual move/cache ownership failure; preserve external environment and user bytes. |
 | N646 — clean uninstall purge | 90% | Unknown | Home / assigned owner | Actual Windows/macOS uninstaller/purge GUI/data preservation replay remains. Do not treat modeled NSIS/helper tests as native acceptance. |
-| N655 — Accessibility | 95% | 1–3 | Home-B / Home | See current owner delivery and remaining acceptance gates. |
+| N655 — Accessibility | 90% | 1–3 | Home-B / Home | Safe resize, plate focus, Clear Figures and keypad fixes published; human/native platform acceptance remains. |
 | N675 — conda forge update to latest spacr release | 90% | 1–3 + review | Home / assigned owner | Publish existing correction via authorized external owner, normal PR checks/review/feedstock merge/package release, then clean current-channel install. No duplicate patch/build; no account/PR mutation in this audit. |
 | N685 — make masks curation controls and alpha vvvv export | 95% | Unknown | Home / assigned owner | Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted. |
 | N690 — make masks for tem images | 95% | 1–3 | Home / assigned owner | TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today. |
 | N693 — export settings from every form | ✅ | 0 | Home / assigned owner | Do not invent transactional-pair requirement absent original acceptance. Native ACL/xattr/power-loss/external-writer semantics remain honest limitations. |
+| N686 — Free project website | 90% | 2–6 | Home-B | Deployed; first hosted audit has15 valid samples, one home performance79 below90. Actual cold WebGL initialization cause under repair; physical60fps acceptance remains. |
+| N687 — Website v2 and release synchronization | 85% | 3–8 | Home-B | Showcase/release synchronization deployed;15 valid hosted samples expose one home performance failure, with97–100 accessibility and<402KB transfer. Narrow fallback repair active. |
+| N688 — Codecov integration | 95% | 1–3 after main promotion | Home-B | Nightly upload and all README badges work; first main upload remains. |
+| N323 — Hardware capability table | 90% | 2–6 + review | Home-B | Table and readable context built; explicit translation review remains. |
+| N647 — Session restoration | 95% | 1–3 + platforms | Home-B | Recovery-preservation repairs built; remaining native platform acceptance. |
+| N648 — Settings autosave | 95% | 1–3 + platforms | Home-B | Autosave/final-write recovery repairs built; remaining native platform acceptance. |
+| F534 — Spatial barcode mapping | 75% | 8–24 + data | Home-B | Remaining spatial workflow/data acceptance; prior verification is not new implementation. |

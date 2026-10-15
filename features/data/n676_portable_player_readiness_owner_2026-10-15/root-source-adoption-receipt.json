@@ -1,0 +1,13 @@
+{
+  "decision": "Adopt exact owner three-file portable dependency patch",
+  "owner_source": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+  "patch_sha256": "6f91f1b3f6879d3a86b70e55b413158cd04df44a2e33bec410e8803b2ded971d",
+  "root_checks": "Owner+independent peer hashes, all3 exact preimages, three shared dependency hashes and raw11-case browser XML passed. git apply --check and exact application/postimage hashes passed. No rerun of same unchanged owner cohort.",
+  "postimage_sha256": {
+    "tools/tutorials/authoring/web/app_v2.js": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+    "tools/tutorials/tests/test_player_audio_readiness.py": "d469b3d63d3b55f8c79120e5d8df59cc23d5ea92f4dfbadee93656fa3aff8fb3",
+    "tools/tutorials/tests/test_player_complete_native_clips.py": "f9bcf1e8312bc981f405bb2f74bd70e6cdcdbd72c05e252e2304915306939d63"
+  },
+  "owning_checks": "Owner11PASS82.86s, software Chrome/synthetic fixtures; initial private TMPDIR setup failures preserved",
+  "scope": "Only player authoring source and two tests; generated Pages/media/recordings/app/audioengine remain untouched. Whole N676 still open."
+}

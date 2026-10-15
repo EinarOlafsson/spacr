@@ -1,0 +1,1438 @@
+{
+  "context": {
+    "type": "context",
+    "revision": "fe6f4f46a10f04c3133848874b9d1d87049dc4ac",
+    "repository": "EinarOlafsson/EinarOlafsson.github.io",
+    "build": {
+      "spacr": {
+        "version": "1.5.1.4",
+        "release": "v1.5.1.4",
+        "assetsFingerprint": "dc7c2ef5be890403948842dbd42c1163a621f2e15f9df7367fd246fb91d0c6d4",
+        "versionDoi": "10.5281/zenodo.23266544",
+        "conceptDoi": "10.5281/zenodo.21343316"
+      },
+      "parascape": {
+        "version": "0.0.1.0"
+      },
+      "built": "2026-10-15T14:54:38Z",
+      "trigger": "push"
+    },
+    "node": "v22.19.0",
+    "lighthouse": "13.0.1",
+    "chrome": "Google Chrome 154.0.8037.97",
+    "samplesPerPage": 3,
+    "thresholds": {
+      "performance": 0.9,
+      "accessibility": 0.95,
+      "transferredBytes": 1000000
+    },
+    "artifactHashes": {
+      "/build.json": "8dcf310e1f449aa1e5d902de89dbbcfb790151d5e51cc9a828136af724bbd434",
+      "/": "3df7ddfd06a1292ae9895f71be7535ab11bcafc145747438ef8f8606c7fe35cc",
+      "/projects/spacr/": "95ace177c8f548a8edeb9de28c73fa3d96d27156c7b8b5e077a4316c82467634",
+      "/projects/parascape/": "f2e5a86599a09d83a03166a3a6a46f893a6ae13376c86361fffe77e0a31d5cab",
+      "/projects/timepose/": "f9d24515aef833e06290ef4cff672564b98f2e88194055bbbeb92072fc11ae7c",
+      "/projects/cellect/": "4f9a4b5b115d59ffa785b47d58c39e3ebc56921da1e2e8217d382d41c9780de1"
+    },
+    "scope": "Cold mobile Lighthouse navigation; protected pages remain locked. No physical frame-rate, human usability or whole-item claim."
+  },
+  "samples": [
+    {
+      "type": "sample",
+      "route": "/",
+      "sample": 1,
+      "performance": 0.92,
+      "accessibility": 1,
+      "transferredBytes": 245133,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "first-contentful-paint",
+          "score": 0.99,
+          "title": "First Contentful Paint",
+          "displayValue": "1.1\u00a0s"
+        },
+        {
+          "id": "largest-contentful-paint",
+          "score": 0.94,
+          "title": "Largest Contentful Paint",
+          "displayValue": "2.2\u00a0s"
+        },
+        {
+          "id": "speed-index",
+          "score": 0.98,
+          "title": "Speed Index",
+          "displayValue": "2.4\u00a0s"
+        },
+        {
+          "id": "total-blocking-time",
+          "score": 0.78,
+          "title": "Total Blocking Time",
+          "displayValue": "310\u00a0ms"
+        },
+        {
+          "id": "max-potential-fid",
+          "score": 0.14,
+          "title": "Max Potential First Input Delay",
+          "displayValue": "430\u00a0ms"
+        },
+        {
+          "id": "interactive",
+          "score": 0.98,
+          "title": "Time to Interactive",
+          "displayValue": "2.5\u00a0s"
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 216\u00a0KiB"
+        },
+        {
+          "id": "image-delivery-insight",
+          "score": 0,
+          "title": "Improve image delivery",
+          "displayValue": "Est savings of 157\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0.5,
+          "title": "Render blocking requests"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/",
+      "sample": 2,
+      "performance": 0.99,
+      "accessibility": 1,
+      "transferredBytes": 245112,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "first-contentful-paint",
+          "score": 0.99,
+          "title": "First Contentful Paint",
+          "displayValue": "1.1\u00a0s"
+        },
+        {
+          "id": "largest-contentful-paint",
+          "score": 0.97,
+          "title": "Largest Contentful Paint",
+          "displayValue": "2.0\u00a0s"
+        },
+        {
+          "id": "interactive",
+          "score": 0.99,
+          "title": "Time to Interactive",
+          "displayValue": "2.0\u00a0s"
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 216\u00a0KiB"
+        },
+        {
+          "id": "image-delivery-insight",
+          "score": 0,
+          "title": "Improve image delivery",
+          "displayValue": "Est savings of 157\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0.5,
+          "title": "Render blocking requests"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/",
+      "sample": 3,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 245047,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 216\u00a0KiB"
+        },
+        {
+          "id": "image-delivery-insight",
+          "score": 0.5,
+          "title": "Improve image delivery",
+          "displayValue": "Est savings of 157\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0.5,
+          "title": "Render blocking requests"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/spacr/",
+      "sample": 1,
+      "performance": 0.98,
+      "accessibility": 1,
+      "transferredBytes": 397826,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "first-contentful-paint",
+          "score": 0.98,
+          "title": "First Contentful Paint",
+          "displayValue": "1.3\u00a0s"
+        },
+        {
+          "id": "largest-contentful-paint",
+          "score": 0.93,
+          "title": "Largest Contentful Paint",
+          "displayValue": "2.3\u00a0s"
+        },
+        {
+          "id": "interactive",
+          "score": 0.99,
+          "title": "Time to Interactive",
+          "displayValue": "2.4\u00a0s"
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 329\u00a0KiB"
+        },
+        {
+          "id": "image-delivery-insight",
+          "score": 0,
+          "title": "Improve image delivery",
+          "displayValue": "Est savings of 123\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0.5,
+          "title": "Render blocking requests"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/spacr/",
+      "sample": 2,
+      "performance": 0.99,
+      "accessibility": 1,
+      "transferredBytes": 397604,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "first-contentful-paint",
+          "score": 0.98,
+          "title": "First Contentful Paint",
+          "displayValue": "1.3\u00a0s"
+        },
+        {
+          "id": "largest-contentful-paint",
+          "score": 0.95,
+          "title": "Largest Contentful Paint",
+          "displayValue": "2.2\u00a0s"
+        },
+        {
+          "id": "interactive",
+          "score": 0.99,
+          "title": "Time to Interactive",
+          "displayValue": "2.2\u00a0s"
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 329\u00a0KiB"
+        },
+        {
+          "id": "image-delivery-insight",
+          "score": 0,
+          "title": "Improve image delivery",
+          "displayValue": "Est savings of 123\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0.5,
+          "title": "Render blocking requests"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/spacr/",
+      "sample": 3,
+      "performance": 0.99,
+      "accessibility": 1,
+      "transferredBytes": 397560,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "first-contentful-paint",
+          "score": 0.99,
+          "title": "First Contentful Paint",
+          "displayValue": "1.2\u00a0s"
+        },
+        {
+          "id": "largest-contentful-paint",
+          "score": 0.95,
+          "title": "Largest Contentful Paint",
+          "displayValue": "2.1\u00a0s"
+        },
+        {
+          "id": "interactive",
+          "score": 0.99,
+          "title": "Time to Interactive",
+          "displayValue": "2.2\u00a0s"
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 329\u00a0KiB"
+        },
+        {
+          "id": "image-delivery-insight",
+          "score": 0,
+          "title": "Improve image delivery",
+          "displayValue": "Est savings of 123\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0.5,
+          "title": "Render blocking requests"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/parascape/",
+      "sample": 1,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 116911,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 100\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0,
+          "title": "Render blocking requests",
+          "displayValue": "Est savings of 250\u00a0ms"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/parascape/",
+      "sample": 2,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 116891,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "unminified-javascript",
+          "score": 0,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 100\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0,
+          "title": "Render blocking requests",
+          "displayValue": "Est savings of 250\u00a0ms"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/parascape/",
+      "sample": 3,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 116902,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "unminified-javascript",
+          "score": 0,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 3\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 100\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        },
+        {
+          "id": "render-blocking-insight",
+          "score": 0,
+          "title": "Render blocking requests",
+          "displayValue": "Est savings of 240\u00a0ms"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/timepose/",
+      "sample": 1,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 72121,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "first-contentful-paint",
+          "score": 0.99,
+          "title": "First Contentful Paint",
+          "displayValue": "1.2\u00a0s"
+        },
+        {
+          "id": "landmark-one-main",
+          "score": 0,
+          "title": "Document does not have a main landmark."
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 6\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 33\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/timepose/",
+      "sample": 2,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 72078,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "landmark-one-main",
+          "score": 0,
+          "title": "Document does not have a main landmark."
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 6\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0.5,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 33\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/timepose/",
+      "sample": 3,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 72076,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "landmark-one-main",
+          "score": 0,
+          "title": "Document does not have a main landmark."
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 6\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 33\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/cellect/",
+      "sample": 1,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 64105,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "landmark-one-main",
+          "score": 0,
+          "title": "Document does not have a main landmark."
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 5\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0.5,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 33\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/cellect/",
+      "sample": 2,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 63982,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "landmark-one-main",
+          "score": 0,
+          "title": "Document does not have a main landmark."
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 5\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0.5,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 33\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        }
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/projects/cellect/",
+      "sample": 3,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 64052,
+      "failures": [],
+      "failedAudits": [
+        {
+          "id": "first-contentful-paint",
+          "score": 0.99,
+          "title": "First Contentful Paint",
+          "displayValue": "1.2\u00a0s"
+        },
+        {
+          "id": "landmark-one-main",
+          "score": 0,
+          "title": "Document does not have a main landmark."
+        },
+        {
+          "id": "unminified-javascript",
+          "score": 0.5,
+          "title": "Minify JavaScript",
+          "displayValue": "Est savings of 5\u00a0KiB"
+        },
+        {
+          "id": "cache-insight",
+          "score": 0,
+          "title": "Use efficient cache lifetimes",
+          "displayValue": "Est savings of 33\u00a0KiB"
+        },
+        {
+          "id": "network-dependency-tree-insight",
+          "score": 0,
+          "title": "Network dependency tree"
+        }
+      ]
+    }
+  ],
+  "result": [
+    {
+      "type": "result",
+      "pass": true,
+      "samples": [
+        {
+          "route": "/",
+          "sample": 1,
+          "performance": 0.92,
+          "accessibility": 1,
+          "transferredBytes": 245133,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "first-contentful-paint",
+              "score": 0.99,
+              "title": "First Contentful Paint",
+              "displayValue": "1.1\u00a0s"
+            },
+            {
+              "id": "largest-contentful-paint",
+              "score": 0.94,
+              "title": "Largest Contentful Paint",
+              "displayValue": "2.2\u00a0s"
+            },
+            {
+              "id": "speed-index",
+              "score": 0.98,
+              "title": "Speed Index",
+              "displayValue": "2.4\u00a0s"
+            },
+            {
+              "id": "total-blocking-time",
+              "score": 0.78,
+              "title": "Total Blocking Time",
+              "displayValue": "310\u00a0ms"
+            },
+            {
+              "id": "max-potential-fid",
+              "score": 0.14,
+              "title": "Max Potential First Input Delay",
+              "displayValue": "430\u00a0ms"
+            },
+            {
+              "id": "interactive",
+              "score": 0.98,
+              "title": "Time to Interactive",
+              "displayValue": "2.5\u00a0s"
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 216\u00a0KiB"
+            },
+            {
+              "id": "image-delivery-insight",
+              "score": 0,
+              "title": "Improve image delivery",
+              "displayValue": "Est savings of 157\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0.5,
+              "title": "Render blocking requests"
+            }
+          ]
+        },
+        {
+          "route": "/",
+          "sample": 2,
+          "performance": 0.99,
+          "accessibility": 1,
+          "transferredBytes": 245112,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "first-contentful-paint",
+              "score": 0.99,
+              "title": "First Contentful Paint",
+              "displayValue": "1.1\u00a0s"
+            },
+            {
+              "id": "largest-contentful-paint",
+              "score": 0.97,
+              "title": "Largest Contentful Paint",
+              "displayValue": "2.0\u00a0s"
+            },
+            {
+              "id": "interactive",
+              "score": 0.99,
+              "title": "Time to Interactive",
+              "displayValue": "2.0\u00a0s"
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 216\u00a0KiB"
+            },
+            {
+              "id": "image-delivery-insight",
+              "score": 0,
+              "title": "Improve image delivery",
+              "displayValue": "Est savings of 157\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0.5,
+              "title": "Render blocking requests"
+            }
+          ]
+        },
+        {
+          "route": "/",
+          "sample": 3,
+          "performance": 1,
+          "accessibility": 1,
+          "transferredBytes": 245047,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 216\u00a0KiB"
+            },
+            {
+              "id": "image-delivery-insight",
+              "score": 0.5,
+              "title": "Improve image delivery",
+              "displayValue": "Est savings of 157\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0.5,
+              "title": "Render blocking requests"
+            }
+          ]
+        },
+        {
+          "route": "/projects/spacr/",
+          "sample": 1,
+          "performance": 0.98,
+          "accessibility": 1,
+          "transferredBytes": 397826,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "first-contentful-paint",
+              "score": 0.98,
+              "title": "First Contentful Paint",
+              "displayValue": "1.3\u00a0s"
+            },
+            {
+              "id": "largest-contentful-paint",
+              "score": 0.93,
+              "title": "Largest Contentful Paint",
+              "displayValue": "2.3\u00a0s"
+            },
+            {
+              "id": "interactive",
+              "score": 0.99,
+              "title": "Time to Interactive",
+              "displayValue": "2.4\u00a0s"
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 329\u00a0KiB"
+            },
+            {
+              "id": "image-delivery-insight",
+              "score": 0,
+              "title": "Improve image delivery",
+              "displayValue": "Est savings of 123\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0.5,
+              "title": "Render blocking requests"
+            }
+          ]
+        },
+        {
+          "route": "/projects/spacr/",
+          "sample": 2,
+          "performance": 0.99,
+          "accessibility": 1,
+          "transferredBytes": 397604,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "first-contentful-paint",
+              "score": 0.98,
+              "title": "First Contentful Paint",
+              "displayValue": "1.3\u00a0s"
+            },
+            {
+              "id": "largest-contentful-paint",
+              "score": 0.95,
+              "title": "Largest Contentful Paint",
+              "displayValue": "2.2\u00a0s"
+            },
+            {
+              "id": "interactive",
+              "score": 0.99,
+              "title": "Time to Interactive",
+              "displayValue": "2.2\u00a0s"
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 329\u00a0KiB"
+            },
+            {
+              "id": "image-delivery-insight",
+              "score": 0,
+              "title": "Improve image delivery",
+              "displayValue": "Est savings of 123\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0.5,
+              "title": "Render blocking requests"
+            }
+          ]
+        },
+        {
+          "route": "/projects/spacr/",
+          "sample": 3,
+          "performance": 0.99,
+          "accessibility": 1,
+          "transferredBytes": 397560,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "first-contentful-paint",
+              "score": 0.99,
+              "title": "First Contentful Paint",
+              "displayValue": "1.2\u00a0s"
+            },
+            {
+              "id": "largest-contentful-paint",
+              "score": 0.95,
+              "title": "Largest Contentful Paint",
+              "displayValue": "2.1\u00a0s"
+            },
+            {
+              "id": "interactive",
+              "score": 0.99,
+              "title": "Time to Interactive",
+              "displayValue": "2.2\u00a0s"
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 329\u00a0KiB"
+            },
+            {
+              "id": "image-delivery-insight",
+              "score": 0,
+              "title": "Improve image delivery",
+              "displayValue": "Est savings of 123\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0.5,
+              "title": "Render blocking requests"
+            }
+          ]
+        },
+        {
+          "route": "/projects/parascape/",
+          "sample": 1,
+          "performance": 1,
+          "accessibility": 1,
+          "transferredBytes": 116911,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 100\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0,
+              "title": "Render blocking requests",
+              "displayValue": "Est savings of 250\u00a0ms"
+            }
+          ]
+        },
+        {
+          "route": "/projects/parascape/",
+          "sample": 2,
+          "performance": 1,
+          "accessibility": 1,
+          "transferredBytes": 116891,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "unminified-javascript",
+              "score": 0,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 100\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0,
+              "title": "Render blocking requests",
+              "displayValue": "Est savings of 250\u00a0ms"
+            }
+          ]
+        },
+        {
+          "route": "/projects/parascape/",
+          "sample": 3,
+          "performance": 1,
+          "accessibility": 1,
+          "transferredBytes": 116902,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "unminified-javascript",
+              "score": 0,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 3\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 100\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            },
+            {
+              "id": "render-blocking-insight",
+              "score": 0,
+              "title": "Render blocking requests",
+              "displayValue": "Est savings of 240\u00a0ms"
+            }
+          ]
+        },
+        {
+          "route": "/projects/timepose/",
+          "sample": 1,
+          "performance": 1,
+          "accessibility": 0.97,
+          "transferredBytes": 72121,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "first-contentful-paint",
+              "score": 0.99,
+              "title": "First Contentful Paint",
+              "displayValue": "1.2\u00a0s"
+            },
+            {
+              "id": "landmark-one-main",
+              "score": 0,
+              "title": "Document does not have a main landmark."
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 6\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 33\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            }
+          ]
+        },
+        {
+          "route": "/projects/timepose/",
+          "sample": 2,
+          "performance": 1,
+          "accessibility": 0.97,
+          "transferredBytes": 72078,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "landmark-one-main",
+              "score": 0,
+              "title": "Document does not have a main landmark."
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 6\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0.5,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 33\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            }
+          ]
+        },
+        {
+          "route": "/projects/timepose/",
+          "sample": 3,
+          "performance": 1,
+          "accessibility": 0.97,
+          "transferredBytes": 72076,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "landmark-one-main",
+              "score": 0,
+              "title": "Document does not have a main landmark."
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 6\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 33\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            }
+          ]
+        },
+        {
+          "route": "/projects/cellect/",
+          "sample": 1,
+          "performance": 1,
+          "accessibility": 0.97,
+          "transferredBytes": 64105,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "landmark-one-main",
+              "score": 0,
+              "title": "Document does not have a main landmark."
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 5\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0.5,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 33\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            }
+          ]
+        },
+        {
+          "route": "/projects/cellect/",
+          "sample": 2,
+          "performance": 1,
+          "accessibility": 0.97,
+          "transferredBytes": 63982,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "landmark-one-main",
+              "score": 0,
+              "title": "Document does not have a main landmark."
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 5\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0.5,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 33\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            }
+          ]
+        },
+        {
+          "route": "/projects/cellect/",
+          "sample": 3,
+          "performance": 1,
+          "accessibility": 0.97,
+          "transferredBytes": 64052,
+          "failures": [],
+          "failedAudits": [
+            {
+              "id": "first-contentful-paint",
+              "score": 0.99,
+              "title": "First Contentful Paint",
+              "displayValue": "1.2\u00a0s"
+            },
+            {
+              "id": "landmark-one-main",
+              "score": 0,
+              "title": "Document does not have a main landmark."
+            },
+            {
+              "id": "unminified-javascript",
+              "score": 0.5,
+              "title": "Minify JavaScript",
+              "displayValue": "Est savings of 5\u00a0KiB"
+            },
+            {
+              "id": "cache-insight",
+              "score": 0,
+              "title": "Use efficient cache lifetimes",
+              "displayValue": "Est savings of 33\u00a0KiB"
+            },
+            {
+              "id": "network-dependency-tree-insight",
+              "score": 0,
+              "title": "Network dependency tree"
+            }
+          ]
+        }
+      ],
+      "revision": "fe6f4f46a10f04c3133848874b9d1d87049dc4ac",
+      "policy": "All three cold samples on every fixed public page must pass; no selection of the best sample."
+    }
+  ],
+  "refused": [],
+  "reports": {
+    "0-1": {
+      "sha256": "d9f49912f0b3511d125d27e34d0f539bf068ca63a1e67299f08ffb1d2ca4d953",
+      "gzip_sha256": "eecf039be89c0047b2120c55edb8afe1ee8642dbb390a6ff518c1c83bf220ec6",
+      "bytes": 524589,
+      "requestedUrl": "https://einarolafsson.github.io/"
+    },
+    "0-2": {
+      "sha256": "e52525feabaf3beeab8711a859bc1d0bb1872d9e0857bab1e0ed4ba778978422",
+      "gzip_sha256": "5903cbd46be99ff4c30138e905608afbdbf141df8fd67295d34dfdc0a2a78e58",
+      "bytes": 614744,
+      "requestedUrl": "https://einarolafsson.github.io/"
+    },
+    "0-3": {
+      "sha256": "c97d7b71d358417d354d8088d5d7954eae600b6017ccdf5ddef726b9051e1f12",
+      "gzip_sha256": "d3096c199c9438f605d1150732454d58cfe4b6c497f482cfa8862a07fd1f7574",
+      "bytes": 613693,
+      "requestedUrl": "https://einarolafsson.github.io/"
+    },
+    "1-1": {
+      "sha256": "79e41b556c475e4edc17f3a02e9ce525d3190bab8b2f2523fea62c8dd610caf5",
+      "gzip_sha256": "42d6a8956b143a90faa65da5527bc3929c47182be9a289a99ce9cf6808b6bbb2",
+      "bytes": 757507,
+      "requestedUrl": "https://einarolafsson.github.io/projects/spacr/"
+    },
+    "1-2": {
+      "sha256": "5e90812915eaeefae3eed8c88980ab7f56a963c7ba767faf9f1f317772ccaba5",
+      "gzip_sha256": "ccef7c1df2b6711baf267e538b248134ccdc87cdd1ccf77ecf67df17b5a32099",
+      "bytes": 755191,
+      "requestedUrl": "https://einarolafsson.github.io/projects/spacr/"
+    },
+    "1-3": {
+      "sha256": "bf2262dc2a9639309eeabaf8274771c32af2a8c643c0c16ef9072238d09b610d",
+      "gzip_sha256": "6f4869b2ad60416bd172c3136da52b75bcb292a8b6f5aa1a4a7896b641e78aed",
+      "bytes": 756076,
+      "requestedUrl": "https://einarolafsson.github.io/projects/spacr/"
+    },
+    "2-1": {
+      "sha256": "6e5b4124e522c8ebeed75eda2b79fd7eb572d092f2e29194744f893e2c6a7987",
+      "gzip_sha256": "de46eb183f50b153d6a9818d5c7794bd12d291df4503368d1f0124b5ce413efb",
+      "bytes": 690296,
+      "requestedUrl": "https://einarolafsson.github.io/projects/parascape/"
+    },
+    "2-2": {
+      "sha256": "6f7061bae3494b2339ce8ac9adda55e53b27b521f30ec629a4ddeae9c0127418",
+      "gzip_sha256": "53e0b7f3eed66ac9b7d5f5e0c6eeda6d748b10e35b4f4a6ece9cc23bccddd506",
+      "bytes": 691460,
+      "requestedUrl": "https://einarolafsson.github.io/projects/parascape/"
+    },
+    "2-3": {
+      "sha256": "d750ad8e6cc679beb10540aebdb0fb93cab3990cf923325b2102ae3e1c9013f5",
+      "gzip_sha256": "8dbed11b099ce7c44602d7e0986275a4ea08ff780212cfe4ece2f9e198d911fa",
+      "bytes": 690328,
+      "requestedUrl": "https://einarolafsson.github.io/projects/parascape/"
+    },
+    "3-1": {
+      "sha256": "ebbb9cc8e89c6ba7677fe23540de4fb0ac6dda4cdb14e9cf98c7169a94a0fd19",
+      "gzip_sha256": "e892dda80c71aadc0eca8865fb4287bf01cb41124fcca056d73970625b09b4ae",
+      "bytes": 313732,
+      "requestedUrl": "https://einarolafsson.github.io/projects/timepose/"
+    },
+    "3-2": {
+      "sha256": "41648905d4e057bf7e966faae0e7d692f65f13219530c5c925ddc66660ad156e",
+      "gzip_sha256": "da675fc128a42528ece23d435b3a3bb29c27e35467e55bf806c44dade7495018",
+      "bytes": 317561,
+      "requestedUrl": "https://einarolafsson.github.io/projects/timepose/"
+    },
+    "3-3": {
+      "sha256": "35ce88758a8ee1058ad9e2ebb533a40da3241c3e7395cf5aa9bbfb13b37759d1",
+      "gzip_sha256": "e918eaeb1db0ee1339ae827016289c80e4a272904e9c77dd67a57b2dd89e5fc6",
+      "bytes": 315461,
+      "requestedUrl": "https://einarolafsson.github.io/projects/timepose/"
+    },
+    "4-1": {
+      "sha256": "6774223294e5d4b822ec5ef6465b301d76236e8a56203144fdfe1452d33d331c",
+      "gzip_sha256": "d864d8e53e65edc9534f6e2f9c1aab58e44518e20d2334de4fd6c0260c9262b0",
+      "bytes": 316626,
+      "requestedUrl": "https://einarolafsson.github.io/projects/cellect/"
+    },
+    "4-2": {
+      "sha256": "e642eeee0e5402eb9297931cf74897a171d9809671ea4dc8789bbf4bf42a164d",
+      "gzip_sha256": "abc186a1593cafb50da30239a9ca00a2780133590ce84f0f1b8ccf776da5ca40",
+      "bytes": 317511,
+      "requestedUrl": "https://einarolafsson.github.io/projects/cellect/"
+    },
+    "4-3": {
+      "sha256": "76b66f77d2e09d9131b40c81f50c6935122823990d44f0632324c19eefac11cd",
+      "gzip_sha256": "deea61f106dbb054927ade07119834e828f2c12d6d403723c0d35a03c99f04ef",
+      "bytes": 315379,
+      "requestedUrl": "https://einarolafsson.github.io/projects/cellect/"
+    }
+  },
+  "log_sha256": "381c17cb5c4099d51ba6538021f55400d90fe519a777f8ddb5c5c2592ac2d970"
+}

@@ -1,0 +1,5 @@
+Actual direct W apply check against exact current Nightly preimage
+error: patch failed: tools/tutorials/authoring/web/app_v2.js:1105
+error: tools/tutorials/authoring/web/app_v2.js: patch does not apply
+
+Terminal exit status: 1

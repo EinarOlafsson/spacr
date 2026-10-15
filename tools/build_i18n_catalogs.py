@@ -4229,6 +4229,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",
                 "_counterfactual_sequences", "_counterfactual_report",
                 "_cf_structure_weight", "_cf_diffusion_strength", "_cf_structure_loss",
+                "_cf_checkpoint_error",
             }
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
