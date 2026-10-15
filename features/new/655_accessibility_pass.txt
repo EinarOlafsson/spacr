@@ -233,3 +233,14 @@ WHAT IS LEFT
   isolated. No application edits or extra test expansion. Audio stayed off;
   audible/human, macOS/Windows and Work tutorial acceptance remain open.
   Proof: data/655_current_integration_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B final integration f7b358 acceptance
+  The final nightly merge f7b35846aa changes the process-loaded run_journal
+  dependency, so the existing finite owning/native cohort was replayed once.
+  All106 owning tests pass in29.86s. Independent AT-SPI and actual Orca each
+  inspect1415 nodes; external High contrast focus/action/state and Orca's
+  name/role/initial-state/help/checked utterance generation pass unchanged.
+  Both process maps match242 current source files. No application edits.
+  Sequential6G/4G caps, private native desktop/settings, GPU hidden, audio off.
+  Audible/human, macOS/Windows and Work tutorial acceptance remain open.
+  Proof: data/655_final_integration_f7b358_2026-10-14/receipt.json.
