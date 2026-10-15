@@ -24,9 +24,9 @@
     "selection": "drop_returns or concurrent_drop or scanner_refusal"
   },
   "distinct_acceptance": {
-    "passed": 6,
+    "passed": 7,
     "skipped": 0,
-    "meaning": "Three frozen-source lifecycle cases from initial cohort plus three output/order/refusal cases with corrected unsupported-extension fixture."
+    "meaning": "Six new lifecycle/order/refusal cases plus one existing URL/invalid-drop contract adapted to await delivery; no broad Qt repeat."
   },
   "checks": {
     "fatal_ruff": "PASS E9,F63,F7,F82 --no-cache for changed source/tests",
@@ -97,5 +97,13 @@
     }
   ],
   "merged_source_sha256": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
-  "source_dependency": "Normal merged owner pairing publication; FilePathListWidget AST identical to tested source62b04031a2c. Only incoming suggest_file_pairs/_number_unlabelled_plates/PairedFileTableWidget changed."
+  "source_dependency": "Normal merged owner pairing publication; FilePathListWidget AST identical to tested source62b04031a2c. Only incoming suggest_file_pairs/_number_unlabelled_plates/PairedFileTableWidget changed.",
+  "existing_owning_contract": {
+    "nodeid": "tests/test_cov_w3_8_file_list.py::test_a_drop_of_files_fills_the_list_and_anything_else_does_not",
+    "passed": 1,
+    "exit": 0,
+    "elapsed_seconds": 1.07,
+    "change": "Existing exact file-content assertion preserved; wait for asynchronous URL-drop delivery. Immediate invalid-drop refusal assertions unchanged.",
+    "test_file_sha256": "a570f9d0e76747fba3d82ce3feafe22b00edc39c93c5e94bc5ddb15d0c2bd4a5"
+  }
 }

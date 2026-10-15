@@ -434,3 +434,10 @@ collector and all 669 Python source hashes matched the frozen snapshot. The
 initial normal-context failure and three GUI-acronym corrections remain in
 the evidence with independent v2 peer review. Owner pairing was normal-merged;
 FilePathListWidget AST remains identical to the tested source.
+The existing URL/invalid-drop contract now waits for asynchronous delivery
+before its unchanged exact CSV assertion: 1 PASS, 1.07s. Seven distinct
+acceptance nodes are covered across the six new cases and this existing one.
+Incoming F580 adds only excluded private API prose; actual published visibility
+proof and unchanged normal public inputs justify reusing the English audit.
+An unnecessary queued audit was stopped before Python launched, with actual
+wrapper/flock termination preserved; it is not reported as a passing audit.
