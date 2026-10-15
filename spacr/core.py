@@ -3655,9 +3655,15 @@ def _microscope_positions(settings):
         with the columns ``field`` (the field key the watch uses), ``x`` and
         ``y`` in micrometres, and optionally ``z``.
     :returns: ``{field key: (x, y) or (x, y, z)}``.
-    :raises ValueError: when the file is not set or lacks a column.
+    Missing ``z`` values leave a field in two dimensions. Repeated field
+    keys are accepted only when their stage coordinates agree exactly.
+
+    :raises ValueError: when the file is not set, lacks a column, contains
+        an invalid or non-finite coordinate, or gives conflicting positions
+        for the same field.
     """
     from .tabular import read_table
+    from .qt.i18n import tr
 
     path = str(settings.get('microscope_positions') or '').strip()
     if not path:
@@ -3673,10 +3679,28 @@ def _microscope_positions(settings):
     has_z = 'z' in frame.columns
     positions = {}
     for row in frame.itertuples(index=False):
-        values = [float(row.x), float(row.y)]
+        field = str(row.field)
+        axes = ['x', 'y']
         if has_z and pd.notna(row.z):
-            values.append(float(row.z))
-        positions[str(row.field)] = tuple(values)
+            axes.append('z')
+        values = []
+        for axis in axes:
+            try:
+                value = float(getattr(row, axis))
+                if not np.isfinite(value):
+                    raise ValueError
+            except (TypeError, ValueError, OverflowError) as exc:
+                raise ValueError(tr(
+                    'microscope_positions {path}: field {field} has a '
+                    'non-finite or invalid {axis} coordinate.',
+                    path=path, field=field, axis=axis)) from exc
+            values.append(value)
+        position = tuple(values)
+        if field in positions and positions[field] != position:
+            raise ValueError(tr(
+                'microscope_positions {path} gives conflicting stage '
+                'positions for field {field}.', path=path, field=field))
+        positions[field] = position
     return positions
 
 

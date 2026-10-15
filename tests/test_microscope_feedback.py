@@ -76,6 +76,70 @@ def _feedback(folder, positions, **extra):
     return settings
 
 
+@pytest.mark.parametrize("axis,value", [
+    ("x", float("nan")), ("x", float("inf")), ("x", float("-inf")),
+    ("y", float("nan")), ("y", float("inf")), ("y", float("-inf")),
+    ("z", float("inf")), ("z", float("-inf")),
+    ("x", "east"), ("y", "north"), ("z", "up"),
+])
+def test_position_table_refuses_invalid_stage_coordinates(tmp_path, axis, value):
+    coordinates = {"x": 1.0, "y": 2.0, "z": 3.0}
+    coordinates[axis] = value
+    path = _positions(tmp_path, [("field-A", *coordinates.values())])
+
+    with pytest.raises(ValueError, match=f"microscope_positions.*field-A.*{axis}"):
+        core._microscope_positions({"microscope_positions": path})
+
+
+@pytest.mark.parametrize("first,second", [
+    ((1, 2), (4, 2)),
+    ((1, 2), (1, 4)),
+    ((1, 2, 3), (1, 2, 4)),
+    ((1, 2, None), (1, 2, 3)),
+    ((1, 2, 3), (1, 2, None)),
+])
+def test_position_table_refuses_conflicting_field_positions(tmp_path, first, second):
+    path = _positions(tmp_path, [("field-A", *first), ("field-A", *second)])
+
+    with pytest.raises(ValueError, match="microscope_positions.*conflicting.*field-A"):
+        core._microscope_positions({"microscope_positions": path})
+
+
+@pytest.mark.parametrize("rows,expected", [
+    ([("field-A", 1, 2), ("field-B", 3, 4)],
+     {"field-A": (1.0, 2.0), "field-B": (3.0, 4.0)}),
+    ([("field-A", 1, 2), ("field-A", 1.0, 2.0)],
+     {"field-A": (1.0, 2.0)}),
+    ([("field-A", 1, 2, 3), ("field-A", 1.0, 2.0, 3.0)],
+     {"field-A": (1.0, 2.0, 3.0)}),
+    ([("field-A", 1, 2, None), ("field-A", 1, 2, None),
+      ("field-B", 3, 4, 5)],
+     {"field-A": (1.0, 2.0), "field-B": (3.0, 4.0, 5.0)}),
+])
+def test_position_table_preserves_valid_fields_and_exact_duplicates(tmp_path, rows, expected):
+    path = _positions(tmp_path, rows)
+
+    assert core._microscope_positions({"microscope_positions": path}) == expected
+
+
+@pytest.mark.parametrize("rows", [
+    [("field-A", 1, 2), ("field-B", float("inf"), 4)],
+    [("field-A", 1, 2), ("field-A", 3, 4)],
+])
+def test_position_table_is_refused_before_opening_the_microscope(tmp_path, monkeypatch, rows):
+    path = _positions(tmp_path, rows)
+    opened = []
+
+    def must_not_open(*args):
+        opened.append(args)
+        raise AssertionError("An invalid position table reached the driver")
+
+    monkeypatch.setattr(core, "_microscope_open", must_not_open)
+    with pytest.raises(ValueError, match="microscope_positions"):
+        core._watch_folder_and_analyse(_feedback(tmp_path, path), None)
+    assert opened == []
+
+
 def test_a_pixel_becomes_the_stage_position_that_centres_it():
     matrix = core._microscope_matrix(
         {"microscope_stage_transform": "[0.5, 0.0, 0.0, -0.5]"})
