@@ -76,13 +76,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "intensity_calibration",
-      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
-      "translation": "측정 전에 촬영 세션 간 강도를 보정합니다. 각 플레이트가 한 세션이며, 모든 플레이트에서 촬영한 비드나 기준 웰을 측정하고, 기준 웰이 첫 번째 플레이트와 같아지도록 각 플레이트의 강도 채널을 조정합니다. 표의 배치 보정과 달리 이미지 수준에서 날짜 간 노출, 광원, 검출기 드리프트를 보정합니다. 이득은 measurements.db:intensity_rescale에 기록됩니다. 기본값 False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "intensity_calibration_offset",
       "source": "The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
       "source_sha256": "44817c7b242d1370f93d13777898ede908aa1f06f89d26cc2c9ae0e839e7ddf3",
