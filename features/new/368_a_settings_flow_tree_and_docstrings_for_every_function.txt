@@ -848,3 +848,35 @@ pass in 76.90 s, zero failures/skips; one existing pynvml deprecation warning.
 No whole-feature translation closure or hosted deployment is claimed. Source
 boundary, generated hashes and before/after XML:
  features/data/368_model_settings_flow_2026-10-14/
+
+
+2026-10-14 — Literal setting keys survive direct helper calls
+------------------------------------------------------------
+Found a source-analysis gap behind the refresh above: N702 routes classifier
+inputs through _classifier_model_input(settings, 'model_path') and analogous
+checkpoint calls. The direct helper reads settings.get(name), so the previous
+flow analysis erased these actual consumers from their setting trees.
+
+Added conservative one-hop literal-key binding for direct settings helpers.
+Both the flow analyser and independent API-consumer visitor share this binding
+rule; the latter retains its own scope/closure metadata and target selection.
+Declared literal keys are recorded at the caller. Unrelated dictionaries,
+dynamic keys, rewritten key/mapping parameters and rebound helper definitions
+are not guessed. No runtime model/analysis implementation changed.
+
+The normal generators restore 58 consumer pairs across 41 keys, six flow
+destinations formerly considered defaults-only, and nine API targets. The
+page has 1,374 sections and 6,532 references, below the unchanged 7,500 ceiling.
+The generated consumer JSON includes current source line numbers; its semantic
+delta is recorded separately so line-number changes do not obscure review.
+
+Evidence progression: four fixture failures before implementation; all 20
+paired analyser/consumer fixtures now pass. A first owning cohort passed 59
+cases and exposed the six missing watch/microscope API destinations; the
+consumer-map repair closes that failure. Final focused acceptance: 42 passed,
+zero failed, one skipped fresh-built-page check, two previously passing full
+source-analysis repeats deselected. Current generator output, public symbols,
+consumer selection and API-link contracts pass. Fresh Sphinx/hosted validation
+and the item's wider translation work remain outside this delivery.
+Source hashes, semantic deltas and full before/intermediate/final XML:
+ features/data/368_literal_helper_keys_2026-10-14/

@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "item": 368,
+  "source_base": "d1f17b6d4a4d2b3ac0becf661eb2edf631a2b982",
+  "defect": "Literal setting keys passed to direct get/subscript helpers disappeared from their consumers, including N702 classifier checkpoint inputs.",
+  "before": {
+    "passed": 4,
+    "failed": 4,
+    "deselected": 14,
+    "seconds": 0.83
+  },
+  "initial_fixture_after": {
+    "passed": 8,
+    "failed": 0,
+    "deselected": 14,
+    "seconds": 0.89
+  },
+  "helper_keys": 41,
+  "helper_consumer_pairs": 58,
+  "added_sections": [
+    "microscope_interval_seconds",
+    "microscope_max_events",
+    "microscope_timepoints",
+    "watch_idle_minutes",
+    "watch_poll_seconds",
+    "watch_settle_seconds"
+  ],
+  "removed_sections": [],
+  "rendered_sections": 1374,
+  "cross_references": 6532,
+  "cross_reference_ceiling": 7500,
+  "generator": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen flock /mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock tools/run_capped.sh 6G python tools/settings_flow.py --rst",
+  "sha256": {
+    "tools/settings_flow.py": "519787ddd12dee91b10339ab66f6dc40683027fdc49fdd6cce34957c3b6957bf",
+    "tools/build_setting_consumer_map.py": "59b27d2b7698f0645313d2d7263ca0bb9ba964f6e641ad5a73b8299c7af87dfb",
+    "tests/test_the_settings_flow_analyser.py": "4fb2d3930faa686456b12770ac2a53206b7df9d6a96c12240248f6cc9673bb0d",
+    "docs/source/_generated/settings_flow.rst": "a5a42c4a9869bceafebcdaf23eaf6cc8da8c584161dc2d8e143fdc083bd6eb12",
+    "spacr/qt/screens/settings_flow_index.py": "d977410d31766ae97f334e6663aeedab0723bf0f7ba9cef66022b03827f08b41",
+    "docs/setting_consumers.json": "f754c9b8e3df4eeab6dccd04ef20417dc812502de810cc8364f532faf0a25245",
+    "spacr/qt/screens/setting_api_targets.py": "66b66c4b5a6cc11c783493625224d4a8b8dcb542de9f885f4fcbe78292dd5e99"
+  },
+  "limitations": [
+    "One-hop static helper inference only; dynamic keys, argument unpacking and changed key/mapping parameters remain unguessed.",
+    "Existing explicitly unresolved graph edges remain visible; this is not runtime reachability proof.",
+    "No scientific/runtime implementation, translations, ratchet ceilings or hosted deployment changed; generated settings-link runtime tables were refreshed."
+  ],
+  "intermediate": {
+    "passed": 59,
+    "failed": 1,
+    "seconds": 157.85,
+    "failure": "Six watch/microscope settings restored in the flow analyser still had no own-module API destination in the independent consumer map.",
+    "repair": "Share conservative literal helper binding with the consumer-map visitor; preserve its scope metadata and generate its normal outputs."
+  },
+  "paired_fixtures": {
+    "passed": 20,
+    "failed": 0,
+    "deselected": 15,
+    "seconds": 0.93,
+    "wall_seconds": 2.45,
+    "peak_rss_kb": 211520,
+    "execution": "Parent-approved light CPU-only fixtures, capped2G, BLAS/OpenMP threads1, outside heavy lock; previous exact queued fixture command cancelled before it started."
+  },
+  "final": {
+    "passed": 42,
+    "failed": 0,
+    "skipped": 1,
+    "deselected": "Two full-package actual_qc_defaults projections already passed in the intermediate cohort.",
+    "seconds": 96.19,
+    "skip": "Built-page existence requires a fresh Sphinx build and SPACR_DOCS_BUILT=1; full docs builds/publication are deferred.",
+    "cohort": [
+      "tests/test_setting_api_links_point_at_the_consumer.py",
+      "tests/test_a_settings_api_link_lands_on_the_setting.py",
+      "tests/test_tooltip_api_links_resolve.py",
+      "tests/test_the_settings_flow_artefacts_are_current.py",
+      "tests/test_settings_defaults_projection_analysis.py"
+    ],
+    "warnings": [
+      "Existing torch/pynvml FutureWarning"
+    ]
+  },
+  "generation_and_final_resources": {
+    "wall_seconds": 149.5,
+    "peak_rss_kb": 2084720,
+    "cap": "6G per command, serialized with shared heavy.lock, BLAS/OpenMP threads1"
+  },
+  "consumer_generator": "python tools/build_setting_consumer_map.py"
+}
