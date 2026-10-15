@@ -1,0 +1,107 @@
+{
+  "lesson": "15_image_umap",
+  "status": "15 strict native clips accepted on identical app base; English audio active",
+  "publication_complete": false,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1440,
+      "sha256": "7f67ff31d3e7f1b7c5d1a26d437c3a223798b34c5e41e4dc9d6efcdaa410ad32"
+    },
+    {
+      "path": "accepted-science.json.gz",
+      "bytes": 2482,
+      "sha256": "82ffe775a4eef426321539190772f77017b19819f86378194c80908fa4d55655"
+    },
+    {
+      "path": "builder-and-partition-final-source-peer.json.gz",
+      "bytes": 784,
+      "sha256": "06772a0d708f5d70229b65cbeb8c84d96dde671959a3bdd9ba1d27373e3eff06"
+    },
+    {
+      "path": "lesson15-r57-01_module.gate.json.gz",
+      "bytes": 853,
+      "sha256": "af90110094d58aef0297812f5b918e3669144ca7a8690ee7f9fb624936599c82"
+    },
+    {
+      "path": "lesson15-r58-19_setting_clustering.gate.json.gz",
+      "bytes": 846,
+      "sha256": "ad75ae421a3b4649452702c58386b567c409de00cfa26bb7c1ca161f17adf5be"
+    },
+    {
+      "path": "lesson15-r58-19_setting_n_neighbors.gate.json.gz",
+      "bytes": 825,
+      "sha256": "3f90f526dc9a1a48b5d2334f84162c07cd98a7f002b619f03ea02346d9b5ef23"
+    },
+    {
+      "path": "lesson15-r58-19_setting_plot_images.gate.json.gz",
+      "bytes": 826,
+      "sha256": "18dbac7912a9f2df0cd04a187d8d654596058ecae64ec0d9f734aad4ade670c0"
+    },
+    {
+      "path": "lesson15-r58-19_setting_random_seed.gate.json.gz",
+      "bytes": 834,
+      "sha256": "8b20e49b92e4d2a06f46a62ebe07b9c18b8ca3eb7eb286a40a524031d38c660e"
+    },
+    {
+      "path": "lesson15-r58-19_setting_reduction_method.gate.json.gz",
+      "bytes": 841,
+      "sha256": "a9081d31923f37bd7ababf517d408624a4ddf83cd935fa2382abc7d0453195a0"
+    },
+    {
+      "path": "lesson15-r58-19_setting_row_limit.gate.json.gz",
+      "bytes": 830,
+      "sha256": "ce089df62f36946d01b1d0042918267d2530ccfa7bbf321a7a54a8552e6861b0"
+    },
+    {
+      "path": "lesson15-r58-19_setting_src.gate.json.gz",
+      "bytes": 850,
+      "sha256": "fe012b131eefb437a1aae19301426cbf76e4436239384a9457e1d4eee00ee148"
+    },
+    {
+      "path": "lesson15-r58-19_setting_tables.gate.json.gz",
+      "bytes": 844,
+      "sha256": "7860510d3db01ed4bf9382b35d08b4bde58c6a75c1cb3b61d1545a7de1bdf01a"
+    },
+    {
+      "path": "lesson15-r58-23_batch_finished.gate.json.gz",
+      "bytes": 813,
+      "sha256": "62fde4e25355fd72c05fd23388523102e03161c373d6924d2a752207ef944c4c"
+    },
+    {
+      "path": "lesson15-r58-24_batch_figure.gate.json.gz",
+      "bytes": 834,
+      "sha256": "d2ac67448ef8b6c403dde2900e96e0a36fc2df56c097f414331bf9e504df3763"
+    },
+    {
+      "path": "lesson15-r58-25_interactive_embedding.gate.json.gz",
+      "bytes": 845,
+      "sha256": "b38924a2a63ee3493734f26a527d0e576bae3f99ebdfd02c21bc0559637e031a"
+    },
+    {
+      "path": "lesson15-r58-26_point_0.gate.json.gz",
+      "bytes": 834,
+      "sha256": "654c79fcaf927a3c18a751b110d23887fb72f23792bf075e00e2d653f0ce84cf"
+    },
+    {
+      "path": "lesson15-r58-27_review_embedding.gate.json.gz",
+      "bytes": 851,
+      "sha256": "da95bc9efc9128c5411436cbf629668d6aa9c8edf1a2f1dc19c5b88c64e0828d"
+    },
+    {
+      "path": "lesson15-r58-b-26_point_200.gate.json.gz",
+      "bytes": 873,
+      "sha256": "4c5d2631b6da4572a15d08718513316346a0c5898a9c1050b02662f1c67321dd"
+    },
+    {
+      "path": "root-selected-acceptance.json.gz",
+      "bytes": 4347,
+      "sha256": "b954444685a634281226b1b70ec6b6269740565172c0e6eb582c9b8621d189bd"
+    },
+    {
+      "path": "same-app-entry-composition-peer.json.gz",
+      "bytes": 6914,
+      "sha256": "2712531a3f28caadf150f14586aa976c216a70aa79234f6824b8a023b168def3"
+    }
+  ]
+}
