@@ -2984,6 +2984,10 @@ assert observed == Version(str(shipped)) == Version(dist.version), 'Imported cod
 normalize = lambda path: os.path.normcase(os.path.realpath(path))
 assert normalize(sys.executable) == normalize(expected['python']), 'Launcher interpreter differs'
 assert normalize(sys.prefix) == normalize(expected['prefix']), 'Launcher environment differs'
+assert os.path.commonpath([normalize(expected['prefix']), normalize(actual)]) == normalize(expected['prefix']), 'Imported application is outside the launcher environment'
+assert os.path.commonpath([normalize(expected['prefix']), normalize(dist.locate_file(''))]) == normalize(expected['prefix']), 'Application distribution is outside the launcher environment'
+metadata_path = getattr(dist, '_path', None)
+assert metadata_path is not None and os.path.commonpath([normalize(expected['prefix']), normalize(metadata_path)]) == normalize(expected['prefix']), 'Application distribution is outside the launcher environment'
 if expected['previous_version'] is not None:
     try:
         previous = Version(expected['previous_version'])
@@ -3027,6 +3031,8 @@ spec = find_spec('spacr')
 assert spec is not None and spec.origin and Path(spec.origin).resolve() == module, 'Previous application import is shadowed'
 assert os.path.commonpath([expected, os.path.normcase(str(module))]) == expected, 'Previous application is outside its environment'
 assert os.path.commonpath([expected, os.path.normcase(os.path.realpath(dist.locate_file('')))]) == expected, 'Previous metadata is outside its environment'
+metadata_path = getattr(dist, '_path', None)
+assert metadata_path is not None and os.path.commonpath([expected, os.path.normcase(os.path.realpath(metadata_path))]) == expected, 'Previous metadata is outside its environment'
 direct = json.loads(dist.read_text('direct_url.json') or '{}')
 assert not direct.get('dir_info', {}).get('editable'), 'Previous application is editable'
 version = dist.version
