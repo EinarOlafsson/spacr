@@ -110,3 +110,15 @@ dino_scratch_resnet18_64_gpu.pt next to it.
     artifacts remain a required coherent-publication dependency. This closes
     the explicit picker/epoch/progress implementation gap, not the remaining
     classifier/scientific multi-seed/held-out-plate acceptance work.
+
+2026-10-15 Home-B — DINO controls cancellation and runtime artifacts ready
+    Independent source review found cancellation before the worker starts can
+    finish without an error signal. The new terminal handler restores controls
+    while preserving a newer pending retry; the exact failing regression and
+    final33 passing Qt cases are recorded with the source receipt. All108
+    source-bound runtime targets passed independent technical review and normal
+    candidate/load checks. The normal writer added exactly12 captions to each
+    catalog, preserved10,576 unrelated targets per language, and passed a fresh
+    normal source recheck plus English audit (91.27s,491,068KiB peak). Evidence:
+    features/data/561_dino_runtime_catalogs_2026-10-15/. API lifecycle artifacts
+    remain with the documentation owner; publish the coherent group together.
