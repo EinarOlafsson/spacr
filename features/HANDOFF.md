@@ -13357,3 +13357,14 @@ tests pass5.06s. Independent code/evidence peer is0b7a9bb1. Evidence:
 features/data/689_hf_host_envelope_2026-10-15/ and the corresponding peer review.
 This closes this verifier defect only. No live deployment, current-source HF
 publication or Pages migration is claimed; those acceptance gates remain open.
+
+## 2026-10-15 Home-B — native Linux figure-heading acceptance
+The published repair now has one isolated X11/AT-SPI/Orca acceptance run. An
+external process found its actual run name; real Tab/Shift+Tab entered, left
+and returned, with focus states read from the native bus. Orca generated the
+run name and fold-help text. Source pin,203 process source hashes, exact native
+scripts/output and cleanup evidence are retained. One pass7.74s/329172KiB/4G.
+Independent coordinator payload/source/reader review passed without replay.
+Evidence:data/655_native_figure_heading_2026-10-15/. Native role remains panel;
+audio was disabled. No audible speech, human usability, Windows/macOS or full
+application acceptance is claimed. Broader N655 gates stay open.
