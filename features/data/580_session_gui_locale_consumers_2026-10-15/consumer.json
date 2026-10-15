@@ -1,0 +1,1601 @@
+{
+  "status": "PASS",
+  "tested_commit": "d3191c3a99e1ca85ef31c0e5487a6bea9f2f5b57",
+  "actual_revised_tooltip_cases": 36,
+  "old_tooltips": [
+    {
+      "language": "sv",
+      "key": "intensity_calibration",
+      "tooltip": "<b>Intensitetskalibrering</b> <i>(boolesk)</i><br>Kalibrerar intensiteter före mätning med pärlor eller referensbrunnar som avbildats i varje bildtagningssession. Som standard är varje platta en session. En valfri sessions-CSV tilldelar bildfält oberoende av plattor; en extern pärlmapp kan tillhandahålla referensbilderna. Förstärkningarna anpassas till vald referenssession eller referensplatta; tomma val behåller standarden första i namnordning. Den befintliga förstärkningsmetoden med kameraförskjutning är oförändrad. Förstärkningar och referensinnehållets identiteter registreras i measurements.db:intensity_rescale. Standard: False.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration\">Öppna spaCR:s API-dokumentation</a>"
+    },
+    {
+      "language": "sv",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>Brunnar för intensitetskalibrering</b> <i>(lista / text (valfri))</i><br>Brunnar med samma kalibreringsprov i varje bildtagningssession, till exempel [&#x27;A01&#x27;] eller [&#x27;A01&#x27;, &#x27;P24&#x27;]. Referenser hämtas från den valda externa pärlmappen, annars från den uppmätta sammanslagna mappen. Varje uppmätt session måste ha ett användbart referensbildfält. Referensbrunnar i källan mäts som alla andra brunnar. Standard: None.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration_wells\">Öppna spaCR:s API-dokumentation</a>"
+    },
+    {
+      "language": "sv",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>Referensplatta för intensitetskalibrering</b> <i>(text (valfri))</i><br>Exakt identifierare för referensplattan från sammanslagna filnamn, till exempel plate2. Utan sessions-CSV behåller tomt den första plattan i namnordning. Med uttryckliga sessioner måste plattan tillhöra en enda session, eller kombineras med en exakt referenssession på den plattan. Den valda plattan måste finnas i den uppmätta körningen. Standard: tomt.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration_reference_plate\">Öppna spaCR:s API-dokumentation</a>"
+    },
+    {
+      "language": "sv",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>Statistik för intensitetskalibrering</b> <i>(text)</i><br>Hur varje referensbildfälts intensitet sammanfattas efter att intensity_calibration_offset har dragits bort. foreground är medianen över Otsu-tröskeln för glesa pärlor på mörk bakgrund; median använder alla pixlar för en jämnt färgad referensbrunn. Varje bildtagningssession använder medianen över sina referensbildfält. Standard: foreground.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration_statistic\">Öppna spaCR:s API-dokumentation</a>"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration",
+      "tooltip": "<b>Intensitätskalibrierung</b> <i>(boolesch)</i><br>Kalibriert Intensitäten vor der Messung anhand von Beads oder Referenz-Wells, die in jeder Aufnahmesitzung aufgenommen wurden. Standardmäßig ist jede Platte eine Sitzung. Eine optionale Sitzungs-CSV ordnet Bildfelder unabhängig von Platten zu; ein externer Bead-Ordner kann Referenzbilder liefern. Verstärkungen werden an die ausgewählte Referenzsitzung oder -platte angepasst; leere Auswahlen behalten den Standard der ersten nach Namen bei. Die vorhandene Verstärkungsmethode mit Kameraoffset bleibt unverändert. Verstärkungen und Identitäten der Referenzinhalte werden in measurements.db:intensity_rescale aufgezeichnet. Standard: False.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration\">spaCR-API-Dokumentation öffnen</a>"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>Kalibrierungs-Wells der Intensität</b> <i>(Liste / Zeichenfolge (optional))</i><br>Wells mit derselben Kalibrierungsprobe in jeder Aufnahmesitzung, etwa [&#x27;A01&#x27;] oder [&#x27;A01&#x27;, &#x27;P24&#x27;]. Referenzen stammen aus dem ausgewählten externen Bead-Ordner oder andernfalls aus dem gemessenen zusammengeführten Ordner. Jede gemessene Sitzung muss ein nutzbares Referenzbildfeld haben. Referenz-Wells innerhalb der Quelle werden wie jedes andere Well gemessen. Standard: None.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration_wells\">spaCR-API-Dokumentation öffnen</a>"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>Referenzplatte für die Intensitätskalibrierung</b> <i>(Zeichenfolge (optional))</i><br>Exakte Kennung der Referenzplatte aus den zusammengeführten Dateinamen, etwa plate2. Ohne Sitzungs-CSV behält leer die erste Platte nach Namen bei. Bei expliziten Sitzungen muss diese Platte zu einer einzigen Sitzung gehören oder mit einer exakten Referenzsitzung auf dieser Platte kombiniert werden. Die ausgewählte Platte muss im gemessenen Lauf vorhanden sein. Standard: leer.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration_reference_plate\">spaCR-API-Dokumentation öffnen</a>"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>Kalibrierungsstatistik der Intensität</b> <i>(Zeichenfolge)</i><br>Wie die Intensität jedes Referenzbildfelds nach Abzug von intensity_calibration_offset zusammengefasst wird. foreground ist der Median oberhalb des Otsu-Schwellenwerts für vereinzelte Beads auf dunklem Hintergrund; median verwendet alle Pixel für ein gleichmäßig gefärbtes Referenz-Well. Jede Aufnahmesitzung verwendet den Median über ihre Referenzbildfelder. Standard: foreground.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration_statistic\">spaCR-API-Dokumentation öffnen</a>"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration",
+      "tooltip": "<b>Calibración de intensidad</b> <i>(booleano)</i><br>Calibra intensidades antes de medir usando microesferas o pocillos de referencia adquiridos en cada sesión de imagen. Por defecto, cada placa es una sesión. Un CSV de sesiones opcional asigna campos independientemente de las placas; una carpeta externa de microesferas puede proporcionar las imágenes de referencia. Las ganancias se ajustan a la sesión o placa de referencia seleccionada; las opciones vacías conservan el valor predeterminado de la primera por nombre. El método existente de ganancia con desplazamiento de cámara no cambia. Las ganancias y las identidades del contenido de referencia se registran en measurements.db:intensity_rescale. Predeterminado: False.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration\">Abrir la documentación de la API de spaCR</a>"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>Pocillos de calibración de intensidad</b> <i>(lista / texto (opcional))</i><br>Pocillos que contienen la misma muestra de calibración en cada sesión de adquisición, como [&#x27;A01&#x27;] o [&#x27;A01&#x27;, &#x27;P24&#x27;]. Las referencias proceden de la carpeta externa de microesferas seleccionada o, en su defecto, de la carpeta combinada medida. Cada sesión medida debe tener un campo de referencia utilizable. Los pocillos de referencia de la fuente se miden como cualquier otro pocillo. Predeterminado: None.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration_wells\">Abrir la documentación de la API de spaCR</a>"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>Placa de referencia para calibración de intensidad</b> <i>(texto (opcional))</i><br>Identificador exacto de la placa de referencia a partir de los nombres de archivos combinados, como plate2. Sin un CSV de sesiones, vacío mantiene la primera placa por nombre. Con sesiones explícitas, esta placa debe pertenecer a una única sesión o combinarse con una sesión de referencia exacta de esa placa. La placa seleccionada debe estar presente en la ejecución medida. Predeterminado: vacío.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration_reference_plate\">Abrir la documentación de la API de spaCR</a>"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>Estadístico de calibración de intensidad</b> <i>(texto)</i><br>Cómo se resume la intensidad de cada campo de referencia tras restar intensity_calibration_offset. foreground es la mediana por encima del umbral de Otsu para microesferas dispersas sobre fondo oscuro; median usa todos los píxeles de un pocillo de referencia teñido uniformemente. Cada sesión de adquisición usa la mediana de sus campos de referencia. Predeterminado: foreground.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration_statistic\">Abrir la documentación de la API de spaCR</a>"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration",
+      "tooltip": "<b>强度校准</b> <i>(布尔值)</i><br>在测量前，使用每个成像批次采集的微球或参考孔校准强度。默认每块板为一个批次。可选的批次 CSV 可独立于板分配视野；外部微球文件夹可提供参考图像。增益与所选参考批次或参考板匹配；留空保持按名称排序取第一个的默认行为。现有的相机偏置增益方法不变。增益和参考内容标识记录在 measurements.db:intensity_rescale 中。默认为 False。<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration\">打开 spaCR API 文档</a>"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>强度校准孔</b> <i>(列表 / 字符串 (可选))</i><br>每个采集批次中装有相同校准样本的孔，例如 [&#x27;A01&#x27;] 或 [&#x27;A01&#x27;, &#x27;P24&#x27;]。参考数据来自所选的外部微球文件夹，否则来自被测的合并文件夹。每个被测批次都必须具有可用的参考视野。源数据中的参考孔与其他孔一样进行测量。默认为 None。<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration_wells\">打开 spaCR API 文档</a>"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>强度校准参考板</b> <i>(字符串 (可选))</i><br>合并文件名中的精确参考板标识，例如 plate2。没有批次 CSV 时，留空保持按名称排序取第一块板。显式指定批次时，该板必须只属于一个批次，或与该板上的一个精确参考批次配对。所选板必须存在于本次测量运行中。默认留空。<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration_reference_plate\">打开 spaCR API 文档</a>"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>强度校准统计量</b> <i>(字符串)</i><br>减去 intensity_calibration_offset 后，如何汇总各参考视野的强度。foreground 是高于 Otsu 阈值的像素中位数，适用于暗背景上的稀疏微球；median 使用所有像素，适用于均匀染色的参考孔。每个采集批次使用其参考视野的中位数。默认为 foreground。<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration_statistic\">打开 spaCR API 文档</a>"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration",
+      "tooltip": "<b>Calibração de intensidade</b> <i>(booleano)</i><br>Calibra intensidades antes da medição usando microesferas ou poços de referência adquiridos em cada sessão de imagem. Por padrão, cada placa é uma sessão. Um CSV de sessões opcional atribui campos independentemente das placas; uma pasta externa de microesferas pode fornecer as imagens de referência. Os ganhos são ajustados à sessão ou placa de referência selecionada; escolhas em branco mantêm o padrão da primeira por nome. O método existente de ganho com deslocamento da câmera permanece inalterado. Os ganhos e as identidades do conteúdo de referência são registrados em measurements.db:intensity_rescale. Padrão: False.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration\">Abrir a documentação da API do spaCR</a>"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>Poços de calibração de intensidade</b> <i>(lista / texto (opcional))</i><br>Poços com a mesma amostra de calibração em cada sessão de aquisição, como [&#x27;A01&#x27;] ou [&#x27;A01&#x27;, &#x27;P24&#x27;]. As referências vêm da pasta externa de microesferas selecionada ou, caso contrário, da pasta mesclada medida. Cada sessão medida deve ter um campo de referência utilizável. Poços de referência na fonte são medidos como qualquer outro poço. Padrão: None.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration_wells\">Abrir a documentação da API do spaCR</a>"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>Placa de referência para calibração de intensidade</b> <i>(texto (opcional))</i><br>Identificador exato da placa de referência nos nomes dos arquivos mesclados, como plate2. Sem um CSV de sessões, em branco mantém a primeira placa por nome. Com sessões explícitas, essa placa deve pertencer a uma única sessão ou ser combinada com uma sessão de referência exata nessa placa. A placa selecionada deve estar presente na execução medida. Padrão: em branco.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration_reference_plate\">Abrir a documentação da API do spaCR</a>"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>Estatística da calibração de intensidade</b> <i>(texto)</i><br>Como a intensidade de cada campo de referência é resumida após subtrair intensity_calibration_offset. foreground é a mediana acima do limiar de Otsu para microesferas esparsas em fundo escuro; median usa todos os pixels de um poço de referência uniformemente corado. Cada sessão de aquisição usa a mediana dos seus campos de referência. Padrão: foreground.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration_statistic\">Abrir a documentação da API do spaCR</a>"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration",
+      "tooltip": "<b>तीव्रता अंशांकन</b> <i>(बूलियन)</i><br>मापन से पहले हर इमेजिंग सत्र में अधिग्रहीत बीड या संदर्भ वेल का उपयोग करके तीव्रताओं का अंशांकन करता है। डिफ़ॉल्ट रूप से हर प्लेट एक सत्र है। वैकल्पिक सत्र CSV प्लेटों से स्वतंत्र रूप से दृश्य-क्षेत्र आवंटित करती है; बाहरी बीड फ़ोल्डर संदर्भ छवियाँ दे सकता है। गेन चुने गए संदर्भ सत्र या प्लेट से मेल खाते हैं; खाली चयन नाम के क्रम में पहले का डिफ़ॉल्ट बनाए रखते हैं। कैमरा ऑफ़सेट वाली मौजूदा गेन विधि अपरिवर्तित रहती है। गेन और संदर्भ सामग्री की पहचान measurements.db:intensity_rescale में दर्ज होती हैं। डिफ़ॉल्ट: False।<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration\">spaCR API दस्तावेज़ खोलें</a>"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>तीव्रता अंशांकन वेल</b> <i>(सूची / स्ट्रिंग (वैकल्पिक))</i><br>हर अधिग्रहण सत्र में समान अंशांकन नमूना रखने वाले वेल, जैसे [&#x27;A01&#x27;] या [&#x27;A01&#x27;, &#x27;P24&#x27;]। संदर्भ चुने गए बाहरी बीड फ़ोल्डर से, या अन्यथा मापे जाने वाले मर्ज किए गए फ़ोल्डर से आते हैं। हर मापे जाने वाले सत्र में उपयोग योग्य संदर्भ दृश्य-क्षेत्र होना चाहिए। स्रोत के भीतर के संदर्भ वेल अन्य वेल की तरह ही मापे जाते हैं। डिफ़ॉल्ट: None।<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration_wells\">spaCR API दस्तावेज़ खोलें</a>"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>तीव्रता अंशांकन की संदर्भ प्लेट</b> <i>(स्ट्रिंग (वैकल्पिक))</i><br>मर्ज किए गए फ़ाइल नामों से लिया गया संदर्भ प्लेट का सटीक पहचानकर्ता, जैसे plate2। सत्र CSV न होने पर खाली रखने से नाम के क्रम में पहली प्लेट बनी रहती है। स्पष्ट सत्रों के साथ यह प्लेट एक ही सत्र से संबंधित होनी चाहिए, या इसे उसी प्लेट के सटीक संदर्भ सत्र के साथ जोड़ा जाना चाहिए। चुनी गई प्लेट मापे जाने वाले रन में मौजूद होनी चाहिए। डिफ़ॉल्ट: खाली।<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration_reference_plate\">spaCR API दस्तावेज़ खोलें</a>"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>तीव्रता अंशांकन सांख्यिकी</b> <i>(स्ट्रिंग)</i><br>intensity_calibration_offset घटाने के बाद हर संदर्भ दृश्य-क्षेत्र की तीव्रता का सार कैसे निकाला जाता है। foreground अंधेरी पृष्ठभूमि पर विरल बीड के लिए Otsu सीमा से ऊपर के पिक्सेल का माध्यिका मान है; median समान रूप से रंगे संदर्भ वेल के सभी पिक्सेल इस्तेमाल करता है। हर अधिग्रहण सत्र अपने संदर्भ दृश्य-क्षेत्रों की माध्यिका इस्तेमाल करता है। डिफ़ॉल्ट: foreground।<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration_statistic\">spaCR API दस्तावेज़ खोलें</a>"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration",
+      "tooltip": "<b>강도 보정</b> <i>(불리언)</i><br>측정 전에 각 이미징 세션에서 획득한 비드 또는 기준 웰을 사용하여 강도를 보정합니다. 기본적으로 각 플레이트가 하나의 세션입니다. 선택적 세션 CSV는 플레이트와 독립적으로 시야를 지정하며 외부 비드 폴더가 기준 이미지를 제공할 수 있습니다. 이득은 선택한 기준 세션 또는 플레이트에 맞추며, 선택을 비워 두면 이름순으로 첫 번째를 사용하는 기본 동작을 유지합니다. 기존 카메라 오프셋 이득 방식은 바뀌지 않습니다. 이득과 기준 내용의 식별 정보는 measurements.db:intensity_rescale에 기록됩니다. 기본값은 False입니다.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration\">spaCR API 문서 열기</a>"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>강도 보정 웰</b> <i>(목록 / 문자열 (선택 사항))</i><br>각 획득 세션에서 동일한 보정 샘플을 담은 웰로, 예를 들어 [&#x27;A01&#x27;] 또는 [&#x27;A01&#x27;, &#x27;P24&#x27;]입니다. 기준은 선택한 외부 비드 폴더에서 가져오며, 그렇지 않으면 측정할 병합 폴더에서 가져옵니다. 측정하는 모든 세션에는 사용 가능한 기준 시야가 있어야 합니다. 원본 안의 기준 웰은 다른 웰과 똑같이 측정합니다. 기본값은 None입니다.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration_wells\">spaCR API 문서 열기</a>"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>강도 보정 기준 플레이트</b> <i>(문자열 (선택 사항))</i><br>병합 파일 이름의 정확한 기준 플레이트 식별자로, 예를 들어 plate2입니다. 세션 CSV가 없으면 빈 값은 이름순으로 첫 번째 플레이트를 유지합니다. 세션이 명시된 경우 이 플레이트는 하나의 세션에 속해야 하며, 그렇지 않으면 해당 플레이트의 정확한 기준 세션과 함께 지정해야 합니다. 선택한 플레이트는 측정 실행에 있어야 합니다. 기본값은 빈 값입니다.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration_reference_plate\">spaCR API 문서 열기</a>"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>강도 보정 통계량</b> <i>(문자열)</i><br>intensity_calibration_offset을 뺀 후 각 기준 시야의 강도를 요약하는 방법입니다. foreground는 어두운 배경의 드문 비드에 대해 Otsu 임계값보다 높은 픽셀의 중앙값이며, median은 균일하게 염색한 기준 웰의 모든 픽셀을 사용합니다. 각 획득 세션은 해당 기준 시야들의 중앙값을 사용합니다. 기본값은 foreground입니다.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration_statistic\">spaCR API 문서 열기</a>"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration",
+      "tooltip": "<b>Styrkkvörðun</b> <i>(rökbreyta)</i><br>Kvarðar styrk fyrir mælingu með perlum eða viðmiðunarbrunnum sem voru myndaðir í hverri myndatökulotu. Sjálfgefið er hver plata ein lota. Valfrjáls lotu-CSV-skrá úthlutar sjónsviðum óháð plötum; ytri perlumappa getur lagt til viðmiðunarmyndir. Magnanir eru lagaðar að valinni viðmiðunarlotu eða -plötu; auð val halda sjálfgefnu vali þeirrar fyrstu í nafnaröð. Fyrirliggjandi mögnunaraðferð með hliðrun myndavélar er óbreytt. Magnanir og auðkenni viðmiðunarinnihalds eru skráð í measurements.db:intensity_rescale. Sjálfgefið: False.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration\">Opna API-skjölun spaCR</a>"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>Brunnar styrkkvörðunar</b> <i>(listi / strengur (valfrjálst))</i><br>Brunnar með sama kvörðunarsýni í hverri myndatökulotu, svo sem [&#x27;A01&#x27;] eða [&#x27;A01&#x27;, &#x27;P24&#x27;]. Viðmiðanir koma úr valinni ytri perlumöppu eða annars úr mældu sameinuðu möppunni. Hver mæld lota verður að hafa nothæft viðmiðunarsjónsvið. Viðmiðunarbrunnar í upprunagögnunum eru mældir eins og aðrir brunnar. Sjálfgefið: None.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration_wells\">Opna API-skjölun spaCR</a>"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>Viðmiðunarplata fyrir styrkleikakvörðun</b> <i>(strengur (valfrjálst))</i><br>Nákvæmt auðkenni viðmiðunarplötu úr sameinuðum skráarheitum, svo sem plate2. Án lotu-CSV-skrár heldur autt fyrstu plötunni í nafnaröð. Með sérstaklega skilgreindum lotum verður þessi plata að tilheyra einni lotu eða vera pöruð við nákvæma viðmiðunarlotu á þeirri plötu. Valin plata verður að vera til staðar í mældu keyrslunni. Sjálfgefið: autt.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration_reference_plate\">Opna API-skjölun spaCR</a>"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>Tölfræði styrkkvörðunar</b> <i>(strengur)</i><br>Hvernig styrkur hvers viðmiðunarsjónsviðs er tekinn saman eftir að intensity_calibration_offset hefur verið dregið frá. foreground er miðgildi yfir Otsu-þröskuldi fyrir dreifðar perlur á dökkum bakgrunni; median notar alla díla fyrir jafnt litaðan viðmiðunarbrunn. Hver myndatökulota notar miðgildið yfir viðmiðunarsjónsvið sín. Sjálfgefið: foreground.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration_statistic\">Opna API-skjölun spaCR</a>"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration",
+      "tooltip": "<b>Calibration d’intensité</b> <i>(booléen)</i><br>Calibre les intensités avant la mesure avec des billes ou des puits de référence acquis lors de chaque session d’imagerie. Par défaut, chaque plaque est une session. Un CSV de sessions facultatif attribue les champs indépendamment des plaques ; un dossier externe de billes peut fournir les images de référence. Les gains sont ajustés à la session ou à la plaque de référence sélectionnée ; les choix vides conservent la valeur par défaut, la première par ordre de nom. La méthode existante de gain avec décalage de caméra reste inchangée. Les gains et les identités du contenu de référence sont enregistrés dans measurements.db:intensity_rescale. Par défaut : False.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration\">Ouvrir la documentation de l’API spaCR</a>"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration_wells",
+      "tooltip": "<b>Puits de calibration d’intensité</b> <i>(liste / chaîne (facultatif))</i><br>Puits contenant le même échantillon de calibration dans chaque session d’acquisition, comme [&#x27;A01&#x27;] ou [&#x27;A01&#x27;, &#x27;P24&#x27;]. Les références proviennent du dossier externe de billes sélectionné ou, à défaut, du dossier fusionné mesuré. Chaque session mesurée doit avoir un champ de référence exploitable. Les puits de référence de la source sont mesurés comme tout autre puits. Par défaut : None.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration_wells\">Ouvrir la documentation de l’API spaCR</a>"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration_reference_plate",
+      "tooltip": "<b>Plaque de référence pour l’étalonnage d’intensité</b> <i>(chaîne (facultatif))</i><br>Identifiant exact de la plaque de référence issu des noms de fichiers fusionnés, comme plate2. Sans CSV de sessions, vide conserve la première plaque par ordre de nom. Avec des sessions explicites, cette plaque doit appartenir à une seule session, ou être associée à une session de référence exacte de cette plaque. La plaque sélectionnée doit être présente dans l’exécution mesurée. Par défaut : vide.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration_reference_plate\">Ouvrir la documentation de l’API spaCR</a>"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration_statistic",
+      "tooltip": "<b>Statistique de calibration d’intensité</b> <i>(chaîne)</i><br>Comment l’intensité de chaque champ de référence est résumée après soustraction de intensity_calibration_offset. foreground est la médiane au-dessus du seuil d’Otsu pour des billes dispersées sur fond sombre ; median utilise tous les pixels d’un puits de référence uniformément coloré. Chaque session d’acquisition utilise la médiane de ses champs de référence. Par défaut : foreground.<br><a href=\"https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration_statistic\">Ouvrir la documentation de l’API spaCR</a>"
+    }
+  ],
+  "preview_tables": [
+    {
+      "language": "sv",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "Arbetssession",
+      "reference_header": "Referenssession",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Beräkna referensförstärkningar utan att köra Measure eller ändra filer."
+    },
+    {
+      "language": "de",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "Sitzung",
+      "reference_header": "Referenzsitzung",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Referenzverstärkungen berechnen, ohne Measure auszuführen oder Dateien zu ändern."
+    },
+    {
+      "language": "es",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "Sesión",
+      "reference_header": "Sesión de referencia",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Calcular ganancias de referencia sin ejecutar Measure ni modificar archivos."
+    },
+    {
+      "language": "zh_CN",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "会话",
+      "reference_header": "参考采集批次",
+      "help_sentences": 4,
+      "preview_button_tooltip": "计算参考增益，不运行 Measure，也不更改文件。"
+    },
+    {
+      "language": "pt",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "Sessão",
+      "reference_header": "Sessão de referência",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Calcular ganhos de referência sem executar Measure nem alterar arquivos."
+    },
+    {
+      "language": "hi",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "सत्र",
+      "reference_header": "संदर्भ सत्र",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Measure चलाए बिना या फ़ाइलें बदले बिना संदर्भ गेन की गणना करें।"
+    },
+    {
+      "language": "ko",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "세션",
+      "reference_header": "기준 세션",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Measure를 실행하거나 파일을 변경하지 않고 기준 이득을 계산합니다."
+    },
+    {
+      "language": "is",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "Lota",
+      "reference_header": "Viðmiðunarlota",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Reiknið viðmiðunarmagnanir án þess að keyra Measure eða breyta skrám."
+    },
+    {
+      "language": "fr",
+      "row": [
+        "/inert/merged",
+        "day1",
+        "day2",
+        "0",
+        "0.5",
+        "250",
+        "3"
+      ],
+      "session_header": "Session de travail",
+      "reference_header": "Session de référence",
+      "help_sentences": 4,
+      "preview_button_tooltip": "Calculer les gains de référence sans exécuter Measure ni modifier les fichiers."
+    }
+  ],
+  "isolated_console_usage_calls": [
+    "ConsolePanel"
+  ],
+  "actual_control_language_cases": 36,
+  "compiled_target_cases": 162,
+  "actual_preview_languages": 9,
+  "controls": [
+    {
+      "language": "sv",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "Sessioner för intensitetskalibrering",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "sv",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "Sessionskolumn för intensitetskalibrering",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "sv",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "Pärlor för intensitetskalibrering",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "sv",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "Referenssession för intensitetskalibrering",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=sv#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "Sitzungen für die Intensitätskalibrierung",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "Sitzungsspalte für die Intensitätskalibrierung",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "Beads für die Intensitätskalibrierung",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "de",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "Referenzsitzung für die Intensitätskalibrierung",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=de#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "Sesiones de calibración de intensidad",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "Columna de sesión de calibración de intensidad",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "Microesferas de calibración de intensidad",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "es",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "Sesión de referencia de calibración de intensidad",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=es#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "强度校准采集批次",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "强度校准采集批次列",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "强度校准微球",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "zh_CN",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "强度校准参考采集批次",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=zh_CN#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "Sessões de calibração de intensidade",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "Coluna de sessão de calibração de intensidade",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "Microesferas de calibração de intensidade",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "pt",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "Sessão de referência de calibração de intensidade",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=pt#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "तीव्रता अंशांकन सत्र",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "तीव्रता अंशांकन सत्र कॉलम",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "तीव्रता अंशांकन बीड",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "hi",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "तीव्रता अंशांकन संदर्भ सत्र",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=hi#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "강도 보정 세션",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "강도 보정 세션 열",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "강도 보정 비드",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "ko",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "강도 보정 기준 세션",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=ko#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "Lotur styrkkvörðunar",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "Lotudálkur styrkkvörðunar",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "Perlur styrkkvörðunar",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "is",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "Viðmiðunarlota styrkkvörðunar",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=is#setting-flow-intensity_calibration_reference_session"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration_sessions",
+      "default": "",
+      "label": "Sessions de calibration de l’intensité",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration_sessions"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration_session_column",
+      "default": "session",
+      "label": "Colonne de session de calibration de l’intensité",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration_session_column"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration_beads",
+      "default": "",
+      "label": "Billes de calibration de l’intensité",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration_beads"
+    },
+    {
+      "language": "fr",
+      "key": "intensity_calibration_reference_session",
+      "default": "",
+      "label": "Session de référence de calibration de l’intensité",
+      "url": "https://einarolafsson.github.io/spacr/settings_flow.html?lang=fr#setting-flow-intensity_calibration_reference_session"
+    }
+  ],
+  "targets": [
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "676ff251bc8111863a0a6ba0b3ce9dfd0e88c15bb1ee79be2674cdcb31225b43"
+    },
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "ac20928f74a04acebf6178cf76e638eaffe84dde2bc67e64f77be1aa1c9e3552"
+    },
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "c2a63e605f512e36eef7022220e5b2168f4350d673a3d2ec39460b19626edd69"
+    },
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "926fd44fd102b5fd49642848ea877a9ea7132c1a104005970ed10e811c4fb52e"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "d6ea2d7078b904894c5b15fd7dcd1f6db1618e34a0b4b2b9ce60681993ebca36"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "2ac5e08c40199e1036427afad07eb02221882bceeaf3b7b7341abf5f7c8af6ce"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "010ddd5b249e0c10d0934435eb7340d2a60b012568006b8e61fe4d6995f15bf0"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "e45530c9e21c0bdba4b69a81675141c2b8e28f0d89bd05b5072fde6434518c41"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "e19d15409848254d9886d96c811ebc0d0cf0557e844cdb326c3f22f562a78da0"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "2eb2131dce4e192ec7f722b2e753ec54a0ed2aadabca778e87cf8a800d87383a"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "714c04a7ba1175e01fed0f4be23220ff4b8b39c437fc26f690bcd64b2e254ef2"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "96e7c26b550fa28d7b36014056a122bd64c15e2d285a54dcd22be28a73cfa720"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "934d44e02c9901228986844c6ef0f3965d157c449045b92af3d006ecb2803af8"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "823cff4d94a62bdc297af0ef781f059a4d4933a2ed86762127763eaac21ab5a1"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "165413e3b0f20871c6053b7fe269202c9cc20f3b599776a27fdf1ee42bb630e0"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "f1341035ca21b8613e1447d986f5d6d99dca5b3526de20cd5cd9ee4743cb22d9"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "1e5a89aab2b0b47456345cf968db1a420fa80c073f16f6a06beeb25188cfb81d"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "f703a7b081c149aaa25d612de015801dacdbbbaaf9fd52f471c49b105e9d2aae"
+    },
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "cfc0a93f615bbe105a621c5fb7e5c6cc8b01cb4e6240872fa5b381a7c1beaffa"
+    },
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "a397609e6de9449a7dc927c6b0fc7e01ee1e57218ec55c8d2f8cfed7bc6a048f"
+    },
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "1cceb069eee8613821acc8e6ce5199422a3d8430d59b071884ff01dbef997f1c"
+    },
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "d34539025c50a8d8740b99d93215fac96c07c687b11c21a641a784d835937417"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "62d0d801af671b64bb5e8835d2bb3f6b4e7ed479bab4f22ab4cc7a1a9fa8e44d"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "dc5c6529250602b972f58a45734062a54acfcfe09aa8226ea02660e093f40913"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "b875592614ec2dc6348f62ea226ce8ff7056dd294108af2b2332d2f8dfc2fa38"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "dcddbec3e1dabb82a3cccf76211ccb4f4f65ad2fc8ae29d49b94437defaca557"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "758896208f5bd2e6cbba63089a888ceedef0e28507bbe18231b7e7407b8a68a2"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "57106bc70a817309888ca6f0563c5dfd2b57ee169238fb22805f5477e89a78e9"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "cd773e69ee08ccdecdf95c42147d94fa579950f565c45d165039d748002e08e4"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "73d9d14cc13e42ff4206a530e429f8add2f7088ca1351ebfd157fcd7badab6bd"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "58004b8287db4c84760fc085bf3e862b347c07890b73ee65ae65734a43cd1b4e"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "136783d7aca9c94d0434d237b83fac0a7824ae25ac2c4dcd905c5e4ca153f55e"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "d5d6311fdf312de152db2b80b08b6e4c37aa912d3ed5515f1dc764a734856170"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "cccadf15bb8112b7e70ee74a793b3dfd4eec7ba1688b8a5749d4c9094b19d92f"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "935a4fb8451cf5b84fc1e37df61e19d38964821ff52e79e149f657e9d5a374b8"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "1ee96e98aa2cec016097f9a857be0db5f472f867c3897dbd485b2fbdf036236c"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "4e1074ecfe5f17868b8550a33f8919116fa0492039be3749cc9d9e76f46ecc8f"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "5f7147c5c8b0d1d434b138637b0118dafa1d7c19e9a7a8b47242559645b5b52c"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "cfed9550b9ac8a425a0fcb07c680b8c1c3450f3cc8f5a276938690d813378113"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "f8ff5a24dcf13eed7c93223e7f215d1517e7857ee631f4a5adf464fb1bb4e4cb"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "67ce8fdfeb132f880a10668fab8c42f175e4cc8a6418bfb58d1ac540589b0862"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "83a89fdf5106428cb77cfa2df4acc0c5f719bfe3dfbc5115d1ec5c5ae5c46f33"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "610e1e3f90eda606217c5d7987dd78b5aac8244c58a0f8c92c48ab841351dbd7"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "59d3cc4306e06af0c8988fb541e74212f7baec26d26d4bc74df9e484eec7ba97"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "781549df70e74f4d182848d1cd364a6edbcaec4306a94a0a99aa476f510e162d"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "d08d64eadd8419339185b7167d194c3e95e6fc6cff90a3c004c1ce9629392296"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "cb49741eacaa454aa71bc96b926c25439378ff07d35ebd53f6c942121c166386"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "54e366d62c14ad23a5efac9645734877e78b9fa8dcaf505d1ded32c792283c96"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "e842efd286aa6e998fd32f49e1f4e2dda33efdaeb40c6bf5769be7531ddae5b8"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "b8356b819fa39ad9e29d5e891b8ac3dd752ccd4d989de9a04e17ef2ce1ba6de3"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "f9491ebadbe2c5fff72010df3491cde26efdb059acd7b05856590b4f2a2c8ff6"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "8cbd05e0e374a414418a9e1d971be92e54924d66673f4b113a2c1822d1cb3221"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "2095b11ac216f42cc6754eb4b0d9a34f48c45cce6eb40bcdc2737b02aab8307b"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "4b9ac8b41aa5164e6ee8408db97ef61ad235e55b1db619d29e85a6816c80ba6b"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "e7acd8ac7d17e3cbb0424204f47bee83fca59214a18bdb8b0fe723e6b1f48d55"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "432c2a305fec9ed2a19eebbfc0081a9be8659aec26f4525f21929faae102d759"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "1798ec0dbdeb8bf55f5e77a7a22fa96d9277237612380454e376a36e1aac7173"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "89f4bb9133e7fc5034449256f2dd8368d9effcda507165a588c0e9be34059db0"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "f13fe131eadabcc8c8a0464a3f173ed1a43952de7a3c113feafc50f80a5b26c2"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "5ece50b0ee01a70fe1407817c5ddd6df3e1207e7f84208d417f0661386a62f05"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "d7808b87bbcfe7da3c3983b8a0caa3bf7703a80db9ce1857cbda4fc3be658e32"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "84b97503f3adc7cac6a9e4cf9bac721788a9fcf88799ff629683773c92c02040"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "d7ce0a98a9c299a65f61e51ed7ccef6d493cfeccec342e8a8bf2d6645530b065"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "5c3c3b8b62292b32171566ab52dbcb3cd60613b8130753afd0ae3017446e5625"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "1bb30eb2b36a4164eb0a866aa9acb62ce0b4dc5011fb9e8351ec58137a01a3ae"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "75d35d4e43ac3eaab83d5cf240f0bf125f004d62158f713ce6c0073ac63b20df"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "37c2ccc5950b6c9499900d45868937658ddb2b7f5a5917dba94e63358143250f"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "b686adbfc6b283fc93cd27787ddc724847a8672e21684943f89b9f75cd8527af"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "f2cb3e5ca689441bd3695ee63c4c81d1f3599f882703057584e1022a3e50f8aa"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "030a2afb3dd27de35a3969f26c283eba981d4454eba9c18f14945e44f61add72"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "0d3712536ad410d7cc775f9f6b520fc3526900ae0ca6fc6d4ba07a5c1a524fca"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "3f192b0b92970ed443bb96964dc3468608045c08a28009eca34edd260313ec49"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "6653810a9e006d98279287b6d42c3348c73be1f678f5e0666ae01bcad4a681de"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "373bd7648350ecd8246036904090763274ccaa8cd07dd507f7fc32152eb38efe"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "0b7c7f661e4c07094643e6dd09cfb94b4b767c15567673f324c034abc882df29"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "3b9928bed0021dccc8adc0417f96d1d4bcefb38d94f604a57d0a170a383d2e44"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "908a854a81b81c2fe2854f45376e9e8b736ace511c5bf1f55d6c69ca5f0052fc"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "daa059f4ee3e2580d3763731bae3b2af786a73186ea8f461683394447d0e4c22"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "af323b34014dc65b48e70ba025483d8030cf4b0490cad4db6dd52b3d2f563e68"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "f0d71cab9635038fafc78ad9453cbf74dd572040ee484e9c0858581dc207386d"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "037ddc6a9c01a8e5a415d6fcb0622c34586ef3fcfd32db02230e1c75392e4665"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "fd1c615a9faf34f4787733a1ff7d5771968e91dc67ea85c682fc7727828e1f7f"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "48c84b6c1bce0f02c581aa1274cee3228971d20ba4c85a8e47424b12f231ccc8"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "daf5bdb19454a802657737c8618c21f5b839e3dc29d3434388b22204eef848ac"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "fe2ab56e57ae32a280e61e93b52c2a26097dfb335564fd9d6916c78a9cd1d5df"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "e0082e07b8ac77ea2c1d616092c9c1270b15bbd44f34aa2e2504e593af383c7b"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "ea9ef075c148a8188404d9fc9e10e78e59f2d2f04a2b81fefa9338659f9f5690"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "89ae5f01d5feab0273cc4d14d07a2d2eaaf5b249f004659a5abacaa13b5c84b6"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "bddfe97e9793f4ce19746e70f56a361e8cc25302e66b84207a796c2ef0151ba6"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "8fe0b40bf82d74d6d2b442d7e6aa2a75d43c60dbd88113faa3065e46583131df"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "de2712e732341cd459e565f13f550723cceca90cb252b10b49a7dc74b492641e"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "ff9986b9f86708b196406bcb4ff717c5c6e93fccef812129c302be33fce7a186"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "1819a4dc2ed8b337a9d2ee649816269594ebf43964c0c42fc31172a9a61dd060"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "b1370880ba5282529f8d553015fc6b57f025f263d2e650f05884b4cde43ca066"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "170e211628abf3ee987631777626ca30d0b29065f55051f172a34239237297b5"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "4bf0b1a9e7400f1d18b0d3bfc2fd2f82fc23dabb948ac2862c54290f8271bbcd"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "05f9e046492e22ff1616d5a7b99c5f1347f536e5ea4d3e56ad168d25e81458b8"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "bf5cf20ff01612a38b1686255085403dfe213406062b802a61fa0595656bf1f1"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "224931530b6cbd72ec65e1943268180e008ff6c2455805b3f56fc6b3e7dc70a4"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "9c489fe756660f3f174885f85097bad8f60d36ac95730e5f61d45636263284dd"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "ccedc1d1aa87368331c133601b49827beab25ec9a92ccb92e9daa2128c76ac1a"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "38a79be3c687931361e57a3802ad17d83180971b1b85dbd5f5b81b801f369fb1"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "fac3f116fc81c4701dee64bba7d9f1a32bc7d5ad154ee2dfe645321910fcc430"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "b4d30ef811ae4a2a058057bf028b2ad5b6eeee469bf3c470c0625a6fa8a5868f"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "d1ff24b479b1d5fc3f2173298e80e41f2a870a67fcdf6af35e47a79ccddafaf8"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "c73ed8b013ad701adeee417594b3ce4372ba5fd2d78aefc0a3e72b529bfb97ed"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "f7ef76fc65bc51307a035d6bc48137cde798c8635b81439e8a7bdee8397fe7b0"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "1db127392ba90552dccc8fa9448b4fd673b5c3ac6ff6a0f6fc7874d04a53e3ab"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "4be8b5427fcfd54cdaff82165aff56292164a25b38b45c013d60363f25f4142b"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "752e9b90a94986eab635d8c14120c51d3f9572865dd1237feaddfa426061e19b"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "7b1650597279724fd20eb1f0a5552a78fd192a38ea80be4921e2d9a0bf0ce466"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "f6389ce4cc8b049fec0aa0d7ca2f9254827147e796d94443d5611f97e2b07022"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "96a349c3452c280c080a02afef7483b915cbca52c0c04213662efd217b2d6002"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "6487c77ed961c14b227dea80d73bd250b6ac156ce27d3632ff9d1427690a6103"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "333edbca7a7a033a58c9575ec37cd49f467cc6846d8be20cd985c7e3151f3c15"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "ba39f3a1b5b0b9ea32ebb6e3586e8191f7acda562120b9ceea1f6ce0179ae353"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "9dc6dbd2de180ed9861d90cd9506ff3be483808d38e01afe950a95a598829f30"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "9aa7cd66fb4f395b001eb16a2ba9f6d290047e7b410b2700c9bf821029c5e695"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "7f9cf379f8e81cda1449875455c675b7b93e9ce37f61d544a5a2daadfe7fd364"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "27fb2cb9db1aa4768788aa3cb858d89348d7de6fb610fb426069db5f78e29b42"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "ee5ed7c7a62e584f2126e728a286b547550082e96f2e6bc4a15a37c7b8ee39b2"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "bf8ea4b918ea51dd3afd779f20a8c1d07329f33873f145ed133a503251944a19"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "0a15ed87c51d5b14f97d2ea95907507ba7169b3f42b8a50cabe6eeff58e5286c"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "5f4d5a7bdc9849583e48620c291317ee73437d6fd8b0ba070ae28944e49a96c5"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "a534b0c18f55c3356d0f13e929c005ee46b66cf1537843f3715cc66acd0341a1"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "e8f6965d611826b31923fd493ecc13ad35f6687add4bc68aecbc72ebd44bf061"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "cae17e7a9409b835efb1c301a775fcaf36a3b6bf3538ed18facc9b0900704f7c"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "a4fb95ffd42879102a01689d2059242328c9c67054136312ab0de08534adaf5b"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "0c5929a65392499718092baf215696a4533efc8569b2a1da026b982b7b69dcf0"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "e961a1037987b43b9d113b08a61837f52cbbd3d70a76a3a5da3c25f95dde0fa3"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "ef1165f8e225e23e6d4d8782b077819056a8ff44611c6444f51aa5934c3791b7"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "890a4524cd400049a6393d726e80db35aa04e8b752c0c8d69e150ca0e9c70da7"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "4e8a4f44f7f182c73edbf3ef02000fa91760643babf89217682a9c2d62264ccb"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "8ed99997894de246f5812d659429fb1ce47bb3a6aef17ab597588f4c454cdc3d"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "b25fd44e44ecc909adcb1c6713099c2646e3510e5c90e3404ed71cecf759b1d2"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "cb21386759d19bb1a503bc98357009979bcf641474d5ecd50a0582df994bade4"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "776d09494a1996b7cac72eeb13d7625f217f1a9d7c8e7cd67a720fd52819434f"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "53fd8ff735e152675fe0df14528bdb14d550d3cb54e912d0b08a266a2e5bcbf0"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "83b336e9d9353881694dbbd055de62330a2324525a27679847c26e1c262d1c33"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "3f97a2dc355c8e5bd695c60ee1c807378736eb69c566df09aaa0bc0313d7faa5"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "f4f21bc67c94e23c163d6d88eec6e449e37d2c942c304046ea327cc7db26b543"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "adf99f1dae922ba387ca0ff54c97532af8f4c640680923b49cf830fc8efbc330"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "638bbd8b8068cac1628039bde6ccce0551feb4059d3839216d2174f2e778d4d5"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "f41f795c656ac975649936dfdafecc986f4f65e613c6f922594547508779762e"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "8f4c3fd57e3449d5a33f63822dc37ca40604aef43cc92bb2a63b1c5e82766703"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "67a4c00799f29fc21a34ee695e3518accaf83b7d0ba6595fcfb9b0cf4be48aa7"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "fbe44737fe0e1896768cdd9c513e3e5051bca373ae3eb5346cd63ad76d2b98e6"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "732b227d09ea07ac1f0a342bca75defb0a28e4725d5d35a963f5fa2bc1da2b5e"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "target_sha256": "5079bef5f3e382d2a28f1095102162e3fc84b3ab0a88119e2d7cf98d9b3139ee"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "target_sha256": "b53af1b9e9aab7eba344d22abbb9eb0d5b6cf47fe1abd03e4eaeec12a85f8600"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "target_sha256": "1ba8a9b7bea60ffdcdb12da85bd82e7ab3d58149c3ab09dcc08e76d041237feb"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "target_sha256": "9ab01a1b10f35f00fd36e6a453e92fe3412fcd1c5904564862c868fb4990e051"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "target_sha256": "b7b6424840dbec7d6e43d1e2726137304c8dea1996c493dc0e682839f266bb31"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "target_sha256": "3e69927b3b7a5b87c940ae92b7a113d6185704a7010048230bbd55cde433281b"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "target_sha256": "fa6a65030c21c5694ac9d7ef4f632030ff4ab985c489c2fa593d7f91dfd369df"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "target_sha256": "e8fb2168e0fbcd9a0728a2d8c8cfb90298df0b8e7878f560b2cd169009c4e076"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "target_sha256": "7774ceed72ae219d07a9e98e6b51ff63835f2e24a4f07fd3467b30a268a15ce2"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "target_sha256": "f2b5afb71abe09a4aa26308e335913346a975617ac9d65565b32c890e0d7f826"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "target_sha256": "8d7ffc1ca0a8542152c3181957133b7daa23d166a55562a4c9dbb04e368400b3"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "Reference session",
+      "target_sha256": "7b779bf4e24a06a7e319bc0ee09436a7a2d715fe495cea514ac96b4680361385"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "target_sha256": "ad6fe433e086cc77ae166220343137e6be36ac4b8eeddbf7d502fc62c3bc37fa"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "target_sha256": "33941570fe0287aa58cc0710e3eb228b9c6bd93a917395510f11036c1565309e"
+    }
+  ],
+  "source_sha256": {
+    "spacr/settings.py": "4086e6c580497725f539aab9df48eb24abbb209a912863442a9a200a0e131c18",
+    "spacr/intensity_rescale.py": "df6f846820ef4d2bffe83dd2e86180c026d23a7efc920c812df3b9b408a8ffcb",
+    "spacr/measure.py": "7763ece88f7e8bd02ff4477e4094fa02220f04668c58c55c1744c1905d96a3c6",
+    "spacr/qt/screens/settings_model.py": "21e20038391afda3da53d96d1bf71041ac32253fc005dcdc98975b38ad0a5713",
+    "spacr/qt/widgets/calibration_preview.py": "699605f2d1e8b4d8d1d2d0c42a9a79373a3e95bdddd5055f456a3c8c8267b94d",
+    "spacr/qt/screens/settings_flow_index.py": "3a6f8c9183317b31045dcebac197a1a7ed2ce2c2b22e7d1f696c11df6d1deaab",
+    "spacr/qt/i18n_catalogs/en.py": "561063217335e57e7355a74e8a71a6af57e0c1425d01196e7bf35ce9c41ea9be",
+    "spacr/qt/i18n_catalogs/sv.py": "5ab37e1a2b84e85029af1f1a23bca117af39bb1cbfc06011a53e05ff026fbc76",
+    "spacr/qt/i18n_catalogs/de.py": "557d7dd4c68a8b788baf91f7584fa7b42a8fb5be57bf1ab5cc78abb9cbdaf696",
+    "spacr/qt/i18n_catalogs/es.py": "5d00d3c7a5546d322eebf8fa85e9e5f3ed87ee3849d14da6c98e7946172f26b9",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "c825d1c9377b3947e4df02f523a37f0d4b748fb08cad171fbafdf57895b52bab",
+    "spacr/qt/i18n_catalogs/pt.py": "80744177fb98e78c170f01813195cfaf1b47498f4490937cbdd69ca92fa90243",
+    "spacr/qt/i18n_catalogs/hi.py": "1959d2df832e5cb787326fcc1cec80ca33c1209ef840b4377587e2ea36bd9b58",
+    "spacr/qt/i18n_catalogs/ko.py": "d537e348a3cfc53977ebfccc81aa85424eb3fd5f49aa01243c9dc34ec22db14f",
+    "spacr/qt/i18n_catalogs/is.py": "b88810b24809417c653cb3e2a55cb1d26ef890983f66766dc72af4ec4ff2488f",
+    "spacr/qt/i18n_catalogs/fr.py": "1e680b67bed646f82e629bbd9ac6f9bc2367df553843c9b5856dd69b4bcc615e",
+    "spacr/qt/screens/app_screen.py": "9d8a9c714c461ab46171cfdd5eea3c345553c55e737813f12f67f47ec28ab37c",
+    "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "spacr/qt/i18n_catalogs/__init__.py": "096acfe1354f1c88a906d7ec3515489a1cd663ce1a1a30b7b4d60038485a8181",
+    "spacr/qt/widgets/console_panel.py": "b2fa9adcc636b487d09f7821bf1b2ac3747639105c6746017d3fdad0add4c283",
+    "docs/source/_generated/settings_flow.rst": "490de500e929ee7adbc69442aa44e3509856d59dc7565d867a5b4ee06ed863ed",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-f580-session-controls-home-b.json": "1eb61f35708861d96f19a51c47ee3d67fa9db16e580a47164b6da92ed4a3ddcb",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-f580-session-controls-home-b.json": "a085f27b494a316923afee4b3f67e3b06e2ed040a20bfd6ad53519653250a9f4",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-f580-session-controls-home-b.json": "d6b7f566e30e743b1775e036c052385393f2d0bb8660471852b140226f44400a",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f580-session-controls-home-b.json": "9a7f677cf1923bceb14036ea6e1abc9c60b3214013db3c3b98c30a962673054f",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-f580-session-controls-home-b.json": "880c4874f38e53e6bdebbc1a0fd6bb9f0f17c6cc333c91761582f0901a6f6123",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-f580-session-controls-home-b.json": "18555055bfa64931a56722ad2b8dbd92121e6ab7c750e2a3f28e98c685939c0b",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-f580-session-controls-home-b.json": "3e11fc08cc0df6df3fc628475e3fb6dc26d6a7948aed96b2727a02f34c006d1d",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-f580-session-controls-home-b.json": "d1a8a07bcafa5a4628c4b44b490b1441a54d819eb7ebde0f4a77dd410bb1645e",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-f580-session-controls-home-b.json": "ce69c770f37706cc208ad555ead13567f562a9c7891f159d55730d44e4e57e9a"
+  },
+  "isolation": "4G/offscreen/hiddenCUDA/privatepreferences; unrelated ConsolePanel.refresh_ai_usage replaced only in harness to avoid hosted allowance startup; inert preview planner produces fixed version2 plan, no backend/scientific inference.",
+  "limits": "Actual localized UI consumers; not a global network/native/human/scientific/fullCI/release acceptance claim."
+}
