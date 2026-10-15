@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "ko",
-  "review_kind": "AI technical authoring and self-review; independent peer pending, no human/native signoff",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
   "review": "Exact setting/request/candidate diagnostic and factual completed-download log. Preserve all placeholders, opaque version display and literal sha256; no model-quality or available-download promise.",
   "records": [
     {
@@ -18,5 +18,6 @@
       "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
       "translation": "{setting}: 여기에서 {requested}을(를) 찾지 못해 모델 카탈로그의 모델 {key} {version}(sha256 {sha256})을(를) {path}에 다운로드했습니다."
     }
-  ]
+  ],
+  "independent_peer": "Original coordinator exact source/context/target review; portable evidence in features/data/702_resolution_context_2026-10-15."
 }

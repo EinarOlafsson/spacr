@@ -15,6 +15,7 @@ def checkpoint(tmp_path, monkeypatch):
            'kind': 'classifier', 'version': '001',
            'sha256': hashlib.sha256(payload).hexdigest()}
     monkeypatch.setattr(zoo, 'BUNDLED_REMOTE_MODELS', [raw])
+    monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [zoo._entry_from_mapping(raw)])
     requested = str(tmp_path / 'old-laptop' / 'unrelated-local-name.joblib')
     record = zoo._model_reference_from_record(requested, raw)
     settings = {'real_object_classifier': requested,
@@ -24,8 +25,8 @@ def checkpoint(tmp_path, monkeypatch):
     effective.write_bytes(payload)
     acquired = []
 
-    def acquire(entry, *, download=True):
-        acquired.append((entry.key, entry.version, download))
+    def acquire(entry, *, download=True, **context):
+        acquired.append((entry.key, entry.version, download, context))
         return effective
 
     monkeypatch.setattr(zoo, '_ensure_catalogue_model_file', acquire)
@@ -52,7 +53,9 @@ def test_actual_filter_loads_exact_acquired_file_without_rewriting_original_sett
                         lambda path: loaded.append(str(path)) or {})
     assert classifier._drop_unreal_objects(str(tmp_path), settings) == {}
     assert loaded == [str(effective)]
-    assert acquired == [('real-object-v001', '001', True)]
+    assert acquired == [('real-object-v001', '001', True, {
+        'setting': 'real_object_classifier',
+        'requested': settings['real_object_classifier'], 'publisher_version': '001'})]
     assert settings == before
 
 
@@ -87,3 +90,19 @@ def test_unpinned_existing_file_and_directory_keep_original_loader_contract(
     assert loaded == [str(path)] and acquired == []
     captured = zoo._capture_model_metadata('mask', settings)
     assert captured == settings
+
+
+@pytest.mark.parametrize('requested', ['/old-laptop/unknown.joblib', r'C:\old-laptop\unknown.joblib'])
+def test_unknown_file_classifier_names_original_setting_and_compatible_candidates(
+        checkpoint, requested, monkeypatch):
+    import joblib
+
+    _, raw, _, acquired = checkpoint
+    monkeypatch.setattr(joblib, 'load', lambda path: pytest.fail('deserialized unknown file'))
+    with pytest.raises(ValueError) as error:
+        classifier._real_classifier_bundles(requested)
+    message = str(error.value)
+    assert 'real_object_classifier' in message
+    assert repr(requested) in message
+    assert raw['key'] in message and raw['sha256'] in message
+    assert acquired == []

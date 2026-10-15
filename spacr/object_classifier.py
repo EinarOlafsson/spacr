@@ -711,10 +711,12 @@ def _real_classifier_bundles(location: str) -> Dict[str, Dict[str, Any]]:
     """
     import joblib
 
-    location = os.path.expanduser(str(location))
+    requested = str(location)
+    location = os.path.expanduser(requested)
     if not os.path.exists(location):
         from .model_zoo import _ensure_model_file
-        downloaded = _ensure_model_file(location, kinds=("classifier",))
+        downloaded = _ensure_model_file(
+            requested, kinds=("classifier",), setting="real_object_classifier")
         if downloaded is not None:
             location = str(downloaded)
     if os.path.isdir(location):
@@ -723,7 +725,10 @@ def _real_classifier_bundles(location: str) -> Dict[str, Dict[str, Any]]:
     elif os.path.isfile(location):
         paths = [location]
     else:
-        raise ValueError(f"real_object_classifier not found: {location}")
+        from .model_zoo import _model_resolution_context
+
+        raise ValueError(_model_resolution_context(
+            requested, setting="real_object_classifier", kinds=("classifier",)))
     bundles = {}
     for path in paths:
         bundle = joblib.load(path)

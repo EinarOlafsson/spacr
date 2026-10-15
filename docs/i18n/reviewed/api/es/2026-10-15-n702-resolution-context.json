@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "language": "es",
-  "review_kind": "AI technical authoring and self-review; independent peer pending, no human/native signoff",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
   "source_file_sha256": {
-    "spacr/deep_spacr.py": "ff339c2b2477d4f14e25a6786f904a610396da43d0f8616904f84a5b53a0837a"
+    "spacr/deep_spacr.py": "97d9bc1e5898ff468901998de8f44533158491424d695ffab45c63f385efee6c"
   },
   "records": [
     {
@@ -13,7 +13,8 @@
       "context": "if ``custom_model_path`` or ``resume_checkpoint`` names neither an existing checkpoint nor an exact compatible model-zoo identity.",
       "context_sha256": "ebbc10861a150d010e85448b7937f3ae9861c73d9c3b7c12eabbc9ef08ee8460",
       "translation": "si ``custom_model_path`` o ``resume_checkpoint`` no identifica ni un punto de control existente ni una identidad exacta compatible del catálogo de modelos.",
-      "review_basis": "Exact-source AI technical translation and self-review of missing initialization model refusal. Neither an existing checkpoint nor exact compatible zoo identity; original code identifiers retained. Independent peer pending; no human/native signoff."
+      "review_basis": "Exact-source AI technical translation and self-review of missing initialization model refusal. Neither an existing checkpoint nor exact compatible zoo identity; original code identifiers retained. Independent Original coordinator peer accepted; no human/native signoff."
     }
-  ]
+  ],
+  "independent_peer": "Original coordinator exact source/context/target review; portable evidence in features/data/702_resolution_context_2026-10-15."
 }
