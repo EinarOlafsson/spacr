@@ -16,8 +16,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PySide6.QtCore import QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QPainter, QPalette, QPen, QPixmap
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter, QPalette, QPen, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -42,6 +42,16 @@ MAX_CELL_PX = 520
 #: a wide figure simply sits shorter in its slot, which is what a small
 #: multiple should do.
 CELL_SPAN = 1
+
+
+def _strong_focus_style():
+    """Resolve the optional custom-control outline when its style changes."""
+    from ..preferences import get_strong_focus, resolve_effective_theme
+    from ..theme import FOCUS_RING_PX, focus_ring_colour
+
+    if not get_strong_focus():
+        return None
+    return FOCUS_RING_PX, focus_ring_colour(resolve_effective_theme())
 
 
 def _letter_for(position: int) -> str:
@@ -322,6 +332,7 @@ class _FigureCell(QFrame):
         self.letter = letter
         self.live_key = live_key
         self._pixmap = pixmap
+        self._strong_focus_ring = _strong_focus_style()
         self.setFocusPolicy(Qt.StrongFocus)
         self.setAccessibleName(str(title or letter.upper() or live_key or index + 1))
         #: The last width :meth:`fit_to` was given, so the cell can be drawn
@@ -411,11 +422,20 @@ class _FigureCell(QFrame):
         if self.hasFocus():
             painter = QPainter(self)
             try:
-                painter.setPen(QPen(self.palette().color(QPalette.Highlight), 2))
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
                 painter.setBrush(Qt.NoBrush)
                 painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
             finally:
                 painter.end()
+
+    def changeEvent(self, event):
+        """Refresh the cached outline when the live preference style changes."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
 
     def keyPressEvent(self, event):
         """Open the focused tile with an unmodified activation key.

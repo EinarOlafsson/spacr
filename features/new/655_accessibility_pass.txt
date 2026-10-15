@@ -305,3 +305,26 @@ WHAT IS LEFT
   implemented and left unchanged. This closes a concrete visible-focus gap,
   not broader native, audible/human, macOS/Windows or tutorial acceptance.
   Proof: data/655_clear_control_focus_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B stronger-focus preference reaches custom figure controls
+  On current integration 57ba9006396 the documented stronger-focus preference
+  left all three owned custom controls unchanged: figure-grid cells, montage
+  crops and Clear figures. Nine actual pixel cases failed across Dark, Light
+  and High contrast; three no-paint-preference-read controls passed.
+  The controls now reuse FOCUS_RING_PX and focus_ring_colour through one private
+  lazy helper, caching the result at construction and refreshing on Qt style/
+  palette changes. Already-open controls acquire the existing three-pixel,
+  contrast-checked outline when the preference is enabled and recover their
+  exact ordinary rendering when disabled. No new store read enters painting.
+  Crops retain a single ring, replacing their ordinary border only while
+  focused with stronger focus enabled; inner content, candidate identity and
+  unfocused/hover behavior remain unchanged. No captions, public API arrival,
+  shared preference/theme source or native-control styling changes.
+  Targeted: 12 passed in 2.53 s. Final owning cohort: 68 passed in 12.06 s;
+  actual wall 14.77 s, peak RSS 667232 KiB, no swap, Qt 6.12/Linux offscreen,
+  2G hard cap, one computational thread, GPU hidden under the coordinator's
+  measured light-run exception. Real on/off changes occur after showing and
+  focusing the same controls; existing key/mouse/provenance/data/flash checks
+  pass. This closes the identified explicit preference inconsistency, not
+  every possible custom control or the remaining external N655 gates.
+  Proof: data/655_custom_strong_focus_2026-10-15/receipt.json.

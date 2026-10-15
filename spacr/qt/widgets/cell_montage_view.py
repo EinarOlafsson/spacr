@@ -29,7 +29,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
@@ -1011,6 +1011,9 @@ class _Thumb(QLabel):
             colour and it is theme-aware.
         """
         super().__init__(parent)
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
         self._pixmap = pixmap
         self.setToolTip(tooltip)
         self.setAccessibleName(tooltip)
@@ -1051,18 +1054,33 @@ class _Thumb(QLabel):
 
         :param event: the paint event.
         """
-        from .tile_chrome import paint_tile
+        from .tile_chrome import paint_tile, stroke_ring
 
         ring, hover = self._colours()
+        strong = self._strong_focus_ring if self.hasFocus() else None
         painter = QPainter(self)
         try:
             paint_tile(painter, float(self.width()), float(self.height()),
                        self._pixmap,
-                       border_colour=(hover if self._hovered or self.hasFocus()
+                       border_colour=("" if strong else
+                                      hover if self._hovered or self.hasFocus()
                                       else ring),
                        ring_colour="", current=False)
+            if strong:
+                width, colour = strong
+                stroke_ring(painter, colour, width, width / 2,
+                            float(self.width()), float(self.height()))
         finally:
             painter.end()
+
+    def changeEvent(self, event):
+        """Refresh the cached outline without reading preferences on paint."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
 
 
     def enterEvent(self, event):            # noqa: N802 - Qt naming

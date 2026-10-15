@@ -725,6 +725,9 @@ class _ClearFiguresLabel(QLabel):
     def __init__(self, parent=None):
         """Build the word as a focusable control, not a label."""
         super().__init__(tr("Clear figures"), parent)
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
         self.setObjectName("FigureQueueClear")
         self.setCursor(Qt.PointingHandCursor)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -754,11 +757,22 @@ class _ClearFiguresLabel(QLabel):
         if self.hasFocus():
             painter = QPainter(self)
             try:
-                painter.setPen(QPen(self.palette().color(QPalette.Highlight), 2))
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
                 painter.setBrush(Qt.NoBrush)
                 painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
             finally:
                 painter.end()
+
+    def changeEvent(self, event):
+        """Follow the live outline preference while keeping painting cheap."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
 
     def focusInEvent(self, event):
         """Repaint when the clear control gains keyboard focus."""
