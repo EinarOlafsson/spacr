@@ -1,0 +1,16 @@
+{
+  "current_pin": "4abbd96053f6ac9796bf0b171d858cc8a03fe4a1",
+  "helpers": {
+    "_prepare_unmixing": {
+      "approved_pin": "417e1dd3700",
+      "exact_source_segment_unchanged": true,
+      "sha256": "e38760a91737fca9d684008d044421a5ef5e8e13ad8b30ef1cd4bd5bcba26408"
+    },
+    "_prepare_measure_unmixing": {
+      "approved_pin": "417e1dd3700",
+      "exact_source_segment_unchanged": true,
+      "sha256": "5aae962d1ccfc2c09b024c1b3ee46a8f56ec2d424ee288455a3345544b44c821"
+    }
+  },
+  "nine_exact_review_files_match_peer_adoption": true
+}

@@ -1,0 +1,24 @@
+{
+  "peer_discovered_candidate_gap": "np.array(False/True) has ndim0 but is not isinstance(bool,np.bool_); initial a39guard incorrectly accepted it.",
+  "initial_candidate_source_pin": "a39c1844351",
+  "actual_gap_baseline": {
+    "failed": 4,
+    "deselected": 46,
+    "seconds": 1.65
+  },
+  "final_fix": "Check ndim0, unbox ndarray.item(), then reject boolean/complex/nested ndarray and validate exact scalar integrality.",
+  "final_patch_sha256": "4bf930fe95b7d3801e9d311a1a9759cac2b0851467e638567ceb2b63be6a4285",
+  "final_source_sha256": "4b7e4d9e5385cdbbf67224bb0af1f6625f5611bb6b5131ec34d1e38fafe3285d",
+  "limited_owning": {
+    "passed": 15,
+    "seconds": 0.69,
+    "new_zero_dimensional_bool_refusals": 4,
+    "existing_positive_physical_order_and_integral_scalar_cases": 6,
+    "new_zero_dimensional_integral_float_string_cases": 2,
+    "existing_actual_measure_fraction_bool_duplicate_cases": 3
+  },
+  "unchanged_42_not_repeated": true,
+  "nine_translation_target_records_unchanged": true,
+  "locale_callbacks": "9actual final-source callbacks remain NOT RUN pending owner extractor/catalog.",
+  "limits": "42initial candidate checks and15final affected checks retain their exact source scopes; no42full rerun or biological/wholefeature/globalCI claim."
+}
