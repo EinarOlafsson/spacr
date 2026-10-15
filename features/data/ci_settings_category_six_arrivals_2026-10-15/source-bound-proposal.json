@@ -1,0 +1,118 @@
+{
+  "status": "READ_ONLY_STALE_NAMED_DECLARATION_FIXTURE",
+  "source_public": "56daca881d8eb8a6ff56bae384a45c14c412a723",
+  "settings_sha256": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5",
+  "test_sha256": "eabd16b6ba7beea78b37f4c5b12adf897fc9e55a7a70cf3b5c7c904cc709dd84",
+  "exact_missing_keys": {
+    "counterfactual_checkpoint": {
+      "feature": 564,
+      "expected_types": {
+        "line": 3933,
+        "source": "str"
+      },
+      "tooltips": {
+        "line": 5388,
+        "source": "'(str) - Optional existing local diffusion checkpoint to reuse without training. Requires the diffusion generator and its expected SHA-256. The saved architecture, channels, preprocessing, classifier and condition identities must match the current run. Missing, legacy or incompatible metadata is refused; spaCR does not train a replacement. Blank keeps the existing training route. Default blank.'"
+      },
+      "default": {
+        "line": 6797,
+        "source": "''"
+      },
+      "alpha_registered": true,
+      "category": "Activation Maps"
+    },
+    "counterfactual_checkpoint_sha256": {
+      "feature": 564,
+      "expected_types": {
+        "line": 3934,
+        "source": "str"
+      },
+      "tooltips": {
+        "line": 5389,
+        "source": "'(str) - Expected 64-character hexadecimal SHA-256 of the selected local diffusion checkpoint. Required when a checkpoint is selected; ignored when the checkpoint path is blank. A matching checksum identifies the file but does not establish biological accuracy or independent validation. Default blank.'"
+      },
+      "default": {
+        "line": 6798,
+        "source": "''"
+      },
+      "alpha_registered": true,
+      "category": "Activation Maps"
+    },
+    "intensity_calibration_beads": {
+      "feature": 580,
+      "expected_types": {
+        "line": 3707,
+        "source": "(str, type(None))"
+      },
+      "tooltips": {
+        "line": 5036,
+        "source": "'(str or None) - Optional local folder of bead or reference-well images, replacing reference images inside the measured folder. Filenames keep the plate, well and field identity; selected reference wells still apply. NPY files use the merged channel and mask layout. TIFF files contain only intensity channels with explicit spatial and channel axes. No time or ambiguous page-axis interpretation is guessed. Default blank.'"
+      },
+      "default": {
+        "line": 1799,
+        "source": "''"
+      },
+      "alpha_registered": true,
+      "category": "Intensity Calibration \u03b1"
+    },
+    "intensity_calibration_reference_session": {
+      "feature": 580,
+      "expected_types": {
+        "line": 3708,
+        "source": "(str, type(None))"
+      },
+      "tooltips": {
+        "line": 5037,
+        "source": "'(str or None) - Exact acquisition session identifier to use as the gain reference. Blank uses the first session by name, or the sole session on the explicitly selected reference plate. If both plate and session are selected they must agree. A plate assigned to multiple sessions requires this choice. Default blank.'"
+      },
+      "default": {
+        "line": 1800,
+        "source": "''"
+      },
+      "alpha_registered": true,
+      "category": "Intensity Calibration \u03b1"
+    },
+    "intensity_calibration_session_column": {
+      "feature": 580,
+      "expected_types": {
+        "line": 3706,
+        "source": "(str, type(None))"
+      },
+      "tooltips": {
+        "line": 5035,
+        "source": "'(str) - Exact column name in the sessions CSV that identifies an acquisition session. All fields in a session share reference gains and must use compatible measurement intensity planes and working units. Default session.'"
+      },
+      "default": {
+        "line": 1798,
+        "source": "'session'"
+      },
+      "alpha_registered": true,
+      "category": "Intensity Calibration \u03b1"
+    },
+    "intensity_calibration_sessions": {
+      "feature": 580,
+      "expected_types": {
+        "line": 3705,
+        "source": "(str, type(None))"
+      },
+      "tooltips": {
+        "line": 5034,
+        "source": "'(str or None) - Optional local CSV assigning acquisition sessions independently of plates. Use an exact filename column, including each merged NPY or selected reference TIFF/NPY suffix, and the selected session column. Every current sample and reference file must have one unique nonblank assignment. Blank keeps one session per plate. Default blank.'"
+      },
+      "default": {
+        "line": 1797,
+        "source": "''"
+      },
+      "alpha_registered": true,
+      "category": "Intensity Calibration \u03b1"
+    }
+  },
+  "source_provenance": {
+    "F564": "9bfaea590149cfcff49e70592c6de9b5c3a5eed5",
+    "F580": "b1aa37fd02f2228493f175842c61455ea1132447"
+  },
+  "proposal": "TEST ONLY add exactly these6 named keys to existing KEYS_ADDED_BY_REGROUP alongside F564/F580 entries with immutable source references. Preserve KEYS_BEFORE_REGROUP, retirement sets, every test body and containment predicate, no ceiling/digest/registry edits.",
+  "policy_basis": "Existing explicit doc says extending named additions is allowed deliberately; it is not an anonymous numerical ceiling. All6 keys are actually declared with types/defaults/help/category/alpha registration.",
+  "not_run": "No imports/tests/collector/models/network.",
+  "required_check": "After root approval, baseline only original test_every_added_key_is_declared, then same original node once after exact6literal additions, capped Original lock."
+}
