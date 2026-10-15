@@ -1,0 +1,11 @@
+{
+  "commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+  "version": "1.5.1.4",
+  "module": "home",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorial-current/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": true,
+  "selected_scenes": "00_home,home_module_mask,home_module_measure,home_module_annotate,home_module_map_barcodes,home_module_regression,home_module_foreign,home_module_run_compare,home_module_power,home_module_make_masks,home_module_align,home_module_umap,home_module_graph_builder,06_mask_host,06b_mask_settings,06c_mask_actions,14_resize_panels,10_home_column,11_column_folded,08_help_search,12_command_palette"
+}
