@@ -7424,11 +7424,16 @@ def _viability_manual(value):
             out.append(None)
             continue
         try:
-            out.append(float(item))
+            number = float(item)
         except (TypeError, ValueError):
             raise ValueError(
                 f"Setting: viability_thresholds entries must be numbers or "
                 f"None; got {item!r}.") from None
+        if not np.isfinite(number):
+            from .qt.i18n import tr
+
+            raise ValueError(tr("Manual viability thresholds must be finite numbers or automatic."))
+        out.append(number)
     return out[0], out[1]
 
 
@@ -8113,6 +8118,8 @@ def _classify_viability(db_path, settings, *, plot=None):
     """
     from .tabular import database_tables, read_table, write_database
 
+    manual_dead, manual_live = _viability_manual(
+        settings.get('viability_thresholds'))
     tables = database_tables(db_path)
     if 'nucleus' in tables:
         unit = 'nucleus'
@@ -8128,8 +8135,6 @@ def _classify_viability(db_path, settings, *, plot=None):
     live_channel = settings.get('viability_live_channel')
     dead_channel = None if dead_channel in (None, '') else int(dead_channel)
     live_channel = None if live_channel in (None, '') else int(live_channel)
-    manual_dead, manual_live = _viability_manual(
-        settings.get('viability_thresholds'))
     method = ('stain' if dead_channel is not None or live_channel is not None
               else 'morphology')
     table = objects[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',

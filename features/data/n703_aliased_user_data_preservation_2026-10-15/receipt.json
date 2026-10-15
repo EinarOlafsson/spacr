@@ -1,0 +1,17 @@
+{
+  "base": "4eb884fc087f85d1bf06a1fdebbd867f50aca920",
+  "final_source_sha256": "28f22e8ef3acbaa66f31618612f53780c93c3df8f6fe0d6d13de9a045e06d5a9",
+  "test_sha256": "b406e6daa10b010aefcf8a0132ec25a9343b43961fd109d2bf3b669d8e90e9b7",
+  "baseline": "Original native disposable baseline6FAIL2PASS0.83s actualexit1: configured alias/parent aliases into oldvenv lose user bytes, final lease removes empty aliased user root, moved+retargeted data lost. External target/broken-alias controls pass.",
+  "partial_fix": "Approved userdata expansion:190PASS10FAIL3.80s exit1;1new real installer-parent alias failure and9missing sparse committed locale inputs. No caption failure was claimed.",
+  "locale_closure": "Materialized existing committed review files only;9prior failed locale cases PASS1.48s exit0, production source unchanged.",
+  "final_source_acceptance": "60PASS1.37s actualexit0,9unchanged locale cases explicitly deselected.10new native symlink/relative-path/moved/broken/empty-root cases +30modeled released-layout removal +5shared/userdata guards +15native lease/removal contracts.",
+  "historical_separation": "Prior190+locale9 are separate evidence on the partial source; not added to finalsource60. Original failures retained.",
+  "behavior": "Retain configured spellings plus resolved targets. Locally map already-preserved paths inside the physical installation root into the spelling traversed for retirement. Original keep paths remain; global containment/deletion, symlink unlink, purge and record identity semantics unchanged.",
+  "source_context": "All original class/function/nested prose, signatures and tr calls unchanged; no helper/module/caption/import added, no generator needed. Initial cleanup-only import proved stdlib-only/no Qt/numpy/torch.",
+  "limits": [
+    "Actual Linux filesystem/process tests; Windows/macOS layouts are modeled, not native acceptance.",
+    "Validation is current-path lookup, not atomic protection against a noncooperating external alias retarget during removal.",
+    "Not wholeN703 or installer/update/native/fullCI/release acceptance."
+  ]
+}

@@ -740,3 +740,23 @@ private venv/pip subprocesses use tiny offline wheels; uv/macOS is modeled.
 No network/live install, native macOS/Windows, fullCI or wholeN703 acceptance.
 Noncooperating external mutation that ignores the lease is not excluded.
 Evidence: features/data/n703_actual_runtime_floor_2026-10-15/.
+
+2026-10-15 — Retirement preserves user data behind native path aliases.
+Actual disposable baseline6FAIL/2PASS0.83s reproduced data loss when configured
+SPACR_HOME/HF_HOME aliases pointed into an old venv, including parent aliases
+and moved/retargeted locations. Final lease cleanup also deleted an empty
+aliased user-data root. Configured spellings are now retained together with
+resolved targets; a local kept-path mapping also handles an independently
+aliased installation parent. Global containment/deletion, symlink unlink and
+purge semantics remain unchanged. No live environment/user data was touched.
+The first partial repair had190PASS/10FAIL: one genuine installation-parent
+alias case plus9missing sparse locale inputs. Those9pass1.48s after committed
+inputs were materialized, without source edits. The original failures remain.
+Final frozen-source60PASS1.37s:10new native path/data cases,30modeled released
+layout removals,5shared/user-data guards and15lease/removal contracts. Historical
+190+9 are not inflated into the final-source total. All original API prose,
+signatures and captions are unchanged; no generator/collector was needed.
+Evidence: features/data/n703_aliased_user_data_preservation_2026-10-15/.
+This uses actual Linux symlinks/processes and modeled other-OS layouts, not
+native Windows/macOS or whole N703/fullCI acceptance. Concurrent external
+retargeting that ignores the lease is not atomically excluded.
