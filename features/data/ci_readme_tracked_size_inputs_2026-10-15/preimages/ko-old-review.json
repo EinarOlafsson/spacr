@@ -1,0 +1,55 @@
+{
+    "schema": 1,
+    "language": "ko",
+    "review_method": "N678 factual-language revision 2026-10-10: English blocks rewritten to match the implementation (fold counts per model, publish_model returns the row, safe-mode preferences persist, metric definitions); translations written and checked by Claude against the revised meaning, preserving literals, numbers and markup. No native-speaker signoff.",
+    "records": [
+        {
+            "label": "clone-size-without-lazy-fetch-claim",
+            "source_sha256": "f4badfffeb2ab569b1d3adb28ec01c06a1b06c60df773764b7db86ba8db29bb7",
+            "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch.",
+            "translation": "nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``\\ 을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 3416 MB를 차지합니다(2026-10-08 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."
+        },
+        {
+            "label": "precision-recall-definitions",
+            "source_sha256": "89a9bbd3eb1eb0d9a49db7e669a771f8e15cc40664a0d0e5d97eef0387c13768",
+            "source": "**Precision** is how many of the objects a model reported are real; **recall** is how many of the real objects it found. Low precision means false detections; low recall means missed objects.",
+            "translation": "**Precision**\\ (정밀도)은 모델이 보고한 객체 중 실제 객체가 몇 개인지를, **recall**\\ (재현율)은 실제 객체 중 모델이 찾은 객체가 몇 개인지를 나타냅니다. 정밀도가 낮으면 잘못된 검출이 많고, 재현율이 낮으면 놓친 객체가 많습니다."
+        },
+        {
+            "label": "f1-harmonic-mean",
+            "source_sha256": "c492936dc0d2fca2e2e266ae65ee4d2608a0cf8e6ea6d5007c2010cea53c62f9",
+            "source": "**F1** is their harmonic mean. Either alone can be near-perfect: precision for a model that reports one unmistakable plaque, recall for one that reports every dark blob. Which error matters more depends on the assay: the plaque model was accepted at precision 0.858 with recall 0.811 over an earlier round at 0.939 and 0.631.",
+            "translation": "**F1**\\ 은 두 값의 조화 평균입니다. 각각은 단독으로 거의 완벽할 수 있습니다. 확실한 플라크 하나만 보고하는 모델의 정밀도, 어두운 얼룩을 모두 보고하는 모델의 재현율이 그렇습니다. 어느 오류가 더 중요한지는 분석에 따라 다릅니다. 플라크 모델은 정밀도 0.858, 재현율 0.811로, 0.939와 0.631이었던 이전 버전 대신 채택되었습니다."
+        },
+        {
+            "label": "map-iou-definitions",
+            "source_sha256": "15df5f74dd4eaac903950e3cd255456a643f9902fa43240a8526942ff2243712",
+            "source": "**mAP50** and **mAP50-95** score the well detector: mean average precision at IoU 0.5, and its average over ten IoU thresholds from 0.5 to 0.95, which also penalizes loosely placed boxes.",
+            "translation": "**mAP50**\\ 과 **mAP50-95**\\ 는 웰 검출기를 평가합니다. IoU 0.5에서의 평균 정밀도(mean average precision)와, 0.5부터 0.95까지 열 개의 IoU 임계값에 대한 그 평균이며, 후자는 상자가 부정확하게 놓인 경우에도 점수를 낮춥니다."
+        },
+        {
+            "label": "cross-validation-folds-per-model",
+            "source_sha256": "23ded58c491de0d5d4a9c6effdf637e665d84a9bc0b97d2bae28dc7f4276f1a3",
+            "source": "**Cross-validated**, with an **SD**, gives the mean and standard deviation over folds: three for ``toxoplasma_plaque_v1``, five for ``toxoplasma_pv_v2``. One split can mislead: the literature figure of ``toxoplasma_plaque_v1`` is 0.834 on a single 19-well split and 0.806 across all three.",
+            "translation": "**Cross-validated**\\ (교차 검증)는 **SD**\\ 와 함께 폴드에 대한 평균과 표준편차를 나타냅니다. ``toxoplasma_plaque_v1``\\ 은 세 개, ``toxoplasma_pv_v2``\\ 는 다섯 개의 폴드를 사용합니다. 단일 분할은 오해를 부를 수 있습니다. ``toxoplasma_plaque_v1``\\ 의 문헌 값은 19개 웰로 된 단일 분할에서 0.834, 세 분할 전체에서 0.806입니다."
+        },
+        {
+            "label": "publish-model-returns-row",
+            "source_sha256": "b63375e80f0eecd4d0bc16b833c801062a6f3061bde49f352e88b4511a0dcaaf",
+            "source": "Models are hosted on each author's own Hugging Face account; ``spacr.model_zoo.publish_model`` uploads one and returns the catalogue row to add.",
+            "translation": "모델은 각 작성자의 Hugging Face 계정에 호스팅됩니다. ``spacr.model_zoo.publish_model``\\ 은 모델을 업로드하고 카탈로그에 추가할 행을 반환합니다."
+        },
+        {
+            "label": "safespacr-preferences-persist",
+            "source_sha256": "1a199f5d29b78cac2ed874be9d25af4f6662792442901bc233c95c4cfe906d01",
+            "source": "``safespacr`` reads every preference as its default and forces the backdrop, animations, verbose logging and preloading off. Use it when a saved preference breaks the launch. Preferences saved in safe mode are written normally and persist.",
+            "translation": "``safespacr``\\ 는 모든 환경설정을 기본값으로 읽고 배경, 애니메이션, 상세 로깅, 미리 불러오기를 끕니다. 저장된 환경설정 때문에 프로그램이 시작되지 않을 때 사용하세요. 안전 모드에서 저장한 환경설정은 평소처럼 기록되며 유지됩니다."
+        },
+        {
+            "label": "validate-lists-problems",
+            "source_sha256": "406586010b7cc46feedc5b38ecd925f5911ebf5981187e718e8625c94fd4d4af",
+            "source": "``validate`` reads the same settings the run would and lists each problem, such as a missing setting or a path that does not exist, with a fix.",
+            "translation": "``validate``\\ 는 실행 시 읽을 설정과 같은 설정을 읽고, 누락된 설정이나 존재하지 않는 경로 같은 각 문제를 해결 방법과 함께 나열합니다."
+        }
+    ]
+}

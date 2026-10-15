@@ -1,0 +1,229 @@
+{
+  "status": "INPUTS ONLY; no generator/test/collector executed",
+  "scope": "Generic N43 dated checkout-size factual maintenance; no N704 implementation/panel/link/test/item/main changes",
+  "baseline": "81ffd9fd0306a17b5a4b04287c693e685e22a00d",
+  "measurement": {
+    "method": "git ls-tree -r -l -z BASE; sum regular tracked blob sizes; rounded MB label remains existing binary MiB convention",
+    "tracked_files": 40769,
+    "blob_bytes": 4883166882,
+    "divisor": 1048576,
+    "MiB": 4656.950838088989,
+    "rounded_display": "4657",
+    "measurement_date": "2026-10-15",
+    "tree_metadata_sha256": "4cd2129c5e5e0e27d233dd48b9104cc1589aac8a541863d36a488edeefce4d6c",
+    "not_a_transfer_history_or_physical_sparse_checkout_measurement": true
+  },
+  "old_source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch.",
+  "old_source_sha256": "f4badfffeb2ab569b1d3adb28ec01c06a1b06c60df773764b7db86ba8db29bb7",
+  "new_source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 4657 MB checkout (measured 2026-10-15), excluding Git history. Download sizes and times vary with the branch.",
+  "new_source_sha256": "98b2e294b49582ecddae59d3a1dc133796258236be63963cdb2908a2cc25c704",
+  "exact_token_changes": {
+    "3416": "4657",
+    "2026-10-08": "2026-10-15"
+  },
+  "paths": [
+    {
+      "path": "packaging/readme_source.yaml",
+      "block_index": 50,
+      "before_sha256": "ff7fa73b1b98a7e3bb28b43c3212f6ee9f52ed8ea2af0583f35a52d16e955f15",
+      "after_sha256": "ff6f6b3fbf5d40cf37285de6b48f63a94e90730886ee23932d4e1d5181c8483b",
+      "old_paragraph": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch.",
+      "new_paragraph": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 4657 MB checkout (measured 2026-10-15), excluding Git history. Download sizes and times vary with the branch."
+    },
+    {
+      "path": "docs/i18n/readme/source/sv.yaml",
+      "block_index": 50,
+      "before_sha256": "a8a142d01030f78d1e663893a0cff96df5259c434262b6d5723c8b9b8d34ef12",
+      "after_sha256": "d9296a5e0be12849bbff6f6fb8fe833f6c09aba3eae622ee004161435a594705",
+      "old_paragraph": "Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 3416 MB (uppmätt 2026-10-08), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.",
+      "new_paragraph": "Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 4657 MB (uppmätt 2026-10-15), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."
+    },
+    {
+      "path": "docs/i18n/readme/source/de.yaml",
+      "block_index": 50,
+      "before_sha256": "628a9367ee9ddd80078769b9fcc40a58dffcacf846dcfc2985eb9e6ee02cb041",
+      "after_sha256": "676c946d3266bfe915d09904655a38e8b79394ab6b8f9139006c0c0825c8c119",
+      "old_paragraph": "Der vollständige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 3416 MB (gemessen am 2026-10-08), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab.",
+      "new_paragraph": "Der vollständige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 4657 MB (gemessen am 2026-10-15), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."
+    },
+    {
+      "path": "docs/i18n/readme/source/es.yaml",
+      "block_index": 50,
+      "before_sha256": "7011222de041dd5e72ebf76c8a1cf816cf82e6360ac1109065cb8d10d69763c2",
+      "after_sha256": "7a5a77d27f53c240770519de1f742ab1d75a5440f2b4f42c9d5d0ae41afdfe17",
+      "old_paragraph": "El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por lo que no se midió un total de descarga. Los archivos versionados de nightly ocupan 3416 MB en la copia de trabajo (medidos el 2026-10-08), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama.",
+      "new_paragraph": "El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por lo que no se midió un total de descarga. Los archivos versionados de nightly ocupan 4657 MB en la copia de trabajo (medidos el 2026-10-15), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama."
+    },
+    {
+      "path": "docs/i18n/readme/source/zh_CN.yaml",
+      "block_index": 50,
+      "before_sha256": "a006b9920a47add627511fb4e2102caaf1b52caeed4ce362805b3c8dff13d0c5",
+      "after_sha256": "0549a44dd98403c9c08713ef310519c246525232328fb509db1a457ab10373b9",
+      "old_paragraph": "nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。",
+      "new_paragraph": "nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 4657 MB（2026-10-15 测得），不含 Git 历史。下载大小和耗时随分支而变化。"
+    },
+    {
+      "path": "docs/i18n/readme/source/fr.yaml",
+      "block_index": 50,
+      "before_sha256": "4236386b5ebc4eb309b4602d906660540d8c5d2fd74de20cad7d6b109c576eaf",
+      "after_sha256": "1ee6ea5cf144ac683696f5e6b6e311fcb0a7610f36120c1b06d42890c37d70d1",
+      "old_paragraph": "Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 3416 MB dans la copie de travail (mesurés le 2026-10-08), hors historique Git. La taille et la durée du téléchargement varient selon la branche.",
+      "new_paragraph": "Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 4657 MB dans la copie de travail (mesurés le 2026-10-15), hors historique Git. La taille et la durée du téléchargement varient selon la branche."
+    },
+    {
+      "path": "docs/i18n/readme/source/pt.yaml",
+      "block_index": 50,
+      "before_sha256": "aedc3ba16d7aecb0f7b9fe2400ed05082767c15c6114f78ad2f6cdd3eaa6e7f2",
+      "after_sha256": "f257c4070671f6348217caef7f59241c25241c1bc374b50cee616e9eecb33542",
+      "old_paragraph": "O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 3416 MB na cópia de trabalho (medidos em 2026-10-08), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo.",
+      "new_paragraph": "O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 4657 MB na cópia de trabalho (medidos em 2026-10-15), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."
+    },
+    {
+      "path": "docs/i18n/readme/source/hi.yaml",
+      "block_index": 50,
+      "before_sha256": "a451926ea53d1c9a24e7d7feaf13c2bbd185e51272db4e7dbea452bb6c7fea87",
+      "after_sha256": "c149332667e3be98c17b4487763312157aaefafb96cba757eebc35fef27d75cc",
+      "old_paragraph": "nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none`` जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 3416 MB लेती हैं (2026-10-08 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।",
+      "new_paragraph": "nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none`` जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 4657 MB लेती हैं (2026-10-15 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"
+    },
+    {
+      "path": "docs/i18n/readme/source/ko.yaml",
+      "block_index": 50,
+      "before_sha256": "1f092cf9d70257e022c27302c8fa7f714fce332b25d09a3169aad842080d0411",
+      "after_sha256": "e053c77bbd415834d6063c4e74065c6ecd4f0281fba275846c23cf2396cf3135",
+      "old_paragraph": "nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``\\ 을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 3416 MB를 차지합니다(2026-10-08 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다.",
+      "new_paragraph": "nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``\\ 을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 4657 MB를 차지합니다(2026-10-15 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."
+    },
+    {
+      "path": "docs/i18n/readme/source/is.yaml",
+      "block_index": 50,
+      "before_sha256": "5d88fe2a4d5f5002ce2a9e9264065864def209be19dd11950e2ea6b6b3454c8c",
+      "after_sha256": "6fdce07cdea766b16d4898e61bc45384e70fab0288f772aeee997150f7e7dab0",
+      "old_paragraph": "Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 3416 MB í vinnueintakinu (mælt 2026-10-08), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.",
+      "new_paragraph": "Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 4657 MB í vinnueintakinu (mælt 2026-10-15), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/sv/2026-10-15-tracked-checkout-size.json",
+      "sha256": "88e871cf409eb1378518ad7f833e1aad338e629aca2183527e15d876e8d64203",
+      "old_review_path": "docs/i18n/reviewed/readme/sv/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "8bf36402c674d2731a8a1b01edcef0836c968669927c19eb779bca3787870e34",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/de/2026-10-15-tracked-checkout-size.json",
+      "sha256": "9957997f87f862c7708a6f29609cf2771238ca4bc17a41cb6a2aa3db9f734df8",
+      "old_review_path": "docs/i18n/reviewed/readme/de/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "ee7a0f2b2ba9ee6ff58c603ca610726e17cf05b24c80c8e55cbf9096577ba926",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/es/2026-10-15-tracked-checkout-size.json",
+      "sha256": "8f232fc9e2b134cddb5ce180736767f72f22d65a37164c00e60d70b1cff19909",
+      "old_review_path": "docs/i18n/reviewed/readme/es/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "94f4b58ab3df4b9bb4e454b36f5405411eeb73bec36068ab3bfd1c89562a4a96",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/zh_CN/2026-10-15-tracked-checkout-size.json",
+      "sha256": "f0cbc5035eca451dc82dc18f4eb87ee966545dee708e411b411cc987bd5ddea3",
+      "old_review_path": "docs/i18n/reviewed/readme/zh_CN/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "66f66c5fb8fb7c19287e636493a00bda7cf6c7baccc7db2a2a7142f80c7673b9",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/fr/2026-10-15-tracked-checkout-size.json",
+      "sha256": "6e2ad5b52d14792dc8020de0a661749dc67db73c781ddac5f67deaf23cd8a679",
+      "old_review_path": "docs/i18n/reviewed/readme/fr/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "22a6e6add6f8fb846d30078134e8afe0ad6931014c97e88d9bfea56355239eda",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/pt/2026-10-15-tracked-checkout-size.json",
+      "sha256": "14cdf6041b0ea74f7463d27da7b8acc728c5e5929883af39baf99cba03029ee9",
+      "old_review_path": "docs/i18n/reviewed/readme/pt/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "58c51ccadd56a8a99ea433a6cd59cf7151d43b9e5ad284ffe4478af3c5366a00",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/hi/2026-10-15-tracked-checkout-size.json",
+      "sha256": "c55cdad6b1aacd5eec01569d54e094e7555521eedbac07c60db2af000199d925",
+      "old_review_path": "docs/i18n/reviewed/readme/hi/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "e655825c828011b4a4bdaf7f6870f30bcd5c377ba7cd7d136b7820d21a3a68ae",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/ko/2026-10-15-tracked-checkout-size.json",
+      "sha256": "c8108a65a65359ef285149d50a31233a9efbeef982b8892afe9c27f04b861628",
+      "old_review_path": "docs/i18n/reviewed/readme/ko/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "dc2893d0c9626de1a1e6bbd5576a1196479fe3ae28fc4ed1df8e7ab793ad4f2d",
+      "old_review_preserved": true
+    },
+    {
+      "path": "docs/i18n/reviewed/readme/is/2026-10-15-tracked-checkout-size.json",
+      "sha256": "c7f152ea14624735d335f1ded437a4d4144b8eb4c0284c1199e6eca06f93faef",
+      "old_review_path": "docs/i18n/reviewed/readme/is/2026-10-10-n678-factual-wording.json",
+      "old_review_sha256": "4c8f43eef0ae8295c2ad36384ea9b7bc9008626173c0c1377a460116064e2277",
+      "old_review_preserved": true
+    }
+  ],
+  "unchanged_historical_numbers": [
+    "9.25 GiB",
+    "2032 MB"
+  ],
+  "ordinary_old_review_retirement": "Keep old nine review files untouched; existing normal source-current partition retires their absent old source automatically.",
+  "normal_plan": [
+    "Run unchanged python tools/build_readme_images.py (all10languages), under common locks/cap/background, network forbidden/cached fonts only; no --refresh-generated.",
+    "Run unchanged python tools/build_readme_images.py --check.",
+    "Inspect only sourcebound panel/image/text/README regenerated delta and exact foreignpanel IDs/links/source hashes, retain all other original outputs.",
+    "Run original size CI node and retained-review/locale structure checks against real complete tracked workingtree; no sparse stat undercount or threshold change."
+  ],
+  "no_active_current_README_claim_found": "Current HANDOFF top maintainer notice: Nothing is claimed by Claude now; Codex may continue other work. Parent expressly authorized this shared factual lane.",
+  "finite_original_nodes": [
+    "tests/test_the_light_install_numbers_are_honest.py::test_the_checkout_size_in_the_readme_matches_the_tree",
+    "tests/test_documentation_i18n.py::test_old_readme_measurement_reviews_are_retained_without_becoming_current",
+    "tests/test_readme_is_built_from_images.py::test_each_translation_has_the_english_block_structure"
+  ],
+  "finite_expected_cases": 11,
+  "commands_after_peer_authorization": [
+    "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 8G /home/olafsson/anaconda3/envs/spacr/bin/python tools/build_readme_images.py",
+    "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 8G /home/olafsson/anaconda3/envs/spacr/bin/python tools/build_readme_images.py --check"
+  ],
+  "execution_boundary": "Background/both established locks/oneCPU/oneThread/core0/offline. Cached font assets and installed fontTools/brotli/uharfbuzz only; stop on missing dependency or attempted network. No --refresh-generated, no translation/model/fullAPI/runtimecollectors. Original11CIcases only after normal outputs/check pass. No execution yet.",
+  "final_input_tool_test_pins": {
+    "packaging/readme_source.yaml": "ff6f6b3fbf5d40cf37285de6b48f63a94e90730886ee23932d4e1d5181c8483b",
+    "docs/i18n/readme/source/sv.yaml": "d9296a5e0be12849bbff6f6fb8fe833f6c09aba3eae622ee004161435a594705",
+    "docs/i18n/readme/source/de.yaml": "676c946d3266bfe915d09904655a38e8b79394ab6b8f9139006c0c0825c8c119",
+    "docs/i18n/readme/source/es.yaml": "7a5a77d27f53c240770519de1f742ab1d75a5440f2b4f42c9d5d0ae41afdfe17",
+    "docs/i18n/readme/source/zh_CN.yaml": "0549a44dd98403c9c08713ef310519c246525232328fb509db1a457ab10373b9",
+    "docs/i18n/readme/source/fr.yaml": "1ee6ea5cf144ac683696f5e6b6e311fcb0a7610f36120c1b06d42890c37d70d1",
+    "docs/i18n/readme/source/pt.yaml": "f257c4070671f6348217caef7f59241c25241c1bc374b50cee616e9eecb33542",
+    "docs/i18n/readme/source/hi.yaml": "c149332667e3be98c17b4487763312157aaefafb96cba757eebc35fef27d75cc",
+    "docs/i18n/readme/source/ko.yaml": "e053c77bbd415834d6063c4e74065c6ecd4f0281fba275846c23cf2396cf3135",
+    "docs/i18n/readme/source/is.yaml": "6fdce07cdea766b16d4898e61bc45384e70fab0288f772aeee997150f7e7dab0",
+    "docs/i18n/reviewed/readme/sv/2026-10-15-tracked-checkout-size.json": "88e871cf409eb1378518ad7f833e1aad338e629aca2183527e15d876e8d64203",
+    "docs/i18n/reviewed/readme/de/2026-10-15-tracked-checkout-size.json": "9957997f87f862c7708a6f29609cf2771238ca4bc17a41cb6a2aa3db9f734df8",
+    "docs/i18n/reviewed/readme/es/2026-10-15-tracked-checkout-size.json": "8f232fc9e2b134cddb5ce180736767f72f22d65a37164c00e60d70b1cff19909",
+    "docs/i18n/reviewed/readme/zh_CN/2026-10-15-tracked-checkout-size.json": "f0cbc5035eca451dc82dc18f4eb87ee966545dee708e411b411cc987bd5ddea3",
+    "docs/i18n/reviewed/readme/fr/2026-10-15-tracked-checkout-size.json": "6e2ad5b52d14792dc8020de0a661749dc67db73c781ddac5f67deaf23cd8a679",
+    "docs/i18n/reviewed/readme/pt/2026-10-15-tracked-checkout-size.json": "14cdf6041b0ea74f7463d27da7b8acc728c5e5929883af39baf99cba03029ee9",
+    "docs/i18n/reviewed/readme/hi/2026-10-15-tracked-checkout-size.json": "c55cdad6b1aacd5eec01569d54e094e7555521eedbac07c60db2af000199d925",
+    "docs/i18n/reviewed/readme/ko/2026-10-15-tracked-checkout-size.json": "c8108a65a65359ef285149d50a31233a9efbeef982b8892afe9c27f04b861628",
+    "docs/i18n/reviewed/readme/is/2026-10-15-tracked-checkout-size.json": "c7f152ea14624735d335f1ded437a4d4144b8eb4c0284c1199e6eca06f93faef",
+    "docs/i18n/reviewed/readme/sv/2026-10-10-n678-factual-wording.json": "8bf36402c674d2731a8a1b01edcef0836c968669927c19eb779bca3787870e34",
+    "docs/i18n/reviewed/readme/de/2026-10-10-n678-factual-wording.json": "ee7a0f2b2ba9ee6ff58c603ca610726e17cf05b24c80c8e55cbf9096577ba926",
+    "docs/i18n/reviewed/readme/es/2026-10-10-n678-factual-wording.json": "94f4b58ab3df4b9bb4e454b36f5405411eeb73bec36068ab3bfd1c89562a4a96",
+    "docs/i18n/reviewed/readme/zh_CN/2026-10-10-n678-factual-wording.json": "66f66c5fb8fb7c19287e636493a00bda7cf6c7baccc7db2a2a7142f80c7673b9",
+    "docs/i18n/reviewed/readme/fr/2026-10-10-n678-factual-wording.json": "22a6e6add6f8fb846d30078134e8afe0ad6931014c97e88d9bfea56355239eda",
+    "docs/i18n/reviewed/readme/pt/2026-10-10-n678-factual-wording.json": "58c51ccadd56a8a99ea433a6cd59cf7151d43b9e5ad284ffe4478af3c5366a00",
+    "docs/i18n/reviewed/readme/hi/2026-10-10-n678-factual-wording.json": "e655825c828011b4a4bdaf7f6870f30bcd5c377ba7cd7d136b7820d21a3a68ae",
+    "docs/i18n/reviewed/readme/ko/2026-10-10-n678-factual-wording.json": "dc2893d0c9626de1a1e6bbd5576a1196479fe3ae28fc4ed1df8e7ab793ad4f2d",
+    "docs/i18n/reviewed/readme/is/2026-10-10-n678-factual-wording.json": "4c8f43eef0ae8295c2ad36384ea9b7bc9008626173c0c1377a460116064e2277",
+    "tools/build_readme_images.py": "14143a6c936ea34e3d9e026cbb2038cc1539d33f7ad92726e2a4c16c45e9d348",
+    "tools/build_documentation_i18n.py": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "tests/test_the_light_install_numbers_are_honest.py": "cff78762b70fa8343362f7b036ebc3b56594d6d38c8cd8970f7fe7b5286ef02a",
+    "tests/test_documentation_i18n.py": "047e0cc52e19953920886190ff828c8f5bef5eaedc472cb3842044e06d8344d9",
+    "tests/test_readme_is_built_from_images.py": "4a55417ee7cd7c8a6fc105dc238474a0783e34d7b6a7dc8b7751de6bfebf8723",
+    "tests/readme_source_words.py": "779dd38e6160d3d4ad1cc456065eb3cd0535b477649145377d3c3e2d1323910b",
+    "features/HANDOFF.md": "1408d875faa3bf072d458af1afc75c7c2c4fbcd285687b9fea5d924603494f81"
+  }
+}
