@@ -1,0 +1,64 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_every_app_is_on_exactly_one_subject_tab_and_one_home_band ________
+
+    def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
+        """One tile per app on Home, one tab per app after it.
+    
+        While staging was a section this had to allow an app on two tabs —
+        its subject and its stage. There is one grouping again, so both
+        halves are back to a straight partition of the registry, and how
+        finished an app is is asserted separately over ``APP_STAGE``.
+    
+        Registration is forced first, so the registry read here is the one a
+        launched GUI has. Nine apps join it at ``spacr.qt.run()`` time rather than
+        from ``app.py``, and every number below is a claim about the list the user
+        is looking at. ``tests/qt/conftest.py::_restore_app_registry`` puts it back
+        afterwards.
+        """
+        import spacr.qt
+        from spacr.qt.app import app_stage
+    
+        spacr.qt.register_self_registering_modules()
+        keys = [a[0] for a in APPS]
+        # TILED keys for the two partition claims. Both are about where a
+        # TILE is drawn, and a folded module has none -- it is reached from
+        # its host's button or from Help. Against `APPS` these read "an app
+        # is on no category tab" for fourteen modules that deliberately are
+        # not, which is the fold working rather than a partition breaking.
+        drawn = [a[0] for a in tiled_apps()]
+    
+        subject = [k for s in SECTIONS for k, *_ in section_members(s)]
+        assert sorted(subject) == sorted(drawn), (
+            "an app is on no category tab, or on two")
+    
+        banded = [k for _s, rows in home_bands() for k, *_ in rows]
+        assert sorted(banded) == sorted(drawn), (
+            "an app is missing from Home, or drawn on it twice")
+    
+        # STAGE IS COUNTED OVER EVERY REGISTERED APP, not just the drawn
+        # ones. How finished a module is does not change because it is
+        # reached from a button, and the drawer still filters on it.
+        staged = [k for k in keys if app_stage(k) != "stable"]
+        # This count is over the fully registered list shown after launch. It is
+        # intentionally ratcheted: signing an app off removes its alpha/beta
+        # entry, while adding an unvalidated app increases the count explicitly.
+        # 29 -> 30 on 2026-09-11, +1/-0, and it IS intended: `embeddings`, the
+        # Embeddings screen 386 added in 067a0a5a7 -- the self-supervised
+        # feature source, registered from its own module. It is staged because
+        # it is new, which is exactly what this count is for.
+        # Item 474 adds three organism directories; their rollout remains alpha.
+        # Host–Pathogen adds an alpha assay under Toxoplasma.
+        # 34 -> 39 on 2026-10-01, +5/-0, intended: item 634 (eb2201537) adds the
+        # Trypanosoma, Leishmania, Giardia, virus and mammalian pages as alpha.
+>       assert len(staged) == 39, (
+            f"{len(staged)} apps staged, not 39 — if that is intended, say so "
+            "here; the count is the user\'s list")
+E       AssertionError: 37 apps staged, not 39 — if that is intended, say so here; the count is the user's list
+E       assert 37 == 39
+E        +  where 37 = len(['feature_explorer', 'external_masks', 'queue', 'distributed_jobs', 'run_history', 'data_manager', ...])
+
+tests/qt/test_home_layout.py:231: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qt/test_home_layout.py::test_every_app_is_on_exactly_one_subject_tab_and_one_home_band
+1 failed in 2.31s

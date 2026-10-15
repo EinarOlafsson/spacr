@@ -1,0 +1,33 @@
+{
+  "base": "1fc16b0c2406f581b55f81911ef58b70cb70362b",
+  "hosted_run": 38699600639,
+  "scope": "One Home partition test staged-count reconciliation with existing declared maturity",
+  "baseline": {
+    "failed": 1,
+    "seconds": 2.31,
+    "reason": "Both exact partitions pass; historicalstagedcount39 differs from current37"
+  },
+  "verification": {
+    "passed": 1,
+    "seconds": 2.39,
+    "resource": "background newOriginalCIheavy.lock capped8G tasksetoneCPU blankCUDA offscreen"
+  },
+  "source_proof": {
+    "test_before_sha256": "4734daf37e55571f27e77dc9572cacee2cdd0d89513c4924df505cabcd534d77",
+    "test_after_sha256": "3a5c85c7fdfe127ca5bc970cc5dcdf74a27e9435c5eac86bb5d2e31eedb3a5b4",
+    "all_other_AST_and_signature_decorators_unchanged": true,
+    "both_exact_partition_assertion_ASTs_preserved": true,
+    "production_and_helper_bytes_unchanged": true,
+    "existing_sourcebound_helper_sha256": "3eb077b6e28e6fd8db93ba2798dabe0d84754fe9a2d0c2428b5f0653c1a4a456"
+  },
+  "bindings": [
+    "Classify actualstage stable ANDexistingAFFIRMEDstable",
+    "Toxoplasma actualstage stable ANDexisting sourcebound explicitbuiltin declaration helper",
+    "Plasmodium/Candida/Trypanosoma/Leishmania/Giardia/virus/mammalian remainalpha",
+    "Count exact37 after two already-published stable declarations; no productpromotion or raisedthreshold"
+  ],
+  "limits": [
+    "Testledger correction only, no application maturity/scientific policy changes",
+    "No wholeHome/layout/Qt/fullCI/native acceptance"
+  ]
+}
