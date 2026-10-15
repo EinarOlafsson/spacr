@@ -827,3 +827,24 @@ Log: /mnt/wd4tb/scratch/spacr-completion/settings-doc-acceptance-tests.log.
 No test ceiling, runtime setting, API signature or translation source changed.
 
 VERIFIED 2026-10-04: the 10 test files this item names pass on CPU/offscreen.
+
+
+2026-10-14 — Settings-flow source drift repaired after model provenance work
+---------------------------------------------------------------------------
+The existing source-currentness guard reproduced two failures: app and
+model_metadata had no sections, and seven existing sections named obsolete
+readers/call paths after current source changes. Regenerated both artifacts
+with tools/settings_flow.py --rst; no generator, runtime setting or prose
+was edited by hand. The settings panel index now includes both new anchors.
+
+The page contains 1,368 sections and 6,503 API references, from 1,393 settings
+reads and 1,303 propagation edges (958 resolved, 345 explicitly unresolved).
+Updated sections: classifier_family, custom_model_path, model_name, model_path,
+pathogen_model, resume_checkpoint and segmentation_backend. These reflect
+current static source analysis, with its existing documented limitations.
+
+Before: 2 failed/2 passed. After: all 25 artifact, analyser and API-link tests
+pass in 76.90 s, zero failures/skips; one existing pynvml deprecation warning.
+No whole-feature translation closure or hosted deployment is claimed. Source
+boundary, generated hashes and before/after XML:
+ features/data/368_model_settings_flow_2026-10-14/
