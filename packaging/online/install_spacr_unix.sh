@@ -613,7 +613,6 @@ EOF
     mv "$desktop_tmp" "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
 
     uninstall_path="$INSTALL_ROOT/uninstall-spacr.sh"
-    removed_message="$(spacr_say removed)"
     cat > "$uninstall_path" <<EOF
 #!/usr/bin/env sh
 # Usage: uninstall-spacr.sh [--purge [--yes]]
@@ -629,10 +628,9 @@ for arg in "\$@"; do
         "$VENV_DIR/bin/python" -m spacr.install_cleanup purge \$yes_flag || true
     fi
 done
-rm -f "$LAUNCHER"
-rm -f "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
-rm -rf "$INSTALL_ROOT"
-echo "$removed_message"
+# SPACR_UNINSTALL_PATH $LAUNCHER
+# SPACR_UNINSTALL_PATH $DESKTOP_DIR/io.github.olafssonlab.spacr.desktop
+exec "$VENV_DIR/bin/python" -I -m spacr.install_cleanup remove --only-root "$INSTALL_ROOT"
 EOF
     chmod 755 "$uninstall_path"
 fi

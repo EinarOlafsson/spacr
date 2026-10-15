@@ -855,6 +855,8 @@ def _uninstall_script_paths(root: str) -> List[str]:
                 line = line.strip()
                 if line.startswith("rm -f "):
                     paths.append(line[len("rm -f "):].strip().strip('"'))
+                elif line.startswith("# SPACR_UNINSTALL_PATH "):
+                    paths.append(line[len("# SPACR_UNINSTALL_PATH "):])
     except OSError:
         pass
     return paths
@@ -3718,6 +3720,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     find.add_argument("--root", default="/", help=argparse.SUPPRESS)
     remove = commands.add_parser("remove", help="remove every installer-made copy")
     remove.add_argument("--keep", action="append", default=[])
+    remove.add_argument("--only-root", help="remove only this recognized installation, preserving its data")
     remove.add_argument("--sudo", action="store_true")
     remove.add_argument("--root", default="/", help=argparse.SUPPRESS)
     remove.add_argument("--purge", action="store_true",
@@ -3784,6 +3787,14 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         return _purge_command(machine, yes=args.yes, dry_run=args.dry_run)
     machine.running_prefix = None
     records = find_old_installs(system=machine)
+    if args.command == "remove" and args.only_root:
+        requested = os.path.abspath(args.only_root)
+        selected = [record for record in records if record.kind == "installer"
+                    and os.path.abspath(record.root) == requested]
+        if (args.purge or os.path.realpath(requested) != requested or len(selected) != 1):
+            print("Targeted removal requires one recognized canonical installation and cannot purge user data.")
+            return 1
+        records = selected
     if args.command == "find":
         if args.json:
             print(json.dumps([asdict(r) for r in records], indent=2))

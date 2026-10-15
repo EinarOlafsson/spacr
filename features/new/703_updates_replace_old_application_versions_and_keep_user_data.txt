@@ -301,3 +301,24 @@ so the existing source-bound locale outputs remain applicable. Native macOS and
 Windows acceptance, shared/Conda/Windows replacement, current full hosted CI and
 release acceptance remain open. Raw receipts:
 /mnt/wd4tb/scratch/n703-runtime-recovery-20261014/owning.xml and owning.exit.
+
+
+2026-10-14 23:07 EDT — Home Linux generated-uninstaller preservation
+The Linux online installer's generated uninstaller now delegates to the existing
+shared remover with an explicit --only-root selection. It no longer recursively
+deletes the complete installation root or unconditionally deletes launcher paths.
+Only one recognized canonical installer root can be selected; other installs
+remain untouched and a targeted request cannot implicitly purge user data.
+Declared data/cache/model locations, known data folders and unknown root entries
+retain the existing preservation semantics. Literal uninstaller path metadata
+lets the finder retire only launchers still pointing to this installation.
+
+Actual disposable-tree subprocess proofs cover application retirement alongside
+preserved cache/models/test_data/outputs/unknown experiment folders and configured
+data nested inside the runtime, a second installation left intact, changed
+launchers retained, and unrecognized/symlink/global-purge refusal. Full necessary
+online-installer contract file plus five new tests:74 PASS, actualexit0/2.71s.
+Fatal Ruff, shell syntax and diff checks passed. No real installer/environment,
+user data, model cache or network was touched. This is Linux uninstaller behavior;
+it does not certify installer launch/update or native Windows/macOS acceptance.
+Windows NSIS's default root-recursive deletion still needs equivalent safe wiring.
