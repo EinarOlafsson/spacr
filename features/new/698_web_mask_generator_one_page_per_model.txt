@@ -527,3 +527,20 @@ to its tested premerge source/counts. No unchanged44/native rerun.
     software/localization component only, not wholeN698, stockPython3.9/allcodecs,
     scientific model performance, hosted fullCI or1.5.1.5 release acceptance.
     Evidence: data/698_legacy_czi_uploads_2026-10-15/runtime-closure/.
+
+2026-10-15 — Configured-family startup warm-up prepared privately.
+The old ZeroGPU startup path always required the plaque default, even for an
+operator configuring only a different supported family. Startup now validates
+all configured exact public keys/checksums before any model construction and
+warms at most one configured segmentation model: the current plaque default
+when provisioned, otherwise a deterministic configured segmentation key. An
+empty/detector-only configuration returns None without unrelated plaque weights;
+detectors keep their existing request-scoped desktop loader. Request defaults,
+scientific adapters, caches, devices and endpoints are unchanged. Three real
+controlled baseline failures are retained; 22 focused lifecycle/registry checks
+pass(2.20s), with local fixture bytes and intercepted loaders only. The normal
+existing web AST caption owner finds the one new diagnostic; tools service.py
+is outside the normal public API source root. Nine target reviews and normal
+runtime/arrival generation remain required before coherent publication. Actual
+ZeroGPU placement/host resource and scientific acceptance remain explicit.
+Evidence: features/data/698_configured_startup_preload_2026-10-15/.
