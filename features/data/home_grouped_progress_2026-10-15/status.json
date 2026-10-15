@@ -262,8 +262,8 @@
       "title": "web mask generator one page per model",
       "percent_done": 70,
       "time_left_hours": "24–48+",
-      "owner": "Home / assigned owner",
-      "description": "Free service/schema live; channel API fix deployed. Corrected SDK delivers actual quota refusal (180s requested,167s left); hosted outputs, browser execution and full-family parity remain open.",
+      "owner": "Claude Home",
+      "description": "Configuration UI and managed-host fixes published. Hosted inference remains quota-blocked; browser/native export is unvalidated. Exact prototype/evidence handed to Claude.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -271,8 +271,8 @@
       "title": "cluster submit reads ssh config and handles mfa",
       "percent_done": 90,
       "time_left_hours": "Unknown",
-      "owner": "Home / assigned owner",
-      "description": "Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here.",
+      "owner": "Claude Home",
+      "description": "Built; handed to Claude with published SSH/MFA/keychain/retry work. Actual Great Lakes login, submit and status acceptance remains maintainer-owned.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {

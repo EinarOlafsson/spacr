@@ -33,8 +33,8 @@ Hours are estimates; external unknowns remain explicit.
 | F560 | 90 | Unknown | Home / assigned owner | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
 | F370 | 90 | 2–6 + data | Home / assigned owner | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
 | N678 | 90 | 2–4 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
-| N698 | 70 | 24–48+ | Home / assigned owner | Free service/schema live; channel API fix deployed. Corrected SDK delivers actual quota refusal (180s requested,167s left); hosted outputs, browser execution and full-family parity remain open. |
-| N699 | 90 | Unknown | Home / assigned owner | Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here. |
+| N698 | 70 | 24–48+ | Claude Home | Configuration UI and managed-host fixes published. Hosted inference remains quota-blocked; browser/native export is unvalidated. Exact prototype/evidence handed to Claude. |
+| N699 | 90 | Unknown | Claude Home | Built; handed to Claude with published SSH/MFA/keychain/retry work. Actual Great Lakes login, submit and status acceptance remains maintainer-owned. |
 | N03 | ✅ | 0 | Home / assigned owner | Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps. |
 | N76 | ✅ | 0 | Home / assigned owner | Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed. |
 | N112 | 95 | 1–3 | Home / assigned owner | Private-doc/strict inventory fixes pass; foreign N700/API and active new-feature review obligations remain. |
