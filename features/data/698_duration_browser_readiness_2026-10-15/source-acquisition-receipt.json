@@ -1,0 +1,33 @@
+{
+  "scope": "Read-only exact installed-version SDK source, no install/import/runtime/model",
+  "package": "spaces0.51.3",
+  "primary_metadata_url": "https://pypi.org/pypi/spaces/0.51.3/json",
+  "wheel_url": "https://files.pythonhosted.org/packages/f5/b3/f6c0dfa766e0fc5ae66466235c13be580e543d8d2d9023f678ba5859adca/spaces-0.51.3-py3-none-any.whl",
+  "wheel_bytes": 111776,
+  "wheel_sha256": "e588ce6b4301c566139d84bafb1c30b555967ce4ee2792be659ee5643f0f7eb1",
+  "python_sources": [
+    "spaces/zero/__init__.py",
+    "spaces/zero/api.py",
+    "spaces/zero/client.py",
+    "spaces/zero/config.py",
+    "spaces/zero/decorator.py",
+    "spaces/zero/elf.py",
+    "spaces/zero/gradio.py",
+    "spaces/zero/mmap.py",
+    "spaces/zero/torch/__init__.py",
+    "spaces/zero/torch/aoti.py",
+    "spaces/zero/torch/bitsandbytes.py",
+    "spaces/zero/torch/bitsandbytes_legacy.py",
+    "spaces/zero/torch/cudart.py",
+    "spaces/zero/torch/packing.py",
+    "spaces/zero/torch/patching.py",
+    "spaces/zero/torch/patching_legacy.py",
+    "spaces/zero/torch/static.py",
+    "spaces/zero/torch/types.py",
+    "spaces/zero/torch/utils.py",
+    "spaces/zero/tqdm.py",
+    "spaces/zero/types.py",
+    "spaces/zero/utils.py",
+    "spaces/zero/wrappers.py"
+  ]
+}
