@@ -1,0 +1,39 @@
+{
+  "scope": "Existing stable Classify assessment public-route correction",
+  "base": "c98f0cd6bd73ba26e3075693edce2ef13479f2c3",
+  "before_source_sha256": "cbdc1833d5ee613c96df2c1099aed6caaecf570de45fe7a677cc94fac6c48d1d",
+  "after_source_sha256": "3cfcbae7eb6497d41c5a2db0a1b0b0f2f09f1b049b18a86ae722c8c227892022",
+  "test_sha256": "f6140fc6ec926433de90df8859d4d67bf0f80365ce6461d76c99d2b4e9c3955f",
+  "only_ast_delta": "Remove contradictory APP_STAGE[classify_merged] alpha override; existing stable AFFIRMED assessment supplies default",
+  "line_count_unchanged": true,
+  "baseline": {
+    "failures": 3,
+    "passes": 0,
+    "exit": 1
+  },
+  "owning": {
+    "failures": 0,
+    "passes": 8,
+    "exit": 0,
+    "scope": "Intermediate explicit-stable candidate only; superseded, not final source acceptance"
+  },
+  "limits": [
+    "No native recording, classifier scientific acceptance, or tutorial publication",
+    "Work captured full app source differs; independent current-tree baseline used",
+    "No changes to maturity policy, future controls, species gates, backend, prose or user captions"
+  ],
+  "final_route_checks": {
+    "passes": 3,
+    "failures": 0,
+    "seconds": 4.0,
+    "scope": "Final absent-key source registry/Home/Sidebar checks"
+  },
+  "existing_global_invariant": {
+    "unchanged_public_base": "15938ddbb6fd431d59f45eb90840d903177b3dd5",
+    "baseline_failures": 1,
+    "final_failures": 1,
+    "cause": "Other explicit stable registrations already populate APP_STAGE (including Toxoplasma); global policy/test left unchanged",
+    "disposition": "Separate known baseline failure, retained without weakening test"
+  },
+  "peer": "ci-peer-review-v2.json supersedes initial explicit-stable peer"
+}

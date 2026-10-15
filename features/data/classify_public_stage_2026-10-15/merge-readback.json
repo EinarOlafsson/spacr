@@ -1,0 +1,27 @@
+{
+  "incoming_public": "15938ddbb6fd431d59f45eb90840d903177b3dd5",
+  "only_owned_paths_differ": [
+    "features/HANDOFF.md",
+    "features/data/classify_public_stage_2026-10-15/README.md",
+    "features/data/classify_public_stage_2026-10-15/baseline.exit",
+    "features/data/classify_public_stage_2026-10-15/baseline.log.gz",
+    "features/data/classify_public_stage_2026-10-15/baseline.sh",
+    "features/data/classify_public_stage_2026-10-15/baseline.xml.gz",
+    "features/data/classify_public_stage_2026-10-15/ci-peer-review.json",
+    "features/data/classify_public_stage_2026-10-15/owning.exit",
+    "features/data/classify_public_stage_2026-10-15/owning.log.gz",
+    "features/data/classify_public_stage_2026-10-15/owning.sh",
+    "features/data/classify_public_stage_2026-10-15/owning.xml.gz",
+    "features/data/classify_public_stage_2026-10-15/proposed.patch",
+    "features/data/classify_public_stage_2026-10-15/receipt.json",
+    "features/data/classify_public_stage_2026-10-15/source-review-plan.json",
+    "spacr/qt/app.py",
+    "tests/qt/test_classify_public_maturity_route.py"
+  ],
+  "tested_app_and_test_source_unchanged": false,
+  "generated_catalogs_identical_to_incoming": true,
+  "no_unrelated_source_changes": true,
+  "generation_disposition": "No function/prose/caption/line-number changes; no global generation needed for one stage constant correction.",
+  "incoming_raw_evidence_whitespace": "Merge brought pre-existing Work patch/log whitespace warnings; preserved owner raw evidence unchanged. Own delta diff-check passes.",
+  "superseded_by": "Final route source/AST/readback in receipt.json and ci-peer-review-v2.json; this intermediate readback retained as historical evidence"
+}
