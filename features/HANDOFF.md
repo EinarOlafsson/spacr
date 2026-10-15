@@ -1,5 +1,14 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — maintainer reporting and unattended work rule
+
+Use ONE progress-table row per whole numbered item. Combine every subtask under
+that item; green ticks require ALL of its tasks finished. Time left is an
+estimate in HOURS. Reprint the full grouped table only when a whole item closes,
+not on component delivery. Earlier component ledgers are evidence only. Check
+and update HANDOFF and dated item notes for away-at-work messages; continue
+useful owned implementation without questions or waiting for the final release.
+
 ## 2026-10-15 Home-B — live mask configuration and README route; docs-token probe
 
 N698 configuration UI is deployed: site-src f138609, production38737492923 and

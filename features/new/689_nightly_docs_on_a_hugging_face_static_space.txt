@@ -225,3 +225,6 @@ repository variable/secret changes. Automated-target token/cutover, main Pages
 /nightly redirects and Work's two direct endpoints remain pending coordination.
 Evidence:data/689_free_static_candidate_2026-10-15/ and
 data/689_candidate_representative_readback_2026-10-15/.
+
+2026-10-15 — Home-B publication/status correction
+    CI access probe source and isolated workflow are public669ac7395e. Actual direct HTTP-boundary12tests pass; dispatched run38743415875 is pending, no live write permission claimed. Work portable owner patch is being published because Home scratch is unavailable there. Main migration remains owned by Original Home at final promotion.
