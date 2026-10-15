@@ -44,7 +44,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QDialog,
                                QVBoxLayout, QWidget)
 
 from .sortable_table import install_sorting, table_item
-from ..i18n import tr
+from ..i18n import retranslate_widget_tree, set_translatable_text, tr
 from ...logging_util import _spacr_home
 from ..prefs import _store_args
 
@@ -322,6 +322,10 @@ class SourceStrip(QWidget):
         for name in model_zoo.ZOO_SOURCES:
             heading = _SourceHeading(name, self)
             heading.setToolTip(_SOURCE_TOOLTIPS.get(name, ""))
+            if name == "spaCR community":
+                set_translatable_text(heading, "spaCR community")
+            if name in _SOURCE_TOOLTIPS:
+                retranslate_widget_tree(heading)
             if name == "Third-party":
                 from ..i18n import tr
 
