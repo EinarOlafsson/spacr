@@ -1510,7 +1510,12 @@ def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
         raise ValueError(
             f"{label_column} must hold two classes, one of them {positive!r}")
     bags, labels, wells, rows = [], [], [], []
-    matrix = kept[feature_columns].to_numpy(dtype=np.float32)
+    with np.errstate(over="ignore", invalid="ignore"):
+        matrix = kept[feature_columns].to_numpy(dtype=np.float32)
+    if not np.isfinite(matrix).all():
+        from .qt.i18n import tr
+
+        raise ValueError(tr("Multiple-instance feature values must remain finite when converted to float32."))
     acquisition = [column for column in ('plateID', 'rowID', 'columnID')
                    if column in kept.columns]
     for well, group in kept.groupby(well_column, sort=True):
