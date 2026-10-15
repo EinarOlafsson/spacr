@@ -3870,7 +3870,7 @@ def _is_prunable_name(kind: str, entry: Path) -> bool:
     """
     name = entry.name
     if kind == "logs":
-        return (name.startswith("spacr") and ".log" in name
+        return (re.fullmatch(r"spacr.*\.log(?:\.\d+)?", name) is not None
                 and entry.is_file() and not entry.is_symlink())
     if kind == "run_logs":
         return ((name.endswith(".jsonl") or name.endswith(".resources.json"))
