@@ -614,3 +614,5 @@ GPU was used. This is software
 mechanics acceptance only. Actual free managed build/disk/native libraries,
 weight acquisition, CUDA/inference/parity/site acceptance and other N698 work
 remain open. Source-bound evidence:698_managed_model_provisioning_2026-10-15.
+
+2026-10-15 Original — Actual free managed build and startup now observed. Immutable deployed source f457356bbffa1c3166f01ea3e7a40c6ab44fca35 fetched the SHA-pinned ordinary source archive, built and installed normal spaCR dependencies, pushed the image and reached RUNNING/READY on current/requested zero-a10g. Both explicit startup flags remain exact; no paid hardware or storage option was requested. Build evidence:698_managed_build_success_2026-10-15; bounded startup/free-flags evidence:698_managed_startup_ready_2026-10-15. Root verified all seven startup payload hashes. This proves build/startup only: no complete17-file provisioning receipt, hosted inference, outputs/parity, browser execution or whole-item acceptance. Public schema/config read-only checking is next; website execution stays disabled until actual acceptance.
