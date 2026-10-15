@@ -2,12 +2,12 @@
 3D MASK DRAWING IN MAKE MASKS AND A FIB-SEM EXAMPLE VOLUME WITH MASKS
 ================================================================================
 
-Status:    built 2026-10-11 (not alpha); spacr/ commit held for the i18n freeze;
-           translations of the new strings and the tutorial pending (WS)
+Status:    published (not alpha); i18n freeze ended 2026-10-12; current API
+           translations verified 2026-10-15; FIB-SEM tutorial dropped by maintainer
 Requested: 2026-10-11 by the maintainer: "I'd like to be able to draw 3D masks
            and I'd like a TEM milling dataset with the option to load with
            masks if possible." TEM milling = FIB-SEM volume EM.
-Owner:     Home (build); WS (translations, tutorial)
+Owner:     Home (runtime); WS (published translations; tutorial no longer requested)
 Related:   N672/N673 (EditableVolumeGate, VolumeMaskSession, the 3D mask
            editor); N690 (TEM readers, spacr-example-tem); N691 (MitoNet,
            alpha).
@@ -152,3 +152,26 @@ asked about on Next/Prev/Keep/Discard/close (Save on navigation saves).
 Tests updated with dated notes in test_692_three_d_mask_drawing.py and
 test_cov_mmcov_three_d_draw_guards.py. Tutorial steps 2, 4, 6 and 10 change:
 see the N673 report (WS re-records).
+
+2026-10-15 — Current publication reconciliation and foreground object count:
+The historical held/freeze header above was stale. Implementation cf1de1f813,
+English API bcd58c3c78, nine-locale API 8f7ac02e5b and runtime b12440063b are
+ancestors of the current source. The handoff explicitly ended the freeze on
+2026-10-12 and dropped N673/N692 FIB-SEM tutorials at the maintainer's request;
+no tutorial is reopened here. Normal scoped review loading verifies all eight
+current public docstrings and 37 reviewed compiled blocks per locale (333
+blocks total). The three owning runtime modules were byte-identical to the
+previous full nine-locale zero-error runtime audit at 7eee39dd3895 before the
+following return-only correction; every tr() call and public docstring remains
+unchanged afterward. No runtime catalogue rewrite or global API audit was run.
+
+A real reporting defect remained: Assign 3D objects subtracted one from the
+unique-label count even when a fully labelled volume had no background zero.
+It now counts distinct nonzero IDs. Native full-single, full-multiple and
+full-split volumes reproduced three failures; empty/mixed-background controls
+passed. After the one-return correction, five native regressions plus the
+existing connected-component/undo control pass (6 tests, 3.19 seconds). The
+checks preserve exact voxel values, IDs, dtype, changed counts and undo/redo.
+This closes that count-reporting defect, without changing connectivity or
+claiming new biological, native-renderer or full-release acceptance. Evidence:
+features/data/692_foreground_count_and_publication_state_2026-10-15/.

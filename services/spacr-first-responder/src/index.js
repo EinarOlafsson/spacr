@@ -2,7 +2,7 @@ import { limits } from "./config.js";
 import { buildAllowance } from "./allowance.js";
 import { handleDiagnose, summarizeWithRelay } from "./diagnose.js";
 import { GLOBAL, ROUTE, hashIp, installScope, pruneOldCounters, reserveAll } from "./quota.js";
-import { fileReport, issueBody, issueTitle, obtainSummary, signatureOf, sourceOf } from "./report.js";
+import { fileReport, issueBody, issueTitle, obtainSummary, signatureOf, summaryFields } from "./report.js";
 import { HttpError, VERSION, json, readJsonBody, refusedQuota, utcDay } from "./util.js";
 import { UUID_RE, validatePayload } from "./validate.js";
 
@@ -32,7 +32,7 @@ async function handleReport(request, env, ctx, now) {
       title: issueTitle(report),
       body: issueBody(report, signature, summary),
       signature,
-      ai_summary_source: sourceOf(summary),
+      ...summaryFields(summary),
       allowance: await allowance(),
     });
   }

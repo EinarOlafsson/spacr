@@ -436,8 +436,10 @@ def test_a_theme_refresh_skips_screens_that_cannot_hide_immature_apps(win):
     asks before it calls, and a screen that has the hook still gets it.
     """
     asked = _Recorder()
-    plain = object()
-    win._screens = {"with-hook": asked, "without-hook": plain}
+    hooked = QWidget(win)
+    hooked.refresh_maturity_visibility = asked.refresh_maturity_visibility
+    plain = QWidget(win)
+    win._screens = {"with-hook": hooked, "without-hook": plain}
     win.refresh_theme()
     assert asked.names() == ["refresh_maturity_visibility"]
     assert not hasattr(plain, "refresh_maturity_visibility")

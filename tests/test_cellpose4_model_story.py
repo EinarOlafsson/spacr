@@ -166,10 +166,16 @@ def test_reset_re_arms_the_notice_for_the_next_run(fake_cellpose, capsys):
     assert capsys.readouterr().out.count("predates Cellpose-SAM") == 1
 
 
-def test_the_unknown_model_notice_is_also_once_per_run(fake_cellpose, capsys):
+def test_unknown_models_are_always_refused_without_a_stock_notice(fake_cellpose, capsys, monkeypatch):
+    from spacr import model_zoo as zoo
+
+    monkeypatch.setattr(zoo, "catalogue", lambda **kwargs: [])
+    monkeypatch.setattr(U.cp_models, "CellposeModel", lambda **kwargs:
+                        pytest.fail("Unknown model reached constructor"))
     for _ in range(50):
-        U._choose_model("no_such_model", device="cpu", object_type="cell")
-    assert capsys.readouterr().out.count("Unknown Cellpose model") == 1
+        with pytest.raises(zoo.ModelZooError):
+            U._choose_model("no_such_model", device="cpu", object_type="cell")
+    assert capsys.readouterr().out == ""
 
 
 def test_the_checkpoint_notice_is_also_once_per_run(fake_cellpose, tmp_path,

@@ -1,0 +1,15 @@
+{
+  "scope": "N692 fully foreground object-count correction and historical publication-state reconciliation",
+  "new_implementation": "Count unique nonzero IDs, without changing assignment or voxel history",
+  "baseline": "3 failed, 2 passed in 1.72s",
+  "fixed": "6 passed in 3.19s",
+  "normal_api_review": "8 current source-bound symbols; 37 reviewed compiled blocks per each of nine locales; 333 blocks total; no global collector",
+  "runtime_audit": "Prior full nine-locale zero-error audit reused with entire owning modules byte-identical before correction, every tr call unchanged after return-only fix",
+  "normal_index": "tools/build_instruction_index.py and --check passed",
+  "not_claimed": [
+    "new tutorial implementation (maintainer dropped these lessons)",
+    "native rendering or biological/scientific acceptance",
+    "whole N692 or release certification"
+  ],
+  "source_sha256": "7343faf71f85b62560707d862574c9c14a278bc5f3d2f5429f3de224a47dedac"
+}

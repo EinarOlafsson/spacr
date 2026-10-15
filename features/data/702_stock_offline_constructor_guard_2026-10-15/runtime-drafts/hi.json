@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical translation and self-review; independent peer and ordinary source/review gates pending; no human/native signoff",
+  "review": "Offline automatic stock-model download refuses before construction when the configured native cache has no regular checkpoint. Existing explicit local files and native cached files remain usable. This diagnostic claims neither checksum verification nor cross-process deletion safety.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
+      "source": "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
+      "source_sha256": "3223dd3f18a2b1363d0f8e6e559f9dad501be5cf6eeedd447a17dd6424beb4b1",
+      "translation": "SPACR_MODEL_DOWNLOAD के कारण मॉडल का स्वचालित डाउनलोड बंद है। Cellpose का मानक मॉडल {model}, {path} पर कैश में नहीं है। उसकी मौजूदा चेकपॉइंट फ़ाइल दें या ऑफ़लाइन चलाने से पहले उसे डाउनलोड करें।"
+    }
+  ]
+}

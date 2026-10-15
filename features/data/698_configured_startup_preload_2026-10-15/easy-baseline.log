@@ -1,0 +1,126 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_detector_only_startup_does_not_require_or_construct_plaque ________
+
+provisioned = ({'cell_from_hoechst_v1': PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_dete.../n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_detector_only_startup_doe0/toxoplasma_plaque_v4'), ...}, [])
+
+    def test_detector_only_startup_does_not_require_or_construct_plaque(provisioned):
+        paths, calls = provisioned
+        key = 'toxoplasma_well_detector_v3'
+>       assert service.ModelService({key: paths[key]}).preload_default() is None
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_web_configured_preload_n698.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/web_mask_generator/service.py:51: in preload_default
+    resolved = resolve_trusted_model("toxoplasma_plaque", self.models)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+family = 'toxoplasma_plaque'
+provisioned_paths = mappingproxy({'toxoplasma_well_detector_v3': PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_detector_only_startup_doe0/toxoplasma_well_detector_v3')})
+
+    def resolve_trusted_model(family, provisioned_paths, *, model_key=None):
+        """Resolve one public key to operator-owned local weights; never substitute.
+    
+        Returned checkpoint paths are private server-side values and must not be
+        sent in the public registry. An unavailable default raises rather than
+        falling back silently to an older installed version.
+        """
+        matches = [entry for entry in model_families() if entry["family"] == family]
+        if not matches:
+            raise ValueError(tr("Unknown web model class: {family}", family=family))
+        selected_family = matches[0]
+        key = selected_family["default"] if model_key is None else model_key
+        versions = [entry for entry in selected_family["versions"] if entry["key"] == key]
+        if not versions:
+            raise ValueError(tr("The selected model does not belong to this model class."))
+        if key not in provisioned_paths:
+>           raise ValueError(tr("The selected model is not provisioned on this service."))
+E           ValueError: The selected model is not provisioned on this service.
+
+tools/web_mask_generator/registry.py:66: ValueError
+_________________ test_empty_service_does_not_construct_models _________________
+
+provisioned = ({'cell_from_hoechst_v1': PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_empt.../n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_empty_service_does_not_co0/toxoplasma_plaque_v4'), ...}, [])
+
+    def test_empty_service_does_not_construct_models(provisioned):
+        _, calls = provisioned
+>       assert service.ModelService({}).preload_default() is None
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_web_configured_preload_n698.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/web_mask_generator/service.py:51: in preload_default
+    resolved = resolve_trusted_model("toxoplasma_plaque", self.models)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+family = 'toxoplasma_plaque', provisioned_paths = mappingproxy({})
+
+    def resolve_trusted_model(family, provisioned_paths, *, model_key=None):
+        """Resolve one public key to operator-owned local weights; never substitute.
+    
+        Returned checkpoint paths are private server-side values and must not be
+        sent in the public registry. An unavailable default raises rather than
+        falling back silently to an older installed version.
+        """
+        matches = [entry for entry in model_families() if entry["family"] == family]
+        if not matches:
+            raise ValueError(tr("Unknown web model class: {family}", family=family))
+        selected_family = matches[0]
+        key = selected_family["default"] if model_key is None else model_key
+        versions = [entry for entry in selected_family["versions"] if entry["key"] == key]
+        if not versions:
+            raise ValueError(tr("The selected model does not belong to this model class."))
+        if key not in provisioned_paths:
+>           raise ValueError(tr("The selected model is not provisioned on this service."))
+E           ValueError: The selected model is not provisioned on this service.
+
+tools/web_mask_generator/registry.py:66: ValueError
+_________ test_nonplaque_only_startup_uses_its_exact_provisioned_mask __________
+
+provisioned = ({'cell_from_hoechst_v1': PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_nonp.../n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_nonplaque_only_startup_us0/toxoplasma_plaque_v4'), ...}, [])
+
+    def test_nonplaque_only_startup_uses_its_exact_provisioned_mask(provisioned):
+        paths, calls = provisioned
+        key = 'cell_from_hoechst_v1'
+        instance = service.ModelService({key: paths[key]})
+>       assert instance.preload_default() == key
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_web_configured_preload_n698.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/web_mask_generator/service.py:51: in preload_default
+    resolved = resolve_trusted_model("toxoplasma_plaque", self.models)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+family = 'toxoplasma_plaque'
+provisioned_paths = mappingproxy({'cell_from_hoechst_v1': PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-147/test_nonplaque_only_startup_us0/cell_from_hoechst_v1')})
+
+    def resolve_trusted_model(family, provisioned_paths, *, model_key=None):
+        """Resolve one public key to operator-owned local weights; never substitute.
+    
+        Returned checkpoint paths are private server-side values and must not be
+        sent in the public registry. An unavailable default raises rather than
+        falling back silently to an older installed version.
+        """
+        matches = [entry for entry in model_families() if entry["family"] == family]
+        if not matches:
+            raise ValueError(tr("Unknown web model class: {family}", family=family))
+        selected_family = matches[0]
+        key = selected_family["default"] if model_key is None else model_key
+        versions = [entry for entry in selected_family["versions"] if entry["key"] == key]
+        if not versions:
+            raise ValueError(tr("The selected model does not belong to this model class."))
+        if key not in provisioned_paths:
+>           raise ValueError(tr("The selected model is not provisioned on this service."))
+E           ValueError: The selected model is not provisioned on this service.
+
+tools/web_mask_generator/registry.py:66: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_web_configured_preload_n698.py::test_detector_only_startup_does_not_require_or_construct_plaque
+FAILED tests/test_web_configured_preload_n698.py::test_empty_service_does_not_construct_models
+FAILED tests/test_web_configured_preload_n698.py::test_nonplaque_only_startup_uses_its_exact_provisioned_mask
+3 failed in 1.98s

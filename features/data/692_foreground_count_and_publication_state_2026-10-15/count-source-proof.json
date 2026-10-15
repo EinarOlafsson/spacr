@@ -1,0 +1,12 @@
+{
+  "baseline": "3922e1a4caf763d30db886552f0b542facb07031",
+  "path": "spacr/qt/mask_engine.py",
+  "old_sha256": "e48da20fe4f2a5d950f318a8877c20c269f0b28fa4186b8276cb9595964f3e92",
+  "new_sha256": "7343faf71f85b62560707d862574c9c14a278bc5f3d2f5429f3de224a47dedac",
+  "only_ast_delta": "VolumeMaskSession.assign_objects final return counts distinct nonzero labels",
+  "all_tr_calls_unchanged": true,
+  "all_public_signatures_and_docstrings_unchanged": true,
+  "baseline_result": "3 failed, 2 passed in 1.72s",
+  "fixed_result": "6 passed in 3.19s",
+  "scope": "Reported object count only; assignment, voxel arrays, history and scientific validation unchanged."
+}

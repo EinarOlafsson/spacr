@@ -1,7 +1,8 @@
 """Direct Cellpose apply/test APIs load verified derived paths and retain requests."""
-from copy import deepcopy
+
 import hashlib
 import json
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,7 +10,9 @@ import numpy as np
 import pytest
 import tifffile
 
-from spacr import model_zoo as zoo, run_journal as journal
+from spacr import model_zoo as zoo
+from spacr import run_journal as journal
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
 
 
 class ReachedEvaluation(RuntimeError):
@@ -20,8 +23,7 @@ class ReachedEvaluation(RuntimeError):
 def direct(tmp_path, monkeypatch):
     import matplotlib
     matplotlib.use('Agg', force=True)
-    from spacr import accelerator, submodules
-    from spacr import workspace
+    from spacr import accelerator, submodules, workspace
 
     source = tmp_path / 'data'
     source.mkdir()
@@ -53,7 +55,13 @@ def direct(tmp_path, monkeypatch):
         def __init__(self, *, pretrained_model, **kwargs):
             calls.append(pretrained_model)
 
-        def eval(self, *, x, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None, flow3D_smooth=0,
+                 stitch_threshold=0.0, min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
             assert len(x) == 1 and np.asarray(x[0]).shape == (16, 16)
             raise ReachedEvaluation('intercepted before real inference')
 

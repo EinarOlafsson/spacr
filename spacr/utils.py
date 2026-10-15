@@ -6573,6 +6573,10 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
     :raises FileNotFoundError: if ``model_name`` looks like a path but no file
         is there. Falling back to cpsam would silently segment with the wrong
         weights, which is worse than stopping.
+    :raises ModelZooError: if an explicit name matches no installed stock
+        name, existing checkpoint or exact catalogue entry. Blank settings,
+        known legacy names and the existing ``sam`` shorthand retain their
+        default behavior.
     """
     clause = _for_object(object_type)
 
@@ -6610,9 +6614,15 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
                 f"checkpoint path but no file is there. Cellpose would quietly "
                 f"fall back to the stock cpsam weights, so this stops instead. "
                 f"Check the path, or use 'cpsam' for the stock model.")
-        _report_cellpose_once(
-            ('unknown', name, object_type),
-            f"Unknown Cellpose model {name!r}; using 'cpsam'{clause}.")
+        if name == 'sam':
+            return CPSAM_MODEL
+
+        from .model_zoo import ModelZooError
+        from .qt.i18n import tr
+
+        raise ModelZooError(tr(
+            "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
+            name=repr(name)))
     elif name in LEGACY_CELLPOSE_MODELS:
         _report_cellpose_once(
             ('legacy', name, object_type),
@@ -6638,12 +6648,31 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
     :returns: a ``CellposeModel``.
     :raises FileNotFoundError: if ``model_name`` looks like a path but no file
         is there.
+    :raises ModelZooError: if an explicit name cannot be resolved exactly,
+        before any model is constructed.
+    :raises ModelUnreadable: if automatic downloads are disabled and a stock
+        model has no existing local file or regular native cache entry.
     """
     if object_settings is None:
         object_settings = {}
 
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type, restore_type=restore_type)
+
+    if (os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold()
+            in ("0", "off", "false", "no")
+            and pretrained in _installed_cellpose_models()
+            and not os.path.isfile(pretrained)):
+        cache_root = getattr(cp_models, "MODEL_DIR", os.path.join(
+            os.path.expanduser("~"), ".cellpose", "models"))
+        cached = os.path.join(os.fspath(cache_root), pretrained)
+        if not os.path.isfile(cached):
+            from .model_zoo import ModelUnreadable
+            from .qt.i18n import tr
+
+            raise ModelUnreadable(tr(
+                "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
+                model=repr(pretrained), path=cached))
 
     from .accelerator import cellpose_kwargs
 

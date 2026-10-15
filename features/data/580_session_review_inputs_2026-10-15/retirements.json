@@ -1,0 +1,848 @@
+[
+  {
+    "path": "docs/i18n/reviewed/runtime/is/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "f5cbcca1f526b9b6221dd1959029cbeecb0966ec9a276f46f5880e2eeda0814a",
+    "after_sha256": "310c4f16abdb15f66022e6351f06b06c54975a2be67d67d2d423c376ab8f7308",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/is/2026-10-15-f580-reference-plate.json",
+        "language": "is",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "Auðkenni viðmiðunarplötu úr nöfnum sameinaðra skráa, til dæmis plate2. Látið standa autt til að nota fyrstu plötuna í nafnaröð. Valin plata verður að vera til staðar í þessari keyrslu. Sjálfgefið: autt."
+        },
+        "file_sha256": "f5cbcca1f526b9b6221dd1959029cbeecb0966ec9a276f46f5880e2eeda0814a",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/is/2026-10-15-f580-reference-plate.json",
+        "language": "is",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "Kvarðar styrk milli myndatökulota fyrir mælingu: hver plata er ein lota, perlurnar eða viðmiðunarbrunnarnir sem myndaðir eru á hverri plötu eru mældir, og styrkrásir hverrar plötu eru kvarðaðar svo viðmiðunarbrunnar hennar passi við þá á valinni viðmiðunarplötu; ef stillingin fyrir viðmiðunarplötu er auð er fyrsta platan eftir nafni notuð. Þetta leiðréttir rek í lýsingu, lampa og skynjara milli daga á myndstigi, ólíkt lotuleiðréttingu taflna. Magnanirnar eru skráðar í measurements.db:intensity_rescale. Sjálfgefið False."
+        },
+        "file_sha256": "f5cbcca1f526b9b6221dd1959029cbeecb0966ec9a276f46f5880e2eeda0814a",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/is/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "772a7d7bfe9453558db41294e42dcc4a0e94e215eef60618053b3ae3b99657fc",
+    "after_sha256": "7b4d82ac0673a8b2952e719d93a8d6a365f4f60d3d705a1922bb48a1708abafa",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/is/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "is",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "Hvernig styrkur hvers viðmiðunarsjónsviðs er tekinn saman, eftir að intensity_calibration_offset er dregið frá. foreground: miðgildi díla yfir Otsu-þröskuldi, fyrir dreifðar perlur á dökkum bakgrunni. median: miðgildi allra díla, fyrir jafnt litaðan viðmiðunarbrunn. Hver plata notar miðgildið yfir viðmiðunarsjónsvið sín. Sjálfgefið foreground."
+        },
+        "file_sha256": "772a7d7bfe9453558db41294e42dcc4a0e94e215eef60618053b3ae3b99657fc",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/is/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "is",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "Brunnarnir með kvörðunarsýninu, mynduðu á hverri plötu með sama sýni: flúrljómandi perlur eða viðmiðunarlitun, svo sem ['A01'] eða ['A01', 'P24']. Hver plata verður að hafa að minnsta kosti eitt sjónsvið í þeim, annars stöðvast keyrslan. Þeir eru mældir og kvarðaðir eins og hver annar brunnur. Sjálfgefið None."
+        },
+        "file_sha256": "772a7d7bfe9453558db41294e42dcc4a0e94e215eef60618053b3ae3b99657fc",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "832a169cb3609407d8e0b3e120d04a41df204643f5c0b39f24e4dcfe8d7f6725",
+    "after_sha256": "c54e03141031bb68397d4c25b751cb59848d4ec509aabaa02a71a32dde694d13",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-f580-reference-plate.json",
+        "language": "hi",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "मर्ज की गई फ़ाइलों के नामों में संदर्भ प्लेट का पहचानकर्ता, जैसे plate2। नाम के क्रम में पहली प्लेट का उपयोग करने के लिए खाली छोड़ें। चुनी गई प्लेट इस रन में मौजूद होनी चाहिए। डिफ़ॉल्ट: खाली।"
+        },
+        "file_sha256": "832a169cb3609407d8e0b3e120d04a41df204643f5c0b39f24e4dcfe8d7f6725",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-f580-reference-plate.json",
+        "language": "hi",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "मापन से पहले इमेजिंग सत्रों के बीच तीव्रताओं का अंशांकन करें: हर प्लेट एक सत्र है, हर प्लेट पर इमेज किए गए बीड या संदर्भ वेल मापे जाते हैं, और हर प्लेट के तीव्रता चैनल इस तरह स्केल होते हैं कि उसके संदर्भ वेल चुनी गई संदर्भ प्लेट से मेल खाएँ; संदर्भ प्लेट की सेटिंग खाली होने पर नाम के क्रम में पहली प्लेट का उपयोग होता है। यह तालिकाओं के बैच सुधार के विपरीत, छवि स्तर पर दिनों के बीच एक्सपोज़र, लैंप और डिटेक्टर के विचलन को सुधारता है। गेन measurements.db:intensity_rescale में दर्ज होते हैं। डिफ़ॉल्ट False।"
+        },
+        "file_sha256": "832a169cb3609407d8e0b3e120d04a41df204643f5c0b39f24e4dcfe8d7f6725",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/hi/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "be28b2d44420d05f1e63dca7d9d5efeed1d3676925c88e36da142ae2e3b1b7e0",
+    "after_sha256": "9fa1902847762fe04bc6ffe6fc3db8c7bc2b56793ae464c43e8ce5b56f9c6d8b",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "hi",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "intensity_calibration_offset घटाने के बाद हर संदर्भ छवि क्षेत्र की तीव्रता का सार कैसे निकाला जाता है। foreground: Otsu सीमा से ऊपर के पिक्सेल की माध्यिका, अंधेरी पृष्ठभूमि पर बिखरे बीड के लिए। median: सभी पिक्सेल की माध्यिका, समान रूप से स्टेन किए गए संदर्भ वेल के लिए। हर प्लेट अपने संदर्भ छवि क्षेत्रों पर माध्यिका उपयोग करती है। डिफ़ॉल्ट foreground।"
+        },
+        "file_sha256": "be28b2d44420d05f1e63dca7d9d5efeed1d3676925c88e36da142ae2e3b1b7e0",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "hi",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "अंशांकन नमूने वाले वेल, हर प्लेट पर उसी नमूने के साथ इमेज किए गए: फ़्लोरोसेंट बीड या संदर्भ स्टेन, जैसे ['A01'] या ['A01', 'P24']। हर प्लेट के इनमें कम से कम एक छवि क्षेत्र होना चाहिए, नहीं तो रन रुक जाता है। इन्हें किसी भी दूसरे वेल की तरह मापा और अंशांकित किया जाता है। डिफ़ॉल्ट None।"
+        },
+        "file_sha256": "be28b2d44420d05f1e63dca7d9d5efeed1d3676925c88e36da142ae2e3b1b7e0",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/de/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "d6b8f5aeb3673c814f2b6ac1befa442025a3ff3129ffa853aeb90a7d1ee85546",
+    "after_sha256": "b97aed7745b1056d0ab71d9e32fda4b3261f36b27c144cf1e057471989ce399b",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "de",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "Wie die Intensität jedes Referenz-Bildfelds zusammengefasst wird, nach Abzug von intensity_calibration_offset. foreground: der Median der Pixel über einer Otsu-Schwelle, für spärliche Beads auf dunklem Hintergrund. median: der Median aller Pixel, für ein gleichmäßig gefärbtes Referenz-Well. Jede Platte verwendet den Median über ihre Referenz-Bildfelder. Standard foreground."
+        },
+        "file_sha256": "d6b8f5aeb3673c814f2b6ac1befa442025a3ff3129ffa853aeb90a7d1ee85546",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "de",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "Die Wells mit der Kalibrierungsprobe, auf jeder Platte mit derselben Probe aufgenommen: Fluoreszenz-Beads oder eine Referenzfärbung, etwa ['A01'] oder ['A01', 'P24']. Jede Platte muss mindestens ein Bildfeld darin haben, sonst stoppt der Lauf. Sie werden wie jedes andere Well gemessen und kalibriert. Standard None."
+        },
+        "file_sha256": "d6b8f5aeb3673c814f2b6ac1befa442025a3ff3129ffa853aeb90a7d1ee85546",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/de/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "40a0f91f6d17696576b6826bb0c3a6313212fb4b977ca0e38647fa0178ef2cac",
+    "after_sha256": "dc34520799e4e0e700a5e8f306a139e456af369bcbca5b2aa38abc880d6dd40c",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-10-15-f580-reference-plate.json",
+        "language": "de",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "Kennung der Referenzplatte aus den Dateinamen der zusammengeführten Felder, zum Beispiel plate2. Leer lassen, um die erste Platte nach Namen zu verwenden. Die gewählte Platte muss in diesem Lauf vorhanden sein. Standard: leer."
+        },
+        "file_sha256": "40a0f91f6d17696576b6826bb0c3a6313212fb4b977ca0e38647fa0178ef2cac",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-10-15-f580-reference-plate.json",
+        "language": "de",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "Kalibriert Intensitäten über Bildgebungssitzungen hinweg vor der Messung: Jede Platte ist eine Sitzung, die auf jeder Platte aufgenommenen Beads oder Referenz-Wells werden gemessen, und die Intensitätskanäle jeder Platte werden so skaliert, dass ihre Referenz-Wells denen der gewählten Referenzplatte entsprechen; bei leerer Referenzplatten-Einstellung wird die erste Platte nach Namen verwendet. Das korrigiert Belichtungs-, Lampen- und Detektordrift zwischen Tagen auf Bildebene, anders als eine Batch-Korrektur von Tabellen. Die Faktoren werden in measurements.db:intensity_rescale gespeichert. Standard False."
+        },
+        "file_sha256": "40a0f91f6d17696576b6826bb0c3a6313212fb4b977ca0e38647fa0178ef2cac",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "0ce6bb9532793a3e143329592f0b7f8379019ad4c6292246b207a26c9e60c025",
+    "after_sha256": "ceea614a8515dcd1e0788f1801f054b2fd10ce2e99ae4232e976ba6c38d2ce8c",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "zh_CN",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "扣除 intensity_calibration_offset 后，每个参照视野强度的汇总方式。foreground：高于 Otsu 阈值的像素的中位数，适用于暗背景上稀疏的微球。median：所有像素的中位数，适用于均匀染色的参照孔。每块板使用其参照视野的中位数。默认值 foreground。"
+        },
+        "file_sha256": "0ce6bb9532793a3e143329592f0b7f8379019ad4c6292246b207a26c9e60c025",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "zh_CN",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "放置校准样本的孔，每块板上用同一样本成像：荧光微球或参照染色，例如 ['A01'] 或 ['A01', 'P24']。每块板在这些孔中必须至少有一个视野，否则运行会停止。它们与其他孔一样被测量和校准。默认值 None。"
+        },
+        "file_sha256": "0ce6bb9532793a3e143329592f0b7f8379019ad4c6292246b207a26c9e60c025",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "be3f607bac8df0d6e87926297dadd758d466e5cb7c137cce8982cd666ceac925",
+    "after_sha256": "0ae63ce064f4f143bc930b4617f5a3575e6dbdacd7f68c26518e3f7f936f4113",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f580-reference-plate.json",
+        "language": "zh_CN",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "合并文件名中的参考板标识符，例如 plate2。留空时使用按名称排序的第一块板。所选板必须包含在本次运行中。默认为空。"
+        },
+        "file_sha256": "be3f607bac8df0d6e87926297dadd758d466e5cb7c137cce8982cd666ceac925",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f580-reference-plate.json",
+        "language": "zh_CN",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "测量前在成像会话之间校准强度：每块板为一个会话，测量每块板上成像的微球或参照孔，并缩放每块板的强度通道，使其参照孔与所选参照板一致；参照板设置为空时，使用按名称排序的第一块板。这会在图像层面校正不同日期之间的曝光、光源和检测器漂移，不同于对表格进行批次校正。增益记录在 measurements.db:intensity_rescale 中。默认值 False。"
+        },
+        "file_sha256": "be3f607bac8df0d6e87926297dadd758d466e5cb7c137cce8982cd666ceac925",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/fr/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "66433ba119c62259a9d4ba922c8dfd4d385ed531ed8ffb64dab92a7e15cc6e92",
+    "after_sha256": "3ba3470a85ec71423a509c6a6f0b560ff30fd14b3f45c48c26e216443a7e3ff4",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "fr",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "Comment l’intensité de chaque champ de référence est résumée, après soustraction de intensity_calibration_offset. foreground : la médiane des pixels au-dessus d’un seuil d’Otsu, pour des billes éparses sur fond sombre. median : la médiane de tous les pixels, pour un puits de référence marqué uniformément. Chaque plaque utilise la médiane de ses champs de référence. Valeur par défaut : foreground."
+        },
+        "file_sha256": "66433ba119c62259a9d4ba922c8dfd4d385ed531ed8ffb64dab92a7e15cc6e92",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "fr",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "Les puits contenant l’échantillon de calibration, imagé sur chaque plaque avec le même échantillon : billes fluorescentes ou marquage de référence, par exemple ['A01'] ou ['A01', 'P24']. Chaque plaque doit y avoir au moins un champ, sinon l’exécution s’arrête. Ils sont mesurés et calibrés comme n’importe quel autre puits. Valeur par défaut : None."
+        },
+        "file_sha256": "66433ba119c62259a9d4ba922c8dfd4d385ed531ed8ffb64dab92a7e15cc6e92",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "bc67aae85d73bd4d80de3714ed118617cdc24d909054055286f3f299d3b944a7",
+    "after_sha256": "1c89b49040c887ea9e991f7eaab0118696dfa51962bf6ae1c58e6b7ad6029841",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-f580-reference-plate.json",
+        "language": "fr",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "Identifiant de la plaque de référence dans les noms des fichiers fusionnés, par exemple plate2. Laissez le champ vide pour utiliser la première plaque par ordre de nom. La plaque sélectionnée doit être présente dans cette exécution. Par défaut : vide."
+        },
+        "file_sha256": "bc67aae85d73bd4d80de3714ed118617cdc24d909054055286f3f299d3b944a7",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-f580-reference-plate.json",
+        "language": "fr",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "Calibre les intensités entre sessions d’imagerie avant la mesure : chaque plaque est une session, les billes ou puits de référence imagés sur chaque plaque sont mesurés, et les canaux d’intensité de chaque plaque sont mis à l’échelle pour que ses puits de référence correspondent à ceux de la plaque de référence sélectionnée ; si le réglage de plaque de référence est vide, la première plaque par nom est utilisée. Cela corrige la dérive d’exposition, de lampe et de détecteur d’un jour à l’autre au niveau de l’image, contrairement à une correction de lot des tables. Les gains sont enregistrés dans measurements.db:intensity_rescale. Valeur par défaut : False."
+        },
+        "file_sha256": "bc67aae85d73bd4d80de3714ed118617cdc24d909054055286f3f299d3b944a7",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/ko/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "ad1496aa50f9c39047f1484ba9808b1c4d95f47d40d6e7812840223244c5f72b",
+    "after_sha256": "570f05412afdcde86db88d69d9f6631a0309c29f6b6a38f180ed371601624c34",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/ko/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "ko",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "intensity_calibration_offset 값을 뺀 뒤 각 기준 시야의 강도를 요약하는 방식입니다. foreground: 어두운 배경의 드문 비드용으로, Otsu 임계값 위 픽셀의 중앙값입니다. median: 균일하게 염색된 기준 웰용으로, 모든 픽셀의 중앙값입니다. 각 플레이트는 기준 시야들의 중앙값을 씁니다. 기본값 foreground."
+        },
+        "file_sha256": "ad1496aa50f9c39047f1484ba9808b1c4d95f47d40d6e7812840223244c5f72b",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/ko/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "ko",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "보정 시료가 있는 웰로, 모든 플레이트에서 같은 시료로 촬영합니다. 형광 비드나 기준 염색이며, 예: ['A01'] 또는 ['A01', 'P24']. 모든 플레이트는 이 웰에 시야가 하나 이상 있어야 하며, 없으면 실행이 멈춥니다. 다른 웰처럼 측정되고 보정됩니다. 기본값 None."
+        },
+        "file_sha256": "ad1496aa50f9c39047f1484ba9808b1c4d95f47d40d6e7812840223244c5f72b",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "41e285fc9002dda1e79831e7afbdc28a80277ba14039d9743cd8a0ba3bfcef36",
+    "after_sha256": "2fd14208e29bd38ba0d72bc18b60d8126ae124a1d554e33ea5b81ffc4e9c739b",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-f580-reference-plate.json",
+        "language": "ko",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "병합 파일 이름에 있는 기준 플레이트 식별자입니다(예: plate2). 비워 두면 이름순으로 첫 번째 플레이트를 사용합니다. 선택한 플레이트가 이 실행에 있어야 합니다. 기본값: 빈 값."
+        },
+        "file_sha256": "41e285fc9002dda1e79831e7afbdc28a80277ba14039d9743cd8a0ba3bfcef36",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-f580-reference-plate.json",
+        "language": "ko",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "측정 전에 촬영 세션 간 강도를 보정합니다. 각 플레이트가 한 세션이며, 모든 플레이트에서 촬영한 비드나 기준 웰을 측정하고, 기준 웰이 선택한 기준 플레이트와 같아지도록 각 플레이트의 강도 채널을 조정합니다. 기준 플레이트 설정이 비어 있으면 이름순으로 첫 번째 플레이트를 사용합니다. 표의 배치 보정과 달리 이미지 수준에서 날짜 간 노출, 광원, 검출기 드리프트를 보정합니다. 이득은 measurements.db:intensity_rescale에 기록됩니다. 기본값 False."
+        },
+        "file_sha256": "41e285fc9002dda1e79831e7afbdc28a80277ba14039d9743cd8a0ba3bfcef36",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "60cd45a61fd14fe2f1b92110c89f664ed406fbb081feb5d1812dff8d7a9d7666",
+    "after_sha256": "3e8b1f8c3007f3c257bf409d59087651e1e9f2f3be7266542658d4522fe25cab",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-f580-reference-plate.json",
+        "language": "pt",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "Identificador da placa de referência nos nomes dos arquivos mesclados, como plate2. Deixe em branco para usar a primeira placa por ordem de nome. A placa selecionada deve estar presente nesta execução. Padrão: em branco."
+        },
+        "file_sha256": "60cd45a61fd14fe2f1b92110c89f664ed406fbb081feb5d1812dff8d7a9d7666",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-f580-reference-plate.json",
+        "language": "pt",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "Calibra intensidades entre sessões de aquisição antes da medição: cada placa é uma sessão, as microesferas ou poços de referência imageados em cada placa são medidos, e os canais de intensidade de cada placa são escalados para que seus poços de referência coincidam com os da placa de referência selecionada; se a configuração da placa de referência estiver vazia, usa-se a primeira placa por nome. Isso corrige a deriva de exposição, lâmpada e detector entre dias no nível da imagem, ao contrário da correção de lote de tabelas. Os ganhos são registrados em measurements.db:intensity_rescale. Padrão False."
+        },
+        "file_sha256": "60cd45a61fd14fe2f1b92110c89f664ed406fbb081feb5d1812dff8d7a9d7666",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/pt/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "d599dde671684b2b47237eb5dbcf9cedd6e075294f1204853a31557b805469e0",
+    "after_sha256": "ea140327ea41d36438cef04d088c43a7e8cbe72e4d86d9d83d5316c0ad38a2ae",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "pt",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "Como a intensidade de cada campo de referência é resumida, após subtrair intensity_calibration_offset. foreground: a mediana dos pixels acima de um limiar de Otsu, para microesferas esparsas em fundo escuro. median: a mediana de todos os pixels, para um poço de referência corado de forma uniforme. Cada placa usa a mediana dos seus campos de referência. Padrão foreground."
+        },
+        "file_sha256": "d599dde671684b2b47237eb5dbcf9cedd6e075294f1204853a31557b805469e0",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "pt",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "Os poços com a amostra de calibração, imageada em cada placa com a mesma amostra: microesferas fluorescentes ou uma coloração de referência, como ['A01'] ou ['A01', 'P24']. Cada placa precisa ter pelo menos um campo neles, ou a execução para. Eles são medidos e calibrados como qualquer outro poço. Padrão None."
+        },
+        "file_sha256": "d599dde671684b2b47237eb5dbcf9cedd6e075294f1204853a31557b805469e0",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "c6e9168524abbfeb2b0f9c716ba86f5dea6cc6a30011d106f5de12d3d7557f01",
+    "after_sha256": "4ff38715da8e7617f37fe9e5c677bea03d6eb201fdecd0ceddd6fc49797d4cf8",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-f580-reference-plate.json",
+        "language": "sv",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "Referensplattans identifierare i de sammanslagna filnamnen, till exempel plate2. Lämna tomt för att använda den första plattan i namnordning. Den valda plattan måste finnas i den här körningen. Standard: tomt."
+        },
+        "file_sha256": "c6e9168524abbfeb2b0f9c716ba86f5dea6cc6a30011d106f5de12d3d7557f01",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-f580-reference-plate.json",
+        "language": "sv",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "Kalibrerar intensiteter mellan avbildningssessioner före mätningen: varje platta är en session, de pärlor eller referensbrunnar som avbildats på varje platta mäts, och varje plattas intensitetskanaler skalas så att dess referensbrunnar matchar den valda referensplattans; om inställningen för referensplatta är tom används den första plattan efter namn. Detta korrigerar exponerings-, lamp- och detektordrift mellan dagar på bildnivå, till skillnad från batchkorrigering av tabeller. Förstärkningarna sparas i measurements.db:intensity_rescale. Standard False."
+        },
+        "file_sha256": "c6e9168524abbfeb2b0f9c716ba86f5dea6cc6a30011d106f5de12d3d7557f01",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/sv/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "79865d9c2214dda7e1584bf449a19c66d55ff9cca0653efb21e6c27b6fc5f958",
+    "after_sha256": "7bb590e6366342b8118597bd76ceb26d142b1cce08369c6604e4fa6b066a25d7",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "sv",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "Hur varje referensbildfälts intensitet sammanfattas, efter att intensity_calibration_offset dragits bort. foreground: medianen av pixlarna över en Otsu-tröskel, för glesa pärlor på mörk bakgrund. median: medianen av alla pixlar, för en jämnt färgad referensbrunn. Varje platta använder medianen över sina referensbildfält. Standard foreground."
+        },
+        "file_sha256": "79865d9c2214dda7e1584bf449a19c66d55ff9cca0653efb21e6c27b6fc5f958",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "sv",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "Brunnarna med kalibreringsprovet, avbildade på varje platta med samma prov: fluorescerande pärlor eller en referensfärgning, till exempel ['A01'] eller ['A01', 'P24']. Varje platta måste ha minst ett bildfält i dem, annars stoppas körningen. De mäts och kalibreras som alla andra brunnar. Standard None."
+        },
+        "file_sha256": "79865d9c2214dda7e1584bf449a19c66d55ff9cca0653efb21e6c27b6fc5f958",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/es/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+    "before_sha256": "b77000783f7c03e4037bf356d27ecae42a6f5cff359d5e5f113cef4cd1bb085b",
+    "after_sha256": "e4a16c2f5de9f17767e84a69313d02b926399d13c14e0362037d10f60757847d",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "es",
+        "record_index": 11,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_statistic",
+          "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+          "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+          "translation": "Cómo se resume la intensidad de cada campo de referencia tras restar intensity_calibration_offset. foreground: la mediana de los píxeles por encima de un umbral de Otsu, para microesferas dispersas sobre fondo oscuro. median: la mediana de todos los píxeles, para un pocillo de referencia teñido de forma uniforme. Cada placa usa la mediana de sus campos de referencia. Valor predeterminado: foreground."
+        },
+        "file_sha256": "b77000783f7c03e4037bf356d27ecae42a6f5cff359d5e5f113cef4cd1bb085b",
+        "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+        "language": "es",
+        "record_index": 12,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_wells",
+          "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+          "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+          "translation": "Los pocillos con la muestra de calibración, fotografiada en cada placa con la misma muestra: microesferas fluorescentes o una tinción de referencia, como ['A01'] o ['A01', 'P24']. Cada placa debe tener al menos un campo en ellos, o la ejecución se detiene. Se miden y calibran como cualquier otro pocillo. Valor predeterminado: None."
+        },
+        "file_sha256": "b77000783f7c03e4037bf356d27ecae42a6f5cff359d5e5f113cef4cd1bb085b",
+        "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
+      }
+    ],
+    "unrelated_active_records_preserved": 39
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/es/2026-10-15-f580-reference-plate.json",
+    "before_sha256": "bd1f1ad597ea19bc6f0c282ff7b1c5e0408a9c4f09020e4005aaaf6c9c882319",
+    "after_sha256": "287ce78fea5948673ecc30779679c00c71a99faeae46d00681f8519e01406774",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-10-15-f580-reference-plate.json",
+        "language": "es",
+        "record_index": 1,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation": "Identificador de la placa de referencia en los nombres de los archivos combinados, como plate2. Deje el campo vacío para usar la primera placa por orden de nombre. La placa seleccionada debe estar presente en esta ejecución. Predeterminado: vacío."
+        },
+        "file_sha256": "bd1f1ad597ea19bc6f0c282ff7b1c5e0408a9c4f09020e4005aaaf6c9c882319",
+        "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-10-15-f580-reference-plate.json",
+        "language": "es",
+        "record_index": 3,
+        "old_record": {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation": "Calibra intensidades entre sesiones de adquisición antes de medir: cada placa es una sesión, se miden las microesferas o pocillos de referencia fotografiados en cada placa, y los canales de intensidad de cada placa se escalan para que sus pocillos de referencia coincidan con los de la placa de referencia seleccionada; si el ajuste de placa de referencia está vacío, se usa la primera placa por nombre. Esto corrige la deriva de exposición, lámpara y detector entre días a nivel de imagen, a diferencia de la corrección de lotes de las tablas. Las ganancias se registran en measurements.db:intensity_rescale. Valor predeterminado: False."
+        },
+        "file_sha256": "bd1f1ad597ea19bc6f0c282ff7b1c5e0408a9c4f09020e4005aaaf6c9c882319",
+        "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+      }
+    ],
+    "unrelated_active_records_preserved": 2
+  },
+  {
+    "path": "docs/i18n/reviewed/api/sv/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "22a5285d9f1f906bc7b318cad17915cf35ce79f92d5be8559895a6719880bac8",
+    "after_sha256": "703dd8d32728c88a5eb13918b6bfd6fd251967b5b6a464f788f2242ff62b3958",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "22a5285d9f1f906bc7b318cad17915cf35ce79f92d5be8559895a6719880bac8",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Skrivskyddad förhandsvisning av den befintliga planen för plattkalibrering i Measure.",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/de/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "c7447c99964d96c7671dc26eaa291c4c909d83bb3f5a9274e78fc7fd62a4c3ab",
+    "after_sha256": "2bbc6ff95f9cff3cf70c74df6e93736afe3625173bb284736659df561ceb80c9",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "c7447c99964d96c7671dc26eaa291c4c909d83bb3f5a9274e78fc7fd62a4c3ab",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Schreibgeschützte Vorschau des vorhandenen Plattenkalibrierungsplans von Measure.",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/es/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "c6866c432262efae95dbca047ceffac6d555aa69515b3adfe7d2af999ee71675",
+    "after_sha256": "41e0ee1836d5d30b5e6c2ba4fa231c8288a9967f30ad633884fc3a63bdb747b8",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "c6866c432262efae95dbca047ceffac6d555aa69515b3adfe7d2af999ee71675",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Vista previa de solo lectura del plan existente de calibración de placas de Measure.",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/zh_CN/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "133fbb67ac88d5cd7399d22fc99e3ad70f59f55c3e850e0b5994ac15f1c2fda9",
+    "after_sha256": "df7bd84cd7f32372a3340c9e322a4c52874bdde6ba581fa4c448a5035a39bb96",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "133fbb67ac88d5cd7399d22fc99e3ad70f59f55c3e850e0b5994ac15f1c2fda9",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "以只读方式预览 Measure 现有的板校准方案。",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/pt/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "b6c39978a1bfdc3e6a261706c9b953a0f2229f71f7ca1824f85f977ba4f9018c",
+    "after_sha256": "682c1c7c4f5ef620873dea3ed0e730e2250b8dd145f71fade4e90a703b94f313",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "b6c39978a1bfdc3e6a261706c9b953a0f2229f71f7ca1824f85f977ba4f9018c",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Pré-visualização somente leitura do plano existente de calibração de placas do Measure.",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/hi/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "aa3dcf8da2399553c8329c4f3764d207e0ea4f0da77d0369e4390169cfd5da70",
+    "after_sha256": "41824d1ee45f169603f43f735ce449c610451ca70d92064985cce33a08f52dcc",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "aa3dcf8da2399553c8329c4f3764d207e0ea4f0da77d0369e4390169cfd5da70",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Measure की मौजूदा प्लेट अंशांकन योजना का केवल-पठन पूर्वावलोकन।",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/ko/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "4badccfbcba5cffd3961aecf6ddfa89368b6db8116eebad78c8fba504963a8f4",
+    "after_sha256": "4bef3b757c6582a77908551ed466b47efd4064fe2d82491085f68da762674443",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "4badccfbcba5cffd3961aecf6ddfa89368b6db8116eebad78c8fba504963a8f4",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Measure의 기존 플레이트 보정 계획에 대한 읽기 전용 미리보기입니다.",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/is/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "4cd42a1781e55145a688c38c08551409648b9f8bea68d88936d9844344811cd9",
+    "after_sha256": "59d99be5c621e591748e2ec941bb34485d06d3939a9264454c24f601bb5c49b9",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "4cd42a1781e55145a688c38c08551409648b9f8bea68d88936d9844344811cd9",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Skrifvarin forskoðun á fyrirliggjandi kvörðunaráætlun Measure fyrir plötur.",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  },
+  {
+    "path": "docs/i18n/reviewed/api/fr/2026-10-02-calibration-preview-module.json",
+    "before_sha256": "08ffe11c6b489652826df5b7993a66d4dfb7b50a502f4f356b3a37f1f3b4ba9c",
+    "after_sha256": "fa72a5ed2227148cbef19a089cbff845ee2a115bc03efe71fdb8ebaf3f5d52fb",
+    "retired": [
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-10-02-calibration-preview-module.json",
+        "record_index": 0,
+        "file_sha256": "08ffe11c6b489652826df5b7993a66d4dfb7b50a502f4f356b3a37f1f3b4ba9c",
+        "old_record": {
+          "label": "spacr.qt.widgets.calibration_preview#0",
+          "source": "Read-only preview of Measure's existing plate calibration plan.",
+          "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+          "context": "Read-only preview of Measure's existing plate calibration plan.",
+          "translation": "Aperçu en lecture seule du plan existant de calibration des plaques de Measure.",
+          "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+        },
+        "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+      }
+    ],
+    "unrelated_active_records_preserved": 0
+  }
+]

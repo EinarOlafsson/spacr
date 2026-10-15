@@ -336,3 +336,12 @@ A broader snapshot audit remains blocked by an unrelated N700 providers#6
 review/source mismatch; its failure is retained and referred to that owner.
 This closes these documentation/help scopes only, not the whole semantic
 sweep, N703 platform acceptance, final CI or release.
+
+2026-10-15 — Three actual missing private docstrings restored.
+model_zoo._bad_model_metadata, distributed_jobs._SSHAuthBroker.__init__ and
+remote_execution._SSHSessionPool.__init__ now describe their actual behavior.
+Executable ASTs are identical. Normal public/private-class and nested-helper
+eligibility proves no new rendered API or runtime targets. The original zero
+undocumented-callable gate passes on its exact tested source (27,364callables);
+this is not a new blanket scientific, global API-review or release claim.
+Evidence: data/ci_callable_documentation_contracts_2026-10-15/.

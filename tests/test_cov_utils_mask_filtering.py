@@ -673,11 +673,16 @@ def test_choose_model_sam_uses_cpsam_weights(fake_cellpose):
     assert model.kwargs["pretrained_model"] == "cpsam"
 
 
-def test_choose_model_unknown_name_still_returns_cpsam(fake_cellpose):
-    """An unrecognised name must not return None — that was a latent crash."""
-    model = U._choose_model("no_such_model", device="cpu")
-    assert isinstance(model, _FakeCellposeModel)
-    assert model.kwargs["pretrained_model"] == "cpsam"
+def test_choose_model_unknown_name_refuses_stock_substitution(fake_cellpose, monkeypatch):
+    """An explicit unknown model stops before any different weights are loaded."""
+    from spacr import model_zoo as zoo
+
+    monkeypatch.setattr(zoo, "catalogue", lambda **kwargs: [])
+    monkeypatch.setattr(U.cp_models, "CellposeModel", lambda **kwargs:
+                        pytest.fail("Unknown model reached constructor"))
+    with pytest.raises(zoo.ModelZooError) as error:
+        U._choose_model("no_such_model", device="cpu")
+    assert "no_such_model" in str(error.value)
 
 
 def test_choose_model_none_name_returns_cpsam(fake_cellpose):

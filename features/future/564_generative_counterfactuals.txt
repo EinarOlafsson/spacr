@@ -340,3 +340,38 @@ reviewed localization/API/settings-flow artifacts. Larger/pretrained latent
 backbone and biological/native acceptance remain OPEN. Do not mark the whole
 feature complete from this component. Evidence:
 data/564_structure_objective_2026-10-15/.
+
+2026-10-15 — Optional structure objective and complete alpha control delivery.
+The frozen backend adds configurable inversion strength (default0.95; zero
+retains the input) and an opt-in multiscale spatial-gradient penalty (default0,
+preserving the original objective). Two actual float controls appear under
+Counterfactuals with literal object names, existing alpha visibility and
+eager/lazy settings persistence. Seven actual UI/alpha/roundtrip checks pass;
+backend21 checks and a93-tensor legacy replay retain their original source-bound
+evidence, without duplicate execution. Independent UI/source peers pass.
+
+Seven new setting/diagnostic sources have63 reviewed translations. Normal
+nine-language runtime generation/audit passes, preserving10,855 unrelated
+records per locale plus hashes/metadata. Exact three backend caption owners
+pass the45-case owner cohort; normal visibility proves zero eligible changed
+API prose. Normal setting consumer/flow/Help generation adds both real keys,
+their actual runner and working flow links. Fresh coordinator canonical source
+values and normal hashes equal the producer after derived-file generation;
+an initial tuple-versus-JSON-list harness comparison failure is retained and
+corrected without source/validator changes. Normal arrival baseline9833 remains
+immutable:1180added/31changed/151retired.
+
+Actual localization subchecks pass for18 real control/language cases and27
+diagnostic lookups (all63 targets), including typed tooltip bodies, generated
+flow links, defaults and retained English metadata. That additional harness
+ended1 solely on its stricter final zero-network-attempt assertion: unrelated
+ConsolePanel hosted-AI allowance refresh attempted a connection that the audit
+hook refused before HTTPS connect. The original failure and trace-only caller
+probe are retained; no product edits, locale replay or invented terminal0.
+This does not certify universal startup-network behavior, DNS absence, scientific
+quality, a larger latent model, full CI or release acceptance. Evidence:
+data/564_diffusion_ui_controls_2026-10-15/,
+data/564_diffusion_runtime_catalogs_2026-10-15/,
+data/564_generated_setting_links_2026-10-15/,
+data/564_gui_locale_consumers_2026-10-15/ and
+data/564_coordinator_integration_2026-10-15/.

@@ -1,0 +1,20 @@
+{
+  "verdict": "APPROVED seventh test-only component",
+  "commit": "a662b3935c1cb13de961a569a58eaf9115b26685",
+  "reviewer": "independent AI technical source peer/easy_overnight; no native signoff",
+  "test": "tests/test_web_shared_masks_n698.py",
+  "sha256": "a96c446052b7c888a20fe7dd05cef279241d970ea03fad5c9e08d941775c46ec",
+  "proof": [
+    "All26 originalassertion ASTs exact",
+    "Actualrecorded4.2 explicit evalsignature withMISSING_CHANNEL_AXIS sentinel; no kwargs/args catchall",
+    "Recorder first captureslocals then selects only actualdeclaredmethod parameter names includingx, excluding self/freevariables",
+    "Mask/vector/logit prediction arrays unchanged; sourceimage/manifest/outputbehavior assertions retained",
+    "No contractgate/ratchet/exemption changes"
+  ],
+  "evidence": "Initial27owning+2hygiene+1qualifiedsweep30PASS40.49s; recorder-only correctedaffectedmodule27PASS7.55s, no repeatedunchangedgates",
+  "production_changed": false,
+  "limits": [
+    "Boundparameter values, not rawkwargs-presence proof",
+    "No nativeweights/inference/training/GPU/science/fullCI acceptance"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "status": "final_packet_independent_peer_pass",
+  "issues": [],
+  "packet_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/packet-manifest.json",
+    "sha256": "c75fb1f48fd18afc09516bf267e6e812b8139cc85509e5041ab9f0e78b5ec248",
+    "bytes": 81868
+  },
+  "export_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/export-manifest.json",
+    "sha256": "395e7213a2160d09042ee016dac44d86d4d75262da49b9654a5f5d2d87665684",
+    "bytes": 54509
+  },
+  "completion_spec": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/root-completion-evidence-manifest.json",
+    "sha256": "f7c991fcf81500562d485e8b0d4cae1058c8e639ba58f132dad430fef5f732ce",
+    "bytes": 27392
+  },
+  "final_publication_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/completion-evidence/24-final_publication_review-final-publication-review.json",
+    "sha256": "4958a1c414e9fc85eef8736a50153f0c420e03b74439931cdab06620b8c4a2d4",
+    "bytes": 7112
+  },
+  "actual_packet_file_count": 223,
+  "checkpoint_files_verified": 148,
+  "checkpoint_bytes_verified": 115334011,
+  "official_reviews_verified": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/08-15_image_umap.da.json",
+      "sha256": "d0ce46cb611561d21cf87c063d14f9a4bc96ad4f277d44b9dee2afe7a63b73c5",
+      "bytes": 4496
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/09-15_image_umap.de.json",
+      "sha256": "2681e3b84305ffdd8018d99cbd3aa9ef55520842af500456645700072a61125d",
+      "bytes": 5162
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/10-15_image_umap.es.json",
+      "sha256": "a795ca862a7c38a599d609c18a9580b03dc940e5ac19bcc385afbe0a27c48cdd",
+      "bytes": 4865
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/11-15_image_umap.fr.json",
+      "sha256": "2792b20282c10fb22c0ff1519d9c94ee1af337b3afe31eb313d50795856d6922",
+      "bytes": 5157
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/12-15_image_umap.hi.json",
+      "sha256": "9ec010538206f496b490fbae077454101b91ba0080078c42000b7bccae89562b",
+      "bytes": 9292
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/13-15_image_umap.is.json",
+      "sha256": "be6858bfe257829e36df5073d0a49a4a7f582136aa0f08c2a75ca4eb07724ea3",
+      "bytes": 4533
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/14-15_image_umap.it.json",
+      "sha256": "d0bcab532f1d101f484a867034f457777cb0fd1a699b4eb8f415d559c53a8166",
+      "bytes": 4806
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/15-15_image_umap.ja.json",
+      "sha256": "f7f59c027b1e6a955e1edec082e9e260dd2399a9258fde995bb12a3316f076bf",
+      "bytes": 5450
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/16-15_image_umap.ko.json",
+      "sha256": "169ae6374e71d0ecc7b4d7636e18eea0f5972b502a3022e1be59bfed5bda5ce6",
+      "bytes": 4792
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/17-15_image_umap.nb.json",
+      "sha256": "2ce3753abe2427fe117cd974f3e9769e5deed6dc624b732a0999c8df8f4d8851",
+      "bytes": 4446
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/18-15_image_umap.pt-BR.json",
+      "sha256": "acb105f6e50bcbac40cd791be73de9c661b1dcc95545ef807fa368db47e25551",
+      "bytes": 4846
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/19-15_image_umap.sv.json",
+      "sha256": "9f8e12278d4ad85b5171b4002001291b86801dfb0a5192e42ee90cfbe39e770c",
+      "bytes": 4573
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-publication-packet/review-evidence/20-15_image_umap.zh-CN.json",
+      "sha256": "caa644625d64928438a441fb98a8d5b3e6a653b327c73316067f14cbc60b7e8f",
+      "bytes": 3920
+    }
+  ],
+  "completion_artifacts": 34,
+  "held_supports": 5,
+  "source_commit": "1512a5c54f821b41208aa7e7f9b2efe49f733c02",
+  "player_fix_commit": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+  "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "entry_capture_commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+  "publication_revision": "e296462dc19ddc4280300044d374856ac97ad20a",
+  "hf_candidate_files_readback": 5321,
+  "hf_candidate_bytes_readback": 8455938156,
+  "pages_cases": 84,
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/15_image_umap_silent.mp4",
+    "bytes": 245088942,
+    "sha256": "ad3a89531587b2193df0d204c890579560462d9adebc1743e4314317c059ad0a"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/native-live-timings.json",
+    "bytes": 29967,
+    "sha256": "98baa04bbf0a932c4a488d56dcbeaef8d9b35990f8cce80f7f57464b87ae8aee"
+  },
+  "checks": [
+    "All222listedpacketfiles SHA/length verified plusmanifest; noextrafiles.",
+    "All148checkpointfiles SHA/lengthverified115334011B; hosted8GBmedia NOT rehashed.",
+    "All13officialreviewbytes exactcaptureGitobjects/normalizedEnglish.",
+    "ExactTparentW/oneauditliteral andWparenta672/exactplayer2paths; app tree identicalentry/primary/T.",
+    "Fiveheldformatpatches exactGitformatpatch; owningexpectedtestcounts andterminal0.",
+    "Finalrootreview/spec/master/timing/manifest/5321readback/84Pages/checkpointbindings match."
+  ],
+  "limits": [
+    "Existingsealedreceiptreadback only; no tests/browser/decode/network/modelor8GBmediahash.",
+    "Original90scuetimeout unexplained/preserved; successfulformalretry/comparison scoped.",
+    "3010remoteextras notpruned/accepted;5321candidatefiles only.",
+    "No human/native-speaker/listening/phonemecompleteness/liveSpace approval.",
+    "83preservedlessons not83GNOMEremakes;05Spaceoutstillpublishedpendingnextrepair.",
+    "Nightlyfeaturecommit/push rootownedfuture; no claimitoccurred."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "decision": "PASS algorithm review; exact source/review/retirement manifest seal pending",
+  "producer_sha256": "74a710aa6e58fa342a63b1eb008c581e2f8eb0410354212af909b25fb00a77bf",
+  "baseline_source_pin": "2ad50a5259baa0b74801fb0a0a8aea5986b085d7",
+  "baseline_path": "features/data/564_diffusion_runtime_catalogs_2026-10-15/scoped-runtime.py",
+  "baseline_sha256": "c2b316433773b5463fe58b5a8aafb5e4dc9242e0d4b6501d8dfb0278f10c2bd2",
+  "findings": [
+    "Owned18 identities are validated as exactly4settinglabels,8tooltips,6UI; actualcanonicalsource matches required for every identity.",
+    "Possible retirements apply only toUI identities absent from expected canonical hashes and present in baselineEnglish. A surviving oldcaption remains foreign and its target/hash must be retained.",
+    "NoforeignEnglishremovals,arrivals orsourcehashchanges permitted. Locale foreign targets must exist with identicalsourcehash; all same-source collisions are refused.",
+    "Normal reviewed loader and candidate gate checked for each ownedtarget; model decoding refuses before writer. All9inputs preflight before any normalEnglish/language write.",
+    "Afterwriter owned/foreignvalues andsourcehashes areexact, locale metadata unchanged; full9localeaudit andfreshoriginalcanonicalequality required, allpinnedexisting source/reviewbytes rechecked.",
+    "Adaptation preserves normaltool behavior and prior fullforeignpreservation guards. No concrete algorithm defect identified."
+  ],
+  "final_binding_requirements": [
+    "Seal sources.json with actualsourcehashes and exactlythe3authorized possibly_removed_ui strings, plus reviewed18rowsperlocale; this algorithm review doesnot approveunseenmanifestbytes.",
+    "Any activeold review row for actuallyremovedsource must be retired by normal input authoringbeforeloader; producer doesnot bypass obsolete-review refusal."
+  ],
+  "limits": [
+    "Read-only AST/source comparison; no imports,source edits,tests,canonicalcollection,writerexecution orfinalcatalogacceptance."
+  ]
+}

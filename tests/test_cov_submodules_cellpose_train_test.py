@@ -58,12 +58,12 @@ def cp_stub(monkeypatch, tmp_path):
     ``model.eval`` in dataset order; tests fill it before calling the
     function under test.
     """
-    from types import SimpleNamespace
     from spacr import model_zoo
 
     cached = tmp_path / "cached-cpsam"
     cached.write_bytes(b"recording model; never loaded")
-    entry = SimpleNamespace(key="cpsam", path=str(cached), uri="")
+    entry = model_zoo.ModelEntry(key="cpsam", name="cpsam", kind="cellpose",
+                                 path=str(cached), uri="")
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
     monkeypatch.setattr(model_zoo, "fetch",
                         lambda *a, **k: pytest.fail("stock weights must not be fetched"))
@@ -414,9 +414,11 @@ def test_train_cellpose_runs_on_documented_defaults(tmp_path, cp_stub):
 # ===========================================================================
 
 def _test_settings(src, **over):
+    checkpoint = src / "custom_model.CP_model"
+    checkpoint.write_bytes(b"recording model; never loaded")
     settings = {
         "src": str(src),
-        "model_path": "/nonexistent/custom_model.CP_model",
+        "model_path": str(checkpoint),
         "save": False,
         "normalize": True,
         "percentiles": (2, 98),

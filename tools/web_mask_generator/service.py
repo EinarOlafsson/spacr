@@ -12,7 +12,7 @@ from .inputs import DEFAULT_MAX_FILE_BYTES, describe_upload
 from .plaque import _load_model, run_plaque_download
 from .detector import run_well_download
 from .masks import OBJECT_ROLES, run_mask_download
-from .registry import resolve_trusted_model
+from .registry import model_families, resolve_trusted_model
 
 
 def _copy_upload(source, target, limit):
@@ -43,14 +43,43 @@ class ModelService:
             self.job_parent.mkdir(parents=True, exist_ok=True)
 
     def preload_default(self):
-        """Explicit operator startup warm-up; never called by importing this module.
+        """Validate configured identities and warm at most one segmentation model.
 
-        HF ZeroGPU recommends placing models during startup. Digest-keyed
-        caching lets the later GPU callback reuse those exact verified bytes.
+        Every operator-provisioned key and checksum is validated before any
+        model is constructed. The current plaque default is warmed when
+        provisioned; otherwise the first supported configured segmentation key
+        in lexical order is warmed. No missing default is substituted for an
+        inference request, and no model is downloaded here.
+
+        :returns: the warmed key, or ``None`` for an empty or detector-only
+            configuration. Detectors retain their request-scoped desktop
+            loader. This bounded warm-up does not certify ZeroGPU placement.
         """
-        resolved = resolve_trusted_model("toxoplasma_plaque", self.models)
+        catalogue = model_families()
+        known = {version["key"]: family["family"]
+                 for family in catalogue for version in family["versions"]}
+        resolved_models = {}
+        for key in self.models:
+            if key not in known:
+                raise ValueError(tr("Unknown provisioned model key: {key}", key=key))
+            family = known[key]
+            resolved_models[key] = (family, resolve_trusted_model(
+                family, self.models, model_key=key))
+        plaque_default = next((family["default"] for family in catalogue
+                               if family["family"] == "toxoplasma_plaque"), None)
+        candidates = sorted(key for key, (family, _) in resolved_models.items()
+                            if family == "toxoplasma_plaque" or family in OBJECT_ROLES)
+        if not candidates:
+            return None
+        key = plaque_default if plaque_default in candidates else candidates[0]
+        family, resolved = resolved_models[key]
         metadata = resolved["metadata"]
-        _load_model(resolved["checkpoint"], metadata["sha256"])
+        if family == "toxoplasma_plaque":
+            _load_model(resolved["checkpoint"], metadata["sha256"])
+        else:
+            from .masks import _load_mask_model
+            _load_mask_model(resolved["checkpoint"], metadata["sha256"],
+                             OBJECT_ROLES[family])
         return metadata["key"]
 
     @contextmanager

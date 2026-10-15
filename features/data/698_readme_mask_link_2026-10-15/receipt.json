@@ -1,0 +1,212 @@
+{
+  "status": "PASS_READY_FOR_OWNER_INTEGRATION",
+  "source_commit": "644d7e5e2c",
+  "baseline": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+  "normal_generation": {
+    "command": "/home/olafsson/anaconda3/bin/python tools/build_readme_images.py --refresh-generated",
+    "exit": 0,
+    "wall_seconds": 516.64,
+    "peak_rss_KiB": 427668,
+    "images_total": 1700,
+    "installs": 0
+  },
+  "owning_checks": {
+    "exit": 0,
+    "tests_passed": 6,
+    "pytest_seconds": 1.7,
+    "wall_seconds": 3.48,
+    "peak_rss_KiB": 456004,
+    "scope": "New ten-language link path, default model cards, all README model blocks, artifact currency, orphan images, existing readable/detail-link contract."
+  },
+  "artifact_readback": {
+    "status": "PASS",
+    "baseline": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+    "routes": [
+      {
+        "language": "en",
+        "README": "README.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/en/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/#mask-generator",
+        "label": "Mask generator"
+      },
+      {
+        "language": "fr",
+        "README": "docs/i18n/readme/README.fr.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/fr/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/fr/#mask-generator",
+        "label": "Générateur de masques"
+      },
+      {
+        "language": "de",
+        "README": "docs/i18n/readme/README.de.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/de/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/de/#mask-generator",
+        "label": "Maskengenerator"
+      },
+      {
+        "language": "es",
+        "README": "docs/i18n/readme/README.es.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/es/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/es/#mask-generator",
+        "label": "Generador de máscaras"
+      },
+      {
+        "language": "sv",
+        "README": "docs/i18n/readme/README.sv.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/sv/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/sv/#mask-generator",
+        "label": "Maskgenerator"
+      },
+      {
+        "language": "is",
+        "README": "docs/i18n/readme/README.is.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/is/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/is/#mask-generator",
+        "label": "Grímugerð"
+      },
+      {
+        "language": "pt",
+        "README": "docs/i18n/readme/README.pt.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/pt/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/pt/#mask-generator",
+        "label": "Gerador de máscaras"
+      },
+      {
+        "language": "zh_CN",
+        "README": "docs/i18n/readme/README.zh_CN.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/zh_CN/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/zh-CN/#mask-generator",
+        "label": "掩膜生成器"
+      },
+      {
+        "language": "ko",
+        "README": "docs/i18n/readme/README.ko.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/ko/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/ko/#mask-generator",
+        "label": "마스크 생성기"
+      },
+      {
+        "language": "hi",
+        "README": "docs/i18n/readme/README.hi.rst",
+        "unchanged_prior_model_links": 20,
+        "new_readable_panel": "docs/readme_text/hi/generated-model-zoo-3.md",
+        "website_target": "https://einarolafsson.github.io/projects/spacr/hi/#mask-generator",
+        "label": "मास्क जनरेटर"
+      }
+    ],
+    "old_artifact_count": 2454,
+    "changed_existing": [
+      "README.rst",
+      "docs/i18n/readme/README.de.rst",
+      "docs/i18n/readme/README.es.rst",
+      "docs/i18n/readme/README.fr.rst",
+      "docs/i18n/readme/README.hi.rst",
+      "docs/i18n/readme/README.is.rst",
+      "docs/i18n/readme/README.ko.rst",
+      "docs/i18n/readme/README.pt.rst",
+      "docs/i18n/readme/README.sv.rst",
+      "docs/i18n/readme/README.zh_CN.rst",
+      "docs/readme_images/de/generated-model-zoo.rst",
+      "docs/readme_images/en/generated-model-zoo.rst",
+      "docs/readme_images/es/generated-model-zoo.rst",
+      "docs/readme_images/fr/generated-model-zoo.rst",
+      "docs/readme_images/hi/generated-model-zoo.rst",
+      "docs/readme_images/is/generated-model-zoo.rst",
+      "docs/readme_images/ko/generated-model-zoo.rst",
+      "docs/readme_images/pt/generated-model-zoo.rst",
+      "docs/readme_images/sv/generated-model-zoo.rst",
+      "docs/readme_images/zh_CN/generated-model-zoo.rst"
+    ],
+    "unchanged_old_artifacts": 2434,
+    "source_hashes": {
+      "packaging/generate_readme_visuals.py": "58616bef94baecb1761c5c03bdd049aa9b51273470b502c3a887c21c4b15ec77",
+      "tools/readme_i18n.py": "047c8fefa0b4df049e18d33520f1bd1c9453b311c40fb601c046961589f2989c",
+      "tests/test_readme_presentation.py": "6228ca607335bc07a892cfe733bf175a06f7601b9d20de397e3038b1c7f4f8b1"
+    },
+    "publication": "Private; actual website deployment/readback is a separate owner gate."
+  },
+  "new_artifacts": {
+    "phone_and_desktop_SVGs": 20,
+    "readable_Markdown_pages": 10
+  },
+  "artifact_hashes": {
+    "README.rst": "e5de6f959002ea81d50922cfe752fd23dbb80e1345b8a4cb670dd2d9ce90c922",
+    "docs/i18n/readme/README.de.rst": "c3f3351f74e18fa8588dfc659f01520f2aeb5de1346db3f0e8dd8da1be33ffaa",
+    "docs/i18n/readme/README.es.rst": "92a5cef3a040a66e4297dc8da79bfd74ade014d7a85438be88784aa2a53d6aec",
+    "docs/i18n/readme/README.fr.rst": "ae2840d768d13adb485a5aa503bf0713e834945b158539135f5405b92daaa7ee",
+    "docs/i18n/readme/README.hi.rst": "7edff7ca837f57ae3e5b22855b2f737f573c0d052917abe2db7ae22f0715887d",
+    "docs/i18n/readme/README.is.rst": "9eb161af2335f3e340e000f9e1bc179cdb254e933a1d9adfe97c97d9cdf2fd10",
+    "docs/i18n/readme/README.ko.rst": "0f8078c9d20c19e24c6e7f848a50adb8522c88280551cf49964e0857627123dd",
+    "docs/i18n/readme/README.pt.rst": "70f7514cbefabfc188d7611eb27ec544d679830b347e5718832aee617aa914f6",
+    "docs/i18n/readme/README.sv.rst": "cfe06cf5cc8362fcab447816a869935b309ecc3c3f7272d21f5b5d2302398efc",
+    "docs/i18n/readme/README.zh_CN.rst": "0da51a4c56707d847517b5d1b8c21ae2d640fdb0b8be2cdb566ed5b00abf8726",
+    "docs/readme_images/de/generated-model-zoo-3.desktop.svg": "754493b8807d88bbe17dbae4f58247ee61ea106f4a61cdc83f065fced13a86e1",
+    "docs/readme_images/de/generated-model-zoo-3.svg": "cbe52961f6ee4f502fea243722512fc5665620e536dcfef1581bc718dfdfabab",
+    "docs/readme_images/de/generated-model-zoo.rst": "70506ff70e47a4654f3c5d04145186bdca74045aea9e0bbb4f05b1e57f88ceaf",
+    "docs/readme_images/en/generated-model-zoo-3.desktop.svg": "33580811503b83c1c61806412bb9abcbee7716082cd3e7d2ea635992becaf7fb",
+    "docs/readme_images/en/generated-model-zoo-3.svg": "b50825a88dcf91e5f8a73e81a8e1b5a6c1f2da9434e099fdd6afe36c989301cc",
+    "docs/readme_images/en/generated-model-zoo.rst": "95e238352397d5d7c5dcf10ca8fffe2e7d4a0aad45d559a494921bfc96098773",
+    "docs/readme_images/es/generated-model-zoo-3.desktop.svg": "4bad3d978810a410b51b37bc9bdf76de04a4499f626cfc9c5ef274cd23ec5b91",
+    "docs/readme_images/es/generated-model-zoo-3.svg": "64470eea591b5aead7f680c4e40e40dafa5c177fbd82b87c25dc2b35bae735fa",
+    "docs/readme_images/es/generated-model-zoo.rst": "3df6c5ab62557433b9ef806d98675fd2cb03bf172def95d1c10dafc10c301e61",
+    "docs/readme_images/fr/generated-model-zoo-3.desktop.svg": "8de10331b537176245cb452823440c6577ea99425f6f6076bacbe70b4411f6ec",
+    "docs/readme_images/fr/generated-model-zoo-3.svg": "3c9a4b3ffb3b4aa848227f42478867b7a6e474671550ac4d6980c75a3e1a36e2",
+    "docs/readme_images/fr/generated-model-zoo.rst": "e5483ae68462348b1a58dcdd498499cb0feb7bfa81b5eba55c248a5ec010c4f8",
+    "docs/readme_images/hi/generated-model-zoo-3.desktop.svg": "96acf8005abf54bfc7d8f7ff30a04213e83595edff014a866e61f5a854ead9cd",
+    "docs/readme_images/hi/generated-model-zoo-3.svg": "894c3552568db105294c763fb46b4595c6c560879dc24314759d26015c283632",
+    "docs/readme_images/hi/generated-model-zoo.rst": "cf7abf39746ca25e30481b845d89ea3117e714723eba0aec4bcb043371e04c85",
+    "docs/readme_images/is/generated-model-zoo-3.desktop.svg": "c0e4089cbb6eccdca9fab42957e2ac683e456e4263691a1ba35275d84d6075ce",
+    "docs/readme_images/is/generated-model-zoo-3.svg": "0007d9c70bfab567c2f4edf9211c5e8c841a2ccbd599c38354ddf73261ec8d85",
+    "docs/readme_images/is/generated-model-zoo.rst": "aa31d85702c2b3a403e732e6e108c5cbfac00831c7592d24a78322025ccdf4aa",
+    "docs/readme_images/ko/generated-model-zoo-3.desktop.svg": "bcb5ce129c1832bdc847da6f2f1f9fc5b318fc7e0d41dd34d86eeac372e9adb5",
+    "docs/readme_images/ko/generated-model-zoo-3.svg": "108032399fa3ab6efbaf5f592e0ea1a4c4c383059ee94bf14a32c9f19cf12474",
+    "docs/readme_images/ko/generated-model-zoo.rst": "2c220859ac999f6822a4436e52cf55e20f614daa0fc290634e1f5bf9375e3893",
+    "docs/readme_images/pt/generated-model-zoo-3.desktop.svg": "b563b7fbecf9887fb94ea9b286aef04bcb5f353d5bf5b95b547d13cbc8e46eae",
+    "docs/readme_images/pt/generated-model-zoo-3.svg": "028db4d3258734a5fc1c964092b4423c21984baace6f20e7f5991a34e2075df2",
+    "docs/readme_images/pt/generated-model-zoo.rst": "4e0c827b34618456c4ee835de3c3e2c9ed84c3db9551dd99e0c40ba519199b44",
+    "docs/readme_images/sv/generated-model-zoo-3.desktop.svg": "b4cda7f6098715f3511b3ca102ddcfb78f451956ac2805a5b4b336ebf3fe5b82",
+    "docs/readme_images/sv/generated-model-zoo-3.svg": "6e8bfc9f7b6c7aa4e96a79f624726503259aae632c4b08bbccdf4abae6c0625e",
+    "docs/readme_images/sv/generated-model-zoo.rst": "48bc09f757d37b24ec1f411f263312df0d7cb6553819d2c374e9ce491a0c177f",
+    "docs/readme_images/zh_CN/generated-model-zoo-3.desktop.svg": "87fb504acc2ba59997cf7a63fed4a0b7fd5dcb05aa0b7e4c45543fe3f673bc2c",
+    "docs/readme_images/zh_CN/generated-model-zoo-3.svg": "9ff31d246940d867d31597786fd0e235cdb8c3479b480c520618e7cd4307fd49",
+    "docs/readme_images/zh_CN/generated-model-zoo.rst": "7793be51ad8aeb3cb975f74951aa273c255d1d96d57a8bf315ea50cc87ed523e",
+    "docs/readme_text/de/generated-model-zoo-3.md": "5eaf7b8c47406182092027ad02a42ed2565c36cbee0f6e047f0e4b4c171d2190",
+    "docs/readme_text/en/generated-model-zoo-3.md": "583ec6fa331fa2ba34e9572bd1044a33b1f182ff21e81dee2ade41463a9ddfdb",
+    "docs/readme_text/es/generated-model-zoo-3.md": "123b98978bf18a4760c80f11a6b59877a34ace7259f00d7049043aa410bacdfc",
+    "docs/readme_text/fr/generated-model-zoo-3.md": "34c140d805b9f15c8b57945f632fd74ba021ea2aad28eb113e0c04380bcf1a5b",
+    "docs/readme_text/hi/generated-model-zoo-3.md": "d8574a869bebc360b99dd975ec9754f1de7d7e2f38d7fbdf775372928997f97d",
+    "docs/readme_text/is/generated-model-zoo-3.md": "09aefb3fe21a230c6d38993d50e7132dfc3ca88931f26d959c725233179b4d63",
+    "docs/readme_text/ko/generated-model-zoo-3.md": "e24f1f04627e9cd4e9bf667de5591aa737f025f1da46d6e20277b63ec2fe18c2",
+    "docs/readme_text/pt/generated-model-zoo-3.md": "54b9dbd9d5a2baf5fe9acbe9ac53411a1859cc0f65f9a5a5fd71fc8e21bc4d4c",
+    "docs/readme_text/sv/generated-model-zoo-3.md": "126a045eaa06f974401298a4a642a33bd65a6038ff37ef6d44e9c3cc3b42e4cf",
+    "docs/readme_text/zh_CN/generated-model-zoo-3.md": "0b7f3e69066e81ddc11607fdcf4b3a503fa106912146d825d9b401231f1e3f4b"
+  },
+  "site_owner": {
+    "status": "PASS",
+    "observed_utc": "2026-10-15T13:20:53.248577+00:00",
+    "source_commit": "f1386095165efdb8e485533a11bb05f62d391a6a",
+    "source_workflow": {
+      "run": 38737492923,
+      "url": "https://github.com/EinarOlafsson/site-src/actions/runs/38737492923",
+      "conclusion": "success"
+    },
+    "public_commit": "fc28c28a2f86a4b8a0cbea8c369c60715f862ab3",
+    "pages_workflow": {
+      "run": 38740928567,
+      "url": "https://github.com/EinarOlafsson/EinarOlafsson.github.io/actions/runs/38740928567",
+      "conclusion": "success"
+    },
+    "owner_receipt_sha256": "37164529c6001a7eb6697aa2148f4d8802a224472b733b3206d3496cae8cc3d5",
+    "review_boundary": "Website owner performed live readback; this README lane did not duplicate deployment or HTTP requests."
+  },
+  "publication": "No push by this worker. Root owns coherent integration/publication. Site route is live; hosted inference/WebGPU/whole N698 acceptance is not claimed."
+}

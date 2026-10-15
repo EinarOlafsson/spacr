@@ -1,0 +1,434 @@
+[
+  {
+    "run": "15_image_umap-cues-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 52.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-cues-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-en-af_heart-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-en-af_heart-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-es-ef_dora-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-es-ef_dora-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-fr-ff_siwis-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-fr-ff_siwis-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-hi-hf_alpha-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-hi-hf_alpha-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-it-if_sara-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-it-if_sara-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-pt-BR-pf_dora-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-pt-BR-pf_dora-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-ja-jf_alpha-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-ja-jf_alpha-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-zh-CN-zf_xiaobei-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-zh-CN-zf_xiaobei-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-en-af_heart-captions-da-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-en-af_heart-captions-da-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-en-af_heart-captions-de-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-en-af_heart-captions-de-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-en-af_heart-captions-is-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-en-af_heart-captions-is-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-en-af_heart-captions-ko-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-en-af_heart-captions-ko-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-en-af_heart-captions-nb-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-en-af_heart-captions-nb-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-master-en-af_heart-captions-sv-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-master-en-af_heart-captions-sv-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_heart-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_heart-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_aoede-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_aoede-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_bella-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_bella-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_jessica-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_jessica-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_river-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_river-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_sarah-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_sarah-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_sky-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_sky-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_adam-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_adam-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_echo-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_echo-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_eric-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_eric-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_fenrir-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_fenrir-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_liam-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_liam-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_michael-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_michael-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_onyx-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_onyx-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_puck-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_puck-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-am_santa-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-am_santa-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bf_alice-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bf_alice-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bf_emma-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bf_emma-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bf_isabella-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bf_isabella-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bf_lily-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bf_lily-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bm_daniel-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bm_daniel-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bm_fable-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bm_fable-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bm_george-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bm_george-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-bm_lewis-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-bm_lewis-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-es-ef_dora-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-es-ef_dora-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-es-em_alex-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-es-em_alex-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-es-em_santa-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-es-em_santa-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-fr-ff_siwis-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-fr-ff_siwis-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-hi-hf_alpha-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.3,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-hi-hf_alpha-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-hi-hf_beta-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-hi-hf_beta-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-hi-hm_omega-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-hi-hm_omega-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-hi-hm_psi-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.2,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-hi-hm_psi-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-it-if_sara-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-it-if_sara-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-it-im_nicola-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-it-im_nicola-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-pt-BR-pf_dora-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-pt-BR-pf_dora-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-pt-BR-pm_alex-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-pt-BR-pm_alex-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-pt-BR-pm_santa-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-pt-BR-pm_santa-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-ja-jf_alpha-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-ja-jf_alpha-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-ja-jf_gongitsune-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-ja-jf_gongitsune-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-ja-jf_nezumi-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-ja-jf_nezumi-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-ja-jf_tebukuro-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-ja-jf_tebukuro-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-ja-jm_kumo-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-ja-jm_kumo-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zf_xiaobei-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zf_xiaobei-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zf_xiaoni-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zf_xiaoni-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zf_xiaoxiao-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zf_xiaoxiao-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zf_xiaoyi-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zf_xiaoyi-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zm_yunjian-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zm_yunjian-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zm_yunxi-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zm_yunxi-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zm_yunxia-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zm_yunxia-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-zh-CN-zm_yunyang-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 4.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-zh-CN-zm_yunyang-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_heart-captions-da-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_heart-captions-da-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_heart-captions-de-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_heart-captions-de-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_heart-captions-is-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_heart-captions-is-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_heart-captions-ko-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_heart-captions-ko-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_heart-captions-nb-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_heart-captions-nb-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-web-en-af_heart-captions-sv-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 3.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-web-en-af_heart-captions-sv-lesson15-r58-20261015-r2.log"
+  },
+  {
+    "run": "15_image_umap-completed-matrix-lesson15-r58-20261015-r2",
+    "returncode": 0,
+    "seconds": 0.4,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson15-r58-20261015-r2-15_image_umap-completed-matrix-lesson15-r58-20261015-r2.log"
+  }
+]

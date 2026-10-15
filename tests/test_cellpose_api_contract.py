@@ -39,8 +39,10 @@ from tests.cellpose_api_contract import (
     CELLPOSE_INIT_PARAMETERS,
     DEPRECATED_EVAL_ARGUMENTS,
     DEPRECATED_INIT_ARGUMENTS,
+    DOCSTRING_PROMISES_FOUR_VALUES,
     INSTALLED_CELLPOSE_VERSION,
     MISSING_CHANNEL_AXIS,
+    RECORDED_EVAL_PARAMETER_LISTS,
     SENTINEL_DEFAULTS,
     assert_declares_installed_eval_signature,
     configured_eval_arguments,
@@ -49,8 +51,6 @@ from tests.cellpose_api_contract import (
     init_arguments,
     installed_eval_parameters,
     installed_init_parameters,
-    DOCSTRING_PROMISES_FOUR_VALUES,
-    RECORDED_EVAL_PARAMETER_LISTS,
 )
 from tests.conftest import check_cellpose_eval_call
 
@@ -396,6 +396,31 @@ def test_every_converted_double_declares_the_installed_signature():
             assert defaults == [parameter.default for parameter in remote
                                 if parameter.default is not inspect.Parameter.empty]
             assert fn.args.kwarg is None and fn.args.vararg is None
+            continue
+        if (rel, cls) == ('test_696_magnification_default_and_auto_diameter.py',
+                          '_Adapter'):
+            owner_tree = ast.parse((TESTS_DIR / rel).read_text(encoding="utf-8"))
+            owner = next(node for node in owner_tree.body
+                         if isinstance(node, ast.FunctionDef) and node.name ==
+                         'test_the_cellpose3_worker_reply_carries_its_estimates')
+            adapter = next(node for node in owner.body
+                           if isinstance(node, ast.ClassDef) and node.name == cls)
+            declared = next(node for node in adapter.body
+                            if isinstance(node, ast.FunctionDef) and node.name == 'eval')
+            assert (fn.lineno, fn.col_offset) == (declared.lineno, declared.col_offset)
+            assert ast.dump(fn) == ast.dump(declared)
+            from spacr._segmentation_backends import _Cellpose3Adapter
+
+            actual = [parameter for parameter in inspect.signature(
+                _Cellpose3Adapter.eval).parameters.values()
+                if parameter.name not in {'self', 'x'}
+                and parameter.kind is not inspect.Parameter.VAR_KEYWORD]
+            names = [arg.arg for arg in fn.args.args[2:]]
+            defaults = [ast.literal_eval(value) for value in fn.args.defaults]
+            assert names == [parameter.name for parameter in actual]
+            assert defaults == [parameter.default for parameter in actual]
+            assert fn.args.kwarg is None and fn.args.vararg is None
+            assert not fn.args.kwonlyargs and not fn.args.posonlyargs
             continue
         if PARTIAL_SIGNATURE_RATCHET.get((rel, cls)):
             continue

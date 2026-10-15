@@ -1,0 +1,17 @@
+{
+  "reviewer": "Original Home independent AI technical source/translation review",
+  "result": "ACCEPT",
+  "source": "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
+  "scope": "All nine targets retain precise refusal, setting/model/path identifiers and required remedy; placeholders exact. No human/native signoff. Normal loaders/writer/audit still required.",
+  "draft_hashes": {
+    "de.json": "e009f7693c249bca5d3dfd7db3f1d04963c1f13644f8c17330bd21224d09c401",
+    "es.json": "6db1f30dba9d789585e5726a7d6733c0195c25b27c34ee7441ba418b00919595",
+    "fr.json": "840ae9669599a939e96cc6ef52c20d1d11b40c519f5250440d35b6b119d6b03d",
+    "hi.json": "f6749ea1f5e0d5eb1c8fa5c0096faffec8c88b9658b0b208f6d388e8c31fd0ba",
+    "is.json": "4e4ed65fbe8746241bd591e877f5be8ed6944e3f583f7855d21d87d4129b5667",
+    "ko.json": "f0eb15d8aee493f65249d868e70250b66e6a71698517086e10ec940548ff8302",
+    "pt.json": "510cc156515524817714a01e87573adca48337cd04e04ab5b6de50b1e612d77d",
+    "sv.json": "d189118b1013059920d534b99a8a6a4495dfacf67417759d75c7c56208886581",
+    "zh_CN.json": "d546f88efe473eff83961fd388a1f4083b8d8f472cc7c53af897810b18eec222"
+  }
+}

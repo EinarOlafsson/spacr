@@ -96,7 +96,12 @@ class TestTheGreyedControlsSayWhy:
 
         label = _reason_label("resolution", _RESOLUTION_REASON)
 
-        assert "vector" in label.text()
+        expected = ("PDF and SVG can contain raster images. This dialog "
+                    "disables resolution editing for these formats.")
+        assert _RESOLUTION_REASON == expected
+        assert label.text().endswith(expected)
+        assert label.toolTip() == expected
+        assert label.isEnabled() is False
 
     def test_a_live_control_gets_a_plain_label(self):
         from spacr.qt.widgets.save_figure_dialog import _reason_label

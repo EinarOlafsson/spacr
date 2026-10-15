@@ -1871,6 +1871,11 @@ def _send_one(summary: Mapping[str, Any], timeout: float) -> Dict[str, Any]:
                    "deduplicated": bool(data.get("deduplicated", False)),
                    "ai_summary_source": source if source in (
                        "client", "relay", "none") else "none"}
+        if source == "relay" and data.get("ai_summary"):
+            text = scrub_public_text(str(data.get("ai_summary", "")),
+                                     MAX_AI_SUMMARY_CHARS)
+            if text:
+                outcome["ai_summary"] = text
         allowance = data.get("allowance")
         if isinstance(allowance, Mapping):
             outcome["allowance"] = {

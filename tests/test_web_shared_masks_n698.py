@@ -1,5 +1,6 @@
 """Actual desktop adapter contract; injected predictions are not model parity."""
 import hashlib
+import inspect
 import io
 import json
 import zipfile
@@ -8,6 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 import tifffile
+
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
 
 from tools.web_mask_generator import masks
 
@@ -26,8 +29,17 @@ def case(tmp_path, monkeypatch):
     logits = np.linspace(-2, 3, raw.size, dtype=np.float32).reshape(raw.shape)
     calls = []
     class Model:
-        def eval(self, **kwargs):
-            calls.append(kwargs)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None, flow3D_smooth=0,
+                 stitch_threshold=0.0, min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            bound = locals()
+            calls.append({name: bound[name] for name in
+                          inspect.signature(type(self).eval).parameters
+                          if name != "self"})
             return [labels.copy()], [[np.zeros((*raw.shape, 3)), vectors, logits, None]], None
     monkeypatch.setattr(masks, '_load_mask_model', lambda *args: Model())
     arguments = dict(input_file=source, checkpoint=checkpoint,

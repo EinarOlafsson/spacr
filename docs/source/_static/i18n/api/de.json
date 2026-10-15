@@ -126624,12 +126624,12 @@
     },
     "spacr.qt.widgets.calibration_preview": {
       "source_blocks_sha256": [
-        "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5"
+        "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
       ],
-      "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
-      "text": "Schreibgeschützte Vorschau des vorhandenen Plattenkalibrierungsplans von Measure.",
+      "source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634",
+      "text": "Schreibgeschützte Vorschau der Kalibrierungspläne von Measure für Platten und Aufnahmesitzungen.",
       "translation_source_blocks_sha256": [
-        "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5"
+        "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
       ]
     },
     "spacr.qt.widgets.calibration_preview._CalibrationPreview._start.done": {

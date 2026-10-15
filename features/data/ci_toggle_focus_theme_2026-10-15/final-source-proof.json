@@ -1,0 +1,14 @@
+{
+  "source_sha256": "cfbd5d733fe6cf74253fd0890486d2f0672f2f1858b8e8ef5ef3aa9c4ce726be",
+  "test_sha256": "8f29313791f7d04d00c039a388d6fbe57a0feb718f67321b0005f3e423a0280b",
+  "source": "OnlyToggle.paintEventbodychanged; allimports/classes/methods/signatures/docstringsotherwiseASTidentical",
+  "tests": "Onlyswitchesfixtureaddsrealcanonicalqt_theme_applied dependency; alltest/fixturebodies/decorators/assertions/parametersotherwiseASTidentical",
+  "source_exact_approved_proposal": true,
+  "test_exact_approved_proposal": true,
+  "no_new_caption_or_API_docstring": true,
+  "retained": "PE_Widgetfullstrongborder,lentbranch/tryfinally/lifetime/knob/staticpicturestateunchanged",
+  "primary_Qt_context": [
+    "https://raw.githubusercontent.com/qt/qtbase/6.12/src/widgets/styles/qstylesheetstyle.cpp#L4542-L4546",
+    "https://github.com/qt/qtbase/blob/6.12/src/widgets/styles/qfusionstyle.cpp"
+  ]
+}

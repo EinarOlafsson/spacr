@@ -1,0 +1,45 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____ test_the_registry_answers_a_folded_button_with_name_sentence_and_stage ____
+
+    def test_the_registry_answers_a_folded_button_with_name_sentence_and_stage():
+        """The baseline the broken-import case is measured against."""
+        name, description, stage = _describe(REGISTERED_KEY)
+    
+        assert name == "Classify"
+        assert description
+>       assert stage == "alpha"
+E       AssertionError: assert 'stable' == 'alpha'
+E         
+E         - alpha
+E         + stable
+
+tests/qt/test_fold_strip_uncovered_paths.py:55: AssertionError
+______ test_a_theme_refresh_skips_screens_that_cannot_hide_immature_apps _______
+
+win = <spacr.qt.app.MainWindow(0x5be6e7c0cdb0) at 0x7cc38dd90540>
+
+    def test_a_theme_refresh_skips_screens_that_cannot_hide_immature_apps(win):
+        """One screen without the hook must not stop the others being refreshed.
+    
+        Maturity visibility is re-applied to every open screen when the
+        preference changes, and screens come from many modules -- so the refresh
+        asks before it calls, and a screen that has the hook still gets it.
+        """
+        asked = _Recorder()
+        plain = object()
+        win._screens = {"with-hook": asked, "without-hook": plain}
+        win.refresh_theme()
+>       assert asked.names() == ["refresh_maturity_visibility"]
+E       AssertionError: assert ['refresh_mat...', 'children'] == ['refresh_mat...y_visibility']
+E         
+E         Left contains one more item: 'children'
+E         Use -v to get more diff
+
+tests/qt/test_cov_wf_qt_app.py:442: AssertionError
+----------------------------- Captured Qt messages -----------------------------
+QtInfoMsg: OpenType support missing for "Open Sans", script 11
+=========================== short test summary info ============================
+FAILED tests/qt/test_fold_strip_uncovered_paths.py::test_the_registry_answers_a_folded_button_with_name_sentence_and_stage
+FAILED tests/qt/test_cov_wf_qt_app.py::test_a_theme_refresh_skips_screens_that_cannot_hide_immature_apps
+2 failed in 7.30s

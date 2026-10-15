@@ -1794,6 +1794,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('intensity_calibration_reference_plate', '')
     settings.setdefault('intensity_calibration_statistic', 'foreground')
     settings.setdefault('intensity_calibration_offset', 0)
+    settings.setdefault('intensity_calibration_sessions', '')
+    settings.setdefault('intensity_calibration_session_column', 'session')
+    settings.setdefault('intensity_calibration_beads', '')
+    settings.setdefault('intensity_calibration_reference_session', '')
     settings.setdefault('plate_barcode_source', '')
     settings.setdefault('plate_barcodes', None)
     settings.setdefault('plate_barcode_column', 'barcode')
@@ -3698,6 +3702,10 @@ expected_types = {
     "intensity_calibration_reference_plate": (str, type(None)),
     "intensity_calibration_statistic": str,
     "intensity_calibration_offset": (float, int),
+    "intensity_calibration_sessions": (str, type(None)),
+    "intensity_calibration_session_column": (str, type(None)),
+    "intensity_calibration_beads": (str, type(None)),
+    "intensity_calibration_reference_session": (str, type(None)),
     "plate_barcode_source": str,
     "plate_barcodes": (dict, str, type(None)),
     "plate_barcode_column": str,
@@ -5016,11 +5024,15 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
-    "intensity_calibration": "(bool) - Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-    "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
-    "intensity_calibration_reference_plate": "(str or None) - Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
-    "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+    'intensity_calibration': '(bool) - Calibrate intensities before measuring, using beads or reference wells acquired in each imaging session. By default each plate is a session. An optional sessions CSV assigns fields independently of plates; an external bead folder can supply the reference images. Gains match the selected reference session or plate; blank choices keep the first-by-name default. The existing camera-offset gain method is unchanged. Gains and reference content identities are recorded in measurements.db:intensity_rescale. Default False.',
+    'intensity_calibration_wells': "(list or None) - Wells holding the same calibration sample in each acquisition session, such as ['A01'] or ['A01', 'P24']. References come from the selected external bead folder, or otherwise the measured merged folder. Every measured session must have a usable reference field. In-source reference wells are measured like any other well. Default None.",
+    'intensity_calibration_reference_plate': '(str or None) - Exact reference plate identifier from merged filenames, such as plate2. Without a sessions CSV, blank keeps the first plate by name. With explicit sessions, this plate must belong to one session, or pair it with an exact reference session on that plate. The selected plate must be present in the measured run. Default blank.',
+    'intensity_calibration_statistic': '(str) - How each reference field intensity is summarised after subtracting intensity_calibration_offset. foreground is the median above Otsu for sparse beads on a dark background; median uses all pixels for a uniformly stained reference well. Each acquisition session uses the median over its reference fields. Default foreground.',
     "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+    'intensity_calibration_sessions': '(str or None) - Optional local CSV assigning acquisition sessions independently of plates. Use an exact filename column, including each merged NPY or selected reference TIFF/NPY suffix, and the selected session column. Every current sample and reference file must have one unique nonblank assignment. Blank keeps one session per plate. Default blank.',
+    'intensity_calibration_session_column': '(str) - Exact column name in the sessions CSV that identifies an acquisition session. All fields in a session share reference gains and must use compatible measurement intensity planes and working units. Default session.',
+    'intensity_calibration_beads': '(str or None) - Optional local folder of bead or reference-well images, replacing reference images inside the measured folder. Filenames keep the plate, well and field identity; selected reference wells still apply. NPY files use the merged channel and mask layout. TIFF files contain only intensity channels with explicit spatial and channel axes. No time or ambiguous page-axis interpretation is guessed. Default blank.',
+    'intensity_calibration_reference_session': '(str or None) - Exact acquisition session identifier to use as the gain reference. Blank uses the first session by name, or the sole session on the explicitly selected reference plate. If both plate and session are selected they must agree. A plate assigned to multiple sessions requires this choice. Default blank.',
     "plate_barcode_source": "(str) - Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
     "plate_barcodes": "(dict or None) - The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
     "plate_barcode_column": "(str) - The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
@@ -5774,6 +5786,8 @@ categories = {
     "Intensity Calibration α": [
         "intensity_calibration", "intensity_calibration_wells",
         "intensity_calibration_reference_plate", "intensity_calibration_statistic", "intensity_calibration_offset",
+        "intensity_calibration_sessions", "intensity_calibration_session_column",
+        "intensity_calibration_beads", "intensity_calibration_reference_session",
     ],
 
     "Plate Barcode Linkage α": [
@@ -7566,8 +7580,12 @@ ALPHA_FEATURES = {
         'settings': ('intensity_calibration', 'intensity_calibration_wells',
                      'intensity_calibration_reference_plate',
                      'intensity_calibration_statistic',
-                     'intensity_calibration_offset'),
-        'widgets': ('IntensityCalibrationReferencePlate',),
+                     'intensity_calibration_offset', 'intensity_calibration_sessions',
+                     'intensity_calibration_session_column', 'intensity_calibration_beads',
+                     'intensity_calibration_reference_session'),
+        'widgets': ('IntensityCalibrationReferencePlate', 'IntensityCalibrationSessions',
+                    'IntensityCalibrationSessionColumn', 'IntensityCalibrationBeads',
+                    'IntensityCalibrationReferenceSession'),
     },
     577: {
         'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',

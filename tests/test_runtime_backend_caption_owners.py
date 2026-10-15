@@ -19,6 +19,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
         "_lineage_trees.py",
+        "utils.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -29,6 +30,61 @@ def extract_backend_sources(tmp_path, monkeypatch):
         return set(builder.extract_static_ui_sources())
 
     return extract
+
+
+def test_explicit_cellpose_selection_refusal_enters_its_declared_owner(
+        extract_backend_sources):
+    caption = (
+        "Cellpose model {name} is not an installed stock name, an existing checkpoint "
+        "or an exact model-zoo entry. Choose a listed model or provide its checkpoint; "
+        "stock weights were not substituted.")
+    assert extract_backend_sources('utils.py',
+        f'def _resolve_cellpose_pretrained(name):\n    raise ValueError(tr({caption!r}, name=name))\n') == {caption}
+
+
+def test_cellpose_selection_owner_excludes_other_utility_scopes(
+        extract_backend_sources):
+    source = '''
+METADATA = tr("Unrelated utility metadata.")
+def unrelated():
+    def _resolve_cellpose_pretrained():
+        return tr("A nested same-name helper is outside the runtime owner.")
+    return tr("An unrelated utility caption.")
+class Unrelated:
+    def _resolve_cellpose_pretrained(self):
+        return tr("An unrelated same-name method.")
+def _unrelated_choose_model():
+    return tr("A different utility helper must remain outside this scope.")
+def _resolve_cellpose_pretrained(name):
+    """Unrelated owner documentation is not a caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources('utils.py', source) == set()
+
+
+def test_offline_cellpose_stock_refusal_enters_constructor_owner(extract_backend_sources):
+    caption = (
+        "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
+        "Cellpose stock model {model} is not cached at {path}. Provide its existing "
+        "checkpoint or download it before running offline.")
+    assert extract_backend_sources('utils.py',
+        f'def _choose_model():\n    raise ValueError(tr({caption!r}))\n') == {caption}
+
+
+def test_offline_constructor_owner_excludes_same_named_nested_and_class_helpers(
+        extract_backend_sources):
+    assert extract_backend_sources('utils.py', '''
+tr("Unrelated utility metadata.")
+def unrelated():
+    def _choose_model():
+        return tr("Nested same-name utility helper.")
+class Unrelated:
+    def _choose_model(self):
+        return tr("Same-name method outside constructor owner.")
+def _choose_model():
+    """Constructor documentation is not a runtime caption."""
+    return "Untranslated internal constructor detail."
+''') == set()
 
 
 def test_model_download_caption_is_extracted_from_shared_acquisition_owner(

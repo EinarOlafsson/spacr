@@ -65,10 +65,10 @@ def test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization(c
         else:
             with pytest.raises(ValueError, match='run is in progress'):
                 rj._relocate_cache('news', tmp_path / 'destination')
-        assert (folder / 'kept.json').read_bytes() == b'important cache bytes'
         assert (folder / 'kept.json').stat() == before_cache
-        assert metadata.read_bytes() == before_metadata
         assert metadata.stat() == before_stat
+        assert (folder / 'kept.json').read_bytes() == b'important cache bytes'
+        assert metadata.read_bytes() == before_metadata
         assert not (tmp_path / 'destination').exists()
     finally:
         finish_body.set()

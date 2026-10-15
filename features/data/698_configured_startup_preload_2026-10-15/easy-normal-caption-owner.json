@@ -1,0 +1,6 @@
+{
+  "normal_helper": "build_i18n_catalogs._web_mask_generator_ui_sources",
+  "new_source_present": "Unknown provisioned model key: {key}",
+  "scope": "Only unchanged ten-file web caption AST helper, no global collector/model import/writer",
+  "tool_sha256": "3307537918790f29b924dc724ebc77b960bf2888890b6a33dad403db8c72ce9e"
+}

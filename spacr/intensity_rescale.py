@@ -327,11 +327,190 @@ def _reference_statistic(plane: np.ndarray, offset: float,
     return float(np.median(above)) if above.size else float("nan")
 
 
+def _calibration_input_error(setting, code, value=None):
+    """Refuse one invalid calibration input while naming its setting and value."""
+    from .qt.i18n import tr
+
+    raise ValueError(tr("Bad settings") + f": {setting}; {code}; {value!r}")
+
+
+def _calibration_inputs(src, filenames, settings):
+    """Resolve explicit acquisition groups and selected local reference paths."""
+    import csv
+    from pathlib import Path
+
+    names = sorted(set(os.fspath(name) for name in filenames))
+    sources = {name: schema.parse_field_stem(
+        name, timelapse=bool(settings.get("timelapse", False))) for name in names}
+    table = settings.get("intensity_calibration_sessions", "")
+    folder = settings.get("intensity_calibration_beads", "")
+    table = "" if table is None else table
+    folder = "" if folder is None else folder
+    for key, value in (("sessions", table), ("beads", folder)):
+        if not isinstance(value, str):
+            _calibration_input_error("intensity_calibration_" + key, "path", value)
+    assignments = {}
+    if table.strip():
+        column = settings.get("intensity_calibration_session_column", "session")
+        if not isinstance(column, str) or not column.strip() or column == "filename":
+            _calibration_input_error("intensity_calibration_session_column", "column", column)
+        with open(os.path.expanduser(table.strip()), newline="", encoding="utf-8-sig") as stream:
+            reader = csv.DictReader(stream)
+            columns = reader.fieldnames or []
+            if (len(columns) != len(set(columns)) or "filename" not in columns
+                    or column not in columns):
+                _calibration_input_error("intensity_calibration_sessions", "headers", columns)
+            for row in reader:
+                name, session = row.get("filename"), row.get(column)
+                if (not isinstance(name, str) or not name.strip()
+                        or not isinstance(session, str) or not session.strip()
+                        or name != Path(name).name or name in assignments):
+                    _calibration_input_error("intensity_calibration_sessions", "row", row)
+                assignments[name] = session.strip()
+    wells = _calibration_wells(settings)
+    root = Path(os.path.expanduser(folder.strip())) if folder.strip() else Path(src)
+    references = []
+    candidates = sorted(path.name for path in root.iterdir()
+                        if path.is_file() and path.suffix.lower() in (".npy", ".tif", ".tiff")) if folder.strip() else names
+    for name in candidates:
+        field = schema.parse_field_stem(
+            Path(name).stem, timelapse=bool(settings.get("timelapse", False)))
+        if (field.rowID, field.columnID) in wells:
+            references.append({"filename": name, "path": str(root / name),
+                               "plateID": field.plateID})
+    required = set(names) | {row["filename"] for row in references}
+    missing = required - set(assignments) if table.strip() else set()
+    if missing:
+        _calibration_input_error("intensity_calibration_sessions", "missing_filename", sorted(missing))
+    field_sessions = {name: assignments[name] if table.strip() else field.plateID
+                      for name, field in sources.items()}
+    for row in references:
+        row["sessionID"] = assignments[row["filename"]] if table.strip() else row["plateID"]
+    return {"field_sessions": field_sessions,
+            "field_plates": {name: field.plateID for name, field in sources.items()},
+            "references": [row for row in references if row["sessionID"] in set(field_sessions.values())],
+            "sessions_csv": os.path.expanduser(table.strip()) if table.strip() else None,
+            "external_beads": bool(folder.strip())}
+
+
+def _external_reference_planes(path, expected, settings):
+    """Read merged NPY or unambiguously tagged image-only TIFF reference planes."""
+    from pathlib import Path
+
+    if Path(path).suffix.lower() == ".npy":
+        data = np.asarray(np.load(path, mmap_mode="r"))
+        if data.ndim < 3:
+            _calibration_input_error("intensity_calibration_beads", "merged_shape", data.shape)
+        planes = tuple(index for index in range(data.shape[-1])
+                       if index not in mask_planes(data, settings))
+        if planes != expected:
+            _calibration_input_error("intensity_calibration_beads", "planes", (planes, expected))
+        return [data[..., index] for index in planes]
+    import tifffile
+
+    with tifffile.TiffFile(path) as image:
+        if len(image.series) != 1:
+            _calibration_input_error("intensity_calibration_beads", "tiff_series", path)
+        series = image.series[0]
+        axes = series.axes
+        if (len(axes) != len(set(axes)) or not {"X", "Y"} <= set(axes)
+                or set(axes) - set("ZYXCS") or sum(axis in axes for axis in "CS") > 1):
+            _calibration_input_error("intensity_calibration_beads", "tiff_axes", axes)
+        data = series.asarray()
+    channel = next((axes.index(axis) for axis in "CS" if axis in axes), None)
+    if channel is None:
+        data = data[..., None]
+    else:
+        data = np.moveaxis(data, channel, -1)
+    if data.shape[-1] != len(expected):
+        _calibration_input_error("intensity_calibration_beads", "channels", (data.shape, expected))
+    return [data[..., index] for index in range(data.shape[-1])]
+
+
+def _session_calibration_plan(src, filenames, settings):
+    """Compute the existing gain statistic for explicitly mapped acquisition sessions."""
+    inputs = _calibration_inputs(src, filenames, settings)
+    grouped = {}
+    for name, session in inputs["field_sessions"].items():
+        data = np.asarray(np.load(os.path.join(src, name), mmap_mode="r"))
+        if data.ndim < 3:
+            _calibration_input_error("intensity_calibration_sessions", "merged_shape", data.shape)
+        planes = tuple(index for index in range(data.shape[-1])
+                       if index not in mask_planes(data, settings))
+        record = resolve_record(data, name, settings)
+        factor = float(record["rescale_factor"])
+        layout = (planes, factor, record["kind"] == "fixed_normalized")
+        if not planes or not np.isfinite(factor) or factor <= 0:
+            _calibration_input_error("intensity_calibration_sessions", "working_units", name)
+        if session in grouped and grouped[session] != layout:
+            _calibration_input_error("intensity_calibration_sessions", "incompatible_working_units", session)
+        grouped[session] = layout
+    if not grouped:
+        _calibration_input_error("intensity_calibration_sessions", "empty_sources")
+    if len({layout[0] for layout in grouped.values()}) != 1:
+        _calibration_input_error("intensity_calibration_sessions", "incompatible_planes")
+    statistic = str(settings.get("intensity_calibration_statistic") or "foreground")
+    if statistic not in CALIBRATION_STATISTICS:
+        _calibration_input_error("intensity_calibration_statistic", "choice", statistic)
+    offset = float(settings.get("intensity_calibration_offset") or 0.0)
+    if not np.isfinite(offset):
+        _calibration_input_error("intensity_calibration_offset", "finite", offset)
+    samples = {}
+    for row in inputs["references"]:
+        session = row["sessionID"]
+        planes, factor, normalized = grouped[session]
+        values = _external_reference_planes(row["path"], planes, settings)
+        per_plane = samples.setdefault(session, {})
+        for index, plane in zip(planes, values):
+            finite = np.asarray(plane)[np.isfinite(plane)]
+            peak = float(np.max(finite)) if finite.size else 0.0
+            is_normalized = np.issubdtype(plane.dtype, np.floating) and 0 < peak <= 1
+            if (peak > 0 and normalized != is_normalized) or peak * factor > UINT16_MAX:
+                _calibration_input_error("intensity_calibration_beads", "working_units", row["filename"])
+            per_plane.setdefault(index, []).append(_reference_statistic(
+                np.asarray(plane, dtype=np.float64) * factor, offset, statistic))
+    missing = set(grouped) - set(samples)
+    if missing:
+        _calibration_input_error("intensity_calibration_wells", "missing_session", sorted(missing))
+    plate = settings.get("intensity_calibration_reference_plate", "")
+    selected = settings.get("intensity_calibration_reference_session", "")
+    plate = "" if plate is None else plate
+    selected = "" if selected is None else selected
+    if not isinstance(plate, str) or not isinstance(selected, str):
+        _calibration_input_error("intensity_calibration_reference_session", "selection", (plate, selected))
+    plate, selected = plate.strip(), selected.strip()
+    candidates = {session for name, session in inputs["field_sessions"].items()
+                  if inputs["field_plates"][name] == plate} if plate else set(samples)
+    if (not candidates or (selected and selected not in candidates)
+            or (plate and not selected and len(candidates) != 1)):
+        _calibration_input_error("intensity_calibration_reference_plate", "session_selection", (plate, selected, sorted(candidates)))
+    reference = selected or sorted(candidates)[0]
+    reference_values = {index: float(np.nanmedian(values))
+                        for index, values in samples[reference].items()}
+    sessions = {}
+    for session, per_plane in sorted(samples.items()):
+        values = {index: float(np.nanmedian(v)) for index, v in per_plane.items()}
+        if any(not np.isfinite(value) or value <= 0
+               or not np.isfinite(reference_values.get(index, np.nan))
+               or reference_values.get(index, 0) <= 0 for index, value in values.items()):
+            _calibration_input_error("intensity_calibration_wells", "positive_reference", session)
+        sessions[session] = {
+            "reference_statistic": {str(index): value for index, value in values.items()},
+            "gain": {str(index): reference_values[index] / value for index, value in values.items()},
+            "n_reference_fields": len(next(iter(per_plane.values()))),
+        }
+    return {"version": 2, "reference_plate": plate or None,
+            "reference_session": reference, "statistic": statistic, "offset": offset,
+            "wells": sorted(_calibration_wells(settings).values()), "sessions": sessions,
+            "field_sessions": inputs["field_sessions"]}
+
+
 def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
                             settings: Mapping[str, Any]) -> Dict[str, Any]:
-    """Measure the reference wells of every plate and return per-plate gains.
+    """Measure reference wells and return plate or explicit-session gains.
 
-    Every plate is one imaging session and must carry the reference wells.
+    With blank optional session and bead inputs, every plate is one imaging
+    session and must carry the reference wells.
     The reference statistic of each intensity plane is taken from each
     reference field, in the units Measure works in (after the plate's uint16
     rescale), and the median over a plate's fields is that plate's value.
@@ -343,11 +522,19 @@ def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
     :param filenames: the merged-array filenames of this run.
     :param settings: Measure settings holding the ``intensity_calibration_*``
         values, the mask dimensions and the uint16 rescale plan.
-    :returns: a JSON-safe plan with the reference plate and, for each plate,
-        its reference statistic, gain and number of reference fields.
+    Explicit session metadata or external references instead produce a version2
+    plan binding every measured filename to its acquisition session. Session
+    reference selection and compatible working units are validated before gains.
+
+    :returns: a JSON-safe plan with the selected reference and per-plate or
+        per-session reference statistics, gains and reference field counts.
     :raises ValueError: when a plate has no reference field or a reference
         statistic is not positive.
     """
+    if any(settings.get(key) for key in ("intensity_calibration_sessions",
+                                        "intensity_calibration_beads",
+                                        "intensity_calibration_reference_session")):
+        return _session_calibration_plan(src, filenames, settings)
     statistic = str(settings.get("intensity_calibration_statistic")
                     or "foreground")
     if statistic not in CALIBRATION_STATISTICS:
@@ -423,7 +610,7 @@ def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
 def _apply_calibration(data: np.ndarray, filename: str,
                        settings: Mapping[str, Any]
                        ) -> Tuple[np.ndarray, Dict[str, Any] | None]:
-    """Scale one field's intensity planes by its plate's calibration gains.
+    """Scale one field intensity planes by its recorded calibration group gains.
 
     Each intensity plane becomes ``offset + (value - offset) * gain``,
     rounded and clipped to the array's integer range; label planes are left
@@ -432,7 +619,8 @@ def _apply_calibration(data: np.ndarray, filename: str,
 
     :param data: the field in Measure's working dtype (``uint8`` or
         ``uint16``); ``uint8`` fields come back as ``uint16``.
-    :param filename: the field's filename, read for its plate.
+    :param filename: the field filename, mapped to an explicit session when
+        present or otherwise read for its plate.
     :param settings: Measure settings holding the calibration plan.
     :returns: ``(field, provenance)``; provenance is None without a plan.
     """
@@ -440,7 +628,9 @@ def _apply_calibration(data: np.ndarray, filename: str,
     if not isinstance(plan, dict):
         return data, None
     plate = _plate_id(filename, settings)
-    entry = plan["plates"].get(plate)
+    session = plan.get("field_sessions", {}).get(filename)
+    groups = plan["sessions"] if "sessions" in plan else plan["plates"]
+    entry = groups.get(session if "sessions" in plan else plate)
     if entry is None:
         raise ValueError(f"Intensity calibration: {filename} is on plate "
                          f"{plate}, which has no calibration gain.")
@@ -468,8 +658,10 @@ def _apply_calibration(data: np.ndarray, filename: str,
         "gain": entry["gain"],
         "reference_statistic": entry["reference_statistic"],
         "reference_plate_statistic":
-            plan["plates"][plan["reference_plate"]]["reference_statistic"],
+            groups[plan.get("reference_session", plan["reference_plate"])]["reference_statistic"],
         "n_reference_fields": entry["n_reference_fields"],
         "clipped_fraction": clipped,
     }
+    if "sessions" in plan:
+        record.update(sessionID=session, reference_session=plan["reference_session"])
     return out, record

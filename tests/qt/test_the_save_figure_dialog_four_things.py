@@ -279,10 +279,14 @@ class TestTheResolutionFollowsTheFormat:
         assert dialog.dpi.isEnabled() is True
 
     def test_pdf_and_svg_have_none(self, dialog):
+        from spacr.qt.i18n import tr
+
         for suffix in ("pdf", "svg"):
             _choose(dialog.format, suffix)
             assert dialog.dpi.isEnabled() is False, suffix
-            assert "vector" in dialog.dpi.toolTip(), suffix
+            assert dialog.dpi.toolTip() == tr(
+                "PDF and SVG can contain raster images. This dialog disables "
+                "resolution editing for these formats."), suffix
 
     def test_it_comes_back_when_png_is_chosen_again(self, dialog):
         _choose(dialog.format, "pdf")
