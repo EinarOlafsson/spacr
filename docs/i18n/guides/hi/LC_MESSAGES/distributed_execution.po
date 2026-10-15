@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-15 12:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -80,6 +80,14 @@ msgstr "Python से ``spacr.cli.load_settings_file`` उसे पढ़ता
 
 msgid "After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs screen saves the snapshot it received as the same file. Submitting is unchanged."
 msgstr "**दूरस्थ रूप से सबमिट करें…** के बाद, वितरित कार्य स्क्रीन पर **सेटिंग CSV सहेजें…** प्राप्त स्नैपशॉट को उसी फ़ाइल के रूप में सहेजता है। सबमिट करना अपरिवर्तित है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Model checkpoints on the execution target"
+msgstr "निष्पादन लक्ष्य पर मॉडल चेकपॉइंट"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames."
+msgstr "निर्यात की गई सेटिंग मॉडल का पथ और दर्ज की गई मॉडल-संग्रह कुंजी, प्रकाशक संस्करण तथा SHA-256 सुरक्षित रखती हैं। जिन मौजूदा फ़ाइलों की पहचान दर्ज है, उनका इस चेकसम से मेल खाना आवश्यक है। गुम फ़ाइलें केवल दर्ज की गई सटीक पहचान से खोजी जाती हैं; पहचान दर्ज न होने पर केवल मॉडल-संग्रह की सटीक कुंजी या फ़ाइल नाम का उपयोग होता है। मिलते-जुलते नाम के आधार पर कोई प्रतिस्थापन नहीं होता। मॉडल spaCR की होम डायरेक्टरी के अंतर्गत कैश होते हैं (सामान्यतः ``~/.spacr/models``), जब तक ``SPACR_MODEL_CACHE`` से दूसरी डायरेक्टरी न चुनी जाए। प्रक्रियाएँ डाउनलोड लॉक साझा करती हैं और डाउनलोड करने से पहले कैश किए गए चेकपॉइंट सत्यापित करती हैं। ऑफ़लाइन नोड पर ``spacr-run`` चलाने से पहले ``SPACR_MODEL_DOWNLOAD=off`` सेट करें: मॉडल मेटाडेटा और वज़न डाउनलोड नहीं होंगे। मौजूदा स्थानीय फ़ाइलें और सत्यापित कैश किए गए मॉडल उपयोग योग्य रहते हैं; कोई ज्ञात मॉडल कैश में न होने पर उसका चेकसम और वह कैश पथ बताया जाता है जहाँ फ़ाइल कॉपी करनी है। अज्ञात अनुरोध स्पष्ट रूप से अस्वीकार होते हैं। कस्टम पथ केवल अपने फ़ाइल नाम के कारण विश्वसनीय मॉडल-संग्रह पहचान प्राप्त नहीं करते।"
 
 msgid "Command-line workflow"
 msgstr "कमांड-लाइन कार्यप्रवाह"
@@ -236,6 +244,14 @@ msgstr "सबमिशन आउटपुट से नामित ``id``, प
 
 msgid "recommended client polling interval, from 2 through 3600 seconds."
 msgstr "अनुशंसित क्लाइंट पोलिंग अंतराल, 2 से 3600 सेकंड तक।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden."
+msgstr "गैर-गोपनीय SSH कॉन्फ़िगरेशन ओवरराइड, जैसे उपयोगकर्ता, पोर्ट, पहचान फ़ाइल का पथ और जंप होस्ट; पासवर्ड और एकबारगी कोड निषिद्ध हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
+msgstr "बाहरी OpenSSH कमांड के बजाय सत्यापित, स्थायी SSH सत्र का उपयोग करें, जिसमें कीबोर्ड-इंटरैक्टिव प्रमाणीकरण के लिए ग्राफ़िकल इंटरफ़ेस में प्रॉम्प्ट दिखाई दें।"
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "JSON-संगत डेटा से प्रोफ़ाइल बनाएँ और उसका सत्यापन करें।"

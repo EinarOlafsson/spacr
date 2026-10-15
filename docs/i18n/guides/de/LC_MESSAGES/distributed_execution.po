@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-15 12:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -80,6 +80,14 @@ msgstr "Aus Python liest ``spacr.cli.load_settings_file`` sie und ``spacr.cli.wr
 
 msgid "After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs screen saves the snapshot it received as the same file. Submitting is unchanged."
 msgstr "Nach **Remote übermitteln…** speichert **Einstellungs-CSV speichern…** auf dem Bildschirm Verteilte Aufträge den erhaltenen Schnappschuss als dieselbe Datei. Das Übermitteln selbst bleibt unverändert."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Model checkpoints on the execution target"
+msgstr "Modellprüfpunkte auf dem Ausführungsziel"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames."
+msgstr "Exportierte Einstellungen behalten den Modellpfad sowie einen gegebenenfalls aufgezeichneten Zoo-Schlüssel, die Herausgeberversion und SHA-256 bei. Vorhandene Dateien mit aufgezeichneter Identität müssen dieser Prüfsumme entsprechen. Fehlende Dateien werden nur anhand der exakt aufgezeichneten Identität aufgelöst oder, wenn keine Identität aufgezeichnet ist, anhand eines exakten Zoo-Schlüssels beziehungsweise Dateinamens; es erfolgt keine unscharfe Ersetzung. Modelle werden unterhalb des spaCR-Basisverzeichnisses zwischengespeichert (normalerweise ``~/.spacr/models``), sofern ``SPACR_MODEL_CACHE`` kein anderes Verzeichnis festlegt. Prozesse teilen sich eine Downloadsperre und prüfen zwischengespeicherte Prüfpunkte vor dem Herunterladen. Setzen Sie auf einem Offline-Knoten vor ``spacr-run`` die Variable ``SPACR_MODEL_DOWNLOAD=off``: Modellmetadaten und Gewichte werden dann nicht heruntergeladen. Vorhandene lokale Dateien und verifizierte zwischengespeicherte Modelle bleiben verwendbar; für ein bekanntes, nicht zwischengespeichertes Modell werden die Prüfsumme und der Cache-Pfad zum Kopieren angegeben. Unbekannte Anforderungen werden klar abgelehnt. Benutzerdefinierte Pfade erhalten durch ihre Dateinamen keine vertrauenswürdige Katalogidentität."
 
 msgid "Command-line workflow"
 msgstr "Workflow über die Befehlszeile"
@@ -236,6 +244,14 @@ msgstr "optionaler regulärer Ausdruck, der aus der Übermittlungsausgabe eine b
 
 msgid "recommended client polling interval, from 2 through 3600 seconds."
 msgstr "empfohlenes Abfrageintervall des Clients, von 2 bis 3600 Sekunden."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden."
+msgstr "nicht geheime SSH-Konfigurationsüberschreibungen, etwa Benutzer, Port, Pfad zur Identitätsdatei und Sprunghost; Passwörter und Einmalcodes sind verboten."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
+msgstr "eine verifizierte, dauerhafte SSH-Sitzung mit grafischen Abfragen zur tastaturinteraktiven Authentifizierung statt des externen OpenSSH-Befehls verwenden."
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Erstellt und validiert ein Profil aus JSON-kompatiblen Daten."
