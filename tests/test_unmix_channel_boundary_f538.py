@@ -111,7 +111,7 @@ def test_unmix_refusal_uses_installed_reviewed_language_before_loading(plate, la
         return real_load(path)
 
     monkeypatch.setattr(psf.np, 'load', load)
-    config = settings(plate, [.5, 1])
+    config = settings(plate, [np.array(False), 1])
     before = copy.deepcopy(config)
     hashes = source_hashes(plate)
     with pytest.raises(ValueError) as error:
