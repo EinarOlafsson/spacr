@@ -122,3 +122,37 @@ def test_unmix_refusal_uses_installed_reviewed_language_before_loading(plate, la
     assert not (plate.parent / 'measurements').exists()
     assert source_hashes(plate) == hashes
     np.testing.assert_equal(config, before)
+
+
+@pytest.mark.parametrize('selection', [[np.array(False), 1], [0, np.array(True)]])
+@pytest.mark.parametrize('entrypoint', ['measure', 'direct'])
+def test_zero_dimensional_boolean_arrays_refuse_before_loading(plate, selection, entrypoint, monkeypatch):
+    config = settings(plate, selection)
+    before = copy.deepcopy(config)
+    hashes = source_hashes(plate)
+    calls = []
+    real_load = np.load
+
+    def load(path):
+        calls.append(path)
+        return real_load(path)
+
+    monkeypatch.setattr(psf.np, 'load', load)
+    with pytest.raises(ValueError) as error:
+        if entrypoint == 'measure':
+            psf._prepare_measure_unmixing(config)
+        else:
+            psf._prepare_unmixing(config, plate, channels=selection, load=load)
+    assert str(error.value) == SOURCE
+    assert not calls
+    assert not (plate.parent / 'measurements').exists()
+    assert source_hashes(plate) == hashes
+    np.testing.assert_equal(config, before)
+
+
+@pytest.mark.parametrize('selection', [[np.array(0.0), np.array(1.0)], [np.array('0'), np.array('1')]])
+def test_zero_dimensional_integral_float_and_string_arrays_preserve_order(plate, selection):
+    before = copy.deepcopy(selection)
+    plan = psf._prepare_measure_unmixing(settings(plate, selection))
+    assert plan.channels == (0, 1)
+    np.testing.assert_equal(selection, before)

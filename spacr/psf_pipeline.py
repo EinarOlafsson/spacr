@@ -546,8 +546,11 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None):
                 raise ValueError
             selected = []
             for channel in channels:
-                if (isinstance(channel, (bool, np.bool_, complex, np.complexfloating))
-                        or np.ndim(channel) != 0):
+                if np.ndim(channel) != 0:
+                    raise ValueError
+                if isinstance(channel, np.ndarray):
+                    channel = channel.item()
+                if isinstance(channel, (bool, np.bool_, complex, np.complexfloating, np.ndarray)):
                     raise ValueError
                 index = int(channel)
                 if not isinstance(channel, (str, bytes)) and channel != index:
