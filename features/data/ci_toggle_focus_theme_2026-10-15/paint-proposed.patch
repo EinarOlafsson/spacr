@@ -1,0 +1,21 @@
+--- a/spacr/qt/widgets/toggle.py
++++ b/spacr/qt/widgets/toggle.py
+@@ -100,14 +100,14 @@
+         painter = QPainter(self)
+         try:
+             painter.setRenderHint(QPainter.Antialiasing, True)
++            palette = _painting_palette()
+             if self.hasFocus():
+                 option = QStyleOptionFocusRect()
+                 option.initFrom(self)
+                 self.style().drawPrimitive(QStyle.PE_Widget, option, painter, self)
+-                option.rect = self.rect().adjusted(3, 3, -3, -3)
+-                self.style().drawPrimitive(
+-                    QStyle.PE_FrameFocusRect, option, painter, self)
+-            palette = _painting_palette()
++                painter.setPen(QPen(QColor(palette["accent"]), 1.5))
++                painter.setBrush(Qt.NoBrush)
++                painter.drawRoundedRect(self.rect().adjusted(4, 4, -4, -4), 3, 3)
+             if not lent:
+                 self._paint_switch(painter, palette)
+             if self.text():
