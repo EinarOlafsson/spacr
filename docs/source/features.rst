@@ -318,6 +318,11 @@ moves out of text boxes and tables to the next control instead of typing a
 tab. **Preferences → Appearance → Theme** offers **High contrast**, in which
 all text has a contrast ratio of at least 7:1 against its background.
 
+Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline
+shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or
+numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off.
+Holding a key switches it only once.
+
 **Preferences → Appearance → Accessibility** gathers the settings that help
 most:
 
