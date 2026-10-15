@@ -160,3 +160,10 @@ and history are unchanged;36 unaffected translated blocks preserved verbatim.
 Evidence: features/data/644_active_model_cache_api_2026-10-15/. Source integration
 combines original core8d1b8738f75 +ownerUIc598753c4d9 +37-test acceptance3f137038049,
 with public allowlist/path-type guards retained. No native other-OS claim.
+
+2026-10-15 Home-B — current-public cross-drive integration check
+After merging the independently validated cross-drive backend repair, replayed
+only the two actual repeated Storage/UI move cases:2PASS6.73seconds. Ten merged
+API manifests exactly equal incoming N703 normal-writer output plus local N644
+normal-writer target. Both owner notes retained; no generated hand edits.
+Evidence: features/data/644_current_integration_2026-10-15/.
