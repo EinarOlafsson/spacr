@@ -30,7 +30,10 @@
       "source_sha256": "b1b24b4c138ccf404011f0af23c927ab3ae97e37e2eb6c4c6a19b5aa1e960dc6",
       "source": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string raises ``RuntimeError`` from torch.",
       "context": "forwarded to :func:`torch.load`. The ``cpu`` default lets a GPU-trained checkpoint load on a machine without a GPU; an unrecognised device string throws ``RuntimeError`` from torch.",
-      "translation": "이 값은 :func:`torch.load`에 전달됩니다. 기본값 ``cpu`` 덕분에 GPU 에서 학습한 체크포인트를 GPU 가 없는 컴퓨터에서도 불러올 수 있습니다. 인식할 수 없는 장치 문자열이면 torch 가 ``RuntimeError``를 발생시킵니다."
+      "translation": "이 값은 :func:`torch.load`에 전달됩니다. 기본값 ``cpu`` 덕분에 GPU 에서 학습한 체크포인트를 GPU 가 없는 컴퓨터에서도 불러올 수 있습니다. 인식할 수 없는 장치 문자열이면 torch 가 ``RuntimeError``를 발생시킵니다.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The same loader parameter moved from block3 to4. Its exact source has a reviewed Korean markup/semantic repair in 2026-10-15-f561-loader-ko-shift-repairs-home-b.json; original source/context/target retained."
     },
     {
       "label": "spacr.model_zoo.benchmark#8",

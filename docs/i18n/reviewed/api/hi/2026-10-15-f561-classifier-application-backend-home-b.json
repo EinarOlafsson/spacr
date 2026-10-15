@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical translation/self-review; independent peer pending; no native/human signoff",
+  "records": [
+    {
+      "label": "spacr.embeddings._dino_classifier_apply.refuse#0",
+      "source": "Refuse an incompatible own-DINO classifier application.",
+      "source_sha256": "2864fd3a7ef70a63c5139577fa80f69e03754ebff2a26a3beb2fbd17766396dc",
+      "context": "Refuse an incompatible own-DINO machine-learning classification model application.",
+      "translation": "Own-DINO वर्गीकारक के असंगत अनुप्रयोग को अस्वीकार करें।",
+      "review_basis": "Exact-source AI technical translation/self-review, no native/human signoff. Restricted seekable binary streams require explicit weights_only=True; legacy trusted-file unpickling stays distinct. Raw NCHW encoder feature/application semantics retained. Independent peer and unchanged normal source/markup/review gates required."
+    },
+    {
+      "label": "spacr.embeddings._dino_classifier_from_config.Classifier.features#0",
+      "source": "Scale selected raw NCHW planes and return recorded encoder features.",
+      "source_sha256": "8337910fbd701a016a6d6d9b4d7b96f32b4471ef5ab4da9b3dcdf50804d8e77e",
+      "context": "Scale selected raw NCHW image layers and return recorded encoder features.",
+      "translation": "चुने गए कच्चे NCHW प्लेन को स्केल करें और रिकॉर्ड की गई एनकोडर विशेषताएँ लौटाएँ।",
+      "review_basis": "Exact-source AI technical translation/self-review, no native/human signoff. Restricted seekable binary streams require explicit weights_only=True; legacy trusted-file unpickling stays distinct. Raw NCHW encoder feature/application semantics retained. Independent peer and unchanged normal source/markup/review gates required."
+    },
+    {
+      "label": "spacr.torch_artifacts.load_model_artifact#2",
+      "source": "checkpoint to read, or a seekable binary stream only with ``weights_only=True``. The legacy default unpickles trusted files.",
+      "source_sha256": "038a2b3fcd0e7be92e27693e060e6b784ff6e4a34b2a062d14a46ec9c926ab96",
+      "context": "checkpoint to read, or a seekable binary stream only with ``weights_only=True``. The legacy default unpickles trusted files.",
+      "translation": "पढ़ने के लिए चेकपॉइंट, या केवल ``weights_only=True`` के साथ ऐसा बाइनरी स्ट्रीम जिसमें पढ़ने की स्थिति बदली जा सके। पुराना डिफ़ॉल्ट व्यवहार विश्वसनीय फ़ाइलों को pickle से डीसिरियलाइज़ करता है।",
+      "review_basis": "Exact-source AI technical translation/self-review, no native/human signoff. Restricted seekable binary streams require explicit weights_only=True; legacy trusted-file unpickling stays distinct. Raw NCHW encoder feature/application semantics retained. Independent peer and unchanged normal source/markup/review gates required."
+    }
+  ],
+  "source_packet_provenance": {
+    "path": "features/data/561_classifier_application_2026-10-15/api-inputs/drafts/hi.json",
+    "sha256": "4b6ad9421048c8b1c319475eada38969b55b4fdf3f4d384151837c458277b0c5",
+    "operation": "Copy original reviewed drafts; normalize exact current contexts only; retain superseded stream paragraph as retired historical evidence."
+  }
+}
