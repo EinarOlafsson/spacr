@@ -79,6 +79,23 @@ Home61b880a449/addendum bdc0f0565c8189e9dd9821a99f9d13516b1bde6cfc069fb25eb1a57a
 
 Home755c62d0e observed;04selector809364587 adopted andtwooriginaltargetedtestsPASS2/0.94s accepted98db7ac93. Sourceprerequisite/threepatchintegration approvals areforHomeownprivatecodework; ROOTremainsfrozen87ff. WorkdoesnotclaimfullCIgreen/livedeployment, andcontinues05numerically.
 
+## 2026-10-15 Original Home — reviewed punctuation closure and README size maintenance
+
+Public81ffd9 contains the six reviewed Unicode ellipsis corrections, ordinary
+nine-language runtime audit and seven actual vocabulary/compiled-language
+consumer checks. The three generic client callback outcome assertions also
+passed their four original checks. Earlier blockers for those exact scopes
+are superseded; this is not a full-CI or whole-item completion claim.
+Both runtime writer locks were released after coherent publication.
+
+Next narrow N43 maintenance corrects only the dated tracked-checkout size
+in ten README YAML paragraphs from3416/2026-10-08 to measured4657/2026-10-15.
+Nine new source-bound technical reviews preserve all old reviews, wording,
+panel identities and links. Independent input review accepted; unchanged
+normal README generation/check and eleven original finite cases follow in
+the existing fully materialized private tree. No N704 item/main changes,
+tolerance changes, model collection or full-CI dispatch.
+
 ## 2026-10-15 Original Home — bounded Work04 source prerequisite approved
 
 Root reviewed the missing verifier predecessor rather than replacing the
