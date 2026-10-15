@@ -1,0 +1,10 @@
+{
+  "mode": "One actual canonical snapshot reused for ordinary loaders only, original collector rechecked before/after; all normal review/hash/candidate/arrival gates retained",
+  "normal_full_nine_runtime_audit_exit": 0,
+  "normal_arrivals": {
+    "baseline": 9833,
+    "added": 1076,
+    "retired": 151,
+    "changed": 30
+  }
+}

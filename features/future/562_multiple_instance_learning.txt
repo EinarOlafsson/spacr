@@ -228,3 +228,18 @@ original source collection before/after; no handbinary merge or ratchet edit.
 Normal current English audit7733UI PASS; prior full9audit7732UI and50owning
 callbacks remain recorded at their actual source scope. Exact reviewed helper
 AST unchanged fromd2826a4ae76. No globalCI or wholefeature acceptance claim.
+
+2026-10-15 — Finite numerical feature boundary in _mil_bags.
+Retained per-cell feature values must remain finite after float32 conversion;
+positive/negative infinity and finite float64 overflow now refuse before any
+bags or training. Existing NaN-row dropping, finite float32 extrema, labels,
+original input frames, algorithms and alpha gating remain unchanged. Actual
+old-source counterexample:5FAIL1PASS9deselected; final owning cohort42PASS
+20deselected4.55s, including6numeric cases,9actual localized new refusals and
+27existing direct-MIL cases. No training or model construction occurred.
+Nine exact-source technical targets independently reviewed by parent; normal
+writer preserves10,757 unrelated source-current targets per locale. Actual
+full nine-locale runtime audit PASS; normal immutable arrivals PASS with
+9833baseline/1076added/151retired/30changed. Source hashes unchanged throughout.
+Evidence:data/562_finite_features_2026-10-15/. Scientific efficacy, actual model
+training, fullCI/release and whole-feature acceptance remain separate/open.
