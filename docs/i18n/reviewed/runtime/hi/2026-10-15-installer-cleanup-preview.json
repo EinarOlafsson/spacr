@@ -15,10 +15,10 @@
     },
     {
       "table": "ui",
-      "key": "Backgrounds",
-      "source": "Backgrounds",
-      "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
-      "translation": "पृष्ठभूमियाँ"
+      "key": "Background image cache",
+      "source": "Background image cache",
+      "source_sha256": "bf337d01fa4572696206eaebdb48da596a7e8ed9331fec66a513d417bbe5149d",
+      "translation": "पृष्ठभूमि छवियों का कैश"
     },
     {
       "table": "ui",
@@ -50,10 +50,10 @@
     },
     {
       "table": "ui",
-      "key": "Hugging Face",
-      "source": "Hugging Face",
-      "source_sha256": "1b817f9efc97800ade118b300e81cf706cc8936907ddfe6bbda87c4d7ed4a98a",
-      "translation": "Hugging Face"
+      "key": "Hugging Face cache",
+      "source": "Hugging Face cache",
+      "source_sha256": "143b8e427a303d4d52d1a0d18a03b8b36cf33d89f4a47976ff47a1c91fb18e80",
+      "translation": "Hugging Face कैश"
     },
     {
       "table": "ui",
@@ -106,20 +106,6 @@
     },
     {
       "table": "ui",
-      "key": "Models",
-      "source": "Models",
-      "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
-      "translation": "मॉडल"
-    },
-    {
-      "table": "ui",
-      "key": "News",
-      "source": "News",
-      "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
-      "translation": "समाचार"
-    },
-    {
-      "table": "ui",
       "key": "Not inspected",
       "source": "Not inspected",
       "source_sha256": "4b96e273901f4b38ef2a4bcedf6ee01432167ab002f0eaecfd6ce9cf92958e27",
@@ -169,10 +155,12 @@
     },
     {
       "table": "ui",
-      "key": "Torch",
-      "source": "Torch",
-      "source_sha256": "dcc578acd71a7bf2c0e96de641cc4656cffa744e1cadd724c18b4780ce007e40",
-      "translation": "Torch"
+      "key": "Torch cache",
+      "source": "Torch cache",
+      "source_sha256": "5714db23f2d467dcee6fbfdb75409183db5722f3d6347809772741c017c4d8b7",
+      "translation": "Torch कैश"
     }
-  ]
+  ],
+  "label_replacement_peer": "features/data/n703_optional_cleanup_preview_2026-10-15/cache-labels/root-independent-source-target-peer.json",
+  "label_replacement_dialog_source_sha256": "43b3deb3a7ea2cea88e663f3c22f347059c2a5db3d5719bd7b9157fb7e68c0d1"
 }

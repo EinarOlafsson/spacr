@@ -429,10 +429,10 @@ class _InstallerCleanupDialog(QDialog):
         tree.setRootIsDecorated(True)
         layout.addWidget(tree)
         labels = {
-            "news": tr("News"), "backgrounds": tr("Backgrounds"),
+            "news": tr("News"), "backgrounds": tr("Background image cache"),
             "sounds": tr("Sounds"), "icons": tr("Icons"),
             "models": tr("Models"), "backends": tr("Backend environments"),
-            "huggingface": tr("Hugging Face"), "torch": tr("Torch"),
+            "huggingface": tr("Hugging Face cache"), "torch": tr("Torch cache"),
             "cellpose": tr("Cellpose"), "temporary": tr("Temporary files"),
             "data": tr("Downloaded data"),
         }

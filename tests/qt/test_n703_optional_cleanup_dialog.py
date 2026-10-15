@@ -157,6 +157,15 @@ def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(q
     expected_reason = catalog.UI["Kept: spaCR cannot confirm these files are no longer in use."]
     tree = dialog.findChild(QTreeWidget, "InstallerCleanupFolders")
     assert tree.topLevelItem(0).text(3) == expected_reason
+    assert "News" not in catalog.UI and "Models" not in catalog.UI
+    assert tree.topLevelItem(1).text(0) == catalog.UI["Background image cache"]
+    assert tree.topLevelItem(6).text(0) == catalog.UI["Hugging Face cache"]
+    assert tree.topLevelItem(7).text(0) == catalog.UI["Torch cache"]
+    assert i18n.tr("News") == i18n.CATALOGS[language]["News"]
+    assert i18n.tr("Models") == i18n.TERM_CATALOGS[language]["Models"]
+    assert tree.topLevelItem(0).text(0) == i18n.CATALOGS[language]["News"]
+    assert any(tree.topLevelItem(index).text(0) == i18n.TERM_CATALOGS[language]["Models"]
+               for index in range(tree.topLevelItemCount()))
     assert dialog.windowTitle() == catalog.UI["Optional cache cleanup"]
     keep = dialog.findChild(QPushButton, "InstallerCleanupKeep")
     assert keep.text() == catalog.UI["Keep all files"] and keep.isDefault()
