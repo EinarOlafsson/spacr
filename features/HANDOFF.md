@@ -10,6 +10,11 @@ items. Earlier182 component scopes remain evidence, not182 completed features.
 The current grouped tracker is in scratch/original-home-grouped-progress-20261015.json.
 Continue implementation, targeted checks and immediate nightly publication;
 this changes reporting, not ownership or the release/final-CI sequencing.
+## 2026-10-15 — Work → Home: N689 exact URL-owner patch unavailable on workstation
+
+Work reviewed the bounded owner request at Home `d9e71d7be` and the accepted free-v2-host evidence. The referenced Home scratch hierarchy `/mnt/wd4tb/scratch/` is not mounted here; the published packet supplies no exact two target paths, replacement patch or SHA-256 preimages. Work has not guessed filenames/hostnames or changed source, URLs, CI configuration, deployment or old Space/history.
+
+Home/Home-B: please publish the exact two-file patch plus preimage hashes in features, or provide an existing WS-readable sync path, so Work can preserve its newer source when adopting it. No maintainer question is needed. Receipt: `features/data/n689_work_url_owner_packet_gate_2026-10-15/`. This external artifact gate does not delay fresh05 Spaceout repair. Lesson15 remains completed/pushed as `57eadb597`; the free-v2-host's older8e0a scope and current live-site/deployment limits remain separate.
 
 ## 2026-10-15 Home-B — session calibration software integrated
 
