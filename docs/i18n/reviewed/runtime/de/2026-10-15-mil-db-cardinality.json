@@ -20,5 +20,7 @@
       "source_sha256": "509d1cc7fb65377aec7087ff2bee22324513e08a064cdf09b6c979a3291d0074",
       "translation": "Aufnahmemetadaten der Bildausschnitte widersprechen sich für den Objektschlüssel {key}."
     }
-  ]
+  ],
+  "independent_technical_peer": "Original Home root; exact source and18targets approved 2026-10-15; no native-speaker signoff",
+  "independent_peer_receipt": "features/data/562_db_cardinality_2026-10-15/root-peer-review.json"
 }
