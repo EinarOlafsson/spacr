@@ -1,0 +1,43 @@
+{
+  "base": "20dee36b3788826dab92aa7f3181d2be320ab9a1",
+  "scope": "N76 documented existing-slot fallback for unrepresentable organelle counts; one component, not whole GUI/runnable-settings acceptance",
+  "baseline": {
+    "failed": 10,
+    "passed": 7,
+    "seconds": 1.68,
+    "exit": 1,
+    "failure": "Real OverflowError for signed infinities/overflowed exponent strings at count conversion, including nativeJSON\u2192actualMask defaultsfactory"
+  },
+  "owning": {
+    "passed": 27,
+    "seconds": 1.46,
+    "exit": 0,
+    "new_file_cases": 17,
+    "new_failure_regressions": 10,
+    "new_positive_controls": 7,
+    "existing_count_factory_schema_cases": 10
+  },
+  "source": {
+    "path": "spacr/organelle_types.py",
+    "sha256": "1fc7a82477a40102d290f0281af79b8ade50ffc20c8d84e19387922fe0805700",
+    "changed_function_only": "organelle_count",
+    "all_other_module_AST_signature_and_prose_identical": true,
+    "change": "Only add OverflowError beside existing TypeError/ValueError fallback. Original float/int parsing, fractional truncation, finite clamping/MAX and role generation remain unchanged.",
+    "new_helper_caption_setting_or_API_prose": false
+  },
+  "preservation": [
+    "Original nonfinite request is retained so users can correct it; helper derives roles from actual already-declared slots.",
+    "Native JSON file bytes, individual slot/channel/diameter answers and experiment name preserved through actual Mask defaults factory.",
+    "Current None/blank/typo/NaN fallback and finite fractional/clamp behavior retained.",
+    "Existing hidden-slot preservation, Mask/Measure factories, count parsing and schema-edge contracts pass."
+  ],
+  "review": "Exact source proposal approved and hash-bound by independent root-source-peer.json; no extra source review hold after actual terminal/source preservation",
+  "resource": "Background cap2G/oneprocess/blankCUDA/offscreen; inspected stdlib/NumPy/settings-only cohort under known-small exception, no Torch/model/Qt screens/network/GPU/live data",
+  "limits": [
+    "No claim invalid raw count becomes valid/runnable; this preserves openable settings/defaults and editing information.",
+    "No new stricter numeric policy, MAX/count vocabulary change, scientific/native other-OS/fullCI acceptance."
+  ],
+  "held": [
+    "Normal latest-public merge/source-artifact preservation/push after coordinated window"
+  ]
+}

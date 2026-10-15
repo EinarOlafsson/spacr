@@ -3966,7 +3966,7 @@ def versioned_path(dest: Any, filename: str) -> Path:
     n = int(match.group("n")) if match else 1
 
     candidate = folder / p.name
-    while candidate.exists():
+    while candidate.exists() or candidate.is_symlink():
         n += 1
         candidate = folder / f"{base}_v{n}{suffix}"
     return candidate

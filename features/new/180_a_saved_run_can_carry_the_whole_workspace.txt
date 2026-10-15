@@ -261,3 +261,16 @@ Final source SHA5a6d4bd10d4325e8952ea33bf96c2f72935b8548384443603ecad2808dac8c4a
 Evidence:features/data/180_regression_colour_channels_2026-10-15/ and related
 workspace, API, peer and coordinator directories. Whole N180 acceptance remains
 open; no native desktop, final full CI or release claim.
+
+2026-10-15 — Actual AppScreen provider bridge acceptance passed.
+A source-pinned finite real-Qt probe uses the full settings and real provider
+registry, without mapping injection/filtering. Visited Graph controls, queued
+regression selections/colour channels and figure-grid size survive normal
+collect/save/load/restore. Unvisited collection/restore remains deferred and
+reports skipped contributors by name; closing the screen unregisters them.
+All guarded rendering, joins and data reads see zero calls. Constructor Graph
+refresh is explicitly suppressed and regression state has no live data path;
+loaded data consumers remain covered by their separate owning tests. Terminal
+PASS6.78s,390652KiB under4G/thread1/serialized lock. Source hashes of six owning
+files match the published implementation. No new source defect or implementation
+tick is claimed. Evidence:features/data/180_actual_provider_bridge_2026-10-15/.

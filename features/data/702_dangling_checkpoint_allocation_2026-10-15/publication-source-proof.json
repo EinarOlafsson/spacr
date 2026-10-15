@@ -1,0 +1,23 @@
+{
+  "public_base": "150f810ae977073db740949e3e60d11326f26f15",
+  "source_component": "62c87dc2dfd88b6734d387337bc624fc22f5a451",
+  "source_and_owning_harness_byte_identical": true,
+  "all_incoming_generated_API_runtime_tools_preserved": true,
+  "changed_paths": [
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/baseline.exit.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/baseline.log.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/baseline.sh.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/baseline.xml.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/owning.exit.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/owning.log.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/owning.sh.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/owning.xml.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/proposed-source.patch.gz",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/receipt.json",
+    "features/data/702_dangling_checkpoint_allocation_2026-10-15/root-source-peer.json",
+    "features/new/702_cluster_runs_download_a_missing_zoo_model_automatically.txt",
+    "spacr/model_zoo.py",
+    "tests/test_n702_dangling_model_claim.py"
+  ],
+  "source_sha256": "d5f945a1a76ae7d4a4466e37b3c8401839aa7683e839dbee3ff7657fc97f7113"
+}

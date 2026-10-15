@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical translation review; independent technical peer requested; no native-speaker claim",
+  "records": [
+    {
+      "label": "spacr.qt.job_runner#3",
+      "source": "``PipelineWorker.finished`` is emitted **on the worker thread**. A closure connected to it is invoked there. Touching a widget from it is undefined behaviour. The only safe thing a slot on that signal may do is re-emit a ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt then queues the call onto the GUI thread.",
+      "context": "``PipelineWorker.finished`` is emitted **on the background execution unit**. A closure connected to it is invoked there. Touching a widget from it is undefined behaviour. The only safe thing a slot on that signal may do is re-emit a ``Signal`` whose receiver is a bound method of a main GUI execution path object -- Qt then schedules the call onto the main GUI execution path.",
+      "source_sha256": "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
+      "translation": "``PipelineWorker.finished`` er sent **á vinnuþræðinum**. Fallslokun (closure) sem er tengd við merkið er kölluð á þeim þræði. Að vinna með viðmótshlut þaðan hefur óskilgreinda hegðun. Eina örugga aðgerðin sem afgreiðslufall (slot) á þessu merki má framkvæma er að senda aftur ``Signal`` þar sem viðtakandinn er bundin aðferð hlutar á GUI-þræðinum. Qt setur þá kallið í biðröð til keyrslu á GUI-þræðinum.",
+      "review_basis": "AI technical correction of signal emission on the worker thread, closure invocation there, undefined widget access, and queued delivery to a GUI-thread bound-method receiver. Independent technical peer requested; no human/native-speaker claim."
+    }
+  ]
+}

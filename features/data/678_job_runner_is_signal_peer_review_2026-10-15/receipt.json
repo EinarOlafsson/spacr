@@ -1,0 +1,42 @@
+{
+  "result": "PASS: one independently reviewed Icelandic API paragraph",
+  "reviewer_boundary": "Reviewer authored neither JobRunner English/source nor this Icelandic target. Technical AI review only; no native-speaker or human acceptance claim.",
+  "source_commit": "35aa6c146f3b30eedab48f198166d32ba4e67ff0",
+  "source_file": "spacr/qt/job_runner.py",
+  "source_file_sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706",
+  "input_commit": "686c682bbd968cd0ef84489b67368f61791bb8f5",
+  "input_path": "docs/i18n/reviewed/api/is/2026-10-15-job-runner-signal-semantics-home-b.json",
+  "input_file_sha256": "7028d6a32ef60a50141cb31758b59432a7fd2c303a1f7d3c130cbba4511e80d4",
+  "label": "spacr.qt.job_runner#3",
+  "language": "is",
+  "source": "``PipelineWorker.finished`` is emitted **on the worker thread**. A closure connected to it is invoked there. Touching a widget from it is undefined behaviour. The only safe thing a slot on that signal may do is re-emit a ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt then queues the call onto the GUI thread.",
+  "source_sha256": "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
+  "context": "``PipelineWorker.finished`` is emitted **on the background execution unit**. A closure connected to it is invoked there. Touching a widget from it is undefined behaviour. The only safe thing a slot on that signal may do is re-emit a ``Signal`` whose receiver is a bound method of a main GUI execution path object -- Qt then schedules the call onto the main GUI execution path.",
+  "context_sha256": "da0963d1bc57319ebdcf93a8b98919a0b2cac1cd514a258e088d764319a035e8",
+  "before_target": "``PipelineWorker.finished`` er geymt **á bakgrunni útgáfu einkefni**. A loka tengd við það er kallað þar. Touching widget frá það er óþekkt hegðun. Það eina öryggi sem slott á þessu merki getur gert er að útgáfa aftur ``Signal`` þar sem viðkomandi er tengd aðferð á heiminum GUI útgáfur hlut - Qt þá skipuleggja samtal á heimi útgáf GUI.",
+  "before_target_sha256": "97ecf300fc1f5807334c42a644b58117a87022a172710ff085c070fee29ac42f",
+  "approved_target": "``PipelineWorker.finished`` er sent **á vinnuþræðinum**. Fallslokun (closure) sem er tengd við merkið er kölluð á þeim þræði. Að vinna með viðmótshlut þaðan hefur óskilgreinda hegðun. Eina örugga aðgerðin sem afgreiðslufall (slot) á þessu merki má framkvæma er að senda aftur ``Signal`` þar sem viðtakandinn er bundin aðferð hlutar á GUI-þræðinum. Qt setur þá kallið í biðröð til keyrslu á GUI-þræðinum.",
+  "approved_target_sha256": "ef9174025eeb223a0bcbb8edf1dc96f8cac29061ae1998d4f5f2281c28d87dc6",
+  "draft_sha256": "625918f5ff2d15d5c8b835b6f93a579346c2a234bc7c09937447a1cdcc3eeb30",
+  "draft_matches_committed_target": true,
+  "semantic_findings": [
+    "The old er geymt means stored and did not describe signal emission. The replacement er sent means sent/emitted.",
+    "The revised wording explicitly places emission and the connected closure on the worker thread.",
+    "Widget access from that worker-thread callback remains undefined behavior, rather than an unspecified stored-state claim.",
+    "The safe relay re-emits literal Signal to a bound method of a GUI-thread object.",
+    "The final sentence accurately describes Qt queuing the call for execution on the GUI thread."
+  ],
+  "source_readback": [
+    "PipelineWorker.run emits finished(False) on pre-start cancellation and finished(ok) in its final cleanup.",
+    "bridge.make_thread moves the worker to the thread and connects thread.started to worker.run.",
+    "JobRunner.submit connects worker.finished to the closure calling _relay.",
+    "JobRunner._relay emits _settled; the runner connects _settled to its bound _on_settled method."
+  ],
+  "review_binding_checks": "Direct committed JSON/draft equality, exact file/source/context/target SHA256 binding, and exact AST source paragraph comparison; no collector or validator behavior was changed.",
+  "author_normal_validation": "Input686c682bb records source/context candidate, actual inline markup and combined current selected-module loader PASS. This reviewer did not repeat those gates.",
+  "limits": [
+    "Only this single locale/block is approved; surrounding retained translations are not covered.",
+    "No generator, test, helper census or catalog writer was run for this peer review.",
+    "Final normal catalog generation and readback remain with coordinator/documentation owner."
+  ]
+}

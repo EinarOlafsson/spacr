@@ -266,3 +266,14 @@ only two hashes proven unreferenced across all ten catalogs. Normal Help search
 regeneration passes. Evidence:features/data/678_job_runner_api_catalogs_2026-10-15/
 and related source, historical-repair and independent peer directories.
 This is a bounded correctness delivery; the wider semantic sweep remains open.
+
+2026-10-15 — Retained Icelandic worker-signal paragraph corrected.
+One retained module paragraph incorrectly described finished as stored and
+garbled worker-thread execution. Exact current-source/context review and an
+independent peer now match the emitted-signal/GUI delivery contract. The normal
+single-locale writer passes2.25s with zero canonical collections or decoding.
+Other seven module blocks,13409 unrelated Icelandic records, English, eight
+other locales and history are unchanged; no source or Help-input changes.
+Evidence:features/data/678_job_runner_icelandic_signal_catalog_2026-10-15/.
+The existing172 authored targets remain unchanged; broader semantic review stays
+open. Additional separately identified defects are not certified by this scope.
