@@ -36,12 +36,13 @@
     "new_nested_paragraphs": 2,
     "review_records": 18,
     "independent_peer": "root-api-peer-review.json",
-    "normal_generation": "Pending current public pairing merge and normal selected-symbol writer; this source commit does not certify generated artifacts."
+    "normal_generation": "PASS: two exact source-bound callback symbols through normal nine-locale reviewed API loaders/writer and reusable freshness validation; all unrelated records preserved. Normal complete English manifest audit PASS13480 symbols; fresh original public collector and all669 Python source hashes unchanged.",
+    "current_independent_peer": "root-api-context-v2-peer-review.json",
+    "preserved_failed_attempt": "api-generation-v1.log/exit: raw context mismatched normal expansion before any write; ES/FR/PT then explicitly retained protected GUI acronym."
   },
   "limits": [
     "No native desktop responsiveness benchmark/full CI claim.",
-    "Existing scanner owns close/cancellation behavior; no new background thread facility.",
-    "Normal owner pairing publication must be merged before generated API closure/publication; no older pairing captions/prose may replace owner output."
+    "Existing scanner owns close/cancellation behavior; no new background thread facility."
   ],
   "evidence": [
     {
@@ -94,5 +95,7 @@
       "sha256": "009db5de761f473a4d9f412afe4a75e36e99484c069cfd9717fc4a057530ea03",
       "bytes": 2970
     }
-  ]
+  ],
+  "merged_source_sha256": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
+  "source_dependency": "Normal merged owner pairing publication; FilePathListWidget AST identical to tested source62b04031a2c. Only incoming suggest_file_pairs/_number_unlabelled_plates/PairedFileTableWidget changed."
 }

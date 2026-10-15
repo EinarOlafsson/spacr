@@ -427,3 +427,10 @@ results remain in features/data/n641_async_path_drop_2026-10-15/.
 Two new nested callback paragraphs have 18 exact-source technical AI review
 records plus independent peer review. Normal generated API closure follows the
 current public owner pairing merge; no native smoothness/full-CI claim.
+Normal API closure: all 18 source/context/target review gates and all nine
+selected-symbol writers passed, preserving every unrelated generated record.
+Normal complete English API manifest audit passed (13,480 symbols); fresh
+collector and all 669 Python source hashes matched the frozen snapshot. The
+initial normal-context failure and three GUI-acronym corrections remain in
+the evidence with independent v2 peer review. Owner pairing was normal-merged;
+FilePathListWidget AST remains identical to the tested source.

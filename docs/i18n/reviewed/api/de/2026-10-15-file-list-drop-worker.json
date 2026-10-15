@@ -9,15 +9,15 @@
       "source_sha256": "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613",
       "context": "Resolve folder members on a worker without touching widgets.",
       "translation": "Ermitteln Sie die Dateien in Ordnern in einem Arbeitsthread, ohne auf Widgets zuzugreifen.",
-      "review_basis": "Direct exact-source AI technical translation and self-review; preserves worker-only filesystem collection without widget access, GUI-thread result delivery and stale-content replacement refusal. No human/native-speaker or native runtime signoff."
+      "review_basis": "Direct exact-source AI technical translation and self-review, including normal current model context and protected GUI acronym. Worker-only folder/file resolution and main GUI thread delivery/stale-list refusal retained. No human/native-speaker/runtime acceptance claim."
     },
     {
       "label": "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.landed#0",
       "source": "Append ready drops on the GUI thread unless their contents were replaced.",
       "source_sha256": "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296",
-      "context": "Append ready drops on the GUI thread unless their contents were replaced.",
+      "context": "Append ready drops on the main GUI execution path unless their contents were replaced.",
       "translation": "Fügen Sie fertig verarbeitete Drop-Ergebnisse im GUI-Thread an, sofern der Listeninhalt nicht ersetzt wurde.",
-      "review_basis": "Direct exact-source AI technical translation and self-review; preserves worker-only filesystem collection without widget access, GUI-thread result delivery and stale-content replacement refusal. No human/native-speaker or native runtime signoff."
+      "review_basis": "Direct exact-source AI technical translation and self-review, including normal current model context and protected GUI acronym. Worker-only folder/file resolution and main GUI thread delivery/stale-list refusal retained. No human/native-speaker/runtime acceptance claim."
     }
   ]
 }

@@ -90127,6 +90127,20 @@
       "source_sha256": "3a5c749a5d1e0c84124b818c704535d4ac3f5a7910fda69692679abd44093939",
       "text": "Refresh the hint once a probe has an answer.\n\nBoth arguments are ignored: the hint is rebuilt from every path\nit shows, so which one answered does not change the work.\n\n:param _path: the path that was probed; unused.\n:param _answer: what the probe found; unused."
     },
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.collect": {
+      "source_blocks_sha256": [
+        "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613"
+      ],
+      "source_sha256": "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613",
+      "text": "Resolve folder members on a worker without touching widgets."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.landed": {
+      "source_blocks_sha256": [
+        "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296"
+      ],
+      "source_sha256": "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296",
+      "text": "Append ready drops on the GUI thread unless their contents were replaced."
+    },
     "spacr.qt.widgets.file_list.FilePathListWidget.add_paths": {
       "source_blocks_sha256": [
         "0410121533649f038320f31d6359a107ab40faad2d99b17c6447f4ae3a6e03dc",
