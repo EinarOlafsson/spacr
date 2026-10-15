@@ -6,6 +6,7 @@ Original shared77-row tracker plus current Home-B lane updates; broader689-file 
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N421 — capture measurements from hand drawn masks | ✅ | 0 | Home | Complete original hand-drawn measurement contract accepted by Original Home. Final Swedish/Hindi API corrections and normal audits passed; initial-scan regression fixed9FAIL→12PASS. Published d05aa3058a. |
 | N691 — mitonet tem backend alpha | ✅ | 0 | Home | Complete alpha contract accepted by Original Home; final Portuguese API repair, normal producer and selected audit passed. Published54a57a07cc. |
 | N597 — Home dock resizing and text scale | ✅ | 0 | Home-B | Complete original corrected contract: arrow/drag width control, one text slider, live scaling, persistence/restore and no overlap at extremes; actual System Refresh regression fixed. Twelve current owning checks pass. |
 | N511 — filters are any regionprop the user adds | ✅ | 0 | CI / Home | Complete: arbitrary scalar filters, provenance and exact removal restoration; twelve-key catalog retirement verified. |
@@ -38,7 +39,6 @@ Original shared77-row tracker plus current Home-B lane updates; broader689-file 
 | F404 — dinocell as a segmentation backend | 90% | Unknown | Home | PV scorecard after F370 curated source reconciliation and actual Windows/macOS runs remain; do not count alpha implementation as full acceptance. |
 | N419 — make masks reads out lays out and edits by hand | 95% | 1–3 | Home | Latest item-local followups still assign normal9-language/API refresh and current tutorial to Workstation owner; current whole-parent acceptance not explicitly reconciled here. Work14 source-binding proposal is not a recording. |
 | N420 — the setup screen installs the ai provider it offers | 90% | Unknown | Home | Actual vendor authentication/browser/account and native Windows installer/login acceptance still require their real platform/user. No more arbitrary transport feature work. |
-| N421 — capture measurements from hand drawn masks | 95% | 1–3 | Home | Coherent9sentence81target repair and actual callbacks published67de758e45; whole original-contract reconciliation remains. |
 | F423 — third party segmenters in the model zoo | 90% | Unknown | Home | Actual Windows/macOS install runs and comparative scorecard acceptance explicitly not claimed; no installation performed now. |
 | F424 — plaques from published papers | 85% | Unknown | Home | Human lawn-strip/region-count review, crop-specific detector corpus and natural reviewed duplicate/panel/rotation corpus remain; synthetic transformation controls do not close whole424. |
 | N429 — stack file spacr wrote is one it can read | 95% | Unknown | Home | Reporter confirmation on real macOS external volume remains; item names consolidated API translation obligation whose later closure is not recertified here. |

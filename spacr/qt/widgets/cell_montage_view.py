@@ -1124,7 +1124,10 @@ class _Thumb(QLabel):
 
     def keyPressEvent(self, event):
         """Open the focused crop's provenance with Enter or Space."""
-        if (self.hasFocus() and event.modifiers() == Qt.NoModifier
+        if (self.hasFocus()
+                and (event.modifiers() == Qt.NoModifier
+                     or (event.key() == Qt.Key_Enter
+                         and event.modifiers() == Qt.KeypadModifier))
                 and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)):
             self.clicked.emit(self.toolTip())
             event.accept()
