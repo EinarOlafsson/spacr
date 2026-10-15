@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Codex), exact source; no human/native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "preserve or restore installer-owned metadata",
+      "source": "preserve or restore installer-owned metadata",
+      "source_sha256": "af735c95e9228df2e58dd3123d0533effd54ee1435710cf21b0c11ed21ff6f92",
+      "translation": "installereigene Metadaten beibehalten oder wiederherstellen"
+    }
+  ]
+}

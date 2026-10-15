@@ -48,6 +48,18 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    'preserve or restore installer-owned metadata': _row(
+        'bevara eller återställ installationsprogrammets egna metadata',
+        'installereigene Metadaten beibehalten oder wiederherstellen',
+        'conservar o restaurar los metadatos propios del instalador',
+        '保留或恢复安装程序拥有的元数据',
+        'preservar ou restaurar os metadados próprios do instalador',
+        'इंस्टॉलर के स्वामित्व वाला मेटाडेटा सुरक्षित रखें या बहाल करें',
+        '설치 프로그램 소유의 메타데이터를 보존하거나 복원합니다',
+        'varðveita eða endurheimta lýsigögn sem uppsetningarforritið á',
+        'conserver ou restaurer les métadonnées appartenant à l’installateur',
+    ),
+
     'remove only this recognized installation, preserving its data': _row(
         'ta endast bort den här identifierade installationen och behåll dess data',
         'nur diese erkannte Installation entfernen und ihre Daten beibehalten',

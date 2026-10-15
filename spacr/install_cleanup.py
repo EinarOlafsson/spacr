@@ -3733,6 +3733,110 @@ def _prepare_windows_uninstall(root, workdir, *, machine=None, base_prefix=None)
     return {"schema": 1, "workdir": workdir, "root": root, "command": command}
 
 
+def _installer_metadata_snapshot(folder, paths):
+    """Copy explicit installer sidecars without following links or changing their sources."""
+    root = os.path.abspath(folder)
+    if root != os.path.realpath(root):
+        raise ValueError({"code": "linked_metadata_folder", "path": root})
+    selected = sorted(set(os.path.join(os.path.realpath(os.path.dirname(os.path.abspath(path))),
+                                       os.path.basename(path)) for path in paths))
+    if not 0 < len(selected) <= 32 or any(_inside(path, root) for path in selected):
+        raise ValueError({"code": "invalid_metadata_selection"})
+    os.mkdir(root, 0o700)
+    details = os.stat(root)
+    state = {"schema": 1, "family": "installer-metadata", "folder": root,
+             "identity": [details.st_dev, details.st_ino], "records": []}
+    for index, path in enumerate(selected):
+        record = {"path": path, "parent": os.path.dirname(path), "kind": "absent"}
+        if os.path.lexists(path):
+            details = os.lstat(path)
+            backup = os.path.join(root, str(index))
+            if stat.S_ISLNK(details.st_mode):
+                target = os.readlink(path)
+                os.symlink(target, backup)
+                record.update(kind="link", backup=str(index), target=target)
+            elif stat.S_ISREG(details.st_mode):
+                shutil.copy2(path, backup)
+                record.update(kind="file", backup=str(index), sha256=_macos_digest(backup))
+            else:
+                raise ValueError({"code": "unsupported_metadata_entry", "path": path})
+        state["records"].append(record)
+    descriptor, temporary = tempfile.mkstemp(prefix="metadata-", dir=root)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+        json.dump(state, stream, indent=2)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, os.path.join(root, "metadata.json"))
+    return state
+
+
+def _installer_metadata_restore(folder):
+    """Validate retained sidecars before atomically restoring their original files or absence."""
+    root = os.path.abspath(folder)
+    details = os.lstat(root)
+    if (root != os.path.realpath(root) or not stat.S_ISDIR(details.st_mode)
+            or (os.name != "nt" and (details.st_uid != os.geteuid()
+                                     or stat.S_IMODE(details.st_mode) & 0o077))):
+        raise ValueError({"code": "untrusted_metadata_folder", "path": root})
+    journal_path = os.path.join(root, "metadata.json")
+    if os.path.islink(journal_path):
+        raise ValueError({"code": "linked_metadata_journal"})
+    descriptor = os.open(journal_path, os.O_RDONLY
+                         | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+    with os.fdopen(descriptor, encoding="utf-8") as stream:
+        journal = os.fstat(stream.fileno())
+        if not stat.S_ISREG(journal.st_mode) or journal.st_size > 16 * 1024 * 1024:
+            raise ValueError({"code": "invalid_metadata_journal"})
+        state = json.load(stream)
+    if (state.get("schema") != 1 or state.get("family") != "installer-metadata"
+            or state.get("folder") != root or state.get("identity") != [details.st_dev, details.st_ino]
+            or not isinstance(state.get("records"), list) or not 0 < len(state["records"]) <= 32):
+        raise ValueError({"code": "invalid_metadata_binding"})
+    seen = set()
+    for record in state["records"]:
+        path = record["path"]
+        if (not os.path.isabs(path) or path in seen or _inside(path, root)
+                or os.path.dirname(path) != record["parent"]
+                or os.path.realpath(os.path.dirname(path)) != record["parent"]):
+            raise ValueError({"code": "changed_metadata_parent", "path": path})
+        seen.add(path)
+        kind = record["kind"]
+        if kind == "absent":
+            continue
+        name = record["backup"]
+        if not isinstance(name, str) or not name.isdecimal() or str(int(name)) != name:
+            raise ValueError({"code": "invalid_metadata_backup"})
+        backup = os.path.join(root, name)
+        details = os.lstat(backup)
+        if kind == "file":
+            if not stat.S_ISREG(details.st_mode) or _macos_digest(backup) != record["sha256"]:
+                raise ValueError({"code": "changed_metadata_backup", "path": backup})
+        elif kind == "link":
+            if not stat.S_ISLNK(details.st_mode) or os.readlink(backup) != record["target"]:
+                raise ValueError({"code": "changed_metadata_backup", "path": backup})
+        else:
+            raise ValueError({"code": "invalid_metadata_kind"})
+    for record in state["records"]:
+        path = record["path"]
+        if record["kind"] == "absent":
+            if os.path.lexists(path):
+                os.unlink(path)
+            continue
+        descriptor, temporary = tempfile.mkstemp(prefix=".spacr-metadata-", dir=record["parent"])
+        os.close(descriptor)
+        try:
+            if record["kind"] == "link":
+                os.unlink(temporary)
+                os.symlink(record["target"], temporary)
+            else:
+                shutil.copy2(os.path.join(root, record["backup"]), temporary)
+            os.replace(temporary, path)
+        finally:
+            if os.path.lexists(temporary):
+                os.unlink(temporary)
+    return {"schema": 1, "state": "restored", "folder": root, "paths": sorted(seen)}
+
+
 def _cleanup_translate(source, **values):
     """Use the application catalog when available while keeping standalone helpers usable."""
     try:
@@ -3793,7 +3897,20 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     prepare_uninstall = commands.add_parser("prepare-windows-uninstall", help=tr("copy the private managed Python outside this installation"))
     prepare_uninstall.add_argument("--install-root", required=True)
     prepare_uninstall.add_argument("--workdir", required=True)
+    metadata = commands.add_parser("installer-metadata", help=tr("preserve or restore installer-owned metadata"))
+    metadata.add_argument("action", choices=("snapshot", "restore"))
+    metadata.add_argument("--folder", required=True)
+    metadata.add_argument("--paths", nargs="*")
     args = parser.parse_args(argv)
+    if args.command == "installer-metadata":
+        try:
+            receipt = (_installer_metadata_snapshot(args.folder, args.paths or [])
+                       if args.action == "snapshot" else _installer_metadata_restore(args.folder))
+        except Exception as error:
+            print(json.dumps({"ok": False, "error": str(error)}))
+            return 1
+        print(json.dumps(receipt, sort_keys=True))
+        return 0
     if args.command == "prepare-windows-uninstall":
         try:
             receipt = _prepare_windows_uninstall(args.install_root, args.workdir)

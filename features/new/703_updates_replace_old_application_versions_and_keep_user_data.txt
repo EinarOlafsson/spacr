@@ -411,3 +411,36 @@ desktop, capture, package install, user environment, GPU or network was used.
 Fatal Ruff, shell syntax and diff checks passed. Parent N703/full hosted release
 acceptance and the separate CLI extractor/catalog/combined N700 holds remain open.
 Raw receipts: /mnt/wd4tb/scratch/n703-linux-gui-20261014/{owning,closure,routing}.xml.
+
+
+2026-10-14 23:42 EDT — Home installer sidecar rollback consistency
+Closed the ordinary installer rollback gap where the old venv could be restored
+while runtime-identity.json, install-profile.json or launchers still described the
+new release. A stdlib helper snapshots only the explicit installer-owned sidecars
+before exchange, preserving bytes, modes, timestamps, symlinks and absence. It
+validates backup directory/journal/content/parent bindings before restoration,
+atomically restores files and retains backups for safe retry. Unknown user data
+is not included in this operation. A failed restoration keeps the work directory
+and its evidence rather than deleting the only previous metadata copies.
+
+Linux's final identity probe now writes to a staging receipt and publishes it
+only after successful verification, avoiding writes through a preexisting receipt
+symlink. Its existing EXIT rollback restores matching sidecars after the runtime.
+Windows captures a verified UTF-8 receipt without BOM, uses the same metadata
+snapshot/restore helper, preserves the original exception and recovery evidence,
+and does not attempt rollback from an already committed/partially retired backup.
+Its native PowerShell parsing and execution remain PENDING.
+
+13 PASS, actualexit0/3.02s:12 new real disposable-file/subprocess/helper/Linux
+EXIT-trap contracts and one existing stage-before-replace ordering check. These
+prove repeated restore, old bytes/modes/symlinks/absence, target-directory/userdata
+preservation, corrupt/link/traversal/duplicate/parent refusal before writes, old
+runtime+sidecar consistency and retained proof when rollback metadata is damaged.
+No real environment, user data, account, desktop, GPU or network was touched.
+Fatal Ruff, shell syntax and diff checks passed. One new literal tr CLI help row
+has all9 exact-source AI technical reviews; all9 pass normal candidate validation.
+Its normal generated output/locale lookup is PENDING the already-owned extractor
+source-path prerequisite and combined arrival closure, not claimed passed.
+Native OS/install/update acceptance and parent N703/full-CI remain open.
+Raw evidence: /mnt/wd4tb/scratch/n703-installer-sidecars-20261014/owning.xml and
+owning.exit; source/remaining scope is recorded in delivery-receipt.json there.

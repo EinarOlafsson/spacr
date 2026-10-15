@@ -504,12 +504,22 @@ stage_venv="$INSTALL_ROOT/.venv-staging-$$"
 stage_profile="$INSTALL_ROOT/.install-profile-staging-$$.json"
 old_venv=""
 swap_started=0
+metadata_touched=0
+metadata_backup="$work_dir/previous-metadata"
 cleanup() {
+    local retain_work=0
     if [[ "$swap_started" == "1" && -d "$old_venv" ]]; then
         rm -rf "$VENV_DIR"
         mv "$old_venv" "$VENV_DIR"
     fi
-    rm -rf "$work_dir"
+    if [[ "$metadata_touched" == "1" ]]; then
+        if ! "$cleanup_python" -I "$cleanup_module" installer-metadata restore --folder "$metadata_backup"; then
+            retain_work=1
+            spacr_say gui_failed >&2
+            printf '%s\n' "$metadata_backup" >&2
+        fi
+    fi
+    if [[ "$retain_work" == "0" ]]; then rm -rf "$work_dir"; fi
     rm -f "$stage_profile"
     if [[ -d "$stage_venv" ]]; then
         rm -rf "$stage_venv"
@@ -646,6 +656,15 @@ if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
     spacr_say old_copy_not_removed >&2
     exit 6
 fi
+metadata_paths=("$INSTALL_ROOT/runtime-identity.json" "$INSTALL_ROOT/install-profile.json")
+if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then metadata_paths+=("$LAUNCHER"); fi
+if [[ "$PLATFORM" == "linux" ]]; then
+    metadata_paths+=("$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop" "$INSTALL_ROOT/uninstall-spacr.sh")
+fi
+if [[ -n "$OFFLINE_BUNDLE" ]]; then
+    metadata_paths+=("$INSTALL_ROOT/offline_mask_check.py" "$INSTALL_ROOT/offline-bundle.json")
+fi
+"$cleanup_python" -I "$cleanup_module" installer-metadata snapshot --folder "$metadata_backup" --paths "${metadata_paths[@]}"
 old_venv="$INSTALL_ROOT/.venv-previous-$$"
 if [[ -d "$VENV_DIR" ]]; then
     mv "$VENV_DIR" "$old_venv"
@@ -653,13 +672,15 @@ if [[ -d "$VENV_DIR" ]]; then
 fi
 mv "$stage_venv" "$VENV_DIR"
 if ! "$cleanup_python" -I "$cleanup_module" verify-runtime \
-    --python "$VENV_DIR/bin/python" "${identity_args[@]}" > "$INSTALL_ROOT/runtime-identity.json"; then
+    --python "$VENV_DIR/bin/python" "${identity_args[@]}" > "$work_dir/runtime-identity.new.json"; then
     rm -rf "$VENV_DIR"
     if [[ -d "$old_venv" ]]; then
         mv "$old_venv" "$VENV_DIR"
     fi
     exit 7
 fi
+metadata_touched=1
+mv "$work_dir/runtime-identity.new.json" "$INSTALL_ROOT/runtime-identity.json"
 mv "$stage_profile" "$INSTALL_ROOT/install-profile.json"
 
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
@@ -742,6 +763,7 @@ EOF
 fi
 
 swap_started=0
+metadata_touched=0
 rm -rf "$old_venv"
 echo
 spacr_say installed
