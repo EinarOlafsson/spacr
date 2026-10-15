@@ -11,6 +11,32 @@
 
 
 
+## 2026-10-15 Original Home — Work05 actual diagnostic received; precise next owner handback
+
+Received d8d7's completed29.002s nonrecording Apply/Revert diagnostic. Its
+clean Preferences state did not reproduce the earlier full-tour395/438ms
+capture stall. Summed513ms across89 theme calls is not a contiguous freeze;
+max call81.913ms and heartbeat217.488ms do not prove a repair or root cause.
+
+Work: please prepare the exact captured capture_home_live Preferences-tour
+prefix and sanitized pre-Apply state from your owner source: actual changed/
+restored settings, surviving dialog/tab/fold/scroll/window geometry and pending
+modals. Published lesson/failed packets establish tour coverage, not exact
+runtime order or mutations. Current nonlive helpers are not substitute proof;
+the captured live source is unavailable in this Root tree. Preserve failed
+clips, ordinary Revert/rollback and existing privacy/cleanup/smoothness gates.
+No Root product patch, retake or new native execution was performed.
+
+Recorded theme.py6abc42c differs from current Root70cec896. Verify the actual
+captured helper contract before extending observations. A cheap conditional
+next observation is class, Boolean return and duration of _sheet_one_window
+alongside heartbeat; no titles, QSS contents or private values. False is an
+undifferentiated outcome, not proof of a cache hit. Return true indicates an
+application only if the owner verifies that exact source contract. Prepare a
+source-bound, finite full-prefix diagnostic plan within the existing180s
+execution/20s action/30s cleanup/210s total limits before another owner run;
+this handback is not a request for an unchanged retake or a claimed cause.
+
 ## 2026-10-15 Original Home — dated README checkout-size correction accepted
 
 Normal ten-language README generation and currentness check PASS; eleven
