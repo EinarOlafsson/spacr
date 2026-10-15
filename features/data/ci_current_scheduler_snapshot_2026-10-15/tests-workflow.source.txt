@@ -1,0 +1,991 @@
+name: tests
+
+on:
+  push:
+    branches: [main, nightly, "**"]
+    # A push that only touches documentation or item notes starts no run, so
+    # it cannot cancel the code run in flight (item 101: on 2026-09-30 every
+    # nightly push run was cancelled by the docs push after it). The next
+    # code push or a dispatched run still tests the whole tree, docs included.
+    paths-ignore:
+      - "docs/**"
+      - "features/**"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# The complete suite runs on the reference Python 3.12 environment. Expensive
+# or environment-aware tests run in distinct integration, slow, Qt, GPU,
+# network, and NAS jobs. The marker expressions form a partition: a supported
+# test belongs to the highest-requirement suite it declares, while GPU,
+# network, and NAS tests decide at runtime whether their resource is actually
+# available. Tests marked ``gui`` belong to the retired Tk interface and are
+# deliberately outside this workflow.
+#
+# Breadth — Python 3.9 through 3.14, macOS, Windows, ARM64, the
+# requires-python guard, and wheel availability — lives in
+# .github/workflows/compat-matrix.yml, which runs a much cheaper install +
+# import + packaging subset. Running the 30,000-test fast partition six times
+# duplicated the same application contracts and kept hosted runners alive for
+# 35-50 minutes per interpreter; several were lost before producing a verdict.
+# One full reference run plus the blocking compatibility grid preserves the
+# two claims separately: spaCR behaves correctly, and every supported
+# interpreter/platform can install and import it.
+#
+# Every `Programming Language :: Python :: 3.x` classifier in pyproject.toml
+# must have a cell somewhere across these two workflows. If you add a
+# classifier, add the cell first.
+
+# One run per ref, newest wins. Without this a run of pushes to the same
+# branch queues a full suite for every commit and none of them get cancelled:
+# ten tutorial-rebuild pushes on 5 August left ~30 jobs queued for hours,
+# starved every runner, and blocked the docs deploy behind them -- the public
+# site sat on a four-day-old build while CI churned through commits nobody
+# was waiting on. Only the newest commit on a branch is worth testing.
+#
+# BUT A DISPATCHED RUN IS NEVER CANCELLED, and that is the whole of the
+# exception. A full suite takes ~95 minutes; during active work the gap
+# between pushes to nightly is 5-25 minutes. Cancel-on-push therefore does
+# not degrade the signal on the integration branch, it removes it: on
+# 2026-08-15 the last thirty `tests` runs on nightly were twenty-nine
+# cancellations and one still running, and the newest run that had reached
+# any verdict at all was from the day before. `docs` takes ~26 minutes, fits
+# in the gaps, and passed throughout -- the suites that outlast a gap are
+# exactly the ones that never finished.
+#
+# Splitting the group by event keeps the 5 August protection exactly as it
+# was -- a push still cancels the previous PUSH run -- while giving a way to
+# ask "is this branch actually green?" and get an answer that survives the
+# next commit. That question is instruction 82, and answering it is what a
+# release gates on.
+#
+# 2026-09-30 (item 101 again): A PUSH RUN IS NO LONGER CANCELLED EITHER. Even
+# with docs-only pushes ignored, code pushes to nightly land faster than a
+# ~2.5 h suite, so every push run that day (36789261999, 36790017225,
+# 36790671389, ...) was cancelled by the next one and nightly again had no
+# push verdict. Only a pull request cancels its previous run now. The
+# 5 August starvation stays bounded without cancellation, by the group
+# itself: GitHub runs ONE run per group and keeps at most ONE pending, and a
+# newer pending run replaces the older pending one. So a burst of pushes
+# costs the run already going plus one waiting run for the newest commit,
+# never a queue of thirty.
+concurrency:
+  group: tests-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  SPACR_TEST_COUNT_DIR: .test-counts
+
+jobs:
+  # THE NEWEST END of the dependency policy setup.py states: this job installs
+  # with no constraints file, so pip resolves the top of every declared range
+  # and the suite runs against what a fresh `pip install spacr` actually gets
+  # today. It is the job that keeps the recommendation true as releases land.
+  # Its opposite number is `minimum-dependencies` below, which installs the
+  # declared floors instead. Both are blocking, and
+  # tests/test_optimal_dependency_versions.py fails if either stops being so.
+  fast:
+    name: Fast / Full suite control (ubuntu-24.04, py3.12) shard ${{ matrix.shard }} of 3
+    runs-on: ubuntu-24.04
+    # THREE FILE SHARDS (item 43, 2026-09-30). One job had outgrown even
+    # the 150-minute budget below: dispatch 36739819315 reached batch 94 of
+    # 110 at 2:30 and was killed, and every dispatched run since 09-28 but
+    # one ended the same way, so the blocking job never reported. Each shard
+    # runs the same marker selection on a deterministic third of the files
+    # (tests/conftest.py, SPACR_PYTEST_FILE_SHARD_*), as the Qt job does.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+    # 90 -> 150. THIS JOB WAS BEING KILLED BY ITS OWN BUDGET, not by a push:
+    # 1:30:32 on dispatch 34639565357 and 1:30:17 on 34618149518 a day
+    # earlier, both reported as "cancelled", which reads exactly like a
+    # superseded run. `fast` is a BLOCKING job, so a budget it cannot finish
+    # inside is a required check that can never pass -- nightly could not
+    # have gone green whatever the tests said. Only dispatched runs live
+    # long enough to reveal it; push runs are superseded first.
+    #
+    # Raised WITH `--per-test-timeout` below rather than instead of it: a
+    # bigger budget alone would hide a hung test by giving it more room. The
+    # per-test timeout names the test; the budget is there so an honestly
+    # long suite can finish.
+    timeout-minutes: 150
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install system libraries (Qt offscreen + scientific stack)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+
+      - name: Install spacr (full deps, CPU-only torch)
+        run: |
+          python -m pip install --upgrade pip
+          # CPU-only torch first so pip doesn't fetch the CUDA wheel
+          # that would OOM the runner.
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" "torchvision"
+          # Full install pulls every dep from setup.py's install_requires:
+          # IPython, czifile, readlif, statsmodels, cellpose, xgboost, umap,
+          # seaborn, biopython, etc.
+          #
+          # `zernike` and `attribution` are requested explicitly because
+          # mahotas and torchcam are no longer core dependencies. They moved
+          # to extras so a plain `pip install spacr` on Python 3.13 needs no
+          # C++
+          # toolchain (mahotas has never published a cp313 wheel) and is not
+          # dragged back to numpy 1.26.4 (every torchcam release declares
+          # `numpy<2.0.0`). The suite still has to exercise them:
+          # spacr/measure.py imports mahotas at module scope, so without
+          # `zernike` this whole suite would fail at collection, not degrade.
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,vendor-watch]"
+          # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
+          # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
+          # passing `--timeout` without this makes pytest exit on
+          # "unrecognized arguments" and the whole job fails before it has
+          # run a test. `_pytest-suite.yml` installs the same pin for the
+          # same reason; this job builds its own environment and has to
+          # repeat it.
+          python -m pip install "pytest-timeout>=2.3,<3"
+
+      - name: Show the pins that gate the compatibility matrix
+        # One line per dependency whose wheel availability decides which
+        # cells of the matrix can exist. When a cell goes red six months from
+        # now, this log is the difference between "which version moved?" and
+        # re-deriving the whole thing from scratch.
+        run: |
+          python -c "import sys; print('python', sys.version)"
+          python -m pip list --format=freeze | grep -Ei \
+            '^(numpy|scipy|torch|torchvision|cellpose|mahotas|opencv-python-headless|pillow|psutil|lxml|PySide6|pandas|scikit-image|scikit-learn|umap-learn|btrack)=' || true
+
+      - name: Preflight low-core defaults and native integrations
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from spacr.settings import set_default_settings_preprocess_generate_masks
+          settings = set_default_settings_preprocess_generate_masks({})
+          assert settings["n_jobs"] >= 1, settings["n_jobs"]
+
+          from spacr.utils import umap
+          assert umap.UMAP is not None
+
+          import btrack
+          with btrack.BayesianTracker():
+              pass
+          print("low-core defaults, UMAP API, and btrack native library: OK")
+          PY
+
+      - name: Run fast tests
+        env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: "3"
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+        run: |
+          python tools/run_pytest_batches.py \
+            --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
+            --batch-size 32 --workers 2 --skip-qt-only-batches \
+            --per-test-timeout 300 \
+            --batch-timeout 2700
+
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  integration:
+    name: Integration
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Integration
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
+      marker_expression: "integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui"
+      timeout_minutes: 60
+
+  slow:
+    name: Slow
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Slow
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
+      marker_expression: "(slow or heavy) and not gpu and not network and not nas and not gui"
+      timeout_minutes: 90
+
+  qt:
+    name: Qt
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Qt shard ${{ matrix.shard }} of 3
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
+      marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
+      # 120 -> 180, for the shard that also runs the serial tail. The shards
+      # are not the same size: `run_serial_tail` below is true for one shard
+      # only, so that shard runs the whole serial tail after its parallel
+      # part. On dispatch 34639565357, when shard 0 of 2 carried the tail,
+      # shard 1 finished and reported its failures while shard 0 was killed by
+      # this budget -- and a killed job reports as "cancelled", which is
+      # indistinguishable from a superseded push until you look at the
+      # duration. Qt is blocking, so that was a required check that could not
+      # pass.
+      timeout_minutes: 180
+      # Recycle the Qt heap before one worker accumulates a full shard.
+      batch_size: 16
+      xdist_workers: 2
+      file_shard_index: ${{ matrix.shard }}
+      # THREE SHARDS, NOT TWO (items 43 and 288, 2026-09-15). The MEMORY lines
+      # of dispatched run 35012948690 (nightly 783a8d2f3) put Qt shard 0 of 2
+      # at used=14,939 MiB of the runner's 15,989 at 97% of the shard, 1,050
+      # MiB available and 2,035 of 3,071 MiB swapped; it finished, but shard 0
+      # had lost its runner at 83% and at 96% earlier that day. Shard 1 peaked
+      # near 10 GB, and shard 0's command peaked at 15,091 MiB PSS locally.
+      # Each of the four long-lived workers grows over its shard, so a third
+      # shard cuts the tests per worker, and with it the peak, by a third.
+      file_shard_count: 3
+      # The serial tail runs after the batched workers exit, so it costs time,
+      # not peak memory, and it goes to the lightest shard. Shard 0 of 2's
+      # per-file times from run 35012948690, rebucketed three ways: 4,045,
+      # 4,854 and 3,372 worker-seconds for shards 0, 1 and 2.
+      run_serial_tail: ${{ matrix.shard == 2 }}
+      # A wedged Qt test used the whole 120 minutes and printed nothing: the
+      # shard reached 99%, then sat in silence until the runner killed it, so
+      # the log named neither the test nor a stack. Twenty minutes is far more
+      # than any test here needs and leaves the shard time to finish and
+      # report, which turns a lost job into one named failure.
+      per_test_timeout_seconds: 1200
+      # MEMORY, SAMPLED INTO THE LIVE LOG. Shard 0 lost its runner outright
+      # twice on 2026-09-15 ("The runner has received a shutdown signal" at
+      # [83%] after 71 min and at [96%] after 89 min; item 43), and a lost
+      # runner uploads nothing and cannot log that it ran out of memory. One
+      # MEMORY line every 30 seconds says whether memory was running out
+      # before the next one is lost.
+      memory_telemetry_seconds: 30
+
+  gpu:
+    name: GPU
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: GPU
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
+      marker_expression: "gpu and not gui"
+      timeout_minutes: 120
+
+  network:
+    name: Network
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Network
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
+      marker_expression: "network and not nas and not gpu and not gui"
+      timeout_minutes: 90
+
+  nas:
+    name: NAS
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: NAS
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
+      marker_expression: "nas and not gpu and not gui"
+      timeout_minutes: 90
+
+  # COVERAGE IS THE SHIPPED PACKAGE, NOT A HAND-MAINTAINED MODULE LIST.
+  # Twelve file shards exercise the full coverage-eligible suite with branch
+  # tracing. Each shard is split again into fresh two-worker batches because
+  # scientific and Qt imports retain enough state to exhaust a hosted runner
+  # when thousands of tests share one interpreter. The five ignored files are
+  # wall-clock/RSS measurement suites: tracing changes the quantity they
+  # measure, and the blocking Qt job runs each one serially without tracing.
+  coverage-shards:
+    name: Coverage shard ${{ matrix.shard }} of 12
+    runs-on: ubuntu-24.04
+    # Every test is bounded (--per-test-timeout) and so is every batch
+    # (--batch-timeout), so a hang costs at most one batch, never the job.
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONPATH: ${{ github.workspace }}
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
+      XDG_CACHE_HOME: /tmp/spacr-xdg-cache
+      # The deterministic four-field Hugging Face fixture is coverage-bearing
+      # application work, while a hosted runner has no CUDA device.
+      SPACR_HF_E2E_STUB: "1"
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd
+
+      - name: Install spaCR and branch-coverage tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" torchvision
+          # The optional stores (databases: DuckDB and psycopg), AnnData, timm
+          # (embeddings), RDKit (chem), mrcfile (tem) and pyreadr are installed
+          # here and only here: the code that only runs with them
+          # (spacr.tabular's DuckDB and .rds paths, the AnnData export, the
+          # chemistry-aware hit view, the timm encoders, the MRC reader) is
+          # measured by the tests that exercise it with the real library,
+          # rather than read as untested because this job lacked it (288).
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings,tem]"
+          python -m pip install "pyreadr>=0.5,<1"
+          # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
+          # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
+          # passing `--timeout` without this makes pytest exit on
+          # "unrecognized arguments" and the whole job fails before it has
+          # run a test. `_pytest-suite.yml` installs the same pin for the
+          # same reason; this job builds its own environment and has to
+          # repeat it.
+          python -m pip install "pytest-timeout>=2.3,<3"
+          python -m pip install \
+            "coverage>=7.10,<8" \
+            "pytest-cov>=7,<8"
+          python -m pip check
+
+      - name: Bind coverage artifact to this run and source
+        env:
+          SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
+          SPACR_COVERAGE_SHARD: ${{ matrix.shard }}
+          SPACR_RUN_ID: ${{ github.run_id }}
+          SPACR_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SPACR_HEAD_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          shard = int(os.environ["SPACR_COVERAGE_SHARD"])
+          path = Path(os.environ["SPACR_COVERAGE_DATA_DIR"])
+          path.mkdir(parents=True, exist_ok=True)
+          (path / f"spacr-coverage-source.shard-{shard:02d}.json").write_text(
+              json.dumps({
+                  "schema": "spacr.coverage-source/v1",
+                  "run_id": int(os.environ["SPACR_RUN_ID"]),
+                  "run_attempt": int(os.environ["SPACR_RUN_ATTEMPT"]),
+                  "head_sha": os.environ["SPACR_HEAD_SHA"],
+                  "shard_index": shard,
+              }, sort_keys=True) + "\n", encoding="utf-8",
+          )
+          PY
+
+      - name: Run coverage shard in bounded batches
+        env:
+          SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
+          SPACR_COVERAGE_SHARD: ${{ matrix.shard }}
+          SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ runner.temp }}/spacr-qt-native
+        run: |
+          if ! ulimit -S -c 16777216; then
+            echo "Native core soft limit could not be enabled; retaining inherited limit"
+          fi
+          python tools/collect_qt_native_backtrace.py --record-core-route \
+            --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
+          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal --deselect=tests/qt/test_torch_libraries_map_without_the_interpreter_lock_20261013.py::test_importing_torch_after_the_map_blocks_other_threads_far_less"
+          python tools/run_coverage_batches.py tests \
+            --marker "not gui" \
+            --shard-index "$SPACR_COVERAGE_SHARD" \
+            --shard-count 12 \
+            --batch-size 32 \
+            --workers 2 \
+            --per-test-timeout 600 \
+            --batch-timeout 2700 \
+            --data-dir "$SPACR_COVERAGE_DATA_DIR" \
+            --exclude-file tests/test_perf_guard.py \
+            --exclude-file tests/qt/test_641_module_first_open_timing.py \
+            --exclude-file tests/qt/test_gui_responsiveness.py \
+            --exclude-file tests/qt/test_home_stage_and_dock.py \
+            --exclude-file tests/qt/test_figure_queue.py \
+            --exclude-file tests/qt/test_pca.py
+
+      - name: Recover a coverage worker native backtrace
+        if: failure() || cancelled()
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python tools/collect_qt_native_backtrace.py --ordinary \
+            --evidence-dir "$RUNNER_TEMP/spacr-qt-native"
+
+      - name: Upload coverage native failure evidence
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-native-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: |
+            ${{ runner.temp }}/spacr-qt-native/process-*.jsonl
+            ${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt
+            ${{ runner.temp }}/spacr-qt-native/core-route.json
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Upload coverage process data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: >-
+            spacr-coverage-data-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/spacr-coverage-data/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  coverage-combine:
+    # Item 288, maintainer decision 2026-09-19: the goal is 90% per module,
+    # not 100% -- "if the module would benefit from more than 90% coverage,
+    # implement that, but only in cases where coverage is useful". The gate is
+    # a 90% FLOOR plus the per-module RATCHET against
+    # tools/coverage_baseline.json, so a module's bar is max(90%, what it
+    # already has). A module that genuinely cannot reach the floor names
+    # itself and its reason in tools/coverage_floor_exemptions.txt rather than
+    # hiding behind a pragma. CI never rewrites the baseline.
+    name: Coverage / every module at 90% and none loses coverage
+    if: always() && !cancelled()
+    needs: coverage-shards
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # id-token lets the Codecov upload authenticate by OIDC while the
+    # repository has no CODECOV_TOKEN secret (item 688).
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install coverage verifier dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "coverage>=7.10,<8" "setuptools>=64"
+
+      - name: Download coverage shards from this run's attempts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: >-
+            spacr-coverage-data-${{ github.run_id }}-*
+          path: ${{ runner.temp }}/spacr-coverage-artifacts
+
+      - name: Select the newest same-run artifact per shard
+        env:
+          SPACR_COVERAGE_ARTIFACTS: ${{ runner.temp }}/spacr-coverage-artifacts
+          SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
+          SPACR_COVERAGE_SHARD_COUNT: "12"
+          SPACR_RUN_ID: ${{ github.run_id }}
+          SPACR_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SPACR_HEAD_SHA: ${{ github.sha }}
+        run: |
+          python tools/select_coverage_artifacts.py \
+            --source "$SPACR_COVERAGE_ARTIFACTS" \
+            --destination "$SPACR_COVERAGE_INPUT" \
+            --run-id "$SPACR_RUN_ID" \
+            --run-attempt "$SPACR_RUN_ATTEMPT" \
+            --shard-count "$SPACR_COVERAGE_SHARD_COUNT" \
+            --head-sha "$SPACR_HEAD_SHA"
+
+      - name: Combine process data and write coverage.py JSON
+        id: combine
+        env:
+          COVERAGE_FILE: ${{ runner.temp }}/spacr-coverage-combined/.coverage
+          SPACR_COVERAGE_COMBINED: ${{ runner.temp }}/spacr-coverage-combined
+          SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
+          SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
+          # Must equal the coverage-shards matrix length and --shard-count;
+          # tests/test_module_coverage_ratchet.py asserts all three agree.
+          SPACR_COVERAGE_SHARD_COUNT: "12"
+        run: |
+          mkdir -p -- "$SPACR_COVERAGE_COMBINED" "$SPACR_COVERAGE_REPORT"
+          # A shard with no data would lower coverage without naming why, so
+          # a missing shard is a red job here rather than a ratchet surprise.
+          missing=0
+          for ((shard = 0; shard < SPACR_COVERAGE_SHARD_COUNT; shard++)); do
+            printf -v name '.coverage.shard-%02d.batch-' "$shard"
+            if ! compgen -G "$SPACR_COVERAGE_INPUT/$name*" > /dev/null; then
+              echo "::error::coverage shard $shard produced no coverage data"
+              missing=1
+            fi
+          done
+          test "$missing" -eq 0
+          python -m coverage combine --keep "$SPACR_COVERAGE_INPUT"
+          python -m coverage json --pretty-print \
+            -o "$SPACR_COVERAGE_REPORT/coverage.json"
+
+      # A CRASH IS NOT A REGRESSION. A coverage worker killed by a signal
+      # never writes its data, so every module it exercised reads as less
+      # covered than it is: on dispatch 34989909231 two segfaulted workers
+      # became thirteen "regressions", pivot_spec.py among them at 24
+      # uncovered statements from 100%. tools/run_coverage_batches.py
+      # re-runs a lost worker's files serially and writes what it recovered
+      # into each shard's integrity record. --shard-integrity reads those
+      # records; a loss that was not recovered fails as an INCOMPLETE
+      # MEASUREMENT (exit 3) with the counts it may have raised marked
+      # UNCONFIRMED. It still fails, and says why. --shard-count must equal
+      # the matrix length.
+      - name: Gate on the per-module coverage ratchet baseline
+        env:
+          SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
+          SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
+        run: |
+          python tools/verify_module_coverage.py \
+            --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
+            --root . \
+            --expected-file-count 664 \
+            --baseline tools/coverage_baseline.json \
+            --floor-exemptions tools/coverage_floor_exemptions.txt \
+            --shard-integrity "$SPACR_COVERAGE_INPUT" \
+            --shard-count 12 \
+            --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
+            --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"
+
+      # Item 688: the same combined data, as Cobertura XML, goes to Codecov
+      # for pushes to nightly and main. Codecov is informational only
+      # (codecov.yml); the ratchet above stays the enforcing coverage check,
+      # and a Codecov outage never turns this job red.
+      - name: Write Cobertura coverage.xml for Codecov
+        id: codecov-xml
+        if: >-
+          always() && steps.combine.outcome == 'success'
+          && github.event_name == 'push'
+          && (github.ref == 'refs/heads/nightly' || github.ref == 'refs/heads/main')
+        env:
+          COVERAGE_FILE: ${{ runner.temp }}/spacr-coverage-combined/.coverage
+          SPACR_CODECOV_DIR: ${{ runner.temp }}/spacr-codecov
+        run: |
+          mkdir -p -- "$SPACR_CODECOV_DIR"
+          python -m coverage xml -o "$SPACR_CODECOV_DIR/coverage.xml"
+
+      - name: Upload combined coverage to Codecov
+        if: always() && steps.codecov-xml.outcome == 'success'
+        uses: codecov/codecov-action@v7
+        with:
+          files: ${{ runner.temp }}/spacr-codecov/coverage.xml
+          disable_search: true
+          flags: ${{ github.ref_name }}
+          name: spacr-${{ github.ref_name }}-${{ github.run_id }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload human and machine-readable coverage reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: >-
+            spacr-module-coverage-report-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/spacr-coverage-report/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Require every coverage shard to have passed its tests
+        if: always()
+        env:
+          SPACR_COVERAGE_SHARDS_RESULT: ${{ needs['coverage-shards'].result }}
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+
+          result = os.environ["SPACR_COVERAGE_SHARDS_RESULT"]
+          if result != "success":
+              sys.exit(f"coverage shards finished with {result}")
+          print("all coverage shards passed their selected tests")
+          PY
+
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  quality:
+    name: Lint / types / complexity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install quality tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            "ruff>=0.9,<1" \
+            "mypy>=1.11,<2" \
+            "types-PyYAML>=6,<7" \
+            "xenon>=0.9,<1"
+
+      - name: Enforce repository and maintained-code quality gates
+        shell: bash
+        run: |
+          mapfile -t targets < <(
+            grep -Ev '^[[:space:]]*(#|$)' .github/quality-targets.txt
+          )
+          test "${#targets[@]}" -gt 0
+
+          # Fatal correctness errors are never grandfathered, even in legacy
+          # modules that are not ready for the full style/type ratchet.
+          python -m ruff check spacr tests --select E9,F63,F7,F82
+
+          # The maintained target set is held to broader linting, static
+          # typing, and a maximum per-block/module complexity rank of B.
+          python -m ruff check "${targets[@]}"
+          python -m mypy "${targets[@]}"
+          python -m xenon \
+            --max-absolute B \
+            --max-modules B \
+            --max-average A \
+            "${targets[@]}"
+
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  minimum-dependencies:
+    name: Minimum dependencies (ubuntu-24.04, py3.9) shard ${{ matrix.shard }} of 3
+    runs-on: ubuntu-24.04
+    # 120 -> 180, same finding as `fast` above: killed by its own budget at
+    # about 2:01 on two separate dispatches. Also blocking.
+    timeout-minutes: 180
+    # Three file shards, like `fast` and for the same reason: dispatch
+    # 36739819315 was still at batch 102 of 110 after 2:32 of its 3:00.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # THE FLOOR END. Python 3.9 is the oldest supported interpreter, and
+      # this constraints file pins every lower-bounded direct dependency (and
+      # every extra installed here) to the version setup.py declares as its
+      # floor. A lower bound nothing installs is a promise nothing keeps, so
+      # this is the job that turns setup.py's floors into a tested claim
+      # rather than a guess. Every other job here and in compat-matrix.yml
+      # deliberately carries no constraints and therefore resolves newest.
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.9"
+          cache: pip
+
+      - name: Install system libraries (Qt offscreen + scientific stack)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+
+      - name: Install spacr at minimum direct versions
+        run: |
+          python -m pip install --upgrade pip
+          # Install the coupled CPU wheels together first. Their local
+          # ``+cpu`` suffixes still satisfy the public-version constraints.
+          python -m pip install \
+            --index-url https://download.pytorch.org/whl/cpu \
+            "torch==2.1.0" "torchvision==0.16.0"
+          python -m pip install \
+            -c .github/constraints/minimum-py39.txt \
+            -e ".[dev,zernike,attribution,btrack,czi]"
+          # See the note in `fast`: `--per-test-timeout` needs this and the
+          # `dev` extra does not provide it. Constrained like everything else
+          # here, so the minimum profile stays the thing this job proves.
+          python -m pip install \
+            -c .github/constraints/minimum-py39.txt \
+            "pytest-timeout>=2.3,<3"
+          python -m pip check
+
+      - name: Verify installed minimum profile
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+          from packaging.requirements import Requirement
+
+          for line in Path(".github/constraints/minimum-py39.txt").read_text().splitlines():
+              line = line.strip()
+              if not line or line.startswith("#"):
+                  continue
+              expected = Requirement(line)
+              actual = version(expected.name)
+              assert actual in expected.specifier, (
+                  f"{expected.name}: installed {actual}, expected {expected.specifier}"
+              )
+              print(f"{expected.name}=={actual}")
+          PY
+
+      - name: Preflight minimum native integrations
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from spacr.settings import set_default_settings_preprocess_generate_masks
+          settings = set_default_settings_preprocess_generate_masks({})
+          assert settings["n_jobs"] >= 1, settings["n_jobs"]
+
+          from spacr.utils import umap
+          assert umap.UMAP is not None
+
+          import btrack
+          with btrack.BayesianTracker():
+              pass
+          print("minimum dependency profile: OK")
+          PY
+
+      - name: Run tests at minimum direct versions
+        env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: "3"
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+        run: |
+          python tools/run_pytest_batches.py \
+            --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
+            --batch-size 32 --workers 2 --skip-qt-only-batches \
+            --per-test-timeout 300 \
+            --batch-timeout 2700
+
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  release-gate:
+    name: Release gate / zero unexpected failures
+    if: always() && !cancelled()
+    needs:
+      - quality
+      - fast
+      - minimum-dependencies
+      - integration
+      - slow
+      - qt
+      - gpu
+      - network
+      - nas
+      - coverage-combine
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Require every blocking job to succeed
+        env:
+          NEEDS_CONTEXT: ${{ toJSON(needs) }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          needs = json.loads(os.environ["NEEDS_CONTEXT"])
+          failed = {
+              name: details["result"]
+              for name, details in needs.items()
+              if details["result"] != "success"
+          }
+          if failed:
+              for name, result in sorted(failed.items()):
+                  print(f"::error::{name} finished with {result}")
+              sys.exit("release gate failed: not every blocking job succeeded")
+          print("release gate passed: every blocking job succeeded")
+          PY
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  test-count-badge:
+    concurrency:
+      group: test-count-badge-nightly
+      cancel-in-progress: false
+    name: Publish passed/total badge
+    if: always() && !cancelled() && github.ref == 'refs/heads/nightly'
+    needs: [release-gate]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: nightly
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: test-counts-${{ github.run_attempt }}-*
+          path: .test-counts
+          merge-multiple: true
+      - name: Generate numeric badge
+        run: python tools/test_count_badge.py .test-counts docs/source/_static/test-counts.json --run-id '${{ github.run_id }}' --source-sha '${{ github.sha }}'
+      - name: Publish numeric badge
+        run: |
+          git config user.name 'Einar Olafsson'
+          git config user.email 'einar.olafsson@gmail.com'
+          git add docs/source/_static/test-counts.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Update hosted test counts [skip ci]'
+          git pull --rebase origin nightly
+          git push origin HEAD:nightly

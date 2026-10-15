@@ -1,0 +1,506 @@
+{
+  "status": "BOUNDED READ-ONLY SCHEDULER SNAPSHOT; latest pending is not a failure or green result",
+  "sealed_utc": "2026-10-15T21:24:04.680303+00:00",
+  "workflow_source_pins": {
+    "original2d78": {
+      "source_sha": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+      "workflow_sha256": "be16aa5642c4bc3e1711794ce7bb07071997667a15b2c11de461b7676decfd88"
+    },
+    "latest61b": {
+      "source_sha": "61b880a449d5c6054025a289b94089a76f73e400",
+      "workflow_sha256": "be16aa5642c4bc3e1711794ce7bb07071997667a15b2c11de461b7676decfd88"
+    },
+    "holder06cb": {
+      "source_sha": "06cb0f8e7ab648d3a73a8afd61b3b111af7127d9",
+      "workflow_sha256": "be16aa5642c4bc3e1711794ce7bb07071997667a15b2c11de461b7676decfd88"
+    }
+  },
+  "observed": {
+    "latest": {
+      "id": 38808996662,
+      "head_sha": "61b880a449d5c6054025a289b94089a76f73e400",
+      "event": "push",
+      "branch": "nightly",
+      "status": "pending",
+      "created_at": "2026-10-15T21:19:35Z",
+      "updated_at": "2026-10-15T21:19:36Z"
+    },
+    "superseded2d78": {
+      "id": 38806038807,
+      "head_sha": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "jobs": 0,
+      "updated_at": "2026-10-15T21:19:36Z"
+    },
+    "retained_older_run": {
+      "id": 38800149966,
+      "head_sha": "06cb0f8e7ab648d3a73a8afd61b3b111af7127d9",
+      "summary_API_status": "queued",
+      "created_at": "2026-10-15T20:13:07Z",
+      "job_status_counts": {
+        "queued": 15,
+        "in_progress": 10,
+        "completed": 2
+      },
+      "jobs": [
+        {
+          "id": 116648737545,
+          "name": "Coverage shard 9 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737562,
+          "name": "Qt (2) / Qt shard 2 of 3 (ubuntu-24.04, py3.12)",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149267,
+          "runner_name": "GitHub Actions 1000149267",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:37:51Z",
+          "completed_at": null,
+          "recorded_steps": 20
+        },
+        {
+          "id": 116648737677,
+          "name": "Qt (1) / Qt shard 1 of 3 (ubuntu-24.04, py3.12)",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149277,
+          "runner_name": "GitHub Actions 1000149277",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T21:00:14Z",
+          "completed_at": null,
+          "recorded_steps": 20
+        },
+        {
+          "id": 116648737683,
+          "name": "Lint / types / complexity",
+          "status": "completed",
+          "conclusion": "success",
+          "runner_id": 1000149259,
+          "runner_name": "GitHub Actions 1000149259",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:18:10Z",
+          "completed_at": "2026-10-15T20:19:52Z",
+          "recorded_steps": 11
+        },
+        {
+          "id": 116648737703,
+          "name": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149282,
+          "runner_name": "GitHub Actions 1000149282",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T21:09:17Z",
+          "completed_at": null,
+          "recorded_steps": 20
+        },
+        {
+          "id": 116648737706,
+          "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 1 of 3",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149260,
+          "runner_name": "GitHub Actions 1000149260",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:18:21Z",
+          "completed_at": null,
+          "recorded_steps": 13
+        },
+        {
+          "id": 116648737753,
+          "name": "Coverage shard 1 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737756,
+          "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149262,
+          "runner_name": "GitHub Actions 1000149262",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:24:19Z",
+          "completed_at": null,
+          "recorded_steps": 13
+        },
+        {
+          "id": 116648737757,
+          "name": "Coverage shard 10 of 12",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149276,
+          "runner_name": "GitHub Actions 1000149276",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:51:09Z",
+          "completed_at": null,
+          "recorded_steps": 15
+        },
+        {
+          "id": 116648737762,
+          "name": "Integration / Integration (ubuntu-24.04, py3.12)",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149283,
+          "runner_name": "GitHub Actions 1000149283",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T21:09:22Z",
+          "completed_at": null,
+          "recorded_steps": 20
+        },
+        {
+          "id": 116648737790,
+          "name": "Coverage shard 4 of 12",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149272,
+          "runner_name": "GitHub Actions 1000149272",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:45:55Z",
+          "completed_at": null,
+          "recorded_steps": 15
+        },
+        {
+          "id": 116648737791,
+          "name": "GPU / GPU (ubuntu-24.04, py3.12)",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737792,
+          "name": "Coverage shard 8 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737798,
+          "name": "Coverage shard 6 of 12",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149270,
+          "runner_name": "GitHub Actions 1000149270",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:42:39Z",
+          "completed_at": null,
+          "recorded_steps": 15
+        },
+        {
+          "id": 116648737815,
+          "name": "Coverage shard 0 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737817,
+          "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 1 of 3",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737836,
+          "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 0 of 3",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737852,
+          "name": "Network / Network (ubuntu-24.04, py3.12)",
+          "status": "completed",
+          "conclusion": "success",
+          "runner_id": 1000149274,
+          "runner_name": "GitHub Actions 1000149274",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:48:46Z",
+          "completed_at": "2026-10-15T21:00:12Z",
+          "recorded_steps": 21
+        },
+        {
+          "id": 116648737870,
+          "name": "Coverage shard 7 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737875,
+          "name": "NAS / NAS (ubuntu-24.04, py3.12)",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737877,
+          "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 0 of 3",
+          "status": "in_progress",
+          "conclusion": null,
+          "runner_id": 1000149280,
+          "runner_name": "GitHub Actions 1000149280",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T21:07:30Z",
+          "completed_at": null,
+          "recorded_steps": 13
+        },
+        {
+          "id": 116648737915,
+          "name": "Coverage shard 5 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737923,
+          "name": "Coverage shard 11 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737928,
+          "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737950,
+          "name": "Coverage shard 2 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648737991,
+          "name": "Coverage shard 3 of 12",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        },
+        {
+          "id": 116648738292,
+          "name": "Slow / Slow (ubuntu-24.04, py3.12)",
+          "status": "queued",
+          "conclusion": null,
+          "runner_id": 0,
+          "runner_name": "",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "started_at": "2026-10-15T20:17:27Z",
+          "completed_at": null,
+          "recorded_steps": 0
+        }
+      ]
+    }
+  },
+  "source_configuration": {
+    "tests_group_literal": "tests-${{ github.ref }}-${{ github.event_name }}",
+    "resolved_group_for_observed_pushes": "tests-refs/heads/nightly-push",
+    "cancel_in_progress_literal": "${{ github.event_name == 'pull_request' }}",
+    "resolved_push_cancel_in_progress": false,
+    "docs_group_literal": "docs-${{ github.ref }}${{ inputs.mode == 'verify-host-access' && '-access' || '' }}",
+    "docs_cancel_in_progress": false,
+    "compat_group_literal": "compat-matrix-${{ github.ref }}-${{ github.event_name }}",
+    "compat_cancel_in_progress_literal": "${{ github.event_name != 'workflow_dispatch' }}"
+  },
+  "interpretation": [
+    "Observed chronology and exact unchanged workflow group show pending latest61b replacing the pending2d78 source while older same-group06cb work remains retained. This is workflow-concurrency waiting, not a newly diagnosed source failure.",
+    "Older06cb job metadata demonstrates actual work in progress plus specifically unassigned queued jobs; overall run summary queued does not mean none of its jobs started.",
+    "Queued jobs all report runner_id0, empty runner_name and no steps; no account/provider quota/capacity/billing reason is exposed and none is inferred.",
+    "Two completed holder jobs Lint/types/complexity and Network succeeded at older06cb source; this is not current61b suite acceptance."
+  ],
+  "limits": [
+    "Endpoints are one bounded sequential snapshot, not an atomic provider transaction or live ongoing status.",
+    "No new test failures identified or old5727 log rescans performed.",
+    "No docs/compat live status independently queried; only their source concurrency definitions are preserved.",
+    "No cancellation, concurrency/config edit, rerun/dispatch, logs/artifact download, polling, retry, account/provider/settings/credential mutation or test/collector/model action.",
+    "Maintainer deferred final CI/release until implementation is complete; this receipt makes no new run request."
+  ],
+  "commands": [
+    {
+      "command": [
+        "/home/olafsson/.local/bin/gh",
+        "api",
+        "repos/EinarOlafsson/spacr/actions/runs/38800149966/jobs?per_page=100"
+      ],
+      "exit": 0,
+      "seconds": 11.133
+    },
+    {
+      "command": [
+        "/home/olafsson/.local/bin/gh",
+        "api",
+        "repos/EinarOlafsson/spacr/actions/runs/38806038807"
+      ],
+      "exit": 0,
+      "seconds": 10.382
+    },
+    {
+      "command": [
+        "/home/olafsson/.local/bin/gh",
+        "api",
+        "repos/EinarOlafsson/spacr/actions/workflows/tests.yml/runs?branch=nightly&per_page=8"
+      ],
+      "exit": 0,
+      "seconds": 10.783
+    },
+    {
+      "command": [
+        "/home/olafsson/.local/bin/gh",
+        "api",
+        "repos/EinarOlafsson/spacr/actions/runs/38806038807/jobs?per_page=100"
+      ],
+      "exit": 0,
+      "seconds": 10.533
+    }
+  ],
+  "files": {
+    "run-38806038807.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "holder-jobs-38800149966.command.json": "4bdfe07c79608507ef2eabd5e76df9a658aa36183b8a651c3942e54f24e5c077",
+    "compat-matrix-workflow.source.txt": "57e4cf71ecfaad7bf0a9670f5813542833b19c6607374938e62fdc82784f9c18",
+    "holder-jobs-38800149966.json": "3643115ed5896f47c3e4b665d8d487b11de476e81f94d6ed0c92e564446f38eb",
+    "run-38806038807.command.json": "4cd6fcfff8e03f18ea22892c40f416f363c5fc3e9f613a0e24187e8e97576eb4",
+    "run-38806038807.json": "5a54da0dcfffd81496cfd7b600c476a674c95672e8327abb978ae529b7596e92",
+    "jobs-38806038807.json": "b3dab5870ff3a8209160335de7c1077b89e461d875d9041ac9d8b8ed7c1666f6",
+    "recent-nightly-tests.command.json": "925dd1346fc0cd9bca65c85dba6092849759929602fe059ea5ef3b32eda35d8a",
+    "holder-jobs-38800149966.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "jobs-38806038807.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "jobs-38806038807.command.json": "8e9f416ddac8bd867701ee62e717ad98557fcc1aa28a790d32f8814ab90a0861",
+    "recent-nightly-tests.json": "dde058d1c435beb8620c2170f099da6262cd2e1579cc13f011f2ef9edec9f650",
+    "tests-workflow.source.txt": "be16aa5642c4bc3e1711794ce7bb07071997667a15b2c11de461b7676decfd88",
+    "docs-workflow.source.txt": "18d00aa573cb7f8250d1df72d00973ce3f6cc039db6dc816c856bf465e30161d",
+    "recent-nightly-tests.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/home/olafsson/.local/bin/gh",
+    "api",
+    "repos/EinarOlafsson/spacr/actions/runs/38800149966/jobs?per_page=100"
+  ],
+  "exit": 0,
+  "seconds": 11.133
+}
