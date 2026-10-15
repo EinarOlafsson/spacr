@@ -333,3 +333,39 @@ existing growing-sample preservation path. Parent DB/crop bytes remain exact.
 Receipt: features/data/470_sample_provenance_2026-10-15/. No live curation was
 run. Historical pixels judged by legacy annotations remain unproven; this
 preparatory sample hash is not retrospective proof or F470 acceptance.
+
+2026-10-15 — Annotation-reader integrity implementation prepared (partial):
+The existing private reader now opens input tables read-only without migration,
+checks any supplied sample-creation SHA-256/size before returning training
+inputs, coalesces repeated exact crop identities and refuses conflicting
+labels/acquisition groups. Legacy rows with no stored fingerprint retain their
+old unverified behavior; no labels are transferred and no annotation-time proof
+is asserted. Two diagnostics have eighteen source-bound AI technical review
+inputs. Finite before/after owning regressions, owner-scoped extraction and
+normal runtime generation are pending; this note claims no acceptance yet.
+Owning reader checks now terminal: actual committed old helper 11 FAIL /
+2 PASS, final helper 13 PASS (4 unrelated deselected), 2.85 / 2.71 s.
+All eighteen exact-source technical review inputs pass normal contextual and
+candidate gates. Root reviewed the exact helper source and found no blocker;
+that is source review only. Only _annotated_real_crops changed at module AST
+level. Source-bound receipt/raw failures: data/470_reader_integrity_2026-10-15/.
+Owner extraction and actual runtime lookup/publication remain pending.
+
+2026-10-15 — Coherent source and actual runtime callback closure:
+Home-B exact scoped extractor891ab9ab36f plus normal nine-locale writer
+publish the three F470/F536 diagnostics, preserving every one of 10,566
+unrelated current targets per locale. Normal English audit PASS (7,726 UI).
+Finite combined cohort121PASS,37unrelateddeselected,5.10s,exit0, including
+45 actual helper error callbacks across all nine locales. Root peer-reviewed
+each exact helper source and found no blocker; this is source review only.
+Receipt: data/470_536_current_runtime_2026-10-15/. Scientific/legacy/annotation-
+time/native limitations above remain. Foreign N700 global caption/full-audit
+failures and later F549 owner runtime refresh are separate; no global green
+CI, release acceptance, gate waiver or whole-feature completion is claimed.
+Final ordinary merge retains exact public owner extractor/test superset.
+Normal English-only generator resolves generated conflict and passes current
+English audit (7,729 UI); all27 own target/hash pairs and every unrelated
+source-current target are preserved. Full writer actually refuses two later
+foreign F549 microscope_positions targets; raw failure and per-locale missing
+lists are retained. This source publication leaves global caption/release
+acceptance open; unchanged121 are not needlessly rerun.
