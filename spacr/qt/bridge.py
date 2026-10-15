@@ -706,7 +706,7 @@ class RunHandle(QObject):
 
 
 class RunRegistry(QObject):
-    """Every job started through :func:`make_thread`, while it runs.
+    """Track jobs created by :func:`make_thread` until their handles retire.
 
     Deliberately tiny: a list plus a ``changed`` signal. It exists so
     that a surface which is *not* the screen that started the job — the
@@ -748,7 +748,11 @@ class RunRegistry(QObject):
             self.changed.emit()
 
     def active(self) -> List[RunHandle]:
-        """Handles for the jobs running right now, oldest first."""
+        """Return registered handles in registration order.
+
+        The list includes unstarted jobs and stopped threads awaiting
+        retirement; it does not filter by whether a thread is running.
+        """
         return list(self._handles)
 
     def is_busy(self) -> bool:
