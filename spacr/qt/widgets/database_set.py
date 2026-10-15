@@ -117,7 +117,8 @@ def _restored_source_paths(sources, databases, mode):
     """Resolve explicit saved database associations off the GUI thread."""
     present = _the_ones_still_there(sources)
     overrides = {}
-    if mode == "folder" and len(databases) == len(sources):
+    if (mode == "folder" and len(databases) == len(sources)
+            and len(set(sources)) == len(sources)):
         for source, database in zip(sources, databases):
             original = database_for_source(source, mode)
             if (database and database != original

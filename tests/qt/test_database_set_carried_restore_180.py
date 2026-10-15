@@ -82,11 +82,13 @@ def test_unusable_copies_are_not_attached(qtbot, tmp_path, damage):
     assert not any(row["state"] == "carried" for row in report["files"])
 
 
-def test_missing_reference_does_not_use_a_misaligned_database_list(qtbot, tmp_path):
+@pytest.mark.parametrize("shape", ["misaligned", "duplicate"])
+def test_missing_reference_does_not_use_an_ambiguous_database_list(qtbot, tmp_path, shape):
     folder, database = _plate(tmp_path, "plate1")
     widget = module.DatabaseSetWidget(mode="folder", threaded=False)
     qtbot.addWidget(widget)
-    assert not widget.apply_workspace_state({"sources": [str(tmp_path / "gone")], "databases": [str(database), str(database)]})
+    sources = [str(tmp_path / "gone")] * (2 if shape == "duplicate" else 1)
+    assert not widget.apply_workspace_state({"sources": sources, "databases": [str(database), str(database)]})
     assert not widget.database_paths()
 
 

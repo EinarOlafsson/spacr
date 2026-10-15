@@ -1,7 +1,7 @@
 {
   "baseline": "Two actual copied/relocated SQLite adapter cases failed against published widget source in 4.07s.",
   "core_prerequisite": "4ace1c5a86c (published as fd3655e74556d6371cc9d7918602b9f6cabe5e1a)",
-  "source_sha256": "6ae4b89dbfcb8b276e8579fbe0b073dea2ae647283a76619c444b75f6b8df8fa",
+  "source_sha256": "950fb8f62ea53d26465de0628cd6a3256158f2234ed2a6dec0d55e10604b370b",
   "validation": "Expanded 13 cases pass in2.98s; combined owning three modules 40 PASS in15.44s, CPU/offscreen, capped2G, one thread.",
   "scope": [
     "Explicit aligned saved database associations only; original present database wins.",
@@ -15,5 +15,11 @@
     "Logical source roots returned by get_value remain original. Database association restoration does not reconstruct the project folder or independently enable a new UMAP pipeline run.",
     "Normal API lifecycle documentation reviews/generated artifacts remain pending before owner publication.",
     "No native platform or whole N180 acceptance claim."
-  ]
+  ],
+  "baseline_commit": "c98f0cd6bd7",
+  "final_validation": "41 checks PASS16.84s in the same three owning modules, capped2G/thread1/offscreen; terminal0 and no unfinished-QThread report.",
+  "followup": {
+    "duplicate_source_ambiguity": "One reproduced FAIL/one PASS before final guard. Explicit associations now require unique raw source keys as well as equal list lengths; ambiguous duplicate keys cannot last-write a carried override.",
+    "fixture_cleanup": "An earlier41PASS run reported an unfinished runner in the existing SettingsWidgets UMAP fixture. The fixture now explicitly calls the documented child shutdown protocol at teardown; clean final41PASS run has no warning. No application host/lifecycle code changed."
+  }
 }

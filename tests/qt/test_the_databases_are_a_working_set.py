@@ -209,12 +209,15 @@ def test_what_the_user_chose_about_a_collision_is_recorded(screen,
 def umap_panel(qtbot, qt_theme_applied):
     from PySide6.QtWidgets import QWidget
     from spacr.qt.screens.settings_model import SettingsWidgets
+    from spacr.qt.widgets.database_set import DatabaseSetWidget
 
     owner = QWidget()
     qtbot.addWidget(owner)
     panel = SettingsWidgets("umap", parent=owner)
     panel.build_sections()
-    return panel
+    yield panel
+    for widget in owner.findChildren(DatabaseSetWidget):
+        widget.shutdown()
 
 
 def test_the_image_umap_source_takes_more_than_one_project(umap_panel,
