@@ -78,5 +78,10 @@
     "Offscreen local software acceptance only; no native platform or screen-reader claim.",
     "No whole N180 completion, final full CI, release, model training, inference, network, or tutorial claim.",
     "Selection restore retains existing linked-plot active-key semantics; this patch does not redesign live multi-selection drawing."
-  ]
+  ],
+  "baseline_log": {
+    "file": "before.txt.gz",
+    "uncompressed_sha256": "4889f43dde71494b8e81766fb7dea95eb138233f9b47e7385dc4e788e82395db",
+    "note": "Lossless gzip preserves the exact failure output, including pytest indentation, without patch whitespace warnings."
+  }
 }
