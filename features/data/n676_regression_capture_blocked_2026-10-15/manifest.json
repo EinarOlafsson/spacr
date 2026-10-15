@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "README.md",
-      "bytes": 1578,
-      "sha256": "701bf2e03b61245a6cd5a10a33ddcf436d6ca191fcd9d30929ce3c37c14d8192"
+      "bytes": 2380,
+      "sha256": "e7b0fbd6b2b3109e05e752bb56dd422474f6034030305d1bd6cdad650fd01d36"
     },
     {
       "path": "independent-gate-cleanup-peer.json.gz",
@@ -202,6 +202,22 @@
       "path": "lesson13-r56-b/results_tour.json.gz",
       "bytes": 257,
       "sha256": "8c3e226375865fdf3f5dd80c9881b9c7c12e0880ad76f2568b3e559f1b399816"
+    },
+    {
+      "path": "saved-permutation-arithmetic-tests.txt.gz",
+      "bytes": 561,
+      "sha256": "e9a8c944dd4530656149d9410b37b3a351d6c7c5c3ef4d290c3eecd671b38dae"
+    },
+    {
+      "path": "saved-permutation-arithmetic.json.gz",
+      "bytes": 839,
+      "sha256": "65f29d210c39568ec96241bb8f2d4bec45f6bbcc060317502cacf537f4985d1c"
+    },
+    {
+      "path": "saved-science-warning-review.json.gz",
+      "bytes": 2907,
+      "sha256": "a4c56bae42dfd9564a8c441575053020780308e6e49c0aac7e709b0de6e0e19d"
     }
-  ]
+  ],
+  "scientific_scope": "arithmetic-only; diagnostic warnings retained; raw-input lineage incomplete; whole/native false"
 }
