@@ -1,0 +1,156 @@
+{
+  "normal_extraction_exit_code": 0,
+  "new_source_message_exactly_present": true,
+  "published_message_count": 159,
+  "actual_template_count": 171,
+  "owned_new_message": "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once.",
+  "preexisting_added_messages": [
+    "**Export settings…**, next to **Import settings…** on every module screen, saves the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates.",
+    "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;",
+    "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead.",
+    "Gate Editor keys and overlapping elements",
+    "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.",
+    "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The click still grabs the first element. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list.",
+    "Settings files",
+    "Starting spaCR",
+    "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered.",
+    "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:",
+    "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A run whose response is not a numeric column of the score file stops with the same list.",
+    "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
+  ],
+  "preexisting_removed_messages": [
+    "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+  ],
+  "template_sha256": "ea8c6e5733a859df6960eb19105f2569ac17d314faeae145e2ecf4910fc87a49",
+  "current_source_commit": "558913bda17785d8e46ea83f7f650082f0537607",
+  "source_tree": "/mnt/wd4tb/spacr-worktrees/codex-home-b-n180-graph-api-20261015",
+  "arrivals": [
+    {
+      "msgid": "**Export settings…**, next to **Import settings…** on every module screen, saves the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates.",
+      "source_path": "docs/source/features.rst",
+      "start_line": 236,
+      "end_line": 241,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;",
+      "source_path": "docs/source/features.rst",
+      "start_line": 269,
+      "end_line": 269,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead.",
+      "source_path": "docs/source/features.rst",
+      "start_line": 270,
+      "end_line": 271,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "Gate Editor keys and overlapping elements",
+      "source_path": "docs/source/features.rst",
+      "start_line": 262,
+      "end_line": 262,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.",
+      "source_path": "docs/source/features.rst",
+      "start_line": 450,
+      "end_line": 459,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e",
+        "b6c1a18efe040e18c40009c18d95dcdba7ea7c89",
+        "da4253f716f2600ed1b026be7cbb0e8878833dcc",
+        "f7cdd7e3e3e1a6098267e2ca1d56d64a447ba4f3"
+      ]
+    },
+    {
+      "msgid": "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The click still grabs the first element. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list.",
+      "source_path": "docs/source/features.rst",
+      "start_line": 273,
+      "end_line": 280,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "Settings files",
+      "source_path": "docs/source/features.rst",
+      "start_line": 233,
+      "end_line": 233,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "Starting spaCR",
+      "source_path": "docs/source/features.rst",
+      "start_line": 196,
+      "end_line": 196,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered.",
+      "source_path": "docs/source/features.rst",
+      "start_line": 210,
+      "end_line": 214,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:",
+      "source_path": "docs/source/features.rst",
+      "start_line": 265,
+      "end_line": 267,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A run whose response is not a numeric column of the score file stops with the same list.",
+      "source_path": "docs/source/features.rst",
+      "start_line": 103,
+      "end_line": 114,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    },
+    {
+      "msgid": "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away.",
+      "source_path": "docs/source/features.rst",
+      "start_line": 199,
+      "end_line": 208,
+      "source_commits": [
+        "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+      ]
+    }
+  ],
+  "obsolete_catalog_provenance": {
+    "source_path": "docs/i18n/guides/<language>/LC_MESSAGES/features.po",
+    "catalog_baseline": "92f2b8baff54050a374cd2b015591e889d56affc",
+    "languages": [
+      "sv",
+      "de",
+      "es",
+      "pt",
+      "fr",
+      "is",
+      "zh_CN",
+      "ko",
+      "hi"
+    ],
+    "note": "Same159 message IDs in all nine baseline feature catalogs; obsolete old Make Masks paragraph is replaced by expanded volume/TEM paragraph in current features.rst. No PO mutations performed."
+  }
+}
