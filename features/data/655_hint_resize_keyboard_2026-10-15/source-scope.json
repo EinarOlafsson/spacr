@@ -1,0 +1,52 @@
+{
+  "tested_private_base": "ac5afd18d244a633ee6e7ff8d6d3f09e567be0b9",
+  "incoming_public_nightly": "8d23aa1d9",
+  "files": {
+    "spacr/qt/widgets/hint_bar.py": {
+      "before_sha256": "033db275dd109f1823f5e9b582ac4836b9779db17208af9192664eaed035ccd6",
+      "after_sha256": "0efad77e9991951b19f5363325fbf78b737231a457bd0239d95274a6ae95c202",
+      "existing_comments_identical": true,
+      "outside_authorized_scope_ast_identical": true
+    },
+    "spacr/qt/preferences.py": {
+      "before_sha256": "b1b9edbc6729cf4e62e38cdfb31d6490a5c9e71857070e922975c6da99e26b47",
+      "after_sha256": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680",
+      "existing_comments_identical": true,
+      "outside_authorized_scope_ast_identical": true
+    }
+  },
+  "private_methods": [
+    {
+      "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.changeEvent",
+      "actual_public_symbol_result": false,
+      "direct_class_method": true,
+      "nested_functions": 0
+    },
+    {
+      "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.focusInEvent",
+      "actual_public_symbol_result": false,
+      "direct_class_method": true,
+      "nested_functions": 0
+    },
+    {
+      "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.focusOutEvent",
+      "actual_public_symbol_result": false,
+      "direct_class_method": true,
+      "nested_functions": 0
+    },
+    {
+      "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.keyPressEvent",
+      "actual_public_symbol_result": false,
+      "direct_class_method": true,
+      "nested_functions": 0
+    },
+    {
+      "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.paintEvent",
+      "actual_public_symbol_result": false,
+      "direct_class_method": true,
+      "nested_functions": 0
+    }
+  ],
+  "api_policy_sha256": "d46429cb4299aa055053f15beb2673b29c3971fd8dbd2f9a3fb974567ee65df6",
+  "public_api_effect": "Five actual policy calls exclude the direct methods of the private class; no nested helper definitions or public docstrings changed."
+}

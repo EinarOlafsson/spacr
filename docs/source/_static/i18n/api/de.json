@@ -38131,7 +38131,7 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
+        "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -38144,11 +38144,11 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "a18ebf8a69b327222983c810c7e7eb9b77b248afa7b0bc14756717fa52ce4f58",
-      "text": "Ein Installationsupdate in einem Prozess ausführen, der spaCR überdauert.\n\nVom Installer erstellte Kopien und unterstützte dedizierte POSIX-pip-Umgebungen können diesen Helfer verwenden. Er wartet, bis der laufende Prozess beendet ist, bevor er die Installation ändert; der pip-Adapter erfordert außerdem eine authentifizierte Zustimmung zum Herunterfahren.\n\nBei einer unterstützten macOS-Online-Installation das vorhandene mitgelieferte ``uv`` und das private Python verwenden, um spaCR in derselben Umgebung zu aktualisieren. Das Umgebungsverzeichnis, die Bootstrap-Dateien, den Anwendungsstarter und installierte Pakete, die kein Update brauchen, beibehalten. Erst neu starten, nachdem geprüft wurde, dass die installierte Version mindestens ``version`` und neuer als die vorherige Version ist, sofern diese bekannt ist. Ein fehlgeschlagenes Upgrade oder eine fehlgeschlagene Versionsprüfung löst weder eine Entfernung noch ein Ersatz-Installationsprogramm aus.\n\nDas reguläre Ersetzungsverfahren lädt den neuen Installer herunter und führt ihn mit einer vorbereiteten Installation aus. Es überprüft dessen tatsächlichen Interpreter und die importierte Anwendung, entfernt anschließend andere Kopien und startet die Anwendung. Eine fehlgeschlagene Installation oder Überprüfung entfernt die zuvor funktionierende Kopie nicht. Schlägt das Entfernen anderer Kopien fehl, wird dies protokolliert, ohne die Anwendung erneut zu starten.\n\n:param records: Installationen aus :func:`find_old_installs`.\n:param version: die zu installierende Version.\n:param ticked: Stammverzeichnisse der Umgebungen, die der Benutzer markiert hat.\n:param pid: der Prozess, auf den gewartet wird; bei ``None`` dieser Prozess.\n:param workdir: der Ordner des Hilfsprozesses; bei ``None`` ein neuer temporärer Ordner.\n:param system: der Computer; ``None`` bedeutet diesen Computer.\n:param spawn: ersetzt den Starter für den abgelösten Prozess.\n:returns: der Plan, wie er in ``plan.json`` geschrieben wurde. ``plan[\"command\"]`` ist der Befehl des Hilfsprozesses, oder ``None``, wobei ``plan[\"error\"]`` angibt, warum nichts gestartet wurde.\n\nEin eingefrorenes macOS-Anwendungspaket an einem vom Benutzer beschreibbaren Speicherort verwendet seinen verifizierten DMG-Ersetzungsadapter und behält das vollständige vorherige Anwendungspaket. Andere Familien eingefrorener Anwendungen geben einen Fehler zurück, bevor etwas entfernt wird; das Hilfsprogramm aktiviert für diese Anwendungen keinen Rückfall auf ein Online-Installationsprogramm.",
+      "source_sha256": "1b3b99d8445c0b51ada6dd8d22c36032699cbdfd5a9f45ccd466e58bf3ade533",
+      "text": "Ein Installationsupdate in einem Prozess ausführen, der spaCR überdauert.\n\nVom Installer erstellte Kopien und unterstützte dedizierte POSIX- oder Windows-pip-Umgebungen können diesen Helfer verwenden. Er wartet, bis der laufende Prozess beendet ist, bevor er die Installation ändert; der pip-Adapter erfordert außerdem eine authentifizierte Zustimmung zum Herunterfahren.\n\nBei einer unterstützten macOS-Online-Installation das vorhandene mitgelieferte ``uv`` und das private Python verwenden, um spaCR in derselben Umgebung zu aktualisieren. Das Umgebungsverzeichnis, die Bootstrap-Dateien, den Anwendungsstarter und installierte Pakete, die kein Update brauchen, beibehalten. Erst neu starten, nachdem geprüft wurde, dass die installierte Version mindestens ``version`` und neuer als die vorherige Version ist, sofern diese bekannt ist. Ein fehlgeschlagenes Upgrade oder eine fehlgeschlagene Versionsprüfung löst weder eine Entfernung noch ein Ersatz-Installationsprogramm aus.\n\nDas reguläre Ersetzungsverfahren lädt den neuen Installer herunter und führt ihn mit einer vorbereiteten Installation aus. Es überprüft dessen tatsächlichen Interpreter und die importierte Anwendung, entfernt anschließend andere Kopien und startet die Anwendung. Eine fehlgeschlagene Installation oder Überprüfung entfernt die zuvor funktionierende Kopie nicht. Schlägt das Entfernen anderer Kopien fehl, wird dies protokolliert, ohne die Anwendung erneut zu starten.\n\n:param records: Installationen aus :func:`find_old_installs`.\n:param version: die zu installierende Version.\n:param ticked: Stammverzeichnisse der Umgebungen, die der Benutzer markiert hat.\n:param pid: der Prozess, auf den gewartet wird; bei ``None`` dieser Prozess.\n:param workdir: der Ordner des Hilfsprozesses; bei ``None`` ein neuer temporärer Ordner.\n:param system: der Computer; ``None`` bedeutet diesen Computer.\n:param spawn: ersetzt den Starter für den abgelösten Prozess.\n:returns: der Plan, wie er in ``plan.json`` geschrieben wurde. ``plan[\"command\"]`` ist der Befehl des Hilfsprozesses, oder ``None``, wobei ``plan[\"error\"]`` angibt, warum nichts gestartet wurde.\n\nEin eingefrorenes macOS-Anwendungspaket an einem vom Benutzer beschreibbaren Speicherort verwendet seinen verifizierten DMG-Ersetzungsadapter und behält das vollständige vorherige Anwendungspaket. Andere Familien eingefrorener Anwendungen geben einen Fehler zurück, bevor etwas entfernt wird; das Hilfsprogramm aktiviert für diese Anwendungen keinen Rückfall auf ein Online-Installationsprogramm.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "fe55c4b9b1588b8c1e9ed7a73edcfc3e971b90623c4dd9493b792d1331653332",
+        "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -122724,6 +122724,30 @@
         "c62e10ce1eb1fe4decefb235d0d5d22f9c2517958303b3a26f320a6faa8f72c1"
       ]
     },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent": {
+      "source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ],
+      "source_sha256": "69a9364e8a0229bb8a073f8627aa7ae69d31f3a7d9610398ae9b38cb749f57a6",
+      "text": "Die Umrandung neu zeichnen, wenn der Umschalter den Tastaturfokus erhält.\n\n:param event: Ereignis beim Erhalten des Fokus, das an QLabel weitergeleitet wird.",
+      "translation_source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent": {
+      "source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ],
+      "source_sha256": "64ee22fd609b5f1d712cc397752c4c96d2edce27a80723669b2619e600787634",
+      "text": "Die Umrandung entfernen, wenn der Tastaturfokus den Umschalter verlässt.\n\n:param event: Ereignis beim Verlieren des Fokus, das an QLabel weitergeleitet wird.",
+      "translation_source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ]
+    },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.isChecked": {
       "source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
@@ -122732,6 +122756,20 @@
       "text": "Zurück True, wenn die KI-Klinke gerade eingeschaltet ist.",
       "translation_source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent": {
+      "source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
+      ],
+      "source_sha256": "ce756b8b94078aea7902d8e002322345ca4281a01d774b7683533b224ad37638",
+      "text": "Bei Fokus einmal mit Leertaste, Return oder numerischem Enter ohne Modifikatortasten umschalten.\n\nAutomatische Tastenwiederholungen werden ohne Zustandsänderung verarbeitet. Andere Tastenereignisse werden an QLabel weitergeleitet. Die Aktivierung verwendet :meth:`setChecked` und erhält das vorhandene Signal für Zustandsänderungen sowie die Routing-Verbindungen.\n\n:param event: Tastendruckereignis, das an den Umschalter zugestellt wird.",
+      "translation_source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.minimumSizeHint": {
@@ -122756,6 +122794,18 @@
       "translation_source_blocks_sha256": [
         "e2782bb5437f555ce9b914dd425050d466a7c5d86a68fac6ad6544f9e6403b36",
         "54cc92a0af8ecedc88268ae27a5636ff8c0f832e6d5aa201dc090e781ef85972"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent": {
+      "source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
+      ],
+      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
+      "text": "Das Label und seine zwischengespeicherte Umrandung zeichnen, solange es den Tastaturfokus hat.\n\n:param event: Zeichenanforderung, die vor dem Zeichnen der Umrandung an QLabel übergeben wird.",
+      "translation_source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.resizeEvent": {

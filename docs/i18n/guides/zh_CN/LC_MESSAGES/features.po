@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -79,6 +79,10 @@ msgstr "回归"
 
 msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
 msgstr "回归估计向导、基因、条件和对照的效应。其模型系列涵盖连续、比例、二元和计数型响应，稳健拟合和分位数拟合，带惩罚的高维设计，混合效应以及向导置换。诊断信息和运行摘要写在结果旁边。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When ``pred`` is selected and a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A missing response-column error lists available score-table columns to help you choose a valid response."
+msgstr "``dependent_variable`` 是响应变量，其下拉列表提供所选一个或多个评分文件中的数值列；如果存在 ``pred``，它会排在首位。列表不提供 ``plateID``、``rowID``、``columnID``、``fieldID``、``objectID`` 和 ``count`` 等标识符列。文件更改时，列表会从每个文件的表头及前 200 行中读取。已保存但文件中不存在的值会保留并标记。``pred`` 是分类器写出的概率：Classify 将其保存为 tar 文件旁的 ``<date>_<dataset>_<model>_result.csv``，ML 评分则将其保存为 ``results/<model>/<features>/results.csv``。当选择了 ``pred`` 而评分文件没有 ``pred`` 列时，字段下方的提示会说明这一情况，列出上述两个输出文件及可用的列；spaCR 不会替您选择响应变量。响应列缺失错误会列出评分表中的可用列，帮助您选择有效的响应变量。"
 
 msgid "Planning, quality control and exploration"
 msgstr "规划、质量控制与探索"
@@ -183,6 +187,18 @@ msgstr "Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "参数扫描通过第三种方式进入：它是回归屏幕上的一个面板，通过其设置表单上的 **参数扫描** 开关打开。"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Starting spaCR"
+msgstr "启动 spaCR"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
+msgstr "spaCR 启动时会显示一个黑色容器，其中以照片马赛克呈现 spaCR 标志。窗口加载时标志保持静止，随后马赛克逐块飘散，容器淡出，露出窗口。点击或按键可跳过此过程。取消勾选 **偏好 → 外观 → Animation → 启动动画** 时（此时仅显示马赛克，不播放动画）、开启 **减少动态效果** 时，以及环境变量 ``SPACR_NO_SPLASH`` 设为 ``1`` 时（此时完全不显示马赛克），此动画过程均关闭。**帮助 → 显示启动动画** 可在已打开的窗口内重新播放，即使启动动画已关闭；开启减少动态效果时，标志会先保持静止，再淡出消失。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered."
+msgstr "窗口默认以 **Borderless** 模式打开：没有标题栏，占满所在屏幕的工作区，并可通过菜单栏拖动；菜单栏最右端的图标用于最小化、最大化和关闭窗口。取消勾选 **帮助 → 窗口 → 无边框窗口**，即可改用平台自带的带边框窗口。此选择会被保存。"
+
 msgid "Picking up where you left off"
 msgstr "从上次中断处继续"
 
@@ -191,6 +207,14 @@ msgstr "**会话恢复** ：每次正常启动都会重新打开 spaCR 上次关
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**设置自动保存** ：每 30 秒，各个已打开模块的未保存设置会作为草稿保存在偏好存储中；没有变化时不写入任何内容。正常退出会丢弃草稿。如果 spaCR 未经关闭就结束，下次启动时会询问一次是否恢复这些草稿（与重新打开的会话相同的草稿不会询问）。Linux、macOS 和 Windows 上的行为相同，因为该存储是 Qt 自身的设置存储。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Settings files"
+msgstr "设置文件"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Export settings…**, next to **Import settings…**, to save the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates."
+msgstr "使用 **导入设置…** 旁的 **导出设置…**，可将表单当前值保存为设置 CSV，而不运行任何任务。在 Distributed Jobs 屏幕上，**保存设置 CSV…** 会保存由 **远程提交…** 发送的设置快照。两种方式都写出 ``spacr-run --settings`` 读取的文件；有关设置模板，请参阅 :ref:`通过图形界面保存设置文件 <settings-files-from-the-gui>` 和 :doc:`shortcuts_and_templates`。"
 
 msgid "Undo and redo"
 msgstr "撤销与重做"
@@ -213,6 +237,26 @@ msgstr "**创建掩膜** 编辑器有自己的 **撤销** 和 **重做**。"
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo."
 msgstr "**编辑** 菜单为屏幕上的编辑器提供 **撤销** 和 **重做**。它们首先作用于获得焦点的文本框，否则作用于该屏幕自身的历史记录；没有可撤销或重做的内容时，它们显示为灰色。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Gate Editor keys and overlapping elements"
+msgstr "Gate Editor 按键与重叠元素"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:"
+msgstr "Gate Editor 拥有焦点时，这些键用于选择拖动模式，并在 3D 中选择平面或轴。它们列在 **更改快捷键** 中，作用域为 *Gate Editor*，可在那里重新绑定："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;"
+msgstr "**Shift+E** 选择编辑，**Shift+S** 选择 Spin (free)，**Shift+D** 选择绘制；"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead."
+msgstr "**Shift+X**、**Shift+Y** 和 **Shift+Z** 分别选择 X、Y 或 Z 平面。如果在按下 **Shift+S** 后的 1.5 秒内按下这些键，则改为选择旋转轴。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The initial click grabs the nearest anchor under the pointer, if any; otherwise it grabs the nearest sheet. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list."
+msgstr "Make Masks 的 True 3D 视图使用相同按键。在 3D 编辑模式或 2D 中，如果点击位置有多个面或锚点，鼠标下的元素会高亮显示，并在图表左上角的 **点击处的元素** 下按层顺序列出，同层中面排在锚点前；最上层为蓝色，其余为白色。首次点击优先抓取指针下最近的锚点（如果存在）；否则抓取最近的面。点击列表行或按上、下方向键，可选择下次点击同一重叠位置时选中并移动的元素。按 **Escape**、点击空白处、离开编辑模式、在 2D 与 3D 之间切换或替换 gate 集合都会关闭列表。"
 
 msgid "Running jobs"
 msgstr "正在运行的任务"
@@ -243,6 +287,14 @@ msgstr "无障碍"
 
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
 msgstr "每个控件都有屏幕阅读器会朗读的名称，取自其标签、工具提示或占位文本，并且名称跟随界面语言。**Tab** 会从文本框和表格移到下一个控件，而不是输入制表符。**偏好 → 外观 → 主题** 提供 **高对比度**，其中所有文字与背景的对比度至少为 7:1。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
+msgstr "使用 :kbd:`Tab` 或 :kbd:`Shift+Tab` 移动到 **人工智能** 或 **实时**。轮廓会显示哪个标签拥有键盘焦点。在未按住其他键的情况下，按 :kbd:`Space`、:kbd:`Return` 或数字键盘上的 :kbd:`Enter` 来开启或关闭它。按住一个键只会切换一次。 如果屏幕阅读器会自行处理数字键盘的 :kbd:`Enter`，请使用 :kbd:`Space` 或 :kbd:`Return`。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "在 **偏好** 中，使用 :kbd:`Tab` 将焦点移到帮助区域狭窄的上边缘，然后在不按住其他键的情况下按 :kbd:`Up` 或 :kbd:`Down`，在尺寸限制内增大或减小该区域的高度；按 :kbd:`Tab` 可移到下一个控件。"
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**偏好 → 外观 → 辅助功能** 汇集了最有帮助的设置："
@@ -360,8 +412,8 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "要调整弹出窗口的大小，请将指针指向其任一边缘或角。可拖动的每条边的中间一半会出现一条细蓝色参考线。可沿该边缘或角的任意位置拖动；参考线只是标示出可拖动的边。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Make Masks 用于手动修正掩码，并在页眉显示 Cellpose 循环。画布有十种工具：Brush、Erase、Erase object、Wand、Draw、Box、Divide / Merge、Zoom、Recrop 和 Ruler。Wand 默认添加区域；按住 Ctrl 单击即可删除该区域。:doc:`Make Masks 参考 <make_masks>` 介绍这些工具、Levels、检测设置、主/次数据配对、保存和测量。"
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks 用于手动修正掩膜，并在顶部提供 Cellpose 工作流程。其画布有十种工具：Brush、Erase、擦除对象、魔棒、绘制、边界框、分割 / 合并、Zoom、重新裁剪和标尺。魔棒默认添加区域；按住 Ctrl 并点击可移除区域。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、色阶、检测设置、主次掩膜配对、保存和测量。体数据（TIFF 堆栈、OME-TIFF 和 MRC）在同一视图中打开，带有切片滑块和包含默认、正交及 True 3D 的 View 列表；电子显微图像（``.dm3``、``.dm4``、``.mrc``）提供对比度预设。请参阅 :ref:`3D 体数据 <mm-volumes>` 和 :ref:`电子显微图像 <mm-tem>`。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."

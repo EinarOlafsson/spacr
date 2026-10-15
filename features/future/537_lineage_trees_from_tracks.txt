@@ -486,3 +486,19 @@ Coalesced18localized callbacks all PASS,zero skips; original collector and
 six runtime/tool/test file hashes remain exact. No handgenerated targets,
 API prose changes, biological efficacy or whole-feature/finalCI claim.
 Shared evidence: features/data/537_540_runtime_closure_2026-10-15/.
+
+2026-10-15 Original Home — exact native-parent table normalization
+Native lineage normalization now preserves valid signed64 integer and integer-
+string parent identities above2**53. Successful integer conversion no longer
+roundtrips these exact identities through float, and unknown native mappings
+become explicit integer zeros without missing-key float promotion. Known root,
+filtered parent and native provenance semantics stay unchanged; empty outputs
+retain integer parent dtype. Six actual prepatch identity cases failed, while
+the final15 checks pass, including six existing stub-native adapter CSV/root/
+filter/conflicting-parent controls. Input tables and parent mappings remain
+unchanged. Only two existing body statements change; source-bound AST evidence
+shows signatures, prose and tr calls unchanged, so no new caption/API target or
+generated catalog edit is introduced. Evidence: data/537_native_parent_identity_2026-10-15/.
+This is synthetic metadata/application-boundary acceptance, not native tracker
+inference, biological lineage accuracy, arbitrary-size ID support, whole F537,
+final global CI or release acceptance.

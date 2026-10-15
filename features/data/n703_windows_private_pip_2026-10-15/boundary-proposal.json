@@ -1,0 +1,45 @@
+{
+  "source_commit": "b460359010b4614f3a8e5261c3d0a804bc4e1f1f",
+  "source_sha256": "b60e629f08036d8d0a56b0a99a8b522c8683e84f85d2d9470ac9345d4384534c",
+  "baseline": {
+    "unit": "spacr-n703-windows-pip-baseline-20261015.service",
+    "exit": 1,
+    "failed": 1,
+    "seconds": 0.72,
+    "type": "Modeled Windows filesystem/captured spawn/probe only. Existing valid Scripts-layout private venv is refused before any package mutation. This records missing supported feature, not a native install failure."
+  },
+  "ownership": {
+    "existing_hunks": [
+      "_pip_environment_commands: delegate valid Windows-only case before unchanged POSIX guard",
+      "_run_pip_environment_update: dispatch Windows adapter; leave POSIX code unchanged",
+      "start_update_helper: environment branch only, select platform adapter and outside helper",
+      "_run_plan: add pip-private-windows-v1 to pip dispatch set only, coordinate root Debian elsewhere"
+    ],
+    "new_helpers": "Windows-specific private top-level helpers under install_cleanup.py; no new spacr modules or nested helper API paragraphs. Actual normal visibility still verified before publication.",
+    "root_caller_dependency": "app.py _poll_frozen_update private adapter-ID additions and existing restart-state save gate; deliver scratch patch to root/Easy, do not mutate their caller tree.",
+    "frozen": [
+      "_user_data",
+      "_delete",
+      "_purge_targets",
+      "_purge",
+      "Easy preview_optional_cleanup/apply_optional_cleanup and GUI",
+      "root _debian_* and frozen package branch"
+    ]
+  },
+  "proposed_boundary": [
+    "Only ordinary dedicated running Windows venv: canonical/samefile real directory, Scripts python.exe/pythonw.exe, pyvenv.cfg with no system-site packages, no conda/editable/shared root, correct current runtime identity. No external or live environment is installed into.",
+    "External base Python must be verified from actual current interpreter context, resolve outside target and stage, remain immutable and run helper -I -B. Never run replacement helper using target Scripts/python.exe, whose loaded executable/DLLs can prevent Windows directory retirement.",
+    "Owner/current-user Windows ACL and no-reparse guards bind target parent and helper/transaction directories. Possible standard PowerShell Get-Acl/WindowsIdentity JSON readback with canonical OS powershell -NoProfile/-NonInteractive, no credentials or elevation; model ACL reader separately on Linux. Refuse unsafe/unavailable ACL proof before mutation.",
+    "Existing authenticated readiness/approval/cancel protocol; actual old app process must exit before copy/package staging and activation. No user profile/Conda/shared environment fallback. Copy and pip upgrade only sibling staged runtime, then pip check/import/exact distribution/module/interpreter/floor validation.",
+    "Windows entrypoint EXEs cannot use POSIX shebang replacement. Regenerate ONLY changed staged-prefix-bound console/gui wrappers through normal pip-vendored distlib ScriptMaker with final interpreter path; update owning RECORD hashes/sizes normally and reject ambiguous ownership. Preserve preexisting arbitrary unchanged scripts and old runtime bytes. Validate real Windows launcher payload construction offline without executing Windows binary on Linux.",
+    "Windows lacks existing POSIX atomic directory exchange: explicit journal-bound old->retained, stage->active two-rename commit with immediate rollback on handled exception/identity/import/relaunch failure. Never claim atomic/no-gap or power-loss recovery. Full inventories and file identities guard each transition; ambiguous state retains both/evidence and refuses foreign overwrite. Current old runtime is retained, never recursively deleted.",
+    "Reuse exact current source-mtime collision prevention for changed equal-size/same-second Python sources in owned stage, preserving external caches and old runtime. Do not refactor passing POSIX engine just for reuse.",
+    "Positive/negative model cases plus real disposable filesystem renames, rollback injection, normal launcher-generation subprocesses and byte inventories. Native Windows file-lock/ACL/desktop/full dependency/power-loss acceptance remains explicit. No native claims or feature capability enabled before all ordinary source contracts pass."
+  ],
+  "specific_review_questions": [
+    "Approve journaled two-rename handled-failure scope with explicit interruption/native acceptance debt, rather than pretending Windows has POSIX exchange.",
+    "Confirm normal distlib regeneration/RECORD closure is required; do not accept merely changing Scripts paths and leaving copied EXE launchers pointing to staging.",
+    "Confirm ACL reader can use built-in read-only PowerShell (unavailability conservatively refused), or require direct WinAPI security reader before any mutation."
+  ],
+  "created_utc": "2026-10-15T09:16:05.798201+00:00"
+}

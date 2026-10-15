@@ -1,0 +1,251 @@
+{
+  "schema": 1,
+  "source_manifest": {
+    "schema": 1,
+    "published_base": "8d23aa1d993181cf285d82cc3670960b2e68adf4",
+    "source_commit": "c7ac29fc40048016afba5766b0a0ac9bac845510",
+    "implementation_freeze": {
+      "implementation_commit": "58a19d0775b6337d184c8d4caffdadff643ebf93",
+      "independent_source_peer_commit": "924dc6a9dfa543f0149b98b40e2297a020565726",
+      "source_files": {
+        "spacr/qt/widgets/hint_bar.py": "0efad77e9991951b19f5363325fbf78b737231a457bd0239d95274a6ae95c202",
+        "spacr/qt/preferences.py": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680"
+      },
+      "source_checks": [
+        "Actual private handle StrongFocus and keyPressEvent accept only unmodified Up/Down; existing bounds clamp height.",
+        "Qt base handling preserves Tab exit; existing Preferences constructs this same HintBar and registers the new caption."
+      ],
+      "owner_test_receipt": "features/data/655_hint_resize_keyboard_2026-10-15/receipt.json",
+      "owner_result": "46 passed; no duplicate behavioral replay by guide author",
+      "limits": "No new claim of keyboard-specific save/reopen or native screen-reader acceptance."
+    },
+    "source_path": "docs/source/features.rst",
+    "source_file_sha256": "56b32be7efbe226b757d684127933aaf85441967051ee41ac67ad4be8bcdaf83",
+    "template_sha256": "8073a0ed21931029f7648679b5ae7787a68b631c2f6214291d491a4a1812c2ff",
+    "messages": [
+      {
+        "domain": "features",
+        "msgid": "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on.",
+        "source_sha256": "1668b4a0963cf0a363e117f9473f107423a7eb66fab4dfb0a1508174c94a7df8"
+      }
+    ],
+    "new_or_changed_messages": 1,
+    "unchanged_messages_per_locale": 171,
+    "previous_117_targets_preserved": true,
+    "obsolete_msgids": [],
+    "independent_target_peer": "website_686_687",
+    "review_kind": "AI technical review; no native-speaker signoff"
+  },
+  "input_head": "b729dd62cea90fddc4c82971f9bf5e354f0126a3",
+  "normal_functions": [
+    "extract (Sphinx gettext, guides-only)",
+    "update_language (full features.pot)",
+    "import_worklist(reviewer=codex)",
+    "Babel write_mo and gettext.GNUTranslations"
+  ],
+  "locales": {
+    "sv": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "792a88e295e842034b1cc7d0ab5d4b01627e8c70c4906f44c04bf5bf81e79c09"
+    },
+    "de": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "6781ee3e5d1c22a611aae7e22b17f7a9050f9efa838c6897b672b06b240783a9"
+    },
+    "es": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "958b548023243c9889abb3c56f79dd1004a51950db30311fa070c8e2534f4a7c"
+    },
+    "pt": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "b069e6ebe631fd56adff9a804d2d360d5984f12fa75853820412855bfd09d0e9"
+    },
+    "fr": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "f7f9430a6f6fc0b32d206983285e3e8b92ee00bb53fa03889faa209a4d67c7ac"
+    },
+    "is": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "c7720a87250a1ccb17c0a651e2e6e492561f68ca87e1af8ef8ad1f148e099391"
+    },
+    "zh_CN": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "1120d57ff4ba2fda05e3a9b737acea4d11d2afb195b446d2c4543b631cb61fcc"
+    },
+    "ko": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "86f35b334513df6be9bd1affe7f3752fa25022e2a83d81a603092189dd3caee6"
+    },
+    "hi": {
+      "new_target_exact": 1,
+      "existing_message_records_preserved": 171,
+      "previous_reviewed_targets_preserved": 13,
+      "catalog_count": 172,
+      "normal_update": {
+        "features": {
+          "total": 172,
+          "translated": 171,
+          "fuzzy": 0,
+          "missing": 1
+        }
+      },
+      "normal_import": {
+        "applied": 1,
+        "rejected": []
+      },
+      "compiled_gettext_consumer": "PASS one new and13 previous actual lookups",
+      "catalog_sha256": "4f39c722b57aea019d8f58d7c48bca6bcb9ab40bfd2abc19874c8751e5a5a1ae"
+    }
+  },
+  "unchanged_other_domain_po_files": 297,
+  "new_targets": 9,
+  "existing_message_records_preserved": 1539,
+  "previous117_targets_preserved": true,
+  "compiled_consumer_lookups": 126,
+  "elapsed_seconds": 0.8960117709939368,
+  "limitations": [
+    "AI technical review, no native-speaker signoff.",
+    "No full translated HTML or hosted-publication claim."
+  ],
+  "gettext_exit": 0,
+  "normal_generation_exit": 0,
+  "features_source_warnings": false,
+  "evidence_sha256": {
+    "generate.log.gz": "cd39d6205f5ec8b7dbe834922aaf7d8542c271899513f0c45577b81ef8e5d43e",
+    "generate.time.gz": "2a17583b95d4deeefff5aa9e9dbae9fc10205c388135204a8adb447181ffd120",
+    "previous-117-targets.json.gz": "e5f53b538d659dad0add102fbc630a92a1263e3556b8a75dba91d11db4675c70",
+    "features.pot.gz": "28b9b616a489eb154e48fb29d13a2a5cab0f9535d93b53eeadda602ae1ec7bee",
+    "gettext.log.gz": "3ea3d331ca3d948c523d074af8eb2d65cc0e287fce55b25458b4754edfe2fa0e",
+    "catalogs-before.json.gz": "4cd07b89d575246903ba1ae429c560cc98b82916b6c63fbe69745b1a03a3ab77",
+    "generate.py.gz": "2019be123b6354e6606a45b6a4371ed3da1016a40a72a0f442c571e0e3b46eec",
+    "gettext.time.gz": "cafd03b535be57dc22c782d9a57a959ec6babf6061231ec4ede9c9f9653ae42c"
+  }
+}

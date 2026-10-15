@@ -286,3 +286,34 @@ publication does not claim green global CI/release or waive this owner gap.
 Actual normal caption-arrival refresh also refuses missing explicit
 sv/UI/AI Error report review (exit 1); its raw failure is retained. No
 caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 Original Home — exact numeric counterfactual target classes
+The numeric target-class parser now refuses fractional, nonfinite and
+out-of-range values with its existing class-index ValueError. Exact Decimal
+validation prevents tiny fractional saved strings from underflowing to class0;
+valid integral scalar/string/scientific-notation values and named conditions
+(including numeric-looking names) retain their existing meaning. Nine actual
+prepatch cases failed; final24 checks pass. Three actual default-autoencoder
+report cases refuse before either instrumented trainer can run; input crops and
+classifier weights stay unchanged. No diffusion report execution or training
+is claimed. Only the existing parser body changes; signatures/prose/tr calls
+are identical, so there is no new API/runtime target or generated artifact.
+Evidence: data/564_target_identity_2026-10-15/. This closes only this software
+class-index boundary, not biological counterfactual quality/minimal edits,
+whole F564, final global CI or release acceptance.
+
+2026-10-15 Original Home — explicit per-crop target identity before model changes
+The direct sequence API now validates explicit scalar class targets with the
+existing strict helper before wrapping/moving/evaluating models or converting
+crop devices. Fractional/nonfinite targets cannot silently select another class;
+legacy integer/integral-float and binary Boolean list/NumPy/Tensor targets and
+None defaults retain their existing outputs. Original baseline15FAIL17PASS;
+final33PASS. Fifteen invalid cases preserve initial model/generator training
+modes and inputs, with no wrapper/transfer/scoring call. Sixteen valid forms and
+the default match exact rows/frame bytes captured once from the prior public
+fixed synthetic test modules; existing reference/scorer control also passes.
+An initial test namespace collection error is retained separately. No fitting,
+learned prediction quality or native GPU acceptance is claimed. Only the existing
+function body changes, with unchanged signatures/prose/tr calls and no new
+caption/API target. Evidence: data/564_sequence_target_identity_2026-10-15/.
+Whole F564/scientific calibration and final global CI/release remain open.

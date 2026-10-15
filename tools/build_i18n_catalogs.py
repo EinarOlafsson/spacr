@@ -4224,6 +4224,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_phases_by_xgboost", "_phases_by_torch", "_wound_plane",
                              "_viability_manual",
                              "_measurement_channel_index",
+                             "_wound_calibration",
                          }]
         if path == source_root / "object_classifier.py":
             tree.body = [node for node in tree.body

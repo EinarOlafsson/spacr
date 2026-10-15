@@ -108,10 +108,10 @@ header and its first 200 rows when the files change. A saved value that is not
 in the file is kept and flagged. ``pred`` is the probability a classifier
 writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to
 the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``.
-When a score file has no ``pred`` column, a note under the field says so,
-names those two outputs and lists the columns that can be used; spaCR does not
-pick a response for you. A run whose response is not a numeric column of the
-score file stops with the same list.
+When ``pred`` is selected and a score file has no ``pred`` column, a note
+under the field says so, names those two outputs and lists the columns that
+can be used; spaCR does not pick a response for you. A missing response-column
+error lists available score-table columns to help you choose a valid response.
 
 Planning, quality control and exploration
 -----------------------------------------
@@ -199,7 +199,7 @@ Starting spaCR
 spaCR opens with a black container holding the spaCR logo as a photomosaic.
 The logo holds still while the window loads, then the mosaic blows away tile
 by tile and the container fades to show the window. A click or a key skips
-it. The sequence is off when **Preferences → Animation → Startup animation**
+it. The sequence is off when **Preferences → Appearance → Animation → Startup animation**
 is cleared (the mosaic then shows without the animation), while **Reduce
 motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set
 to ``1`` (the mosaic is then not shown at all). **Help → Show startup
@@ -233,8 +233,8 @@ Picking up where you left off
 Settings files
 --------------
 
-**Export settings…**, next to **Import settings…** on every module screen,
-saves the form's current values as a settings CSV without running anything.
+Use **Export settings…**, next to **Import settings…**, to save the form's
+current values as a settings CSV without running anything.
 On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a
 **Submit remote…** sent. Both write the file that ``spacr-run --settings``
 reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>`
@@ -274,8 +274,9 @@ Make Masks uses the same keys in its True 3D view. When a click lands on more
 than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under
 it are highlighted and listed at the top left of the graph under **Elements
 under the click**, in layer order with sheets before anchors; the top layer is
-blue and the others white. The click still grabs the first element. Click a
-row or press the Up and Down arrows to choose which element the next click on
+blue and the others white. The initial click grabs the nearest anchor under
+the pointer, if any; otherwise it grabs the nearest sheet. Click a row or
+press the Up and Down arrows to choose which element the next click on
 that overlap selects and moves. **Escape**, a click on empty space, leaving
 Edit, switching between 2D and 3D, or replacing the gate set closes the list.
 
@@ -317,6 +318,16 @@ tooltip or placeholder, and the names follow the interface language. **Tab**
 moves out of text boxes and tables to the next control instead of typing a
 tab. **Preferences → Appearance → Theme** offers **High contrast**, in which
 all text has a contrast ratio of at least 7:1 against its background.
+
+Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline
+shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or
+numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off.
+Holding a key switches it only once. If your screen reader handles
+numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`.
+
+In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge,
+then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip
+taller or shorter within its size limits; :kbd:`Tab` moves on.
 
 **Preferences → Appearance → Accessibility** gathers the settings that help
 most:

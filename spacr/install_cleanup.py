@@ -3972,11 +3972,521 @@ def _debian_prepare_root_transaction(version, previous_version, desktop_uid):
     return result.returncode, result.stdout
 
 
+def _windows_pip_acl(path):
+    """Read local fixed-volume ownership and ordinary DACL entries through native Windows APIs."""
+    import ctypes
+
+    if os.name != "nt":
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    pointer = ctypes.c_void_p
+    dword = ctypes.c_uint32
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    security = ctypes.WinDLL("advapi32", use_last_error=True)
+    volume = kernel.GetVolumePathNameW
+    volume.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, dword]
+    volume.restype = ctypes.c_int32
+    drive_type = kernel.GetDriveTypeW
+    drive_type.argtypes = [ctypes.c_wchar_p]
+    drive_type.restype = dword
+    absolute = os.path.abspath(path)
+    if absolute.startswith("\\\\") or drive_type(os.path.splitdrive(absolute)[0] + os.sep) != 3:
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    root = ctypes.create_unicode_buffer(32768)
+    if not volume(absolute, root, len(root)):
+        raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
+    if root.value.startswith("\\\\") or drive_type(root.value) != 3:
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    read_security = security.GetNamedSecurityInfoW
+    read_security.argtypes = [ctypes.c_wchar_p, dword, dword,
+                              ctypes.POINTER(pointer), ctypes.POINTER(pointer),
+                              ctypes.POINTER(pointer), ctypes.POINTER(pointer), ctypes.POINTER(pointer)]
+    read_security.restype = dword
+    get_ace = security.GetAce
+    get_ace.argtypes = [pointer, dword, ctypes.POINTER(pointer)]
+    get_ace.restype = ctypes.c_int32
+    sid_text = security.ConvertSidToStringSidW
+    sid_text.argtypes = [pointer, ctypes.POINTER(ctypes.c_wchar_p)]
+    sid_text.restype = ctypes.c_int32
+    open_token = security.OpenProcessToken
+    open_token.argtypes = [pointer, dword, ctypes.POINTER(pointer)]
+    open_token.restype = ctypes.c_int32
+    token_info = security.GetTokenInformation
+    token_info.argtypes = [pointer, dword, pointer, dword, ctypes.POINTER(dword)]
+    token_info.restype = ctypes.c_int32
+    current_process = kernel.GetCurrentProcess
+    current_process.argtypes = []
+    current_process.restype = pointer
+    free = kernel.LocalFree
+    free.argtypes = [pointer]
+    free.restype = pointer
+    close = kernel.CloseHandle
+    close.argtypes = [pointer]
+    close.restype = ctypes.c_int32
+    owner, dacl, descriptor, token = pointer(), pointer(), pointer(), pointer()
+    code = read_security(os.path.abspath(path), 1, 5, ctypes.byref(owner), None,
+                         ctypes.byref(dacl), None, ctypes.byref(descriptor))
+    if code:
+        raise OSError(code, os.strerror(errno.EACCES), path)
+    try:
+        if not open_token(current_process(), 8, ctypes.byref(token)):
+            raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
+        needed = dword()
+        token_info(token, 1, None, 0, ctypes.byref(needed))
+        if not ctypes.sizeof(pointer) <= needed.value <= 1 << 20:
+            raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+        user_buffer = ctypes.create_string_buffer(needed.value)
+        if not token_info(token, 1, user_buffer, needed, ctypes.byref(needed)):
+            raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
+        user_pointer = ctypes.cast(user_buffer, ctypes.POINTER(pointer)).contents
+        owner_text, user_text = ctypes.c_wchar_p(), ctypes.c_wchar_p()
+        try:
+            if not sid_text(owner, ctypes.byref(owner_text)) or not sid_text(user_pointer, ctypes.byref(user_text)):
+                raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
+            result = {"owner": owner_text.value, "user": user_text.value, "has_dacl": bool(dacl), "rules": []}
+        finally:
+            if owner_text:
+                free(ctypes.cast(owner_text, pointer))
+            if user_text:
+                free(ctypes.cast(user_text, pointer))
+        if dacl:
+            header = ctypes.string_at(dacl, 8)
+            size = int.from_bytes(header[2:4], "little")
+            count = int.from_bytes(header[4:6], "little")
+            if size < 8 or count > (size - 8) // 12:
+                raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+            for index in range(count):
+                ace = pointer()
+                if not get_ace(dacl, index, ctypes.byref(ace)):
+                    raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
+                entry = ctypes.string_at(ace, 8)
+                length = int.from_bytes(entry[2:4], "little")
+                if (entry[0] not in {0, 1} or entry[1] & ~0x1f or length < 12
+                        or ace.value < dacl.value + 8 or ace.value + length > dacl.value + size):
+                    raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+                text = ctypes.c_wchar_p()
+                try:
+                    if not sid_text(pointer(ace.value + 8), ctypes.byref(text)):
+                        raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
+                    result["rules"].append({"sid": text.value, "type": entry[0],
+                                            "rights": int.from_bytes(entry[4:8], "little"),
+                                            "propagation": (1 if entry[1] & 4 else 0) | (2 if entry[1] & 8 else 0)})
+                finally:
+                    if text:
+                        free(ctypes.cast(text, pointer))
+        return result
+    finally:
+        if token:
+            close(token)
+        if descriptor:
+            free(descriptor)
+
+
+def _windows_pip_tree_acl(path, *, system_owner=False):
+    """Validate every descendant with native ACL checks in the background preparation worker."""
+    pending = [os.path.abspath(path)]
+    count = 0
+    while pending:
+        current = pending.pop()
+        details = os.lstat(current)
+        if (stat.S_ISLNK(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400
+                or not (stat.S_ISDIR(details.st_mode) or stat.S_ISREG(details.st_mode))):
+            raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+        _windows_pip_private_access(current, system_owner=system_owner)
+        if stat.S_ISDIR(details.st_mode):
+            with os.scandir(current) as entries:
+                pending.extend(entry.path for entry in entries)
+        count += 1
+    return {"verified": True, "entries": count}
+
+
+def _windows_pip_private_directory(path):
+    """Require an actual directory owned by this user without foreign write grants."""
+    root = _installer_metadata_folder(path, "untrusted_windows_runtime_directory")
+    if not os.path.isdir(root):
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    _windows_pip_private_access(root)
+    return root
+
+
+def _windows_pip_private_access(path, *, system_owner=False):
+    """Require a non-null trusted-owner ACL without foreign file or descendant write grants."""
+    evidence = _windows_pip_acl(path)
+    user = evidence.get("user")
+    rules = evidence.get("rules")
+    if (not isinstance(user, str) or not user.startswith("S-1-")
+            or evidence.get("owner") not in ({user, "S-1-5-18", "S-1-5-32-544"} if system_owner else {user})
+            or evidence.get("has_dacl") is not True
+            or not isinstance(rules, list) or not rules):
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    permitted = {user, "S-1-5-18", "S-1-5-32-544"}
+    write_mask = 0x500D0156
+    for rule in rules:
+        if (not isinstance(rule, dict) or rule.get("type") not in (0, 1)
+                or not isinstance(rule.get("sid"), str)
+                or type(rule.get("rights")) is not int
+                or type(rule.get("propagation")) is not int
+                or rule["propagation"] & ~3):
+            raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+        if rule["type"] == 0:
+            if rule["rights"] & write_mask and rule["sid"] not in permitted:
+                raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+
+
+
+def _windows_pip_commands(record, version, workdir, machine):
+    """Bind an ordinary running Windows venv without admitting shared environments."""
+    if (machine.platform != "windows" or record.platform != "windows"
+            or record.kind != "environment" or not record.running or not record.python):
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    prefix = _windows_pip_private_directory(record.root)
+    _windows_pip_private_directory(os.path.dirname(prefix))
+    python = os.path.abspath(record.python)
+    executable = os.path.abspath(machine.executable)
+    scripts = os.path.join(prefix, "Scripts")
+    if (os.path.normcase(os.path.realpath(machine.running_prefix or "")) != os.path.normcase(prefix)
+            or os.path.normcase(os.path.realpath(os.path.dirname(python))) != os.path.normcase(scripts)
+            or os.path.normcase(os.path.realpath(os.path.dirname(executable))) != os.path.normcase(scripts)
+            or os.path.basename(python).lower() not in {"python.exe", "pythonw.exe"}
+            or os.path.basename(executable).lower() not in {"python.exe", "pythonw.exe"}
+            or not os.path.isfile(python) or os.path.islink(python)
+            or not os.path.isfile(executable) or os.path.islink(executable)
+            or not os.path.isfile(os.path.join(prefix, "pyvenv.cfg"))
+            or os.path.isdir(os.path.join(prefix, "conda-meta"))
+            or _inside(os.path.realpath(workdir), prefix)):
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    _runtime_staging_allowed(prefix, machine)
+    _windows_pip_tree_acl(prefix)
+    console = os.path.join(scripts, "python.exe")
+    if not os.path.isfile(console):
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    version = _runtime_requested_version(version)
+    return [console, "-I", "-m", "pip", "install", "--upgrade", "spacr==" + version], [python, "-I", "-m", "spacr.qt"]
+
+
+def _windows_pip_helper(record, module, plan_path, machine):
+    """Verify the current base interpreter outside the runtime before detaching it."""
+    if machine.platform != "windows":
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    prefix = os.path.realpath(record.root)
+    _windows_pip_private_directory(os.path.dirname(module))
+    base = _installer_metadata_folder(sys.base_prefix, "untrusted_windows_base_interpreter", windows=True)
+    python = os.path.join(base, "python.exe")
+    if (not os.path.isfile(python) or os.path.islink(python)
+            or _inside(base, prefix) or _inside(os.path.realpath(python), prefix)):
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    _windows_pip_private_access(base, system_owner=True)
+    _windows_pip_private_access(python, system_owner=True)
+    _windows_pip_tree_acl(base, system_owner=True)
+    _windows_pip_tree_acl(os.path.dirname(module))
+    probe = '''import json, os, sys, sysconfig
+print(json.dumps({'python':sys.executable,'prefix':sys.prefix,'base_prefix':sys.base_prefix,'stdlib':sysconfig.get_path('stdlib'),'os_name':os.name}))
+'''
+    code, output = _run([python, "-I", "-B", "-c", probe], timeout=30)
+    try:
+        identity = json.loads(output)
+        normalize = os.path.normcase
+        if (code or identity.get("os_name") != "nt"
+                or normalize(os.path.realpath(identity["python"])) != normalize(os.path.realpath(python))
+                or normalize(os.path.realpath(identity["prefix"])) != normalize(base)
+                or normalize(os.path.realpath(identity["base_prefix"])) != normalize(base)
+                or _inside(os.path.realpath(identity["stdlib"]), prefix)):
+            raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    except (ValueError, TypeError, KeyError, AttributeError) as error:
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR)) from error
+    environment = dict(machine.environ)
+    for name in ("PYTHONHOME", "PYTHONPATH"):
+        environment.pop(name, None)
+    return [python, "-I", "-B", module, "run-plan", plan_path], environment
+
+
+class _WindowsPipHandshake(_FrozenUpdateHandshake):
+    """Retain the authenticated shutdown protocol with native Windows ACL and file-identity guards."""
+
+    def __init__(self, plan):
+        """Bind the same expiring plan fields after proving its private Windows message directory."""
+        lease = plan["handshake"]
+        token = lease["token"]
+        self.expires = float(lease["expires"])
+        if (lease.get("schema") != 1 or not isinstance(token, str)
+                or len(token) != 64 or any(c not in "0123456789abcdef" for c in token)
+                or not 0 < self.expires < float("inf")):
+            raise ValueError("invalid frozen updater readiness lease")
+        self.root = _windows_pip_private_directory(plan["workdir"])
+        self.pid = int(plan["pid"])
+        bound = {key: plan[key] for key in
+                 ("adapter", "version", "pid", "records", "ticked", "workdir", "handshake")}
+        self.binding = hashlib.sha256(json.dumps(
+            bound, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+    def _read(self, name):
+        """Reject linked, foreign-writable or replaced messages before decoding bounded authenticated JSON."""
+        _windows_pip_private_directory(self.root)
+        path = os.path.join(self.root, name)
+        try:
+            before = os.lstat(path)
+        except FileNotFoundError:
+            return None
+        if (not stat.S_ISREG(before.st_mode)
+                or getattr(before, "st_file_attributes", 0) & 0x400 or before.st_size > 8192):
+            raise ValueError("invalid frozen updater readiness message")
+        _windows_pip_private_access(path)
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(details.st_mode) or details.st_size > 8192
+                    or (details.st_dev, details.st_ino) != (before.st_dev, before.st_ino)):
+                raise ValueError("invalid frozen updater readiness message")
+            message = json.loads(stream.read(8193))
+        if not isinstance(message, dict) or message.get("binding") != self.binding:
+            raise ValueError("frozen updater readiness belongs to a different plan")
+        return message
+
+
+def _windows_pip_scripts(staged, prefix, runner):
+    """Regenerate staged-prefix Windows entry points with their final paths and owning records."""
+    probe = '''import base64, csv, hashlib, json, os, re, sys, tempfile
+from pathlib import Path
+from importlib.metadata import distributions
+from pip._vendor.distlib.scripts import ScriptMaker, enquote_executable
+stage, final = map(Path, sys.argv[1:])
+scripts = stage / 'Scripts'
+encodings = (str(stage).encode('utf-8'), str(stage).replace('\\\\', '/').encode('utf-8'))
+owners = {}
+for dist in distributions(path=[str(stage / 'Lib' / 'site-packages')]):
+    metadata = Path(dist._path).resolve()
+    assert metadata.is_relative_to(stage.resolve()) and metadata.is_dir()
+    for entry in dist.entry_points:
+        if entry.group not in ('console_scripts', 'gui_scripts'):
+            continue
+        maker = ScriptMaker(None, str(scripts))
+        for name in maker.get_script_filenames(entry.name):
+            owners.setdefault((name + '.exe').lower(), []).append((dist, entry))
+changed = []
+for path in scripts.iterdir():
+    assert not path.is_symlink()
+    if not path.is_file() or not any(token in path.read_bytes() for token in encodings):
+        continue
+    candidates = owners.get(path.name.lower(), [])
+    assert len(candidates) == 1 and path.suffix.lower() == '.exe', 'Unowned staged-prefix script'
+    dist, entry = candidates[0]
+    assert re.fullmatch(r'[A-Za-z0-9_.-]+', path.stem), 'Unsafe entry point name'
+    record = Path(dist._path) / 'RECORD'
+    rows = list(csv.reader(record.open(newline='', encoding='utf-8')))
+    selected = [row for row in rows if len(row) == 3 and Path(dist.locate_file(row[0])).resolve() == path.resolve()]
+    assert len(selected) == 1, 'Missing or ambiguous entry point ownership'
+    maker = ScriptMaker(None, str(scripts))
+    maker.variants = {''}
+    maker.clobber = True
+    maker.executable = enquote_executable(str(final / 'Scripts' / 'python.exe'))
+    assert (stage / 'Scripts' / ('pythonw.exe' if entry.group == 'gui_scripts' else 'python.exe')).is_file()
+    files = maker.make(path.stem + ' = ' + entry.value, options={'gui': entry.group == 'gui_scripts'})
+    assert files == [str(path)] and not any(token in path.read_bytes() for token in encodings)
+    payload = path.read_bytes()
+    selected[0][1:] = ['sha256=' + base64.urlsafe_b64encode(hashlib.sha256(payload).digest()).rstrip(b'=').decode('ascii'), str(len(payload))]
+    descriptor, temporary = tempfile.mkstemp(prefix='RECORD-', dir=record.parent)
+    try:
+        with os.fdopen(descriptor, 'w', newline='', encoding='utf-8') as stream:
+            csv.writer(stream).writerows(rows)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, record)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+    changed.append(path.name)
+print(json.dumps({'verified': True, 'scripts': changed}))
+'''
+    code, output = runner([os.path.join(staged, "Scripts", "python.exe"), "-I", "-B", "-c", probe, staged, prefix])
+    try:
+        receipt = json.loads(output)
+        if code or receipt.get("verified") is not True or not isinstance(receipt.get("scripts"), list):
+            raise ValueError("windows_entrypoint_verification_failed")
+    except (ValueError, TypeError, AttributeError) as error:
+        raise ValueError("windows_entrypoint_verification_failed") from error
+    return receipt
+
+
+def _windows_pip_tree(prefix):
+    """Read complete runtime identity and reject every linked or reparse payload before use."""
+    _installer_metadata_folder(prefix, "untrusted_windows_runtime_directory", windows=True)
+    _windows_pip_tree_acl(prefix)
+    return _runtime_recovery_inventory(prefix)
+
+
+def _windows_pip_transition(path, identity, inventory):
+    """Refuse a foreign or modified runtime before any two-rename activation or rollback step."""
+    details = os.stat(path, follow_symlinks=False)
+    if ([details.st_dev, details.st_ino] != identity or _windows_pip_tree(path) != inventory):
+        raise ValueError("windows_runtime_replaced_or_modified")
+
+
+def _windows_pip_transaction(record, version, install, *, machine, runner=None, activate=None):
+    """Stage a Windows venv and retain its original through journaled, non-atomic replacement."""
+    runner = runner or _run
+    prefix = _windows_pip_private_directory(record.root)
+    parent = _windows_pip_private_directory(os.path.dirname(prefix))
+    lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
+    os.mkdir(lock, 0o700)
+    lease = os.stat(lock, follow_symlinks=False)
+    root = None
+    state = None
+    retired = False
+    installed = False
+    safe_release = True
+    try:
+        _windows_pip_private_directory(lock)
+        _runtime_staging_allowed(prefix, machine)
+        old = _retiring_runtime_identity(prefix)
+        if old is None:
+            raise ValueError("previous_runtime_identity_unverified")
+        record = replace(record, version=old["version"])
+        if _runtime_version_compare(record.python, record.version, version, runner) > 0:
+            raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+        root = tempfile.mkdtemp(prefix=".spacr-windows-update-", dir=parent)
+        _windows_pip_private_directory(root)
+        staged = os.path.join(root, "staged")
+        previous = os.path.join(root, "previous")
+        details = os.stat(prefix, follow_symlinks=False)
+        state = {"schema": 1, "family": "windows-private-pip", "prefix": prefix,
+                 "rollback_runtime": previous, "staged_runtime": staged,
+                 "requested_version": version, "old_identity": [details.st_dev, details.st_ino],
+                 "old_inventory": _windows_pip_tree(prefix), "state": "staging"}
+        _runtime_recovery_journal(root, state)
+        shutil.copytree(prefix, staged)
+        _windows_pip_private_directory(staged)
+        python = os.path.join(staged, "Scripts", "python.exe")
+        if install != [os.path.join(prefix, "Scripts", "python.exe"), "-I", "-m", "pip", "install", "--upgrade", "spacr==" + str(version)]:
+            raise ValueError("the package command does not target this private runtime")
+        code, output = runner([python, *install[1:]])
+        if code:
+            raise RuntimeError(output)
+        code, checked = runner([python, "-I", "-m", "pip", "check"])
+        if code:
+            raise RuntimeError(checked)
+        _windows_pip_tree(staged)
+        for directory, _folders, files in os.walk(staged):
+            for name in files:
+                path = os.path.join(directory, name)
+                relative = os.path.relpath(path, staged)
+                prior = state["old_inventory"].get(relative, {})
+                if not name.endswith(".py") or prior.get("kind") != "file":
+                    continue
+                details = os.stat(path, follow_symlinks=False)
+                original = os.stat(os.path.join(prefix, relative), follow_symlinks=False)
+                if (details.st_size == prior["size"] and int(details.st_mtime) == int(original.st_mtime)
+                        and _macos_digest(path) != prior["sha256"]):
+                    os.utime(path, ns=(details.st_atime_ns, (int(original.st_mtime) + 2) * 1_000_000_000), follow_symlinks=False)
+                    if int(os.stat(path).st_mtime) == int(original.st_mtime):
+                        raise OSError(errno.EIO, os.strerror(errno.EIO), path)
+        code, observed = runner(_runtime_identity_command(python, version, prefix=staged, previous_version=record.version))
+        try:
+            identity = json.loads(observed)
+            if (code or identity.get("verified") is not True
+                    or identity.get("requested_version") != str(version)
+                    or _runtime_version_compare(python, identity["version"], version, runner) != 0
+                    or _runtime_version_compare(python, identity["version"], record.version, runner) < 0):
+                raise ValueError("windows_staged_identity_unverified")
+        except (ValueError, TypeError, KeyError, AttributeError) as error:
+            raise ValueError("windows_staged_identity_unverified") from error
+        code, checked = runner([python, "-I", "-B", "-c", "import spacr.qt"])
+        if code:
+            raise RuntimeError(checked)
+        state["entrypoints"] = _windows_pip_scripts(staged, prefix, runner)
+        details = os.stat(staged, follow_symlinks=False)
+        state.update(new_identity=[details.st_dev, details.st_ino], new_inventory=_windows_pip_tree(staged), state="ready")
+        _runtime_recovery_journal(root, state)
+        _windows_pip_transition(prefix, state["old_identity"], state["old_inventory"])
+        _windows_pip_transition(staged, state["new_identity"], state["new_inventory"])
+        state["state"] = "retiring"
+        _runtime_recovery_journal(root, state)
+        os.rename(prefix, previous)
+        retired = True
+        state["state"] = "retired"
+        _runtime_recovery_journal(root, state)
+        if os.path.lexists(prefix):
+            raise ValueError("windows_runtime_replaced_or_modified")
+        os.rename(staged, prefix)
+        installed = True
+        state["state"] = "verifying"
+        _runtime_recovery_journal(root, state)
+        _windows_pip_transition(previous, state["old_identity"], state["old_inventory"])
+        code, observed = runner(_runtime_identity_command(record.python, version, prefix=prefix, previous_version=record.version))
+        final = json.loads(observed)
+        if code or final.get("verified") is not True or final.get("version") != identity["version"]:
+            raise ValueError("windows_activated_identity_unverified")
+        code, checked = runner([record.python, "-I", "-B", "-c", "import spacr.qt"])
+        if code:
+            raise RuntimeError(checked)
+        _windows_pip_transition(prefix, state["new_identity"], state["new_inventory"])
+        state.update(state="committed", verified_version=identity["version"])
+        _runtime_recovery_journal(root, state)
+        if activate is not None:
+            activate(identity["version"])
+        return identity["version"], output + "\nPrevious runtime retained at " + previous
+    except BaseException:
+        if retired:
+            try:
+                _windows_pip_transition(previous, state["old_identity"], state["old_inventory"])
+                if installed:
+                    _windows_pip_transition(prefix, state["new_identity"], state["new_inventory"])
+                    if os.path.lexists(staged):
+                        raise ValueError("windows_runtime_replaced_or_modified")
+                    os.rename(prefix, staged)
+                if os.path.lexists(prefix):
+                    raise ValueError("windows_runtime_replaced_or_modified")
+                os.rename(previous, prefix)
+                state["state"] = "rolled_back"
+                _runtime_recovery_journal(root, state)
+            except BaseException as error:
+                safe_release = False
+                raise RuntimeError("windows_runtime_rollback_requires_review", root) from error
+        if root and state is not None and not retired:
+            state["state"] = "staging_failed"
+            _runtime_recovery_journal(root, state)
+        raise
+    finally:
+        if safe_release:
+            current = os.stat(lock, follow_symlinks=False)
+            if (current.st_dev, current.st_ino) == (lease.st_dev, lease.st_ino):
+                os.rmdir(lock)
+
+
+def _run_windows_pip_update(plan, machine, *, wait=None, run=None, spawn=None):
+    """Approve a private Windows runtime update and recheck identity after desktop shutdown."""
+    records = [_record_from_json(data) for data in plan["records"]]
+    candidates = [record for record in records if record.kind == "environment" and record.running]
+    if len(candidates) != 1 or plan.get("frozen_application") or machine.platform != "windows":
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    record = candidates[0]
+    install, relaunch = _windows_pip_commands(record, plan["version"], plan["workdir"], machine)
+    if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
+        raise ValueError("the package command does not target this private runtime")
+    runner = run or _run
+    current = _retiring_runtime_identity(record.root)
+    if current is None:
+        raise ValueError("previous_runtime_identity_unverified")
+    if _runtime_version_compare(record.python, current["version"], plan["version"], runner) > 0:
+        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+    code, output = runner([record.python, "-I", "-B", "-c", "import pip"])
+    if code:
+        raise RuntimeError(output)
+    handshake = _WindowsPipHandshake(plan)
+    handshake.ready()
+    handshake.wait_for_shutdown(wait)
+    _windows_pip_commands(record, plan["version"], plan["workdir"], machine)
+    if _retiring_runtime_identity(record.root) != current:
+        raise ValueError("previous_runtime_identity_unverified")
+    return _windows_pip_transaction(record, plan["version"], install, machine=machine, runner=runner,
+                                    activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+
+
 _PRIVATE_PIP_UPDATE_ERROR = "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."
 
 
 def _pip_environment_commands(record, version, workdir, machine):
     """Bind a dedicated owner-only POSIX venv to its isolated pip command."""
+    if machine.platform == "windows":
+        return _windows_pip_commands(record, version, workdir, machine)
     if (machine.platform not in {"linux", "macos"} or record.kind != "environment"
             or not record.running or not record.python or record.platform != machine.platform):
         raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
@@ -4032,6 +4542,8 @@ def _pip_environment_identity(record, runner):
 
 def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=None):
     """Wait for approved shutdown before updating a verified private pip venv."""
+    if machine.platform == "windows":
+        return _run_windows_pip_update(plan, machine, wait=wait, run=run, spawn=spawn)
     records = [_record_from_json(data) for data in plan["records"]]
     candidates = [record for record in records if record.kind == "environment" and record.running]
     if len(candidates) != 1 or plan.get("frozen_application"):
@@ -4065,8 +4577,8 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                         spawn=None) -> Dict:
     """Run an installation update in a process that outlives spaCR.
 
-    Installer-made copies and supported dedicated POSIX pip environments can
-    use this helper. It waits for the running process to exit before changing
+    Installer-made copies and supported dedicated POSIX or Windows pip
+    environments can use this helper. It waits for the running process to exit before changing
     the installation; the pip adapter also requires authenticated shutdown
     approval.
 
@@ -4128,7 +4640,7 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     if running is None:
         plan["error"] = "the running spaCR is not an installer-made copy"
     elif running.kind == "environment":
-        plan["adapter"] = "pip-private-posix-v1"
+        plan["adapter"] = "pip-private-windows-v1" if machine.platform == "windows" else "pip-private-posix-v1"
         plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
         plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
                              "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
@@ -4137,10 +4649,13 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                 raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
             plan["install"], plan["relaunch"] = _pip_environment_commands(
                 running, str(version), workdir, machine)
-            _FrozenUpdateHandshake(plan)
+            (_WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake)(plan)
             with open(__file__, "rb") as source, open(module, "wb") as copy:
                 copy.write(source.read())
-            plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
+            if machine.platform == "windows":
+                plan["command"], environment = _windows_pip_helper(running, module, plan_path, machine)
+            else:
+                plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
         except (OSError, ValueError) as error:
             plan["error"] = str(error)
     elif _macos_online_update_record(records, system=machine) is not None:
@@ -4380,15 +4895,15 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return code
 
     planned_records = [_record_from_json(data) for data in plan["records"]]
-    if plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1"}:
+    if plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
         try:
-            operation = (_run_pip_environment_update if plan["adapter"] == "pip-private-posix-v1"
+            operation = (_run_pip_environment_update if plan["adapter"] in {"pip-private-posix-v1", "pip-private-windows-v1"}
                          else _run_macos_online_update)
             observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
         except Exception as error:
             lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1" else str(error))
             try:
-                _FrozenUpdateHandshake(plan).failed(error)
+                (_WindowsPipHandshake if plan["adapter"] == "pip-private-windows-v1" else _FrozenUpdateHandshake)(plan).failed(error)
             except Exception:
                 lines.append("The update error could not be published to the readiness channel.")
             return _finish(6)
@@ -5184,7 +5699,7 @@ def apply_optional_cleanup(preview, choices, *, system=None, guard=None):
     :param system: Optional isolated machine adapter used for reinspection.
     :param guard: Trusted live context-manager factory receiving derived paths;
         it yields ``None`` only while application-local cleanup is permitted.
-    :returns: Action outcome with counts and any private retained paths.
+    :returns: Action outcome with a refusal reason or removed counts and any private retained paths.
     """
     from collections.abc import Mapping
     from types import MappingProxyType

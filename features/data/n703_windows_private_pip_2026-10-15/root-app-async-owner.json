@@ -1,0 +1,7 @@
+{
+  "owner": "Original Home root",
+  "baseline_sha256": "2d95805262e0aa04479e1575dd60d4aed54a367f9aed97bc8bca4b2a3a2fd113",
+  "target_sha256": "6848bd5ec92fe7a94bb90028f7fcf6a155f42d3a9fe8b0ee0026fa1a37ac6cb5",
+  "scope": "Windows preparation dispatched via actual existing owned worker; common plan handler retains existing GUI decisions; late result disarmed without any approval. Single-path native ACL must be bounded local API, not subprocess.",
+  "remaining": "Meaningful actual worker scheduling/event-loop/late cancellation tests and callback API visibility/normal closure; no standalone publish."
+}

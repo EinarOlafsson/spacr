@@ -810,3 +810,39 @@ except explicit87 in the gone-process mock and stronger WAIT_FAILED control.
 No source prose/signature/caption changes or generator work; no network/GPU/
 live install/user-data action. Native Windows/fullCI/wholeN703 remain OPEN.
 Evidence: features/data/n703_windows_shutdown_exit_proof_2026-10-15/.
+
+
+2026-10-15 — Dedicated Windows pip updates now use verified private staging.
+The actual GUI previously refused ordinary Windows venv updates. A separate
+Windows adapter now verifies local fixed-drive ACL/no-reparse ownership for
+the runtime, every code descendant, external base interpreter and helper.
+Preparation runs on the existing background worker; single-path readiness
+and approval checks use local Win32 APIs rather than subprocesses or cached
+permission proof. Shared/Conda/editable/system-site/untrusted environments
+remain refused. Only a copied sibling runtime receives pip changes. Exact
+imported-code/distribution/interpreter/version and dependency checks precede
+activation; stage-bound Windows launchers are regenerated through ordinary
+distlib with final-prefix interpreters and matching RECORD hashes/sizes.
+
+Activation uses two journaled renames, not an atomic exchange. The prior
+runtime and user bytes are retained; ordinary activation/import/relaunch
+failures roll back only unchanged, identity-bound directories. Foreign
+replacement/modification preserves both runtimes and the lease for review.
+Existing authenticated approval, close vetoes, settings saving and late/cancel
+refusal remain. Final89 distinct owning checks PASS:75 core/native-API models,
+real disposable file/rename/journal/offline-wheel/distlib-byte contracts,
+12 existing Windows GUI lifecycle cases and2 background heartbeat/late-result
+cases. The initial2 cleanup-only QThread-lifetime failures remain documented;
+only those2 were corrected/rerun. Win32/interpreter identities are modeled on
+Linux; actual Windows executables, desktop file locks, native ACL/restart and
+interruption/manual-recovery acceptance remain OPEN. No live installation,
+user data, model/GPU or privileged operation was performed.
+
+Normal exact-source English/nine-locale API closure changes only public
+start_update_helper paragraph#1. Exact approved translations and ordinary
+source/history writer/selected-symbol audit preserve every unrelated API
+record, all unchanged translated paragraphs and foreign review/history data.
+Obsolete POSIX-only paragraph reviews remain retired in place with reasons;
+normal Help summary is unchanged, so no Help regeneration is needed.
+Whole N703, native Windows, final full CI and release acceptance remain OPEN.
+Evidence: features/data/n703_windows_private_pip_2026-10-15/.

@@ -1,0 +1,6 @@
+{
+  "original_sha256": "b9f49af257f6c0dfb96c74d2a69e0a0f91667aff57a2d30568c2bad6a643cd63",
+  "proposed_sha256": "56b1303c5f072bd0a185ea0fd6db7bd4ba22d87dfa3354cc143946f687526697",
+  "scope": "Only native-parent integrality comparison and final materialization; int/np.integer/int-parsable string identities avoid float roundtrip, remaining original numeric fractional check unchanged. Explicit integer zeros for absent mappings prevent missing-key float promotion. Native root/filter/provenance and contradiction policy unchanged.",
+  "limits": "Supported signed64 identities only; no tracker/model/event algorithm or native inference/scientific acceptance."
+}

@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "source_commit": "58a19d0775b6337d184c8d4caffdadff643ebf93",
+  "source_hashes": {
+    "spacr/qt/widgets/hint_bar.py": "0efad77e9991951b19f5363325fbf78b737231a457bd0239d95274a6ae95c202",
+    "spacr/qt/preferences.py": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680"
+  },
+  "configuration_file": "/mnt/wd4tb/scratch/n655-hint-grip-20261015/preferences-probe-config/spacr/qt.conf",
+  "tab_presses": 2,
+  "tab_path": [
+    {
+      "class": "QPushButton",
+      "object_name": "PreferencesApply"
+    },
+    {
+      "class": "_HintResizeHandle",
+      "object_name": "HintBarResizeHandle"
+    }
+  ],
+  "accessible_name": "Drag this edge or use Up and Down to resize the help area.",
+  "accessible_description": "Drag this edge or use Up and Down to resize the help area.",
+  "hover_help": "Drag this edge or use Up and Down to resize the help area.",
+  "height_before": 97,
+  "font_step": 18,
+  "maximum": 359,
+  "height_after": 115,
+  "committed_heights": [
+    115
+  ],
+  "saved_key": "prefs/preferences_help_height",
+  "saved_height": 115,
+  "reopened_height": 115,
+  "tab_leaves_to_help_text": true,
+  "network_attempts": [],
+  "elapsed_seconds": 2.927,
+  "scope": "Actual Preferences consumer execution, offscreen. Source author; not an independent source review or native-platform claim."
+}

@@ -1,0 +1,70 @@
+{
+  "tested_source_hashes_equal_current_public": {
+    "spacr/timelapse.py": "1524f1f62249dc33083199a6363b3845addea8158b221802ea795072c8c95308",
+    "spacr/_lineage_trees.py": "dafe129bf5968a5e62cd9eb663496a04df012088c7967963c4bb4c6e53e922c0"
+  },
+  "working_tree_note": "Read-only imported helper functions in current private channel tree; both actual timelapse/lineage source files byte-identical current public. Unrelated private measure change not invoked.",
+  "actual_cases": {
+    "small_missing": {
+      "exact_native_parent": 1,
+      "parent_column_after": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "ancestry_before": 1,
+      "ancestry_after": 1,
+      "input_dataframe_bytes_exact": true,
+      "private_native_style_csv_bytes_exact": true,
+      "empty_events_unchanged": true,
+      "added_links": 0
+    },
+    "large_missing": {
+      "exact_native_parent": 9007199254740993,
+      "parent_column_after": [
+        0,
+        0,
+        9007199254740992,
+        9007199254740992
+      ],
+      "ancestry_before": 9007199254740993,
+      "ancestry_after": 0,
+      "input_dataframe_bytes_exact": true,
+      "private_native_style_csv_bytes_exact": true,
+      "empty_events_unchanged": true,
+      "added_links": 0
+    },
+    "large_all_integer": {
+      "exact_native_parent": 9007199254740993,
+      "parent_column_after": [
+        0,
+        0,
+        9007199254740993,
+        9007199254740993
+      ],
+      "ancestry_before": 9007199254740993,
+      "ancestry_after": 9007199254740993,
+      "input_dataframe_bytes_exact": true,
+      "private_native_style_csv_bytes_exact": true,
+      "empty_events_unchanged": true,
+      "added_links": 0
+    },
+    "large_string_missing": {
+      "exact_native_parent": 9007199254740993,
+      "parent_column_after": [
+        0,
+        0,
+        9007199254740992,
+        9007199254740992
+      ],
+      "ancestry_before": 9007199254740993,
+      "ancestry_after": 0,
+      "input_dataframe_bytes_exact": true,
+      "private_native_style_csv_bytes_exact": true,
+      "empty_events_unchanged": true,
+      "added_links": 0
+    }
+  },
+  "limits": "Declared native-style exact-ID DataFrames through actual correction/lineage functions, no model/detection/tracking/biological data. CSV bytes are preserved fixtures; default CSV-loader identity preservation is NOT claimed. No input/event/file mutation or source edit."
+}

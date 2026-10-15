@@ -38131,7 +38131,7 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
+        "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -38144,11 +38144,11 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "a18ebf8a69b327222983c810c7e7eb9b77b248afa7b0bc14756717fa52ce4f58",
-      "text": "Executa uma atualização da instalação em um processo que sobrevive ao spaCR.\n\nAs cópias criadas pelo instalador e os ambientes POSIX dedicados com pip suportados podem usar este assistente. Este espera que o processo em execução termine antes de alterar a instalação; o adaptador pip também exige uma aprovação autenticada do encerramento.\n\nPara uma instalação online de macOS suportada, usa o ``uv`` incluído existente e o Python privado para atualizar o spaCR no mesmo ambiente. Preserva o diretório do ambiente, os arquivos de inicialização, o lançador do aplicativo e os pacotes instalados que não precisam de atualização. Reinicia somente depois de verificar que a versão instalada é pelo menos ``version`` e mais nova que a versão anterior, quando essa versão anterior é conhecida. Uma atualização ou verificação de versão com falha não aciona remoção nem um instalador de substituição.\n\nO procedimento normal de substituição descarrega e executa o novo instalador que prepara a instalação, verifica o seu interpretador real e a aplicação importada e, em seguida, remove outras cópias e inicia a aplicação. Uma falha na instalação ou na verificação não remove a cópia anterior que funcionava. Uma falha ao remover outras cópias é registada sem voltar a iniciar a aplicação.\n\n:param records: instalações vindas de :func:`find_old_installs`.\n:param version: a versão a instalar.\n:param ticked: raízes dos ambientes que o usuário marcou.\n:param pid: o processo pelo qual esperar; este processo quando o valor é ``None``.\n:param workdir: a pasta do processo auxiliar; uma nova pasta temporária quando o valor é ``None``.\n:param system: o computador; ``None`` significa este computador.\n:param spawn: substitui o iniciador do processo desanexado.\n:returns: o plano como foi gravado em ``plan.json``. ``plan[\"command\"]`` é o comando do processo auxiliar, ou ``None``, caso em que ``plan[\"error\"]`` diz por que nada foi iniciado.\n\nUm pacote de aplicativo macOS congelado em um local no qual o usuário pode gravar usa seu adaptador de substituição por DMG verificado e mantém o pacote anterior completo. As outras famílias de aplicativos congelados retornam um erro antes de remover qualquer coisa; o programa auxiliar não habilita uma alternativa por instalador on-line para esses aplicativos.",
+      "source_sha256": "1b3b99d8445c0b51ada6dd8d22c36032699cbdfd5a9f45ccd466e58bf3ade533",
+      "text": "Executa uma atualização da instalação em um processo que sobrevive ao spaCR.\n\nAs cópias criadas pelo instalador e os ambientes dedicados POSIX ou Windows com pip suportados podem usar este assistente. Este espera que o processo em execução termine antes de alterar a instalação; o adaptador pip também exige uma aprovação autenticada do encerramento.\n\nPara uma instalação online de macOS suportada, usa o ``uv`` incluído existente e o Python privado para atualizar o spaCR no mesmo ambiente. Preserva o diretório do ambiente, os arquivos de inicialização, o lançador do aplicativo e os pacotes instalados que não precisam de atualização. Reinicia somente depois de verificar que a versão instalada é pelo menos ``version`` e mais nova que a versão anterior, quando essa versão anterior é conhecida. Uma atualização ou verificação de versão com falha não aciona remoção nem um instalador de substituição.\n\nO procedimento normal de substituição descarrega e executa o novo instalador que prepara a instalação, verifica o seu interpretador real e a aplicação importada e, em seguida, remove outras cópias e inicia a aplicação. Uma falha na instalação ou na verificação não remove a cópia anterior que funcionava. Uma falha ao remover outras cópias é registada sem voltar a iniciar a aplicação.\n\n:param records: instalações vindas de :func:`find_old_installs`.\n:param version: a versão a instalar.\n:param ticked: raízes dos ambientes que o usuário marcou.\n:param pid: o processo pelo qual esperar; este processo quando o valor é ``None``.\n:param workdir: a pasta do processo auxiliar; uma nova pasta temporária quando o valor é ``None``.\n:param system: o computador; ``None`` significa este computador.\n:param spawn: substitui o iniciador do processo desanexado.\n:returns: o plano como foi gravado em ``plan.json``. ``plan[\"command\"]`` é o comando do processo auxiliar, ou ``None``, caso em que ``plan[\"error\"]`` diz por que nada foi iniciado.\n\nUm pacote de aplicativo macOS congelado em um local no qual o usuário pode gravar usa seu adaptador de substituição por DMG verificado e mantém o pacote anterior completo. As outras famílias de aplicativos congelados retornam um erro antes de remover qualquer coisa; o programa auxiliar não habilita uma alternativa por instalador on-line para esses aplicativos.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "fe55c4b9b1588b8c1e9ed7a73edcfc3e971b90623c4dd9493b792d1331653332",
+        "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -122724,6 +122724,30 @@
         "c62e10ce1eb1fe4decefb235d0d5d22f9c2517958303b3a26f320a6faa8f72c1"
       ]
     },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent": {
+      "source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ],
+      "source_sha256": "69a9364e8a0229bb8a073f8627aa7ae69d31f3a7d9610398ae9b38cb749f57a6",
+      "text": "Redesenhar o contorno quando o controlo de alternância recebe o foco do teclado.\n\n:param event: evento de entrada do foco, encaminhado para QLabel.",
+      "translation_source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent": {
+      "source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ],
+      "source_sha256": "64ee22fd609b5f1d712cc397752c4c96d2edce27a80723669b2619e600787634",
+      "text": "Remover o contorno quando o foco do teclado sai do controlo de alternância.\n\n:param event: evento de saída do foco, encaminhado para QLabel.",
+      "translation_source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ]
+    },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.isChecked": {
       "source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
@@ -122732,6 +122756,20 @@
       "text": "Retorna True quando a alternância de IA está ativada.",
       "translation_source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent": {
+      "source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
+      ],
+      "source_sha256": "ce756b8b94078aea7902d8e002322345ca4281a01d774b7683533b224ad37638",
+      "text": "Alternar uma vez com Espaço, Return ou Enter numérico sem teclas modificadoras enquanto o controlo tem o foco.\n\nAs repetições automáticas de teclas são consumidas sem alterar o estado. Os outros eventos do teclado são encaminhados para QLabel. A ativação utiliza :meth:`setChecked`, preservando o sinal existente de mudança de estado e as ligações de encaminhamento.\n\n:param event: evento de pressão de tecla entregue ao controlo de alternância.",
+      "translation_source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.minimumSizeHint": {
@@ -122756,6 +122794,18 @@
       "translation_source_blocks_sha256": [
         "e2782bb5437f555ce9b914dd425050d466a7c5d86a68fac6ad6544f9e6403b36",
         "54cc92a0af8ecedc88268ae27a5636ff8c0f832e6d5aa201dc090e781ef85972"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent": {
+      "source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
+      ],
+      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
+      "text": "Desenhar o rótulo e o seu contorno em cache enquanto tem o foco do teclado.\n\n:param event: pedido de desenho, passado a QLabel antes de desenhar o contorno.",
+      "translation_source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.resizeEvent": {

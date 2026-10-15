@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "scope": "Exactly nine superseded mouse-only help caption review rows retired with all original fields preserved.",
+  "review_kind": "Independent technical review of coordinator retirement change; reviewer authored neither these old records nor the retirement. Reviewer authored the separate new caption targets, which have independent coordinator approval.",
+  "commit": "2c9d312c49e0edab66a89f29b9aefac5e6017dd1",
+  "base_commit": "79dfe3a2f49f88c13f79ed309432a7dd015f81af",
+  "retired_source": "Drag this edge to make the help area taller or shorter.",
+  "replacement_source": "Drag this edge or use Up and Down to resize the help area.",
+  "bindings": [
+    {
+      "language": "sv",
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-08-help-organism.json",
+      "before_file_sha256": "97fb3741cade4c37e6ccdcb3f11b0c1c7f65741a260f093d1739e4ff51ce85c2",
+      "after_file_sha256": "666beda1c86dfc3a381f81aac001705b379d8733c3505216e5ea7087d3bb98d4",
+      "retired_record_sha256": "5f9832dc69ac8aa9fa7cfeea94b1fdc2950b964dfc9ef19b38e92f70a43d27da",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "de",
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-08-help-organism.json",
+      "before_file_sha256": "fc752583e82fb161710f7255a054c5bb9ac0e246077891eb5c4ef6a7c36fa504",
+      "after_file_sha256": "52f07e89fb686bcec02f0efe7cbdd7c7182bd9976d4756053022e15da0f805c6",
+      "retired_record_sha256": "753c9e60218620e96713dc99cba943a59b5fbac923a22440d85216e62ac34494",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "es",
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-08-help-organism.json",
+      "before_file_sha256": "4e89b188466fffdec3c3a6abad7129d62323f7dbee9945ac443e9024d22c209f",
+      "after_file_sha256": "8032822e3a899e552b7d3f1e40e2d7544bf6b594c0312d80fce5aeac46b4f262",
+      "retired_record_sha256": "6761b47066d08ef77a45d47880704ea114a68e8ad6c30a7cfc98cbf404cb7b2e",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "fr",
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-08-help-organism.json",
+      "before_file_sha256": "88aac0b2eee0a62a0bd99568c192be91022d1a7f8b8baf93b5a5ea26fa830c93",
+      "after_file_sha256": "45fb87b14b44037b49f29b4efe90e3b389bf65017eeb1bc94d9d4506bebe7215",
+      "retired_record_sha256": "58ddeeeaff35e669bd5b75d4dd1457e7fc0ba95ec9f6fb1ffdc11ebe5c4f2cc2",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "pt",
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-08-help-organism.json",
+      "before_file_sha256": "a190e3d0cd3cbc0c6f12a4ab0e770b7f9b51fac0d0dfe87c6c8337252058b063",
+      "after_file_sha256": "7d54c3fa9623e00920b3126f668ddab0556bc50b46c8a414bb33798261a46be0",
+      "retired_record_sha256": "d1590a77b384d115f9304438691e645d96282fc43d6467e63ff194b84bd7aa51",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "is",
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-08-help-organism.json",
+      "before_file_sha256": "b27d836b5bd1a3e9ae033465df0ea1cf93ecb5af74c35ffebf767a2fa7870dc5",
+      "after_file_sha256": "05c643544369369a2230fcecbb663efd5d40cd9d1ab3131c6bab545d96df6460",
+      "retired_record_sha256": "9358c80ef29c61c622959f57dbeb43db9ed7a64717d13ea2cb2a407d242f5c4b",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "zh_CN",
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-08-help-organism.json",
+      "before_file_sha256": "11eb165ad43a2e0ae88e1b7d21964e582a11d12d859c9191952719063f113cdf",
+      "after_file_sha256": "36900e877a76dc556224fa2aaee647ddffbb842dbde97d0e6d57c6b1b2e3b9ca",
+      "retired_record_sha256": "dab36e784b88cde2e57f633822c5e1c723870567eeb3a40141998d8ff5d3bb53",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "hi",
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-08-help-organism.json",
+      "before_file_sha256": "eea53a009c6d857c04ce49afad9a16f4909f188c881a1d83b591c633c4348ad1",
+      "after_file_sha256": "b3192316a12cd367ce8f80d5b81741dc461ab6eb5279e03e99edd04dd57035d5",
+      "retired_record_sha256": "38f9c6386b02ed702af7f40069b900dd5bd89bb145d87ccd1b574d5cce01cdb8",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    },
+    {
+      "language": "ko",
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-08-help-organism.json",
+      "before_file_sha256": "638b3520ab46c5ccbab76e89149cc401e7bb54c672b49aca4b5e24188cbb7b0f",
+      "after_file_sha256": "75fd271f0ecdd69f815c4f1b94e594c3555d4a347018c6d10517bb5d544c1a40",
+      "retired_record_sha256": "2914ad4d5d6930d7a2f06096ba51bd0daa4276a4ee259fa02168cd47b138a6fe",
+      "result": "PASS: exact original row retained; all other payload fields and live rows unchanged"
+    }
+  ],
+  "provenance_sha256": "12738c53510b1cd8ecb7e956323cdd2fb280a9f8ebd646d6a9c6989b453f9ed2",
+  "provenance_raw_sha256": "75a876a1bc2b610cd1ec258ef122ecfdae3c75663512c6d2a602c6eec70040d6",
+  "normal_refusal_receipt_sha256": "54cba18e70f5a4f2d42033d9bd490ebf0026ab06b2b359539ea3b833365c24d9",
+  "normal_refusal_log_sha256": "5f752b280cc4ed19be32a37512a510fa7c44c28eb8934c0d65f5e4c42fca2a77",
+  "loader_file": "tools/build_i18n_catalogs.py",
+  "loader_sha256": "c7b70b1f4e114b883f970cce6c86c47d4f92bf96cd5545166c859c94c255d4f3",
+  "findings": [
+    "All nine before payloads exactly equal the parent commit; every retired row is identical to its former active record.",
+    "Unrelated live records, previously moved Organism rows, provenance text and metadata remain exact.",
+    "Only the supported retired_records container and precise retirement note are added.",
+    "The two implementation files contain the replacement source and no old literal. The saved normal canonical-source receipt reports only the owned old-source departure and no unrelated English source drift.",
+    "The actual normal loader refusal is preserved; no loader or gate change appears in this commit."
+  ],
+  "limits": [
+    "No canonical collector, generation, test or model execution repeated by this peer.",
+    "The saved normal canonical collection is producer evidence; this peer validates its receipt and exact record transitions.",
+    "Final regenerated catalogs and user-facing behavior are separate acceptance artifacts."
+  ]
+}

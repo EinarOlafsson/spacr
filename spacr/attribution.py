@@ -3138,11 +3138,20 @@ def _counterfactual_sequences(model: nn.Module,
     if preserved and not torch.isfinite(crops.float()).all():
         from .qt.i18n import tr
         raise ValueError(tr("Reference crops must contain finite pixels."))
+    n = generator.n_classes
+    if targets is not None:
+        checked_targets = []
+        for target in targets:
+            if isinstance(target, torch.Tensor) and target.ndim == 0:
+                target = target.item()
+            if isinstance(target, (bool, np.bool_)):
+                target = int(target)
+            checked_targets.append(_cf_target_index(target, [], n))
+        targets = checked_targets
     device = torch.device(device)
     wrapped = ClassScoreModel(model).to(device).eval()
     generator = generator.to(device).eval()
     crops = crops.float().to(device)
-    n = generator.n_classes
     src, target_probs = _cf_codes(wrapped, crops, labels, target_probs)
     target_probs = target_probs.to(device)
     tgt = (src + 1) % n if targets is None else torch.as_tensor(targets).long()
@@ -3295,9 +3304,14 @@ def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
             raise ValueError(f'target condition {text!r} is not among the '
                              f'training conditions {list(levels)}')
         return list(levels).index(text)
+    from decimal import Decimal, InvalidOperation
+
     try:
-        index = int(float(text))
-    except ValueError:
+        number = Decimal(text)
+        index = (int(number) if number.is_finite()
+                 and number == number.to_integral_value()
+                 and 0 <= number < int(n_classes) else -1)
+    except (ValueError, InvalidOperation):
         index = -1
     if not 0 <= index < int(n_classes):
         raise ValueError(f'target class {text!r} is not a class index from '

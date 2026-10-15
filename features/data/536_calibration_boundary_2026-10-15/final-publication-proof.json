@@ -1,0 +1,47 @@
+{
+  "immutable_incoming_public": "71fb782dc7f09cd088cf5fb10bef75445a16ce41",
+  "tested_coherent_premerge_closure": "6b8415a8f2498d178e63b38833e505f42949aa89",
+  "final_normal_merged_runtime_audit_exit": 0,
+  "unrelated_incoming_public_blobs_exact": 34104,
+  "all_incoming_foreign_runtime_targets_and_source_hashes_exact": {
+    "en": 10778,
+    "sv": 10778,
+    "de": 10778,
+    "es": 10778,
+    "zh_CN": 10778,
+    "pt": 10778,
+    "hi": 10778,
+    "fr": 10778,
+    "is": 10778,
+    "ko": 10778
+  },
+  "owned_final_delta": "Exactly one wound calibration UI row per catalog, exact approved reviews; all incoming HintBar additions/retirements preserved.",
+  "final_source_file_sha256": {
+    "spacr/measure.py": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
+    "tools/build_i18n_catalogs.py": "e534cb131ccbdcf630632ff37e6ad5b2450f6fe8c60066f6c96a6790e2e6c697",
+    "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "tests/test_wound_calibration_boundary.py": "0756d1fdefd60f215f87221b24e803c10effcd35c425674927be9a696f557e8b",
+    "tests/test_runtime_backend_caption_owners.py": "828d231b748741631055647df6ce3d94e691112ba6acf4c1108599a9d2012f69",
+    "tools/build_documentation_i18n.py": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "docs/source/_static/i18n/api/en.json": "bf310867b44608a195148a177a1336cbf0e1c773e75a85d44ba93106048d3f5a"
+  },
+  "foreign_API_tool_change": "Current tool adds README HTML picker checker and changes audit only; every other existing function/class AST including normal API collector/visibility is exact old7ca. Historical full API census remains source-bound; incoming generated API preserved, both private wound targets absent.",
+  "incoming_API_preserved_owned_private_symbols_absent": true,
+  "checks": "30owning and18actual locale callbacks retained source-bound and not rerun. Genuine incoming N655 HintBar runtime delta required one normal merged scoped9writer/full9audit/arrival with fresh original collector equality and frozen7source/tool/test/API hashes. Prior failed old-catalog-byte proof stopped before staging/push; no gate bypass.",
+  "limits": "Metadata input boundary/localization only; no biological calibration, whole F536, globalCI or release acceptance.",
+  "validated_tree_ids": {
+    "spacr": "97687ed802e2a97676bff374ca0718f09841d63d",
+    "tools": "9c097b0eb910561a9d924cdab764aaf74873b47e",
+    "docs": "e71ba042f0a4d4d1a427324c05e6af9fef58b4ca",
+    "tests": "96c08dcc12df82ff4640525846fccbd79b964514"
+  },
+  "artifact_sha256": {
+    "spacr/measure.py": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
+    "tools/build_i18n_catalogs.py": "e534cb131ccbdcf630632ff37e6ad5b2450f6fe8c60066f6c96a6790e2e6c697",
+    "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "tests/test_wound_calibration_boundary.py": "0756d1fdefd60f215f87221b24e803c10effcd35c425674927be9a696f557e8b",
+    "tests/test_runtime_backend_caption_owners.py": "828d231b748741631055647df6ce3d94e691112ba6acf4c1108599a9d2012f69",
+    "tools/build_documentation_i18n.py": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "docs/source/_static/i18n/api/en.json": "bf310867b44608a195148a177a1336cbf0e1c773e75a85d44ba93106048d3f5a"
+  }
+}

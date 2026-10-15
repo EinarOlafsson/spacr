@@ -17,7 +17,9 @@
       "source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
       "context": "Installer-made copies and supported dedicated POSIX pip environments can use this helper. It waits for the executing process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
       "translation": "由安装程序创建的副本和受支持的专用 POSIX pip 环境可使用此助手。助手等待正在运行的进程退出后才更改安装；pip 适配器还要求经过身份验证的关闭批准。",
-      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff."
+      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff.",
+      "retired": "2026-10-15",
+      "retired_reason": "This exact paragraph now also names supported dedicated Windows pip environments; the obsolete POSIX-only wording is preserved here as historical review evidence."
     }
   ]
 }
