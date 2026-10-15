@@ -335,3 +335,17 @@ runs (125 initial, 28 additional setup checks, and two added lifecycle cases).
 The final nine terminal lifecycle checks pass in5.93s; fatal-error Ruff passes.
 
 VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-15 — Embedded POSIX sign-in preserves split UTF-8 prompts.
+An unchanged-source forced-short-read baseline reproduced four failures: valid
+multibyte prompts were replaced by corrupted characters, and a single truncated
+sequence emitted two replacement characters. Four ASCII/invalid-byte controls
+already passed. Each terminal pump now retains one incremental UTF-8 decoder
+and flushes pending bytes once when EOF or the terminal-read OSError ends it.
+Final source: 17 PASS in10.07s (eight new deterministic read-boundary cases plus
+nine existing local-PTY/sign-in lifetime checks). Pump coverage is14/14statements
+and6/6branches, no exclusions; focused module coverage93.14%. Existing API prose,
+authentication/cancellation contracts and runtime captions are unchanged.
+Evidence: features/data/n420_incremental_terminal_utf8_2026-10-15/.
+This is transport correctness using local stand-ins, not vendor authentication,
+Windows fallback/native desktop acceptance or whole-item420 completion.
