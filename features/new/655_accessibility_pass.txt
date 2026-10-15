@@ -565,3 +565,12 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   Final45PASS7.21s,9.81s wall,595748KiB peak,2G/offscreenQt6.12/thread1.
   Five private methods excluded; all public/old mouse/selection AST unchanged.
   Evidence:data/655_plate_well_focus_2026-10-15/contrast-followup.json.
+
+2026-10-15 — Explicit application palette fixture corrected
+  Independent review caught that apply_qpalette(app) defaults to Dark even
+  when the test stylesheet changes. Passing scheme explicitly is the only
+  fixture edit; production5bf source and all assertions remain exact. Only
+  the six affected focus/selection cases were replayed:6PASS2.38s,4.79s wall,
+  578968KiB peak. These establish actual Dark/Light/High contrast palettes;
+  the earlier45 result remains evidence at its original narrower scope.
+  Evidence:data/655_plate_well_focus_2026-10-15/palette-fixture-followup.json.

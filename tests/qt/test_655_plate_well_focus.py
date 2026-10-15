@@ -33,7 +33,7 @@ def plate(qtbot, monkeypatch, tmp_path):
 @pytest.mark.parametrize('selected', [False, True])
 def test_focus_changes_pixels_and_tracks_strong_preference_on_open_well(plate, scheme, selected):
     preferences.set_theme_choice(scheme)
-    theme.apply_qpalette(QApplication.instance())
+    theme.apply_qpalette(QApplication.instance(), scheme)
     plate.setStyleSheet(theme.stylesheet())
     well = plate._wells[(1, 1)]
     well.setChecked(selected)
