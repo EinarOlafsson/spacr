@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "component": "N703 explicit private-runtime Nightly versions and same-second source-cache collision repair",
+  "time": "2026-10-15T01:35:34.626301-04:00",
+  "base": "da001be69284dea012f94c783b68a9384e0cceda",
+  "files": {
+    "spacr/install_cleanup.py": {
+      "sha256": "eb49488238be17f85917ca7391e9fcc26bb7f44afd2bc2844b45b47093b063af",
+      "bytes": 201056
+    },
+    "tests/test_nightly_private_runtime_update_703.py": {
+      "sha256": "9359ac91c71d3a67f17c562ee03ee894b735530a869d14ccc15700cc9558b9fa",
+      "bytes": 9780
+    },
+    "tests/test_runtime_source_timestamp_collision_703.py": {
+      "sha256": "922fc5435f7f4969fe9fd162f4f619630b3ce3e882491ea5a29ec62e1225bf35",
+      "bytes": 3084
+    }
+  },
+  "runs": {
+    "baseline": {
+      "exit": 1,
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 0.748
+    },
+    "owning": {
+      "exit": 1,
+      "tests": 92,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 68.624
+    },
+    "closure": {
+      "exit": 1,
+      "tests": 59,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 41.91
+    },
+    "cache-closure": {
+      "exit": 0,
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 4.764
+    }
+  },
+  "final_source_acceptance": {
+    "distinct_cases": 59,
+    "passed_on_frozen_source_before_fixture_fix": 57,
+    "corrected_two_fixture_cases": 2,
+    "reused_prior_unchanged_handshake_and_stable_plan_cases": 35,
+    "no_duplicated_test_counts": true
+  },
+  "cache_cause": "Old external PYTHONPYCACHEPREFIX caches and updated same-size sources shared integer-second mtimes. Isolated probes ignored the external cache while the normal generated console read old code.",
+  "cache_repair": "Only changed regular staged .py sources with equal old/new byte size and integer-second mtime receive old+2 whole-second mtime before imports. Old runtime and external cache are not removed or rewritten by updater. Test proves cache complete byte-hash inventory identical immediately after activation, then real console naturally may refresh its cache. Retained old runtime inventory remains identical.",
+  "version_scope": "Canonical PEP440 private POSIX pip and modeled macOS online uv commands; explicit dev/prerelease/local targets pinned and exactly verified; numeric stable N627 commands remain unpinned/minimum; frozen Apple constraints unchanged.",
+  "prose": {
+    "existing_api_docs_unchanged": true,
+    "new_documented_private_helpers": [
+      "_runtime_requested_version",
+      "_runtime_version_compare"
+    ],
+    "new_user_caption_sources": []
+  },
+  "limits": [
+    "No actual HTTP request or live install",
+    "Linux disposable real venv/pip tiny offline fake wheels; macOS uv executable is a subprocess adapter to real offline pip, not real native uv",
+    "Windows private-runtime adapter and native macOS/Windows acceptance remain open",
+    "Global caption/API owner holds are neither changed nor certified",
+    "No full CI, release or whole-feature acceptance claimed"
+  ]
+}
