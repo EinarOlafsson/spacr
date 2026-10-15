@@ -57227,11 +57227,11 @@
     "spacr.qt.preferences.get_startup_animation": {
       "source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ],
-      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
-      "text": "Whether the startup photomosaic blows away when spaCR is ready.\n\nPreferences > Animation > Startup animation. Reduce motion overrides it.\n\n:returns: ``True`` unless the switch was turned off; on by default."
+      "source_sha256": "3f7ad6f39cae82cafbcd3f0d3d7d7de21466cabc2acce2c39e83ee07fe8adbc3",
+      "text": "Whether the startup photomosaic blows away when spaCR is ready.\n\nPreferences > Appearance > Animation > Startup animation. Reduce motion\noverrides it.\n\n:returns: ``True`` unless the switch was turned off; on by default."
     },
     "spacr.qt.preferences.get_strong_focus": {
       "source_blocks_sha256": [
@@ -75777,12 +75777,12 @@
     "spacr.qt.theme.focus_ring_qss": {
       "source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ],
-      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
-      "text": "The rules that put a thick ring round the keyboard-focused control.\n\nPreferences > Appearance > Accessibility > Stronger focus outlines. A\n1 px accent border is the only focus mark the themes draw, and on a\nbusy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX`\nwide in :func:`focus_ring_colour`.\n\n:param theme: one of :data:`THEMES`.\n:returns: QSS, appended last by :func:`stylesheet` while the\n    preference is on."
+      "source_sha256": "0fc1ce6b7b20e5b7c66850c951c0c7b0949f141bc5ed872081f0a6f1bb0b1c0f",
+      "text": "The rules that put a thick ring round the keyboard-focused control.\n\nPreferences > Appearance > Accessibility > Stronger focus outlines.\nThese rules replace the listed widgets' normal focus borders with a\n:data:`FOCUS_RING_PX`-pixel border in :func:`focus_ring_colour`.\n\n:param theme: one of :data:`THEMES`.\n:returns: QSS, appended last by :func:`stylesheet` while the\n    preference is on."
     },
     "spacr.qt.theme.font_px": {
       "source_blocks_sha256": [
@@ -80029,11 +80029,11 @@
       "source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "ebc6c311e7f8e90747e37132d95f7e7554165f00a6d747ecc5b50f8c69ddd3e3",
-        "b7c043c24743e7176b9e75b8f634b4b24b651ac5a997fb82f3fd2503ce342b16",
+        "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
         "a34f954babda05655f0c60cd07273c3e678f790c323d8f15cb3cd8984766c143"
       ],
-      "source_sha256": "bf06e84aaa4ba562f7583ac1c93755f699f512f5312671236615458f684399bb",
-      "text": "Show the measured cells represented by a regression coefficient.\n\n:mod:`spacr.cell_montage` selects the objects and records the selection reason;\nthis module resolves and displays their image crops beside the run's figures.\nEach attached database resolves its own exported-PNG or ``merged/<fov>.npy``\nsource so multi-plate montages can combine experiments with different storage\nlayouts. The crop mask plane and channels come from :class:`spacr.crops.CropSpec`\nor, by default, the run's ``measurements.db`` metadata.\n\nImage reads run through :class:`spacr.qt.job_runner.JobRunner` and only the\nGUI-thread completion handler updates widgets. Converting at most 300 crops to\n``QPixmap`` remains on the GUI thread because QPixmap is not transferable\nacross threads; the recorded 224-pixel thumbnail conversion takes about\n21 milliseconds for 300 crops.\n\nThe tab stays visible when crops are unavailable and reports the reason in its\nstatus, tooltip, and disabled action. Crop-source discovery is cached after a\nload and invalidated when the coefficient, databases, or crop settings change."
+      "source_sha256": "e41c56ed2ac7a0e2892de57c453c74115298ba8630c716a9133db8e0059c3332",
+      "text": "Show the measured cells represented by a regression coefficient.\n\n:mod:`spacr.cell_montage` selects the objects and records the selection reason;\nthis module resolves and displays their image crops beside the run's figures.\nEach attached database resolves its own exported-PNG or ``merged/<fov>.npy``\nsource so multi-plate montages can combine experiments with different storage\nlayouts. The crop mask plane and channels come from :class:`spacr.crops.CropSpec`\nor, by default, the run's ``measurements.db`` metadata.\n\nImage reads run through :class:`spacr.qt.job_runner.JobRunner` and only the\nGUI-thread completion handler updates widgets. The montage cap limits the\nselected objects and defaults to :data:`spacr.cell_montage.MAX_OBJECTS`\n(2,000). Converting image arrays to ``QPixmap`` occurs on the GUI thread;\nimage loading and crop selection occur in the worker.\n\nThe tab stays visible when crops are unavailable and reports the reason in its\nstatus, tooltip, and disabled action. Crop-source discovery is cached after a\nload and invalidated when the coefficient, databases, or crop settings change."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView": {
       "source_blocks_sha256": [
@@ -89154,23 +89154,23 @@
     "spacr.qt.widgets.figure_queue": {
       "source_blocks_sha256": [
         "05ee442e2e23be7c6b1b3971cc43ee7d5f73765b8338df6b0ecf767e52252522",
-        "1734036571703c85bfba4bfe861fe038edf94432b499fd955e636becd990b60c",
+        "0a8a923a7290e46fa98b9d549f11e960c2cae85b3caf76eee84b0ce2bd6aafb2",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ],
-      "source_sha256": "64b6b80b8eedef4b6e8d13955ceee484ac26147d13296a577b475be5fd0dcb0a",
-      "text": "Collect, navigate, and restyle figures emitted by a pipeline run.\n\nThe panel combines a thumbnail strip, forward/back controls, a position label,\nand a zoomable full-resolution view. Every arriving figure is written to a\ntemporary PNG. The newest 100 full-resolution ``QPixmap`` objects remain in\nmemory; older entries reload their PNG on demand, while thumbnails stay in\nmemory. Clearing the queue or destroying its owner removes the temporary\ndirectory.\n\nIn PDF mode, the PNG preview appears immediately and a worker rasterizes the\nvector page at 2,200 pixels before replacing it. This keeps the GUI responsive\nduring expensive vector rendering; the recorded nine-panel, 16-by-12-inch\nfigure required about 815 ms to rasterize synchronously."
+      "source_sha256": "2b6fc1e464daa8323dd5a108388a4f40d65d4d6c48507fcebbb173af482e2bdd",
+      "text": "Collect, navigate, and restyle figures emitted by a pipeline run.\n\nThe panel combines a thumbnail strip, forward/back controls, a position label,\nand a zoomable full-resolution view. Every arriving figure is written to a\ntemporary PNG. Full-resolution ``QPixmap`` objects use a least-recently-used\ncache, limited by the ``ram_cap`` entry count (100 by default). Evicted entries\nreload their PNG on demand, while thumbnails stay in memory. Clearing the\nqueue or destroying its owner removes the temporary directory.\n\nIn PDF mode, the PNG preview appears immediately and a worker rasterizes the\nvector page at 2,200 pixels before replacing it. This keeps the GUI responsive\nduring expensive vector rendering; the recorded nine-panel, 16-by-12-inch\nfigure required about 815 ms to rasterize synchronously."
     },
     "spacr.qt.widgets.figure_queue.FigureQueue": {
       "source_blocks_sha256": [
         "184c45133afc5f52807a3a2b81277f6bddebaddec93f1c0192c74ddb52afabcc",
-        "c174d732cf708ee9800172bb8c81ff8518022b93cea74f050f12ee407c7269be",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "2bfd5ab3ce97ffd6cbf7d8a5e199183b26d6f638397bcbcdd9b06af763a52cdc",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "ae5bd2e960eb0870e236582b252e0f10ab1493ba35e62861462af1b4a62ab062",
-      "text": "Scrollable, RAM-bounded gallery of pipeline figures.\n\n:param ram_cap: how many bytes of figures the gallery may hold. Older\n    figures are dropped to stay under it, which is what \"RAM-bounded\"\n    above means -- a pipeline emitting hundreds of figures must not grow\n    without limit.\n:param parent: parent widget.\nBuild the figure queue.\n\n:param ram_cap: how many bytes of full-resolution pixmaps to keep in\n    memory; older ones are evicted by least-recent use.\n:param parent: parent widget, or ``None``."
+      "source_sha256": "c59f395d1af2db49d9066d9a06e796ac01bc0fe589e85da0580b4e888e56291e",
+      "text": "Scrollable, RAM-bounded gallery of pipeline figures.\n\n:param ram_cap: maximum number of full-resolution pixmaps in the RAM\n    cache, 100 by default. Least-recently-used entries are evicted;\n    their PNG files remain available for reloading. This is an entry\n    count, not a byte limit or a limit on all process memory.\n:param parent: parent widget.\nBuild the figure queue.\n\n:param ram_cap: maximum number of full-resolution pixmaps to cache\n    in memory, 100 by default; entries are evicted by least-recent use.\n:param parent: parent widget, or ``None``."
     },
     "spacr.qt.widgets.figure_queue.FigureQueue.__del__": {
       "source_blocks_sha256": [
@@ -89477,10 +89477,10 @@
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ],
-      "source_sha256": "36faddaa4e53d2c8cb75173764820f365a675b8d47e6648532156ed7b45a995d",
-      "text": "Return every text object attached to a Matplotlib figure.\n\nIncludes axis titles and labels, tick labels, annotations, legends and\nlegend titles, the figure title, and text stored directly on the figure.\nThe function has no Qt dependency and is safe to call from the figure\nrendering worker.\n\n:param fig: Matplotlib figure to inspect.\n:returns: Text objects in traversal order, with duplicate objects removed."
+      "source_sha256": "0533bfe48e0bb81671d16c9e1d183cab130d86863509b702edab6eb71cae568b",
+      "text": "Return every text object attached to a Matplotlib figure.\n\nIncludes axis titles and labels, tick labels, annotations, legends and\nlegend titles, the figure title, and text stored directly on the figure.\nThe function has no Qt dependency and is safe to call from the figure\nrendering worker.\n\n:param fig: Matplotlib figure to inspect.\n:returns: Text objects in traversal order, omitting missing entries.\n    Repeated references are retained."
     },
     "spacr.qt.widgets.figure_queue.figure_text_size_override": {
       "source_blocks_sha256": [
@@ -99093,14 +99093,12 @@
     },
     "spacr.qt.widgets.loading_screen": {
       "source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "966d19113647321bd2952fc71d33d47463e23d515ad93ff653ed13e75bc65b45",
-        "aaef0d5cce47f0c0de331228126728fc18b205ead2ccd1483b74db3e02cb811d",
-        "dfac6cc31c8ddd27935cd584523d2559c8b149fda7bf9918e493813ea508bab5",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "d5cdd19db82248472abddbc3a3a038aebd742124e1467a731f7853087f11a6be",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ],
-      "source_sha256": "27f0798de29d105437d2ffe515d0cb7607f35447e7126829ab6025a7db4ea1ce",
-      "text": "The screen that covers the preload.\n\nspaCR imports ~3.1 s of heavy modules (torch, cellpose, pandas and the\npipeline that depends on them) before the first click on a module can be\ninstant. Measured on a real windowed launch: ``spacr.core`` alone is 1968 ms\nand ``spacr.deep_spacr`` 711 ms.\n\nThose imports have to run on the main thread -- doing them on a worker races\nQt's own GPU initialisation and segfaults, which is recorded above\n:class:`spacr.qt.app._PipelinePreloader`. The event loop is therefore blocked\nfor seconds, and a window that looked interactive during that time would not\nrespond.\n\nThis screen covers the whole window until the imports are done, so the\nblocked event loop is not mistaken for a hung window.\n\nProgress is shown by the strap line rather than a bar: the three phases of\n:data:`STRAP_LINE` light up in turn as the modules load -- microscopy, then\nsingle-cell analysis, then genotype-to-phenotype. The denominator is the\nnumber of modules, which is known before the first one is imported."
+      "source_sha256": "4605eda09bd7bda7a1cb31af86456afb7a578da00f24bbef56d20c257ffcbb98",
+      "text": "Full-window loading cover and startup photomosaic animation.\n\nThe application shows this cover while constructing its window. With eager\npreloading, :class:`spacr.qt.app._PipelinePreloader` imports pipeline modules\non a worker thread and reports progress through a GUI-thread timer. The\ndefault on-demand policy ends the loading phase without importing those\nmodules. The host then closes the cover or starts its photomosaic animation,\naccording to the startup preferences.\n\nReported progress lights the three phases of :data:`STRAP_LINE` and fills\nthe thin rule below them. :meth:`LoadingScreen.show_mosaic` replaces the\nplain logo with the photomosaic; :meth:`LoadingScreen.blow_away` animates\nits removal. :func:`replay_startup_animation` runs the sequence again over\nan existing window."
     },
     "spacr.qt.widgets.loading_screen.BlowAway": {
       "source_blocks_sha256": [
@@ -99152,7 +99150,7 @@
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
-        "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -99161,8 +99159,8 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
-      "text": "Full-window cover shown until the pipeline modules are imported.\n\nBy default it shows the white mark beside the strap line. Once\n:meth:`show_mosaic` is called it shows the spaCR photomosaic above the\nstrap line instead, and :meth:`blow_away` ends it by blowing the mosaic's\ntiles off the window to reveal the window underneath.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.\nBuild the splash that covers the window while it is being assembled.\n\nOpaque by construction: it covers a partly-built window, and any\ntransparency would show the thing it exists to hide.\n\n:param total: how many steps the progress bar counts to; ``0`` shows no\n    proportion.\n:param parent: the window to cover; its geometry is adopted."
+      "source_sha256": "0807e66d934569840a2ccbaefc680a27d1382cadbdd43e7693d3db66870f20ac",
+      "text": "Full-window loading cover with optional photomosaic animation.\n\nBy default it shows the white mark beside the strap line. Once\n:meth:`show_mosaic` is called it shows the spaCR photomosaic above the\nstrap line instead, and :meth:`blow_away` ends it by blowing the mosaic's\ntiles off the window to reveal the window underneath.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.\nBuild the splash that covers the window while it is being assembled.\n\nOpaque by construction: it covers a partly-built window, and any\ntransparency would show the thing it exists to hide.\n\n:param total: how many steps the progress bar counts to; ``0`` shows no\n    proportion.\n:param parent: the window to cover; its geometry is adopted."
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.advance": {
       "source_blocks_sha256": [
@@ -99344,21 +99342,21 @@
     "spacr.qt.widgets.loading_screen.replay_startup_animation": {
       "source_blocks_sha256": [
         "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
-        "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
         "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
         "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
       ],
-      "source_sha256": "88130e5f0782b49181e0ee84ec9edf91ddb5807be7c1c774e5a20c02e381d96b",
-      "text": "Play the startup sequence again inside ``window``.\n\nHelp > Show startup animation. The black container with the logo comes\nback over the window, holds for two seconds and blows away as it does\nat startup. It plays even when Preferences > Animation > Startup\nanimation is off; under Accessibility > Reduce motion the logo holds and\nthen cross-fades away in one second. A click or a key skips it. The\nwindow's size, state and keyboard focus are left as they were.\n\n:param window: the window to play it in.\n:returns: the cover now playing, or ``None`` when the logo cannot be\n    read or a cover is already over the window."
+      "source_sha256": "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5",
+      "text": "Play the startup sequence again inside ``window``.\n\nHelp > Show startup animation. The black container with the logo comes\nback over the window, holds for two seconds and blows away as it does\nat startup. It plays even when Preferences > Appearance > Animation >\nStartup animation is off; under Preferences > Appearance > Accessibility\n> Reduce motion the logo holds and then cross-fades away in one second.\nA click or a key skips it. The window's size, state and keyboard focus\nare left as they were.\n\n:param window: the window to play it in.\n:returns: the cover now playing, or ``None`` when the logo cannot be\n    read or a cover is already over the window."
     },
     "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
       "source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ],
-      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
-      "text": "Whether the photomosaic may blow away when the window is ready.\n\nNo when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while\nAccessibility > Reduce motion is on, or when Preferences > Animation >\nStartup animation is off. A preference that cannot be read counts as\nno: a still cover is always safe.\n\n:returns: ``True`` when the blow-away should play."
+      "source_sha256": "668216481cc0366123ce5abcbd0c0e6e152c4e0de5177235e284c4e0826a7231",
+      "text": "Whether the photomosaic may blow away when the window is ready.\n\nNo when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while\nPreferences > Appearance > Accessibility > Reduce motion is on, or when\nPreferences > Appearance > Animation > Startup animation is off. An\nunreadable preference disables the animation.\n\n:returns: ``True`` when the blow-away should play."
     },
     "spacr.qt.widgets.loading_screen.strap_line": {
       "source_blocks_sha256": [

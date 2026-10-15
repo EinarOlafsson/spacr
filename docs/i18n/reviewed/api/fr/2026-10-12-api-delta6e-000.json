@@ -522,7 +522,10 @@
       "source_sha256": "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
       "context": "Preferences > Animation > Startup animation. Reduce motion overrides it.",
       "translation": "Preferences > Animation > Animation de démarrage. Réduire les animations l’emporte sur elle.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.preferences.get_startup_animation#2",
@@ -810,7 +813,10 @@
       "source_sha256": "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
       "context": "Preferences > Appearance > Accessibility > Stronger focus outlines. A 1 px accent border is the only focus mark the themes draw, and on a busy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX` wide in :func:`focus_ring_colour`.",
       "translation": "Preferences > Apparence > Accessibilité > Contours de focus renforcés. Un contour d’accent de 1 px est la seule marque de focus que dessinent les thèmes, et sur un arrière-plan chargé il est facile à perdre ; celui-ci a une largeur de :data:`FOCUS_RING_PX` dans :func:`focus_ring_colour`.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.theme.focus_ring_qss#2",
@@ -1122,7 +1128,10 @@
       "source_sha256": "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
       "context": "Full-window cover shown until the workflow modules are imported.",
       "translation": "Couverture pleine fenêtre affichée jusqu’à ce que les modules du pipeline soient importés.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.LoadingScreen#1",
@@ -1484,7 +1493,10 @@
       "source_sha256": "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
       "context": "No when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while Accessibility > Reduce motion is on, or when Preferences > Animation > Startup animation is off. A preference that cannot be read counts as no: a still cover is always safe.",
       "translation": "Non quand :data:`NO_SPLASH_ENV` est défini, sur la plateforme offscreen, tant qu’Accessibilité > Réduire les animations est activé, ou quand Preferences > Animation > Animation de démarrage est désactivé. Une préférence illisible compte pour non : une couverture immobile est toujours sans risque.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.startup_animation_allowed#2",

@@ -178,7 +178,10 @@
       "source_sha256": "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
       "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
       "translation": "Help > Show startup animation. Der schwarze Container mit dem Logo kommt zurück über das Fenster, bleibt zwei Sekunden stehen und wird weggeblasen wie beim Start. Es spielt auch dann, wenn Preferences > Animation > Startanimation aus ist; unter Barrierefreiheit > Bewegung reduzieren bleibt das Logo stehen und blendet dann in einer Sekunde aus. Ein Klick oder eine Taste überspringt es. Größe, Zustand und Tastaturfokus des Fensters bleiben unverändert.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#2",

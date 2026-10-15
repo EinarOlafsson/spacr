@@ -178,7 +178,10 @@
       "source_sha256": "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
       "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
       "translation": "Help > Show startup animation. 로고가 있는 검은 컨테이너가 창 위로 돌아와 2초 동안 유지된 뒤 시작할 때처럼 날려 보내집니다. Preferences > 애니메이션 > 시작 애니메이션이 꺼져 있어도 재생되며, 접근성 > 모션 줄이기에서는 로고가 유지된 뒤 1초에 걸쳐 페이드 아웃됩니다. 클릭하거나 키를 누르면 건너뜁니다. 창의 크기, 상태, 키보드 포커스는 그대로 둡니다.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#2",

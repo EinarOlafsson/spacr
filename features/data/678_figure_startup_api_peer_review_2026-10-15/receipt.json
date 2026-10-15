@@ -1,0 +1,641 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "reviewed_commit": "a1028d8caee6d4a65de0267e9babf6dc07443b79",
+  "reviewer": "Home-B website_686_687, independent of the author of these 117 targets",
+  "review_kind": "Independent AI technical semantic review; no human or native-speaker signoff",
+  "scope": "117 records, 13 blocks, 10 rendered API symbols, nine locales",
+  "decision": "115 PASS; two exact ES/PT worker-thread wording corrections requested",
+  "source_snapshot_sha256": "c6f0d0aca3454a6fc12659be19afb0e608adef1a428ae8346b6398db8869e484",
+  "source_files": {
+    "spacr/qt/widgets/figure_queue.py": {
+      "commit": "6ac69c5b82343b329c546f45fafa1a13567995e6",
+      "sha256": "d718f67355b30421e34e718b1a08f5df7bb644a6c0fa726a991ccf0cda7df8c2"
+    },
+    "spacr/qt/widgets/cell_montage_view.py": {
+      "commit": "6ac69c5b82343b329c546f45fafa1a13567995e6",
+      "sha256": "e75a7094a23b269283fcacd054517e851a346f884907170289e9999dc6f11625"
+    },
+    "spacr/qt/widgets/loading_screen.py": {
+      "commit": "c3b78f277dc7380a8718ef962d78637cfa7b264c",
+      "sha256": "ae3bf21dc0ac27b29f21d2dcd2e53f905270947a0af3ef47bfe5e0c061667855"
+    },
+    "spacr/qt/preferences.py": {
+      "commit": "c3b78f277dc7380a8718ef962d78637cfa7b264c",
+      "sha256": "fe7e4a7f53add4f5f645b9b0a119a9c08d47dda62a171b9c6cb41d4d2beb7f88"
+    },
+    "spacr/qt/theme.py": {
+      "commit": "c3b78f277dc7380a8718ef962d78637cfa7b264c",
+      "sha256": "70cec896248a67fb9ace7d247175a0a05eb6eb22e6a091ad5bf59b5839851a76"
+    },
+    "spacr/qt/job_runner.py": {
+      "commit": "6ac69c5b82343b329c546f45fafa1a13567995e6",
+      "sha256": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b"
+    }
+  },
+  "review_files_sha256": {
+    "docs/i18n/reviewed/api/de/2026-10-15-figure-startup-prose.json": "640855e8a401c25a241832ecdb5787fe50a20e4402ef0fc60a260b923f58a518",
+    "docs/i18n/reviewed/api/es/2026-10-15-figure-startup-prose.json": "c254096318c94b9cdbf94ca2f1cd2ffc5759115bd1bea822d128717cd4583c22",
+    "docs/i18n/reviewed/api/fr/2026-10-15-figure-startup-prose.json": "57f0af7557cbbab705c1eebb1f5ad0c822773122aaa85cf4c9b77b9f5bc6947d",
+    "docs/i18n/reviewed/api/hi/2026-10-15-figure-startup-prose.json": "cbb71fbb5f8626e9937856cedfd3d1e14f25312af50be4e73cf9905119376b85",
+    "docs/i18n/reviewed/api/is/2026-10-15-figure-startup-prose.json": "be08797058a1e98578cd33f7e76f19d520acbef86388dd2da616ce2c68a805fe",
+    "docs/i18n/reviewed/api/ko/2026-10-15-figure-startup-prose.json": "da559555e3ae82da01b20afd23efe02173cff88fdb7cc82da8a472bd63e92d27",
+    "docs/i18n/reviewed/api/pt/2026-10-15-figure-startup-prose.json": "d5ba0941e01429ea1ed2fbcbed9e753bb19974788680541fefae0cbd972dabec",
+    "docs/i18n/reviewed/api/sv/2026-10-15-figure-startup-prose.json": "192a5650a4c61348db0ffe318525a1be84dac69b8590d59cc0c1f7c595047c11",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-figure-startup-prose.json": "db6a0c2b07451f623e09b1d2440016d94188e723150a6b596dc988c92d92885e"
+  },
+  "coverage": [
+    {
+      "label": "spacr.qt.widgets.figure_queue#1",
+      "source_sha256": "0a8a923a7290e46fa98b9d549f11e960c2cae85b3caf76eee84b0ce2bd6aafb2",
+      "context_sha256": "b5a9ceb8ed447163c69bdd2a745df789636747344736a5ea88836769b407a6b7",
+      "semantic_review": "LRU eviction; ram_cap counts full-resolution pixmaps, default 100; retained PNGs reload on demand; thumbnails and temporary-directory lifecycle remain distinct.",
+      "targets": {
+        "de": {
+          "translation_sha256": "48c855280a8b8de5785102f83d68a356c489a679ac0b87127864caa15227f1c5",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "07a5603cd2e117b470afc00dabfef8e7fe742f5f75ff61e40c980a88946e4981",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "c3d165a06d5a4e23b35d757d8302762ddee8e458d47c82be6fb4153e1ebab3be",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "3fdf3131c22d5ceccb4bfbd5255b22718c70cf71631a16d1da86e0314bbb9428",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "1868a7bc4d97c304c166d176913209081b790b683c6dcbdd0bb62ea883d54bec",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "218c1202c3684bea25cb4e3e28fd7dee2ef6bc3d0376bea65ead0a8b325ec580",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "b53055d48dc2fd8b412098e368c791ec8a80c557c2484934209585c1cd0d1823",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "d2cf9c5494d8f63d9ae0e4a7849f84e3c7a53688c11f724fa2c3743b8d56c70b",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "f5c633d93d32926f24161c8e39da1f7423a892937aec6c66c842aca66e907c34",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.figure_text_items#3",
+      "source_sha256": "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db",
+      "context_sha256": "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db",
+      "semantic_review": "Traversal order and missing-entry omission preserved; repeated references are retained, not deduplicated.",
+      "targets": {
+        "de": {
+          "translation_sha256": "4bf2c123638020e95ce3b442c7e9e9f450b320ca80445551ca3e10a8810063b5",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "07abe776c985c62275b6b1032c63910c8fa8a36ac9f0a61cba18a0060d1c2dd6",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "21680a499608ead2960e4511e774d6c674126db8a5662af2d0817363605afc40",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "23a4cf829e3ada059da75aa7f6fcbfb2652bdb2fa8f8970077e7bd16000592ed",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "169b44756a44ef036f886cc0b1e1246e3e7d75e81ce65969aca3707269694e80",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "b3da34c02acd533e88ebe667495aa486bf977c116255249b6b2c47ed5f3e3ef6",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "06968d1910f3918a3eb3bc74de1e591f7c93a4686ecd0c8d86ef0976de9302ff",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "40867ba1aa2c03e1f61a978e8fa463a5be73671c8e4d2f66d461f1c078d40014",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "72875711d189e442ca6965783148cc02c5c48b15e03876237cb53ba038872a1d",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue#1",
+      "source_sha256": "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
+      "context_sha256": "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
+      "semantic_review": "Default 100 is an entry count, not bytes or a whole-process memory ceiling; LRU eviction leaves PNGs reloadable.",
+      "targets": {
+        "de": {
+          "translation_sha256": "c3d60d9aac72794a21f1c9ec45d6d14668b7edad0ca2dcdbb024181fd75b0568",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "16a2a3d93f8815a6ee069c816b8f6b432b0111db29bd0aa8c0b930034733e83a",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "ca4768d32e0feece5ffa09eb6d3726de178f51ab20c87dff0030f46aa3b47814",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "3a76e6d454bdcc5f2fc2d2cb1c9ca196726a46dbf4d7c2d14672624e3fab2ddd",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "0e7dff14a2951f0055671351d8b92b00c2cb7e07f45d56cd06f2a576284d4768",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "4d0f316c7db36c504b4326da0fc500b6084bf9d2a009e1eb9c72626e0bbcb2d5",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "5d58a1f9329de266e323b927d9bc51c07ccc4c4f2863d98d8e980ec53d4b5621",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "d1a2550e61048300f5ad95fe2062b4a707e574d1b82e9f0985227ba4736f289d",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "a6d37fb72c33d77247c4ac4f55b24a9fc8b3fa67ab39b4023d02b6fd92d711e1",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue#4",
+      "source_sha256": "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
+      "context_sha256": "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
+      "semantic_review": "Constructor cache parameter counts full-resolution pixmaps, default 100, with least-recently-used eviction.",
+      "targets": {
+        "de": {
+          "translation_sha256": "5e61a11fd65262e5d7533247c2b22c034691ce5e85f422c3a61ecb77315b1dac",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "d0f10c5507589e55b161c684ae4e6c8277bcee441336436eaf73a1acb405982e",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "5855a10883d0a9ee99939ea6dc0ade287c48361e150ae29621a12c9069398759",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "96e01879268828ba3f0a9ad47903566575fb29f8773bbc4b9695b00f5d22abae",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "de343701656a7fa61edec013f53d5d358e17994982b5775fdb6d650be1f3ca14",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "2bd0f0c96a7fb7996cbecaa53605f3f7f032180762fef91ab560ca73f3eef4c2",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "dab0d632d45a53836f09bdb113a2e507914976ab9c1308605c38c9ff4b5a58e1",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "fc9d926f8ac063a9e31a32d374d0b591ea1fa469d4e4a6637464677bf5694536",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "360bc526026d1101bb6a534430857ef4f3d918eb64d8f9670a1a168864f5e25f",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view#2",
+      "source_sha256": "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
+      "context_sha256": "933a697aa16decb842423c3e379810568d5194ac3c6980989fbfb650e2a6d5a7",
+      "semantic_review": "Default montage cap is 2,000 selected objects, not pixels; widget and QPixmap updates belong to GUI thread; image reads/crop selection belong to worker.",
+      "targets": {
+        "de": {
+          "translation_sha256": "c01585889428d25426d23980bfc3dc47c9be827a41358d4b3f8dc505ce398794",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "d7531a3308ec0b3847a5ee686760e4bc67e45b73810e0dc8589fd45ac26e0579",
+          "decision": "CORRECTION_REQUESTED",
+          "finding": "Worker wording can suggest an OS process; pinned JobRunner.submit executes a worker thread.",
+          "replace": "en el proceso de trabajo",
+          "with": "en el hilo de trabajo",
+          "proposed_translation_sha256": "6ea7454c330d7b79867bf752292f83b40924784438ab595dc1c53c5d54869f64"
+        },
+        "fr": {
+          "translation_sha256": "8b776410bcb29ee8b6a18dcc5dc3762b49316954d88d3bc5d1e29f26c388834c",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "0c341f23ff2a255d6b22e3e62b57a7ce3e607179cb0f55b18ffdb1a108359887",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "977891da6e617fe420bd195aaf030a92f77f35068a4ab9eb69665218e3392544",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "42af570f0147281518a30b87f795da0ec79e867bb04736ad166ff65d82c4ebde",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "140c06960ef5eb1198c219a5124ce444eccd419a41b8ee2af233663cd4eb163a",
+          "decision": "CORRECTION_REQUESTED",
+          "finding": "Worker wording can suggest an OS process; pinned JobRunner.submit executes a worker thread.",
+          "replace": "no processo de trabalho",
+          "with": "na thread de trabalho",
+          "proposed_translation_sha256": "7b634d9f77736ecd7152714ea4c7f95c2953a0001e6d79084466b55263d7f106"
+        },
+        "sv": {
+          "translation_sha256": "1d9bf6e52625ca5f60e10a2adb81846c933f4d658f345012dd2687bc653938c4",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "ad6c94c0422f5a7be27178248de9805d19d276ce9c1ac3bc0f7a972fd642e09e",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen#0",
+      "source_sha256": "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+      "context_sha256": "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+      "semantic_review": "Loading cover fills the window; photomosaic animation is associated with startup.",
+      "targets": {
+        "de": {
+          "translation_sha256": "a21329b0763e6c9a6a8c286c14a20dfe41911ee3841fc2ccf70d3cd5be130238",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "1b1b4a79a41d32571e3793e1920a9123be9b29d8308710037023099823acb60c",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "57c4646876d07bf575fe7e52b1d77c3296523295ac4b85e87d51ddf6b55d954d",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "11c11f4b1a0fbb45acd4ad4bf7e13181262e14bb06ecc13b799dd8ad8785acf0",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "134a1926d91fe5f899834efa8f6a39b07960ae207ed1f612ac476fabd3ba279e",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "18a0bd148fd2ab7f81f3841325cecf658d39c2d2931853a097e7df454162842f",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "c76fce9bd0d7574e49da5e7b7b90cc1aa6f5926e43a88945ee3e0fc70437b31a",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "731dab2370818ad8ca4fa5cfa812a4a41898f71b008fffc24364fa12c41cc572",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "ea4dabc6aa8f00b87318e1198ac65c3187c95298f07b75f3d8e46460910f3f95",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen#1",
+      "source_sha256": "d5cdd19db82248472abddbc3a3a038aebd742124e1467a731f7853087f11a6be",
+      "context_sha256": "a2955dbc820ffd24aa88d847e363d6bf3dbad81be99d2a34c1b3a2d160736bfb",
+      "semantic_review": "Eager imports use worker thread with GUI-timer progress; default on-demand policy ends loading without those imports; host follows startup preferences.",
+      "targets": {
+        "de": {
+          "translation_sha256": "7959430130bde958023aaf12b0fb58e197c3c922db6cba8fe3b245cab9a00fcc",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "fd8b2d649311ae5e0a93e3cd3e0590694fc4322ba3b4dd02897877594a6fd9aa",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "834ab4f577c4bd9755adfa45dd9010fa603f98d35421e786f0afa4c11f4d697d",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "bd45d11eb035b51c0b7272787439dc76847d62e02318fdf4e53a7469eb1b6a87",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "a8dd45d3c13370815a7dc29f265d61542003f3c33586b6da4cc9b106af0a96e3",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "cbb5806122187c24df19e8a60c305684640f0ce1e399362dfa88d5e04b7184de",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "764f77d869f4c9a844a01b0a30f8e6c2d62a8d9e0be0d5c03e74a2df4fabb48e",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "cc93c5390ca2b44fae63b080921ffdcc8338fe258061f098ad260c75adf5a1fa",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "25d53579b8c12271b80affb6a24b795515dfc02a9570f3279b7143c0b9dc9384",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen#2",
+      "source_sha256": "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655",
+      "context_sha256": "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655",
+      "semantic_review": "Three progress phases and thin line, logo-to-mosaic transition, animated removal and replay over existing window retain their roles and RST references.",
+      "targets": {
+        "de": {
+          "translation_sha256": "bbe0aae326097c1f6c89338f35df54ce52227c27c610c2d80ffe7a2a97dd2bf3",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "f7057f8591ef4121251335bf04fa315e656e18592eccaff6053c18aed12c8e3c",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "0ca4dd3a3aaa0118bf7907e2b470d83a07e8a996e10f04e37e7739858ea09478",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "ed042b7bb119b22fd0032ae317dbdfa78c891eb9f87630f5678c672bc33513f3",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "db789a514320417acc0a0bf56fe103aaf3c912ecbf17d82649fb15ac232e5847",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "67018cc1d57fd73d0a26614d0820c38f4d2d1d213259f066c5babbd62b407ae6",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "5ddd66323f51c79a9f36994dc83583e886014f2a471da4fbf5f4240c81b7d305",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "0834f18b6bd1bcc6a6a6288f4fadade25c25e8e98a7af73a8d172f70c5d5fda5",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "d04c30fbf6de7fbc075e4837e4a585d89f412affafd24ca409ab7e2bf833c49e",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#0",
+      "source_sha256": "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
+      "context_sha256": "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
+      "semantic_review": "Full-window loading cover has optional photomosaic animation; no claim that imports must always finish first.",
+      "targets": {
+        "de": {
+          "translation_sha256": "a2f4748c916f0b4cc53b6cfad489393db9de93758a04dfe63fc554ee68711ead",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "34e7aae64eb638a48c6bc3a58d1690b2662633d579dbe656f9d9381907315930",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "f49b50e10701ec9ec888b1407b2e049a0473d65077d254e689a2c6b17a652955",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "697c489bc6da852b62512f06b37ac5d0390cde2674f87944d11a4f86b41f9c7f",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "49e3a4a5957e12cd2d045c69fe16e94579f47ae8467039cfbbe9950242cb603c",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "25df72859d4fbb996237e11fa6f9ce3471cb6c9a891e0c9090ad44bbecfb83de",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "dc622933952d24c27850a2961c5232bc0c5c0e25a743214d95c423cfcf98fe7e",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "c1a57dd7ecc8baf1ea3e72b718a3e56119fe50d7a607706d2ed84e5d32509df7",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "f9ed14b8a2b449f38da6dbe827dd8e96708aea92609746a6fa6f5ec8bd2cf577",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.startup_animation_allowed#1",
+      "source_sha256": "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
+      "context_sha256": "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
+      "semantic_review": "Environment/offscreen/reduced-motion/startup-switch conditions disable startup animation; unreadable preference disables it; full Appearance paths retained.",
+      "targets": {
+        "de": {
+          "translation_sha256": "68178c11371f0a75755c4721d7d7a8e709ebbb62116c5ca727ccec0e5da5c9d5",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "29a05a2c444fb614a04df560ee0d2ef02f4ccdc165daf2c670e2175e66072bc3",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "964f153c2be4be17925e6ef2d7890c835638b296d236ced0f0657ef68fb4ee16",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "bd2e6af58ab31874f1fce420428be7cc8f31335776d950d8a38837080dd0325e",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "b4ce87419687d73b21b8c1fbf0b0072d0bafb9444bf4cada3b730c53f398ad3d",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "eca80b99701746bc862c724074959798d56a62d8f6bec469567ad1c15005932e",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "a01ad4279fc8b2d276d39d7ba47fcd44ea19d96d06679027a2b875d721163d84",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "b3371061b987ea62ed38acbffe1c88cbda8230188e6063044707cbb8609d8f8b",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "cd4436f7884014624df86f28bacf2643c045306d46be0fbf9976acd7efff7f1a",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#1",
+      "source_sha256": "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+      "context_sha256": "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+      "semantic_review": "Explicit replay still works with startup switch off; two-second hold, reduced-motion one-second fade, click/key skip, unchanged window size/state/focus retained.",
+      "targets": {
+        "de": {
+          "translation_sha256": "69bb035638d5819d8cf050eb5800793da6752f3abdb87bc9c85f2b4c5d752198",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "f74a3ef7d77a8369120488b734db96a6fe26c44de8fc3619a2bd68af92185a5f",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "9886bee56fd5cde93dc52f473ca0f4e17384ade44d7e6e443b4bfe55eabc3a6d",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "847669a2721eddef454ce2169be0976c603193bc5d6a6e1c38ae7f0b237c2f2a",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "e6f6243da3bb112230e382ae62643ebc0642c2b3d65c4178da190159f3a6acfa",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "b6374c505f097077ae8d9eb02503c311970404fe6967a5f13a072c0523e7a282",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "1c834396f2454343e5cf38ddca7a72bc6ed047cd3409f08ee05ca6a15e2519ba",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "1921c85051d6d676de050244971732cb4b43845023f032766eae337b0cc31ac1",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "8c82d5738fdae96c7075165b2dce84044235c743bdd047a56211e1c55a9f6a53",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.preferences.get_startup_animation#1",
+      "source_sha256": "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
+      "context_sha256": "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
+      "semantic_review": "Appearance > Animation path retained; reduced motion overrides startup preference.",
+      "targets": {
+        "de": {
+          "translation_sha256": "e8a1577b35488770cf1216436ad35cc17ee86cf1ebe1f1396c0eb9d457d86d0f",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "dda178fc72d5dabb11efdc6f5851f09b353063c80f5611976e31c5f1e431840b",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "dbd7a8427b5d82e518c76feb621b0965f248f16b014731bea2ba9b93e3bd470f",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "c6a65ff4d38e287c17f68e298b5824e77833a36b5f66042d2bfb11f9e91bede4",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "8e1cc19f032c49d8f6d8b3a20275e289e4daa73c52f8158679b2e5a2d4fb06bb",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "3962cd2523965d23fafe70141f46f4054b9395dbf20fb4f3703354f6e2ebc0d4",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "f5c4d3e6342b1c81c5635f9785da14b6d282c553273e2bc1d3527d9f3afd5455",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "4b1c71e3d3f38669e10ca216893e66e7d1fd56583a25bc12d2d65af70b59f9b2",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "6a9123c7a804741dbeb6ff445a3f309c55d843206d90b5e85267d97b8adfb5ce",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_qss#1",
+      "source_sha256": "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
+      "context_sha256": "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
+      "semantic_review": "Accessibility path and listed-widget scope retained; replacement border width uses FOCUS_RING_PX and colour uses focus_ring_colour.",
+      "targets": {
+        "de": {
+          "translation_sha256": "1c3d3fa6087ddaaa78ed24d9ce90da11b929097561877b8e3300205ca37d7d97",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "5549a36caaf4aa80c4c68a57af66131562d7a77e36dfb52d65e4f262d42f0f81",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "6f549cadd4e5a930930719a139ef3e5b292cd3f726e2738823341886fe80fe94",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "8d1d0c07ee671c939fadfbf77068a494f17d9dba9d1305234bc4dd8b21536634",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "2c63a05af3a2db4866406083eefec17e1b7a5f3b05fa250980fa9ee6de66ba2e",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "9e6e070905402fb5d2289390049a3240ea46ff7fc953a486380661736086554d",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "5e2c0d9fc96ab8c850ad3dec32ea67bdfd3b6033ada1e45cdf5d5fb780e9ea93",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "ce251e50a1a4da22cde2253295e40c9817b6324d136ad9281592ddfeb155e80e",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "2d942988801822b3ecbaefdaea03691eba0f791a4d446fb2cccfda883c5e24e4",
+          "decision": "PASS"
+        }
+      }
+    }
+  ],
+  "validation": {
+    "source_binding": "All 13 source blocks match docstrings in the two pinned source commits; ten snapshot document hashes match author receipt.",
+    "record_binding": "All 117 source/context/hash identities match the immutable snapshot; protected RST names and numerical cache/montage limits retained.",
+    "semantics": "All 117 translated targets read and independently compared with the exact English blocks; decisions recorded per target.",
+    "normal_gates": "Previously passed normal collector/context gates supplied by author; not rerun or substituted by these receipt checks."
+  },
+  "limitations": [
+    "No claim of native-speaker fluency review or human linguistic signoff.",
+    "No runtime, GUI, scientific, hardware or hosted-page acceptance was performed in this review.",
+    "No generated catalogs or source behavior changed; source-bound semantic review does not close the whole N678 item.",
+    "This receipt does not approve the two requested corrections until their actual committed targets are checked."
+  ]
+}
