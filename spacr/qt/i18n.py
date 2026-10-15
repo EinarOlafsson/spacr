@@ -719,6 +719,8 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Cancel": _row(
         "Avbryt", "Abbrechen", "Cancelar", "取消", "Cancelar",
         "रद्द करें", "취소", "Hætta við", "Annuler"),
+    "Yes": _row(
+        "Ja", "Ja", "Sí", "是", "Sim", "हाँ", "예", "Já", "Oui"),
     "Settings": _row(
         "Inställningar", "Einstellungen", "Configuración", "设置",
         "Configurações", "सेटिंग्स", "설정", "Stillingar", "Paramètres"),
