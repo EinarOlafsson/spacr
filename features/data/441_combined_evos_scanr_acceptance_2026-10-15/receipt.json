@@ -1,0 +1,22 @@
+{
+  "scope": "One justified combined EVOS+ScanR union acceptance; only five requested existing nodes",
+  "source_head": "8fa5d1bb8ced57df64f9f3dab1759d512c4a2556",
+  "result": "5 passed in0.62s; exit0; zero skips",
+  "actual_modules": {
+    "spacr.regex_infer": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n703-cache-cleanup-gui-20261015/spacr/regex_infer.py",
+      "sha256": "24a93ebb58b0b38d491f61bd9d01c3254ef316b3cd10a9bb803744bee8ab6ee8"
+    }
+  },
+  "source_test_catalog_preservation": "All6 source/test files and10 compiled locale catalogs byte-identical before/after, actualimportpaths bound to own private8fa tree.",
+  "nodes": [
+    "tests/test_a_metadata_type_for_every_common_microscope.py::test_no_convention_claims_a_filename_written_by_another",
+    "tests/test_a_metadata_type_for_every_common_microscope.py::test_every_convention_parses_every_example_it_claims[evos]",
+    "tests/test_a_metadata_type_for_every_common_microscope.py::test_every_convention_parses_every_example_it_claims[scanr]",
+    "tests/test_a_metadata_type_for_every_common_microscope.py::test_scanr_user_stems_disclose_the_inferred_tiff_suffix",
+    "tests/test_evos_documented_optional_z_441.py::test_documented_manual_name_is_not_misidentified_as_arrayscan"
+  ],
+  "resource": "BackgroundOriginalCI heavy.lock,4G,oneCPU,blankCUDA/offscreen/core0; establishedspacrPython+Qt6.12explicitpytestqt/autoloadOff",
+  "network_events": [],
+  "limits": "Metadata/parser/examplecollision/sourceprovenance software only. No model/GPU/download/nativeEVOSorScanR acquisition/science/globalcollector/writer/fullCI/wholeN441 claim; no product/test edits or broad replay."
+}
