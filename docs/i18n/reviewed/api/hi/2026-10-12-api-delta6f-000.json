@@ -178,7 +178,10 @@
       "source_sha256": "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
       "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
       "translation": "Help > Show startup animation। लोगो वाला काला कंटेनर विंडो पर लौट आता है, दो सेकंड रुकता है और शुरू होने की तरह उड़ा दिया जाता है। यह तब भी चलता है जब Preferences > एनीमेशन > स्टार्टअप एनिमेशन बंद हो; सुलभता > गति घटाएँ के अंतर्गत लोगो रुका रहता है और फिर एक सेकंड में धुँधला हो जाता है। क्लिक या कोई कुंजी इसे छोड़ देती है। विंडो का आकार, स्थिति और कीबोर्ड फ़ोकस जैसे थे वैसे रहते हैं।",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#2",

@@ -12389,10 +12389,33 @@ class AppScreen(QWidget):
         :raises ValueError: when no recognised column pair is present.
         """
         from spacr import tabular
+        try:
+            initial_stat = os.stat(tabular.resolve_path(path))
+            initial_stamp = (initial_stat.st_dev, initial_stat.st_ino, initial_stat.st_size, initial_stat.st_mtime_ns)
+        except (OSError, TypeError, ValueError):
+            initial_stamp = None
         table = tabular.read_table(path, report=None)
         first_error = None
         for key_col, value_col in cls._CSV_COLUMNS:
             try:
+                if key_col in table and value_col in table and "model_metadata" in set(table[key_col]):
+                    from ...cli import _load_settings_csv
+                    from ...model_zoo import _bad_model_metadata
+
+                    preserved = _load_settings_csv(path)
+                    if initial_stamp is not None:
+                        try:
+                            current_stat = os.stat(tabular.resolve_path(path))
+                            current_stamp = (current_stat.st_dev, current_stat.st_ino, current_stat.st_size, current_stat.st_mtime_ns)
+                        except (OSError, TypeError, ValueError):
+                            _bad_model_metadata("CSV", "unchanged input")
+                        if current_stamp != initial_stamp:
+                            _bad_model_metadata("CSV", "unchanged input")
+                    pinned = {"model_metadata", *preserved["model_metadata"]["settings"]}
+                    ordinary = tabular._settings_from_table(
+                        table.loc[~table[key_col].isin(pinned)], key_col, value_col, source=path)
+                    ordinary.update((name, preserved[name]) for name in pinned)
+                    return ordinary
                 return tabular._settings_from_table(
                     table, key_col, value_col, source=path)
             except ValueError as e:

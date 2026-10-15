@@ -91127,14 +91127,14 @@
     "spacr.qt.preferences.get_startup_animation": {
       "source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ],
-      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
-      "text": "Ob das Startfoto-Mosaik weggeblasen wird, wenn spaCR bereit ist.\n\nPreferences > Animation > Startanimation. Bewegung reduzieren hat Vorrang.\n\n:returns: ``True``, sofern der Schalter nicht ausgeschaltet wurde; standardmäßig an.",
+      "source_sha256": "3f7ad6f39cae82cafbcd3f0d3d7d7de21466cabc2acce2c39e83ee07fe8adbc3",
+      "text": "Ob das Startfoto-Mosaik weggeblasen wird, wenn spaCR bereit ist.\n\nEinstellungen > Erscheinungsbild > Animation > Startanimation. Bewegung reduzieren hat Vorrang.\n\n:returns: ``True``, sofern der Schalter nicht ausgeschaltet wurde; standardmäßig an.",
       "translation_source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ]
     },
@@ -119919,15 +119919,15 @@
     "spacr.qt.theme.focus_ring_qss": {
       "source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ],
-      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
-      "text": "Die Regeln, die einen dicken Ring um das Steuerelement mit Tastaturfokus legen.\n\nPreferences > Darstellung > Barrierefreiheit > Stärkere Fokusrahmen. Ein 1 px breiter Akzentrand ist die einzige Fokusmarkierung, die die Designs zeichnen, und auf einem unruhigen Hintergrund ist er leicht zu übersehen; dieser hier ist :data:`FOCUS_RING_PX` breit in :func:`focus_ring_colour`.\n\n:param theme: ein Eintrag aus :data:`THEMES`.\n:returns: QSS, von :func:`stylesheet` zuletzt angehängt, solange die Einstellung eingeschaltet ist.",
+      "source_sha256": "0fc1ce6b7b20e5b7c66850c951c0c7b0949f141bc5ed872081f0a6f1bb0b1c0f",
+      "text": "Die Regeln, die einen dicken Ring um das Steuerelement mit Tastaturfokus legen.\n\nEinstellungen > Erscheinungsbild > Barrierefreiheit > Stärkere Fokusumrandungen. Diese Regeln ersetzen die normalen Fokusrahmen der aufgeführten Widgets durch einen :data:`FOCUS_RING_PX` Pixel breiten Rahmen in :func:`focus_ring_colour`.\n\n:param theme: ein Eintrag aus :data:`THEMES`.\n:returns: QSS, von :func:`stylesheet` zuletzt angehängt, solange die Einstellung eingeschaltet ist.",
       "translation_source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ]
@@ -126560,15 +126560,15 @@
       "source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "ebc6c311e7f8e90747e37132d95f7e7554165f00a6d747ecc5b50f8c69ddd3e3",
-        "b7c043c24743e7176b9e75b8f634b4b24b651ac5a997fb82f3fd2503ce342b16",
+        "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
         "a34f954babda05655f0c60cd07273c3e678f790c323d8f15cb3cd8984766c143"
       ],
-      "source_sha256": "bf06e84aaa4ba562f7583ac1c93755f699f512f5312671236615458f684399bb",
-      "text": "Zeigen Sie die gemessenen Zellen, die durch einen Regressionskoeffizienten dargestellt werden.\n\n:mod:`spacr.cell_montage` wählt die Objekte aus und zeichnet den Auswahlgrund auf; dieses Modul löst und zeigt ihre extrahierten Bildregionen neben den Figuren der Verarbeitungssitzung an. Jede angehängte Datenbank löst ihre eigene exportierte-PNG oder ``merged/<fov>.npy`` Quelle auf, so dass Multiplate-Montagen Experimente mit unterschiedlichen Speicherlayouts kombinieren können. Die extrahierte Bildregion Maskenbildebene und Bilddatenkanäle stammen aus :class:`spacr.crops.CropSpec` oder standardmäßig die ``measurements.db`` Metadaten der Bearbeitungssitzung.\n\nBild liest läuft durch :class:`spacr.qt.job_runner.JobRunner` und nur der Haupt- GUI-Ausführungspfad-Vervollständigungshandler aktualisiert Widgets. Konvertieren von höchstens 300 extrahierten Bildregionen in ``QPixmap`` bleibt auf dem Haupt-GUI-Exekutionspfad, da QPixmap nicht über unabhängige Ausführungspfade übertragbar ist; die aufgezeichnete 224-Pixel-Vorschaubild-Konvertierung dauert etwa 21 Millisekunden für 300 extrahierte Bildregionen.\n\nDie Registerkarte bleibt sichtbar, wenn extrahierte Bildbereiche nicht verfügbar sind, und meldet den Grund in ihrem Status, Tooltip und deaktivierter Aktion. Die Quellenerkennung für extrahierte Bildbereiche wird nach dem Laden zwischengespeichert und ungültig gemacht, wenn sich die Einstellungen für Koeffizienten, Datenbanken oder extrahierten Bildbereich ändern.",
+      "source_sha256": "e41c56ed2ac7a0e2892de57c453c74115298ba8630c716a9133db8e0059c3332",
+      "text": "Zeigen Sie die gemessenen Zellen, die durch einen Regressionskoeffizienten dargestellt werden.\n\n:mod:`spacr.cell_montage` wählt die Objekte aus und zeichnet den Auswahlgrund auf; dieses Modul löst und zeigt ihre extrahierten Bildregionen neben den Figuren der Verarbeitungssitzung an. Jede angehängte Datenbank löst ihre eigene exportierte-PNG oder ``merged/<fov>.npy`` Quelle auf, so dass Multiplate-Montagen Experimente mit unterschiedlichen Speicherlayouts kombinieren können. Die extrahierte Bildregion Maskenbildebene und Bilddatenkanäle stammen aus :class:`spacr.crops.CropSpec` oder standardmäßig die ``measurements.db`` Metadaten der Bearbeitungssitzung.\n\nBilder werden über :class:`spacr.qt.job_runner.JobRunner` eingelesen, und nur der Abschlusshandler im GUI-Thread aktualisiert Widgets. Die Montageobergrenze begrenzt die ausgewählten Objekte und ist standardmäßig :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). Die Umwandlung von Bildarrays in ``QPixmap`` erfolgt im GUI-Thread; das Laden von Bildern und die Auswahl von Bildausschnitten erfolgen im Worker.\n\nDie Registerkarte bleibt sichtbar, wenn extrahierte Bildbereiche nicht verfügbar sind, und meldet den Grund in ihrem Status, Tooltip und deaktivierter Aktion. Die Quellenerkennung für extrahierte Bildbereiche wird nach dem Laden zwischengespeichert und ungültig gemacht, wenn sich die Einstellungen für Koeffizienten, Datenbanken oder extrahierten Bildbereich ändern.",
       "translation_source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "a573c439772d5e6c83122350309b41abd22721ca241b0bf67bd7e60f719591a1",
-        "ea3bfe02c93fd2f036cfbab9bbfc4a0fc2d3d9ef673c5781285c1a208307f704",
+        "933a697aa16decb842423c3e379810568d5194ac3c6980989fbfb650e2a6d5a7",
         "10d03f7e0727f257cca82f456e4910613c36c7a6d337776d722b9058061baec4"
       ]
     },
@@ -140867,34 +140867,34 @@
     "spacr.qt.widgets.figure_queue": {
       "source_blocks_sha256": [
         "05ee442e2e23be7c6b1b3971cc43ee7d5f73765b8338df6b0ecf767e52252522",
-        "1734036571703c85bfba4bfe861fe038edf94432b499fd955e636becd990b60c",
+        "0a8a923a7290e46fa98b9d549f11e960c2cae85b3caf76eee84b0ce2bd6aafb2",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ],
-      "source_sha256": "64b6b80b8eedef4b6e8d13955ceee484ac26147d13296a577b475be5fd0dcb0a",
-      "text": "Sammle, navigiere und restyle Figuren, die von einer Workflow-Verarbeitungssitzung emittiert werden.\n\nDas Panel kombiniert einen Thumbnail-Strip, Vorwärts-/Rückwärts-Steuerelemente, ein Positionsetikett und eine zoombare Vollauflösungsansicht. Jede ankommende Figur wird in eine temporäre PNG geschrieben. Die neuesten 100 Objekte mit voller Auflösung ``QPixmap`` bleiben im Speicher; ältere Einträge laden ihre PNG auf Abruf neu, während Thumbnings im Speicher bleiben. Das Löschen der Arbeitsliste oder das Zerstören ihres Besitzers entfernt das temporäre Verzeichnis.\n\nIm PDF-Modus erscheint die PNG-Vorschau sofort und ein Worker-Prozesse rastert die Vektorseite auf 2.200 Pixel, bevor er sie ersetzt. Dies hält den GUI-Responsiv während der teuren Vektorwiedergabe; die aufgezeichnete 9-Panel-, 16-by-12-Zoll-Figur benötigt etwa 815 ms, um synchron zu rastern.",
+      "source_sha256": "2b6fc1e464daa8323dd5a108388a4f40d65d4d6c48507fcebbb173af482e2bdd",
+      "text": "Sammle, navigiere und restyle Figuren, die von einer Workflow-Verarbeitungssitzung emittiert werden.\n\nDas Panel kombiniert eine Miniaturansichtsleiste, Vorwärts-/Zurück-Steuerelemente, eine Positionsanzeige und eine zoombare Ansicht in voller Auflösung. Jede eingehende Abbildung wird als temporäre PNG-Datei gespeichert. ``QPixmap``-Objekte in voller Auflösung verwenden einen Cache mit Verdrängung der am längsten nicht verwendeten Einträge, begrenzt durch die Eintragszahl ``ram_cap`` (standardmäßig 100). Verdrängte Einträge laden ihre PNG-Datei bei Bedarf erneut, während Miniaturansichten im Speicher bleiben. Das Leeren der Warteschlange oder Zerstören ihres Besitzers entfernt das temporäre Verzeichnis.\n\nIm PDF-Modus erscheint die PNG-Vorschau sofort und ein Worker-Prozesse rastert die Vektorseite auf 2.200 Pixel, bevor er sie ersetzt. Dies hält den GUI-Responsiv während der teuren Vektorwiedergabe; die aufgezeichnete 9-Panel-, 16-by-12-Zoll-Figur benötigt etwa 815 ms, um synchron zu rastern.",
       "translation_source_blocks_sha256": [
         "0645338614fac3648acfec8c7bd15994f93a4225ab3375aa9e78830a758de443",
-        "3953db9fe354c4cb56c88b2e107f2db2600bed66f379162c4070d01c8f8ed6b1",
+        "b5a9ceb8ed447163c69bdd2a745df789636747344736a5ea88836769b407a6b7",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ]
     },
     "spacr.qt.widgets.figure_queue.FigureQueue": {
       "source_blocks_sha256": [
         "184c45133afc5f52807a3a2b81277f6bddebaddec93f1c0192c74ddb52afabcc",
-        "c174d732cf708ee9800172bb8c81ff8518022b93cea74f050f12ee407c7269be",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "2bfd5ab3ce97ffd6cbf7d8a5e199183b26d6f638397bcbcdd9b06af763a52cdc",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "ae5bd2e960eb0870e236582b252e0f10ab1493ba35e62861462af1b4a62ab062",
-      "text": "Scrollbare, RAM-gebundene Galerie von Workflow-Figuren.\n\n:param ram_cap: wie viele Bytes von Zahlen die Galerie halten kann. Ältere Zahlen werden fallen gelassen, um unter ihr zu bleiben, was \"RAM-bounded\" oben bedeutet -- ein Workflow, der Hunderte von Zahlen aussendet, darf nicht unbegrenzt wachsen.\n:param parent: übergeordnetes Widget.\nErstellen Sie die Figurenliste.\n\n:param ram_cap: wie viele Bytes in voller Auflösung pixmaps im Speicher zu halten; ältere werden durch die am wenigsten rückständige Verwendung vertrieben.\n:param parent: übergeordnetes Widget oder ``None``.",
+      "source_sha256": "c59f395d1af2db49d9066d9a06e796ac01bc0fe589e85da0580b4e888e56291e",
+      "text": "Scrollbare, RAM-gebundene Galerie von Workflow-Figuren.\n\n:param ram_cap: maximale Anzahl von Pixmaps in voller Auflösung im RAM-Cache, standardmäßig 100. Die am längsten nicht verwendeten Einträge werden verdrängt; ihre PNG-Dateien bleiben zum erneuten Laden verfügbar. Dies ist eine Eintragszahl, keine Byte-Grenze und keine Begrenzung des gesamten Prozessspeichers.\n:param parent: übergeordnetes Widget.\nErstellen Sie die Figurenliste.\n\n:param ram_cap: maximale Anzahl von Pixmaps in voller Auflösung, die im Speicher zwischengespeichert werden, standardmäßig 100; verdrängt werden die am längsten nicht verwendeten Einträge.\n:param parent: übergeordnetes Widget oder ``None``.",
       "translation_source_blocks_sha256": [
         "69fa66fc3a8d9a49c76e0c720f4785767d821c0819d9d18189cdca2d1bcadc65",
-        "c386e4fe811f38b59f77f26202a04fb5024a8ee56b7149ab964485e3539ae770",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "adef3b5f64ff7336b47f9f0d40d25cbdbb5b5a07269f5bc7d63114070bd9aaeb",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
@@ -141357,15 +141357,15 @@
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ],
-      "source_sha256": "36faddaa4e53d2c8cb75173764820f365a675b8d47e6648532156ed7b45a995d",
-      "text": "Gibt jedes Textobjekt zurück, das an eine Matplotlib-Figur angehängt ist.\n\nEnthält Achstitel und -etiketten, Tick-Labels, Anmerkungen, Legenden und Legendentitel, den Figurentitel und Text, der direkt auf der Figur gespeichert ist. Die Funktion hat keine Qt Abhängigkeit und ist sicher, vom Figur-Rendering-Worker-Prozesse zu rufen.\n\n:param fig: Matplotlib-Figur zur Inspektion.\n:returns: Textobjekte in Durchlaufreihenfolge, mit doppelten Objekten entfernt.",
+      "source_sha256": "0533bfe48e0bb81671d16c9e1d183cab130d86863509b702edab6eb71cae568b",
+      "text": "Gibt jedes Textobjekt zurück, das an eine Matplotlib-Figur angehängt ist.\n\nEnthält Achstitel und -etiketten, Tick-Labels, Anmerkungen, Legenden und Legendentitel, den Figurentitel und Text, der direkt auf der Figur gespeichert ist. Die Funktion hat keine Qt Abhängigkeit und ist sicher, vom Figur-Rendering-Worker-Prozesse zu rufen.\n\n:param fig: Matplotlib-Figur zur Inspektion.\n:returns: Textobjekte in Durchlaufreihenfolge, wobei fehlende Einträge ausgelassen werden. Wiederholte Referenzen bleiben erhalten.",
       "translation_source_blocks_sha256": [
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ]
     },
     "spacr.qt.widgets.figure_queue.figure_text_size_override": {
@@ -156348,20 +156348,16 @@
     },
     "spacr.qt.widgets.loading_screen": {
       "source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "966d19113647321bd2952fc71d33d47463e23d515ad93ff653ed13e75bc65b45",
-        "aaef0d5cce47f0c0de331228126728fc18b205ead2ccd1483b74db3e02cb811d",
-        "dfac6cc31c8ddd27935cd584523d2559c8b149fda7bf9918e493813ea508bab5",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "d5cdd19db82248472abddbc3a3a038aebd742124e1467a731f7853087f11a6be",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ],
-      "source_sha256": "27f0798de29d105437d2ffe515d0cb7607f35447e7126829ab6025a7db4ea1ce",
-      "text": "Der Screening, der die Vorladung abdeckt.\n\nspaCR importiert ~3.1 s von schweren Modulen (torch, cellpose, pandas und dem Workflow, der davon abhängt), bevor der erste Klick auf ein Modul sofort erfolgen kann. Gemessen an einem realen Fensterstart: ``spacr.core`` allein sind 1968 ms und ``spacr.deep_spacr`` 711 ms.\n\nDiese Importe müssen auf dem Hauptausführungspfad ausgeführt werden -- sie auf einem Worker-Ausführung Qt eigene GPU Initialisierung und Segfaults, die über :class:`spacr.qt.app._PipelinePreloader` aufgezeichnet sind. Die Ereignisschleife wird daher für Sekunden blockiert, und ein Fenster, das während dieser Zeit interaktiv aussah, würde nicht reagieren.\n\nDiese Anwendungsansicht deckt das gesamte Fenster ab, bis die Importe erledigt sind, so dass die blockierte Ereignisschleife nicht mit einem hängenden Fenster verwechselt wird.\n\nDer Fortschritt wird durch die Gurtlinie statt durch einen Balken gezeigt: die drei Phasen von :data:`STRAP_LINE` leuchten wiederum auf, da die Module laden -- Mikroskopie, dann Single-Zell-Analyse, dann Genotyp-zu-Phänotyp. Der Nenner ist die Anzahl der Module, die bekannt ist, bevor die erste importiert wird.",
+      "source_sha256": "4605eda09bd7bda7a1cb31af86456afb7a578da00f24bbef56d20c257ffcbb98",
+      "text": "Fensterfüllende Ladeabdeckung und Fotomosaik-Animation beim Start.\n\nDie Anwendung zeigt diese Abdeckung, während sie ihr Fenster aufbaut. Beim sofortigen Vorladen importiert :class:`spacr.qt.app._PipelinePreloader` Pipeline-Module in einem Worker-Thread und meldet den Fortschritt über einen Timer im GUI-Thread. Die standardmäßige bedarfsgesteuerte Strategie beendet die Ladephase, ohne diese Module zu importieren. Anschließend schließt das Hauptfenster die Abdeckung oder startet entsprechend den Starteinstellungen ihre Fotomosaik-Animation.\n\nDer gemeldete Fortschritt lässt die drei Phasen von :data:`STRAP_LINE` aufleuchten und füllt die dünne Linie darunter. :meth:`LoadingScreen.show_mosaic` ersetzt das einfache Logo durch das Fotomosaik; :meth:`LoadingScreen.blow_away` animiert dessen Entfernung. :func:`replay_startup_animation` spielt die Sequenz erneut über einem vorhandenen Fenster ab.",
       "translation_source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "6ddda941c386644b19d6ab4f5f16389884154efea2027ec35656214062b936e9",
-        "e82c82ac9b76b66c53ec220cccf0ab136ded27aac1a3cb17b72bd70e225a99c0",
-        "36eb7bda5f8e70efc69206aa4496f425d28557f7edb2e01a5d9b7e8528322412",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "a2955dbc820ffd24aa88d847e363d6bf3dbad81be99d2a34c1b3a2d160736bfb",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ]
     },
     "spacr.qt.widgets.loading_screen.BlowAway": {
@@ -156442,7 +156438,7 @@
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
-        "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156451,10 +156447,10 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
-      "text": "Vollfenster-Abdeckung, die angezeigt wird, bis die Pipeline-Module importiert sind.\n\nStandardmäßig zeigt sie die weiße Marke neben der Zeile mit dem Leitspruch. Sobald :meth:`show_mosaic` aufgerufen wird, zeigt sie stattdessen das spaCR Foto-Mosaik über dem Leitspruch, und :meth:`blow_away` beendet sie, indem die Kacheln des Mosaiks vom Fenster geblasen werden und das darunterliegende Fenster freigeben.\n\n:param total: wie viele Schritte gemeldet werden. Null oder negativ bedeutet \"unknown\", und die Phasen bleiben gedimmt, statt dadurch zu teilen.\n:param parent: das Fenster, das sie ausfüllt. Sie hat die Größe des Elternfensters und ändert sich mit ihm, statt ein eigenes Top-Level-Fenster zu sein -- ein zweites Fenster bekäme einen eigenen Eintrag in der Taskleiste und ließe sich von dem wegziehen, was es abdecken soll.\nDie Startabdeckung aufbauen, die das Fenster verdeckt, während es zusammengesetzt wird.\n\nVon Konstruktion an deckend: Sie verdeckt ein halb gebautes Fenster, und jede Transparenz würde zeigen, was sie verbergen soll.\n\n:param total: bis zu wie vielen Schritten der Fortschrittsbalken zählt; ``0`` zeigt keinen Anteil.\n:param parent: das zu verdeckende Fenster; seine Geometrie wird übernommen.",
+      "source_sha256": "0807e66d934569840a2ccbaefc680a27d1382cadbdd43e7693d3db66870f20ac",
+      "text": "Fensterfüllende Ladeabdeckung mit optionaler Fotomosaik-Animation.\n\nStandardmäßig zeigt sie die weiße Marke neben der Zeile mit dem Leitspruch. Sobald :meth:`show_mosaic` aufgerufen wird, zeigt sie stattdessen das spaCR Foto-Mosaik über dem Leitspruch, und :meth:`blow_away` beendet sie, indem die Kacheln des Mosaiks vom Fenster geblasen werden und das darunterliegende Fenster freigeben.\n\n:param total: wie viele Schritte gemeldet werden. Null oder negativ bedeutet \"unknown\", und die Phasen bleiben gedimmt, statt dadurch zu teilen.\n:param parent: das Fenster, das sie ausfüllt. Sie hat die Größe des Elternfensters und ändert sich mit ihm, statt ein eigenes Top-Level-Fenster zu sein -- ein zweites Fenster bekäme einen eigenen Eintrag in der Taskleiste und ließe sich von dem wegziehen, was es abdecken soll.\nDie Startabdeckung aufbauen, die das Fenster verdeckt, während es zusammengesetzt wird.\n\nVon Konstruktion an deckend: Sie verdeckt ein halb gebautes Fenster, und jede Transparenz würde zeigen, was sie verbergen soll.\n\n:param total: bis zu wie vielen Schritten der Fortschrittsbalken zählt; ``0`` zeigt keinen Anteil.\n:param parent: das zu verdeckende Fenster; seine Geometrie wird übernommen.",
       "translation_source_blocks_sha256": [
-        "29b9e3edb2706230d69db8eeb56c8f1fa1d9caf170992e142d3c1dd6c2c59218",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "d4ff49473441a5a3c33659ad0a6791ccd540d74c21b916a9f8095e96aa609b73",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156702,17 +156698,33 @@
         "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
       ]
     },
+    "spacr.qt.widgets.loading_screen.replay_startup_animation": {
+      "source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ],
+      "source_sha256": "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5",
+      "text": "Die Startsequenz noch einmal in ``window`` abspielen.\n\nHilfe > Startanimation anzeigen. Der schwarze Bereich mit dem Logo erscheint erneut über dem Fenster, bleibt zwei Sekunden stehen und wird wie beim Start weggeweht. Die Animation läuft auch bei deaktiviertem Einstellungen > Erscheinungsbild > Animation > Startanimation; unter Einstellungen > Erscheinungsbild > Barrierefreiheit > Bewegung reduzieren bleibt das Logo stehen und wird anschließend innerhalb einer Sekunde ausgeblendet. Ein Klick oder Tastendruck überspringt sie. Größe, Zustand und Tastaturfokus des Fensters bleiben unverändert.\n\n:param window: das Fenster, in dem es abgespielt wird.\n:returns: die jetzt laufende Abdeckung oder ``None``, wenn das Logo nicht gelesen werden kann oder schon eine Abdeckung über dem Fenster liegt.",
+      "translation_source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
       "source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ],
-      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
-      "text": "Ob das Foto-Mosaik wegblasen darf, wenn das Fenster bereit ist.\n\nNein, wenn :data:`NO_SPLASH_ENV` gesetzt ist, auf der Offscreen-Plattform, solange Barrierefreiheit > Bewegung reduzieren eingeschaltet ist oder wenn Preferences > Animation > Startanimation aus ist. Eine nicht lesbare Einstellung zählt als Nein: Eine ruhige Abdeckung ist immer sicher.\n\n:returns: ``True``, wenn das Wegblasen abgespielt werden soll.",
+      "source_sha256": "668216481cc0366123ce5abcbd0c0e6e152c4e0de5177235e284c4e0826a7231",
+      "text": "Ob das Foto-Mosaik wegblasen darf, wenn das Fenster bereit ist.\n\nNein, wenn :data:`NO_SPLASH_ENV` gesetzt ist, auf der Offscreen-Plattform, wenn Einstellungen > Erscheinungsbild > Barrierefreiheit > Bewegung reduzieren aktiviert ist oder wenn Einstellungen > Erscheinungsbild > Animation > Startanimation deaktiviert ist. Eine nicht lesbare Einstellung deaktiviert die Animation.\n\n:returns: ``True``, wenn das Wegblasen abgespielt werden soll.",
       "translation_source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ]
     },

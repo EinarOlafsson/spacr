@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "original_peer_receipt_sha256": "149fbf293ef17e739608e2edaae0645cc2b78cf93c9c7d7e4f47545815415e1f",
+  "original_reviewed_commit": "a1028d8caee6d4a65de0267e9babf6dc07443b79",
+  "correction_commit": "457f338e814c79d347be54e2a52141db53048296",
+  "integrated_commit": "a65c5e630fe3baaad31672b18c4f758d3d17a254",
+  "review_kind": "Independent AI technical semantic review; no human or native-speaker signoff",
+  "scope": "Only two requested ES/PT cell_montage_view#2 corrections",
+  "records": [
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.cell_montage_view#2",
+      "decision": "PASS",
+      "review_file": "docs/i18n/reviewed/api/es/2026-10-15-figure-startup-prose.json",
+      "review_file_sha256": "cd4eb8fbe974f3435d4aecd63d7c786233501ee63715636149d8516cb0ab1424",
+      "catalog_file": "docs/source/_static/i18n/api/es.json",
+      "catalog_file_sha256": "ae6e2988ac6d89d3a2b2bc2789fc96ea0388dea97b2bd481caba05df00e5a386",
+      "source_sha256": "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
+      "context_sha256": "933a697aa16decb842423c3e379810568d5194ac3c6980989fbfb650e2a6d5a7",
+      "translation_sha256": "6ea7454c330d7b79867bf752292f83b40924784438ab595dc1c53c5d54869f64",
+      "translation": "La lectura de imágenes se realiza mediante :class:`spacr.qt.job_runner.JobRunner` y solo el manejador de finalización del hilo de la GUI actualiza los widgets. El límite del mosaico restringe los objetos seleccionados y su valor predeterminado es :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). La conversión de matrices de imagen a ``QPixmap`` se realiza en el hilo de la GUI; la carga de imágenes y la selección de recortes se realizan en el hilo de trabajo.",
+      "semantic_review": "Actual corrected target now explicitly describes a worker thread. GUI-thread responsibilities, 2,000-object default and RST references remain unchanged."
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.cell_montage_view#2",
+      "decision": "PASS",
+      "review_file": "docs/i18n/reviewed/api/pt/2026-10-15-figure-startup-prose.json",
+      "review_file_sha256": "f990f4da770e0fccc8db89da0e576141ca28e4cacc75a5f024f037fa8a8fc618",
+      "catalog_file": "docs/source/_static/i18n/api/pt.json",
+      "catalog_file_sha256": "6bf86bd15e884a1df319ebd64a40b4763fbf92c93c8768a3f9c81a3629313f4e",
+      "source_sha256": "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
+      "context_sha256": "933a697aa16decb842423c3e379810568d5194ac3c6980989fbfb650e2a6d5a7",
+      "translation_sha256": "7b634d9f77736ecd7152714ea4c7f95c2953a0001e6d79084466b55263d7f106",
+      "translation": "A leitura das imagens passa por :class:`spacr.qt.job_runner.JobRunner` e somente o manipulador de conclusão na thread da GUI atualiza os widgets. O limite da montagem restringe os objetos selecionados e seu valor padrão é :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). A conversão de matrizes de imagem em ``QPixmap`` ocorre na thread da GUI; o carregamento das imagens e a seleção dos recortes ocorrem na thread de trabalho.",
+      "semantic_review": "Actual corrected target now explicitly describes a worker thread. GUI-thread responsibilities, 2,000-object default and RST references remain unchanged."
+    }
+  ],
+  "decision": "Both corrections PASS; together with the original 115 accepted targets, all 117 scoped targets are approved for technical source semantics.",
+  "validation": "Two corrected review targets match the exact requested replacement hashes, preserve source/context, and appear verbatim in their normally generated catalog block. Integrated review/catalog file bytes match the correction commit.",
+  "normal_generation_evidence": "457f338e814:features/data/678_montage_thread_review_2026-10-15/receipt.json",
+  "limitations": [
+    "No claim of native-speaker fluency review or human linguistic signoff.",
+    "No runtime, GUI, scientific, hardware or hosted-page acceptance was performed in this review.",
+    "No generated catalogs or source behavior changed; source-bound semantic review does not close the whole N678 item."
+  ],
+  "no_duplicate_validation": "No full 117-record rerun, normal collector, generation, model, GUI or targeted tests were run for this addendum."
+}

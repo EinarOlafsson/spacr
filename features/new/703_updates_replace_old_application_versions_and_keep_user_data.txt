@@ -625,3 +625,19 @@ All API docstrings are AST-identical; no user captions/generated artifacts
 changed. Existing foreign API/caption holds are retained, not waived/retested.
 Fatal Ruff/diff checks pass. Native Windows/macOS/fullCI and parent703 OPEN.
 Evidence: features/data/n703_runtime_path_containment_2026-10-15/.
+
+2026-10-15 01:00 EDT — macOS user bootstrap delegates mutation to leased backend
+The user wrapper now reads/refuses legacy markers but does not create the
+application root or any marker. Backend owner/runtime leases precede a macOS-
+only .installing marker with identity-aware cleanup. Unknown/replaced markers
+are preserved; failed acquisition cleans only owned modern leases, and
+retained-rollback mode keeps all three coherently. No stale markers are stolen.
+Actual predecessor1FAIL proves the wrapper previously created root before
+backend entry. Final production23 distinct portable process checks PASS/exit0/
+1.46s (9new+12existing lease+2existing option cases). Final Linux-only stat
+adapter correction9PASS/exit0/0.76s is a subset, not another9 achievements.
+Tests use actual disposable shell processes/filesystems, adapting BSD stat
+format on Linux; native macOS GUI/installer acceptance is NOT claimed.
+Shell syntax, fatal Ruff/diff checks pass; existing message keys reused, no
+new captions/API/generated artifacts. Parent703/native/fullCI remain OPEN.
+Evidence: features/data/n703_macos_bootstrap_lease_2026-10-15/.

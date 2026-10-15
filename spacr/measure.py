@@ -6776,16 +6776,24 @@ def _wound_plane(data, settings):
     """
     source = _wound_settings_check(settings)
     if source == 'masks':
-        index = int(settings['cell_mask_dim'])
+        selected = settings['cell_mask_dim']
     else:
-        index = settings.get('wound_channel')
-        if index is None or index == '':
-            index = (settings.get('channels') or [0])[0]
-        index = int(index)
-    if index >= data.shape[-1]:
-        raise ValueError(
-            f"Setting: the wound plane is {index}, but the merged array has "
-            f"{data.shape[-1]} planes.")
+        selected = settings.get('wound_channel')
+        if selected is None or (isinstance(selected, str) and selected == ''):
+            selected = (settings.get('channels') or [0])[0]
+    from .qt.i18n import tr
+
+    message = tr("Wound-plane index {index} must be a finite, nonnegative whole number smaller than {planes}.", index=str(selected), planes=data.shape[-1])
+    try:
+        if not np.isscalar(selected) or isinstance(selected, (bool, np.bool_, complex, np.complexfloating)):
+            raise ValueError(message)
+        index = int(selected)
+        if not isinstance(selected, str) and index != selected:
+            raise ValueError(message)
+    except (TypeError, ValueError, OverflowError):
+        raise ValueError(message) from None
+    if index < 0 or index >= data.shape[-1]:
+        raise ValueError(message)
     return np.asarray(data[..., index])
 
 
