@@ -3140,9 +3140,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Elige UMAP como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico. Puedes explorar PCA con su herramienta enlazada cuando quieras una proyección lineal y las cargas de las características.",
+          "narration": "Elige UMAP como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico.",
           "hold_after": 0.7,
-          "speech_text": "Elige ú map como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico. Puedes explorar PCA con su herramienta enlazada cuando quieras una proyección lineal y las cargas de las características."
+          "speech_text": "Elige ú map como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico."
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3199,20 +3199,38 @@
           "speech_text": "Haz clic en otro punto para comparar su recorte. La barra lateral también ofrece el etiquetado de selecciones y la propagación de etiquetas de grupo. Esos controles guardan anotaciones, así que elige la etiqueta y la selección correctas antes de aplicarlos."
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Abre Image Scatter desde el encabezado de Image UMAP para comparar directamente características seleccionadas, o abre PCA para una proyección lineal. Continúa con los tutoriales enlazados para ver sus ajustes de entrada y sus salidas guardadas.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Revisa la proyección terminada y compara los recortes de imagen de los objetos seleccionados. Conserva juntas las mediciones de entrada, los ajustes elegidos y los resultados guardados para rastrear cada punto hasta su origen.",
           "hold_after": 0.7,
-          "speech_text": "Abre Image Scatter desde el encabezado de Image ú map para comparar directamente características seleccionadas, o abre PCA para una proyección lineal. Continúa con los tutoriales enlazados para ver sus ajustes de entrada y sus salidas guardadas."
+          "speech_text": "Revisa la proyección terminada y compara los recortes de imagen de los objetos seleccionados. Conserva juntas las mediciones de entrada, los ajustes elegidos y los resultados guardados para rastrear cada punto hasta su origen."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

@@ -2877,7 +2877,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Vælg UMAP som reduktionsmetode. Hvert punkt repræsenterer et objekt med to plottede koordinater. Du kan udforske PCA via dets tilknyttede værktøj, når du vil have en lineær projektion og egenskabsladninger.",
+          "narration": "Vælg UMAP som reduktionsmetode. Hvert punkt repræsenterer et objekt med to plottede koordinater.",
           "hold_after": 0.7
         },
         {
@@ -2926,19 +2926,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Åbn Image Scatter fra overskriften i Image UMAP for at sammenligne valgte egenskaber direkte, eller åbn PCA for en lineær projektion. Fortsæt med de tilknyttede vejledninger for deres inputindstillinger og gemte output.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Gennemgå den færdige indlejring, og sammenlign billedudsnittene af de valgte objekter. Opbevar inputmålingerne, de valgte indstillinger og de gemte resultater samlet, så du kan spore hvert punkt tilbage til dets kilde.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

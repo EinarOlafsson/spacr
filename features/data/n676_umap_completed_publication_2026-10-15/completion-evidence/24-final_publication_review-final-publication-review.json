@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "lesson": "15_image_umap",
+  "created_at": "2026-10-15T09:03:14.247129-04:00",
+  "status": "pass",
+  "scope": "Bounded publication workflow review: strict native capture, saved-artifact science, sampled master, technical audio, source-bound browser matrix, immutable candidate readback and prepared Pages verification. No live-site or listening approval.",
+  "source_commit": "1512a5c54f821b41208aa7e7f9b2efe49f733c02",
+  "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "player_fix_commit": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/release-manifest.json",
+    "bytes": 1170655,
+    "sha256": "d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa"
+  },
+  "sampled_master_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/sampled-master-review.json",
+    "bytes": 3257,
+    "sha256": "b86fb1360e92cf7b8438a44ed4f221ba197eb4a3296e6d75a4d2fefc6c2af96c"
+  },
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/15_image_umap_silent.mp4",
+    "bytes": 245088942,
+    "sha256": "ad3a89531587b2193df0d204c890579560462d9adebc1743e4314317c059ad0a"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/native-live-timings.json",
+    "bytes": 29967,
+    "sha256": "98baa04bbf0a932c4a488d56dcbeaef8d9b35990f8cce80f7f57464b87ae8aee"
+  },
+  "capture_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/root-selected-acceptance.final-source.json",
+    "bytes": 14669,
+    "sha256": "717bd7f6701f3426a75d1ba043046d5d9b5172cbc0bdfce6292db9206ce48341"
+  },
+  "scientific_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/accepted-science.json",
+    "bytes": 8491,
+    "sha256": "a526310406ca4f51223da06307be042d3c057a373c2bbd6641bd727bfaa7b200"
+  },
+  "candidate_preservation": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/candidate-preservation.json",
+    "bytes": 12353,
+    "sha256": "dcce2e6653b14420eb579b8079cbebe392be2587f0d5b169600ee42d314c01b3"
+  },
+  "browser_matrix": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/logs/browser-matrix-lesson15-r58-20261015-r2.json",
+    "bytes": 19394,
+    "sha256": "9d9a18a469dda68da01637eb543e716c1d397b52fb64336659ff44e8cd51b194"
+  },
+  "browser_matrix_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/completed-browser-matrix-independent-peer.json",
+    "bytes": 309815,
+    "sha256": "87df3d8b980e9435d86334a6b3e0bce2c9bec162e3c51503c500d07d5da4318a"
+  },
+  "candidate_browser_checks": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/checks/candidate-browser-checks.json",
+    "bytes": 127544,
+    "sha256": "9e381c98910029fffba8b2fc3232bff9ca0e4a629600e5423a5cb5f9c5c2064b"
+  },
+  "published_media_browser_checks": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/checks/published-media-browser-checks.json",
+    "bytes": 134438,
+    "sha256": "87220043938d04d08e3f4c87329fbf931233486b08b7f0efb27829497bd30132"
+  },
+  "publication_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/publication-receipt.json",
+    "bytes": 143472,
+    "sha256": "dc289836abbbb715ed6a8a2acb84467d3962909b2cf4aed2dfe59f990afe79db"
+  },
+  "recorded_checkpoint": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/checkpoint.json",
+    "bytes": 26421,
+    "sha256": "6dd5f214e23ab30fab331dd5452e3e1e3d9a476f8fce60745b42fbe8775f0861"
+  },
+  "native_arrival_tests": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/native-arrival-audit-tests.txt",
+    "bytes": 124,
+    "sha256": "c64f248348b3be16f188c2e63c10e8b6fc8d76586433ac923167baa796ccf563"
+  },
+  "checks": {
+    "all15_selected_gates_strict": true,
+    "complete_native_frames": 11001,
+    "native_duration_seconds": 366.7,
+    "playback_speed": 1,
+    "looped_or_stretched": false,
+    "audio_tracks": 50,
+    "english_tracks": 24,
+    "official_translation_reviews": 13,
+    "matrix_steps_passed": 72,
+    "candidate_routes_passed": 84,
+    "hosted_routes_passed": 84,
+    "preserved_other_lessons": 83,
+    "readback_candidate_files": 5321,
+    "readback_candidate_bytes": 8455938156,
+    "native_arrival_tests_passed": 33,
+    "record_completed": true
+  },
+  "human_listening_signoff": false,
+  "native_speaker_signoff": false,
+  "audible_word_completeness_verified": false,
+  "live_site_deployment_verified": false,
+  "limits": [
+    "Root inspected four decoded final-master samples, not a full video watch or linguistic listening.",
+    "Technical RMS/raw-alignment checks and the repaired demonstrated player race do not prove every reported clipped onset is repaired; quiet discarded prefixes remain unclassified.",
+    "The first actual caption-seek90s timeout is preserved and unexplained. Both-player actual-media comparisons and the unchanged formal retry passed all42 cues; no timeout/gate/source change was made for that failure.",
+    "The raw matrix has declared-log-path TAG prefix metadata errors; the independent receipt binds the actual72 logs and71 distinct playback receipts.",
+    "All400 points have cluster0; effective UMAP workers1 withseed42. Finite400x2 is runtime-asserted, not an independently persisted array audit or biological validation.",
+    "HF verifies5321 candidate files;3010 historical extra remote paths were not pruned or accepted by this review.",
+    "Other83 preserved lessons are not83 fresh GNOME remakes;05 still contains the hidden Spaceout demonstration and is the next repair.",
+    "HF upload and prepared Pages verification do not prove current live-site/Space deployment."
+  ],
+  "export_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/published15-checkpoint-export-20261015/export-manifest.json",
+    "bytes": 54509,
+    "sha256": "395e7213a2160d09042ee016dac44d86d4d75262da49b9654a5f5d2d87665684"
+  },
+  "export_snapshot_file_count": 148,
+  "export_snapshot_bytes": 115334011,
+  "hf_upload_readback_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/hf-upload-readback-independent-peer.json",
+    "bytes": 4913,
+    "sha256": "81bbe458f8af36b6e6ad910788a4e554160be9f5e6feb941e2cfd2a42ff6bbb1"
+  },
+  "candidate_prepublication_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/candidate-prepublication-independent-peer.json",
+    "bytes": 6142,
+    "sha256": "5f91ed8d338079e1fde7ccc0bde32b3c77153a04e59aac2ff4d68b5688a9a232"
+  }
+}

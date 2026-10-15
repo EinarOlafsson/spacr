@@ -3140,9 +3140,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Scegli UMAP come metodo di riduzione. Ogni punto rappresenterà un oggetto con due coordinate nel grafico. Puoi esplorare PCA con il suo strumento collegato quando vuoi una proiezione lineare e i pesi delle caratteristiche.",
+          "narration": "Scegli UMAP come metodo di riduzione. Ogni punto rappresenterà un oggetto con due coordinate nel grafico.",
           "hold_after": 0.7,
-          "speech_text": "Scegli iu map come metodo di riduzione. Ogni punto rappresenterà un oggetto con due coordinate nel grafico. Puoi esplorare PCA con il suo strumento collegato quando vuoi una proiezione lineare e i pesi delle caratteristiche."
+          "speech_text": "Scegli iu map come metodo di riduzione. Ogni punto rappresenterà un oggetto con due coordinate nel grafico."
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3199,20 +3199,38 @@
           "speech_text": "Fai clic su un altro punto per confrontarne il ritaglio. La barra laterale offre anche l’etichettatura della selezione e la propagazione delle etichette dei cluster. Questi controlli salvano annotazioni, quindi scegli l’etichetta e la selezione corrette prima di applicarli."
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Apri Image Scatter dall’intestazione di Image UMAP per confrontare direttamente le caratteristiche scelte, oppure apri PCA per una proiezione lineare. Prosegui con i tutorial collegati per le loro impostazioni di input e i loro output salvati.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Esamina la proiezione completata e confronta i ritagli delle immagini degli oggetti selezionati. Conserva insieme le misurazioni di input, le impostazioni scelte e i risultati salvati per risalire alla fonte di ogni punto.",
           "hold_after": 0.7,
-          "speech_text": "Apri Image Scatter dall’intestazione di Image iu map per confrontare direttamente le caratteristiche scelte, oppure apri PCA per una proiezione lineare. Prosegui con i tutorial collegati per le loro impostazioni di input e i loro output salvati."
+          "speech_text": "Esamina la proiezione completata e confronta i ritagli delle immagini degli oggetti selezionati. Conserva insieme le misurazioni di input, le impostazioni scelte e i risultati salvati per risalire alla fonte di ogni punto."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

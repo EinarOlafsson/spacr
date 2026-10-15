@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-15T11:31:58.459907+00:00",
+  "lesson": "15_image_umap",
+  "accepted": true,
+  "whole_capture_accepted": true,
+  "source_commit": "1512a5c54f821b41208aa7e7f9b2efe49f733c02",
+  "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "english_sha256": "454815e474209dbd7bd5a968122f7e71d2bacd4e3faf277467a83cca3bf9d7f5",
+  "canonical_english_sha256": "a6fb36f729a8932ead3c79a407d6c151f993a8a40a961f41350c7dc55c9e6b5e",
+  "selected_clips": [
+    {
+      "scene": "01_module",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57/captures/umap",
+      "capture_source_commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+      "gate_sha256": "e2439e36b122fe0e3985bc6734175f83554f77abb13559fa6bb3d11df375433c",
+      "native_sha256": "02574814abc9562b35f58919e0147b8d3636ccbdca2da1e3038c8e56ddf885e0",
+      "video_sha256": "ec43ff82768d0f15a62f6ba1917546cec9e0ca0eecd9c04f39d2fda12abd2d1c",
+      "receipt_sha256": "5a5fee11283ae88b9691f01813955a18d0299b0a717ada03e84bad895cdb963e",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_clustering",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "effcef035f09cc1dc0ddf37e1a69a0ba30fb6652adbe897c9ba1cf503f87768d",
+      "native_sha256": "d36857ee56c830a19b75e0c8aee8a1d2f18a3f3d8cf47db7ca8a8fa93b2624cd",
+      "video_sha256": "7e3e03b79e3cbd389ad0cc1b2638cd9db955124b180f762aa1f26b1cafc4888f",
+      "receipt_sha256": "c7e277e1f731242d7acbf92c3d3940a747d118007dd7ebd08d8e791d39e1af9f",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_n_neighbors",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "189536481db2292949942fb1595b578aa566f4027cfdcc74f63b3c5e27a202ed",
+      "native_sha256": "9aa2ffe5886a7c2f1c57a94f30211fa3a476562dbb4c296f1d4ac3eb405ffdf0",
+      "video_sha256": "56a18f90b815dbe453dd0a11d9ebfc8e7ca2b0c62ff7354d34db0c70a3893ce4",
+      "receipt_sha256": "4493b0b31c8df04b2171f7420089ca1b6f6ba8b340a757304746761e9c45e122",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_plot_images",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "9cff449299965272502810905c34ecac4eec5dd55d807289b4d1042c9aae65c0",
+      "native_sha256": "bfee436764a63d6068f6019c32091dbfdca9ab931894de4014f731facf4082a3",
+      "video_sha256": "b83a864a8def9ea552e72c08af93cd1c8ae456e9d1789e9c4829db3a793cdd04",
+      "receipt_sha256": "78fc4830e63aca95ca8af7f70c58316f0e9025f4a78e9555f985a0bcc8228907",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_random_seed",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "eab1572fa0c63785f1ab5b7c3f3890d9446152f32406277b42a4c524cf2ef62d",
+      "native_sha256": "be6b58b1b275b6e31a79afc9ca5ef3382ffa52a72a130abe0d6b3b2f1afcfbde",
+      "video_sha256": "07a0c3269bfbd8fd45023288d32bc48b1ac7957f3624c450373e459919a23178",
+      "receipt_sha256": "aa5d0807fbd7e901faca914cc73b8bc3f1759828de40ec96dce8a21953157c0f",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_reduction_method",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "3c14e8d26403fcb7948994c5bcf22f34d08d5a40085de2b18497f11dd7a9b3fb",
+      "native_sha256": "b143a39085a12b87e7b804d4e2d002e0229e84f36dcb4dc4e74fd6594963def8",
+      "video_sha256": "a59b9bf249198bb5eb49a08f27e7c6bbb17af004282e00327fc2dac13a72e72e",
+      "receipt_sha256": "e393ee25f46baf9bc965049a66e385e532b7a2b1518e74f0f74e775e9e676785",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_row_limit",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "2b20f9eecb2d4dde435715aa5dfee8e403279c6ee7478a71d67bec78afa0f777",
+      "native_sha256": "dfb5124f8cd39792c3d461a5f328173818ebf4269a039d843cab8a2a37b37fd8",
+      "video_sha256": "fb657fdd429cec80aa5885a8409d5b9e19b5d1486a0436d72128943b7f9611be",
+      "receipt_sha256": "d51780b10d04b4c3f9f36ac737b262722ca3e03f7dc9422c2e4baf64e2bb4511",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_src",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "7d1c7d4df64a8ef3fd3e5f2d1eaf40e23ef4c6975d09186e2e120d06eaa4cf92",
+      "native_sha256": "b620fbec59cd1d0d43210c1d559287fa2b6d6ad8931adc5daf7a72b7463228ca",
+      "video_sha256": "d5aed396b95a457a473bf3a640e39e9e573dc3008c676b49c225365f0e7a77a2",
+      "receipt_sha256": "5bee798aed007a8204d44a297841316dab27e582353f2ec03b2f8872e4cb07b9",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "19_setting_tables",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "ca130b1f96d47eb55d1cce13b9c3351317b61cfaa21fd66b3ad60c35d811fabb",
+      "native_sha256": "bcb2b2c845cde6c3c8d517fa7bc865bb9fb5c0461a784e96ba46c908484fac79",
+      "video_sha256": "65e4e18d154c132e09250f513ee7287dcb12719dbfcaffb43d24ca522715c049",
+      "receipt_sha256": "fc7669268bd58933d34622d39c25c921a607e7a1b7d7ef73fada4c65f87e6d52",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "23_batch_finished",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "6eb7d67413436d1c3bee54ca342165c95f3061e1a3207080eba779e4c433712f",
+      "native_sha256": "7a9ce8d58af1d0f9f44cd1a7a485d8b1fabc656295f99f3d4de033b05268a9e3",
+      "video_sha256": "170e872e017b2bc36c39920b208647b6ad00d4ce7b1f7a2b95f23a1c6fa15677",
+      "receipt_sha256": "d57505c4e1710d4b72e2b9e81f57590afb60e3e2b58aaf70a4adac9debe67211",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "24_batch_figure",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "41adc43ef3997f7d120f6c69208f64c8633ab3be45777c67e883f26a1d258d20",
+      "native_sha256": "2085a355a3996bf50d5f65ccaa9f6cb405acb6ce5e19592e7219c078a3221d39",
+      "video_sha256": "fe523f943f1c9cc010fd1ab3762ce324a99bdacbcbf2e69ea73e9264dd823348",
+      "receipt_sha256": "1f37e39889a78a06b8dfa9db647bcd31fd23d33ddb7d3ba5bf2a96892bc312ba",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "25_interactive_embedding",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "ace516eca90ebab5f7f8ba6eb75ac875ff0ce0db2d425a45a7a75b01de78b886",
+      "native_sha256": "f020eec63335d8b84d4bd676744232b591a06e549fbaeafa7136a7e69b12ab36",
+      "video_sha256": "da31a4d6088c04df09ee0bed0e7dd566f241447dc4dabebbd555e74485750b48",
+      "receipt_sha256": "1fe5080a0395473cf9fe2aa14eac9405e1f1397e60b9465d06cd19c64d9136f3",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "26_point_0",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "787e8abad47a54077878754ff8d2178b8ec94641e2f8257e11f3e45ae35f4ef9",
+      "native_sha256": "5da205aa62d32f2396c3cd604028bad9fef1a4103fc7e9aac99a1dd1bd0cf7a6",
+      "video_sha256": "597d09861b5373b5c951ef1599b17ed0130613b627c5a11feb461cb4b24e721c",
+      "receipt_sha256": "da361be951ed9c5cf4b1a9b8e19d0062d6b5adee4337d5a5a1ff8b9892ed8862",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "26_point_200",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "862fced197fe88398fb35aed141a45253f2a7d8845564bb1a840930ac2b936aa",
+      "native_sha256": "560aad949e132ff7c55757c0bc16f981b2224009c17cbea52650edb77b7810cc",
+      "video_sha256": "93573ec9af0398ea3bdce0e7a321e623b9890fba7ff13f86db93e73a143516d4",
+      "receipt_sha256": "cbbb588cbb2d3f4aed899336e97a989a7bd7b03def3dd61d1e85de95bf7109c4",
+      "decision": "strict_pass"
+    },
+    {
+      "scene": "27_review_embedding",
+      "capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "gate_sha256": "94f2598bbe0176e3b999e0f538d223dad39c45d9470fe17bd5f8a96d669ad4fe",
+      "native_sha256": "db88bbf21ad40c90d8c254c14f288c10ed0f44532463263233bb3e4fedd04ecf",
+      "video_sha256": "4da2f1f6c70850103b29bb03dfbfa85126b59d6bbbebfc2dac56899dd276b6d0",
+      "receipt_sha256": "c4982713deb31c11665464d80683a7de6c5228bc09970d8729f6291a95e0ef5c",
+      "decision": "strict_pass"
+    }
+  ],
+  "entry_only_recorder_delta_approved": true,
+  "entry_only_recorder_delta_reason": "NEW root operational decision supersedes the self-imposed turn58 preparation no-partial-tool-mix note ONLY for strict 01_module from turn57: the complete application tree, entry driver, capture policy/adapter/profile, English/reviews and input byte identities are unchanged. Only capture_umap.py changed for a later Interactive action; it is not imported/executed at entry. All other14 clips use turn58. Existing compose recorder-delta support preserves distinct actual per-clip source commits; no failed gate accepted or rewritten.",
+  "recorder_delta_reason": "NEW root operational decision supersedes the self-imposed turn58 preparation no-partial-tool-mix note ONLY for strict 01_module from turn57: the complete application tree, entry driver, capture policy/adapter/profile, English/reviews and input byte identities are unchanged. Only capture_umap.py changed for a later Interactive action; it is not imported/executed at entry. All other14 clips use turn58. Existing compose recorder-delta support preserves distinct actual per-clip source commits; no failed gate accepted or rewritten.",
+  "per_clip_source_commits": {
+    "01_module": "fd327f85139930118be1e92509a8771bf2fedea4",
+    "19_setting_clustering": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_n_neighbors": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_plot_images": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_random_seed": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_reduction_method": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_row_limit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_src": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_tables": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "23_batch_finished": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "24_batch_figure": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "25_interactive_embedding": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "26_point_0": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "26_point_200": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "27_review_embedding": "a6727b94d63f43df9309b7940275f01b5e56d3f5"
+  },
+  "application_git_tree": "7f59178fa79d30f39d3b4f0b9a10601687a7a82e",
+  "independent_reports": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/same-app-entry-composition-peer.json",
+      "sha256": "e4863f2942b921f87c573e00bb91fa952911f2bd63311f8ba23d4672860810b3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/accepted-science.json",
+      "sha256": "a526310406ca4f51223da06307be042d3c057a373c2bbd6641bd727bfaa7b200"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/two-scene-independent-technical-peer.json",
+      "sha256": "f07f0c511515d80a8f7e0e23a1454b95027bea1dbb474060722fe4104e7b4f17"
+    }
+  ],
+  "all_selected_strict": true,
+  "gate_exceptions": [],
+  "alpha_features_enabled": false,
+  "normal_beta_enabled": true,
+  "visual_review": "Root inspected actual native Interactive tail frame: real public Interactive on and400point map visible; source screenshot sampling is not full video watch. Saved400record/crop lineage and runtimefinite assertions separately reviewed. Final master still requires actual visual review.",
+  "limitations": [
+    "Same application base, distinct truthful recorder commits. The failed58 opening clips and all failed gates remain preserved/excluded.",
+    "All400records have cluster0; this is an exploration tutorial, no biological class separation/generalization claim.",
+    "Finite400x2 is recorded-runtime asserted; no independently persisted coordinate-array reconstruction.",
+    "No human listening/native-speaker approval or final publication acceptance yet."
+  ],
+  "original_capture_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/root-selected-acceptance.capture-original.json",
+    "bytes": 13599,
+    "sha256": "68c06ca168456abf8b8f432243111e18d946aa38d580729b12977aa83fafb31d"
+  },
+  "post_capture_player_fix": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/player-fix-evidence.json",
+    "bytes": 1975,
+    "sha256": "b08665a9674f6718a49d8b7bc1d25630421180311833574f8dc54cbd1a933b6a"
+  },
+  "native_arrival_audit": {
+    "commit": "1512a5c54f821b41208aa7e7f9b2efe49f733c02",
+    "parent": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+    "path": "tests/test_tutorial_release_audit.py",
+    "sha256": "c358978f7df9b12bdfd54fe3100f42d8d46927b14bcc99376e9fb2d9b63cfcf3",
+    "test_log": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/native-arrival-audit-tests.txt",
+    "test_log_sha256": "c64f248348b3be16f188c2e63c10e8b6fc8d76586433ac923167baa796ccf563",
+    "tests_passed": 33,
+    "test_exit_code": 0,
+    "applied_only_after_record": true
+  }
+}

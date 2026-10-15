@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-15T08:23:25.693965-04:00",
+  "commit": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+  "parent": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "files": [
+    {
+      "path": "tools/tutorials/authoring/web/app_v2.js",
+      "sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159"
+    },
+    {
+      "path": "tools/tutorials/tests/test_player_audio_readiness.py",
+      "sha256": "d469b3d63d3b55f8c79120e5d8df59cc23d5ea92f4dfbadee93656fa3aff8fb3"
+    }
+  ],
+  "tests": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/final-targeted-cohort.log",
+    "bytes": 67,
+    "sha256": "75efc51bf41bdf9a9019b19fcbc3790bf8c953b95471a29b8b659fc68fd6a0bb",
+    "expected_pass_count": 11
+  },
+  "peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/player-readiness-final-independent-peer.json",
+    "bytes": 4274,
+    "sha256": "6d1beff2b3864075926ec6cd4428aff35c2d2bd482a938d4b6df88bdeef69173"
+  },
+  "prior_regression_cohort": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/final-cohort-r4.log",
+    "bytes": 80,
+    "sha256": "429a4ca6fd600692eb144ac6bafd6a7a0680850084071dc2defcabc235242b5d"
+  },
+  "prior_regression_scope": "23 tests on prior df892 player bytes. Final production delta is the reviewed complete-native target-guard relocation; final11 covers all readiness plus native lifecycle. Prior23 not claimed on final bytes.",
+  "final_published11_reproduction": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/startup-and-voice-switch-trace-frozen.json",
+    "bytes": 89075,
+    "sha256": "7410557efb781f1b5de91519fbd0258f225b6805bdcfa0c807df596f9169c331"
+  },
+  "human_listening": false,
+  "scope": "Player transport readiness repair; no linguistic first-phoneme or universal incident-attribution acceptance."
+}

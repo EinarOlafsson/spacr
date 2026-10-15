@@ -3140,9 +3140,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Choisissez UMAP comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées. Vous pouvez explorer PCA avec son outil associé si vous voulez une projection linéaire et les contributions des caractéristiques.",
+          "narration": "Choisissez UMAP comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées.",
           "hold_after": 0.7,
-          "speech_text": "Choisissez you map comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées. Vous pouvez explorer PCA avec son outil associé si vous voulez une projection linéaire et les contributions des caractéristiques."
+          "speech_text": "Choisissez you map comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées."
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3199,20 +3199,38 @@
           "speech_text": "Cliquez sur un autre point pour comparer sa vignette. La barre latérale permet aussi d’étiqueter une sélection et de propager les étiquettes de groupe. Ces commandes enregistrent des annotations : choisissez donc l’étiquette et la sélection voulues avant de les appliquer."
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Ouvrez Image Scatter depuis l’en-tête d’Image UMAP pour comparer directement des caractéristiques choisies, ou ouvrez PCA pour une projection linéaire. Poursuivez avec les tutoriels associés pour leurs paramètres d’entrée et leurs sorties enregistrées.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Examinez la représentation obtenue et comparez les recadrages des objets sélectionnés. Conservez ensemble les mesures d’entrée, les paramètres choisis et les résultats enregistrés pour retrouver la source de chaque point.",
           "hold_after": 0.7,
-          "speech_text": "Ouvrez Image Scatter depuis l’en-tête d’Image you map pour comparer directement des caractéristiques choisies, ou ouvrez PCA pour une projection linéaire. Poursuivez avec les tutoriels associés pour leurs paramètres d’entrée et leurs sorties enregistrées."
+          "speech_text": "Examinez la représentation obtenue et comparez les recadrages des objets sélectionnés. Conservez ensemble les mesures d’entrée, les paramètres choisis et les résultats enregistrés pour retrouver la source de chaque point."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

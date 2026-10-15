@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "lesson": "15_image_umap",
+  "accepted": true,
+  "acceptance_scope": "saved scientific artifacts and source/input identity only",
+  "whole_capture_accepted": false,
+  "native_capture_accepted": false,
+  "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "opening_capture_source_commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+  "current_input_and_app_identity_support_composition_review": true,
+  "composition_acceptance_granted_by_this_report": false,
+  "app_source_git_tree": "7f59178fa79d30f39d3b4f0b9a10601687a7a82e",
+  "app_source_tree_equal_between_capture_revisions": true,
+  "canonical_english_raw_sha256": "454815e474209dbd7bd5a968122f7e71d2bacd4e3faf277467a83cca3bf9d7f5",
+  "changed_paths_between_capture_revisions": [
+    "tools/tutorials/capture_umap.py",
+    "tools/tutorials/tests/test_capture_umap_public_tour.py"
+  ],
+  "recorded_input_count": 2371,
+  "all_three_manifest_input_sha256_size_maps_identical": true,
+  "recorded_input_tree_hashes_not_identical": "Journal includes file metadata; byte/hash/size maps are identical. Do not claim identical full journal tree hashes.",
+  "settings_all_three_identical": true,
+  "all_three_databases_byte_identical": true,
+  "all_three_saved_result_csvs_byte_identical": true,
+  "all_three_saved_pdf_bytes_identical": false,
+  "pdf_binding": "Each PDF matches its own current successful run output manifest; PDF byte equality is not claimed.",
+  "selected_rows_each": 400,
+  "cluster_counts_each": {
+    "0": 400
+  },
+  "finite_2d_coordinates": "Console 400x2 and pinned executed recorder finite/alignment assertions passed. Numeric embedding arrays are not saved; no independent coordinate arithmetic or refit.",
+  "requested_workers": 2,
+  "observed_effective_umap_workers": 1,
+  "effective_worker_reason": "Actual console records fixed random_state42 overriding parallelism.",
+  "annotation_preservation": "Database matches pre-run SHA; tours preserve settings and record no annotations/search/refit; actual400sourcecrop identities and bytes verified.",
+  "runs": [
+    {
+      "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57",
+      "capture_source_commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+      "database": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57/example_data/plate1/measurements/measurements.db",
+        "bytes": 30748672,
+        "sha256": "10dbf66baf052a5bb676e8f26c0bcb2990286c2402bdcd2be2fc8dc0d5d13be3"
+      },
+      "saved_results_csv": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57/example_data/plate1/results/embedding_results.csv",
+        "bytes": 5680482,
+        "sha256": "db3993cb81de04759a0f0d8eadf27e0c5d6cd3e4b628e26f444b6745aabd1ee1"
+      },
+      "saved_figure_pdf": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57/example_data/plate1/results/UMAP_embedding.pdf",
+        "bytes": 782514,
+        "sha256": "4f04dc20d82c9a8a62130c732cd3fb18c1002c115992c5e6f4638daf25e9d9cd"
+      },
+      "run_manifest": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57/app-state/runs/2026-10-15_103947_4e36a308__umap/manifest.json",
+        "bytes": 862306,
+        "sha256": "b2add3394fc5dafbbfd90c7810568555b33e5bdcf1ca3d18d65341d1781a96f4"
+      },
+      "runtime_tour": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57/captures/umap/explorer_tour.json",
+        "bytes": 1072,
+        "sha256": "1f6595e04a45926b2443e45150a212c61aa5ab26aa8ba3eb3caa761edbe7b19e"
+      },
+      "input_tree_sha256_recorded": "5e5e96272ae5ba0b5b562c958e3a097b0d28c53f3c6e24b5b34bbc6b6e5b48c9"
+    },
+    {
+      "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "database": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/example_data/plate1/measurements/measurements.db",
+        "bytes": 30748672,
+        "sha256": "10dbf66baf052a5bb676e8f26c0bcb2990286c2402bdcd2be2fc8dc0d5d13be3"
+      },
+      "saved_results_csv": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/example_data/plate1/results/embedding_results.csv",
+        "bytes": 5680482,
+        "sha256": "db3993cb81de04759a0f0d8eadf27e0c5d6cd3e4b628e26f444b6745aabd1ee1"
+      },
+      "saved_figure_pdf": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/example_data/plate1/results/UMAP_embedding.pdf",
+        "bytes": 675425,
+        "sha256": "ef76c412c184c51c32cdf9a4b7bc14e8ea2bd1b06cc042836d8e2a212d115183"
+      },
+      "run_manifest": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/app-state/runs/2026-10-15_111115_9f873599__umap/manifest.json",
+        "bytes": 862308,
+        "sha256": "0eb425566347169048299816e7299e6341f9c9cb67f974f81378fe9f083d133e"
+      },
+      "runtime_tour": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap/explorer_tour.json",
+        "bytes": 1072,
+        "sha256": "1f6595e04a45926b2443e45150a212c61aa5ab26aa8ba3eb3caa761edbe7b19e"
+      },
+      "input_tree_sha256_recorded": "b8cb62f0ff2252aa476764422e76e34aab4b55d7cf8b5329bd6b18a968cc3a91"
+    },
+    {
+      "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b",
+      "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "database": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/example_data/plate1/measurements/measurements.db",
+        "bytes": 30748672,
+        "sha256": "10dbf66baf052a5bb676e8f26c0bcb2990286c2402bdcd2be2fc8dc0d5d13be3"
+      },
+      "saved_results_csv": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/example_data/plate1/results/embedding_results.csv",
+        "bytes": 5680482,
+        "sha256": "db3993cb81de04759a0f0d8eadf27e0c5d6cd3e4b628e26f444b6745aabd1ee1"
+      },
+      "saved_figure_pdf": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/example_data/plate1/results/UMAP_embedding.pdf",
+        "bytes": 529877,
+        "sha256": "1cc9eaf211f85ad29478c8ead19593c9797b35354dd1482ff83377697b9b0fe1"
+      },
+      "run_manifest": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/app-state/runs/2026-10-15_112339_70652853__umap/manifest.json",
+        "bytes": 862307,
+        "sha256": "862c9c03ef883bb3397288219f581cd579c78701a85bfeba38f2cc367d30699e"
+      },
+      "runtime_tour": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/explorer_tour.json",
+        "bytes": 1072,
+        "sha256": "1f6595e04a45926b2443e45150a212c61aa5ab26aa8ba3eb3caa761edbe7b19e"
+      },
+      "input_tree_sha256_recorded": "d6b709cd8568f18855f37112fa75c9794f60148e24bb923b9eb6e5b2837f64d1"
+    }
+  ],
+  "reports": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/saved-science-audit.json",
+      "bytes": 7525,
+      "sha256": "42b8681f6e0423cb804f467289a1fea95abcf3ebb0b55864508c734f0b22a89b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/retry-saved-science-audit.json",
+      "bytes": 7531,
+      "sha256": "3028d1feccac11c4484975647e77dd0da3f932c3fb5aba575853768ed0784958"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/saved-science-check.txt",
+      "bytes": 272,
+      "sha256": "d23ce1861c7cdb392478a59ff170de3644d944c688fb9f6832aedabcf2e098ca"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/retry-science-check.txt",
+      "bytes": 278,
+      "sha256": "41ee979499776e961711f2a55b37cd7d6ffebc569ea007affc394576152f5fd2"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/check_saved_umap_science.py",
+      "bytes": 7474,
+      "sha256": "158283f2782fbe0074138c2f4217a0bdf406574b29695f50eb69b3a6989e57a0"
+    }
+  ],
+  "limits": [
+    "Turn58 opening still fails genuine app-freeze gate; this receipt grants no native or whole-lesson acceptance.",
+    "Any mixed-capture selection must retain actual per-clip source revisions and original raw gate/provenance bytes.",
+    "No independent UMAP fit, preprocessing recreation, projection-quality validation, biological-class validation or PDF equivalence claim."
+  ]
+}
