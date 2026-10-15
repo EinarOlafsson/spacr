@@ -1,0 +1,12 @@
+{
+  "before_sha256": "da4917be3ce2818b70594751bdc29b6e01c9c220207378f22c71e92f401791de",
+  "after_sha256": "13604b8e9074ea3c6a63305dc48e13410937833aeac6aa7aa301e1a9a8f2364f",
+  "all_other_AST_and_target_signature_decorators_identical": true,
+  "production_widget_unchanged": true,
+  "preserved_assertions": [
+    "rows[1][database] equals anonymous realdatabase",
+    "plate2 androw2 named inmessage",
+    "message shown in statuslabel"
+  ],
+  "changed_assertion": "Old English substring replaced with exact current translated two-sentence suffix, preserving first-unassigned-row +filename mismatch explanation"
+}

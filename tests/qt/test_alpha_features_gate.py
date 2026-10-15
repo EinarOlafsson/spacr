@@ -147,7 +147,8 @@ def test_every_registration_names_a_known_kind_and_a_real_thing():
             assert key in spacr_settings.expected_types, (item, key)
             assert values, (item, key)
         for name in entry.get("widgets", ()):
-            assert f'setObjectName("{name}")' in source, (item, name)
+            assert any(f"setObjectName({quote}{name}{quote})" in source
+                       for quote in ('"', "'")), (item, name)
         for key in entry.get("apps", ()):
             # A page fold (OPS-style: a host switch opening a module page)
             # has no APPS row but is a module the gate hides all the same.

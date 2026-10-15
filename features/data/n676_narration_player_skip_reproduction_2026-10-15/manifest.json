@@ -1,0 +1,36 @@
+{
+  "status": "actual skip reproduced; focused repair in progress",
+  "listening_acceptance": false,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1605,
+      "sha256": "752c89b1938b2b3fde83fbc58d2857448391ed4a75e9a1427aacb4de6e2bba55"
+    },
+    {
+      "path": "audio-onset-source-diagnosis.json.gz",
+      "bytes": 3695,
+      "sha256": "8c33e31fc582634258cb5d4b8fc525620459d1cd8c605d956d049d95fac5c21b"
+    },
+    {
+      "path": "discarded-prefix-summary.json.gz",
+      "bytes": 4664,
+      "sha256": "0fdf9ac7ee17fca68a596487b61779fc9f3794986b8ab4d88c52a039aebd306c"
+    },
+    {
+      "path": "offline-asr-availability.json.gz",
+      "bytes": 1642,
+      "sha256": "ca503c5d5433d669a5b93af5390ab3f96f666b5ad9a51eba94e0a12d68038712"
+    },
+    {
+      "path": "player-audio-readiness-independent-source-review.json.gz",
+      "bytes": 2635,
+      "sha256": "f3aaba1f81693680ca5b7253979b74512d7ed42467ffee2007e3a49c661b1a89"
+    },
+    {
+      "path": "startup-and-voice-switch-trace-r5.json.gz",
+      "bytes": 4514,
+      "sha256": "e71c8c983b183f165b930cbb3cd259c6dda283419191ccb7efa4e89a7c64fbe4"
+    }
+  ]
+}

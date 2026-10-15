@@ -1,0 +1,8 @@
+{
+  "isolated_baseline": "4PASS3.11s untouchedsource663/Qt612; no missingfocus locally withoutthemecontext",
+  "hosted_sameworker_predecessor": "Coverage1gw1 executes test_555_prompt_based_sam_in_make_masks category/screen cases before montage10nodes thenall4Togglefail",
+  "proven_source_context": "test555.screen fixture and category node depend on session qt_theme_applied, which calls apply_qpalette(qapp);qapp.setStyleSheet(stylesheet()). Globalcanonical QWidget rule sets outline:none; Toggle uses native focusprimitive only.",
+  "next_faithful_context": "Execute one actually observed predecessor category node requiring that unchanged existing sessiontheme fixture, thenfourunchangedTogglecases in same serialpytestprocess. This establishesactualglobalQSS context; no testsource/production mutation.",
+  "hypothesis_not_yet_result": "QStyleSheetStyle suppresses PE_FrameFocusRect under canonicaloutline:none, explaininglocalunthemedpass/hostthemedfailure and strongerexplicit3pxborderpass.",
+  "native_reference": "https://github.com/qt/qtbase/blob/6.12/src/widgets/styles/qfusionstyle.cpp (nativeframealso requiresKeyboardFocusChange; runtimevariantswillseparate stylesheet suppression fromstatebit)"
+}

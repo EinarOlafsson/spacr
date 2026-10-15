@@ -1,0 +1,48 @@
+{
+  "verdict": "APPROVED exact signature/qualified-adapter/recorder component",
+  "commit": "8597135dbe242dcc953f218d73431ad2e068ae94",
+  "reviewer": "independent AI technical source peer/easy_overnight; no native signoff",
+  "files": {
+    "tests/qt/test_the_preview_uses_the_model_the_run_will_use.py": {
+      "sha256": "f3bb6c0b8f0221ae108f91f28bf5581dd766e4716e161175e453fecceb8db94c",
+      "original_assertions": 58,
+      "all_original_assertion_ASTs_preserved": true
+    },
+    "tests/test_696_magnification_default_and_auto_diameter.py": {
+      "sha256": "19b369a5005a2af9a94c2561e072335cf1633bb9645f9b3b0cf856449ef4e4ee",
+      "original_assertions": 59,
+      "all_original_assertion_ASTs_preserved": true
+    },
+    "tests/test_n702_direct_cellpose_api_model_pins.py": {
+      "sha256": "8272c4352ecf37a96ca02f6ac5f338bf1d4194f509f226d48ff8d7f81f89194f",
+      "original_assertions": 13,
+      "all_original_assertion_ASTs_preserved": true
+    },
+    "tests/test_web_plaque_inference_adapter_n698.py": {
+      "sha256": "0b22f586d183a541aca0aa01b24e000497d6d7d387ceb0f1f2b6458c2cdf5403",
+      "original_assertions": 22,
+      "all_original_assertion_ASTs_preserved": true
+    },
+    "tests/test_cellpose_api_contract.py": {
+      "sha256": "387d3fd41f7a9e29a2e96897a61195b0530ad9844eaa6dd9392ca8f7c8121aa5",
+      "original_assertions": 50,
+      "all_original_assertion_ASTs_preserved": true
+    }
+  },
+  "total_original_assertions_retained": 202,
+  "proof": [
+    "All202 original assertion ASTs retained; ratchet dictionary and ceiling13 ASTs exactlyunchanged",
+    "Six eval doubles now explicit: five literal recorded4.2 model signatures, one actual Cellpose3worker adapter signature",
+    "Worker specialcase is sourcequalified to exact owning test/class/function position and AST; named parameters/defaults compared with actual3adapter; no double catchall",
+    "N698 firstline captures bound eval parameters before additional locals; four unconditional scientific channel/diameter/threshold fields retained even atdefault values",
+    "Every other N698 parameter compared to double own literal signature defaults, avoiding installed-banddefault mismatch",
+    "Model/trust/GPU/download/runtime production code untouched"
+  ],
+  "evidence": "Initialqualifiedsweep1FAIL16.24s; originalowning57PASS2FAIL45.75s; correctedaffectedN698+qualifiedsweep19PASS17.01s inspected, no rerun",
+  "recorder_limit": "Records bound effective values, not evidence that caller explicitly supplied a default-valued keyword. Root-approved scope is preserved; rawkwargs presence is not claimed.",
+  "lint_limit": "Adhoc Ruff still9preexisting findings (baseline13); no wholelintpass claimed",
+  "limits": [
+    "No real inference/training/modelquality/GPU/download/fullCI acceptance",
+    "No native minimum-version environment validation"
+  ]
+}

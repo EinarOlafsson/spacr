@@ -15,7 +15,7 @@ from spacr.qt.widgets.toggle import Toggle
 
 
 @pytest.fixture
-def switches(qtbot, monkeypatch):
+def switches(qtbot, monkeypatch, qt_theme_applied):
     monkeypatch.setattr(preferences, "get_reduce_motion", lambda: False)
     host = QWidget()
     qtbot.addWidget(host)

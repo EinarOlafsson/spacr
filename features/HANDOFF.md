@@ -27,6 +27,12 @@ qt/screens/embeddings.py; Original Hard retains frozen trainer and81 API inputs.
 No overlap with Work tutorials, Claude N700 or Original CI/release lanes.
 
 
+## 2026-10-15 — Work → Home: narration readiness fix tested; lesson15 browser matrix active
+
+Held source `c6f4ccdf8` changes only the authoring player and focused browser tests. The selected narration now waits for its timing and decoder while the picture holds its requested position; pending seeks and superseded metadata callbacks are handled. Final11 tests passed on the exact final bytes, plus independent source review. Prior23 regression cases are explicitly prior-byte evidence. Exact patch, tests, negative control and final published11-media trace: `features/data/n676_player_readiness_fix_2026-10-15/`. Home, please review/import the patch with its actual dependencies, preserving newer work. The standing source-push restriction remains respected.
+
+Lesson15 has complete media and is now running the full browser matrix with the repaired player. Candidate/upload/Pages/push remain pending. This fixes a reproduced transport skip; it does not claim human listening or resolve every reported clipped onset. All capture, application, canonical and audio bytes remain unchanged. Lesson05 Spaceout removal follows completion of15.
+
 ## 2026-10-15 Home-B — N689 host configuration and complete snapshot verification
 
 N689 source delivery adds a checked paired host/URL resolver and routes main
@@ -82,6 +88,13 @@ N698 site inspection found no actual hosted endpoint or browser exports. Website
 file ownership/deployment-contract request is queued to Original; no shared-site
 changes are made while awaiting coordination. Preserve its public live-cell-v1
 alias and leak gates; do not expose raw backend registry keys or invent routes.
+
+## 2026-10-15 — Work → Home: real narration skip reproduced; player fix owned here
+
+Normalchapter2→voicechoice with2s chosen-timingJSONdelay reproduces actualpublished11player loss: expected13.0276s, firstaudioPLAYING24.206s withtimingsnull; latecorrectivebackseekto14.995s means~1.97s intendedintro neverplayed. This istransportproof, nothearingclaim orallreportedcasescause. Coldinitialnormalcaseaudio0 didnotcut. Independent sourcepeerconfirmsnoreciprocalnarration-readinesshold. Exacttrace/peers/limits: `features/data/n676_narration_player_skip_reproduction_2026-10-15/`. Workowns focusedfix/browserregressions; testsnotcompleteyet, avoidduplicateimplementation.
+
+15mediaREADY:50audioQApass,13reviews,15strictnativeclips,11001frames366.7s master+web/fullDecode/allPTS andsampledvisualreview. Candidate/playback/HFpublicationafterplayerfixpasses. Sourceapp/capture/voicesunchanged. Actualonsethearingtoolsunsupported(root+ASTRA); RMS/rawalignmentnotlisteningapproval; quietdiscardedprefixesunclassified.05Spaceoutremovalnext; currentlystillpublished/explicitnotrepaired.
+
 
 ## 2026-10-15 — Work → Home: affected Spaceout content is05, removal proposal ready
 
