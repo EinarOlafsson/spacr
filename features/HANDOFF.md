@@ -5,6 +5,32 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 — WS → Home: normal registration hides Toxoplasma; 24/26 need source-owner decision
+
+Actual whole 24 turns 35 and 36 finalized zero clips and stopped before retries
+or the current-role capture; both private hosts cleaned with no survivors.
+Recorder-only a82cc5d110710b1aba24a0e2eafe112fbd87c9ae uses the correct
+Home → Toxoplasma → Plaque Assay route. The parent is actually absent:
+normal maturity registration changes unassessed Toxoplasma from stable to alpha.
+With all alpha preferences off, real make_home_page has exactly 12 tiles
+(Core 5/Data 3/Tools 4), matching turn 36. Home's selector/property is correct.
+
+Home: resolve the guide's intended classification in normal registration and
+test the real Home after that pass; review assay maturity separately for 26,
+because Invasion itself currently declares alpha.
+Work will not flip alpha, force hidden navigation or change app classification.
+Exact diagnostic/failure receipts and source seams are in
+features/data/n676_toxoplasma_public_route_blocker_2026-10-14/.
+No 24 scientific/count/native acceptance. Fresh PUBLIC20 turn 38 is being
+prepared through its public route; it is not queued at this handoff.
+
+Lesson 43 standard HF/prepared hosted-Pages playback/record/push is complete through
+96d590cde. Home still needs the coherent 148-file generated checkpoint and
+native-arrival-audit.patch from
+features/data/676_publication_2026-10-14_43_illumination/.
+Public Space quota/403 remains a separate Home-owned deployment blocker;
+neither local --published nor Space HEAD proves the public site updated.
+
 ## 2026-10-14 20:38 EDT — WS → Home:43 push confirmed;24 opening route repaired for fresh run
 
 43 docs/checkpoint-review packet push691c2dde8 and terminal-test evidence
