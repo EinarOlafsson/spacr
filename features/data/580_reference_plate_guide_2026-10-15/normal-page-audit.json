@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "review_kind": "AI technical review; recorded per page, no native-speaker signoff",
+  "languages": {
+    "sv": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "de": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "es": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "pt": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "fr": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "is": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "zh_CN": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "ko": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    },
+    "hi": {
+      "total": 15,
+      "translated": 15,
+      "coverage": 1.0,
+      "stale": 0,
+      "invalid": [],
+      "label_missing": [],
+      "pages": {
+        "measure_live": {
+          "total": 15,
+          "translated": 15,
+          "stale": 0,
+          "missing": 0
+        }
+      },
+      "review_kinds": {
+        "measure_live": "AI technical review (Codex), no native-speaker signoff"
+      }
+    }
+  }
+}

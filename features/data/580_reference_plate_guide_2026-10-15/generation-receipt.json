@@ -1,0 +1,77 @@
+{
+  "normal_functions": [
+    "extract",
+    "update_language",
+    "import_worklist",
+    "audit"
+  ],
+  "scope": "One new paragraph in measure_live; all existing messages retained exactly.",
+  "review": "Independent coordinator read all nine targets, including corrected Korean markup; AI technical review, not native-speaker signoff.",
+  "template_sha256": "61cb0bf67c44da89f2d86349384e9ce90748aeed664b4d18981cb4856e0c9e93",
+  "locales": {
+    "sv": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "93ba0169ffa752d0e5b7f9d33115d724fe59c112d9646e13633adddd048f75ca",
+      "generated_po_sha256": "0742654fa3bacfe6adf869c58a3930efec7a4e4d9213fc352d86ed0121164549"
+    },
+    "de": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "ddd7695a53a7271324753aa28dbf1a0490501ec89d64307448fb33a7f4a2e1e8",
+      "generated_po_sha256": "c91a62ed4a6f316cc036a60617f4dc0560d7820cdc1ff846e438ea7e5875cd68"
+    },
+    "es": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "60de6ce3bdc5f0ba11dab10da91ffd563edb5c24763c346725bc6210d124b8f8",
+      "generated_po_sha256": "0f54916cdc2a77715ba8dc189e0e803d44c78343d3e06a4771701d2a33f6717c"
+    },
+    "pt": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "cd40a89ba391378f650faf7a37f2c8467540c6ec195cfb1aae57ff76a0fe4042",
+      "generated_po_sha256": "f0dfc75ba6383acedc1050e0fb33448b46a5ed76d9870611b3ca93e8c2115b2c"
+    },
+    "fr": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "e59d537bd0b31bdc6ba1c0228c8bbd632be5ac2173879ea0a92fc7a28a28fd13",
+      "generated_po_sha256": "05bbf77538a29cb6775f609d0bfe36ed8de43b98287cc4c2b06e10c8bd74a8f3"
+    },
+    "is": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "d750e318776fff7b91f3868f96dc4ee6b12ee851ad663ed1efcd8fad48d8fb1b",
+      "generated_po_sha256": "ba4a7eb2d252378cbe6e3912b098f58cc312dbb96703a956f306d28ac0f23717"
+    },
+    "zh_CN": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "55c58c9f1bd6332ea95a537497137e8f674f21e6d09ee3b66b8cca3d775983e8",
+      "generated_po_sha256": "5195043c8fa3f56982029b6d5c370077a35d8be38b3d25d3abde99ea0eeab1be"
+    },
+    "ko": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "57220383a5913055977d970719b9e9aef80bc13da429d027e70fde78c74680c7",
+      "generated_po_sha256": "6bebe8b83fab2752067df16a1d0f52056b7d09d843eecb9f7946e6485579a165"
+    },
+    "hi": {
+      "existing_messages_preserved": 14,
+      "added_reviewed_messages": 1,
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "675fb2aa622753deefd8fd7caf1fda904752ec69f30157915eec7d329366d72c",
+      "generated_po_sha256": "e900ac4371990ec98a19f99f924b24f1d581204200552b43da2bfdbcb818060f"
+    }
+  },
+  "passed": true
+}

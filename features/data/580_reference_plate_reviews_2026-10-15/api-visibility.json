@@ -1,0 +1,14 @@
+{
+  "symbol": "spacr.intensity_rescale._build_calibration_plan",
+  "normal_public_docstrings_contains_symbol": false,
+  "normal_visibility_function": false,
+  "rendered_api_english_manifest_contains_symbol": false,
+  "autoapi_options": [
+    "members",
+    "show-inheritance",
+    "show-module-summary"
+  ],
+  "source_sha256": "5b2b18a72df195021e5b065d0f54d34a301be854fe1ccc5610940cf05dc4d604",
+  "disposition": "Private helper excluded by unchanged normal AutoAPI/public_docstrings visibility rules; no orphan API translation records authored",
+  "scientific_acceptance": false
+}

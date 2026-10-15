@@ -1,0 +1,18 @@
+{
+  "reviewer": "Original Home root independent source peer",
+  "scope": "N180 direct carried-file restoration and report reason visibility",
+  "source_sha256": "968d00b969edf06d4802c7d75223d216352ec9e150ccf337d3c6191827bee89e",
+  "decision": "Source approach approved, owning checks and source-current merge still required",
+  "reviewed": [
+    "Stored copy digest retained when hashing initially disabled",
+    "Resolved carried paths must stay inside dedicated bundle files directory, absolute and escaping paths refused",
+    "Only missing originals get exact verified carried-file replacements; existing reference behavior preserved",
+    "Nested JSON-like payload rebuilt without rewrite of original document",
+    "Digest mismatch/unverified copies do not become carried replacements; machine skip reasons displayed in report_text"
+  ],
+  "limits": [
+    "Validation before provider call is not an atomic immutable provider read",
+    "Directory-based providers remain separate actionable adapter work; no folder-to-file guessing",
+    "No whole N180/native or historical data acceptance claim"
+  ]
+}

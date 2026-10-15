@@ -1,0 +1,60 @@
+bringing up nodes...
+bringing up nodes...
+
+..............F..F..F..F....F...F....................................... [ 62%]
+...........................................                              [100%]
+=================================== FAILURES ===================================
+__ test_corrupted_carried_copy_is_reported_changed_and_never_read_by_provider __
+[gw0] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_workspace_carried_references_180.py:89: in test_corrupted_carried_copy_is_reported_changed_and_never_read_by_provider
+    assert 'copied_digest_mismatch' in workspace.report_text(report)
+E   assert 'copied_digest_mismatch' in "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...20261015/owning-tmp/popen-gw0/test_corrupted_carried_copy_is0/run/workspace/files/64d6857100069191__original_table.csv"
+E    +  where "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...20261015/owning-tmp/popen-gw0/test_corrupted_carried_copy_is0/run/workspace/files/64d6857100069191__original_table.csv" = <function report_text at 0x7e17589a3a60>({'restored': [], 'skipped': [{'section': 'table', 'why': "FileNotFoundError: [Errno 2] No such file or directory: '/mn...0/run/workspace/files/64d6857100069191__original_table.csv', 'state': 'changed', 'skipped': 'copied_digest_mismatch'}]})
+E    +    where <function report_text at 0x7e17589a3a60> = workspace.report_text
+__ test_escaping_carried_path_is_not_hashed_or_passed_to_provider[traversal] ___
+[gw0] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_workspace_carried_references_180.py:128: in test_escaping_carried_path_is_not_hashed_or_passed_to_provider
+    assert 'copied_path_outside_bundle' in workspace.report_text(report)
+E   assert 'copied_path_outside_bundle' in "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_0/original table.csv"
+E    +  where "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_0/original table.csv" = <function report_text at 0x7e17589a3a60>({'restored': [], 'skipped': [{'section': 'table', 'why': "FileNotFoundError: [Errno 2] No such file or directory: '/mn...gw0/test_escaping_carried_path_is_0/original table.csv', 'state': 'missing', 'skipped': 'copied_path_outside_bundle'}]})
+E    +    where <function report_text at 0x7e17589a3a60> = workspace.report_text
+___ test_escaping_carried_path_is_not_hashed_or_passed_to_provider[absolute] ___
+[gw0] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_workspace_carried_references_180.py:128: in test_escaping_carried_path_is_not_hashed_or_passed_to_provider
+    assert 'copied_path_outside_bundle' in workspace.report_text(report)
+E   assert 'copied_path_outside_bundle' in "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_1/original table.csv"
+E    +  where "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_1/original table.csv" = <function report_text at 0x7e17589a3a60>({'restored': [], 'skipped': [{'section': 'table', 'why': "FileNotFoundError: [Errno 2] No such file or directory: '/mn...gw0/test_escaping_carried_path_is_1/original table.csv', 'state': 'missing', 'skipped': 'copied_path_outside_bundle'}]})
+E    +    where <function report_text at 0x7e17589a3a60> = workspace.report_text
+__ test_escaping_carried_path_is_not_hashed_or_passed_to_provider[file_link] ___
+[gw0] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_workspace_carried_references_180.py:128: in test_escaping_carried_path_is_not_hashed_or_passed_to_provider
+    assert 'copied_path_outside_bundle' in workspace.report_text(report)
+E   assert 'copied_path_outside_bundle' in "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_2/original table.csv"
+E    +  where "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_2/original table.csv" = <function report_text at 0x7e17589a3a60>({'restored': [], 'skipped': [{'section': 'table', 'why': "FileNotFoundError: [Errno 2] No such file or directory: '/mn...gw0/test_escaping_carried_path_is_2/original table.csv', 'state': 'missing', 'skipped': 'copied_path_outside_bundle'}]})
+E    +    where <function report_text at 0x7e17589a3a60> = workspace.report_text
+_ test_escaping_carried_path_is_not_hashed_or_passed_to_provider[directory_link] _
+[gw0] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_workspace_carried_references_180.py:128: in test_escaping_carried_path_is_not_hashed_or_passed_to_provider
+    assert 'copied_path_outside_bundle' in workspace.report_text(report)
+E   assert 'copied_path_outside_bundle' in "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_3/original table.csv"
+E    +  where "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_3/original table.csv" = <function report_text at 0x7e17589a3a60>({'restored': [], 'skipped': [{'section': 'table', 'why': "FileNotFoundError: [Errno 2] No such file or directory: '/mn...gw0/test_escaping_carried_path_is_3/original table.csv', 'state': 'missing', 'skipped': 'copied_path_outside_bundle'}]})
+E    +    where <function report_text at 0x7e17589a3a60> = workspace.report_text
+__ test_escaping_carried_path_is_not_hashed_or_passed_to_provider[link_loop] ___
+[gw0] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_workspace_carried_references_180.py:128: in test_escaping_carried_path_is_not_hashed_or_passed_to_provider
+    assert 'copied_path_outside_bundle' in workspace.report_text(report)
+E   assert 'copied_path_outside_bundle' in "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_4/original table.csv"
+E    +  where "restored: nothing\n  not restored — table: FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratc...4tb/scratch/n180-carried-file-restore-20261015/owning-tmp/popen-gw0/test_escaping_carried_path_is_4/original table.csv" = <function report_text at 0x7e17589a3a60>({'restored': [], 'skipped': [{'section': 'table', 'why': "FileNotFoundError: [Errno 2] No such file or directory: '/mn...gw0/test_escaping_carried_path_is_4/original table.csv', 'state': 'missing', 'skipped': 'copied_path_outside_bundle'}]})
+E    +    where <function report_text at 0x7e17589a3a60> = workspace.report_text
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.13-final-0 _______________
+
+Coverage JSON written to file /mnt/wd4tb/scratch/n180-carried-file-restore-20261015/coverage.json
+=========================== short test summary info ============================
+FAILED tests/test_workspace_carried_references_180.py::test_corrupted_carried_copy_is_reported_changed_and_never_read_by_provider
+FAILED tests/test_workspace_carried_references_180.py::test_escaping_carried_path_is_not_hashed_or_passed_to_provider[traversal]
+FAILED tests/test_workspace_carried_references_180.py::test_escaping_carried_path_is_not_hashed_or_passed_to_provider[absolute]
+FAILED tests/test_workspace_carried_references_180.py::test_escaping_carried_path_is_not_hashed_or_passed_to_provider[file_link]
+FAILED tests/test_workspace_carried_references_180.py::test_escaping_carried_path_is_not_hashed_or_passed_to_provider[directory_link]
+FAILED tests/test_workspace_carried_references_180.py::test_escaping_carried_path_is_not_hashed_or_passed_to_provider[link_loop]
+6 failed, 109 passed in 8.08s
