@@ -1,0 +1,22 @@
+{"pid": 2847982, "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u67104.scope", "memory_max": "2147483648", "memory_swap_max": "0", "cpus_allowed": [0], "pyside6": "6.12.0", "qt": "6.12.0"}
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____ test_use_writes_the_setting_that_routes_it[entry0-cellpose3:{path}] ______
+tests/qt/test_bioimageio_rows_in_the_picker.py:109: in test_use_writes_the_setting_that_routes_it
+    assert chosen == [expected.format(path=path)]
+E   AssertionError: assert [] == ['cellpose3:/...se_cyto3.pth']
+E     
+E     Right contains one more item: 'cellpose3:/mnt/wd4tb/scratch/ci-bioimageio-picker-routing-20261015/baseline-tmp/test_use_writes_the_setting_th0/cellpose_cyto3.pth'
+E     Use -v to get more diff
+__________ test_use_writes_the_setting_that_routes_it[entry1-{path}] ___________
+tests/qt/test_bioimageio_rows_in_the_picker.py:109: in test_use_writes_the_setting_that_routes_it
+    assert chosen == [expected.format(path=path)]
+E   AssertionError: assert [] == ['/mnt/wd4tb/...cellpose_sam']
+E     
+E     Right contains one more item: '/mnt/wd4tb/scratch/ci-bioimageio-picker-routing-20261015/baseline-tmp/test_use_writes_the_setting_th1/cellpose_sam'
+E     Use -v to get more diff
+- generated xml file: /mnt/wd4tb/scratch/ci-bioimageio-picker-routing-20261015/baseline.xml -
+=========================== short test summary info ============================
+FAILED tests/qt/test_bioimageio_rows_in_the_picker.py::test_use_writes_the_setting_that_routes_it[entry0-cellpose3:{path}]
+FAILED tests/qt/test_bioimageio_rows_in_the_picker.py::test_use_writes_the_setting_that_routes_it[entry1-{path}]
+2 failed in 4.90s
