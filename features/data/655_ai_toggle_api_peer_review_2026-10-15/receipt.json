@@ -1,0 +1,688 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "review_kind": "Independent AI technical semantic review; reviewer authored neither the keyboard source repair nor these translated targets. No human/native-speaker review claim.",
+  "scope": "Exactly four new public AiToggleLabel event methods, nine rendered blocks and81 target pairs across nine locales. No provider/routing/reporting source or unrelated historical target approval.",
+  "source_commit": "e1f97a89a0e1270d8842e5a71f91db651d7b1cb8",
+  "source_file": "spacr/qt/widgets/ai_toggle_label.py",
+  "source_file_sha256": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+  "input_commit": "93fd87baa",
+  "input_file_sha256": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-ai-toggle-keyboard-home-b.json": "6c171059658dcceb16eca0bc61be1fb7a325a99a303390376f6aa4e698048d9f",
+    "docs/i18n/reviewed/api/de/2026-10-15-ai-toggle-keyboard-home-b.json": "1deee75a2eb1d6129506522bca2f6aba89fc7c180a2bc3872e5469569bd60c1e",
+    "docs/i18n/reviewed/api/es/2026-10-15-ai-toggle-keyboard-home-b.json": "edb83676f83567028e6ffb6b703f6b651244f2cc298dd8eb2e71923cb6910772",
+    "docs/i18n/reviewed/api/fr/2026-10-15-ai-toggle-keyboard-home-b.json": "dd17f1fbeb00f44a95b9683b2092fa6c8176c8595254dc7d935ad50ece911944",
+    "docs/i18n/reviewed/api/pt/2026-10-15-ai-toggle-keyboard-home-b.json": "272df37861fe7f23ba5d6334081b3308703fb6e182b3957443117d90fca24836",
+    "docs/i18n/reviewed/api/is/2026-10-15-ai-toggle-keyboard-home-b.json": "cc3fb48533198df6f2667b657556af016c0d32a3ca8cbf1f24488a307f441707",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-ai-toggle-keyboard-home-b.json": "3b76613d902b8c3739f75f2e60cadb96568891edbb25e4095d8502e3a5631011",
+    "docs/i18n/reviewed/api/hi/2026-10-15-ai-toggle-keyboard-home-b.json": "5e67c6af305a83bbbdafb7df8b04e32c7bac61b4f993191096b0d5d1c5c7066b",
+    "docs/i18n/reviewed/api/ko/2026-10-15-ai-toggle-keyboard-home-b.json": "d6bf5c5432a7fe84d79e48335f585163c1fe51f8ef6c4d4d1db353769adf0141"
+  },
+  "reviewed_pairs": 81,
+  "bindings": [
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "8b3cdd08f3ced8aba27c5aff79fd781ec4f6904c18c8183b8e161566f8a13d6c",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "b2743c7a0cf3eb1891040e7e8bf8b1be3f1eaf739f1fea9298c8683dbad6177c",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "df5f56666d73586ccb3648f7864ace3cd9c25dfcc66596aaf3272bddfc0ffd6f",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "7cbf6b7a7fa372dca91339b8e0e6b3a66e7e220b9cf08f8d9eb3090c02826c1b",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "0178bf01ead696c18906818b70b592762975c9e207c01b0bc6d4458c3fd8c013",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "859d5f8cb5a6a02432438318759a0be0373d9fd2f88bf7e7bfef3fdf1c1acf2e",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "8c8834d9dcbc3205b04ca9de556adedf1f1e5c15852f58c8e49cc38c66632493",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "1806e2e2d0c757599722992af0a644d76f7bbde0c879fc40b4021b453f5e45d6",
+      "result": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "1f9c5efc34910765f9a9d814e7c4c4e501555edaffa474df6d43b4b733f1cdb0",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "227f8b3ede03edf4572495b173023f11f46984306c1fe0e1d728087f1a243638",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "0a5aedcc24b5f1d1868424701e7558725714eae95e24f89ec4838897f9e1cd63",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "314a4270cec615d0ed78fa617ad767ff9bc62cc15f317f0c309679e2ef6241d0",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "d71eacf31a9feb8c56df8fbae2e184a6d3b99a65d3274adde8a77b6b427b5b9c",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "88347db2a3444a77de14f8446f12c49e4b5090b453daea81e722d77744e9045b",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "2ae8e3b50eb41498f00a40bdf3f168a5db91dfe02a6c483488d5549cd8cca5d4",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "87b45ba12aae31d60d6071e4be64694d48001f4a7f387e490c6cf9ad1b274f4d",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "796204479cd00d5224b7832a13ae484df73fbd8e0e5a492eba03086a8b261e71",
+      "result": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "cc256314f065d401c335c9448c83d6a50cf1cea0dcfce197f5efea7d20fd3436",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "77e9868ad3fea78954f016f06b1a3635c0ff16f73389e4f154652461589ffb8a",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "962befb3e2253402a4bef2107a73d92ead463c1ebc4e053a09f1938a44cf577a",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "dc1967889fe9f35783031f9eedf9b7314702c4f0c5b1fed459d3bc4b56dfc4d3",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "78b50a4416035517b4abcda6e632dc5067fd8f13f44e5465962364afc9ded341",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "bb4531b855329f753d8ebb7d4e88358012d7428fc872b2b19b9fde465ed751f2",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "3bd3e197dd9fe9f67f7d03ae59ec9f76c5b3d8f4c0f8df9a52e8b148b218379a",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "265cf371d0b417ed8be858c1f02db5dbcd3f19c2d24209797e1cf24a60ba2d77",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "5e00bb520abf160bcca7faa176a60de6e1ebc827128d5a832523ca86a40a710c",
+      "result": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "b008764409b5595984c0a31373e6a80c18c3e770e9c2bd8312c8772564587bc8",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "8de702b1574753a8f3b70bb8ef9015e71d490752f5d81adc34f05b1645a4f0b7",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "49f0a012b1bc1274b2d51cee521206b520d651aafd34746147347dc67bb1c89f",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "63eed2be141031dbcb43b131319517d245006eb363e9340ed07d5a51c879381f",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "4c8b891f3797c3123628f4d2982bb6237f7397089534538389af3a55c317d5b8",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "2a5af545d9a2e4ccc0ab1199d916c48954e1980239ca0bf9b5138b950289fb53",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "6d6bba4176bf5429fd79a3193e1f3251442ac41f973b089504f17d25f9759f69",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "8dd782287c2a65c754854bd55842442a72dea6bf143f9fd440588f8b06365554",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "125ac99966783cd756345704ecbe862dd1c38487e578c9e0b375f0fbc46cdc43",
+      "result": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "b9872566af5a999ae3f5d0e5b8b7f9fd2a5a2c2f5534cbb48ae2bc63e541f1d3",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "5a76f385ff3ca2d922309e8fbb63ab030cb5b00e9e7b9e33840264d08301236a",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "1623b8cb817b84b5670902d5627e7378598bfed419d10f9e66529952fe3ca026",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "f977e44484311fbe1fe02fa27edae979f14b7907d968da271c702ae587799928",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "86e045ca104b8f20ec38badfb74d9964a01c80e7aa6b0de7a13ea28029881fd1",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "815615efe9cc54b001d7a33012b0188465241265a0309715558fa7cb4ea524f8",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "a7625f79abde08536f7004cdee086077aab1e272bee6cf61a76460932af34079",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "412f3db93e850a1533f05c3a686056c6749ff54f5ba0430af393acacf6946f7d",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "455a16528ec13a4227e5b47959d2649d1db4a808ffa43c8c565913ba3a405c2a",
+      "result": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "13a0573fe95c0ceebb7f321afbb4a677f2d93c41e25b9a1e118047e9cc18f240",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "7da20548f04b94a7b4431300bb3738f61ee37d95e6f8bea7d05a60536965244c",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "98f1034ab7d7fe3c24fdcdd18493a022303080d49e030764663de86e03119162",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "602a99cc0ced6ca20987d38e334216049a40303b37a6174500ef7767c3d1bf5f",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "fdf8a630b939e4792695e655016ba43b721795f6d1ca4958dbb8b6d3a4804252",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "863fc2564fab412fdfa803b0c63c8d252227efa78a8e8aa04a34b96b7cf0b9dc",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "19be665bb53c86ec22575bdb06472e304d7a7f7e7c93d5512b7a65d033a554df",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "49251048fe2ec00e6c4945752d9fde967f3b568d54b41e09d3a7691ad7b3e201",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "ba96a02919dcbc323b16423db5ca6510dbf37e2da37b9a29cb3b78b79bb97064",
+      "result": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "d3949ccbe18a4058ad59091f5d20e66d150acaac8b0e4719ce0a64bb0d9d4e40",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "cfc14becc71ae3b2bbb374a4ae11720535ffdc4d3f9c5bc47289bee3d673cd67",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "896785befc551c220c2cd9070698e4ad23df8574b2a1eafb632a2d45220880d7",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "6b421c7fec21e24f1da0456cec8d4b7e517789e38a617ddc145906e1ac8164d6",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "4392e4069f9717e9d7b38157c5817dd23ce0d83ddba067d66a8f97c4d9b42c58",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "d1090f901c2c3017342014b905167c7cf7e1c3373933f78888cc19940fb3c0bd",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "d5fd56fe8813c4c898e6c83406c5771e2248afb363e818dd7c1ccdd8494c1de1",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "19758ee5c417dc9c94f1ef146bf599589eea25c59681e86a3a81ac0f37f76bf0",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "491a65e72955810646382c30253892b16ba9703aa0bec0f1d044c45262d5267c",
+      "result": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "0513c15a2fa8a3a2d0cfb180c6fa80797abd5f0d1a284ed88ed80afe28c0c2d9",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "b6de0da027435dde90585f7d89338c137884d06262ce836ffd584781152d3d3d",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "3e456d93851da900f581cd90a2c0a64e1d715943e8ce5fe21c5e12b7d000c9c0",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "9a076887a5d074d30042aa5186b3d9e4e893b15a679de0ba7acb36999d82936f",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "26cf97e05da096229411b9d374cc91edc794a4c665c55b2234f572370200ce55",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "0965999818ca81093b71213173552150e7bfa1bff5276268bbc76f8075ec148e",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "3bcdad9c323c991cf8425b05b4c127a7a2571ca352eea7f876447a63c5068026",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "17868dd58d61449d5ab5f12fd8922211574c461c15c8bd78b5d0ea4161f2d67c",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "d10d7f8a76416b369000d0b5db47428090507faa5a31e87cd8dbc7aa70cac8c7",
+      "result": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "5799dc9807038fae11705999dbe5a016cb3e9baa56ad2b062af4f005196e6a3a",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#0",
+      "source_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "context_sha256": "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+      "translation_sha256": "a3637d7a88e9e57f5ffd7ad00d7c14063843cff70130a08aaa58963f7249a5cb",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent#1",
+      "source_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "context_sha256": "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a",
+      "translation_sha256": "ea5f1d92b2a9e4f11bc7c4afb72c2a54b4c0d34b2cd9f232b6cc597417683fe4",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#0",
+      "source_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "context_sha256": "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+      "translation_sha256": "c242c129bddcf9679ec8986e3d7df6fa980caf1644ec0d2c0c2af31e2ce009c7",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent#1",
+      "source_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "context_sha256": "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973",
+      "translation_sha256": "1bf604f8a720a4b1129431aa63a48e7a31b9fd4fac9f9c5067f90e67f534899f",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#0",
+      "source_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "context_sha256": "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+      "translation_sha256": "88824edc3fa1bafe7e53aa1f2d3039519f4568dab8c1c98f976efc341750cfe0",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent#1",
+      "source_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "context_sha256": "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353",
+      "translation_sha256": "16bf2c1df504ddc2dada660fd10d9223392a8bdfedbb7b51bae46e755864ea85",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#0",
+      "source_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "context_sha256": "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+      "translation_sha256": "0fcadaa4d847c9086dc12238d90bac7b1ca9e99df232b5fdef083978ea90673d",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#1",
+      "source_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "context_sha256": "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+      "translation_sha256": "361dd656aa7ca38a19514c97241b52ff0d61f2339294a29e27766fc912b1e079",
+      "result": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent#2",
+      "source_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "context_sha256": "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27",
+      "translation_sha256": "01ed907ccf1458c28fa6a5537d613f792d15acc601554f856359b14253bbbea1",
+      "result": "PASS"
+    }
+  ],
+  "semantic_checks": [
+    "Cached outline and keyboard-focus wording retain the source; paint request is forwarded to QLabel before the outline.",
+    "Focus-entry and focus-exit events are forwarded to QLabel and redraw/remove the outline respectively.",
+    "Space, Return and numeric/keypad Enter are keyboard keys; Return is not described as a returned value.",
+    "Focused activation occurs once without command modifier keys; the intrinsic keypad marker remains compatible with numeric Enter.",
+    "Automatic key repetitions leave state unchanged, other key events are forwarded to QLabel, and setChecked preserves the existing signal/routing connections.",
+    "Parameter event meanings and the setChecked method role are preserved in each language."
+  ],
+  "findings": "No translated-target corrections requested. The potential keypad-modifier source mismatch was separately reported to UI/root, who independently identified and repaired it; only the final corrected source is bound here.",
+  "review_process": "Read three frozen language chunks27+27+27; saved exact draft target snapshots; final committed records independently compared for source/context/target identity.",
+  "normal_validation": "Input author owns normal source/context candidate gates, actual inline parser and selected review-loader checks. This peer does not rerun generators or behavioral tests.",
+  "limits": [
+    "No native-language/human usability approval.",
+    "No native keyboard execution by this API peer.",
+    "No whole N655/N700 completion, live routing or provider/reporting acceptance."
+  ]
+}
