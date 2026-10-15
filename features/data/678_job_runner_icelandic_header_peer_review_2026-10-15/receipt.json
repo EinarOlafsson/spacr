@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical semantic review; no target authorship or native-speaker claim",
+  "decision": "PASS",
+  "input_commit": "4d8f0266f6027dc1e0cc3062676b3d911cac7691",
+  "source_commit": "35aa6c146f3b30eedab48f198166d32ba4e67ff0",
+  "source_file": {
+    "path": "spacr/qt/job_runner.py",
+    "sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706"
+  },
+  "review_file": {
+    "path": "docs/i18n/reviewed/api/is/2026-10-15-job-runner-icelandic-header.json",
+    "sha256": "22025fff610a7c9b27291019a94f690b1314d4fe0e23a926340fb7591c6a9333"
+  },
+  "reviewed_count": 1,
+  "record": {
+    "language": "is",
+    "label": "spacr.qt.job_runner#0",
+    "source": "Run a callable off the GUI thread and deliver its result on the GUI thread.",
+    "context": "Run a callable off the main GUI execution path and deliver its result on the main GUI execution path.",
+    "translation": "Keyra kallanlegt fall utan GUI-þráðarins og afhenda niðurstöðu þess á GUI-þræðinum.",
+    "source_sha256": "f442cfec0c08ddd71264193932b78e337dd3dbdf330a7b6b38e8f2a1d222bc5c",
+    "context_sha256": "dcdc4c7885888d598e472129494ded92b6ab9df1834c2ebf6ee2ba0c8a7d5f1c",
+    "translation_sha256": "a76e0dcfd0ca756da103e371e0375dc856bfe790d384daaf1037262615324cba"
+  },
+  "finding": "Correctly translates execution outside the GUI thread and result delivery on the GUI thread. The current AST module introductory sentence exactly matches the source.",
+  "actual_baseline": {
+    "commit": "de8394c0606",
+    "catalog_path": "docs/source/_static/i18n/api/is.json",
+    "catalog_sha256": "72c29fad8e4949616dd16162ae2e6cb7a63089ccc8210e3d27d8e875ada99708",
+    "old_target": "Run a callable off the GUI thread and deliver its result on the GUI thread.",
+    "old_target_sha256": "f442cfec0c08ddd71264193932b78e337dd3dbdf330a7b6b38e8f2a1d222bc5c",
+    "finding": "Actual public Icelandic first block is untranslated English; owner old-record evidence independently matches that public record."
+  },
+  "prior_preservation": "All18 review files for previous153+18 targets remain byte-identical to their approved input commits.",
+  "scope": "Exactly one header target approved. This receipt does not certify all retained historical Icelandic module paragraphs, native fluency, complete API coverage or runtime behavior. No collector, decoder, generation or tests rerun."
+}
