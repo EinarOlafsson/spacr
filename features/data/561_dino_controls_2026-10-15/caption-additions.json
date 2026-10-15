@@ -7,6 +7,7 @@
   "Epochs:",
   "Pretraining failed.",
   "Pretraining progress",
+  "Pretraining stopped.",
   "Starting pretraining…",
   "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
   "Use own DINO checkpoint…"

@@ -274,3 +274,70 @@ def test_closing_active_worker_drops_late_progress_and_completion(
     finally:
         release.set()
         widget.close()
+
+
+def test_cancel_before_worker_start_restores_controls_without_an_error(
+        qtbot, monkeypatch, tmp_path):
+    import spacr.embeddings as emb
+    from spacr.qt import job_runner
+
+    original = job_runner.make_thread
+
+    def cancelled(*args, **kwargs):
+        thread, worker = original(*args, **kwargs)
+        worker.request_cancel("test cancellation before start")
+        return thread, worker
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("A cancelled worker must not call the backend")
+
+    monkeypatch.setattr(job_runner, "make_thread", cancelled)
+    monkeypatch.setattr(emb, "_dino_pretrain", forbidden)
+    widget = em.EmbeddingsScreen(threaded=True)
+    qtbot.addWidget(widget)
+    widget.set_crops(np.zeros((2, 8, 8, 1), dtype=np.float32))
+    failures = []
+    widget._dino_jobs.job_failed.connect(failures.append)
+    widget._pretrain_dino(str(tmp_path / "cancelled.pt"))
+    qtbot.waitUntil(lambda: widget._dino_jobs.active_jobs() == 0
+                   and widget._dino_jobs.pending_jobs() == 0, timeout=5000)
+    assert failures == []
+    assert not widget.is_busy()
+    assert widget._dino.isEnabled() and widget._dino_epochs.isEnabled()
+    assert "stopped" in widget._status.text()
+
+
+def test_an_old_failed_job_cannot_clear_a_new_pending_run(
+        qtbot, monkeypatch, tmp_path):
+    import spacr.embeddings as emb
+
+    release = threading.Event()
+    started = threading.Event()
+    calls = []
+    terminals = []
+
+    def fake(crops, path, **kwargs):
+        calls.append(path)
+        if len(calls) == 1:
+            raise ValueError("first checkpoint refused")
+        started.set()
+        if not release.wait(5):
+            raise RuntimeError("Test did not release its owned worker")
+        return _summary(path)
+
+    monkeypatch.setattr(emb, "_dino_pretrain", fake)
+    widget = em.EmbeddingsScreen(threaded=True)
+    qtbot.addWidget(widget)
+    widget.set_crops(np.zeros((2, 8, 8, 1), dtype=np.float32))
+    retry_path = str(tmp_path / "retry.pt")
+    widget._dino_jobs.job_failed.connect(lambda message: widget._pretrain_dino(retry_path))
+    widget._dino_jobs.job_finished.connect(terminals.append)
+    try:
+        widget._pretrain_dino(str(tmp_path / "first.pt"))
+        qtbot.waitUntil(lambda: started.is_set() and False in terminals, timeout=5000)
+        assert widget._dino_jobs.pending_jobs() == 1
+        assert widget._dino_running and not widget._dino.isEnabled()
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not widget.is_busy(), timeout=5000)
+    assert widget.spec().backbone == emb._DINO_PREFIX + retry_path

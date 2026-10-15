@@ -247,6 +247,7 @@ class EmbeddingsScreen(QWidget):
         self.crops_progress.connect(self._on_crops_progress)
         self._dino_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._dino_jobs.job_failed.connect(self._on_dino_failed)
+        self._dino_jobs.job_finished.connect(self._on_dino_finished)
         self._dino_progress.connect(self._on_dino_progress)
         self._dino_running = False
         self._dino_closed = False
@@ -1250,6 +1251,15 @@ class EmbeddingsScreen(QWidget):
         self._set_dino_running(False)
         self._dino_progress_bar.setFormat(tr("Pretraining failed."))
         self._status.setText(str(message))
+
+    def _on_dino_finished(self, ok: bool) -> None:
+        """Restore controls after cancellation without clearing a newer pending run."""
+        if (ok or self._dino_closed or not self._dino_running
+                or self._dino_jobs.pending_jobs()):
+            return
+        self._set_dino_running(False)
+        self._dino_progress_bar.setFormat(tr("Pretraining stopped."))
+        self._status.setText(tr("Pretraining stopped."))
 
     def _pretrain_dino(self, path: str = "", *, epochs: int = 20) -> str:
         """Pretrain a backbone on the loaded crops and offer it as an encoder.
