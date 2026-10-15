@@ -106,3 +106,20 @@ writers passed. The normal caption-arrival refresh passed with the immutable
 The existing shared "Choose folder…" targets were retained in every language
 rather than overriding another caption review. Current hosted coverage and real
 SSH/native acceptance remain pending; historical raw coverage was not relabelled.
+
+2026-10-14 — current-nightly private integration and two real source repairs:
+Five new baseline failures exposed password-first partial authentication
+stopping before keyboard-interactive OTP and native OpenSSH rejecting identity
+or control socket paths containing spaces/quotes. Password authentication now
+continues only into the advertised keyboard-interactive method; neither a
+connection nor a command is retried. Single-path OpenSSH options preserve one
+quoted literal path. Native -G parser probes use /dev/null and loopback
+HostName, never user configuration, DNS or a network connection.
+The combined source passes129 distinct owning cases:74CPU/native-parser
+(1.46s) and55GUI (10.18s). All nine normal runtime writers preserve unrelated
+source-current rows; the English API manifest regenerates13475symbols.
+Publication remains HELD: current global arrival refresh rejects the existing
+N700 sv/UI/AI Error report caption's missing explicit review. Claude ownsN700;
+Home-B has the pending shared extractor request. Neither baseline pin nor
+generator assertions were waived. No real cluster/MFA/macOS/Windows acceptance.
+Receipt: data/699_current_integration_2026-10-14/receipt.json.

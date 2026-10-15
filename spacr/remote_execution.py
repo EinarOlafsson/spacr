@@ -920,7 +920,10 @@ def _ssh_overrides(profile):
         arguments.extend(["-F", profile.ssh_options["config"]])
     for key, name in names.items():
         if profile.ssh_options.get(key):
-            arguments.extend(["-o", name + "=" + profile.ssh_options[key]])
+            value = profile.ssh_options[key]
+            if key in {"identityfile", "controlpath"} and any(character.isspace() or character == '"' for character in value):
+                value = '"' + value.replace('"', '\\"') + '"'
+            arguments.extend(["-o", name + "=" + value])
     return arguments
 
 
@@ -1036,9 +1039,11 @@ class _SSHSessionPool:
                         raise
                     answer = self._answers(tr("SSH authentication"), "", [(tr("Password:"), False)])
                     try:
-                        transport.auth_password(username, answer[0], fallback=False)
+                        remaining = transport.auth_password(username, answer[0], fallback=False)
                     finally:
                         answer.clear()
+                    if not transport.is_authenticated() and "keyboard-interactive" in (remaining or ()):
+                        transport.auth_interactive(username, self._answers)
             if not transport.is_authenticated():
                 raise RemoteExecutionError(tr('SSH authentication was denied. Test the connection to try again.'))
             return transport, parents

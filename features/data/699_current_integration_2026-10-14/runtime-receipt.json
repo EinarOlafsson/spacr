@@ -1,0 +1,86 @@
+{
+  "mode": "normal writer; preserve unrelated current targets; N699 reviewed additions only",
+  "owned_sources": [
+    "A private-key file cannot be used as SSH configuration.",
+    "Authenticate in spaCR (keyboard-interactive / MFA)",
+    "Choose ProxyJump or ProxyCommand, not both.",
+    "Choose SSH settings folder",
+    "Choose folder\u2026",
+    "Find my SSH settings",
+    "From SSH settings",
+    "Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP.",
+    "No SSH aliases or public host names were found.",
+    "Non-secret SSH settings. Review imported paths and routing before connecting.",
+    "Password:",
+    "Private-key passphrase:",
+    "Profiles store connection settings, never passwords or OTPs. SSH prompts stay in this session.",
+    "Remote command returned a non-zero exit status.",
+    "SSH Include cycle or file limit exceeded.",
+    "SSH authentication",
+    "SSH authentication must run in the background.",
+    "SSH authentication needs an open spaCR window.",
+    "SSH authentication was cancelled or timed out.",
+    "SSH authentication was denied. Test the connection to try again.",
+    "SSH command output exceeded the capture limit.",
+    "SSH command timed out; it was not submitted again.",
+    "SSH configuration file is too large.",
+    "SSH connection or authentication failed ({error}); test the connection to retry.",
+    "SSH connection test failed.",
+    "SSH connection test passed.",
+    "SSH host key is unknown or changed; verify it with your administrator before connecting.",
+    "SSH host name",
+    "SSH identity file",
+    "SSH interactive authentication must be a boolean.",
+    "SSH jump host",
+    "SSH jump-host cycle or hop limit exceeded.",
+    "SSH known-hosts file is too large.",
+    "SSH options must contain only supported non-secret connection fields.",
+    "SSH port",
+    "SSH port must be between 1 and 65535.",
+    "SSH settings",
+    "SSH settings could not be read. Choose a folder containing a readable config file.",
+    "SSH settings imported. Conditional Match blocks are not evaluated; review the connection before testing.",
+    "SSH user",
+    "Test connection",
+    "Testing SSH connection\u2026",
+    "{stage} failed: {error}"
+  ],
+  "languages": {
+    "sv": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "de": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "es": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "zh_CN": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "pt": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "hi": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "ko": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "is": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    },
+    "fr": {
+      "preserved_other_rows": 10489,
+      "reviewed_owned_rows": 43
+    }
+  }
+}
