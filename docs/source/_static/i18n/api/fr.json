@@ -82350,64 +82350,64 @@
     },
     "spacr.qt.laptop_mode": {
       "source_blocks_sha256": [
-        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
-        "d33c0d4d0045796a3a06aef69c6706e5295870356288fd51137396fca2f7f60e",
-        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
-        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+        "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+        "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+        "c4f4dc6104a1cb2030a0d6288cfce1b03fc25118abcc101dcb223f8e151bb3f9",
+        "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61"
       ],
-      "source_sha256": "b056b4336030223d0fefd11b8fa7a2fb8f8fc3487d7c7fdd35e337422cc50fc0",
-      "text": "Bien tourner sur une petite machine sans devenir une application plus petite.\n\nC'est le recul atteint après des optimisations normales. Il refuse les coûts de rendu décoratifs au lieu de supprimer les fonctionnalités d'application.\n\nRien ici ne change ce qu'une session de traitement calcule. Chaque réglage qu'il touche est sur la façon dont l'application est DRAWN.\n\nIl est choisi automatiquement, il peut être dépassé dans les deux sens, et il dit ce qu'il a refusé -- un mode qui rend discrètement l'application différente est quelqu'un que personne ne peut déboguer.",
+      "source_sha256": "9d3f275ab4a63201eb33741855e6b942f2baab8c52c941ef6b213f6858c8c153",
+      "text": "Mesure les contraintes matérielles et supprime le fond d’ambiance pour ce processus.\n\nLes décisions fondées sur le matériel utilisent le nombre de CPU utilisables, la mémoire physique et la dérogation ``SPACR_LAPTOP_MODE``. Le démarrage de la GUI transmet à la place une décision explicite issue du niveau de performances choisi ; sa lecture du matériel sert au diagnostic.\n\nLa suppression concerne le rendu du fond. Ce module ne définit ni limites de threads de travail ni paramètres d’analyse, et ne remplace pas les préférences d’animation enregistrées.\n\n``apply`` définit ``SPACR_NO_BACKDROP`` lorsqu’une suppression est demandée et que le fond d’ambiance est activé. La désactivation retire uniquement une suppression créée par ce module ; une dérogation préexistante de récupération après un plantage est conservée.",
       "translation_source_blocks_sha256": [
-        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
-        "d33c0d4d0045796a3a06aef69c6706e5295870356288fd51137396fca2f7f60e",
-        "90480b66e0997f15671e2aa2cf8efdff2b6c73dd38d0350a667b55b7ba5e4bf6",
-        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+        "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+        "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+        "74918d4beb558100d912e14b1ce897911d92b8324c50e05cb55ca68c6f0f56d4",
+        "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61"
       ]
     },
     "spacr.qt.laptop_mode.apply": {
       "source_blocks_sha256": [
-        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
-        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
-        "39633c9008297a57422460fe23b3a8bea53cb256b6dc42f34f4eac990c2be100",
-        "ff0abfd1859c9289e0136896b93680b63806bb4fe25b1fb5d01c5b8898662f87"
+        "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+        "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+        "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+        "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5"
       ],
-      "source_sha256": "c52d6c858e0a88a825be430f8dd53df41999a52ab654ec46743a5af9f0e51a23",
-      "text": "Activer ou désactiver le mode. Retourne ce qui a été décidé et ce qui change.\n\n:param on: force la réponse; ``None`` mesure la machine.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` désigne chaque chose réellement faite, donc un appelant peut dire ce qui s'est passé plutôt que de le revendiquer.\n\nVoir :data:`_NO_BACKDROP` pour savoir pourquoi : il s'agit d'une décision concernant une session de traitement sur une machine, et la préférence de l'utilisateur stocké n'est pas celle de ce module à répondre.",
+      "source_sha256": "1b10d6900cb0e03a04971ff50236a98fb25f338bcf7cc88f912824a661332785",
+      "text": "Applique la suppression du fond limitée au processus et signale la décision ainsi que les actions.\n\n:param on: décision explicite ; ``None`` utilise :func:`wanted`, y compris sa lecture du matériel et sa dérogation d’environnement.\n:returns: une association avec ``on``, ``why`` et ``changed``. ``on`` est la décision ; ``changed`` énumère les actions réellement effectuées et peut être vide.\n\nLa suppression est limitée au processus et ne remplace pas la préférence d’animation enregistrée. La désactivation efface uniquement la suppression créée par ce module et conserve toute dérogation préexistante de récupération après un plantage.",
       "translation_source_blocks_sha256": [
-        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
-        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
-        "39633c9008297a57422460fe23b3a8bea53cb256b6dc42f34f4eac990c2be100",
-        "ce569c7006a699745ff3f87b2537af113bb249200be810a7c76a020f0a0d633f"
+        "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+        "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+        "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+        "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5"
       ]
     },
     "spacr.qt.laptop_mode.describe": {
       "source_blocks_sha256": [
-        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+        "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846"
       ],
-      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
-      "text": "Toute la décision comme un bloc, pour le journal de lancement.",
+      "source_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "text": "Met en forme la décision fondée sur le matériel et les descriptions d’effets pour les journaux de diagnostic.",
       "translation_source_blocks_sha256": [
-        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+        "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846"
       ]
     },
     "spacr.qt.laptop_mode.measure": {
       "source_blocks_sha256": [
-        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+        "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05"
       ],
-      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
-      "text": "De quoi la décision est-elle prise, de sorte qu'elle peut être rapportée et testée.",
+      "source_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "text": "Renvoie le nombre de CPU, la mémoire physique, les indicateurs de seuil et la dérogation analysée.",
       "translation_source_blocks_sha256": [
-        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+        "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05"
       ]
     },
     "spacr.qt.laptop_mode.override": {
       "source_blocks_sha256": [
-        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+        "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88"
       ],
-      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
-      "text": "Ce que dit l'environnement, ou None quand il ne dit rien.",
+      "source_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "text": "Analyse la dérogation d’environnement ; renvoie ``None`` si elle est absente ou non reconnue.",
       "translation_source_blocks_sha256": [
-        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+        "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88"
       ]
     },
     "spacr.qt.laptop_mode.total_memory_gib": {
@@ -82422,38 +82422,38 @@
     },
     "spacr.qt.laptop_mode.usable_cores": {
       "source_blocks_sha256": [
-        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
-        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+        "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+        "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5"
       ],
-      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
-      "text": "Noyaux que ce processus peut effectivement utiliser, pas les carottes de la machine.\n\n`os.sched_getaffinity` lorsqu'il existe : un conteneur ou un planificateur peut pincer le processus à moins de rapports `cpu_count`, et pinning est exactement la situation pour laquelle ce mode est utilisé.",
+      "source_sha256": "e5eb6f66da16d5b3607710a14439c9cad49a88d33e586fa5fa5f2e91455fa804",
+      "text": "Renvoie le nombre de CPU autorisées par l’affinité du processus, avec ``os.cpu_count`` comme solution de repli.\n\n``os.sched_getaffinity`` tient compte de l’affectation du processus lorsqu’il est disponible. S’il est indisponible ou échoue, le nombre de CPU déclaré est utilisé à la place. Le résultat est au moins un ; la solution de repli ne mesure pas les limites d’affinité.",
       "translation_source_blocks_sha256": [
-        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
-        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+        "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+        "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5"
       ]
     },
     "spacr.qt.laptop_mode.wanted": {
       "source_blocks_sha256": [
-        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
-        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+        "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+        "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723"
       ],
-      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
-      "text": "Indique s'il faut exécuter en mode portable, et la phrase qui dit pourquoi.\n\n:returns: ``(on, why)``. La raison est toujours peuplée, y compris lorsque la réponse est non -- \"spaCR decided not to\" est une chose qu'un utilisateur signale et que quelqu'un doit être en mesure de vérifier.",
+      "source_sha256": "ae2d6184c93bafb4c0366d02d5962ab94168c0853d165d88c50a9878fd18961a",
+      "text": "Renvoie la décision du mode ordinateur portable fondée sur le matériel et son explication.\n\n:returns: ``(on, why)``. Le motif est toujours renseigné, même lorsque la décision est de désactiver. Une dérogation explicite d’environnement prime sur les indicateurs de seuil du nombre de cœurs et de la mémoire physique.",
       "translation_source_blocks_sha256": [
-        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
-        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+        "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+        "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723"
       ]
     },
     "spacr.qt.laptop_mode.what_it_turns_down": {
       "source_blocks_sha256": [
-        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
-        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+        "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+        "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216"
       ],
-      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
-      "text": "Chaque chose le mode change, et ce qu'un utilisateur perd par elle.\n\nRien ici n'est lu par un workflow, donc une session de traitement calcule la même réponse dans les deux modes, ce qui est la promesse qui rend une décision automatique acceptable du tout.",
+      "source_sha256": "084d16f773c3751933b1872da8d40c9c3e0eda043b7adf28185af4c11f576974",
+      "text": "Renvoie les descriptions de l’animation et du flou du fond utilisées pour le diagnostic.\n\nChaque paire contient un nom d’effet et sa description pour les notes de l’UI et les journaux. Cette fonction renvoie du texte ; :func:`apply` réalise la suppression du fond limitée au processus.",
       "translation_source_blocks_sha256": [
-        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
-        "8a7a63cdcf93686621f8610c132750a316daec957429fe3140bdf2456fdb68e7"
+        "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+        "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216"
       ]
     },
     "spacr.qt.layer_viewer": {
@@ -86772,42 +86772,42 @@
     },
     "spacr.qt.memory_budget": {
       "source_blocks_sha256": [
-        "7dee1bb5f7c9b5d23474f893c3d14ce8e6ed29158711c2c731d455aa7ab70845",
-        "e8113a41d8118dcd9279bcf26c3df16c9da8bbd10092277d03c2b467d515965f",
-        "990dc5f29bac1f3305b275eaffe47e17b713dde972d5c8c4a6e687edafa9af44"
+        "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+        "c58bbd9144a04712a3e43730f51eb31206fa4de45fc39af9e363370a6b35390a",
+        "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa"
       ],
-      "source_sha256": "d127c85059819ad3412bbebd07a8038482d386d5a8997ffec054d659011a9d9d",
-      "text": "Ce que spaCR est autorisé à conserver, et quand il doit le rendre.\n\nTrois réglages, et l'ordre compte. L'étage de la salle de tête vient en premier: il dit combien de la machine doit rester libre pour tout le reste, et les deux autres sont sans signification jusqu'à ce que quelque chose dit quand les appliquer. Ensuite, le temps de repos, qui indique combien de temps une chose inutilisée peut s'asseoir avant qu'elle soit lâchée, et le plafond de cache, qui dit combien peut être tenu du tout.\n\nMesuré sur cette machine : importer torch coûte 477 Mo, supprimer chaque entrée torch de `sys.modules` et collecter les retours 0 de celle-ci, et 63 de ses objets partagés restent mapisés. CPython n'a jamais pris en charge le déchargement d'une extension C. Ce qui peut être retourné est des caches, des poids de modèle et des allocations GPU, donc c'est ce que ces règles régissent -- et reporter une importation jusqu'à la première utilisation est la forme honnête de \"load when called\", ce qui explique pourquoi une session qui n'ouvre jamais un module d'apprentissage profond ne paie jamais le 477 MB.",
+      "source_sha256": "c88e4eb03ecde594812d4d30f9fe1a2151ba284cc4cf043ed5314a6d98bf7f63",
+      "text": "Politiques d’éviction du cache et mesures de la mémoire disponible sur l’hôte.\n\nLe délai d’inactivité et le plafond du cache déterminent les clés sélectionnées par ``what_to_drop``. Le prédicat distinct ``headroom_is_short`` compare la mémoire disponible sur l’hôte à un seuil configuré. Les appelants appliquent ces politiques et libèrent les ressources.\n\nCe module ne décharge ni les modules Python ni les bibliothèques natives. Les plans d’éviction identifient des entrées de cache ; les appelants décident quelles ressources peuvent être libérées. Les politiques ne garantissent aucune réduction particulière de la mémoire du processus ou des allocations GPU.",
       "translation_source_blocks_sha256": [
-        "7dee1bb5f7c9b5d23474f893c3d14ce8e6ed29158711c2c731d455aa7ab70845",
-        "ce824dfa2a1bec3fe844b6dc7defdbfa3bdb5d158cc9153985bb5b6c2c557058",
-        "2fbaf85de9f84b1538889b58d786600eb2419e5f2487dbaf8db7c71623a5716e"
+        "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+        "a006f7cbffea16de4f4f1b11893ab286685a0c6b93b35187e848ccb90044259c",
+        "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa"
       ]
     },
     "spacr.qt.memory_budget.free_megabytes": {
       "source_blocks_sha256": [
-        "335bd8baecef403e0f0429c1114aa3d46d65d84c36989c0af807043ad5d74727",
-        "39138f50b3a0525405ef5dd18f5e1f1c097448add5200fc859576a69a489d00b"
+        "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+        "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb"
       ],
-      "source_sha256": "725ac9fb54575611439b5f6a9176b9c98b9d2e1193880a84890c2608534301ae",
-      "text": "Combien de mémoire la machine est libre en ce moment.\n\n:returns: mégaoctets, ou ``None`` lorsqu'il ne peut pas être mesuré -- dans ce cas, le plancher de la tête de lit ne peut être imposé et le dit plutôt que de deviner.",
+      "source_sha256": "90b4c7ec1305c5821ac72ede14eaf20da4aab17a5b9fddea9ff5e98df245979b",
+      "text": "Renvoie la mémoire disponible sur l’hôte en mébioctets.\n\n:returns: ``psutil.virtual_memory().available`` divisé par ``1024**2``, ou ``None`` si la mesure échoue.",
       "translation_source_blocks_sha256": [
-        "335bd8baecef403e0f0429c1114aa3d46d65d84c36989c0af807043ad5d74727",
-        "39138f50b3a0525405ef5dd18f5e1f1c097448add5200fc859576a69a489d00b"
+        "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+        "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb"
       ]
     },
     "spacr.qt.memory_budget.headroom_is_short": {
       "source_blocks_sha256": [
-        "a0201766d2334e4ed9a927ef5c0efe72b5bb216662973cac624d8c3b5d460c82",
-        "98608cc4fe30c11e66e37def0b64da7ad24b46456b8d8c3e2a15f94f6000d725",
-        "4a56c5e9c0578f16c5dc2093870adb26269f48380b2c7f49897ece632a37c8a9"
+        "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+        "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+        "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027"
       ],
-      "source_sha256": "7c0c7ce6f21e8248b69f8cb394c911e663f5780444a199b4b54fb43d39256858",
-      "text": "Si la mémoire libre est tombée sous le sol.\n\n:param floor_mb: le plancher; lisez les préférences lorsqu'elles sont omises.\n:returns: ``False`` lorsque la mémoire ne peut pas être mesurée -- un cache qui ne peut être montré comme un problème n'est pas abandonné sur suspicion.",
+      "source_sha256": "e355f34b6c9814bafb021d8745fcff8303b03b40297c2a1d3e224c9997dd428f",
+      "text": "Vérifie si la mémoire disponible sur l’hôte est inférieure au seuil configuré.\n\n:param floor_mb: seuil en mébioctets ; lu dans les préférences s’il est omis.\n:returns: ``False`` si la mémoire ou la préférence requise ne peut pas être lue ; sinon, le résultat de la comparaison entre la mémoire disponible et le seuil.",
       "translation_source_blocks_sha256": [
-        "a0201766d2334e4ed9a927ef5c0efe72b5bb216662973cac624d8c3b5d460c82",
-        "98608cc4fe30c11e66e37def0b64da7ad24b46456b8d8c3e2a15f94f6000d725",
-        "4a56c5e9c0578f16c5dc2093870adb26269f48380b2c7f49897ece632a37c8a9"
+        "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+        "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+        "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027"
       ]
     },
     "spacr.qt.memory_budget.recommended_for": {
@@ -86826,26 +86826,26 @@
     },
     "spacr.qt.memory_budget.what_to_drop": {
       "source_blocks_sha256": [
-        "42ce74dd9aad550c5b96cebf035510c46639364a8688e1bc1dc6c1f84f47c30f",
+        "31af9ce76aff459d4c3179c000db0bdb43c6503ec8570c3138467fa97fc8d6cf",
         "6c2fb2d25b2ecddad109250e3d7c80810b00c3ac25114877347add35e8e0eb69",
         "7aad11250c3144958b20cc43b94d429df587350d39d938779eeb8c5cad07aca4",
         "0ba4e87629bcae4a11eb3ff5a3f6cb596d8b65b826863b2a077e0c633f7f524b",
         "d64accbbd8381ffc1449b95c53a4735cebae4a9065ad2e68cebd2a5d6db7c539",
-        "a39afc7eacade24ad70fcf24dd569c0d279ec5a768f486c85a54f115f8445479",
-        "cacfbfd07a2f73a883e233de8269be4aa7da60e7306154141f03ad837ca4e0ad",
-        "488dc0c3970d5b8cce09d8716a8f248cf17ac094c437f86166136aa5b7c01efe"
+        "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+        "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+        "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06"
       ],
-      "source_sha256": "8bbe5fb5c2e871179f6cd4317be8e37d3aa6eca8a7f1af28cf5324501dd4e313",
-      "text": "Quelles entrées de cache doivent aller, plus vieux oisifs d'abord.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: l'heure actuelle, passé dans afin qu'un test puisse le choisir.\n:param idle_minutes: le temps d'arrêt au ralenti; à partir des préférences lorsqu'elles sont omises.\n:param ceiling_mb: le plafond de taille; des préférences en cas d'omission.\n:returns: les clés à déposer, dans l'ordre de les déposer.\n\nDeux raisons, appliquées dans l'ordre. Tout au ralenti plus longtemps que le timeout va parce que rien ne l'utilise. Ensuite, si ce qui reste est encore au-dessus du plafond, le moins récemment utilisé va jusqu'à ce qu'il s'adapte -- donc un cache sous pression abandonne ce dont il est le moins susceptible de vouloir ensuite plutôt que ce qui se passe pour atteindre d'abord.\n\nUne entrée n'est jamais abandonnée pour être grande seule : la taille décide de l'ORDRE d'une garniture, et l'oisiveté décide s'il y en a une.",
+      "source_sha256": "fbf221dfff9accbb558a9b54980aeb249f59363f7d586c25169188125475d6a5",
+      "text": "Sélectionne les clés du cache selon le délai d’inactivité, puis la taille totale restante.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: l'heure actuelle, passé dans afin qu'un test puisse le choisir.\n:param idle_minutes: le temps d'arrêt au ralenti; à partir des préférences lorsqu'elles sont omises.\n:param ceiling_mb: le plafond de taille; des préférences en cas d'omission.\n:returns: clés sous forme de chaînes à supprimer, dans l’ordre de sélection.\n\nLes entrées plus anciennes que le délai sont sélectionnées en premier, dans l’ordre d’entrée. Si le total restant dépasse le plafond, des entrées supplémentaires sont sélectionnées de la moins récemment utilisée à la plus récemment utilisée, jusqu’à ce que ce total respecte le plafond.\n\nLa taille détermine si d’autres évictions sont nécessaires, pas leur classement. Le plafond peut sélectionner des entrées même si aucune ne dépasse le délai d’inactivité. Cette fonction auxiliaire ne vérifie ni la marge de mémoire de l’hôte ni si les entrées sont utilisées ; les appelants doivent fournir des entrées pouvant être évincées.",
       "translation_source_blocks_sha256": [
-        "42ce74dd9aad550c5b96cebf035510c46639364a8688e1bc1dc6c1f84f47c30f",
+        "f65cf0e510dbbf748ed78bd5af1393b69b148ff5e3c940ca6a0cb87c8d9d95f9",
         "6c2fb2d25b2ecddad109250e3d7c80810b00c3ac25114877347add35e8e0eb69",
         "7aad11250c3144958b20cc43b94d429df587350d39d938779eeb8c5cad07aca4",
         "0ba4e87629bcae4a11eb3ff5a3f6cb596d8b65b826863b2a077e0c633f7f524b",
         "d64accbbd8381ffc1449b95c53a4735cebae4a9065ad2e68cebd2a5d6db7c539",
-        "a39afc7eacade24ad70fcf24dd569c0d279ec5a768f486c85a54f115f8445479",
-        "2ca45fa78178bfc1617e002ef59cff6772e250edd5ddb3bdd152429d031ea566",
-        "488dc0c3970d5b8cce09d8716a8f248cf17ac094c437f86166136aa5b7c01efe"
+        "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+        "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+        "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06"
       ]
     },
     "spacr.qt.menus": {
@@ -101480,16 +101480,16 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
       "source_blocks_sha256": [
-        "4105b719d131be273bcf078a64a419aebd6f148d5e15e6675266a1daa76128de",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "39d3c72137f96a440437ef8d2b92b8caca64ff021ab21acc5015cf1498eab95c"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ],
-      "source_sha256": "a79ed4bc3c1d83dcbb87f10ef19560cb9edfa3def94828dbd00422a10d58a6b4",
-      "text": "Laissez le coureur de travail arrêter son chemin d'exécution indépendant avant que le widget ne parte.\n\nLe drapeau stop est d'abord défini. ``shutdown`` attend un temps limité et place ensuite un travailleur qui le surpasse, de sorte qu'une charge dite de s'arrêter entre les pages se termine en une page au lieu de lire le reste de la plaque dans un tableau dont le criblage est parti.\n\n:param event: L'événement de fermeture de Qt, passé à la classe de base inchangé. Jamais ignoré -- une vue d'application qui refuse de fermer parce qu'une course en vol emprisonne la fenêtre, donc la course est arrêtée à la place.",
+      "source_sha256": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24",
+      "text": "Abandonner les résultats en attente et achever la gestion des deux exécuteurs avant la suppression du widget.\n\nLe drapeau d’arrêt des régions d’image est d’abord activé et toute progression DINO ultérieure est ignorée. Chaque ``shutdown`` attend pendant une durée limitée, puis met de côté les threads de travail encore actifs. Un thread d’entraînement ainsi mis de côté peut terminer l’écriture de son point de contrôle sans mettre à jour cet écran fermé ; il n’est pas arrêté de force.\n\n:param event: Événement de fermeture de Qt, transmis sans modification à la classe de base. La fermeture est acceptée même si un thread de travail doit être mis de côté.",
       "translation_source_blocks_sha256": [
-        "e0cc3b23651bbe7cc9b9c86694d274085e1ec2e40c0b65bd2987d213d9b40a39",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "7f86d6c6668ae0a51a0ccb106ebcb34b3bda682585618dd5a0175e36d9f3a3b4"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "dc8984a0772acbe6fa05f1014241b462faca9a8104a04bf160fbb045badc9d3c",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query": {
@@ -101558,14 +101558,14 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+        "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ],
-      "source_sha256": "f6b2458f1fcb10a13133dd1ca2d3e76f6530fc040f79538d2500d93837e4a745",
-      "text": "Si une course est en vol.\n\nUn chargement de vignettes compte. C’est de loin la plus longue des deux tâches -- une plaque de vignettes lue depuis un montage réseau prend des minutes -- et une vue qui se déclarerait inactive pendant ce temps laisserait la fenêtre se fermer sur une lecture en cours.",
+      "source_sha256": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
+      "text": "Indique si un chargement de régions d’image, une tâche de plongement ou un préentraînement DINO est en cours.\n\nInclut l’exécuteur DINO distinct jusqu’à la fin de son thread de travail, même après que son résultat final est parvenu à l’écran.",
       "translation_source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "037d7fc54e36101250627eacee915596353c74bd28cae0a91c09d53a325689c9"
+        "bf89ba6600a5433def77648af0ff21cb9c67ac483b0fc988658088c17fe5d065",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
@@ -131857,19 +131857,19 @@
     "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state": {
       "source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "ea206d0b5c521d4ac39fd53efcf417705f55206609c2fecc7c94574bb389d000",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df"
+        "6ad0e08287e2e2b86af8c88dc0a6bbd2c66cf69d509b62ca700d39e67ac2af2d",
+        "b813f69a09a450d3305e51dc59501b009a1482aa3e62d57c42e9785a6d884917",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "7b65ee52d867ca737314df800589032c788e8b134f157bc8b40e4ab1bc18930f"
       ],
-      "source_sha256": "2d5b13f3b8043437be8ed298de2791a74b6e85903d3a27577ad3411f78fcfe20",
-      "text": "Recollez l'ensemble. Retourne si quelque chose était attaché.\n\nUne source qui n'est plus là est laissée à l'écart et le reste est toujours attaché -- une plaque déplacée n'arrête pas les autres attachés. Le document de l'espace de travail mentionne chaque manquant dans son propre rapport, de sorte que rien ne tombe ici silencieusement.\n\nSi chaque source existe encore est cochée sur le chemin d'exécution principal GUI, parce que les chemins d'un espace de travail sauvegardé peuvent être sur une monture qui s'est endormie depuis. L'ensemble est attaché maintenant et ceux qui se révèlent partis sont laissés tomber lorsque la réponse arrive, ce qui coûte un redessiner au lieu d'une statistique de blocage.\n\nLa valeur de retour répond \"y avait quelque chose à joindre\", pas \"il n'y en avait pas encore sur le disque\". :func:`spacr.workspace.restore_workspace` signale donc la section telle qu'elle a été restaurée de toute façon; les sources qui s'avèrent disparues sont abandonnées lorsque la vérification se termine, et la ligne de résumé donne le nom de chaque source sans base de données derrière elle.\n\n:param state: dictionnaire enregistré par :meth:`workspace_state` ; seule sa liste ``sources`` est lue, et tout ce qui n’est pas un dictionnaire, ou n’a pas de sources, renvoie False.",
+      "source_sha256": "e96c22e54bbaef37cfb3f78a8ef62419bc18fce6e2ab561c4106741a6cbb7036",
+      "text": "Recollez l'ensemble. Retourne si quelque chose était attaché.\n\nLes sources enregistrées conservent leur ordre. En mode dossier, une liste explicite ``databases`` dont les entrées correspondent peut fournir une base de données restaurée par le noyau de l’espace de travail. Si la base de données d’origine est absente et que ce fichier existe, l’ensemble lit le fichier fourni tout en conservant la clé de la source d’origine. Cette association ne réécrit pas les chemins racines des sources renvoyés par :meth:`get_value` et ne reconstruit pas un dossier de projet pour un nouveau pipeline de traitement.\n\nLes vérifications du système de fichiers s’exécutent hors du thread de l’interface graphique (GUI). Les sources sans source d’origine existante ni base de données explicite utilisable sont retirées lorsque le résultat arrive. Les sources ajoutées sont conservées ; les sources remplacées, ou retirées puis ajoutées de nouveau, ne peuvent pas recevoir d’associations périmées.\n\nLorsque la vérification est asynchrone, la valeur de retour répond à « y avait-il quelque chose à rattacher ? », et non à « en restait-il quelque chose sur le disque ? ». Le noyau de l’espace de travail signale séparément les fichiers absents ou modifiés. Sans thread de travail, la vérification est déjà terminée au moment du retour.\n\n:param state: dictionnaire enregistré par :meth:`workspace_state` ; lit ``sources``, ``mode`` et une liste facultative ``databases`` dont les entrées correspondent par position. Une valeur autre qu’un dictionnaire ou un ensemble de sources vide renvoie False. La vérification des fichiers et la réaffectation des chemins transportés relèvent du noyau de l’espace de travail.",
       "translation_source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "81289abf062b72e76f0e6e44488f3db97fdc37370b911aae063bf10c00f21d01",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "720a039f168e6f1182321d4d9cc84276e22b09761a70c09807626e15ebdf633d"
+        "d48968b51e632dfbd701a891a9d91549b9a9da0d26c63f1b8b79ba275c0f55dd",
+        "f09cb36527cb369250b0039c826d2f2d5e055788763d05757e9e7990ed3a2bfa",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "83cfd34fe45ea363994284a856132027f10e1ff6e30031001dfa46f5506a59b3"
       ]
     },
     "spacr.qt.widgets.database_set.DatabaseSetWidget.choose_sources": {

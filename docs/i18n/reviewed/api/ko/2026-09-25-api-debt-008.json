@@ -851,7 +851,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
       "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205",
-      "translation": "추출 이미지 영역 로드도 포함됩니다. 두 작업 중 훨씬 긴 쪽이며(네트워크 마운트에서 마이크로플레이트의 추출 이미지 영역을 읽으면 몇 분이 걸림), 그 동안 유휴 상태로 보고하는 화면은 실행 중인 읽기 위로 창이 닫히게 할 것입니다."
+      "translation": "추출 이미지 영역 로드도 포함됩니다. 두 작업 중 훨씬 긴 쪽이며(네트워크 마운트에서 마이크로플레이트의 추출 이미지 영역을 읽으면 몇 분이 걸림), 그 동안 유휴 상태로 보고하는 화면은 실행 중인 읽기 위로 창이 닫히게 할 것입니다.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Embedding runner lifecycle documentation corrected in f35b59248ae + efe3784e64a. Replacement exact-source review is2026-10-15-f561-lifecycle-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Whether an extracted image region load is in flight.",

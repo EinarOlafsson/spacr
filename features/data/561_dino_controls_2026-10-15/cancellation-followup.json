@@ -1,0 +1,10 @@
+{
+  "review_finding": "Actual PipelineWorker pre-start cancellation emits finished(False) without job_failed; former state stayed busy after worker retirement.",
+  "before": "One actual cancelled-worker regression fails: active/pending jobs are0, but is_busy remainsTrue.",
+  "repair": "Handle no-error terminal failure only while own run remains active and no newer pending job exists. Success/error/closed paths retain existing handling.",
+  "after": "33 targeted Qt checks pass in5.98s, including actual before-start cancellation and a new real retry started from the previous error callback before its old terminal signal.",
+  "source_sha256": "9fda21401f1777bf049b0ccbf11015e38f0e22c19fcb9b972ae46e50040d5785",
+  "test_sha256": "2b3082658a04e7870d71d55f9bdbb78dc1746da825154166ee41c9261818c32a",
+  "runtime_caption_added": "Pretraining stopped.",
+  "collector": "Only own childless lock waiter947797 stopped with143 before any collection; no stale source cache reused."
+}

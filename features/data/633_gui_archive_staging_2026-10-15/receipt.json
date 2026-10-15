@@ -1,0 +1,48 @@
+{
+  "scope": "N633 actual single/selected Qt archive worker staging ownership only",
+  "base": "902630241d7",
+  "source_functions": [
+    "_TarExampleWorker.run",
+    "_ChosenArchivesWorker._fetch_one"
+  ],
+  "baseline": {
+    "failed": 10,
+    "seconds": 3.42
+  },
+  "owning": {
+    "passed": 13,
+    "seconds": 1.94,
+    "new_native_worker_cases": 10,
+    "existing_stream_short_cancel_contracts": 3,
+    "memory_cap": "6G",
+    "common_heavy_lock": true,
+    "CUDA_VISIBLE_DEVICES": "",
+    "offscreen": true
+  },
+  "proofs": [
+    "Actual worker run emits exactly one expected finished outcome",
+    "Successful extraction receives complete bytes and original MB progress",
+    "Pre-existing .part regular/symlink and its foreign target preserved",
+    "Interrupted/short/cancelled paths preserve last good archive and unrelated partial bytes",
+    "After run returns, private directory and own partial gone; cancellation caption exact"
+  ],
+  "root_static_peer": "Parent independently approved proposed-source.patch: file then directory unwind order; public prose/captions/progress/extraction unchanged; original umask inner-file mode preserved",
+  "source_SHA256": "8e697f25fe62edf150d545d15e78ac0dfc8ab00704ff812174259ebe30ab2be3",
+  "all_function_class_signatures_and_docstrings_identical": true,
+  "all_existing_string_literals_identical": true,
+  "only_new_literals": {
+    ".spacr-archive-": 2
+  },
+  "limits": [
+    "Cancellation finished signal still emits before context exit; no claim synchronous observers see already-completed cleanup",
+    "Shared target publication/extraction/destination concurrency remains separate; this repair isolates stream staging only",
+    "No actual network, GUI rendering, Windows-native acceptance, model/GPU or full CI run"
+  ],
+  "publication": "Normal source-identical merge completed; push follows evidence commit",
+  "normal_reconciliation": {
+    "merged_public": "7964b1ff338f9119f51c94e56655c88286faf0ac",
+    "own_source_byte_identical_to_tested": "f9d51914544",
+    "no_unchanged_13_rerun": true,
+    "public_API_docs_captions_signature_unchanged": true
+  }
+}
