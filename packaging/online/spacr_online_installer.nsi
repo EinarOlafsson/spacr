@@ -89,9 +89,10 @@ FunctionEnd
 
 Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   SectionIn RO
+  InitPluginsDir
   SetOutPath "$INSTDIR"
   File /oname=spacr.ico "${SPACR_ICON}"
-  SetOutPath "$TEMP\spaCR-online-installer"
+  SetOutPath "$PLUGINSDIR\spaCR-online-installer"
   File "install_spacr_windows.ps1"
   File /r "generated"
   ; The finder and remover the bootstrap runs before it installs: the same
@@ -134,7 +135,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   FileWrite $4 "starting backend=$1 language=$3 consent=$ConsentCollectedValue$\r$\n"
   FileClose $4
   DetailPrint "$(SPACR_NSIS_DOWNLOADING)"
-  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue -SignInNow $ConsentSignInValue'
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue -SignInNow $ConsentSignInValue'
   Pop $0
   FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" a
   FileWrite $4 "exit=$0$\r$\n"
@@ -159,11 +160,11 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   CreateShortcut "$SMPROGRAMS\spaCR\Uninstall spaCR.lnk" "$INSTDIR\Uninstall.exe"
   CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '-I "$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
 
-  Delete "$TEMP\spaCR-online-installer\install_spacr_windows.ps1"
-  Delete "$TEMP\spaCR-online-installer\install_cleanup.py"
-  Delete "$TEMP\spaCR-online-installer\generated\installer_messages.ps1"
-  RMDir "$TEMP\spaCR-online-installer\generated"
-  RMDir "$TEMP\spaCR-online-installer"
+  Delete "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1"
+  Delete "$PLUGINSDIR\spaCR-online-installer\install_cleanup.py"
+  Delete "$PLUGINSDIR\spaCR-online-installer\generated\installer_messages.ps1"
+  RMDir "$PLUGINSDIR\spaCR-online-installer\generated"
+  RMDir "$PLUGINSDIR\spaCR-online-installer"
 SectionEnd
 
 Function LaunchSpaCR

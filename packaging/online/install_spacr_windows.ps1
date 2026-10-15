@@ -121,13 +121,13 @@ if ($drive.AvailableFreeSpace -lt 5GB) {
         (Get-SpacrInstallerMessage "available_space" @($available, $InstallRoot)))
 }
 
-New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
+$InstallerLeaseHandles = @()
+$InstallerStarted = $false
+$TranscriptStarted = $false
 $WorkDir = Join-Path $env:TEMP ("spacr-install-" + $PID)
 $WorkUv = Join-Path $WorkDir "bootstrap\uv.exe"
 $InstallerScript = Join-Path $WorkDir "uv-installer.ps1"
 $LogPath = Join-Path $InstallRoot "install.log"
-Start-Transcript -Path $LogPath -Append | Out-Null
-Write-Host (Get-SpacrInstallerMessage "detailed_log" @($LogPath))
 
 function Invoke-Checked {
     param(
@@ -140,11 +140,35 @@ function Invoke-Checked {
     }
 }
 
+function Open-SpacrInstallerLease {
+    param([Parameter(Mandatory = $true)][string]$LeasePath)
+    try {
+        return [System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::CreateNew,
+            [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+    } catch [System.IO.IOException] {
+        if (Test-Path -LiteralPath $LeasePath) {
+            throw (Get-SpacrInstallerMessage "already_running")
+        }
+        throw
+    }
+}
+
 $MetadataBackup = Join-Path $WorkDir "previous-metadata"
 $MetadataTouched = $false
 $RetainWorkDir = $false
 $Committed = $false
 try {
+    $InstallParent = [System.IO.Path]::GetDirectoryName($InstallRoot)
+    New-Item -ItemType Directory -Force -Path $InstallParent | Out-Null
+    $OuterLease = Join-Path $InstallParent (("." + [System.IO.Path]::GetFileName($InstallRoot)) + ".spacr-installer-lock")
+    $InstallerLeaseHandles += @{ Path = $OuterLease; Handle = (Open-SpacrInstallerLease $OuterLease) }
+    New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
+    $RuntimeLease = Join-Path $InstallRoot ".venv.spacr-update-lock"
+    $InstallerLeaseHandles += @{ Path = $RuntimeLease; Handle = (Open-SpacrInstallerLease $RuntimeLease) }
+    $InstallerStarted = $true
+    Start-Transcript -Path $LogPath -Append | Out-Null
+    $TranscriptStarted = $true
+    Write-Host (Get-SpacrInstallerMessage "detailed_log" @($LogPath))
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
 
@@ -351,6 +375,7 @@ raise SystemExit(run())
     Write-Host (Get-SpacrInstallerMessage "launcher" @($Launcher))
 } catch {
     $OriginalError = $_
+    if (-not $InstallerStarted) { throw $OriginalError }
     $RuntimeRestored = $true
     if (-not $Committed -and $OldVenv -and (Test-Path $OldVenv)) {
         try {
@@ -379,8 +404,15 @@ raise SystemExit(run())
     Remove-Item -Force -ErrorAction SilentlyContinue $StageProfile
     throw $OriginalError
 } finally {
-    if (-not $RetainWorkDir) {
+    if ($InstallerStarted -and -not $RetainWorkDir) {
         Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $WorkDir
     }
-    Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
+    if ($TranscriptStarted) { Stop-Transcript -ErrorAction SilentlyContinue | Out-Null }
+    for ($LeaseIndex = $InstallerLeaseHandles.Count - 1; $LeaseIndex -ge 0; $LeaseIndex--) {
+        $Lease = $InstallerLeaseHandles[$LeaseIndex]
+        $Lease.Handle.Dispose()
+        if (-not $RetainWorkDir) {
+            Remove-Item -LiteralPath $Lease.Path -ErrorAction SilentlyContinue
+        }
+    }
 }

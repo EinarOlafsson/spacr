@@ -1,0 +1,28 @@
+{
+  "public_merge_head": "7756aed3919f5424a5a8fa3bab61687b38e9189e",
+  "tested_production_and_owning_tests_unchanged": {
+    "spacr/install_cleanup.py": true,
+    "tests/test_install_cleanup.py": true,
+    "tests/test_retirement_respects_update_leases_703.py": true
+  },
+  "purge_owner_function_unchanged": true,
+  "other_file_functions": "Normal merge retained Easy/Home-B current public journal fixture changes",
+  "runtime_exit": 0,
+  "postmerge_locale_and_purge_exit": 0,
+  "postmerge_pass": 10,
+  "catalog_sha256": {
+    "spacr/qt/i18n_catalogs/de.py": "a8c7798b477259f2c2d88c51f6097401f0bfb317c5df06138f313d4cc3404a17",
+    "spacr/qt/i18n_catalogs/en.py": "2dddd03d047792dea93fb39f2653f2a412fe6aaea66693e1d5b7b5044f4af6d2",
+    "spacr/qt/i18n_catalogs/es.py": "0ebd5d017e672c3a174a7a8310d4b2a14068f7f1c0ea78e21ddeb853a7636401",
+    "spacr/qt/i18n_catalogs/fr.py": "5422a949fee11ee7a604dfad4182213c14edf7274cc4cbdb9fede1b5ba80d39d",
+    "spacr/qt/i18n_catalogs/hi.py": "69a4d8caa17bb6a33a808d0da60e749974525ff72f10a7c12aa3bd24bf363a4f",
+    "spacr/qt/i18n_catalogs/is.py": "f0c464807dba3f73aca131bdcff72dcfd0aa03160806065015f26c0122db5128",
+    "spacr/qt/i18n_catalogs/ko.py": "7de44430f07722155858094542ba2ce75676db0e8113e73ce61793fc8fd3c756",
+    "spacr/qt/i18n_catalogs/pt.py": "2955958a59cc450290f10f981272de91b775ebbbb0206967247d0e6de330da5b",
+    "spacr/qt/i18n_catalogs/sv.py": "2223a1d79809e823c7842a434e1f8fbbcaa25a9a1d76a6560d125987e92c6d21",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "1ea57df1e60d44c822c444c015c2f1b03fea5ca7bd9847f276b3732bb6b205dc"
+  },
+  "generated_merge_resolution": "Every runtime catalog was restored intact from MERGE_HEAD then regenerated through normal source-current review/writer APIs using only four N703 exact-review files. No generated conflict content was hand-merged.",
+  "incoming_raw_artifacts": "Unmodified public XML/patch evidence contains trailing whitespace; owning source/catalog/receipt diff check passes",
+  "global_arrival_hold": "Prior actual source-bound N700 AI Error report missing review refusal remains explicit; not rerun or waived by this closure"
+}

@@ -492,6 +492,60 @@ install_linux_system_dependencies() {
     fi
 }
 
+# @SPACR_INSTALLER_LEASE_BEGIN@
+SPACR_INSTALLER_LEASE=""
+SPACR_INSTALLER_LEASE_ID=""
+SPACR_RUNTIME_LEASE=""
+SPACR_RUNTIME_LEASE_ID=""
+SPACR_INSTALLER_RETAIN_LEASE=0
+spacr_installer_lease_identity() {
+    if [[ "$PLATFORM" == "macos" ]]; then stat -f '%d:%i' "$1"; else stat -c '%d:%i' "$1"; fi
+}
+spacr_release_installer_lease() {
+    [[ "$SPACR_INSTALLER_RETAIN_LEASE" == "0" ]] || return 0
+    local lease saved current
+    for lease in "$SPACR_RUNTIME_LEASE" "$SPACR_INSTALLER_LEASE"; do
+        [[ -n "$lease" && -d "$lease" && ! -L "$lease" ]] || continue
+        if [[ "$lease" == "$SPACR_RUNTIME_LEASE" ]]; then saved="$SPACR_RUNTIME_LEASE_ID"; else saved="$SPACR_INSTALLER_LEASE_ID"; fi
+        current="$(spacr_installer_lease_identity "$lease")" || continue
+        if [[ -n "$saved" && "$current" == "$saved" ]]; then rmdir "$lease" 2>/dev/null || true; fi
+    done
+}
+spacr_acquire_installer_lease() {
+    local canonical parent
+    parent="$(dirname -- "$INSTALL_ROOT")"
+    mkdir -p "$parent"
+    if [[ -d "$INSTALL_ROOT" ]]; then
+        canonical="$(CDPATH= cd -- "$INSTALL_ROOT" && pwd -P)"
+    else
+        canonical="$(CDPATH= cd -- "$parent" && pwd -P)/$(basename -- "$INSTALL_ROOT")"
+    fi
+    case "$canonical" in
+        ""|"/"|"$HOME"|"/home"|"/Users"|"/Library"|"/usr"|"/usr/local")
+            spacr_say unsafe_root "$INSTALL_ROOT" >&2
+            return 2
+            ;;
+    esac
+    SPACR_INSTALLER_LEASE="$(dirname -- "$canonical")/.$(basename -- "$canonical").spacr-installer-lock"
+    if ! (umask 077; mkdir "$SPACR_INSTALLER_LEASE"); then
+        SPACR_INSTALLER_LEASE=""
+        spacr_say already_running >&2
+        return 73
+    fi
+    SPACR_INSTALLER_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_INSTALLER_LEASE")"
+    trap spacr_release_installer_lease EXIT
+    mkdir -p "$INSTALL_ROOT"
+    SPACR_RUNTIME_LEASE="$INSTALL_ROOT/.venv.spacr-update-lock"
+    if ! (umask 077; mkdir "$SPACR_RUNTIME_LEASE"); then
+        SPACR_RUNTIME_LEASE=""
+        spacr_say already_running >&2
+        return 73
+    fi
+    SPACR_RUNTIME_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_RUNTIME_LEASE")"
+}
+spacr_acquire_installer_lease
+# @SPACR_INSTALLER_LEASE_END@
+
 mkdir -p "$INSTALL_ROOT"
 INSTALL_LOG="$INSTALL_ROOT/install.log"
 touch "$INSTALL_LOG"
@@ -519,13 +573,13 @@ cleanup() {
             printf '%s\n' "$metadata_backup" >&2
         fi
     fi
-    if [[ "$retain_work" == "0" ]]; then rm -rf "$work_dir"; fi
+    if [[ "$retain_work" == "0" ]]; then rm -rf "$work_dir"; else SPACR_INSTALLER_RETAIN_LEASE=1; fi
     rm -f "$stage_profile"
     if [[ -d "$stage_venv" ]]; then
         rm -rf "$stage_venv"
     fi
 }
-trap cleanup EXIT
+trap 'cleanup; spacr_release_installer_lease' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 

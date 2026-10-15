@@ -1,0 +1,32 @@
+{
+  "scope": "Lease-aware online installation retirement and selected-environment uninstall; closes installer-versus-retirement check/delete race",
+  "source_sha256": {
+    "spacr/install_cleanup.py": "9456c1729e8e32a4fdfaab26cf4bbb30c4c325175cc654b2040fe31be4d67192",
+    "tests/test_retirement_respects_update_leases_703.py": "ed97d16a2b5a1b30aeb619bbfa1ac0ada15de0f5413b91cb5e8201d6c4ef8b68",
+    "tests/test_install_cleanup.py": "2115df7db33300857623d42a2180928033c11d8d4497051e9277225ed1543a06",
+    "tests/test_home_storage_prune_caches_purge.py": "cd769f8018036d5ad8ffc51b8399c9f9204505a37b1b0958b70c643d011a018a",
+    "tools/i18n_reviewed_ui.py": "d51eca895e4d30461d1f6c3457e62b7d78745ecba1755b626c5a22f3b613dbdd"
+  },
+  "final_owning_exit": 0,
+  "final_owning_pass": 193,
+  "owning_scope": "192 retirement/cleanup/uninstaller checks plus the separately delivered purge-ordering node",
+  "runtime_exit": 0,
+  "initial_failures_preserved": {
+    "backend": "One initial overly broad empty-root cleanup regression; corrected with policy/ownership-bound pruning. Three old N703 test mismatches reproduced against predecessor a4bdbf5ec83.",
+    "backend_v2": "Six empty-root cleanup assertions exposed lost marker identity after removal; corrected using pre-removal eligibility while rechecking protected roots.",
+    "runtime": "Extra descriptive field in an otherwise source-bound review record was correctly refused by the strict schema before writing; moved to header, normal final generation passed."
+  },
+  "coverage_raw": {
+    "sha256": "fada272bf3681a4f630b7924c130f9a320b414a3ac829769a437e04442676ba3",
+    "bytes": 114688,
+    "path": "/mnt/wd4tb/scratch/n703-retirement-lease-20261015/final.coverage"
+  },
+  "remaining": [
+    "Native Windows descriptor/PowerShell/NSIS and native macOS filesystem acceptance",
+    "Full NSIS pre/post-engine lease handoff",
+    "Interrupted lease recovery GUI; no automatic stale PID stealing",
+    "Global N700 explicit-review caption-arrival hold; no new global fixture refresh is claimed here",
+    "Current complete hosted coverage union/full CI and parent N703 acceptance"
+  ],
+  "no_live_installer_package_account_user_data_gpu_or_network_operation": true
+}
