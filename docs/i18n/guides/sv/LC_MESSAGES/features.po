@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -291,6 +291,10 @@ msgstr "Varje kontroll har ett namn som skärmläsare läser upp, hämtat från 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr "Använd :kbd:`Tab` eller :kbd:`Shift+Tab` för att nå **AI** eller **Live**. En kontur visar vilken etikett som har tangentbordsfokus. Tryck på :kbd:`Space`, :kbd:`Return` eller :kbd:`Enter` på det numeriska tangentbordet, utan att hålla andra tangenter nedtryckta, för att slå på eller av den. Om du håller tangenten nedtryckt sker växlingen bara en gång. Om din skärmläsare själv hanterar numeriskt :kbd:`Enter`, använd :kbd:`Space` eller :kbd:`Return`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "I **Inställningar** använder du :kbd:`Tab` för att ge hjälptextfältets smala överkant fokus. Tryck sedan på :kbd:`Up` eller :kbd:`Down`, utan att hålla ned andra tangenter, för att göra fältet högre eller lägre inom dess storleksgränser; :kbd:`Tab` går vidare."
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**Inställningar → Utseende → Tillgänglighet** samlar de inställningar som hjälper mest:"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -291,6 +291,10 @@ msgstr "모든 컨트롤에는 화면 판독기가 읽어 주는 이름이 있�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr ":kbd:`Tab` 또는 :kbd:`Shift+Tab` 으로 **AI** 또는 **실시간** 레이블로 이동하세요. 윤곽선이 키보드 포커스가 있는 레이블을 나타냅니다. 다른 키를 누르지 않은 상태에서 :kbd:`Space`, :kbd:`Return` 또는 숫자 키패드의 :kbd:`Enter` 키를 눌러 켜거나 끄세요. 키를 계속 누르고 있어도 한 번만 전환됩니다. 화면 읽기 프로그램이 숫자 키패드의 :kbd:`Enter` 키를 자체적으로 처리한다면 :kbd:`Space` 또는 :kbd:`Return` 키를 사용하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "**환경설정** 에서 :kbd:`Tab` 키로 도움말 영역의 좁은 위쪽 가장자리에 포커스를 둡니다. 그런 다음 다른 키를 누르지 않은 상태에서 :kbd:`Up` 또는 :kbd:`Down` 키를 눌러 크기 제한 내에서 영역의 높이를 늘리거나 줄입니다. :kbd:`Tab` 키를 누르면 다음 컨트롤로 이동합니다."
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**환경설정 → 모양 → 접근성** 은 가장 도움이 되는 설정을 모아 둡니다:"

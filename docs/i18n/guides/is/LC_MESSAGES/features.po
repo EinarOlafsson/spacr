@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -291,6 +291,10 @@ msgstr "Hver stýring hefur heiti sem skjálesarar lesa upp, tekið úr merki he
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr "Notaðu :kbd:`Tab` eða :kbd:`Shift+Tab` til að fara á **Gervigreind** eða **Beint**. Útlína sýnir hvaða merki hefur lyklaborðsfókus. Ýttu á :kbd:`Space`, :kbd:`Return` eða :kbd:`Enter` á talnaborðinu, án þess að halda öðrum lyklum niðri, til að kveikja eða slökkva. Ef lykli er haldið niðri breytist staðan aðeins einu sinni. Ef skjálesarinn þinn meðhöndlar sjálfur :kbd:`Enter` á talnaborðinu skaltu nota :kbd:`Space` eða :kbd:`Return`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "Í **Kjörstillingar** notarðu :kbd:`Tab` til að færa fókus á mjóa efri brún hjálparreitsins. Ýttu síðan á :kbd:`Up` eða :kbd:`Down`, án þess að halda öðrum lyklum niðri, til að hækka eða lækka reitinn innan stærðarmarka hans; :kbd:`Tab` færir fókus áfram."
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**Kjörstillingar → Útlit → Aðgengi** safnar saman þeim stillingum sem hjálpa mest:"

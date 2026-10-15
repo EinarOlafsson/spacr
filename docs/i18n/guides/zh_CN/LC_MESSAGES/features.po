@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:30-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -291,6 +291,10 @@ msgstr "每个控件都有屏幕阅读器会朗读的名称，取自其标签、
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
 msgstr "使用 :kbd:`Tab` 或 :kbd:`Shift+Tab` 移动到 **人工智能** 或 **实时**。轮廓会显示哪个标签拥有键盘焦点。在未按住其他键的情况下，按 :kbd:`Space`、:kbd:`Return` 或数字键盘上的 :kbd:`Enter` 来开启或关闭它。按住一个键只会切换一次。 如果屏幕阅读器会自行处理数字键盘的 :kbd:`Enter`，请使用 :kbd:`Space` 或 :kbd:`Return`。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "在 **偏好** 中，使用 :kbd:`Tab` 将焦点移到帮助区域狭窄的上边缘，然后在不按住其他键的情况下按 :kbd:`Up` 或 :kbd:`Down`，在尺寸限制内增大或减小该区域的高度；按 :kbd:`Tab` 可移到下一个控件。"
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**偏好 → 外观 → 辅助功能** 汇集了最有帮助的设置："
