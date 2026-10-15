@@ -173727,28 +173727,28 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "``view``에 3개 상태의 세멘트 분류를 설치하고 반환합니다.\n\n``QTableWidget``, ``QTreeWidget``, 또는 ``QTableView``을 수락합니다. ``QTableView``은 :class:`SortableProxyModel`에 삽입되며 ``setModel`` 이후 즉시 이 기능을 호출하고 나중에 시각의 선택 모델을 얻습니다.\n\n:param view: 정렬 가능하게 만들 뷰입니다. 헤더가 없는 뷰는 그대로 반환되며, 이미 설치된 뷰는 초기 순서만 다시 기록됩니다.",
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "``view``에 3개 상태의 세멘트 분류를 설치하고 반환합니다.\n\n``QTableWidget``, ``QTreeWidget`` 또는 ``QTableView`` 객체를 받습니다. 프록시가 아닌 모델을 가진 ``QTableView`` 객체는 :class:`SortableProxyModel` 객체로 감쌉니다. 기존 ``QSortFilterProxyModel`` 객체는 자체 비교 동작과 함께 유지하며, 모델이 없는 뷰는 감싸지 않습니다. ``setModel`` 호출 직후 이 함수를 호출하고, 그 다음 뷰의 선택 모델을 가져오세요.\n\n:param view: 정렬 가능하게 만들 뷰입니다. 헤더가 없는 뷰는 그대로 반환되며, 이미 설치된 뷰는 초기 순서만 다시 기록됩니다.",
       "translation_source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ]
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "``value``가 텅 비어 있는지 또는 실종된 센티넬이 있는지 반환합니다.\n\n이것은 ``None``, 흰색 스트립, ``NaN``, pandas ``NA`` 및 ``NaT``을 포함합니다.\n\n:param value: 임의 유형의 셀 값입니다.",
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "``value``가 텅 비어 있는지 또는 실종된 센티넬이 있는지 반환합니다.\n\n여기에는 ``None``, 빈 문자열, ``NaN``, pandas의 ``NA`` 값과 ``NaT`` 값이 포함됩니다. ``None`` 여부와 문자열을 검사한 뒤 ``pandas.isna`` 결과를 ``bool`` 값으로 변환합니다. 따라서 결측값을 담은 단일 원소 배열은 ``True`` 값을 반환할 수 있으며, 원소가 여러 개인 모호한 결과는 ``False`` 값을 반환합니다.\n\n:param value: 임의 유형의 셀 값입니다.",
       "translation_source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ]
     },
@@ -175974,16 +175974,16 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "훈련 메트릭을 점진적으로 업데이트 된 곡선으로 표시합니다.\n\n``plots``은 패널 당 :class:`pyqtgraph.PlotWidget`을 보유하고 있으며, 키는 ``\"loss\"``, ``\"accuracy\"`` 및 ``\"per_class\"``입니다. ``curves``은 각 측정기 :class:`pyqtgraph.PlotDataItem`을 보유하고 있으며, 그 측정기가 처음 나타나고 그 이후의 모든 시대에 다시 사용되었을 때 만들어집니다.\n\n둘 다 에피소드가 도착하고 대체되지 않기 때문에 한 번 복용 한 참조는 패널의 수명에 유효합니다.\n\n매개변수\n----------\n부모 : QWidget, 선택적 부모 위젯, 또는 ``None``.",
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "훈련 메트릭을 점진적으로 업데이트 된 곡선으로 표시합니다.\n\n``plots``은 패널 당 :class:`pyqtgraph.PlotWidget`을 보유하고 있으며, 키는 ``\"loss\"``, ``\"accuracy\"`` 및 ``\"per_class\"``입니다. ``curves``은 각 측정기 :class:`pyqtgraph.PlotDataItem`을 보유하고 있으며, 그 측정기가 처음 나타나고 그 이후의 모든 시대에 다시 사용되었을 때 만들어집니다.\n\n플롯 위젯은 생성자에서 만들어지며, 각 지표가 처음 나타날 때 곡선이 추가됩니다. :meth:`clear` 메서드는 새 실행을 위해 곡선과 저장된 점을 제거하지만 플롯 위젯과 두 딕셔너리는 유지합니다. 학습 실행의 손실과 지표를 추적하는 패널을 만듭니다.\n\n매개변수\n----------\n부모 : QWidget, 선택적 부모 위젯, 또는 ``None``.",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "3f7f9fdd0ada67a1d79e56c0718189a24e7ccbe8ee93dfd1cf531137c49833e3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]

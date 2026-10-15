@@ -110197,20 +110197,20 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "Install three-state semantic sorting on ``view`` and return it.\n\nAccepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A\n``QTableView`` is wrapped in :class:`SortableProxyModel`; call this\nfunction immediately after ``setModel`` and obtain the view's selection\nmodel afterwards.\n\n:param view: the view to make sortable; a view with no header is\n    returned untouched, and one already installed only has its initial\n    order re-stamped."
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "Install three-state semantic sorting on ``view`` and return it.\n\nAccepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A\n``QTableView`` with a non-proxy model is wrapped in\n:class:`SortableProxyModel`. An existing ``QSortFilterProxyModel`` is\npreserved with its own comparison behavior; a view without a model is\nnot wrapped. Call this function immediately after ``setModel`` and\nobtain the view's selection model afterwards.\n\n:param view: the view to make sortable; a view with no header is\n    returned untouched, and one already installed only has its initial\n    order re-stamped."
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. Array-like values are not treated as individual missing cells.\n\n:param value: a cell value of any type."
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "Return whether ``value`` is empty or a recognized missing sentinel.\n\nThis includes ``None``, blank strings, ``NaN``, pandas ``NA``, and\n``NaT``. After the ``None`` and string checks, the result of\n``pandas.isna`` is converted to ``bool``. A single-element array containing\na missing value can therefore return ``True``; ambiguous multi-element\nresults return ``False``.\n\n:param value: a cell value of any type."
     },
     "spacr.qt.widgets.sortable_table.numeric_value": {
       "source_blocks_sha256": [
@@ -111631,12 +111631,12 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "Display training metrics as incrementally updated curves.\n\n``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed\n``\"loss\"``, ``\"accuracy\"`` and ``\"per_class\"``. ``curves`` holds the\n:class:`pyqtgraph.PlotDataItem` for each metric, created when that\nmetric first appears and reused for every epoch after it.\n\nBoth are populated as epochs arrive and neither is replaced, so a\nreference taken once stays valid for the life of the panel.\nBuild the panel that follows a training run's losses and metrics.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent widget, or ``None``."
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "Display training metrics as incrementally updated curves.\n\n``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed\n``\"loss\"``, ``\"accuracy\"`` and ``\"per_class\"``. ``curves`` holds the\n:class:`pyqtgraph.PlotDataItem` for each metric, created when that\nmetric first appears and reused for every epoch after it.\n\nThe plot widgets are created in the constructor; curves are added when\ntheir metrics first appear. :meth:`clear` removes curves and stored points\nfor a new run while retaining the plot widgets and both dictionaries.\nBuild the panel that follows a training run's losses and metrics.\n\nParameters\n----------\nparent : QWidget, optional\n    Parent widget, or ``None``."
     },
     "spacr.qt.widgets.training_monitor.TrainingMonitor.append": {
       "source_blocks_sha256": [
