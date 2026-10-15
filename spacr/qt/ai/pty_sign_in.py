@@ -95,6 +95,7 @@ class PtySession:
         self._master = master
         self._queue: "queue.Queue[str]" = queue.Queue()
         self._ansi_pending = ""
+        self._cr_pending = ""
         self._output_closed = False
         self._stopped = False
         try:
@@ -145,7 +146,12 @@ class PtySession:
         if partial and not closed:
             self._ansi_pending = text[partial.start():]
             text = text[:partial.start()]
-        return strip_terminal_codes(text)
+        text = getattr(self, "_cr_pending", "") + _ANSI.sub("", text)
+        self._cr_pending = ""
+        if text.endswith("\r") and not closed:
+            self._cr_pending = "\r"
+            text = text[:-1]
+        return text.replace("\r\n", "\n").replace("\r", "\n")
 
     def send(self, text: str) -> None:
         """Type ``text`` and press Enter.

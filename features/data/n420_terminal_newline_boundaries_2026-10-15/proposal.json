@@ -1,0 +1,8 @@
+{
+  "base": "56832cd72894942446db7af2ebdf3c3f6b9db75f",
+  "old_sha256": "a0dbf4c24346126966177cd5ebe790fe03426bbc44dd6bc323e438d970fd1804",
+  "proposed_sha256": "967ae99efa37e6e1e08ebdf6b920582b89438c8bd565f53b0fc0c45694a87d3b",
+  "production_applied": false,
+  "behavior": "Retain at most one unfinished visible trailing CR. Strip supported complete ANSI first so ANSI-only reads do not prematurely finish a CR before LF. Existing stateless stripper still normalizes complete output. NonLF resumes the standalone-CR newline policy; reader closure flushes CR once.",
+  "contract": "Original prose/signatures/symbols/tr unchanged; strip_terminal_codes/find_urls fullAST unchanged. No helper/module/timer/debounce/caption."
+}
