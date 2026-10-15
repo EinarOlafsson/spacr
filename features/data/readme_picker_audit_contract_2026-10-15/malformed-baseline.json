@@ -1,0 +1,20 @@
+{
+  "status": "One additional malformed-input regression reproduced; final fix/run owned by source author",
+  "reference_source_commit": "9f386d9c0",
+  "local_adoption_commit": "4cfc280c8",
+  "source_sha256": "440903672f940dffca8e020abe9343a271f285ff01d2679c289444a5ebdc593b",
+  "python": "Python 3.12.13",
+  "change": "One parameterized actual-audit negative fixture: prepend <![unexpected]> before the real in-marker anchor.",
+  "baseline": {
+    "result": "1 failed,22 deselected",
+    "pytest_seconds": 0.92,
+    "wall_seconds": 2.3,
+    "peak_rss_kib": 460848,
+    "cap": "2G",
+    "threads": 1,
+    "exit_code": 1
+  },
+  "observed_failure": "The standard spaCR interpreter silently accepts this unknown declaration and actual audit returns0, violating expected1. This differs from the peer interpreter AssertionError; catch-only protection may be insufficient here.",
+  "coordination": "Source author and independent peer informed before final acceptance. No production mutation or additional run by test owner.",
+  "test_sha256": "f6d887ddf1f2da72752b3616c66b08c167ce9c6c9f7e77f3393637aec576228a"
+}

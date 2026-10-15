@@ -1,0 +1,39 @@
+{
+  "status": "Regression baseline reproduced; production fix and final run owned by readme_704",
+  "tested_commit": "cbd64054f837ccfa26321b7b535c62e89b3f04ff",
+  "source_sha256": {
+    "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+    "docs/i18n/readme/README.sv.rst": "d14d66e5742d3f0e999a8a61ff3d89de346e14e67b636ef3444decf1468b709c",
+    "tests/test_readme_picker_audit_contract.py": "f420b6f7bd596082eb83438e9904ce80729f1abff3a9a5fdef55c355b0270b1d"
+  },
+  "owner_boundary": "Only new test module and evidence authored here; no production source, generated README, API catalog, tool or fixture edits.",
+  "production_path": "Actual build_documentation_i18n.audit({}, [sv]) with minimal valid empty English/Swedish API manifests. Unrelated API review loader and generated-image structure/currentness mocked to isolate this gate; picker/index audit branch stays real.",
+  "canonical_fixture": "Actual checked-in generated Swedish README; picker is sliced from its exact begin/end markers. Main positive audits the entire unchanged README.",
+  "cases": {
+    "positive": 2,
+    "negative_picker": 17,
+    "english_index_missing_or_wrong": 3
+  },
+  "baseline": {
+    "result": "6 failed,16 passed",
+    "pytest_seconds": 1.11,
+    "wall_seconds": 2.56,
+    "peak_rss_kib": 459708,
+    "cap": "2G",
+    "threads": 1,
+    "exit_code": 1,
+    "swap": 0
+  },
+  "actual_failures": [
+    "Two legitimate HTML picker formats are rejected",
+    "Wrong in-marker picker is incorrectly accepted by an unrelated out-of-marker :target: README.md line",
+    "Three legitimate pickers with absent/wrong English-index destination fail at the stale picker gate before reaching the existing index check"
+  ],
+  "final_owner_instruction": "Adopt this exact test commit into the source-fix private tree, then run one finite final owning cohort; no second baseline or full API inventory is needed.",
+  "payload_sha256": {
+    "before.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "before.log.gz": "d6218d5ece549797fc1fa72c437f183ed8cd9168deaca104d50ef897dbfb89d3",
+    "before.time": "f828f0a2b9e1b77ede371dca26d49e4c55a6725e969315e3a33bc12898308f90",
+    "run_before.sh": "945ce1170c8612c932bb422d3d119853e8820ecc606bfbedf850e6d4e81550d4"
+  }
+}

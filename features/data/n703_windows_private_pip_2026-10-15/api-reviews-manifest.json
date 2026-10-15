@@ -1,0 +1,101 @@
+{
+  "source_commit": "624cec42ebd4aba3639932f7ec33763360ffff32",
+  "source_file_sha256": "e8d507258ff2db6ec5a3885c3428c76117f3353e3afdaac87a783210b24329a3",
+  "source": "Installer-made copies and supported dedicated POSIX or Windows pip environments can use this helper. It waits for the running process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+  "context": "Installer-made copies and supported dedicated POSIX or Windows pip environments can use this helper. It waits for the executing process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+  "source_sha256": "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
+  "records": [
+    {
+      "language": "sv",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/sv/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "87460510e92601aac81a4176f182ca012b2463c653ba9928b075cd78dd815ca0",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/sv/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "0eb8c0a7b4baa2cacd4fd10f907241ca48029c7a660a7efc56a4b766e8c76316",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "de",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/de/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "a7232b8a1fa0542bfb92d9c291bbf148f5a5e30ac62482401b9fc56ebbe4749b",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/de/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "7643f249602d7873a141d090702194b11f79721191a6da43c1a63f17df6d4532",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "es",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/es/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "b78d2a9898956143ace1ce31783b37d897a63349bdef92f2de989d6ff3358fc9",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/es/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "631c9c52aca5ce1267fde5f5cbc4f7869ae36c736d987c496af9b1251819ca86",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "zh_CN",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/zh_CN/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "56dfea7533594b41decd1f72fb8487ebdc7e1f616ae078a0f1395c4b52fa1643",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/zh_CN/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "ab0f02d016c0cbdadaf151651fde55e6389f352dc5bfa543f895d43988c1c7af",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "pt",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/pt/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "78c63cc05f307464e4521be16169accf0a6b112426ca8d10ea7779fbf65f6f34",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/pt/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "199414acdca05a418da7c266ad8a9d2a76e8c5d3e24b9c726b278084b5d3265e",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "hi",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/hi/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "4bc5946171bb9a8b9b8060f3df505850c0e593270f215cb80861a3a81d537444",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/hi/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "fa47217cd9cf1c6b963701eb6719744a9a4a58ac33bc502708ba35daf2c9ff9c",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "ko",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/ko/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "1dfe5ab39c31d9f6d80e98cf9d28f41d92093d37edacd9d7d65aad644f07a480",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/ko/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "818ee868c123d06aa6521942dca8571d32e6c4a99d17990824a104f7d98176a1",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "is",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/is/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "c86b5c12bc91547f27b3cac0022aec27d27493df444a3b2b945ca13df624186f",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/is/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "eeae5785368e9880d362a63187991df05c819afa6d8ad8f33efebefdb2870b0b",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    },
+    {
+      "language": "fr",
+      "path": "/mnt/wd4tb/scratch/n703-windows-private-pip-20261015/api-reviews/fr/2026-10-15-n703-windows-private-pip.json",
+      "sha256": "6a3f229ad347297832ebaabccae4cb3a64958b5fcea76d956dd643c61565604c",
+      "normal_exact_source_context_target_loader": "PASS",
+      "stale_review_file": "docs/i18n/reviewed/api/fr/2026-10-14-n703-private-pip-handoff.json",
+      "stale_review_file_sha256": "3a13befa556eecf59215ce9bcbbadb3e5aa81d2129e209d0e3da96d4e2c2e449",
+      "stale_record_label": "spacr.install_cleanup.start_update_helper#1",
+      "stale_record_source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486"
+    }
+  ],
+  "generation": "NOT RUN; exact nine private drafts passed ordinary reviewed-API loader only",
+  "source_change_retirement": "Normal review-evidence owner must retain and explicitly retire only the listed genuinely obsolete #1 records. All unrelated module #2/other records and history preserved; no foreign/generated edits by this packet."
+}
