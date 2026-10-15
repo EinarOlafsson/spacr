@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "pass_source_safety_one_bounded_attempt_runtime_unproven",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_at_utc": "2026-10-15T21:23:36.614521+00:00",
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "preparation_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/native-apply-observation/preparation-manifest.json",
+    "bytes": 1288,
+    "sha256": "6bbf6ecaee3058a88a05cf9cd6b3a9aeef4708d20449973a13da870ada0ebd14"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/native-apply-observation/LAUNCH_RECIPE.txt",
+      "bytes": 4128,
+      "sha256": "8eb29ea966501e516268cc0d56828f6fd158f0706043f28bd30a63ff4e1e7e4d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/native-apply-observation/apply_observer.py",
+      "bytes": 7426,
+      "sha256": "560bfd6e4ae2f6b6a7ea9105f0d2879e19560ff8e032a7fd2eccab0c9684fc35"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/native-apply-observation/native_driver.py",
+      "bytes": 10408,
+      "sha256": "e2f9ac6b9cd4827e6125c09ef3477e2e6259383c44c6abdca38561d8e4454091"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/native-apply-observation/native_job.py",
+      "bytes": 4954,
+      "sha256": "a4c7ccb0f1ba9d3613630730c13c675123734f9052e065d8c0f0e3b47ec4343d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/native-apply-observation/native_once.sh",
+      "bytes": 1294,
+      "sha256": "1cc3973145a6faabb62bdc25e2e0bd1d3a9b6a8a627775578a68b97bdb201b61"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/native-apply-observation/run_with_lease.sh",
+      "bytes": 3039,
+      "sha256": "166e196f530e77630563fb85df4a7b2560da5fa73231f4995d199e06ce7d372a"
+    }
+  ],
+  "Home_instructions": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_preferences_native_diagnostic_proposal_2026-10-15/WORK_OWNER_INSTRUCTIONS.txt",
+    "bytes": 4050,
+    "sha256": "435300dc76aabe1643dbb669e39b33a971e2d997d1e5bb9dab83fbd3be56ac13"
+  },
+  "prior_hook_body_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-r59/apply-diagnosis/Home-native-diagnostic-proposal-source-peer.json",
+    "bytes": 13525,
+    "sha256": "5d84a889788f350620d25101209574e28979ac88d9ca201ef7d738f4aa578672"
+  },
+  "actual11_hook_body_checks": [
+    {
+      "file": "spacr/qt/preferences.py",
+      "hook": "_in_one_store",
+      "source_segment_sha256": "98f5818465909eba624f71eaadda05e0e244975f0d011bf887e6371306b2e59f"
+    },
+    {
+      "file": "spacr/qt/preferences.py",
+      "hook": "apply_preferences_to_app",
+      "source_segment_sha256": "9b9629fbed22161b35aad72962a675b99f7ec1fe29713a97e9ea2e673728b43b"
+    },
+    {
+      "file": "spacr/qt/preferences.py",
+      "hook": "_refresh_owner_window",
+      "source_segment_sha256": "cc0cad4f530e9f2799503362b346cb9e158c8d524c0c3522febfce13dc054798"
+    },
+    {
+      "file": "spacr/qt/widgets/glass.py",
+      "hook": "glass",
+      "source_segment_sha256": "7702022dc3bea824968383fdbae372a376a7a849635646c6b30f5dfbc4a63913"
+    },
+    {
+      "file": "spacr/qt/widgets/glass.py",
+      "hook": "_glass_held",
+      "source_segment_sha256": "2f0dded326c517f157eb76d8d22811984d6609c289058d5c1064cc6266b79d4a"
+    },
+    {
+      "file": "spacr/qt/widgets/glass.py",
+      "hook": "_GlassInstaller.eventFilter",
+      "source_segment_sha256": "c39ae3f565fc5331272e3204080b38aee1cc404c612168fca312c94cf4d511e9"
+    },
+    {
+      "file": "spacr/qt/widgets/setup_card.py",
+      "hook": "SetupCard.__init__",
+      "source_segment_sha256": "88dc57d52cca65114e5b2e983d9947ce84d1ca0482fea58c4447e2d4486847f6"
+    },
+    {
+      "file": "spacr/qt/theme.py",
+      "hook": "_one_sheet_for",
+      "source_segment_sha256": "64c2c906eca722a0c9060b388b11c71fab2d81320a9bdfffbe903659300de991"
+    },
+    {
+      "file": "spacr/qt/theme.py",
+      "hook": "_sheet_one_window",
+      "source_segment_sha256": "6e74ac903ab02530a432424f52112cf63deaaa3991db6caafad7698aa1f37420"
+    },
+    {
+      "file": "spacr/qt/theme.py",
+      "hook": "_repolish_the_tagged",
+      "source_segment_sha256": "cc42c018f6d9c881447f000fd9ed27d639f9b0f405810479403acc0f799ff5c1"
+    },
+    {
+      "file": "spacr/qt/app.py",
+      "hook": "MainWindow.refresh_after_preferences",
+      "source_segment_sha256": "9044645c5c643fe62299edc76ffe9d891b6ff89fea0c755302a266b9bc7a0f62"
+    }
+  ],
+  "original_capture_inventory": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/exact-source.json",
+    "bytes": 54902,
+    "sha256": "5453488e83d97dee5bc33c835698c47e65f7d196ac15a6fb0717521b092c2569"
+  },
+  "inventory_comparison": {
+    "recorded_files": 502,
+    "current_exact_matches": 502,
+    "changed_since_original_capture": [],
+    "spacr_app_differences": [],
+    "qualification": "Original capture502 identity remains historical. Later approved tutorial-only source changes are explicitly listed, never falsely restamped as same502source. All five app files/all11 bodies exact."
+  },
+  "checks": {
+    "whole_native_activity_timeout17_TERM_plus3_KILL": true,
+    "profile_host_app_normal6sec_settle_and_action_all_within_same_budget": true,
+    "mandatory_owned_stage_cleanup_after_timeout_and_no_retry": true,
+    "defaultGPU_idle360_gap600_poll15_and_own4GBlease": true,
+    "real_pointer_normal_Menu_Preferences_Apply_Revert": true,
+    "normal_WindowModal_defaultRevert_Escape_and_rollback_checked": true,
+    "eleven_wrappers_preserve_arguments_returns_exceptions_context_exit": true,
+    "bounded4096_staticlabel_spans_flushed_after_settle_and_restore": true,
+    "no_processEvents_QTest_directclick_settingsshadow_CPUoverride_record_encode": true,
+    "exactcaptured_known_profile_readback_before_native": true,
+    "fresh_fixed_destination_refuses_second_attempt": true
+  },
+  "limits": [
+    "Source-only read/hash/AST peer; no app/GUI/GPU/profile/native/CPU replay executed. Startup and full action fitting20s is unproven and timeout/incomplete outcome is expected to remain truthful.",
+    "17sTERM+3sKILL bounds the active owned phase; mandatory stage-marked safety cleanup is separately timed. This is not a promise that total cleanup finishes within20s.",
+    "If budget expires, original GUI finally restoration can be interrupted; restore_interrupted/no result is incomplete, never success. Exact owner cleanup must then prove no survivors.",
+    "No180s v2 approval. Existing Home whole20s instruction is not superseded by this peer.",
+    "No smoothness gate, third tutorial retake, capture acceptance, causal attribution, product patch or app/source change is approved by source review alone."
+  ]
+}
