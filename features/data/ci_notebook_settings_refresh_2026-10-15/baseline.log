@@ -1,0 +1,11 @@
+STALE — re-run tools/build_notebook_settings.py:
+  01_generate_masks.ipynb
+  01b_generate_timelapse_masks.ipynb
+  02_measure_and_crop.ipynb
+  03_classify_computer_vision.ipynb
+  07_image_umap.ipynb
+  11_activation_maps.ipynb
+  14_motility_assay.ipynb
+  15_replication.ipynb
+  17_endodyogeny.ipynb
+  18_percent_positive.ipynb

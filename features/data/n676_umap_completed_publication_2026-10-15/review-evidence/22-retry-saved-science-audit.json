@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "lesson": "15_image_umap",
+  "scope": "saved-output and source-bound runtime invariants only; no refit",
+  "saved_science_checks_passed": true,
+  "whole_capture_accepted": false,
+  "native_capture_accepted": false,
+  "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "actual_provenance_status": "gate_failed",
+  "actual_completed_capture": false,
+  "actual_gate_failed": [
+    "01_module"
+  ],
+  "selected_rows": 400,
+  "all_400_unique_crop_paths_match_database_and_pre_run_hashes": true,
+  "all_400_cell_identities_exist": true,
+  "database_matches_pre_run_manifest_sha256": true,
+  "output_csv_and_pdf_match_current_successful_run_manifest": true,
+  "cluster_counts": {
+    "0": 400
+  },
+  "settings_verified": {
+    "row_limit": 400,
+    "tables": [
+      "cell",
+      "cytoplasm",
+      "nucleus",
+      "pathogen"
+    ],
+    "random_seed": 42,
+    "n_jobs": 2,
+    "reduction_method": "umap",
+    "n_neighbors": 15,
+    "min_dist": 0.1,
+    "clustering": "dbscan",
+    "remove_cluster_noise": false,
+    "remove_highly_correlated": true,
+    "log_data": false,
+    "resnet_features": false,
+    "gpu": false,
+    "batch_correction": "none"
+  },
+  "runtime_2d_finite_embedding": {
+    "console_shape": [
+      400,
+      2
+    ],
+    "source_bound_completed_explorer_checks": "400 records aligned; finite nonempty embedding; real picks0/200 nonnull crop; normal tour returned",
+    "independently_recomputed_coordinates": false,
+    "limitation": "Embedding coordinates are not persisted in embedding_results.csv. No independent coordinate-array arithmetic or UMAP refit was performed."
+  },
+  "effective_workers": {
+    "requested_n_jobs": 2,
+    "observed_console": "UMAP(n_jobs=1, random_state=42, verbose=True)",
+    "fixed_seed_overrides_parallelism_warning_preserved": true
+  },
+  "preprocessing_console": [
+    "Median-imputed 17459 missing values in 90 partially observed feature columns",
+    "Dropped0 all-missing columns",
+    "remove_highly_correlated=True; log_data=False; resnet_features=False; batch_correction=none"
+  ],
+  "explorer_tour": {
+    "point_count": 400,
+    "clicked_points": [
+      {
+        "point_index": 0,
+        "label": "Point 1/400 · cluster 0\n/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_1_1_26.png",
+        "database_path": "/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_1_1_26.png"
+      },
+      {
+        "point_index": 200,
+        "label": "Point 201/400 · cluster 0\n/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1/data/multiple_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_9_1_2.png",
+        "database_path": "/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1/data/multiple_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_9_1_2.png"
+      }
+    ],
+    "nested_routes": [],
+    "advanced_controls_toured": false,
+    "settings_unchanged": true,
+    "database_unchanged": true,
+    "annotations_written": false,
+    "search_started": false,
+    "new_embedding_requested": false
+  },
+  "profile_visibility": {
+    "show_beta": true,
+    "show_alpha": false,
+    "show_alpha_features": false,
+    "show_alpha_species": false
+  },
+  "source_bindings": [
+    {
+      "path": "spacr/core.py",
+      "git_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "sha256": "ccb78e9fda4ebcbf0d1ee2ff7ad8f7feb463c2ef63271ce594cadf22e711584c"
+    },
+    {
+      "path": "tools/tutorials/capture_umap.py",
+      "git_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "sha256": "6cf21c5c208e943efc652545bfe7ead99243a81a9f113d2a62c7357c93932726"
+    },
+    {
+      "path": "spacr/utils.py",
+      "git_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "sha256": "d4a8cb44069c7e1ab9cc98d55b948fa1f84b0a015e0c77b3a1139524d715af5d"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/host-run.json",
+      "bytes": 1303,
+      "sha256": "af7a13be066ad741ec9b5670273e10398e21137bd801305cd407ef244792c01a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/provenance.json",
+      "bytes": 420,
+      "sha256": "8b4a4c73d6c56fc393ec7892305e47bea06b995925d630acdee100e7aaa2e20e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/capture-profile.json",
+      "bytes": 649,
+      "sha256": "b984eadfda23a380aea30398ac5f3ebd13f5454c27a56c352075d714bf4b89cc"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/configured_settings.json",
+      "bytes": 1692,
+      "sha256": "e24efea2b83055c27e3991e101450463c9f366ad56de17efa05c2f60e78fbda5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/settings_after_run.json",
+      "bytes": 1692,
+      "sha256": "e24efea2b83055c27e3991e101450463c9f366ad56de17efa05c2f60e78fbda5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/batch_settings.json",
+      "bytes": 1692,
+      "sha256": "e24efea2b83055c27e3991e101450463c9f366ad56de17efa05c2f60e78fbda5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/batch_acceptance.json",
+      "bytes": 109,
+      "sha256": "52bbc441194ddbf1cf36d2617fefe8589dfcca82a11ea12e3e8bac5e4046c5c1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/explorer_tour.json",
+      "bytes": 1072,
+      "sha256": "1f6595e04a45926b2443e45150a212c61aa5ab26aa8ba3eb3caa761edbe7b19e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap/batch_console_after_tour.json",
+      "bytes": 8054,
+      "sha256": "eb193239062ef51b66f3a011907e3df6b58b4685ffc51a415d97482abf506f0b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/app-state/runs/2026-10-15_112339_70652853__umap/manifest.json",
+      "bytes": 862307,
+      "sha256": "862c9c03ef883bb3397288219f581cd579c78701a85bfeba38f2cc367d30699e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/example_data/plate1/measurements/measurements.db",
+      "bytes": 30748672,
+      "sha256": "10dbf66baf052a5bb676e8f26c0bcb2990286c2402bdcd2be2fc8dc0d5d13be3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/example_data/plate1/results/embedding_results.csv",
+      "bytes": 5680482,
+      "sha256": "db3993cb81de04759a0f0d8eadf27e0c5d6cd3e4b628e26f444b6745aabd1ee1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/example_data/plate1/results/UMAP_embedding.pdf",
+      "bytes": 529877,
+      "sha256": "1cc9eaf211f85ad29478c8ead19593c9797b35354dd1482ff83377697b9b0fe1"
+    }
+  ],
+  "limits": [
+    "Cluster labels are unsupervised assignments, not validated biological classes.",
+    "No independent reconstruction of feature preprocessing, fitted coordinates, clustering or projection quality.",
+    "Runtime assertions establish coordinate finiteness and crop selection only through pinned executed recorder/source and completed receipt.",
+    "Turn57 adapter-bypass failure remains; this review grants no native or whole-lesson acceptance."
+  ]
+}

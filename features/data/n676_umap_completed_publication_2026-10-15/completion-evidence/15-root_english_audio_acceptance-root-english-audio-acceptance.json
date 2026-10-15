@@ -1,0 +1,162 @@
+{
+  "lesson": "15_image_umap",
+  "created_at": "2026-10-15T08:36:04.716266-04:00",
+  "accepted": true,
+  "scope": "24 English tracks accepted for current-runtime identity and technical audio quality only. This records the review now; it is not a retrospective listening approval.",
+  "qa_path": "/media/carruthers/mnt3/claude/n676_stages/voices-15-r58-20261015/production/15_image_umap/audio-checks.en.json",
+  "qa_sha256": "3e1c68c1e62f15e72481f57ecefeb5d7af60abb8077f39b33abc0401e52720bd",
+  "tracks": [
+    {
+      "language": "en",
+      "voice": "af_heart",
+      "errors": [],
+      "audio_sha256": "2b39feb879222a6c81d9577a120e357e027e08aa9720719dc5391353849c864c"
+    },
+    {
+      "language": "en",
+      "voice": "af_aoede",
+      "errors": [],
+      "audio_sha256": "72d97a6da9b311c38a56057e7db86c054eb425a3e9c6a298dd687b63f4f2ffcf"
+    },
+    {
+      "language": "en",
+      "voice": "af_bella",
+      "errors": [],
+      "audio_sha256": "643c790f08ac55a3932385e6c24e4b0837a7f512c617f7abeca159ffd042de18"
+    },
+    {
+      "language": "en",
+      "voice": "af_jessica",
+      "errors": [],
+      "audio_sha256": "6c7900c455813aef21c9c1de7f1ec89570f4081561711b3732b3f4b2de54321f"
+    },
+    {
+      "language": "en",
+      "voice": "af_river",
+      "errors": [],
+      "audio_sha256": "84e35f978f36d59524e5bda7845aff6eecc0f79f5c09b363fa74253fb28583f6"
+    },
+    {
+      "language": "en",
+      "voice": "af_sarah",
+      "errors": [],
+      "audio_sha256": "50971a992a2fb63f1a173bfb8413b75001fdfc1c66cf5a70ee95ea0fe6c4684f"
+    },
+    {
+      "language": "en",
+      "voice": "af_sky",
+      "errors": [],
+      "audio_sha256": "47c3c60f10d828d25d7372ee3d3e6ecafc4e195e3c53c59dbf090715093dceb0"
+    },
+    {
+      "language": "en",
+      "voice": "am_adam",
+      "errors": [],
+      "audio_sha256": "f2b27b318ad991bcadcaa4ae47825f008c203ca4d45b4849bb996d0079a97170"
+    },
+    {
+      "language": "en",
+      "voice": "am_echo",
+      "errors": [],
+      "audio_sha256": "c4e2da4c4044449f85087fc1d11a020d8d009ef99e24f985a41774c092885821"
+    },
+    {
+      "language": "en",
+      "voice": "am_eric",
+      "errors": [],
+      "audio_sha256": "9189c180c358cf89273d16d9daffec5107efeecfbdd240b1e22447965aa0cdb9"
+    },
+    {
+      "language": "en",
+      "voice": "am_fenrir",
+      "errors": [],
+      "audio_sha256": "a3bcdc993624fdaddbfc329d6881159b1638fd86c4a240d1ef3aec6ca8aab0ef"
+    },
+    {
+      "language": "en",
+      "voice": "am_liam",
+      "errors": [],
+      "audio_sha256": "1e3e42377f4374bf977e211f238852b820a4aaf7448a8468ae7981adfe4463e6"
+    },
+    {
+      "language": "en",
+      "voice": "am_michael",
+      "errors": [],
+      "audio_sha256": "e0d74cd11a5502d072a65fe564745885d900d015cb02ab6c4c705036a3e8d5b5"
+    },
+    {
+      "language": "en",
+      "voice": "am_onyx",
+      "errors": [],
+      "audio_sha256": "0fbebe4ba113ec1a281288588224ab1618046c4375ccb8d87784ac15d4278405"
+    },
+    {
+      "language": "en",
+      "voice": "am_puck",
+      "errors": [],
+      "audio_sha256": "e6f82bffc26ec844dcfc66d6bfe8f456b87562115e36c60efd0cafb0e55ca465"
+    },
+    {
+      "language": "en",
+      "voice": "am_santa",
+      "errors": [],
+      "audio_sha256": "4f63da36e283ad49b9c9bea9474261abbd439d9486ac812e8fa0196d0734378b"
+    },
+    {
+      "language": "en",
+      "voice": "bf_alice",
+      "errors": [],
+      "audio_sha256": "4b2d97e209cb322046a110387b11768d78ca1156d11971a1abee9c52914dcc66"
+    },
+    {
+      "language": "en",
+      "voice": "bf_emma",
+      "errors": [],
+      "audio_sha256": "37e90d8eb0bdbd92bf6cfe965305ed21d69fd798bb405d96cca3fcad5f088caa"
+    },
+    {
+      "language": "en",
+      "voice": "bf_isabella",
+      "errors": [],
+      "audio_sha256": "cddd30921443cb82d1960a0ce56bde33291f6fdb1c84578693dc2b40f45d8c60"
+    },
+    {
+      "language": "en",
+      "voice": "bf_lily",
+      "errors": [],
+      "audio_sha256": "0e54736f0af378c322c18576468fe42f396c3fcf285d9d1dcf39cd5ec235eb58"
+    },
+    {
+      "language": "en",
+      "voice": "bm_daniel",
+      "errors": [],
+      "audio_sha256": "4a4303d006e86da312768cb9547c7e67273c0d51a8a20522c968b4452fda744d"
+    },
+    {
+      "language": "en",
+      "voice": "bm_fable",
+      "errors": [],
+      "audio_sha256": "8ac7f02eb4d7d82635f61d7c0d9bce8f3099f149bc783d95d389ecac6505132f"
+    },
+    {
+      "language": "en",
+      "voice": "bm_george",
+      "errors": [],
+      "audio_sha256": "659e5c85a2f2b0046f4004530754d2dd5230845b0ac6bd6d98419fa735c8811f"
+    },
+    {
+      "language": "en",
+      "voice": "bm_lewis",
+      "errors": [],
+      "audio_sha256": "a34d31ed0ddd013368786b9ea1822f5fb4937bf78b1568271e2110c480b19803"
+    }
+  ],
+  "human_listening": false,
+  "native_speaker_review": false,
+  "audible_word_completeness_verified": false,
+  "limitations": [
+    "Transcript, duration, RMS and raw-to-AAC alignment do not establish linguistic first-phoneme completeness.",
+    "Root and ASTRA audio-input tools explicitly reported unsupported audio input. No listening approval is supplied.",
+    "Player transport readiness has separate frozen source/test/actual-media evidence. Original actual15 matrix timeout remains preserved and unexplained; formal unchanged retry is active."
+  ]
+}

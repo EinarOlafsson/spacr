@@ -2877,7 +2877,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "축소 방법으로 UMAP을 고르세요. 각 점은 그래프의 두 좌표로 객체 하나를 나타냅니다. 선형 투영과 특징 적재값이 필요하면 연결된 도구에서 PCA를 살펴볼 수 있습니다.",
+          "narration": "축소 방법으로 UMAP을 고르세요. 각 점은 그래프의 두 좌표로 객체 하나를 나타냅니다.",
           "hold_after": 0.7
         },
         {
@@ -2926,19 +2926,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "선택한 특징을 직접 비교하려면 Image UMAP 머리글에서 Image Scatter를 열고, 선형 투영이 필요하면 PCA를 여세요. 입력 설정과 저장되는 출력은 연결된 튜토리얼에서 이어서 확인하세요.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "완성된 임베딩을 검토하고 선택한 객체의 잘라낸 이미지를 비교하세요. 각 점의 출처를 추적할 수 있도록 입력 측정값, 선택한 설정, 저장된 결과를 함께 보관하세요.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

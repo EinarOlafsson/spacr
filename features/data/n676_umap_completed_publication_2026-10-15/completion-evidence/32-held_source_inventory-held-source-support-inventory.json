@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-15T12:46:34.066963+00:00",
+  "lesson": "15_image_umap",
+  "status": "four_existing_held_supports_bound_native_arrival_pending",
+  "source_head_observed": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+  "held_source_supports": [
+    {
+      "label": "public-umap-recorder",
+      "commit": "a49481167111b0b01b3ba569d7f33c23b160c7cf",
+      "parent": "bf8d18835fd24e499991a377146c8cbcdeb2cc0f",
+      "status": "local HELD source; existing proof bound; not publication acceptance",
+      "files_at_commit": [
+        {
+          "path": "tools/tutorials/capture_host_mode.py",
+          "bytes": 37010,
+          "sha256": "2b7d5331809155df95e22f34dcca2cd943990ffe3137d1ddecac7b26eb8028b9",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/capture_refresh.py",
+          "bytes": 142753,
+          "sha256": "cda3a8f040f17c8089231e470f2e82b46a864c779f1a316491eb0e6b48bcff9d",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/capture_umap.py",
+          "bytes": 3497,
+          "sha256": "12292a37eb09d9f8fdf4e2975683698c35ec6c616d67cb279e4784ce4145ee9e",
+          "current_worktree_matches_commit": false
+        },
+        {
+          "path": "tools/tutorials/tests/test_capture_classify_ml_lifecycle.py",
+          "bytes": 6365,
+          "sha256": "c5908279faa37897aa6bdbebc62f076831e0945c23c828f0d771e3eb90410bee",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/tests/test_capture_umap_public_tour.py",
+          "bytes": 3555,
+          "sha256": "ccdb49a18d6df16a32e876dd9c147f7f6019f4ed33103f391b7bbb8437d24cab",
+          "current_worktree_matches_commit": false
+        }
+      ],
+      "peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/public-umap-recorder-independent-source-peer.json",
+        "bytes": 2660,
+        "sha256": "8c4bfd4887d0dd99a405649f855a032a56734b1ed665f05cee8b1f2b308a7ea8"
+      },
+      "owner_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/public-tour-recorder-fix.json",
+        "bytes": 4256,
+        "sha256": "40abb57e6a8410e454acff4d83601c6fff0f0c7b9aa179c8537142d5f7b8d77e"
+      },
+      "source_feature_packet": {
+        "directory": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_public_tour_2026-10-15",
+        "manifest": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_public_tour_2026-10-15/manifest.json",
+          "bytes": 1551,
+          "sha256": "33dd9c9fb3141b11ee92f411cb9bf996a68617b9afa53439bba35f845bf6d4e5"
+        },
+        "compressed_patch": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_public_tour_2026-10-15/a49481167-public-umap-recorder.patch.gz",
+          "bytes": 3467,
+          "sha256": "e9000fe4b4528ea0763fb65920119df839c5eddebe8d7135f1e01a3a15f7db3d"
+        },
+        "patch_uncompressed_sha256": "8fff866d0dc8c4db46c9d20710878e997313483d99622ced58b20217fcba7de3",
+        "patch_commit_header_matches": true
+      },
+      "tests": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/public-tour-tests-r3.log",
+        "bytes": 1050,
+        "sha256": "327447a7ada5a891939db5806278bc9b26b7795032f62cf670cdd29fc502aaf6",
+        "expected_pass_count": 14,
+        "terminal_exit_status": 0,
+        "rerun_for_inventory": false,
+        "source_feature_copy": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_public_tour_2026-10-15/owning-tests.txt",
+          "bytes": 1050,
+          "sha256": "327447a7ada5a891939db5806278bc9b26b7795032f62cf670cdd29fc502aaf6"
+        }
+      }
+    },
+    {
+      "label": "narration",
+      "commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+      "parent": "a49481167111b0b01b3ba569d7f33c23b160c7cf",
+      "status": "local HELD source; existing proof bound; not publication acceptance",
+      "files_at_commit": [
+        {
+          "path": "tools/tutorials/lessons/15_image_umap.json",
+          "bytes": 5346,
+          "sha256": "454815e474209dbd7bd5a968122f7e71d2bacd4e3faf277467a83cca3bf9d7f5",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.da.json",
+          "bytes": 4496,
+          "sha256": "d0ce46cb611561d21cf87c063d14f9a4bc96ad4f277d44b9dee2afe7a63b73c5",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.de.json",
+          "bytes": 5162,
+          "sha256": "2681e3b84305ffdd8018d99cbd3aa9ef55520842af500456645700072a61125d",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.es.json",
+          "bytes": 4865,
+          "sha256": "a795ca862a7c38a599d609c18a9580b03dc940e5ac19bcc385afbe0a27c48cdd",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.fr.json",
+          "bytes": 5157,
+          "sha256": "2792b20282c10fb22c0ff1519d9c94ee1af337b3afe31eb313d50795856d6922",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.hi.json",
+          "bytes": 9292,
+          "sha256": "9ec010538206f496b490fbae077454101b91ba0080078c42000b7bccae89562b",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.is.json",
+          "bytes": 4533,
+          "sha256": "be6858bfe257829e36df5073d0a49a4a7f582136aa0f08c2a75ca4eb07724ea3",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.it.json",
+          "bytes": 4806,
+          "sha256": "d0bcab532f1d101f484a867034f457777cb0fd1a699b4eb8f415d559c53a8166",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.ja.json",
+          "bytes": 5450,
+          "sha256": "f7f59c027b1e6a955e1edec082e9e260dd2399a9258fde995bb12a3316f076bf",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.ko.json",
+          "bytes": 4792,
+          "sha256": "169ae6374e71d0ecc7b4d7636e18eea0f5972b502a3022e1be59bfed5bda5ce6",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.nb.json",
+          "bytes": 4446,
+          "sha256": "2ce3753abe2427fe117cd974f3e9769e5deed6dc624b732a0999c8df8f4d8851",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.pt-BR.json",
+          "bytes": 4846,
+          "sha256": "acb105f6e50bcbac40cd791be73de9c661b1dcc95545ef807fa368db47e25551",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.sv.json",
+          "bytes": 4573,
+          "sha256": "9f8e12278d4ad85b5171b4002001291b86801dfb0a5192e42ee90cfbe39e770c",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/lessons/reviews/15_image_umap.zh-CN.json",
+          "bytes": 3920,
+          "sha256": "caa644625d64928438a441fb98a8d5b3e6a653b327c73316067f14cbc60b7e8f",
+          "current_worktree_matches_commit": true
+        }
+      ],
+      "peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/two-scene-independent-technical-peer.json",
+        "bytes": 5461,
+        "sha256": "f07f0c511515d80a8f7e0e23a1454b95027bea1dbb474060722fe4104e7b4f17"
+      },
+      "owner_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/two-scene-English-translation-changes.json",
+        "bytes": 18792,
+        "sha256": "af6b915924cefde9ace84b792349d17419452411e8e0cfc62b05b29aafdb1881"
+      },
+      "source_feature_packet": {
+        "directory": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_public_tour_2026-10-15",
+        "manifest": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_public_tour_2026-10-15/manifest.json",
+          "bytes": 1551,
+          "sha256": "33dd9c9fb3141b11ee92f411cb9bf996a68617b9afa53439bba35f845bf6d4e5"
+        },
+        "compressed_patch": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_public_tour_2026-10-15/fd327f851-public-umap-narration.patch.gz",
+          "bytes": 18290,
+          "sha256": "c527c47a19a9872b83cb532b38070531200d108087e5c69e7ad85f2a5acdc409"
+        },
+        "patch_uncompressed_sha256": "55e25273a08653b564e650f5d502aaa0553b54c0cfaacc922c9495ade29eee23",
+        "patch_commit_header_matches": true
+      },
+      "tests": null,
+      "tests_scope": "No runtime test claimed for narration-only commit; existing independentAI technical review binds two English scenes and26 localized strings across13 official reviews, not listening/native certification.",
+      "technical_review_scope": {
+        "official_review_count": 13,
+        "localized_strings_reviewed": 26,
+        "canonical_raw_sha256": "454815e474209dbd7bd5a968122f7e71d2bacd4e3faf277467a83cca3bf9d7f5",
+        "canonical_normalized_sha256": "a6fb36f729a8932ead3c79a407d6c151f993a8a40a961f41350c7dc55c9e6b5e"
+      }
+    },
+    {
+      "label": "interactive-pointer",
+      "commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "parent": "fd327f85139930118be1e92509a8771bf2fedea4",
+      "status": "local HELD source; existing proof bound; not publication acceptance",
+      "files_at_commit": [
+        {
+          "path": "tools/tutorials/capture_umap.py",
+          "bytes": 4600,
+          "sha256": "6cf21c5c208e943efc652545bfe7ead99243a81a9f113d2a62c7357c93932726",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/tests/test_capture_umap_public_tour.py",
+          "bytes": 6242,
+          "sha256": "d221d2ea33ba22978e167dfcc79fa5e667d91406feeb59137e6a8e20c94c04fb",
+          "current_worktree_matches_commit": true
+        }
+      ],
+      "peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/interactive-actions-route-independent-source-peer.json",
+        "bytes": 2074,
+        "sha256": "bf78ad6ce7c7f46922ad9360839be032c49cba82b0e084b52876f9b68b687d6d"
+      },
+      "owner_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/interactive-actions-route-fix.json",
+        "bytes": 4100,
+        "sha256": "77b5a4d21f2b8410b7496977da611088c7c535021eb172698b8d5d0d60b26796"
+      },
+      "source_feature_packet": {
+        "directory": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_interactive_pointer_fix_2026-10-15",
+        "manifest": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_interactive_pointer_fix_2026-10-15/manifest.json",
+          "bytes": 2198,
+          "sha256": "44c953b3b91134048ef942b1bb1acdafeb891aec302705e6187619abc4b1a3ab"
+        },
+        "compressed_patch": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_interactive_pointer_fix_2026-10-15/a6727b94d-public-interactive-route.patch.gz",
+          "bytes": 2298,
+          "sha256": "c4a95059184cb2e94907a2a6273c3505c030b37b9c93953660dcaa9a34cbac8e"
+        },
+        "patch_uncompressed_sha256": "49f5e8722ede7332d62bd4d96146bd0086323f2d206f4739981367daf819fa14",
+        "patch_commit_header_matches": true
+      },
+      "tests": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r57/actions-route-tests-r1.log",
+        "bytes": 509,
+        "sha256": "74180e1c75fb16631758734a57dbe11718a5e663b4c5847c60a56fbce748946f",
+        "expected_pass_count": 3,
+        "terminal_exit_status": 0,
+        "rerun_for_inventory": false,
+        "source_feature_copy": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_umap_interactive_pointer_fix_2026-10-15/owning-tests.txt",
+          "bytes": 509,
+          "sha256": "74180e1c75fb16631758734a57dbe11718a5e663b4c5847c60a56fbce748946f"
+        }
+      }
+    },
+    {
+      "label": "player-readiness",
+      "commit": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+      "parent": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "status": "local HELD source; existing proof bound; not publication acceptance",
+      "files_at_commit": [
+        {
+          "path": "tools/tutorials/authoring/web/app_v2.js",
+          "bytes": 102935,
+          "sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+          "current_worktree_matches_commit": true
+        },
+        {
+          "path": "tools/tutorials/tests/test_player_audio_readiness.py",
+          "bytes": 12656,
+          "sha256": "d469b3d63d3b55f8c79120e5d8df59cc23d5ea92f4dfbadee93656fa3aff8fb3",
+          "current_worktree_matches_commit": true
+        }
+      ],
+      "peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/player-readiness-final-independent-peer.json",
+        "bytes": 4274,
+        "sha256": "6d1beff2b3864075926ec6cd4428aff35c2d2bd482a938d4b6df88bdeef69173"
+      },
+      "owner_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/player-fix-evidence.json",
+        "bytes": 1975,
+        "sha256": "b08665a9674f6718a49d8b7bc1d25630421180311833574f8dc54cbd1a933b6a"
+      },
+      "source_feature_packet": {
+        "directory": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_player_readiness_fix_2026-10-15",
+        "manifest": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_player_readiness_fix_2026-10-15/manifest.json",
+          "bytes": 1631,
+          "sha256": "97b7e8d3bafca56e1fe2be04a65505d7da3e01ebb3c4b9daa72c79b53fdb71af"
+        },
+        "compressed_patch": {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_player_readiness_fix_2026-10-15/player-readiness.patch.gz",
+          "bytes": 6763,
+          "sha256": "8ee38228a140840add3f6baf3c3d903a52cd3983867f645f832f7ad65c183094"
+        },
+        "patch_uncompressed_sha256": "c2f747613cc54b7f1ae38338142038a0b5a3e096f1f7cc89072cea47d71c88d7",
+        "patch_commit_header_matches": true
+      },
+      "tests": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/final-targeted-cohort.log",
+        "bytes": 67,
+        "sha256": "75efc51bf41bdf9a9019b19fcbc3790bf8c953b95471a29b8b659fc68fd6a0bb",
+        "expected_pass_count": 11,
+        "terminal_exit_status": 0,
+        "rerun_for_inventory": false
+      },
+      "qualified_prior_regression": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/final-cohort-r4.log",
+        "bytes": 80,
+        "sha256": "429a4ca6fd600692eb144ac6bafd6a7a0680850084071dc2defcabc235242b5d",
+        "expected_pass_count": 23,
+        "terminal_exit_status": 0,
+        "scope": "Prior df892 player bytes /347c test bytes. Final one-line target-guard relocation and additional metadata-only regression are covered by final11; prior23 not represented as tests of final W bytes."
+      }
+    }
+  ],
+  "dependency_order": [
+    "a49481167111b0b01b3ba569d7f33c23b160c7cf",
+    "fd327f85139930118be1e92509a8771bf2fedea4",
+    "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07"
+  ],
+  "native_arrival": {
+    "label": "native-arrival",
+    "status": "FUTURE/MISSING; do not include in completed assembler spec yet",
+    "commit": null,
+    "tests": null,
+    "expected_actual_test_count_after_record": 33,
+    "condition": "After actual candidate/HFfullreadback/Pages84/record, apply only approved native_ids15 literal addition, run actual owning33, then bind actual T commit/log before export/final assembly."
+  },
+  "assembler_complete": false,
+  "missing_required_supports": [
+    "native-arrival"
+  ],
+  "limits": [
+    "Read-only existing commits/small logs/peer/sourcefeaturepacket bindings only; no tests,models,browser,media rehash,network or publication executed",
+    "Each historical test supports its exact held source bytes; current_worktree_matches_commit explicitly distinguishes later recorder updates",
+    "No narration runtime/listening/native-speaker approval fabricated",
+    "No actual future T/native-arrival,HForPages/record success is claimed by this inventory"
+  ]
+}
