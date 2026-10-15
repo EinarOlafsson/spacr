@@ -313,3 +313,21 @@ planning is not execution readiness. Legacy unpinned catalogue planning,
 external trusted catalogue wiring and remaining consumers remain separate;
 no real model/network/GPU/fullCI. Parent702 stays partial.
 Evidence: data/702_strict_pinned_model_planning_2026-10-14/receipt.json.
+
+2026-10-14 — classifier consumers honor pinned inference and training inputs:
+Tar inference, CAM, CV initialization and actual training custom/resume
+arguments resolve recorded classifier pins as local effective paths. Crop
+preprocessing policy reads the same verified file passed to training.
+Original input values/pins remain intact at these boundaries. The classifier
+orchestrator now resolves an exact pin before its model-path existence gate,
+so scoring is not silently skipped for a valid missing laptop path. When
+training intentionally creates a NEW model_path, validated invalidation
+removes only that replaced pin while retaining unrelated warm-start identity.
+
+Six new native boundary/orchestrator cases plus finite owning inference and
+entry pipeline tests passed40cases in10.17seconds, exit0. New tests intercept
+actual model/training calls before real weight loading; existing finite tests
+use deterministic CPU models. CAM/CV reuse the resolver but pinned full-CAM/CV
+acceptance is not claimed. No real models/network/GPU/fullCI. Other consumers
+and complete all-model integration remain open; parent702 stays partial.
+Evidence: data/702_classifier_pinned_consumer_paths_2026-10-14/receipt.json.
