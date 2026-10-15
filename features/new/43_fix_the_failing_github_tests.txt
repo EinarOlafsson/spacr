@@ -3876,3 +3876,15 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     verifies explicitauto retainsNone; explicit40px and other assertions remain.
     Actual old node fails, changed node1PASS4.80s. No production/model/scientific
     or fullCI claim. Evidence:data/43_dino_default_diameter_contract_2026-10-15/.
+
+
+2026-10-15 — final shared-Mask eval fake obeys API contract
+    A kwargs-only fake in the six-family Mask adapter fixture evaded the
+    named-input signature sweep but was caught by both hygiene gates. It now
+    declares recorded4.2 parameters/sentinel and records only actual bound
+    parameters, includingx and defaults. All26 original assertions and
+    returned arrays remain. Actual hygiene baseline2FAIL; owning+hygiene+
+    sweep30PASS40.49s. A source-reviewed recorder-only freevar exclusion then
+    passed27affected owning cases7.55s; unchanged gates were not repeated.
+    No production/ratchet/model/fullCI acceptance claim.
+    Evidence:data/43_shared_mask_double_contract_2026-10-15/.
