@@ -1,0 +1,44 @@
+{
+  "class0": [
+    {
+      "source_class": 1,
+      "target_class": 0,
+      "score_start": 0.40131232142448425,
+      "score_end": 0.8320184350013733,
+      "score_path": "0.4013;0.4833;0.5663;0.6457;0.7178;0.7802;0.8320",
+      "spearman": 1.0,
+      "monotone": true,
+      "flipped": true,
+      "edit_l1": 9.999999046325684,
+      "changed_fraction": 1.0
+    }
+  ],
+  "class1": [
+    {
+      "source_class": 1,
+      "target_class": 1,
+      "score_start": 0.5986876487731934,
+      "score_end": 0.5986876487731934,
+      "score_path": "0.5987;0.5987;0.5987;0.5987;0.5987;0.5987;0.5987",
+      "spearman": NaN,
+      "monotone": true,
+      "flipped": true,
+      "edit_l1": 0.0,
+      "changed_fraction": 0.0
+    }
+  ],
+  "default": [
+    {
+      "source_class": 1,
+      "target_class": 0,
+      "score_start": 0.40131232142448425,
+      "score_end": 0.8320184350013733,
+      "score_path": "0.4013;0.4833;0.5663;0.6457;0.7178;0.7802;0.8320",
+      "spearman": 1.0,
+      "monotone": true,
+      "flipped": true,
+      "edit_l1": 9.999999046325684,
+      "changed_fraction": 1.0
+    }
+  ]
+}
