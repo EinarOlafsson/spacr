@@ -96,5 +96,7 @@ def test_offline_copy_instructions_use_the_selected_language(offline_model, tmp_
     monkeypatch.setattr(i18n, 'current_language', lambda: language)
     with pytest.raises(zoo.ModelUnreadable) as error:
         zoo._ensure_model_file('/laptop/' + entry.name)
+    cached = tmp_path / 'models' / entry.name
     assert str(error.value) == target.format(
-        model=entry.key, sha256=entry.sha256, path=str(tmp_path / 'models' / entry.name))
+        model=entry.key, sha256=entry.sha256, path=str(cached)) + (
+        '\n' + zoo._manual_model_copy_command(entry, cached))

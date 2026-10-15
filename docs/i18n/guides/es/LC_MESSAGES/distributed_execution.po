@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 12:45-0400\n"
+"POT-Creation-Date: 2026-10-15 15:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -88,6 +88,10 @@ msgstr "Puntos de control del modelo en el destino de ejecución"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames."
 msgstr "Los ajustes exportados conservan la ruta del modelo y cualquier clave del catálogo, versión del publicador y SHA-256 registrados. Los archivos existentes con una identidad registrada deben coincidir con esa suma de comprobación. Los archivos ausentes se resuelven únicamente mediante la identidad exacta registrada o, si no hay una identidad registrada, mediante una clave o un nombre de archivo exactos del catálogo; no se realizan sustituciones por coincidencia aproximada. Los modelos se almacenan en caché bajo el directorio personal de spaCR (normalmente ``~/.spacr/models``), salvo que ``SPACR_MODEL_CACHE`` seleccione otro directorio. Los procesos comparten un bloqueo de descarga y verifican los puntos de control en caché antes de descargarlos. En un nodo sin conexión, establezca ``SPACR_MODEL_DOWNLOAD=off`` antes de ejecutar ``spacr-run``: no se descargarán metadatos ni pesos de modelos. Los archivos locales existentes y los modelos verificados en caché siguen siendo utilizables; si un modelo conocido no está en caché, se indican la suma de comprobación y la ruta de caché a la que copiarlo. Las solicitudes desconocidas se rechazan con claridad. Las rutas personalizadas no adquieren una identidad de catálogo de confianza por sus nombres de archivo."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Jobs and nodes that share one model cache download a missing model once. The first job holds a lock file in the cache and refreshes it while it downloads; the others wait, then reuse the verified file. A lock that a crashed node left behind is removed after ``SPACR_MODEL_LOCK_STALE_SECONDS`` without a refresh (600 by default). When ``SPACR_MODEL_DOWNLOAD=off`` stops a run, the error ends with a shell command that downloads the checkpoint to the cache path and checks its SHA-256. Run it on a machine with network access that sees the same folder, or run it elsewhere and copy the file to that path."
+msgstr "Los trabajos y nodos que comparten una misma caché de modelos descargan un modelo ausente una sola vez. El primer trabajo mantiene un archivo de bloqueo en la caché y lo renueva mientras descarga; los demás esperan y luego reutilizan el archivo verificado. Un bloqueo que dejó un nodo caído se elimina tras ``SPACR_MODEL_LOCK_STALE_SECONDS`` sin renovación (600 de forma predeterminada). Cuando ``SPACR_MODEL_DOWNLOAD=off`` detiene una ejecución, el error termina con un comando de shell que descarga el punto de control en la ruta de la caché y comprueba su SHA-256. Ejecútelo en una máquina con acceso a la red que vea la misma carpeta, o ejecútelo en otro lugar y copie el archivo en esa ruta."
 
 msgid "Command-line workflow"
 msgstr "Flujo de trabajo en línea de comandos"
@@ -252,6 +256,9 @@ msgstr "opciones de configuración SSH no secretas, como usuario, puerto, ruta d
 # AI technical review (Codex), no native-speaker signoff.
 msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
 msgstr "usar una sesión SSH persistente y verificada con solicitudes gráficas de autenticación interactiva por teclado, en lugar del comando OpenSSH externo."
+
+msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
+msgstr ""
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Construye y valida un perfil a partir de datos compatibles con JSON."

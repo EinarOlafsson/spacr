@@ -1,0 +1,76 @@
+[
+  {
+    "symbol": "spacr.crashreport.scrub_public_text",
+    "before": [
+      "limit",
+      "text"
+    ],
+    "after": [
+      "keep_docs_urls",
+      "limit",
+      "text"
+    ],
+    "added": [
+      "keep_docs_urls"
+    ],
+    "removed": []
+  },
+  {
+    "symbol": "spacr.crashreport.public_summary",
+    "before": [
+      "code_context",
+      "dry_run",
+      "exception",
+      "kind",
+      "module",
+      "traceback_text",
+      "user_note"
+    ],
+    "after": [
+      "code_context",
+      "diagnostics",
+      "dry_run",
+      "error_text",
+      "exception",
+      "kind",
+      "log_text",
+      "message",
+      "module",
+      "run",
+      "screen",
+      "settings",
+      "traceback_text",
+      "user_note"
+    ],
+    "added": [
+      "diagnostics",
+      "error_text",
+      "log_text",
+      "message",
+      "run",
+      "screen",
+      "settings"
+    ],
+    "removed": []
+  },
+  {
+    "symbol": "spacr.torch_artifacts.load_model_artifact",
+    "before": [
+      "map_location",
+      "model",
+      "path",
+      "strict"
+    ],
+    "after": [
+      "map_location",
+      "model",
+      "path",
+      "strict",
+      "weights_only"
+    ],
+    "added": [
+      "weights_only"
+    ],
+    "removed": []
+  }
+]

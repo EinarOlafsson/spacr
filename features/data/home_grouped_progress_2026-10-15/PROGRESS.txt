@@ -27,11 +27,11 @@ Hours are estimates; external unknowns remain explicit.
 | N703 | 95 | 2–4 + external | Home / assigned owner | Installer replacement, rollback/cache-preservation software and translations published; native platform acceptance remains. |
 | N696 | 95 | 1–2 | Home / assigned owner | Source/widget/diameter/auto semantics and235merged owning checks plus original1.35paintgate passed, normal API/Help generation recorded. Fresh fullCI/platform-native and Work currentlayout tutorial remain; no new native modelquality/GPU acceptance. |
 | N697 | 95 | 1–2 | Home / assigned owner | Disconnected brush/volume behavior and235merged checks/unmodified1.35paintgate recorded. Fresh fullCI/native-platform and Work lesson14 recording/publication remain; oldprivate publication/performance notes superseded only to stated extent. |
-| N704 | 90 | 1–3 | Home-B / Home | See current owner delivery and remaining acceptance gates. |
+| N704 | 90 | 1–3 | Claude Home (handover acknowledged) | See current owner delivery and remaining acceptance gates. |
 | N676 | 65 | 12–24+ | Work | Work completed15/23 and selective02 publication; numerical04 review next.05 hidden Spaceout repair and remaining requested lessons remain Work-owned. |
-| N689 | 85 | 2–4 + external | Home-B / Home | Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain. |
+| N689 | 85 | 2–4 + external | Claude Home (handover acknowledged) | Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain. |
 | F560 | 90 | Unknown | Home / assigned owner | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
-| F370 | 90 | 2–6 + data | Home / assigned owner | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
+| F370 | 90 | 2–6 + data | Claude Home (handover acknowledged) | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
 | N678 | 90 | 2–4 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
 | N698 | 70 | 24–48+ | Claude Home | Handed to Claude with published managed-host fixes and unvalidated export prototype. Claude reports a subsequent delivery; reconcile its complete hosted/browser acceptance before a whole-item tick. |
 | N699 | 90 | Unknown | Claude Home | Built; handed to Claude with published SSH/MFA/keychain/retry work. Actual Great Lakes login, submit and status acceptance remains maintainer-owned. |

@@ -21,5 +21,8 @@ def test_actual_unknown_model_refusal_is_localized(isolated, monkeypatch, langua
                         pytest.fail("Unknown model reached constructor"))
     with pytest.raises(zoo.ModelZooError) as error:
         utilities._choose_model(requested, device="cpu", object_type="cell")
-    assert str(error.value) == expected
+    first, _, context = str(error.value).partition("\n")
+    assert first == expected
+    assert "cell_model_name" in context and repr(requested) in context
+    assert not context.startswith("Model setting ")
     assert expected != record["source"].format(name=repr(requested))

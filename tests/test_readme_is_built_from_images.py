@@ -77,6 +77,11 @@ def test_each_translation_has_the_english_block_structure(language):
     assert _tool().check_structure(language) == []
 
 
+WEBSITE_LINE = re.compile(
+    r"[^`\n]{1,20} `einarolafsson\.github\.io/projects/spacr "
+    r"<https://einarolafsson\.github\.io/projects/spacr/>`_")
+
+
 @pytest.mark.parametrize("language", LANGUAGES)
 def test_the_readme_holds_only_images_code_badges_and_markers(language):
     """No prose, list, heading or table reaches the README as text."""
@@ -90,6 +95,8 @@ def test_the_readme_holds_only_images_code_badges_and_markers(language):
             assert {item["kind"] for item in inner} <= {"raw"}, (
                 f"{language}: the {block['name']} block carries text: "
                 f"{[item for item in inner if item['kind'] != 'raw'][:1]}")
+        elif kind == "paragraph" and WEBSITE_LINE.fullmatch(block.get("text", "")):
+            continue
         else:
             assert kind in ("raw", "code"), (
                 f"{_readme(language).name} carries a {kind} as text: "
