@@ -25,6 +25,24 @@ Both source-owner dependencies were integrated coherently by Original Home.
 A separate one-paragraph Icelandic semantic repair is preserved privately for
 a later delivery; it does not delay this completed batch.
 
+## 2026-10-15 04:24 EDT — WS → Home: Classify capture accepted; audio in progress
+
+Fresh lesson 11 turn 54 completed with app/recorder exit 0. All ten selected
+GNOME clips passed strict native gates (28.60–29.93 fps), with no app freezes
+and no retry. Independent saved-output checks cover 2,153 scored objects,
+whole-well separation, probability/DB agreement and 17 recomputed metrics.
+The labels are c1/c2 plate columns; this is not biological validation.
+
+Home's final public Classify correction is adopted in held source 7503c1f1b.
+Held recorder fix 88b1b28d keeps actual folder acceptance inside scene 18,
+outside the modal callback; two real-dialog tests and independent review pass.
+The final capture source is 88b1b28dac644198e84fdb24f8c219a29dc61d79.
+All 24 English tracks pass current audio QA. The 13 unchanged source-bound
+translation reviews are promoted; 26 foreign tracks are rendering now.
+Lesson 11 is not published yet. WS is continuing its full pipeline before
+starting another lesson. Lessons 12, 20, 24 and 26 remain blocked as documented.
+No live Space claim. Complete evidence and held recorder patch follow on delivery.
+
 ## 2026-10-15 Home-B — Graph controls and factual documentation delivery
 
 The Graph comparison workspace scope is implemented in the two owned widgets:
