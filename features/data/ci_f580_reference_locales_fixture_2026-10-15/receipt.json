@@ -1,0 +1,14 @@
+{
+  "base": "11e254a4cffca4b70eb054d1387d895d0da90c65",
+  "test_sha256": "a0a681a6f19f2c82d05e808f2281758e3ce126188535584991ff749b60dca400",
+  "outside_exact_test_ast_identical": true,
+  "baseline": "Original9FAIL1.20s missing explicitlyretired oldtooltip record",
+  "final": "Sameall9 locales9PASS1.34s zeroskips",
+  "scope": "OnlyACTIVErecords in exactoriginalreferenceplate andsessioncontrols reviewfiles; exactcurrentWithoutsessioninputs caption. No retiredrecord/fallback selection. Alloriginallookups,nonEnglishcaption,localizedValueError/key/missingvalue andintactinputbytes/onlyinputfile assertions retained. Fourrecords perlocale now additionallyprove ownsourceSHA, compiledSOURCE_HASHES match, translationnonEnglish (36recordbindings,108 checks).",
+  "protected_source_pins": {
+    "spacr/settings.py": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5",
+    "spacr/intensity_rescale.py": "df6f846820ef4d2bffe83dd2e86180c026d23a7efc920c812df3b9b408a8ffcb",
+    "spacr/qt/widgets/calibration_preview.py": "699605f2d1e8b4d8d1d2d0c42a9a79373a3e95bdddd5055f456a3c8c8267b94d"
+  },
+  "limits": "Existingcompiledactual9language lookup/errorpath acceptance only; noGUI/native/scientific/fullF580 acceptance andno target/source/writer changes."
+}
