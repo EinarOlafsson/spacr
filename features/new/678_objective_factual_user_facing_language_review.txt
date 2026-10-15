@@ -244,3 +244,15 @@ records preserved. Final coordinator verifies all15 owned symbols across this,
 DINO and carried-database batches against normal artifacts and all unrelated
 incoming records, including N641. Evidence:678_memory_laptop_api_catalogs and
 peer directories dated2026-10-15 underfeatures/data/. Broad N678 remains open.
+
+2026-10-15 — Row-exclusion and registration-stage factual prose completed.
+Row-exclusion path, asynchronous validation and lifecycle contracts now match
+their implementation;72 translated blocks have exact technical peer review.
+The registration-stage parameter now distinguishes the initial stable fallback
+from maturity.apply assigning unassessed apps alpha; explicit stable entries
+remain stable. Nine changed translation targets have exact reviewed provenance.
+Both changes preserve executable ASTs and comments. Normal scoped API writers
+and the combined coordinator readback retain every unrelated incoming record.
+Evidence is in678_row_exclusion_api_catalogs,678_register_stage_api_catalogs
+and related prose/review directories dated2026-10-15 underfeatures/data/.
+No plugin stage policy or runtime caption changes; broad N678 remains open.

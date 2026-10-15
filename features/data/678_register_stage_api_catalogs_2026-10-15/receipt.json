@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "source_head": "aa0ab85c8c001aaee264a80d92aba612948b4405",
+  "source_commits": [
+    "dbc777acb4c"
+  ],
+  "published_base": "67e37853676e682e33b372f4f0cd04ecce629f2c",
+  "scope": "Normal scoped API generation for the existing register_app registration-stage parameter block across nine locales; exact prior public English plus only owned normal AST-rendered replacements, no global current-source claim.",
+  "owned_source_files": {
+    "spacr/qt/app.py": "512630cb15f2c7f25d6b9d2cf5ef838c3374367ee373712ec45a4fab1c689561"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-register-stage-semantics.json": "8b18db2d13cfb14771222289dcfdee88835e00410b5ceccd4a348011e4e2fb4e",
+    "docs/i18n/reviewed/api/de/2026-10-15-register-stage-semantics.json": "4e0f28cf1d797ba2a8e5df8c2951a17e75fa602f2dce7aa5dc7637637f00958c",
+    "docs/i18n/reviewed/api/es/2026-10-15-register-stage-semantics.json": "3ee412ea9683e60c2b9972ef894e98f037c99766dce5343b016f51ce0cf738b7",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-register-stage-semantics.json": "a9237b3cc8779d1c18ee54227e934924bff152d4fc8074e59296b5b92ad306be",
+    "docs/i18n/reviewed/api/pt/2026-10-15-register-stage-semantics.json": "2263331667d35e5d0f65150dd5f4264efe750654b9d77518ccfb7f84e4a63e1c",
+    "docs/i18n/reviewed/api/hi/2026-10-15-register-stage-semantics.json": "359c2257cfaa26e8f0eb15df4760c2c6e819e46f99af211b2ff1e14ecdfb9c6e",
+    "docs/i18n/reviewed/api/ko/2026-10-15-register-stage-semantics.json": "ec589ce4bb2833f8716d65574717646d1d4515bf58e220bc1aeafcbba5e71228",
+    "docs/i18n/reviewed/api/is/2026-10-15-register-stage-semantics.json": "cfadb11a5c01186dc6d9b0f0d9b5b3c8c0fd0b10ec49b61ee6e528b1afa4acd2",
+    "docs/i18n/reviewed/api/fr/2026-10-15-register-stage-semantics.json": "3e7e7c5bb3cfe8422fbad7564b882f203718efadaa4943b325e4423b961b4e3f"
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "778e64354d5b43e8ca1c42aa96e6d2162307afca4a6cec648628a32c20cf8fdf",
+      "unrelated_after_sha256": "778e64354d5b43e8ca1c42aa96e6d2162307afca4a6cec648628a32c20cf8fdf",
+      "catalog_sha256": "eecbaf08eaa30b561feb6ba87937b0af1df81d8e3a5d65fc84296b5aa369f9fa"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "b3baac883b7f54b3ee2a385123cfc571992c54583531787f79d45e47c29c95f9",
+      "unrelated_after_sha256": "b3baac883b7f54b3ee2a385123cfc571992c54583531787f79d45e47c29c95f9",
+      "catalog_sha256": "17f59c4d25f5b671a425b0fb98e831f4f6bfe4ab0dbec0f961e5d7f30ad8323f"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "cb42a9ca8aea6505f1e79dc1351e3d4fff3a1369cf3f7924f43046550ff84739",
+      "unrelated_after_sha256": "cb42a9ca8aea6505f1e79dc1351e3d4fff3a1369cf3f7924f43046550ff84739",
+      "catalog_sha256": "9f5be2845b64294d0dca8f02206ca921f6f4c04aa280b107eb0603536e84630e"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "1627c8368fc35d3d23dfd084a2f730b0c0d73b9eee79e5106b492c48770eaa29",
+      "unrelated_after_sha256": "1627c8368fc35d3d23dfd084a2f730b0c0d73b9eee79e5106b492c48770eaa29",
+      "catalog_sha256": "30e9e80cc97afd7f5039e373a140dd2c52b1a6f2a21a20d5a2122497611a2f84"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "a4fd3ac4c6c6e01bb1e5fae41a5f92c0370a3a89688e4b3399f2c1c15cb7f8dd",
+      "unrelated_after_sha256": "a4fd3ac4c6c6e01bb1e5fae41a5f92c0370a3a89688e4b3399f2c1c15cb7f8dd",
+      "catalog_sha256": "03120eb8406bc2ba5c4cbac7a82b859589b2a0fc38a7ca53d4694c7eee0b9767"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "0412e796501ffecfc4156c170abadcd95c36936fa879cf90d9dac6df654ce910",
+      "unrelated_after_sha256": "0412e796501ffecfc4156c170abadcd95c36936fa879cf90d9dac6df654ce910",
+      "catalog_sha256": "aa8a1b1bef2b2fe542216c127b0218a02318716fce6413014c72822c3488b5b2"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "84653bb1408e8952ee2d0b73e02d3ff362773aef8ee4d8c8bab852eac2a7d48d",
+      "unrelated_after_sha256": "84653bb1408e8952ee2d0b73e02d3ff362773aef8ee4d8c8bab852eac2a7d48d",
+      "catalog_sha256": "b8e486a2296fb5432f946fabd85fd7c91c2f645e03db1148ce5e80f5155320a4"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "f9663ca049e9ed22a36dc25cc76b4b9af6a73eb52e2013377d4caef7c65af2b1",
+      "unrelated_after_sha256": "f9663ca049e9ed22a36dc25cc76b4b9af6a73eb52e2013377d4caef7c65af2b1",
+      "catalog_sha256": "bc017ba9e44f351e534b3badebdadc5024c057994974c6dac8ffdd841c25d0ef"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.app.register_app"
+      ],
+      "reviewed_blocks_exact": 1,
+      "unchanged_blocks_preserved": 18,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "d4a62a71120d4bbdc2192743111969fa27e7cf3448df8fcac3d2696b82829f0d",
+      "unrelated_after_sha256": "d4a62a71120d4bbdc2192743111969fa27e7cf3448df8fcac3d2696b82829f0d",
+      "catalog_sha256": "855be25223df57af782fe358dae2004caae761c47c80ca51e1aeb587845c9c5b"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.app.register_app"
+  ],
+  "unrelated_english_records_preserved": 13479,
+  "normal_functions": [
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "runtime_collection_policy": "Light mode refuses before any full canonical collection. Heavy mode lazily freezes one real canonical_sources result only if requested, then re-collects and compares; all normal review/candidate validators unchanged.",
+  "new_symbols": [],
+  "new_symbol_provenance": "No new public symbol; only the existing register_app stage parameter block changed.",
+  "normal_api_collector_run": false,
+  "model_decoder_requests": 0,
+  "stats": {
+    "mode": "light",
+    "runtime_canonical_requests": 0,
+    "actual_runtime_collections": 0,
+    "runtime_collection_seconds": [],
+    "model_decode_requests": 0,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "written_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "status": "pass",
+    "elapsed_seconds": 15.74039516801713
+  },
+  "limitations": [
+    "AI technical review; no native-speaker claim.",
+    "No Sphinx, runtime/global arrivals, native-platform or external publication claim."
+  ],
+  "source_history": "Unchanged by normal writer: exact HEAD bytes retained.",
+  "source_history_sha256": "270c8e92dd107d3441575e422354c0056d0b1305d1331daa9763152a9d058246"
+}

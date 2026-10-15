@@ -1,0 +1,6 @@
+{
+  "original_sha256": "968d00b969edf06d4802c7d75223d216352ec9e150ccf337d3c6191827bee89e",
+  "proposed_sha256": "155c19eb811efe9ff42fb972dd602d7fea1e23a920a3c49779f8784165065e45",
+  "proof": "registration-only.xml: 1 failure after provider registration; settings replay clears carried override",
+  "scope": "Move each namespaced settings section before earlier same-namespace panels only; preserve relative order of all non-settings sections and nonnamespaced settings. Public prose/signature unchanged."
+}

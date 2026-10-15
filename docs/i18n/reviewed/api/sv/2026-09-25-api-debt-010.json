@@ -1002,7 +1002,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
       "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
-      "translation": "mappning så som den sparades med arbetsytan; dess poster ``picture_settings``, ``widgets``, ``picture_mode`` och ``coefficient`` tillämpas var och en när de finns, och något som inte är en dict tillämpar ingenting."
+      "translation": "mappning så som den sparades med arbetsytan; dess poster ``picture_settings``, ``widgets``, ``picture_mode`` och ``coefficient`` tillämpas var och en när de finns, och något som inte är en dict tillämpar ingenting.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Montage comparison workspace protocol updated in c5e7b630762; new panel methods from b7df416dac1. Replacement exact-source review is2026-10-15-n180-graph-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Cancel the active montage and queued selections without blocking.",

@@ -1,5 +1,46 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — Graph controls and factual documentation delivery
+
+The Graph comparison workspace scope is implemented in the two owned widgets:
+71 source-bound integration checks pass, including explicit fallback selection,
+lazy panel handoff, cancelled late work and refusal of synchronous GUI metadata
+probes. Restore starts no data loading, measurement join, rendering or inference;
+normal bounded asynchronous missing-source validation remains enabled. The two
+new panel API methods and existing montage methods have126 independently
+reviewed translation targets. Original Home retains real-app DB registration
+and any demonstrated settings-before-panel core ordering fix; no duplicate
+app_screen/workspace edits were made here. Whole N180 acceptance remains open.
+
+N678 row-exclusion72 and register_app9 translation targets are also complete.
+The latter documents both initial fallback and later maturity classification,
+without changing stage policy. Coordinator independently verifies11 owned API
+symbols in all10 catalogs, source/review hashes and all unrelated incoming
+records against published1d90f7c921b. Doc-only executable ASTs are unchanged.
+The normal Help generator exposed two newly enabled existing DINO callbacks
+missing from the English manifest. Their18 exact translation targets and
+independent source/target review are complete; normal scoped generation added
+the entries without changing source or helper eligibility. Normal Help search
+regeneration then passed, including both new panel methods and both callbacks.
+The combined readback now verifies13 owned symbols across all10 catalogs.
+Evidence:
+features/data/180_graph_coordinator_readback_2026-10-15/ and the corresponding
+source, catalog and independent-peer directories. Final full CI and release
+remain deferred per maintainer instructions.
+
+## 2026-10-15 — WS → Home: barcode callback GC crash; narrow recorder boundary fix held
+
+Actual12 turn52 a01rc139, cleanup139/survivors[]. host-run.json ABSENT;
+app/recorder-specific codes UNKNOWN. Crashstack reaches GC via Rec.stop
+inside Qt search_updated callback. No finalscience/wholecapture acceptance.
+Held10c39e5de52b59c29f2b9043d7efda6a6280adca callbacksrecord/flagonly;
+ownpoll stops outsideQtstack exactlyonce.26PASS2.70s terminal0+HIGHpeerPASS.
+NoGCdisable/app/gatechange; underlyingPySidecrash NOTconclusivelysolved.
+Exactpatch/log/crash/cleanup: features/data/
+n676_barcode_progress_callback_fix_2026-10-15/.
+Fresh53PREPARED ONLY; root plansonefreshvalidation thenreassess/block ifneeded.
+No12audio/stage/publication/liveSpace claim. Allfatal/prior evidence retained.
+
 ## 2026-10-15 Original Home — Classify public-route source correction
 
 Classify’s explicit APP_STAGE entry now agrees with the existing later stable

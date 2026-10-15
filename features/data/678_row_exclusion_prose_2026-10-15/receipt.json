@@ -1,0 +1,225 @@
+{
+  "schema": 1,
+  "source": "spacr/qt/widgets/row_exclusion.py",
+  "source_before_sha256": "4dcf84a6a03db45a4902ce4ef099551b89a4edfd2b5fc2f28309717eebeb2a5c",
+  "source_after_sha256": "219812e83b270e57d6278e43957b3d775d5d49158abe02586118fab3c44aaad3",
+  "docstrings_inspected": 32,
+  "docstrings_revised": 6,
+  "executable_ast_unchanged": true,
+  "comments_unchanged": true,
+  "scope": "Only concrete existing public path/cache/debounce/source-selection/shutdown prose; no whole-module review or new behavior claim.",
+  "evidence": [
+    "source_paths accepts any existing .db filename and otherwise resolves measurements/measurements.db; does not verify SQLite format.",
+    "set_source clears value cache and dispatches schema; JobRunner threaded=False invokes callbacks inline. Restored values are appended by _CheckableValueCombo.set_options, and _refresh_values preserves checked values.",
+    "_debounce is single-shot and start() is called on each edit, including interval0; this does not promise one query per edit.",
+    "JobRunner.shutdown calls cancel then bounded drain_thread and clears tracked jobs. drain_thread parks a surviving thread; result generation/callback cancellation does not forcibly terminate SQLite reads."
+  ],
+  "source_dependencies": {
+    "spacr/qt/job_runner.py": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b",
+    "spacr/qt/bridge.py": "c548813cf9c55f8e0bfda966b08750c5cb30256623afeed72570101b2a3170d4",
+    "tests/qt/test_umap_row_exclusion_settings.py": "fffd39eac1c8a9ac8232957b6bf17c231bf97712d4aa0841ad2b5e9f9d113099"
+  },
+  "owning_tests_read": [
+    "test_exclusion_editor_round_trips_imported_rules",
+    "test_a_new_source_supersedes_the_one_still_being_read",
+    "test_unthreaded_mode_still_reads_inside_the_call",
+    "test_the_pure_readers_survive_everything_a_src_field_can_hold",
+    "test_leaving_the_editor_mid_load_cancels_cleanly",
+    "test_a_removed_rule_row_is_never_painted_by_a_late_read"
+  ],
+  "validation": "Exact executable AST and all comments unchanged. Existing owning tests inspected, not rerun for documentation-only changes. No timing/native or worker termination acceptance claimed.",
+  "ledger": [
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion",
+      "disposition": "revised",
+      "before": "Column/value editor for excluding rows from UMAP input data.\n\nEverything this widget offers the user comes out of a measurements\ndatabase, and both reads used to happen on the GUI thread:\n\n* ``discover_columns`` opens every database the ``src`` setting resolves\n  to and runs ``sqlite_master`` plus a ``PRAGMA table_info`` per table.\n  It is driven from ``SettingsWidgets._refresh_contextual_widgets``, so\n  it runs every time ``src`` or ``tables`` is set.\n* ``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per\n  ``(database, table)`` pair the chosen column appears in — and the\n  columns a user actually excludes on (``plateID``, ``columnID``,\n  ``rowID``) hold a handful of distinct values across the whole table,\n  so the LIMIT is never reached and SQLite scans every row. Measured on\n  a 200 000-row × 8-table measurements.db with a warm page cache:\n  **196 ms per column**, and the column combo is editable, so\n  ``currentTextChanged`` fires on every keystroke. Eight quick edits\n  froze the window for **894 ms** in one unbroken block; ``set_source``\n  itself cost 183 ms and a single deliberate column choice 220 ms.\n  Threaded, the same three are 29 ms, 5 ms and 2 ms.\n\nSo both go through a :class:`~spacr.qt.job_runner.JobRunner` owned by the\neditor, and the value reads are additionally debounced. Three rules hold\nthis together:\n\n* ``_value_cache`` and ``_column_sources`` are GUI-thread state. The\n  worker returns plain data and the completion handler — which Qt runs on\n  the GUI thread — is the only thing that writes them.\n* Schema discovery and value reads get **separate** runners.\n  :meth:`JobRunner.cancel` works by generation, so one runner cannot\n  supersede a value read without also dropping the schema read that the\n  value read depends on.\n* A debounce timer coalesces keystrokes, and :meth:`JobRunner.cancel`\n  drops whatever an earlier keystroke started, so the last edit wins\n  rather than the slowest read.",
+      "after": "Column/value editor for excluding rows from UMAP input data.\n\nEverything this widget offers the user comes out of a measurements\ndatabase, and both reads used to happen on the GUI thread:\n\n* ``discover_columns`` opens every database the ``src`` setting resolves\n  to and runs ``sqlite_master`` plus a ``PRAGMA table_info`` per table.\n  It is driven from ``SettingsWidgets._refresh_contextual_widgets``, so\n  it runs every time ``src`` or ``tables`` is set.\n* ``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per\n  ``(database, table)`` pair the chosen column appears in — and the\n  columns a user actually excludes on (``plateID``, ``columnID``,\n  ``rowID``) hold a handful of distinct values across the whole table,\n  so the LIMIT is never reached and SQLite scans every row. Measured on\n  a 200 000-row × 8-table measurements.db with a warm page cache:\n  **196 ms per column**, and the column combo is editable, so\n  ``currentTextChanged`` fires on every keystroke. Eight quick edits\n  froze the window for **894 ms** in one unbroken block; ``set_source``\n  itself cost 183 ms and a single deliberate column choice 220 ms.\n  Threaded, the same three are 29 ms, 5 ms and 2 ms.\n\nSo both go through a :class:`~spacr.qt.job_runner.JobRunner` owned by the\neditor, and the value reads are additionally debounced. Three rules hold\nthis together:\n\n* ``_value_cache`` and ``_column_sources`` are GUI-thread state. Workers\n  return plain data; GUI-thread completion handlers install it. Changing\n  the source clears the value cache before the replacement schema arrives.\n* Schema discovery and value reads get **separate** runners.\n  :meth:`JobRunner.cancel` works by generation, so one runner cannot\n  supersede a value read without also dropping the schema read that the\n  value read depends on.\n* A debounce timer coalesces keystrokes, and :meth:`JobRunner.cancel`\n  drops whatever an earlier keystroke started, so the last edit wins\n  rather than the slowest read."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._quote",
+      "disposition": "retained",
+      "before": "Double-quote a SQL identifier, escaping embedded quotes.",
+      "after": "Double-quote a SQL identifier, escaping embedded quotes."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.source_paths",
+      "disposition": "revised",
+      "before": "Return the ``measurements.db`` files ``source`` resolves to.\n\nAccepts a path, a list of paths, or the repr of a list (which is what\na settings text field holds after a multi-folder drop), and tolerates\na run folder, its ``measurements`` subfolder, or the database itself.\nPaths that do not exist are dropped rather than reported: this feeds\na dropdown, and a half-typed ``src`` is not an error.\n\n:param source: a path, a list or tuple of paths, or the text of such a\n    list; empty entries are skipped and ``~`` is expanded.",
+      "after": "Return the existing database-file paths ``source`` resolves to.\n\nAccepts a path, a list of paths, or the repr of a list (which is what\na settings text field holds after a multi-folder drop), and tolerates\na run folder, its ``measurements`` subfolder, or the database itself.\nPaths that do not exist are dropped rather than reported: this feeds\na dropdown, and a half-typed ``src`` is not an error.\n\n:param source: a path, a list or tuple of paths, or the text of such a\n    list; empty entries are skipped and ``~`` is expanded."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.discover_columns",
+      "disposition": "retained",
+      "before": "Map every column name to the ``(database, table)`` pairs holding it.\n\nPure and Qt-free so it can run on a worker thread; the result is\nplain data the GUI thread installs.\n\n:param source: anything :func:`source_paths` accepts.\n:param tables: restrict to these table names; falsy means all of them.",
+      "after": "Map every column name to the ``(database, table)`` pairs holding it.\n\nPure and Qt-free so it can run on a worker thread; the result is\nplain data the GUI thread installs.\n\n:param source: anything :func:`source_paths` accepts.\n:param tables: restrict to these table names; falsy means all of them."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.distinct_values",
+      "disposition": "retained",
+      "before": "Return the distinct values of ``column`` across ``sources``, sorted.\n\nThe slow half of this widget, and the reason it has a worker thread.\nPure and Qt-free — hand it the ``(database, table)`` pairs\n:func:`discover_columns` found and it touches nothing else.\n\nEvery connection is closed in a ``finally``. The version this\nreplaces used ``with sqlite3.connect(...) as connection``, which\ncommits but does **not** close, so a session of typing in the column\nbox leaked one file descriptor onto a multi-hundred-megabyte database\nper keystroke.\n\n:param sources: ``(database path, table name)`` pairs to read; a\n    database or table that cannot be read is skipped.\n:param column: the column name; empty returns ``[]``. ``NULL`` values\n    are left out.\n:param limit: stop after this many distinct values.",
+      "after": "Return the distinct values of ``column`` across ``sources``, sorted.\n\nThe slow half of this widget, and the reason it has a worker thread.\nPure and Qt-free — hand it the ``(database, table)`` pairs\n:func:`discover_columns` found and it touches nothing else.\n\nEvery connection is closed in a ``finally``. The version this\nreplaces used ``with sqlite3.connect(...) as connection``, which\ncommits but does **not** close, so a session of typing in the column\nbox leaked one file descriptor onto a multi-hundred-megabyte database\nper keystroke.\n\n:param sources: ``(database path, table name)`` pairs to read; a\n    database or table that cannot be read is skipped.\n:param column: the column name; empty returns ``[]``. ``NULL`` values\n    are left out.\n:param limit: stop after this many distinct values."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._CheckableValueCombo",
+      "disposition": "retained",
+      "before": "A compact dropdown that keeps multiple checked values.\n\n:param parent: parent widget; ownership only.\nBuild the combo: editable for its display line, but read-only.\n\nThe line edit shows the checked values and must not be typed into --\nthe values come from the ticks, and a typed line would be a second,\ndisagreeing source of the same answer.",
+      "after": "A compact dropdown that keeps multiple checked values.\n\n:param parent: parent widget; ownership only.\nBuild the combo: editable for its display line, but read-only.\n\nThe line edit shows the checked values and must not be typed into --\nthe values come from the ticks, and a typed line would be a second,\ndisagreeing source of the same answer."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._CheckableValueCombo.__init__",
+      "disposition": "retained",
+      "before": "Build the combo: editable for its display line, but read-only.\n\nThe line edit shows the checked values and must not be typed into --\nthe values come from the ticks, and a typed line would be a second,\ndisagreeing source of the same answer.",
+      "after": "Build the combo: editable for its display line, but read-only.\n\nThe line edit shows the checked values and must not be typed into --\nthe values come from the ticks, and a typed line would be a second,\ndisagreeing source of the same answer."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._CheckableValueCombo._toggle_index",
+      "disposition": "retained",
+      "before": "Flip one value's tick and refresh the display line.",
+      "after": "Flip one value's tick and refresh the display line."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._CheckableValueCombo.set_options",
+      "disposition": "retained",
+      "before": "Offer these values, ticking the ones already chosen.\n\nA chosen value the new option list does not contain is APPENDED rather\nthan dropped: a saved exclusion naming a value this database no longer\nhas stays visible and ticked, so the user can see what their filter is\ndoing instead of silently losing it.\n\n:param options: the values to offer.\n:param selected: the values to tick.",
+      "after": "Offer these values, ticking the ones already chosen.\n\nA chosen value the new option list does not contain is APPENDED rather\nthan dropped: a saved exclusion naming a value this database no longer\nhas stays visible and ticked, so the user can see what their filter is\ndoing instead of silently losing it.\n\n:param options: the values to offer.\n:param selected: the values to tick."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._CheckableValueCombo.checked_values",
+      "disposition": "retained",
+      "before": "The values currently ticked.\n\n:returns: the stored values rather than their captions.",
+      "after": "The values currently ticked.\n\n:returns: the stored values rather than their captions."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._CheckableValueCombo._refresh_text",
+      "disposition": "retained",
+      "before": "Show the checked values, comma-separated, on the closed combo.",
+      "after": "Show the checked values, comma-separated, on the closed combo."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._ExclusionRuleRow",
+      "disposition": "retained",
+      "before": "One editable ``column is one of values`` rule.\n\n:param parent: parent widget; ownership only.\nBuild one rule: a column, a comparison and its values.",
+      "after": "One editable ``column is one of values`` rule.\n\n:param parent: parent widget; ownership only.\nBuild one rule: a column, a comparison and its values."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._ExclusionRuleRow.__init__",
+      "disposition": "retained",
+      "before": "Build one rule: a column, a comparison and its values.",
+      "after": "Build one rule: a column, a comparison and its values."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion._ExclusionRuleRow.set_columns",
+      "disposition": "retained",
+      "before": "Offer these columns, keeping whatever this row already names.\n\n:param columns: the columns to offer.",
+      "after": "Offer these columns, keeping whatever this row already names.\n\n:param columns: the columns to offer."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor",
+      "disposition": "revised",
+      "before": "Add one or more UMAP row exclusions by choosing columns and values.\n\nThe database reads behind the two dropdowns run on worker threads;\nsee the module docstring for the measured reason. Nothing about the\nwidget's public contract changed — :meth:`set_source` still takes a\nsource and returns, it just no longer waits for sqlite before it does.\n\n:param value: initial rules, in any form\n    :func:`spacr.row_exclusions.normalize_row_exclusions` accepts.\n:param parent: Qt parent.\n:param threaded: ``False`` runs both reads inline, in the same order,\n    emitting the same signals — a caller that must have the values\n    the instant :meth:`set_source` returns can ask for it. Keyword\n    only, and defaulted, because the shipped call site\n    (``SettingsWidgets._widget_for``) passes ``value`` and ``parent``\n    and nothing else.\n:param debounce_ms: how long a column edit waits before it is read.\n    ``0`` reads on the next event-loop turn without coalescing.\nBuild the row-exclusion editor.\n\nTwo runners, not one: ``cancel`` abandons everything a runner has in\nflight, and superseding a keystroke's value read must not also abandon\nthe schema read that says which databases the column even lives in.\n\n:param value: the exclusions to start with.\n:param parent: parent widget, or ``None``.\n:param threaded: read on worker threads. Set ``False`` in tests so a\n    read finishes before it returns.\n:param debounce_ms: how long typing settles before a value read is run.",
+      "after": "Add one or more UMAP row exclusions by choosing columns and values.\n\nThe database reads behind the two dropdowns run on worker threads;\nsee the module docstring for the measured reason. Nothing about the\nwidget's public contract changed — :meth:`set_source` still takes a\nsource and returns, it just no longer waits for sqlite before it does.\n\n:param value: initial rules, in any form\n    :func:`spacr.row_exclusions.normalize_row_exclusions` accepts.\n:param parent: Qt parent.\n:param threaded: ``False`` runs both reads inline, in the same order,\n    emitting the same signals — a caller that must have the values\n    the instant :meth:`set_source` returns can ask for it. Keyword\n    only, and defaulted, because the shipped call site\n    (``SettingsWidgets._widget_for``) passes ``value`` and ``parent``\n    and nothing else.\n:param debounce_ms: how long a column edit waits before it is read.\n    ``0`` schedules the read for a later event-loop turn; edits before\n    that timer fires can still be coalesced.\nBuild the row-exclusion editor.\n\nTwo runners, not one: ``cancel`` abandons everything a runner has in\nflight, and superseding a keystroke's value read must not also abandon\nthe schema read that says which databases the column even lives in.\n\n:param value: the exclusions to start with.\n:param parent: parent widget, or ``None``.\n:param threaded: read on worker threads. Set ``False`` in tests so a\n    read finishes before it returns.\n:param debounce_ms: how long typing settles before a value read is run."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.__init__",
+      "disposition": "retained",
+      "before": "Build the row-exclusion editor.\n\nTwo runners, not one: ``cancel`` abandons everything a runner has in\nflight, and superseding a keystroke's value read must not also abandon\nthe schema read that says which databases the column even lives in.\n\n:param value: the exclusions to start with.\n:param parent: parent widget, or ``None``.\n:param threaded: read on worker threads. Set ``False`` in tests so a\n    read finishes before it returns.\n:param debounce_ms: how long typing settles before a value read is run.",
+      "after": "Build the row-exclusion editor.\n\nTwo runners, not one: ``cancel`` abandons everything a runner has in\nflight, and superseding a keystroke's value read must not also abandon\nthe schema read that says which databases the column even lives in.\n\n:param value: the exclusions to start with.\n:param parent: parent widget, or ``None``.\n:param threaded: read on worker threads. Set ``False`` in tests so a\n    read finishes before it returns.\n:param debounce_ms: how long typing settles before a value read is run."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value",
+      "disposition": "retained",
+      "before": "The exclusions, in the shape the settings dict wants.\n\n:returns: ``{column: [values]}``, or None when nothing is excluded.",
+      "after": "The exclusions, in the shape the settings dict wants.\n\n:returns: ``{column: [values]}``, or None when nothing is excluded."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_value",
+      "disposition": "retained",
+      "before": "Replace the exclusions from a settings value.\n\n:param value: ``{column: [values]}``, or None to clear.",
+      "after": "Replace the exclusions from a settings value.\n\n:param value: ``{column: [values]}``, or None to clear."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source",
+      "disposition": "revised",
+      "before": "Populate column/value choices from a dropped measurements DB.\n\nReturns as soon as the schema read is dispatched. The dropdowns\nkeep whatever they are showing until the worker delivers — a\nlist that is half a second stale beats a frozen window, and on\nthe first call they are showing nothing anyway.\n\n:param source: anything :func:`source_paths` accepts: a run folder,\n    its ``measurements`` folder, a ``.db`` file, or a list of them.\n:param tables: restrict the columns to these table names; ``None``\n    reads every table.",
+      "after": "Populate column/value choices from a dropped measurements DB.\n\nIn the default threaded mode, returns after dispatching the schema\nread. Existing column choices and checked values remain visible\nwhile it runs, including rules restored before the first source\nwas set. With ``threaded=False``, the reads run inline.\n\n:param source: anything :func:`source_paths` accepts: a run folder,\n    its ``measurements`` folder, a ``.db`` file, or a list of them.\n:param tables: restrict the columns to these table names; ``None``\n    reads every table."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._apply_columns",
+      "disposition": "retained",
+      "before": "Install a worker's schema read. GUI thread only.",
+      "after": "Install a worker's schema read. GUI thread only."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._add_row",
+      "disposition": "retained",
+      "before": "Add one exclusion rule row.\n\nA column the loaded schema does not offer is added to the picker anyway,\nso a saved exclusion naming a column this database lacks is shown rather\nthan silently dropped.\n\n:param column: the column to preselect.\n:param values: the values to preselect once they load.",
+      "after": "Add one exclusion rule row.\n\nA column the loaded schema does not offer is added to the picker anyway,\nso a saved exclusion naming a column this database lacks is shown rather\nthan silently dropped.\n\n:param column: the column to preselect.\n:param values: the values to preselect once they load."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._remove_row",
+      "disposition": "retained",
+      "before": "Remove one rule row, adding a fresh one if it was the last.\n\nThe editor is never left with no rows: an empty panel offers no way to\nadd the first one back.\n\n:param row: the row to remove.",
+      "after": "Remove one rule row, adding a fresh one if it was the last.\n\nThe editor is never left with no rows: an empty panel offers no way to\nadd the first one back.\n\n:param row: the row to remove."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._clear_rows",
+      "disposition": "retained",
+      "before": "Remove every rule row and forget what they were waiting for.",
+      "after": "Remove every rule row and forget what they were waiting for."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._refresh_values",
+      "disposition": "retained",
+      "before": "Show ``row``'s values, reading them in the background if needed.\n\nA cached column is applied here and now — the cache is GUI-thread\nstate and reading it costs nothing, so a column the user comes\nback to fills in without a round trip through a thread.",
+      "after": "Show ``row``'s values, reading them in the background if needed.\n\nA cached column is applied here and now — the cache is GUI-thread\nstate and reading it costs nothing, so a column the user comes\nback to fills in without a round trip through a thread."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._run_pending_loads",
+      "disposition": "retained",
+      "before": "Read every column the queued rows are waiting for, in one job.\n\nOne job for all of them, because the queue is drained after a\ndebounce and by then several rows may want values; and because\n``cancel`` then means exactly \"abandon the previous keystroke\".",
+      "after": "Read every column the queued rows are waiting for, in one job.\n\nOne job for all of them, because the queue is drained after a\ndebounce and by then several rows may want values; and because\n``cancel`` then means exactly \"abandon the previous keystroke\"."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._apply_values",
+      "disposition": "retained",
+      "before": "Install a worker's value read. GUI thread only.",
+      "after": "Install a worker's value read. GUI thread only."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.is_busy",
+      "disposition": "retained",
+      "before": "True while a read is queued, running, or undelivered.",
+      "after": "True while a read is queued, running, or undelivered."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.active_jobs",
+      "disposition": "retained",
+      "before": "How many worker threads are still winding down.",
+      "after": "How many worker threads are still winding down."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown",
+      "disposition": "revised",
+      "before": "Stop reading and let no worker outlive the widget.\n\nPublic because a host that owns this editor inside a larger\nscreen can call it directly — Qt delivers a close event to the\nwindow, not to every widget inside it, so a screen that wants\nthe reads stopped the moment the user navigates away has to say\nso. Idempotent.",
+      "after": "Cancel pending results and drain both runners with bounded waits.\n\nPublic because a host that owns this editor inside a larger\nscreen can call it directly — Qt delivers a close event to the\nwindow, not to every widget inside it, so a screen that wants\npending results discarded when the user navigates away must call\nit. Slow database reads can continue in parked workers without\ndelivering their results to this editor. Idempotent."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent",
+      "disposition": "revised",
+      "before": "Closing mid-read must not leave a thread behind.\n\nQt aborts the process when a running QThread is destroyed, and a\nworker that delivers into a widget on its way out is a\nuse-after-free. ``JobRunner.shutdown`` handles both.\n\nNot the only line of defence, deliberately, because it is not\nalways reached: this editor is a child inside a settings panel,\nand navigating away from that panel destroys it without any\nclose event. What covers that case is the runner itself — the\nQThreads are unparented and retire themselves, and\n``JobRunner._relay`` catches the ``RuntimeError`` PySide6 raises\nwhen a worker settles after its runner's C++ half has gone.\n\n:param event: the close event; passed on unchanged to the base class\n    after the workers are shut down.",
+      "after": "Cancel result delivery and drain both runners when closing mid-read.\n\nQt aborts the process when a running QThread is destroyed, and a\nworker that delivers into a widget on its way out is a\nuse-after-free. ``JobRunner.shutdown`` handles both.\n\nNot the only line of defence, deliberately, because it is not\nalways reached: this editor is a child inside a settings panel,\nand navigating away from that panel destroys it without any\nclose event. What covers that case is the runner itself — the\nQThreads are unparented and retire themselves, and\n``JobRunner._relay`` catches the ``RuntimeError`` PySide6 raises\nwhen a worker settles after its runner's C++ half has gone.\n\n:param event: the close event; passed on unchanged to the base class\n    after both runners have attempted their bounded shutdown."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._source_paths",
+      "disposition": "retained",
+      "before": "Deprecated alias for :func:`source_paths`.",
+      "after": "Deprecated alias for :func:`source_paths`."
+    },
+    {
+      "symbol": "spacr.qt.widgets.row_exclusion.RowExclusionEditor._discover_columns",
+      "disposition": "retained",
+      "before": "Deprecated alias for :func:`discover_columns`.",
+      "after": "Deprecated alias for :func:`discover_columns`."
+    }
+  ]
+}
