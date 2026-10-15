@@ -378,3 +378,36 @@ combined N700 review/arrival hold remains separate. Earlier claims of no caption
 arrival apply to neither this correction nor the newly found CLI strings.
 Raw evidence: /mnt/wd4tb/scratch/n703-uninstall-cli-i18n-20261014/runtime-v2.log,
 owning.xml and owning.exit. Normal runtime generation is NOT claimed passed.
+
+
+2026-10-14 23:30 EDT — Home Linux desktop installer window (native pending)
+Implemented a normal desktop route for the online .run installer when a display
+is present, with explicit --gui support and preserved explicit noninteractive,
+headless/dry-run and child paths. It uses Zenity and Bash5.1+, reusing only existing
+reviewed installer captions. Three privacy/account checkboxes default off; only
+current selections reach an isolated backend. Existing command-line opt-ins are
+not silently retained after the user unticks them in the window. The backend
+receives consent-collected/skip-system-deps/no-launch, so this path never asks
+Terminal questions or installs optional system dependencies.
+
+The window streams the actual backend log. Closing it signals only the child's
+own process group and waits for its existing rollback/cleanup before returning.
+Backend failures retain their actual code and log with no automatic retry; normal
+success closes the progress window and launches only after the backend exits.
+Missing Zenity/Bash support refuses before payload mutation. Logs remain in the
+protected spaCR cache. Missing desktop dependencies, native GTK display/launch,
+OS-specific cancellation phase boundaries and actual installed application
+startup remain PENDING; this is not complete Linux desktop availability.
+
+83 distinct necessary cases passed:69 unchanged online-installer contracts,
+7 owning stub-dialog/disposable-child cases and7 actual Bash routing cases.
+Initial74PASS/2FAIL is preserved: an instantaneous success stub could finish before
+the dialog executed. The corrected fixture uses a deterministic dialog-ready FIFO,
+keeps its assertions, and installs its rollback trap before the first progress
+message; all7 cases passed after that correction. Production source was unchanged
+between those runs. Routing establishes X11/Wayland defaults, explicit GUI,
+no-display CLI, consent-collected/no-launch and child behavior. No real Zenity,
+desktop, capture, package install, user environment, GPU or network was used.
+Fatal Ruff, shell syntax and diff checks passed. Parent N703/full hosted release
+acceptance and the separate CLI extractor/catalog/combined N700 holds remain open.
+Raw receipts: /mnt/wd4tb/scratch/n703-linux-gui-20261014/{owning,closure,routing}.xml.

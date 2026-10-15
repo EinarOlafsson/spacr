@@ -7,6 +7,8 @@
 # 3.12 runtime, then resolves spaCR and the appropriate PyTorch backend.
 
 set -Eeuo pipefail
+SPACR_ORIGINAL_ARGS=("$@")
+GUI_REQUEST=0
 
 # @SPACR_INSTALLER_MESSAGES_BEGIN@
 SPACR_INSTALLER_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -67,6 +69,7 @@ usage() {
     printf '  --no-command-launcher   %s\n' "$(spacr_say help_no_command_launcher)"
     printf '  --skip-system-deps      %s\n' "$(spacr_say help_skip_system_deps)"
     printf '  --no-launch             %s\n' "$(spacr_say help_no_launch)"
+    printf '  --gui                   %s\n' "$(spacr_say gui_explanation)"
     printf '  --dry-run               %s\n' "$(spacr_say help_dry_run)"
     printf '  --share-diagnostics     Include redacted logs in report previews.\n'
     printf '  --report-issues         Show the public GitHub report action.\n'
@@ -117,6 +120,10 @@ while (($#)); do
             ;;
         --no-command-launcher)
             NO_COMMAND_LAUNCHER=1
+            shift
+            ;;
+        --gui)
+            GUI_REQUEST=1
             shift
             ;;
         --no-launch)
@@ -240,7 +247,7 @@ ask_yes_no() {
 # A terminal-launched .run (and the macOS first-user helper) can collect the
 # choices here. Package-manager and CI invocations have no TTY, remain fully
 # non-interactive, and leave all three choices off for the app to ask later.
-if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" ]]; then
+if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" && "$GUI_REQUEST" != "1" ]]; then
     printf '\nspaCR privacy and account setup\n'
     printf '%s\n' \
         'Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished.' \
@@ -317,6 +324,105 @@ if [[ "$DRY_RUN" == "1" ]]; then
         spacr_say dry_launcher "$LAUNCHER"
     fi
     exit 0
+fi
+
+# @SPACR_LINUX_GUI_BEGIN@
+spacr_linux_gui_install() {
+    local installer="$1"
+    shift
+    if ! command -v zenity >/dev/null 2>&1; then
+        spacr_say required_command zenity >&2
+        return 3
+    fi
+    if ! command -v setsid >/dev/null 2>&1; then
+        spacr_say required_command setsid >&2
+        return 3
+    fi
+    if (( BASH_VERSINFO[0] < 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] < 1) )); then
+        spacr_say required_command "Bash 5.1+" >&2
+        return 3
+    fi
+    local title choices intro log_folder log fifo backend window completed status
+    title="$(spacr_say installer_title)"
+    intro="$(spacr_say gui_explanation)"$'\n\n'"$(spacr_say gui_public_reports)"$'\n\n'"$(spacr_say gui_preserve)"
+    if ! choices="$(zenity --list --checklist --hide-header --width=760 --height=520 \
+        --title="$title" --text="$intro" --ok-label="$(spacr_say gui_install)" \
+        --cancel-label="$(spacr_say gui_cancel)" \
+        --column="" --column="" --column="" --hide-column=2 --print-column=2 --separator='|' \
+        FALSE diagnostics "$(spacr_say gui_share_diagnostics)" \
+        FALSE issues "$(spacr_say gui_report_issues)" \
+        FALSE accounts "$(spacr_say gui_account_setup)")"; then
+        return 130
+    fi
+    local diagnostics=0 issues=0 accounts=0
+    case "|$choices|" in *'|diagnostics|'*) diagnostics=1 ;; esac
+    case "|$choices|" in *'|issues|'*) issues=1 ;; esac
+    case "|$choices|" in *'|accounts|'*) accounts=1 ;; esac
+    umask 077
+    log_folder="${XDG_CACHE_HOME:-$HOME/.cache}/spacr/installer"
+    mkdir -p "$log_folder"
+    local work
+    work="$(mktemp -d "$log_folder/gui.XXXXXXXX")"
+    log="$work/install.log"
+    fifo="$work/output.fifo"
+    : > "$log"
+    mkfifo "$fifo"
+    zenity --text-info --auto-scroll --width=900 --height=600 --title="$title" \
+        --ok-label="$(spacr_say gui_cancel)" < "$fifo" &
+    window=$!
+    local -a child_args=() child_options=(--consent-collected --skip-system-deps --no-launch)
+    local argument
+    for argument in "$@"; do
+        case "$argument" in
+            --gui|--consent-collected|--share-diagnostics|--report-issues|--sign-in-now) ;;
+            *) child_args+=("$argument") ;;
+        esac
+    done
+    if [[ "$diagnostics" == "1" ]]; then child_options+=(--share-diagnostics); fi
+    if [[ "$issues" == "1" ]]; then child_options+=(--report-issues); fi
+    if [[ "$accounts" == "1" ]]; then child_options+=(--sign-in-now); fi
+    SPACR_INSTALL_GUI_CHILD=1 SPACR_GUI_LOG="$log" SPACR_GUI_FIFO="$fifo" \
+        setsid bash -c 'set -o pipefail; trap "wait; exit 130" TERM INT; bash "$@" 2>&1 | tee "$SPACR_GUI_LOG" > "$SPACR_GUI_FIFO"' \
+        spacr-gui "$installer" "${child_args[@]}" "${child_options[@]}" < /dev/null &
+    backend=$!
+    completed=""
+    status=0
+    wait -n -p completed "$backend" "$window" || status=$?
+    if [[ "${completed:-}" != "$backend" ]]; then
+        kill -TERM -- "-$backend" 2>/dev/null || true
+        zenity --progress --pulsate --title="$title" --text="$(spacr_say gui_stopping)" < /dev/null &
+        local stopping=$!
+        wait "$backend" || true
+        kill "$stopping" 2>/dev/null || true
+        wait "$stopping" 2>/dev/null || true
+        rm -f "$fifo"
+        zenity --info --no-markup --title="$title" --text="$(spacr_say gui_cancelled)" || true
+        return 130
+    fi
+    kill "$window" 2>/dev/null || true
+    wait "$window" 2>/dev/null || true
+    rm -f "$fifo"
+    if [[ "$status" != "0" ]]; then
+        zenity --error --no-markup --title="$title" --text="$(spacr_say gui_failed)" || true
+        zenity --text-info --width=900 --height=600 --title="$title" \
+            --filename="$log" --ok-label="$(spacr_say gui_close)" || true
+        return "$status"
+    fi
+    zenity --info --no-markup --title="$title" --text="$(spacr_say installed)" || true
+    if [[ "$NO_LAUNCH" == "0" ]]; then
+        nohup "$INSTALL_ROOT/venv/bin/python" -I -m spacr.qt >/dev/null 2>&1 &
+    fi
+    return 0
+}
+# @SPACR_LINUX_GUI_END@
+
+if [[ "$PLATFORM" == "linux" && "${SPACR_INSTALL_GUI_CHILD:-0}" != "1" ]]; then
+    if [[ "$GUI_REQUEST" == "1" ]] || \
+       [[ "$CONSENT_COLLECTED" == "0" && "$NO_LAUNCH" == "0" && ! -t 0 && \
+          -n "${DISPLAY:-${WAYLAND_DISPLAY:-}}" ]]; then
+        spacr_linux_gui_install "$SPACR_SOURCE_DIR/$(basename -- "${BASH_SOURCE[0]}")" "${SPACR_ORIGINAL_ARGS[@]}"
+        exit $?
+    fi
 fi
 
 require_command() {
