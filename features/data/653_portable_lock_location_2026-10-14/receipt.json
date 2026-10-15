@@ -1,0 +1,24 @@
+{
+  "scope": "N653 portable/custom-home instance and project lock location",
+  "baseline": {
+    "failed": 2,
+    "passed": 1,
+    "exit": 1
+  },
+  "owning": {
+    "passed": 58,
+    "seconds": 8.21,
+    "exit": 0
+  },
+  "sha256": {
+    "spacr/qt/crash_recovery.py": "44770d282927798d1370ea0862a2f394cf1ad7092ad278d0201ef0dff03baf73",
+    "tests/qt/test_n653_portable_lock_location.py": "504680dad49aaba9762c990dfd0d6feceac034a134c43b173dcb5d66ddb5d9f3",
+    "/mnt/wd4tb/scratch/n653-locks-20261014/owning.log": "07256c8e7fb39314c1a3cc0ff8e26f5bff9ce2e6dd1529b8adcd85bd776d2f6e",
+    "/mnt/wd4tb/scratch/n653-locks-20261014/owning.xml": "caf0ab66bb979b1d81eed3c631a30156c0332a487644e760634542fde88dd892"
+  },
+  "limits": [
+    "Temporary paths/QLockFile only",
+    "No native macOS/Windows acceptance",
+    "No full CI or live data writes"
+  ]
+}
