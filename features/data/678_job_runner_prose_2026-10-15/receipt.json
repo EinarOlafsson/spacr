@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "source": "spacr/qt/job_runner.py",
+  "source_before_sha256": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b",
+  "source_after_sha256": "707a06b5f86998762585cdba88810a7362d7a5fbedfc2693cac722516c359d81",
+  "published_base": "bca8cc7eb0c2a5824aa4701b20d700a894a2b58d",
+  "source_matches_current_origin_nightly_before": true,
+  "executable_ast_unchanged": true,
+  "comments_unchanged": true,
+  "ledger": [
+    {
+      "symbol": "spacr.qt.job_runner",
+      "disposition": "revised",
+      "before": "Run a callable off the GUI thread and deliver its result on the GUI thread.\n\nScreens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen``\npreviously each had their own copy of this logic, and the copies differed: two\nconnected ``thread.finished`` to a *closure*, which never retires the job (see\n:meth:`_retire_finished_jobs`). This module implements the rules once, for any\nscreen that moves work off the GUI thread.\n\nThe rules:\n\n* ``PipelineWorker.finished`` is emitted **on the worker thread**. A closure\n  connected to it is invoked there. Touching a widget from it is undefined\n  behaviour. The only safe thing a slot on that signal may do is re-emit a\n  ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt\n  then queues the call onto the GUI thread.\n* ``QThread.finished`` must be connected to a **bound method of a GUI-thread\n  QObject**, never a closure. PySide6 makes the QThread itself the receiver\n  for a closure, and :func:`spacr.qt.bridge.make_thread` connects\n  ``thread.finished -> thread.deleteLater`` first. Slots run in connection\n  order, so the DeferredDelete is posted ahead of the closure's metacall and\n  Qt discards queued events for a destroyed receiver: the job is never\n  retired and ``active_jobs()`` never returns to zero.\n* A strong reference to both the QThread and the worker must be held until\n  ``thread.finished``. A QThread garbage-collected while running aborts the\n  process.\n* The completion handler must run for **every** job, including one whose\n  result is no longer wanted, or the bookkeeping leaks and the screen is\n  permanently \"busy\". Whether the *result* is used is a separate decision,\n  taken from the generation counter -- see :meth:`cancel`.\n\nEverything submitted here goes through ``make_thread``, so it appears in the\nprocess-wide :func:`spacr.qt.bridge.registry` and turns the background\nactivity spinner (:mod:`spacr.qt.widgets.activity_spinner`) without the\ncaller doing anything.\n",
+      "after": "Run a callable off the GUI thread and deliver its result on the GUI thread.\n\nScreens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen``\npreviously each had their own copy of this logic, and the copies differed: two\nconnected ``thread.finished`` to a *closure*, which never retires the job (see\n:meth:`_retire_finished_jobs`). This module implements the rules once, for any\nscreen that moves work off the GUI thread.\n\nThe rules:\n\n* ``PipelineWorker.finished`` is emitted **on the worker thread**. A closure\n  connected to it is invoked there. Touching a widget from it is undefined\n  behaviour. The only safe thing a slot on that signal may do is re-emit a\n  ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt\n  then queues the call onto the GUI thread.\n* ``QThread.finished`` must be connected to a **bound method of a GUI-thread\n  QObject**, never a closure. PySide6 makes the QThread itself the receiver\n  for a closure, and :func:`spacr.qt.bridge.make_thread` connects\n  ``thread.finished -> thread.deleteLater`` first. Slots run in connection\n  order, so the DeferredDelete is posted ahead of the closure's metacall and\n  Qt discards queued events for a destroyed receiver: the job is never\n  retired and ``active_jobs()`` never returns to zero.\n* A strong reference to both the QThread and the worker must be held until\n  ``thread.finished``. A QThread garbage-collected while running aborts the\n  process.\n* Result delivery and thread retirement are separate. :meth:`cancel`\n  clears pending deliveries immediately; a late completion then emits no\n  ``job_finished`` signal. The finished-thread sweep still releases the\n  thread references independently.\n\nThreaded submissions go through ``make_thread``, so they appear in the\nprocess-wide :func:`spacr.qt.bridge.registry` and turn the background\nactivity spinner (:mod:`spacr.qt.widgets.activity_spinner`). Inline mode\nbypasses this registration and does not change the runner's busy state.\n"
+    },
+    {
+      "symbol": "spacr.qt.job_runner._capture",
+      "disposition": "retained"
+    },
+    {
+      "symbol": "spacr.qt.job_runner.shutdown_all",
+      "disposition": "revised",
+      "before": "Stop every live JobRunner. Returns how many were asked.\n\n    Call once on the way out, before Qt starts destroying widgets. Every\n    runner is cancelled first, so all their threads are asked to stop at the\n    same moment, and then they are waited for against ONE deadline: a window\n    with ten busy screens quits in ``timeout_ms``, not ten times that. A\n    runner that cannot stop in time is parked by `bridge.drain_thread` rather\n    than terminated, so this is bounded.\n\n    :param timeout_ms: the total wait budget across every runner.\n    ",
+      "after": "Cancel live runners; return how many shutdown calls completed normally.\n\n    Call before Qt starts destroying widgets. All runners are cancelled\n    before any wait, then share one ``timeout_ms`` wait deadline. This\n    bounds thread waiting, not the total application exit time. Threads\n    that outlast the budget are parked by\n    :func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown\n    calls are logged, excluded from the return count, and do not stop the\n    remaining runners from being processed.\n\n    :param timeout_ms: the total wait budget across every runner.\n    "
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner",
+      "disposition": "revised",
+      "before": "Run callables off the GUI thread; deliver their results on it.\n\n    :param parent: the widget that owns the work. Kept as the runner's Qt\n        parent so the runner dies with it.\n    :param threaded: ``False`` runs every job inline, emitting the same\n        signals in the same order, so a test can drive a screen\n        synchronously without the behaviour diverging.\n    :param app_key: the name jobs appear under in the run registry, and so in\n        the activity spinner's tooltip.\n    :param user_visible: ``False`` for housekeeping the user did not start.\n        Such a job still turns the activity spinner -- something IS running --\n        but never claims a run banner. The usage poller submits every two\n        seconds; without this Home flashes \"<module> usage - running\" on and\n        off for as long as a module screen is open.\n    ",
+      "after": "Run callables off the GUI thread; deliver their results on it.\n\n    :param parent: the widget that owns the work. Kept as the runner's Qt\n        parent so the runner dies with it.\n    :param threaded: ``False`` runs work and its handler inline on the\n        calling thread. Failure and completion signals are emitted before\n        return; no worker is registered and busy state does not change.\n    :param app_key: the name jobs appear under in the run registry, and so in\n        the activity spinner's tooltip.\n    :param user_visible: ``False`` for housekeeping the user did not start.\n        Such a job still turns the activity spinner -- something IS running --\n        but never claims a run banner. The usage poller submits every two\n        seconds; without this Home flashes \"<module> usage - running\" on and\n        off for as long as a module screen is open.\n    "
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.__init__",
+      "disposition": "revised",
+      "before": "Create a runner for one widget's background work.\n\n        It registers itself the moment it exists, so a runner cannot be created\n        and then missed by the quit-time drain; the registration is weak, so it\n        holds nothing alive that Qt would otherwise collect.\n\n        :param parent: the owning object, or ``None``.\n        :param threaded: run jobs on a worker thread. ``False`` runs each one\n            inline, emitting the same signals in the same order.\n        :param app_key: how this runner's work is named in the run registry.\n        :param user_visible: whether these jobs count as runs the user started.\n            Set ``False`` for housekeeping, so Home's run banner does not show\n            it as a run.\n        ",
+      "after": "Create a runner for one widget's background work.\n\n        It registers itself the moment it exists, so a runner cannot be created\n        and then missed by the quit-time drain; the registration is weak, so it\n        holds nothing alive that Qt would otherwise collect.\n\n        :param parent: the owning object, or ``None``.\n        :param threaded: run jobs on a worker thread. ``False`` runs work and\n            its handler on the calling thread without registering a worker\n            or changing busy state.\n        :param app_key: how this runner's work is named in the run registry.\n        :param user_visible: whether these jobs count as runs the user started.\n            Set ``False`` for housekeeping, so Home's run banner does not show\n            it as a run.\n        "
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.submit",
+      "disposition": "revised",
+      "before": "Run ``fn()`` off the GUI thread, then ``on_done(result)`` on it.\n\n        :param fn: a zero-argument callable. It runs on a worker thread and\n            **must not touch any widget** -- return the data instead.\n        :param on_done: called on the GUI thread with ``fn``'s return value.\n        :returns: True when the job was started (or, unthreaded, ran).\n        ",
+      "after": "Submit ``fn()`` and deliver its successful result to ``on_done``.\n\n        :param fn: a zero-argument callable. In threaded mode it runs off\n            the GUI thread and must not touch widgets. Inline mode runs it\n            on the calling thread.\n        :param on_done: optional handler for ``fn``'s return value, called\n            on the GUI thread in threaded mode or inline otherwise.\n            Cancellation discards pending threaded deliveries.\n        :returns: ``True`` after starting a threaded job, before its outcome\n            is known. Inline mode returns ``False`` if either callable raises\n            an exception; otherwise it returns ``True``.\n        "
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner._relay",
+      "disposition": "retained"
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner._on_settled",
+      "disposition": "retained"
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner._retire_finished_jobs",
+      "disposition": "retained"
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner._on_worker_error_text",
+      "disposition": "retained"
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner._fail",
+      "disposition": "retained"
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner._set_busy",
+      "disposition": "retained"
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.is_busy",
+      "disposition": "revised",
+      "before": "True while a submitted job has not yet delivered its result.",
+      "after": "Whether threaded completions are pending; cancel clears this immediately.\n\n        Inline work does not set this flag. A cancelled worker may still be\n        running after this returns ``False``.\n        "
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.active_jobs",
+      "disposition": "revised",
+      "before": "How many worker threads are still winding down.",
+      "after": "Count tracked worker references, including running or not-yet-retired jobs.\n\n        Finished threads remain counted until the retirement sweep. Shutdown\n        clears this count even when a thread has been parked elsewhere.\n        "
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.pending_jobs",
+      "disposition": "revised",
+      "before": "How many results have not been delivered yet.",
+      "after": "Count pending threaded completion records, cleared immediately by cancel."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.cancel",
+      "disposition": "revised",
+      "before": "Abandon the results of everything in flight.\n\n        The threads are asked to stop and are then left to retire themselves;\n        they are *not* joined, because joining would block the GUI thread.\n        Their results are dropped on arrival by the generation check, so\n        nothing reaches a handler that may be about to be destroyed.\n        ",
+      "after": "Abandon the results of everything in flight.\n\n        Request thread interruption without waiting, then clear pending\n        deliveries and busy state immediately. Late completions are ignored\n        and emit no ``job_finished`` signal. Worker references remain until\n        retirement or shutdown; interruption does not forcibly stop work.\n        A worker's error signal can still emit ``job_failed``.\n        "
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.shutdown",
+      "disposition": "revised",
+      "before": "Cancel, then wait briefly so no QThread outlives the widget.\n\n        Call from ``closeEvent``. Qt aborts the process if a running QThread is\n        destroyed, so a bounded wait is needed when a screen closes mid-load.\n        ``timeout_ms`` is shared by every thread of this runner. Threads that\n        outlast it are parked by\n        :func:`spacr.qt.bridge.drain_thread` rather than terminated.\n        ",
+      "after": "Cancel deliveries, then wait within a shared budget or park live threads.\n\n        Call from ``closeEvent``. Qt aborts the process if a running QThread is\n        destroyed, so a bounded wait is needed when a screen closes mid-load.\n        ``timeout_ms`` is shared by every thread of this runner. Threads that\n        outlast it are parked by\n        :func:`spacr.qt.bridge.drain_thread` rather than terminated.\n        "
+    }
+  ],
+  "rendered": [
+    {
+      "symbol": "spacr.qt.job_runner",
+      "before": "Run a callable off the GUI thread and deliver its result on the GUI thread.\n\nScreens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen``\npreviously each had their own copy of this logic, and the copies differed: two\nconnected ``thread.finished`` to a *closure*, which never retires the job (see\n:meth:`_retire_finished_jobs`). This module implements the rules once, for any\nscreen that moves work off the GUI thread.\n\nThe rules:\n\n* ``PipelineWorker.finished`` is emitted **on the worker thread**. A closure\n  connected to it is invoked there. Touching a widget from it is undefined\n  behaviour. The only safe thing a slot on that signal may do is re-emit a\n  ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt\n  then queues the call onto the GUI thread.\n* ``QThread.finished`` must be connected to a **bound method of a GUI-thread\n  QObject**, never a closure. PySide6 makes the QThread itself the receiver\n  for a closure, and :func:`spacr.qt.bridge.make_thread` connects\n  ``thread.finished -> thread.deleteLater`` first. Slots run in connection\n  order, so the DeferredDelete is posted ahead of the closure's metacall and\n  Qt discards queued events for a destroyed receiver: the job is never\n  retired and ``active_jobs()`` never returns to zero.\n* A strong reference to both the QThread and the worker must be held until\n  ``thread.finished``. A QThread garbage-collected while running aborts the\n  process.\n* The completion handler must run for **every** job, including one whose\n  result is no longer wanted, or the bookkeeping leaks and the screen is\n  permanently \"busy\". Whether the *result* is used is a separate decision,\n  taken from the generation counter -- see :meth:`cancel`.\n\nEverything submitted here goes through ``make_thread``, so it appears in the\nprocess-wide :func:`spacr.qt.bridge.registry` and turns the background\nactivity spinner (:mod:`spacr.qt.widgets.activity_spinner`) without the\ncaller doing anything.",
+      "after": "Run a callable off the GUI thread and deliver its result on the GUI thread.\n\nScreens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen``\npreviously each had their own copy of this logic, and the copies differed: two\nconnected ``thread.finished`` to a *closure*, which never retires the job (see\n:meth:`_retire_finished_jobs`). This module implements the rules once, for any\nscreen that moves work off the GUI thread.\n\nThe rules:\n\n* ``PipelineWorker.finished`` is emitted **on the worker thread**. A closure\n  connected to it is invoked there. Touching a widget from it is undefined\n  behaviour. The only safe thing a slot on that signal may do is re-emit a\n  ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt\n  then queues the call onto the GUI thread.\n* ``QThread.finished`` must be connected to a **bound method of a GUI-thread\n  QObject**, never a closure. PySide6 makes the QThread itself the receiver\n  for a closure, and :func:`spacr.qt.bridge.make_thread` connects\n  ``thread.finished -> thread.deleteLater`` first. Slots run in connection\n  order, so the DeferredDelete is posted ahead of the closure's metacall and\n  Qt discards queued events for a destroyed receiver: the job is never\n  retired and ``active_jobs()`` never returns to zero.\n* A strong reference to both the QThread and the worker must be held until\n  ``thread.finished``. A QThread garbage-collected while running aborts the\n  process.\n* Result delivery and thread retirement are separate. :meth:`cancel`\n  clears pending deliveries immediately; a late completion then emits no\n  ``job_finished`` signal. The finished-thread sweep still releases the\n  thread references independently.\n\nThreaded submissions go through ``make_thread``, so they appear in the\nprocess-wide :func:`spacr.qt.bridge.registry` and turn the background\nactivity spinner (:mod:`spacr.qt.widgets.activity_spinner`). Inline mode\nbypasses this registration and does not change the runner's busy state."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.shutdown_all",
+      "before": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Every\nrunner is cancelled first, so all their threads are asked to stop at the\nsame moment, and then they are waited for against ONE deadline: a window\nwith ten busy screens quits in ``timeout_ms``, not ten times that. A\nrunner that cannot stop in time is parked by `bridge.drain_thread` rather\nthan terminated, so this is bounded.\n\n:param timeout_ms: the total wait budget across every runner.",
+      "after": "Cancel live runners; return how many shutdown calls completed normally.\n\nCall before Qt starts destroying widgets. All runners are cancelled\nbefore any wait, then share one ``timeout_ms`` wait deadline. This\nbounds thread waiting, not the total application exit time. Threads\nthat outlast the budget are parked by\n:func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown\ncalls are logged, excluded from the return count, and do not stop the\nremaining runners from being processed.\n\n:param timeout_ms: the total wait budget across every runner."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner",
+      "before": "Run callables off the GUI thread; deliver their results on it.\n\n:param parent: the widget that owns the work. Kept as the runner's Qt\n    parent so the runner dies with it.\n:param threaded: ``False`` runs every job inline, emitting the same\n    signals in the same order, so a test can drive a screen\n    synchronously without the behaviour diverging.\n:param app_key: the name jobs appear under in the run registry, and so in\n    the activity spinner's tooltip.\n:param user_visible: ``False`` for housekeeping the user did not start.\n    Such a job still turns the activity spinner -- something IS running --\n    but never claims a run banner. The usage poller submits every two\n    seconds; without this Home flashes \"<module> usage - running\" on and\n    off for as long as a module screen is open.\nCreate a runner for one widget's background work.\n\nIt registers itself the moment it exists, so a runner cannot be created\nand then missed by the quit-time drain; the registration is weak, so it\nholds nothing alive that Qt would otherwise collect.\n\n:param parent: the owning object, or ``None``.\n:param threaded: run jobs on a worker thread. ``False`` runs each one\n    inline, emitting the same signals in the same order.\n:param app_key: how this runner's work is named in the run registry.\n:param user_visible: whether these jobs count as runs the user started.\n    Set ``False`` for housekeeping, so Home's run banner does not show\n    it as a run.",
+      "after": "Run callables off the GUI thread; deliver their results on it.\n\n:param parent: the widget that owns the work. Kept as the runner's Qt\n    parent so the runner dies with it.\n:param threaded: ``False`` runs work and its handler inline on the\n    calling thread. Failure and completion signals are emitted before\n    return; no worker is registered and busy state does not change.\n:param app_key: the name jobs appear under in the run registry, and so in\n    the activity spinner's tooltip.\n:param user_visible: ``False`` for housekeeping the user did not start.\n    Such a job still turns the activity spinner -- something IS running --\n    but never claims a run banner. The usage poller submits every two\n    seconds; without this Home flashes \"<module> usage - running\" on and\n    off for as long as a module screen is open.\nCreate a runner for one widget's background work.\n\nIt registers itself the moment it exists, so a runner cannot be created\nand then missed by the quit-time drain; the registration is weak, so it\nholds nothing alive that Qt would otherwise collect.\n\n:param parent: the owning object, or ``None``.\n:param threaded: run jobs on a worker thread. ``False`` runs work and\n    its handler on the calling thread without registering a worker\n    or changing busy state.\n:param app_key: how this runner's work is named in the run registry.\n:param user_visible: whether these jobs count as runs the user started.\n    Set ``False`` for housekeeping, so Home's run banner does not show\n    it as a run."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.submit",
+      "before": "Run ``fn()`` off the GUI thread, then ``on_done(result)`` on it.\n\n:param fn: a zero-argument callable. It runs on a worker thread and\n    **must not touch any widget** -- return the data instead.\n:param on_done: called on the GUI thread with ``fn``'s return value.\n:returns: True when the job was started (or, unthreaded, ran).",
+      "after": "Submit ``fn()`` and deliver its successful result to ``on_done``.\n\n:param fn: a zero-argument callable. In threaded mode it runs off\n    the GUI thread and must not touch widgets. Inline mode runs it\n    on the calling thread.\n:param on_done: optional handler for ``fn``'s return value, called\n    on the GUI thread in threaded mode or inline otherwise.\n    Cancellation discards pending threaded deliveries.\n:returns: ``True`` after starting a threaded job, before its outcome\n    is known. Inline mode returns ``False`` if either callable raises\n    an exception; otherwise it returns ``True``."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.is_busy",
+      "before": "True while a submitted job has not yet delivered its result.",
+      "after": "Whether threaded completions are pending; cancel clears this immediately.\n\nInline work does not set this flag. A cancelled worker may still be\nrunning after this returns ``False``."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.active_jobs",
+      "before": "How many worker threads are still winding down.",
+      "after": "Count tracked worker references, including running or not-yet-retired jobs.\n\nFinished threads remain counted until the retirement sweep. Shutdown\nclears this count even when a thread has been parked elsewhere."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.pending_jobs",
+      "before": "How many results have not been delivered yet.",
+      "after": "Count pending threaded completion records, cleared immediately by cancel."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.cancel",
+      "before": "Abandon the results of everything in flight.\n\nThe threads are asked to stop and are then left to retire themselves;\nthey are *not* joined, because joining would block the GUI thread.\nTheir results are dropped on arrival by the generation check, so\nnothing reaches a handler that may be about to be destroyed.",
+      "after": "Abandon the results of everything in flight.\n\nRequest thread interruption without waiting, then clear pending\ndeliveries and busy state immediately. Late completions are ignored\nand emit no ``job_finished`` signal. Worker references remain until\nretirement or shutdown; interruption does not forcibly stop work.\nA worker's error signal can still emit ``job_failed``."
+    },
+    {
+      "symbol": "spacr.qt.job_runner.JobRunner.shutdown",
+      "before": "Cancel, then wait briefly so no QThread outlives the widget.\n\nCall from ``closeEvent``. Qt aborts the process if a running QThread is\ndestroyed, so a bounded wait is needed when a screen closes mid-load.\n``timeout_ms`` is shared by every thread of this runner. Threads that\noutlast it are parked by\n:func:`spacr.qt.bridge.drain_thread` rather than terminated.",
+      "after": "Cancel deliveries, then wait within a shared budget or park live threads.\n\nCall from ``closeEvent``. Qt aborts the process if a running QThread is\ndestroyed, so a bounded wait is needed when a screen closes mid-load.\n``timeout_ms`` is shared by every thread of this runner. Threads that\noutlast it are parked by\n:func:`spacr.qt.bridge.drain_thread` rather than terminated."
+    }
+  ],
+  "scope": "Only demonstrated public lifecycle doc errors: inline versus threaded state and registry, submit return semantics, immediate cancellation bookkeeping, parked-thread lifetime and successful shutdown count. No code, signals, captions or comments changed.",
+  "owning_tests_read": [
+    "tests/qt/test_cov_w2_2_job_runner.py",
+    "tests/qt/test_quitting_during_a_slow_job.py"
+  ],
+  "dependency_hashes": {
+    "spacr/qt/bridge.py": "c548813cf9c55f8e0bfda966b08750c5cb30256623afeed72570101b2a3170d4",
+    "tests/qt/test_cov_w2_2_job_runner.py": "c11370cd7ef24611363fe1ab01658813c01a7bd1cfcd92eb09ce784736d1d679",
+    "tests/qt/test_quitting_during_a_slow_job.py": "af6f70928ae39191fd116169517316c417a37e7141ac5c84a26a0645cd64a8c1"
+  },
+  "validation": "Executable AST and comments exact; all before bodies match current English; actual owning failure/cancellation/inline/quit tests inspected, no redundant behavior replay for doc-only edits."
+}
