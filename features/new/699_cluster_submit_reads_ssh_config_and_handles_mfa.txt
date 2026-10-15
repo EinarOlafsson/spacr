@@ -141,3 +141,15 @@ source proof shows zero arrivals and all unrelated source bodies unchanged.
 No real SSH account/MFA, private-key read, user/system SSH config, network or
 other-OS acceptance; maintainer-owned cluster validation remains open.
 Evidence:data/699_conditional_ssh_includes_2026-10-15/.
+
+2026-10-15 — PRIVATE HostName literal-percent/alias token repair.
+The existing static lookup now expands only documented %% and %h in one pass,
+so escaped percent output is not rescanned. Eight actual native private ssh -G
+controls plus default-hostname/first-value/Include cases exposed7 failures
+before; final63PASS1.49s includes all prior Include/discovery/MFA cases.
+Only _ssh_lookup body changed; signatures/prose/tr calls and named helpers
+unchanged. Actual enabled nested rollout has0 entries (module excluded);
+the unchanged measured helper group1 from the prior note is not an active
+rendered arrival. No runtime/API writer, network/account/MFA/private-key or
+other-OS acceptance; real maintainer cluster validation remains open.
+Evidence:data/699_hostname_tokens_2026-10-15/receipt.json.
