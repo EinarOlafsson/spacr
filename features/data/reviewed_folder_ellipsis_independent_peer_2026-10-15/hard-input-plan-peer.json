@@ -37,5 +37,12 @@
     "protected_pins": 60
   },
   "all_generated_baseline_and_protected_pins_match_input_commit_and_files": true,
-  "limits": "Reviewer did not import product/generator, collect sources, execute writer, test, or mutate foreign inputs. Final Root input-head/clean state reseal and explicit run grant required."
+  "limits": "Reviewer did not import product/generator, collect sources, execute writer, test, or mutate foreign inputs. Final Root input-head/clean state reseal and explicit run grant required.",
+  "CI_private_strict_inverse_alignment": {
+    "commit": "2b4e129979a8b777ad383196a4e2ba3c8c4ff015",
+    "test_bytes_exact_previously_accepted_31eb": true,
+    "fixture_only_exact_six_target_suffixes_differ_from_31eb": true,
+    "historical99_count_source_content_hashes_56_arrivals_one_retirement_and_original_ellipsis_assertion_unchanged": true,
+    "fixture_sha256": "a553ed55c89e3d092c1603eecc44d89c307cd04e43cc91ea8ff12d6faec9d0de"
+  }
 }
