@@ -63,8 +63,23 @@ def _preview(archive_path):
     rgb = np.repeat((grey * 255).astype(np.uint8)[..., None], 3, axis=-1)
     if mask is not None:
         rgb[find_boundaries(mask, mode="inner")] = [255, 70, 70]
+    height, width = rgb.shape[:2]
     for box in boxes:
-        x0, y0, x1, y1 = (int(box[name]) for name in ("x0", "y0", "x1", "y1"))
+        try:
+            bounds = [float(box[name]) for name in ("x0", "y0", "x1", "y1")]
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+        if not all(math.isfinite(value) for value in bounds):
+            continue
+        x0, y0, x1, y1 = bounds
+        if x1 <= x0 or y1 <= y0:
+            continue
+        x0 = max(0, min(width, math.floor(x0)))
+        y0 = max(0, min(height, math.floor(y0)))
+        x1 = max(0, min(width, math.ceil(x1)))
+        y1 = max(0, min(height, math.ceil(y1)))
+        if x1 <= x0 or y1 <= y0:
+            continue
         rgb[y0:y1, x0] = rgb[y0:y1, x1 - 1] = [255, 70, 70]
         rgb[y0, x0:x1] = rgb[y1 - 1, x0:x1] = [255, 70, 70]
     return rgb

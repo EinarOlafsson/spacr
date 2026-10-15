@@ -370,3 +370,13 @@ GPU entry. Validation47 actual-Gradio cases PASS/actualexit0/48.92s, including
 exact settings emission/default preservation and fractional detector-size refusal.
 No live server/model/GPU or scientific parity accepted; parentN698 partial.
 Receipt:features/data/698_normalization_controls_2026-10-14/.
+
+2026-10-15 — Preview/example boundary closure before full-family publication:
+Detection previews use finite clipped floor/ceil extents before edge indexing;
+empty/reversed/outside boxes cannot wrap an outline to the opposite edge.
+Approved example filenames containing NUL fail before network or file setup.
+Actual tiny-ZIP/no-network regressions: old committed functions8FAIL/3PASS,
+new functions11PASS (70 unrelated deselected),4.85/3.92s,exit1/0. No model
+substitution, scientific or hosted-service acceptance is implied. Receipt:
+data/698_preview_example_edges_2026-10-15/. Source integration still excludes
+the private nine-file N696 backend prerequisite; public N696 is authoritative.

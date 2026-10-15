@@ -40,7 +40,7 @@ class ExampleStore:
                      and isinstance(record["bytes"], int) and not isinstance(record["bytes"], bool) and 0 < record["bytes"] <= DEFAULT_MAX_FILE_BYTES
                      and isinstance(record["credit"], str) and record["credit"].strip()
                      and isinstance(record["filename"], str) and str(path) == record["filename"]
-                     and path.name not in ("", ".", "..") and not path.is_absolute() and ".." not in path.parts and "\\" not in record["filename"])
+                     and path.name not in ("", ".", "..") and not path.is_absolute() and ".." not in path.parts and "\\" not in record["filename"] and "\x00" not in record["filename"])
             if not valid:
                 raise ValueError(tr("An approved example needs a valid family, immutable HF dataset revision, test split, size, SHA-256 and credit."))
             self.records.append(record)

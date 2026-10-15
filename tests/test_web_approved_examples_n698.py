@@ -109,3 +109,18 @@ def test_unconfigured_family_has_no_network_or_guessed_dataset(transport):
         with store.random_image('live_cell'):
             pytest.fail('unconfigured example served')
     assert transport[1] == []
+
+
+def test_example_filename_nul_refuses_before_any_network_or_file_creation(source, monkeypatch, tmp_path):
+    record, _ = source
+    record['filename'] = 'test/image\x00.tif'
+
+    def no_network():
+        pytest.fail('NUL example filename reached network setup')
+
+    monkeypatch.setattr(requests, 'Session', no_network)
+    with pytest.raises(ValueError, match='immutable HF dataset revision'):
+        store = ExampleStore([record], job_parent=tmp_path)
+        with store.random_image('live_cell'):
+            pytest.fail('NUL example filename became an available image')
+    assert not list(tmp_path.iterdir())

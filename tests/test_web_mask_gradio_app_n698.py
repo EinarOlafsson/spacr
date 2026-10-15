@@ -361,3 +361,33 @@ def test_fractional_detector_size_is_rejected_before_backend(demo, tmp_path):
         callback(str(source), 'toxoplasma_well_detector_v3', True, 0, 0, 0, [0], 0, 150, None, False, 0.4, 0,
                  20, '{}', 0.25, 0.7, None, None, None, 'default', None, 'default', 640.5)
     assert calls == []
+
+
+@pytest.mark.parametrize('bounds,pixels', [
+    ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+    ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+    ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+    ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+    ((7.2, 1.0, 8.0, 2.0), set()),
+    ((-2.0, -2.0, -0.1, -0.1), set()),
+    ((2.0, 1.0, 2.0, 4.0), set()),
+    ((3.0, 3.0, 1.0, 1.0), set()),
+    ((float('nan'), 0, 1, 1), set()),
+    ((0, 0, float('inf'), 1), set()),
+])
+def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+    import io
+    import json
+
+    image = io.BytesIO()
+    tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+    path = tmp_path / 'box.zip'
+    with zipfile.ZipFile(path, 'w') as archive:
+        archive.writestr('image.tif', image.getvalue())
+        archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+    before = path.read_bytes()
+    preview = app._preview(path)
+    red = np.all(preview == [255, 70, 70], axis=-1)
+    assert set(zip(*np.nonzero(red))) == pixels
+    assert preview.shape == (5, 7, 3) and preview.dtype == np.uint8
+    assert path.read_bytes() == before

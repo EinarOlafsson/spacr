@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="11" time="4.667" timestamp="2026-10-15T00:43:36.736204-04:00" hostname="olafsson"><testcase classname="tests.test_web_approved_examples_n698" name="test_example_filename_nul_refuses_before_any_network_or_file_creation" time="0.375"><failure message="Failed: NUL example filename reached network setup">source = ({'family': 'live_cell', 'repo_id': 'owner/public-tests', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'fil...13\x00\x14\x00\x15\x00\x16\x00\x17\x00\x18\x00\x19\x00\x1a\x00\x1b\x00\x1c\x00\x1d\x00\x1e\x00\x1f\x00 \x00!\x00"\x00')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7293f4983a10&gt;
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_example_filename_nul_refu0')
+
+    def test_example_filename_nul_refuses_before_any_network_or_file_creation(source, monkeypatch, tmp_path):
+        record, _ = source
+        record['filename'] = 'test/image\x00.tif'
+    
+        def no_network():
+            pytest.fail('NUL example filename reached network setup')
+    
+        monkeypatch.setattr(requests, 'Session', no_network)
+        with pytest.raises(ValueError, match='immutable HF dataset revision'):
+            store = ExampleStore([record], job_parent=tmp_path)
+&gt;           with store.random_image('live_cell'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_web_approved_examples_n698.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tools/web_mask_generator/examples.py:68: in random_image
+    with requests.Session() as session:
+         ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def no_network():
+&gt;       pytest.fail('NUL example filename reached network setup')
+E       Failed: NUL example filename reached network setup
+
+tests/test_web_approved_examples_n698.py:119: Failed</failure></testcase><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds8-pixels8]" time="0.003"><failure message="ValueError: cannot convert float NaN to integer">tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr0')
+bounds = (nan, 0, 1, 1), pixels = set()
+
+    @pytest.mark.parametrize('bounds,pixels', [
+        ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+        ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+        ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+        ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+        ((7.2, 1.0, 8.0, 2.0), set()),
+        ((-2.0, -2.0, -0.1, -0.1), set()),
+        ((2.0, 1.0, 2.0, 4.0), set()),
+        ((3.0, 3.0, 1.0, 1.0), set()),
+        ((float('nan'), 0, 1, 1), set()),
+        ((0, 0, float('inf'), 1), set()),
+    ])
+    def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+        import io
+        import json
+    
+        image = io.BytesIO()
+        tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+        path = tmp_path / 'box.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('image.tif', image.getvalue())
+            archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+        before = path.read_bytes()
+&gt;       preview = app._preview(path)
+                  ^^^^^^^^^^^^^^^^^^
+
+tests/test_web_mask_gradio_app_n698.py:389: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+committed_preview:67: in _preview
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;tuple_iterator object at 0x7293f2cc8700&gt;
+
+&gt;   ???
+E   ValueError: cannot convert float NaN to integer
+
+committed_preview:67: ValueError</failure></testcase><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds3-pixels3]" time="0.011"><failure message="assert set() == {(0, 0)}&#10;  &#10;  Extra items in the right set:&#10;  (0, 0)&#10;  Use -v to get more diff">tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr1')
+bounds = (-0.2, -0.2, 0.8, 0.8), pixels = {(0, 0)}
+
+    @pytest.mark.parametrize('bounds,pixels', [
+        ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+        ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+        ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+        ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+        ((7.2, 1.0, 8.0, 2.0), set()),
+        ((-2.0, -2.0, -0.1, -0.1), set()),
+        ((2.0, 1.0, 2.0, 4.0), set()),
+        ((3.0, 3.0, 1.0, 1.0), set()),
+        ((float('nan'), 0, 1, 1), set()),
+        ((0, 0, float('inf'), 1), set()),
+    ])
+    def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+        import io
+        import json
+    
+        image = io.BytesIO()
+        tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+        path = tmp_path / 'box.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('image.tif', image.getvalue())
+            archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+        before = path.read_bytes()
+        preview = app._preview(path)
+        red = np.all(preview == [255, 70, 70], axis=-1)
+&gt;       assert set(zip(*np.nonzero(red))) == pixels
+E       assert set() == {(0, 0)}
+E         
+E         Extra items in the right set:
+E         (0, 0)
+E         Use -v to get more diff
+
+tests/test_web_mask_gradio_app_n698.py:391: AssertionError</failure></testcase><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds1-pixels1]" time="0.006"><failure message="assert {(np.int64(1)... np.int64(6))} == {(1, 0), (2, 0), (3, 0)}&#10;  &#10;  Extra items in the left set:&#10;  (np.int64(1), np.int64(6))&#10;  (np.int64(2), np.int64(6))&#10;  Extra items in the right set:&#10;  (3, 0)&#10;  Use -v to get more diff">tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr2')
+bounds = (0.2, 1.1, 0.8, 3.1), pixels = {(1, 0), (2, 0), (3, 0)}
+
+    @pytest.mark.parametrize('bounds,pixels', [
+        ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+        ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+        ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+        ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+        ((7.2, 1.0, 8.0, 2.0), set()),
+        ((-2.0, -2.0, -0.1, -0.1), set()),
+        ((2.0, 1.0, 2.0, 4.0), set()),
+        ((3.0, 3.0, 1.0, 1.0), set()),
+        ((float('nan'), 0, 1, 1), set()),
+        ((0, 0, float('inf'), 1), set()),
+    ])
+    def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+        import io
+        import json
+    
+        image = io.BytesIO()
+        tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+        path = tmp_path / 'box.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('image.tif', image.getvalue())
+            archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+        before = path.read_bytes()
+        preview = app._preview(path)
+        red = np.all(preview == [255, 70, 70], axis=-1)
+&gt;       assert set(zip(*np.nonzero(red))) == pixels
+E       assert {(np.int64(1)... np.int64(6))} == {(1, 0), (2, 0), (3, 0)}
+E         
+E         Extra items in the left set:
+E         (np.int64(1), np.int64(6))
+E         (np.int64(2), np.int64(6))
+E         Extra items in the right set:
+E         (3, 0)
+E         Use -v to get more diff
+
+tests/test_web_mask_gradio_app_n698.py:391: AssertionError</failure></testcase><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds5-pixels5]" time="0.007" /><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds7-pixels7]" time="0.004" /><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds6-pixels6]" time="0.005"><failure message="assert {(np.int64(1)... np.int64(2))} == set()&#10;  &#10;  Extra items in the left set:&#10;  (np.int64(1), np.int64(2))&#10;  (np.int64(2), np.int64(1))&#10;  (np.int64(2), np.int64(2))&#10;  (np.int64(3), np.int64(1))&#10;  (np.int64(1), np.int64(1))&#10;  (np.int64(3), np.int64(2))&#10;  Use -v to get more diff">tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr5')
+bounds = (2.0, 1.0, 2.0, 4.0), pixels = set()
+
+    @pytest.mark.parametrize('bounds,pixels', [
+        ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+        ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+        ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+        ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+        ((7.2, 1.0, 8.0, 2.0), set()),
+        ((-2.0, -2.0, -0.1, -0.1), set()),
+        ((2.0, 1.0, 2.0, 4.0), set()),
+        ((3.0, 3.0, 1.0, 1.0), set()),
+        ((float('nan'), 0, 1, 1), set()),
+        ((0, 0, float('inf'), 1), set()),
+    ])
+    def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+        import io
+        import json
+    
+        image = io.BytesIO()
+        tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+        path = tmp_path / 'box.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('image.tif', image.getvalue())
+            archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+        before = path.read_bytes()
+        preview = app._preview(path)
+        red = np.all(preview == [255, 70, 70], axis=-1)
+&gt;       assert set(zip(*np.nonzero(red))) == pixels
+E       assert {(np.int64(1)... np.int64(2))} == set()
+E         
+E         Extra items in the left set:
+E         (np.int64(1), np.int64(2))
+E         (np.int64(2), np.int64(1))
+E         (np.int64(2), np.int64(2))
+E         (np.int64(3), np.int64(1))
+E         (np.int64(1), np.int64(1))
+E         (np.int64(3), np.int64(2))
+E         Use -v to get more diff
+
+tests/test_web_mask_gradio_app_n698.py:391: AssertionError</failure></testcase><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds4-pixels4]" time="0.004"><failure message="IndexError: index 7 is out of bounds for axis 1 with size 7">tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr6')
+bounds = (7.2, 1.0, 8.0, 2.0), pixels = set()
+
+    @pytest.mark.parametrize('bounds,pixels', [
+        ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+        ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+        ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+        ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+        ((7.2, 1.0, 8.0, 2.0), set()),
+        ((-2.0, -2.0, -0.1, -0.1), set()),
+        ((2.0, 1.0, 2.0, 4.0), set()),
+        ((3.0, 3.0, 1.0, 1.0), set()),
+        ((float('nan'), 0, 1, 1), set()),
+        ((0, 0, float('inf'), 1), set()),
+    ])
+    def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+        import io
+        import json
+    
+        image = io.BytesIO()
+        tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+        path = tmp_path / 'box.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('image.tif', image.getvalue())
+            archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+        before = path.read_bytes()
+&gt;       preview = app._preview(path)
+                  ^^^^^^^^^^^^^^^^^^
+
+tests/test_web_mask_gradio_app_n698.py:389: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+archive_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr6/box.zip')
+
+&gt;   ???
+E   IndexError: index 7 is out of bounds for axis 1 with size 7
+
+committed_preview:68: IndexError</failure></testcase><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds0-pixels0]" time="0.005"><failure message="assert set() == {(0, 0)}&#10;  &#10;  Extra items in the right set:&#10;  (0, 0)&#10;  Use -v to get more diff">tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr7')
+bounds = (0.2, 0.2, 0.8, 0.8), pixels = {(0, 0)}
+
+    @pytest.mark.parametrize('bounds,pixels', [
+        ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+        ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+        ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+        ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+        ((7.2, 1.0, 8.0, 2.0), set()),
+        ((-2.0, -2.0, -0.1, -0.1), set()),
+        ((2.0, 1.0, 2.0, 4.0), set()),
+        ((3.0, 3.0, 1.0, 1.0), set()),
+        ((float('nan'), 0, 1, 1), set()),
+        ((0, 0, float('inf'), 1), set()),
+    ])
+    def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+        import io
+        import json
+    
+        image = io.BytesIO()
+        tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+        path = tmp_path / 'box.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('image.tif', image.getvalue())
+            archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+        before = path.read_bytes()
+        preview = app._preview(path)
+        red = np.all(preview == [255, 70, 70], axis=-1)
+&gt;       assert set(zip(*np.nonzero(red))) == pixels
+E       assert set() == {(0, 0)}
+E         
+E         Extra items in the right set:
+E         (0, 0)
+E         Use -v to get more diff
+
+tests/test_web_mask_gradio_app_n698.py:391: AssertionError</failure></testcase><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds2-pixels2]" time="0.003" /><testcase classname="tests.test_web_mask_gradio_app_n698" name="test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping[bounds9-pixels9]" time="0.003"><failure message="OverflowError: cannot convert float infinity to integer">tmp_path = PosixPath('/mnt/wd4tb/scratch/n698-ui-edges-20261015/pytest-of-olafsson/pytest-0/test_tiny_zip_preview_clips_fr9')
+bounds = (0, 0, inf, 1), pixels = set()
+
+    @pytest.mark.parametrize('bounds,pixels', [
+        ((0.2, 0.2, 0.8, 0.8), {(0, 0)}),
+        ((0.2, 1.1, 0.8, 3.1), {(1, 0), (2, 0), (3, 0)}),
+        ((6.6, 4.6, 7.0, 5.0), {(4, 6)}),
+        ((-0.2, -0.2, 0.8, 0.8), {(0, 0)}),
+        ((7.2, 1.0, 8.0, 2.0), set()),
+        ((-2.0, -2.0, -0.1, -0.1), set()),
+        ((2.0, 1.0, 2.0, 4.0), set()),
+        ((3.0, 3.0, 1.0, 1.0), set()),
+        ((float('nan'), 0, 1, 1), set()),
+        ((0, 0, float('inf'), 1), set()),
+    ])
+    def test_tiny_zip_preview_clips_fractional_edge_boxes_without_wrapping(tmp_path, bounds, pixels):
+        import io
+        import json
+    
+        image = io.BytesIO()
+        tifffile.imwrite(image, np.zeros((5, 7), dtype=np.uint8), metadata={'axes': 'YX'})
+        path = tmp_path / 'box.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('image.tif', image.getvalue())
+            archive.writestr('boxes.json', json.dumps([dict(zip(('x0', 'y0', 'x1', 'y1'), bounds))]))
+        before = path.read_bytes()
+&gt;       preview = app._preview(path)
+                  ^^^^^^^^^^^^^^^^^^
+
+tests/test_web_mask_gradio_app_n698.py:389: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+committed_preview:67: in _preview
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;tuple_iterator object at 0x7293f29642e0&gt;
+
+&gt;   ???
+E   OverflowError: cannot convert float infinity to integer
+
+committed_preview:67: OverflowError</failure></testcase></testsuite></testsuites>
