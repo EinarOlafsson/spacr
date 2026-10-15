@@ -88472,7 +88472,7 @@
     },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
-        "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "ff4b786f254b0a6929401767d7037563708e870fd3cdabd5dfab5f0037333a2b",
         "73ab4389f357f6e1f5b4d23f95aebf7fefdcbf59eec74f4d0783085ad2856206",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88480,12 +88480,12 @@
         "ed6b161e940114d17ea28669fbb1b26693910e0d64e1186ddf4c71ad0d0ec548",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "95aae15a021a0a51368b1de49f71a965d4fb7c22bba748c6db20ecfa86525785",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "f14c2375e1e9be7808544ed8c7744a84ab83f7b735bdc32dc681a8acc78d315a"
       ],
-      "source_sha256": "f06b8c87de7b1feba88655a18b0505e242b1e120f01465b42cd4e6b747e51769",
-      "text": "Prüfen Sie, ob Pfade aus einem Cache existieren, ohne den Haupt- GUI-Ausführungspfad zu blockieren.\n\n`spacr/qt/widgets/file_list.py` fragte `os.path.exists` für jeden Erinnerungspfad, auf dem Haupt- GUI-Ausführungspfad die fehlenden rot zu färben. Das ist kostenlos für eine lokale Festplatte und es ist nicht frei für einen Netzwerkpfad: gemessen auf einer Workstation, ``os.path.exists`` auf einem Pfad unter ``/nas_mnt`` -- ein ``autofs``-Mount mit ``timeout=600``-- war nach zwanzig Sekunden nicht zurückgekommen, weil die Statistik den Automount auslöst und die Freigabe schlief.\n\nEin blockierter Haupt- GUI-Exekutionspfad sieht nicht wie eine langsame Pfadüberprüfung aus. Es sieht so aus, und jeder dieser Pfade wurde als separater Defekt am 2026-09-04 gemeldet:\n\n  * \"Das Öffnen von Karten-Barcodes stürzt ab spacr\" -- es ist kein Absturz, es ist ein Einfrieren ohne Rückverfolgung, weshalb nichts die Protokolle erreicht hat. Das Journal zeigt `automount request ... triggered by spacr` unmittelbar vor jedem Kraftquit.\n  * \"es ist eine Art Flackern ... mehrere Ereignisse geschehen auf Schwebe und sie manchmal für ein paar Sekunden hinken\" -- Schwebeereignisse Arbeitsliste, während die unabhängige Ausführung Pfad wird gestoppt und dann wieder in einem Burst.\n  * \"Ich sehe Millisekunden-Glitzer von Teilen der Modul-Anwendungsansichten auf der Home Application-Ansicht\" -- Repaints werden verschoben, so dass der Stack zeigt, was es nicht gegeben hat, um zu malen.\n  * \"es scheint zu passieren ... nachdem ich ein oder zwei Moduale geöffnet habe\" -- jedes Modul fügt seine eigenen Erinnerungspfade hinzu, also gibt es mehr zu stat.\n\nCode auf dem Haupt- GUI-Ausführungspfad darf daher nicht auf das Dateisystem für einen vom Benutzer bereitgestellten Pfad zugreifen; dieses Modul liefert stattdessen die von ihm verwendete Überprüfung.\n\nDie Antworten stammen sofort aus einem Cache. Ein Pfad, der noch nicht gesehen wird, wird als vorhanden gemeldet und für eine Hintergrundprüfung abgewartet; wenn die Antwort eintrifft, wird der Cache aktualisiert und :data:`probes` emittiert, so dass ein Widget neu zeichnen kann. Der Standardwert ist optimistisch, da ein Pfad kurz als fehlt gezeichnet und dann korrigiert ein falscher Alarm ist, während ein Pfad, kurz als vorhanden gezeichnet und anschließend als fehlt markiert, ein gewöhnliches Update ist.",
+      "source_sha256": "8f975d046b59926b9611776ffb2d1d75ee46f35c8f86bb12017b523d22ea688b",
+      "text": "Zwischengespeicherte Pfadantworten prüfen, mit optionalem begrenztem Warten bei unbekannten Pfaden.\n\n`spacr/qt/widgets/file_list.py` fragte `os.path.exists` für jeden Erinnerungspfad, auf dem Haupt- GUI-Ausführungspfad die fehlenden rot zu färben. Das ist kostenlos für eine lokale Festplatte und es ist nicht frei für einen Netzwerkpfad: gemessen auf einer Workstation, ``os.path.exists`` auf einem Pfad unter ``/nas_mnt`` -- ein ``autofs``-Mount mit ``timeout=600``-- war nach zwanzig Sekunden nicht zurückgekommen, weil die Statistik den Automount auslöst und die Freigabe schlief.\n\nEin blockierter Haupt- GUI-Exekutionspfad sieht nicht wie eine langsame Pfadüberprüfung aus. Es sieht so aus, und jeder dieser Pfade wurde als separater Defekt am 2026-09-04 gemeldet:\n\n  * \"Das Öffnen von Karten-Barcodes stürzt ab spacr\" -- es ist kein Absturz, es ist ein Einfrieren ohne Rückverfolgung, weshalb nichts die Protokolle erreicht hat. Das Journal zeigt `automount request ... triggered by spacr` unmittelbar vor jedem Kraftquit.\n  * \"es ist eine Art Flackern ... mehrere Ereignisse geschehen auf Schwebe und sie manchmal für ein paar Sekunden hinken\" -- Schwebeereignisse Arbeitsliste, während die unabhängige Ausführung Pfad wird gestoppt und dann wieder in einem Burst.\n  * \"Ich sehe Millisekunden-Glitzer von Teilen der Modul-Anwendungsansichten auf der Home Application-Ansicht\" -- Repaints werden verschoben, so dass der Stack zeigt, was es nicht gegeben hat, um zu malen.\n  * \"es scheint zu passieren ... nachdem ich ein oder zwei Moduale geöffnet habe\" -- jedes Modul fügt seine eigenen Erinnerungspfade hinzu, also gibt es mehr zu stat.\n\nCode auf dem Haupt- GUI-Ausführungspfad darf daher nicht auf das Dateisystem für einen vom Benutzer bereitgestellten Pfad zugreifen; dieses Modul liefert stattdessen die von ihm verwendete Überprüfung.\n\nPrüfungen ohne Warten liefern sofort eine zwischengespeicherte Antwort oder den Wert ``default`` des Aufrufers und stellen einen unbekannten Pfad zur Hintergrundprüfung in die Warteschlange. Der Standardwert ist ``True`` für :func:`exists` und ``False`` für :func:`isdir`. Ein Hintergrundresultat aktualisiert den Cache; :data:`probes` sendet sein Signal ``answered`` nur, wenn sich die Antwort vom gespeicherten Wert unterscheidet. Der optimistische Existenzstandard verhindert, dass ein unbekannter Pfad während seiner Prüfung als fehlend erscheint. Mit ``wait=True`` wird stattdessen synchron auf eine noch nicht gespeicherte Antwort gewartet, wie unter :func:`exists` beschrieben.",
       "translation_source_blocks_sha256": [
-        "cdaa7fd5673a2e50fc134b90cf0759c67726674d850db77c21ddc3f230ea1ffd",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "bbd99fbc4277d6ab2c8b142445d89accd1ce7e37b570630fff9e1735fab0294c",
         "8f06e14218276da8bbbca54b2eb565d2562e7f5555968ff2e93612db2f5c670a",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88493,7 +88493,7 @@
         "a895f995d2c2b48c9dbf343ef708764f7d2accbbebe7ef9c297a27efe7d891c7",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "7c55325107d2251fcfde00ef8e7489effc892cb2ba5b066407ab70825e3f7de0",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "51681486d062b43539f572a67c1a1c4958927e89217df5a1211ed387e1c150d7"
       ]
     },
     "spacr.qt.path_probe._stat_with_timeout.run": {
@@ -88510,33 +88510,33 @@
     },
     "spacr.qt.path_probe.exists": {
       "source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ],
-      "source_sha256": "bf3c45c4be0c0359905ce0f8cfc614cad2f04cc6d550703bf515a985aa8273b9",
-      "text": "Ob ``path`` da ist, beantwortet aus dem Cache und nie blockiert.\n\n:param path: Der Pfad zu fragen. Alles, was falsch ist, ist ``False``.\n:param default: was zu sagen ist, während die Antwort unbekannt ist. ``True`` standardmäßig -- siehe das Modul docstring, warum die Standardeinstellung optimistisch ist.\n:param want_dir: ask ``isdir`` anstatt ``exists``. Gespeichert separat, da ein Pfad existieren kann und kein Verzeichnis sein kann.\n:param wait: band das Warten durch :data:`PROBE_TIMEOUT_S`, anstatt ``default`` sofort zu beantworten, und cache was zurückkommt. Für Anrufer, deren gesamte Frage \"is this one missing\" ist -- siehe :func:`isdir`, warum die optimistische Voreinstellung für sie falsch ist.\n:returns: die zwischengespeicherte Antwort, oder ``default`` mit einer Check-Warte.",
+      "source_sha256": "a13153aacb3b08d97a8fc0306f0cad2d129ee2774833a1ac109f04bcfd2095ae",
+      "text": "Eine zwischengespeicherte Pfadantwort zurückgeben oder einen unbekannten Pfad prüfen.\n\n:param path: Der Pfad zu fragen. Alles, was falsch ist, ist ``False``.\n:param default: Rückgabewert für einen unbekannten Pfad bei ``wait=False``. Standardmäßig ``True``; dieser Wert bestimmt nicht die Timeout-Antwort einer wartenden Prüfung.\n:param want_dir: ask ``isdir`` anstatt ``exists``. Gespeichert separat, da ein Pfad existieren kann und kein Verzeichnis sein kann.\n:param wait: eine zwischengespeicherte Antwort sofort zurückgeben oder synchron bis zu :data:`PROBE_TIMEOUT_S` auf eine noch nicht gespeicherte stat-Abfrage warten und deren Antwort speichern. Bei einem Timeout wird ``True`` zurückgegeben und gespeichert, auch wenn ``default`` gleich ``False`` ist. Der stat-Thread wird nicht abgebrochen; sein späteres Ergebnis aktualisiert diese gespeicherte Timeout-Antwort nicht.\n:returns: ``False`` für einen als falsch ausgewerteten Pfad; andernfalls eine zwischengespeicherte Antwort, ``default`` ohne Warten bei einer eingereihten oder ausstehenden Prüfung oder die Antwort der wartenden Prüfung (``True`` bei Timeout).",
       "translation_source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ]
     },
     "spacr.qt.path_probe.forget": {
       "source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "7d151b084fd4713f314760981aea8f7846c911fd0b8889f5f039cbbede9c51c0",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ],
-      "source_sha256": "a29322b9f3e0fa3dda7fa110774952147dde447783a89c2938c7086518cc9b81",
-      "text": "Drop was zwischengespeichert wird, so fragt der nächste :func:`exists` erneut.\n\n:param path: ein Pfad, oder ``None`` für alle. Ruft an, wenn der Benutzer gerade etwas erstellt oder gelöscht hat und der Cache sonst weiter mit dem antworten würde, was vorher wahr war.",
+      "source_sha256": "d8e8147a5e7f48dc1ee2ccc0c3adea6d3ee18ffb33ba10d617397d897a6c0b2d",
+      "text": "Zwischengespeicherte Antworten entfernen, ohne eingereihte oder laufende Prüfungen abzubrechen. Ein anschließender Aufruf von :func:`exists` ohne Warten gibt seinen Standardwert zurück, solange eine vorhandene Prüfung aussteht; nur wenn keine aussteht, wird eine neue Prüfung eingereiht. Eine bereits laufende Prüfung kann den Cache nach diesem Aufruf erneut füllen.\n\n:param path: ein Pfad, oder ``None`` für alle. Ruft an, wenn der Benutzer gerade etwas erstellt oder gelöscht hat und der Cache sonst weiter mit dem antworten würde, was vorher wahr war.",
       "translation_source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "2c05eef0f9cd3a080044276ca5332d7492ea827fbe62894e5c6cbe599e79914c",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ]
     },
@@ -88545,19 +88545,19 @@
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ],
-      "source_sha256": "bea5e25c01295f90129266f8cba22a2cb761941b402ada350753593360c9127f",
-      "text": "Ob ``path`` ein Verzeichnis ist, wird vom Cache beantwortet.\n\n``default`` ist False hier und True in :func:`exists`, und die Asymmetrie ist beabsichtigt: die Anrufer dieses einen Ordner wählen, um einen Dialog in zu öffnen, und das Öffnen es irgendwo, das nicht existiert, ist schlimmer als das Öffnen an der Standardposition.\n\n:param path: der abzufragende Pfad; an :func:`exists` mit ``want_dir=True`` übergeben, sodass alles, was falsy ist, ``False`` ergibt.\n:param wait: Das Warten wird durch :data:`PROBE_TIMEOUT_S` gebunden, anstatt ``default`` sofort zu beantworten, und was zurückkommt, wird zwischengespeichert.\n\n``wait`` ist standardmäßig ausgeschaltet. Das Einfrieren dieses Moduls wurde durch das Einstellen von gemerkten Pfaden geschrieben -- ein passiver Pass über alles, was eine Einstellungsdatei erwähnt, auf dem Haupt- GUI-Ausführungspfad, um die fehlenden rot zu färben. Keine Benutzeraktion wartet auf diesen Pass, so dass die Antwort aus dem Cache und die Überprüfung später kostet nichts.\n\nDas Erweitern eines Ordners, den der Benutzer gerade gelöscht oder ausgewählt hat, ist die entgegengesetzte Situation. Sie führten eine Aktion durch und warten auf sein Ergebnis, und die Unbekannte-Pfad-Voreinstellung verwandelt \"die Dateien dieses Ordners\" in \" diesen Ordner als Datei hinzufügen\" -- stillschweigend, und nur das erste Mal wird ein Pfad gesehen. Das Warten wird durch :data:`PROBE_TIMEOUT_S` (5 s) begrenzt, also kostet ein schlafendes Autofs-Mount höchstens das anstatt zwanzig Sekunden.",
+      "source_sha256": "4d2841f16516d5e9b9453442f9ceee9dc4db5c22b791c9128ecb55495736261e",
+      "text": "Ob ``path`` ein Verzeichnis ist, wird vom Cache beantwortet.\n\n``default`` ist False hier und True in :func:`exists`, und die Asymmetrie ist beabsichtigt: die Anrufer dieses einen Ordner wählen, um einen Dialog in zu öffnen, und das Öffnen es irgendwo, das nicht existiert, ist schlimmer als das Öffnen an der Standardposition.\n\n:param path: der abzufragende Pfad; an :func:`exists` mit ``want_dir=True`` übergeben, sodass alles, was falsy ist, ``False`` ergibt.\n:param wait: für einen noch nicht gespeicherten Pfad den synchronen Wartemodus von :func:`exists` verwenden. Dessen Timeout-Antwort ist ``True``, obwohl der Standardwert dieser Funktion ohne Warten ``False`` ist.\n\n``wait`` ist standardmäßig ausgeschaltet. Das Einfrieren dieses Moduls wurde durch das Einstellen von gemerkten Pfaden geschrieben -- ein passiver Pass über alles, was eine Einstellungsdatei erwähnt, auf dem Haupt- GUI-Ausführungspfad, um die fehlenden rot zu färben. Keine Benutzeraktion wartet auf diesen Pass, so dass die Antwort aus dem Cache und die Überprüfung später kostet nichts.\n\nDas Aufklappen eines gerade abgelegten oder ausgewählten Ordners ist der umgekehrte Fall. Der Benutzer hat eine Aktion ausgeführt und wartet auf ihr Ergebnis; der Standardwert für einen unbekannten Pfad macht aus „Dateien dieses Ordners hinzufügen“ stillschweigend „diesen Ordner als Datei hinzufügen“, und zwar nur beim ersten Auftreten des Pfads. Der aufrufende Thread wartet bis zu :data:`PROBE_TIMEOUT_S` (5 s) auf die stat-Abfrage. Bei einem Timeout wird ``True`` gespeichert, ohne den stat-Thread abzubrechen; dessen spätere Antwort ersetzt das gespeicherte Timeout-Ergebnis nicht.",
       "translation_source_blocks_sha256": [
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "ce88ebfd079963734421049c5a406613dc391fec3bdf470849e8412f7fffa707",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ]
     },
     "spacr.qt.path_probe.known": {
@@ -88574,17 +88574,17 @@
     },
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"
       ],
-      "source_sha256": "21945eb6ed91c7d9713b1e7701fb72fe6be28761f1873c9cc7dd42bb9524f50a",
-      "text": "Nehmen Sie eine Antwort auf, die jemand schon hat, ohne Sonde.\n\nDer Dateidialog hat uns gerade gesagt, dass ein Pfad existiert; das Dateisystem erneut zu fragen, wäre eine zweite Statistik für eine Tatsache, die bereits in der Hand ist.\n\n:param path: der Weg, um den die Antwort geht.\n:param answer: was bereits bekannt ist, um wahr zu sein.\n:param want_dir: notieren Sie es gegen :func:`isdir` anstatt :func:`exists`. Die beiden werden separat zwischengespeichert -- ein Pfad kann existieren und kein Verzeichnis sein -- also muss ein Anrufer, der beides weiß, dies zweimal sagen. Ohne ihn antwortet :func:`isdir` mit seiner ``False`` Standardeinstellung, bis eine Hintergrundsonde abgeschlossen ist.",
+      "source_sha256": "e973dd55c7df5f0cbcbec213bc3b26aa08e2134e3a02d177a44dff6ade712cf1",
+      "text": "Eine bekannte Antwort speichern, ohne eine Prüfung zu starten.\n\nDer Dateidialog hat gerade mitgeteilt, dass ein Pfad existiert; eine erneute Dateisystemabfrage wäre eine zweite stat-Abfrage für eine bereits bekannte Tatsache. Dies entfernt die zugehörige Ausstehend-Markierung, bricht aber keine eingereihte oder laufende Prüfung ab. Eine solche Prüfung kann die vorab gespeicherte Antwort später überschreiben und das Signal ``answered`` von :data:`probes` senden, falls ihr Ergebnis den gespeicherten Wert ändert. Dieser Aufruf selbst sendet kein Signal.\n\n:param path: der Weg, um den die Antwort geht.\n:param answer: was bereits bekannt ist, um wahr zu sein.\n:param want_dir: notieren Sie es gegen :func:`isdir` anstatt :func:`exists`. Die beiden werden separat zwischengespeichert -- ein Pfad kann existieren und kein Verzeichnis sein -- also muss ein Anrufer, der beides weiß, dies zweimal sagen. Ohne ihn antwortet :func:`isdir` mit seiner ``False`` Standardeinstellung, bis eine Hintergrundsonde abgeschlossen ist.",
       "translation_source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "4441a6f7065469ded88df3cb3bddb231c35f2b35cba1cd34fd8b67d149d9e11d",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"

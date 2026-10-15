@@ -13278,3 +13278,16 @@ public_symbol policy excludes all four private-class event overrides, so there
 is no public API/caption arrival to regenerate. Source/log hashes and limits:
 features/data/655_section_header_accessibility_2026-10-15/. This closes these
 heading defects only; native speech/human/platform/tutorial gates stay open.
+
+## 2026-10-15 Home-B — exact path-probe documentation delivery
+The module and exists/isdir/forget/prime descriptions now match bounded waits,
+cache fallbacks and pending-probe completion. Executable AST/comments are
+unchanged. Independently reviewed99 changed targets plus one retained English
+Icelandic paragraph pass normal generation across nine locales. Genuine normal
+context/identity refusals are preserved; successful capped fallback uses one
+canonical snapshot plus fresh equality recheck,669 stable source hashes and
+zero decoding. All unrelated13405 translated records and13479 English entries
+are preserved; source history stays exact. Normal Help regeneration passes.
+Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
+features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
+these five symbols, not the wider semantic review or final CI/release gates.
