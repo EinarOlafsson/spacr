@@ -745,7 +745,7 @@ def organelle_count(settings: Mapping[str, object]) -> int:
         return _count_implied_by_the_slots(settings)
     try:
         count = int(float(str(raw).strip()))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return _count_implied_by_the_slots(settings)
     return max(0, min(count, MAX_ORGANELLES))
 

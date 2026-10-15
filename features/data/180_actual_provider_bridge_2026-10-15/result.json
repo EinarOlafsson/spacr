@@ -1,0 +1,59 @@
+{
+  "source_pin": "9e49e23fe2debfc19e52720a6eb53e3ccd6b4242",
+  "result": "PASS",
+  "events": [
+    "unvisited actual screen collection remains deferred",
+    "explicit user-equivalent deferred panel and Graph construction",
+    "all actual providers collected and saved through normal workspace APIs",
+    "screen closure unregisters all regression providers",
+    "restoring to unvisited screen reports missing built contributors without construction",
+    "explicit user-equivalent deferred panel and Graph construction",
+    "visited real contributors restore exact Graph controls, queued regression run views and figure-grid size",
+    "screen closure unregisters all regression providers"
+  ],
+  "provider_injection": false,
+  "provider_filtering": false,
+  "render_join_read_guard_calls": [],
+  "setup_refresh_suppression_count": 2,
+  "visited_restored": [
+    "regression:settings",
+    "regression:figures",
+    "regression:montage",
+    "regression:regression"
+  ],
+  "unvisited_report": {
+    "restored": [
+      "regression:settings"
+    ],
+    "skipped": [
+      {
+        "section": "regression:figures",
+        "why": "cannot take a workspace state back"
+      },
+      {
+        "section": "regression:montage",
+        "why": "cannot take a workspace state back"
+      },
+      {
+        "section": "regression:regression",
+        "why": "cannot take a workspace state back"
+      }
+    ],
+    "files": []
+  },
+  "source_hashes": {
+    "spacr/qt/screens/app_screen.py": "9d8a9c714c461ab46171cfdd5eea3c345553c55e737813f12f67f47ec28ab37c",
+    "spacr/workspace.py": "155c19eb811efe9ff42fb972dd602d7fea1e23a920a3c49779f8784165065e45",
+    "spacr/qt/widgets/cell_montage_view.py": "fe39247d4cff1d270152b6762c248443df7e901b588b503b1ef34afc9b9b540e",
+    "spacr/qt/widgets/measurement_compare_dialog.py": "96209de2cadc2df2f71bcecc8bbf63a6a686ea2e5e3e5c101b090055fc45b836",
+    "spacr/qt/widgets/regression_results.py": "5a6d4bd10d4325e8952ea33bf96c2f72935b8548384443603ecad2808dac8c4a",
+    "spacr/qt/widgets/figure_grid_view.py": "60d4b7ed0e90eccfdfa9fc762c1395fa3facf298a97da58e14f86c0db59f7af8"
+  },
+  "limits": [
+    "Registry bridge only; already-tested loaded data/render consumers are not rerun.",
+    "Regression run views intentionally have no live data path; restoration retains them without file loading.",
+    "Actual comparison controls use a tiny in-memory object fixture; constructor refresh is suppressed and no comparison/canvas is computed.",
+    "All real providers and full settings are used without mapping injection/filtering.",
+    "No scientific inference, image loading, graph rendering, join, pipeline or native desktop acceptance."
+  ]
+}
