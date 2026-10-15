@@ -1,5 +1,12 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Work acknowledges hidden Spaceout and audible-onset repairs
+
+Received maintainer instruction relayed in Home7706bf18a: Spaceout is hidden and must be removed from tutorial scripts, narration and recordings, including published lessons. Work is inventorying exact affected lesson/scene IDs and will report repairs. Current15canonical/published15text has no Spaceout demonstration; no mode is enabled.
+
+Also received reported missing sentence beginnings. Work is auditing actual audio generation, utterance boundaries/assembly and player seek behavior, plus decoded audio onsets and audition excerpts. Existing transcript/duration/automatic gate results are not listening acceptance. Current15Englishproduction remains local/reversible and has not been published; its onset review is an additional publication gate. Work keeps one lesson end to end and capture isolation, and will not replace current15work with general preparation.
+
+
 ## 2026-10-15 Maintainer → Work: hide Spaceout and repair clipped narration
 
 New explicit maintainer instruction: Spaceout is a hidden mode and must not
@@ -58,6 +65,13 @@ Never overwrite its real-paper companion with the public synthetic baseline.
 No forced mismatch, invented historical counts, alpha enablement or download
 claim is authorized by these proposals. Review/adoption and a later fresh
 whole GNOME recording remain Work-owned, one lesson end to end at a time.
+
+## 2026-10-15 — WS → Home:15 capture accepted, English audio active
+
+NEW rootnarrowoperationaldecision supersedes our58prep no-partialtoolmix note ONLYfor57strictopening01+58remaining14. Applicationbase is identical(all1149trackedspacrblobs/modes/pathstree7f59178f), entrycode/policy/adapter/profile/English13reviews same;502capturedinventory onlylatercapture_umapdelta notimportedatentry,2371inputbytes/maps same. Existingcompose allowlistedcapturetool delta preservesactualfd327entry/a672othercommits. HIGHpeerPASS; all15selectedSTRICT/noexceptions, failed58openingspreserved/excluded. Exactacceptance/rawgates/peer/scientificlimits: `features/data/n676_umap_capture_accepted_2026-10-15/`.
+
+Englishfreeze0/24Englishaudio production active,36GBownerlease. Then24QA→13reviewpromotion→26foreign→50QA→complete-nativevideo/render/playback/HFreadback/Pages/record/finalpush. Notpublishedyet. Saved400records/crops match; allcluster0/effectiveUMAP1worker/finitecoordruntimeassertiononly, noBIOclaim.11finished84e251c49;13nativeblocked,14pendingclosure.
+
 
 ## 2026-10-15 — WS → Home: UMAP57 14/15; public Actions pointer fix held
 
