@@ -2,7 +2,7 @@
 README PANELS LINK TO READABLE TEXT
 ================================================================================
 
-Status:    implemented and locally validated; hosted publication pending
+Status:    DONE (published on nightly and main, verified on GitHub 2026-10-15)
 Requested: maintainer's Home takeover queue, 2026-10-13: every README text
            panel image links to its readable text version. Where a panel
            already links to a page, its text starts the linked page, so
@@ -138,3 +138,21 @@ whose ordinary nine-language API audit passed. Broader N704 hosted acceptance
 and main release remain separate.
 Evidence:data/readme_picker_audit_contract_2026-10-15/ and
 data/readme_picker_audit_peer_2026-10-15/.
+
+2026-10-15 — Claude Home: BUILT and PUBLISHED.
+Took over from Codex (implementation 5ffe1b3aae already on nightly). On
+nightly 33cd4071ab, build_readme_images.py --check and build_model_cards.py
+--check report all ten README/text sets current. Two stale test contracts
+fixed: the panel-page count is 67 (698 added the mask-generator panel), and
+the images-only README test accepts the single plain Website line that 687
+requires in the header. Cohort (tests/test_readme_*.py, PyPI images, language
+picker, model cards/score cards, README build/commands/deck): 317 passed.
+Main f0efcc75c6 copies README.rst, docs/i18n/readme, docs/readme_images,
+docs/readme_assets, docs/models (cards and pages) and the new docs/readme_text
+from nightly (757 files; trees equal to nightly). Live GitHub check: the README
+page carries 67 distinct panel links to blob/main/docs/readme_text/en/*.md, all
+HTTP 200; each of the nine localized READMEs carries its 67 locale links; all
+670 readable pages return 200 from raw main; relative README/text links (3300)
+all resolve on main. Owned github.io and release links return 200; only
+third-party publisher sites (doi.org, bioRxiv, ASM, Cell) refuse scripted
+requests (403/429).
