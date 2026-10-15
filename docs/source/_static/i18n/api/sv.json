@@ -82222,11 +82222,11 @@
         "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
         "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
         "35459c9d59856122a87e062b581e4055eab02cf6ba3e89cc06ef8affd6c24267",
-        "488c10c66e8c94acde0054ae4de4358f57d83b0371189aab491d3927ffb3c9f8",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+        "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993"
       ],
-      "source_sha256": "cd34b82e0fef38a00f7ef640845299630faacc7d3f1db642735fd671d4fe483a",
-      "text": "Kör en avlösningsbar av huvudsökväg GUI och leverera resultatet på huvudsökvägen GUI.\n\nApplikationsvyer som ``DbBrowserScreen``, ``PlateViewScreen`` och ``ReportScreen`` hade tidigare var sin egen kopia av denna logik, och kopiorna skilde sig åt: två kopplade ``thread.finished`` till en *avslutning*, som aldrig drar sig tillbaka jobbet (se :meth:`_retire_finished_jobs`). Den här modulen implementerar reglerna en gång, för varje programvy som flyttar arbetet utanför huvudsökvägen GUI.\n\nReglerna:\n\n* ``PipelineWorker.finished`` sänds ut **på bakgrundsutförandeenheten**. En stängning som är ansluten till den anropas där. Att vidröra en komponent från den är odefinierat beteende. Det enda säkraste en kortplats på den signalen kan göra är att byta ut en ``Signal`` vars mottagare är en bunden metod för ett huvudobjekt GUI körningssökväg -- Qt och därefter schemalägger anropet till huvudsökvägen GUI.\n* **QInnehållsmottagare.** Anslut ``QThread.finished`` till en metod på en QObject som hör till GUI-gängan. En stängning är osäker. PySide6 tilldelar själva QThread som en stängningsmottagare. :func:`spacr.qt.bridge.make_thread` ansluter först ``thread.finished -> thread.deleteLater``. Slots kör i anslutningsordning. DeferredDelete är därför postad innan stängningen ringer tillbaka. Qt kastar den köade samtalsmottagaren efter att ha förstört sin mottagare. Jobbet förblir då aktivt och ``active_jobs()`` når aldrig noll.\n* En stark hänvisning till både QThread och arbetstagaren måste hållas till ``thread.finished``. A QThread sopor samlas in medan utförandet avbryter processen.\n* Färdigställandehanteraren måste köra för **varje** jobb, inklusive en vars resultat inte längre önskas, eller bokföringen läcker och skärmen är permanent \"busy\". Om *result* används är ett separat beslut, taget från generationsräknaren -- se :meth:`cancel`.\n\nAllt som läggs fram här går igenom ``make_thread``, så det visas i processens hela :func:`spacr.qt.bridge.registry` och vänder bakgrundsaktiviteten spinner (:mod:`spacr.qt.widgets.activity_spinner`) utan att den som ringer gör någonting.",
+      "source_sha256": "ef279b22872ef65edf0387969c89ca9dba19ecc717bfa5727e00509fe99d65af",
+      "text": "Kör en avlösningsbar av huvudsökväg GUI och leverera resultatet på huvudsökvägen GUI.\n\nApplikationsvyer som ``DbBrowserScreen``, ``PlateViewScreen`` och ``ReportScreen`` hade tidigare var sin egen kopia av denna logik, och kopiorna skilde sig åt: två kopplade ``thread.finished`` till en *avslutning*, som aldrig drar sig tillbaka jobbet (se :meth:`_retire_finished_jobs`). Den här modulen implementerar reglerna en gång, för varje programvy som flyttar arbetet utanför huvudsökvägen GUI.\n\nReglerna:\n\n* ``PipelineWorker.finished`` sänds ut **på bakgrundsutförandeenheten**. En stängning som är ansluten till den anropas där. Att vidröra en komponent från den är odefinierat beteende. Det enda säkraste en kortplats på den signalen kan göra är att byta ut en ``Signal`` vars mottagare är en bunden metod för ett huvudobjekt GUI körningssökväg -- Qt och därefter schemalägger anropet till huvudsökvägen GUI.\n* **QInnehållsmottagare.** Anslut ``QThread.finished`` till en metod på en QObject som hör till GUI-gängan. En stängning är osäker. PySide6 tilldelar själva QThread som en stängningsmottagare. :func:`spacr.qt.bridge.make_thread` ansluter först ``thread.finished -> thread.deleteLater``. Slots kör i anslutningsordning. DeferredDelete är därför postad innan stängningen ringer tillbaka. Qt kastar den köade samtalsmottagaren efter att ha förstört sin mottagare. Jobbet förblir då aktivt och ``active_jobs()`` når aldrig noll.\n* En stark hänvisning till både QThread och arbetstagaren måste hållas till ``thread.finished``. A QThread sopor samlas in medan utförandet avbryter processen.\n* Resultatleverans och avregistrering av trådar är separata. :meth:`cancel` rensar väntande leveranser omedelbart; ett sent slutförande avger då ingen ``job_finished``-signal. Genomgången av avslutade trådar frigör fortfarande trådreferenserna oberoende av detta.\n\nTrådade jobb går genom ``make_thread``, så de visas i det processgemensamma :func:`spacr.qt.bridge.registry` och aktiverar indikatorn för bakgrundsaktivitet (:mod:`spacr.qt.widgets.activity_spinner`). Inline-läget kringgår denna registrering och ändrar inte körarens upptagetstatus.",
       "translation_source_blocks_sha256": [
         "dcdc4c7885888d598e472129494ded92b6ab9df1834c2ebf6ee2ba0c8a7d5f1c",
         "a80b94ff03948af31dc3e3a8d3ecb9c535b15696a1a8c59be7578c3ad8784223",
@@ -82234,120 +82234,126 @@
         "da0963d1bc57319ebdcf93a8b98919a0b2cac1cd514a258e088d764319a035e8",
         "881e8b01d32db2658fbcde0c99b69443140de833e47aa3495931c050f43cbbcb",
         "b86b36add38a7d26b9ed0067cbab9205d54f947de1cbea68b2546c8bfa9d0b10",
-        "4392e74130acfcd7fc08a0519d476eb323c6a70c063cc4fff11b5bcec9c23b50",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+        "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae"
       ]
     },
     "spacr.qt.job_runner.JobRunner": {
       "source_blocks_sha256": [
         "8910cf72a115abde1ce47627f46226b8d8f4891b352a6e6eb53290b3c0154698",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
         "b2d33c392b0cc478caf2e1a94221d54ad2ce7dae155ba96dee697eee7a63119e",
         "af9f2b99ce97cad3e0986be5f14829bf8e8b4f9755a0c70534d71237418a97b7",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "048b85c784cc96d879067fff66c027830096bc801c4849097d547a9be221c6a6",
+        "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "d5d9e078cc2c8b2ca8657098691a4a8b3aeeeb82e7367d8b6e9b5e79bf4444f1"
       ],
-      "source_sha256": "09fdc24666af59626c2fd54da3e8c8fcfd6830f3d29598359e2c92aee46c00cf",
-      "text": "Kör avropbara från huvudsökvägen GUI; leverera deras resultat på den.\n\n:param parent: Den widget som äger verket. Höll som löparens Qt förälder så att löparen dör med den.\n:param threaded: ``False`` kör varje jobb inline och avger samma signaler i samma ordning, så att ett test kan köra en screening synkront utan att beteendet skiljer sig åt.\n:param app_key: Namnjobben visas under i processsessionsregistret, och så även i aktivitetsspinnerns verktygstips.\n:param user_visible: ``False`` för hushållning började inte användaren. Ett sådant jobb gör fortfarande aktivitetssnurren -- något utförs -- men kräver aldrig en sessionsbanner för behandling. Användningsväljaren skickar in varannan sekund; utan detta hem blinkar \"<module> användning - kör\" på och av så länge en modulprogramvy är öppen.\nSkapa en löpare för en widget bakgrundsarbete.\n\nDen registrerar sig själv i samma ögonblick som den existerar, så en löpare kan inte skapas och sedan missas av avloppet från starttiden; registreringen är svag, så den håller ingenting levande som Qt annars skulle samla in.\n\n:param parent: ägarobjektet, eller ``None``.\n:param threaded: kör jobb på en enhet för bakgrundskörning. ``False`` kör var och en inline och avger samma signaler i samma ordning.\n:param app_key: Hur den här löparens arbete namnges i registret.\n:param user_visible: om dessa jobb räknas som kör användaren startade. Ställ in ``False`` för städning, så att Homes körbanner inte visar det som en processsession.",
+      "source_sha256": "6e5f679c082897d95cb6376dc3948c809ece12d9de1ba17932d35ad8b73c288b",
+      "text": "Kör avropbara från huvudsökvägen GUI; leverera deras resultat på den.\n\n:param parent: Den widget som äger verket. Höll som löparens Qt förälder så att löparen dör med den.\n:param threaded: ``False`` kör arbetet och dess hanterare inline på den anropande tråden. Fel- och slutförandesignaler avges före retur; ingen arbetstråd registreras och upptagetstatus ändras inte.\n:param app_key: Namnjobben visas under i processsessionsregistret, och så även i aktivitetsspinnerns verktygstips.\n:param user_visible: ``False`` för hushållning började inte användaren. Ett sådant jobb gör fortfarande aktivitetssnurren -- något utförs -- men kräver aldrig en sessionsbanner för behandling. Användningsväljaren skickar in varannan sekund; utan detta hem blinkar \"<module> användning - kör\" på och av så länge en modulprogramvy är öppen.\nSkapa en löpare för en widget bakgrundsarbete.\n\nDen registrerar sig själv i samma ögonblick som den existerar, så en löpare kan inte skapas och sedan missas av avloppet från starttiden; registreringen är svag, så den håller ingenting levande som Qt annars skulle samla in.\n\n:param parent: ägarobjektet, eller ``None``.\n:param threaded: kör jobb på en arbetstråd. ``False`` kör arbetet och dess hanterare på den anropande tråden utan att registrera en arbetare eller ändra upptagetstatus.\n:param app_key: Hur den här löparens arbete namnges i registret.\n:param user_visible: om dessa jobb räknas som kör användaren startade. Ställ in ``False`` för städning, så att Homes körbanner inte visar det som en processsession.",
       "translation_source_blocks_sha256": [
         "3dfbd1c06cb216af429e8680cbf6669545d07a9215a67352e953085a691ca243",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
         "3e5af743fb8ed6790be78403f93529d3dfb6ed4bf70068864d43019d94bea1f0",
         "91cf99fb87ff23d7b09bd341260c49cf3dc97d8cca8c34cbaa1812f447cc6cba",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "5ebb543cc092cda186edc74c53232e85628ee9c1012ed2a577c2299c83e67b18",
+        "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "460cd539047c66bcf53f8057ca4d5e32272103c0b52b4eff441a7b3aa10691ea"
       ]
     },
     "spacr.qt.job_runner.JobRunner.active_jobs": {
       "source_blocks_sha256": [
-        "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ],
-      "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
-      "text": "Hur många bakgrundsutförandeenheter som fortfarande avvecklas.",
+      "source_sha256": "d9dade8b109f8c2925c6e84b31b312d13a2d9978424cee210ca6f2cc3263c3a6",
+      "text": "Räkna spårade arbetarreferenser, inklusive jobb som körs eller ännu inte har avregistrerats.\n\nAvslutade trådar räknas tills avregistreringsgenomgången körs. Avstängning nollställer antalet även när en tråd har parkerats någon annanstans.",
       "translation_source_blocks_sha256": [
-        "19c49fa615bddff20814365f7d0a7c265789612bd4a9a793342b2034ccef4f97"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ]
     },
     "spacr.qt.job_runner.JobRunner.cancel": {
       "source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "3cf69411195547dd50f165161356a8c44dd6043b2d8ab28129d9e3283ce37131"
+        "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24"
       ],
-      "source_sha256": "46c7a780a1ab844880b06ac514b56ca3a3d3751ceb567580db645dac5991a9e2",
-      "text": "Överge resultatet av allt under flygning.\n\nDe oberoende exekveringsvägarna uppmanas att stoppa och lämnas sedan att pensionera sig själva; de är *inte* sammanfogade, eftersom sammanfogning skulle blockera den huvudsakliga GUI exekveringsvägen. Deras resultat släpps vid ankomsten av generationskontrollen, så ingenting når en hanterare som kan vara på väg att förstöras.",
+      "source_sha256": "f7a0bdc5abb5129e7fbf51833ad4084665d294f8d4b19a8df9a18a9e3cc26b5e",
+      "text": "Överge resultatet av allt under flygning.\n\nBegär trådavbrott utan att vänta och rensa sedan väntande leveranser och upptagetstatus omedelbart. Sena slutföranden ignoreras och avger ingen ``job_finished``-signal. Arbetarreferenser finns kvar tills avregistrering eller avstängning; avbrott stoppar inte arbetet med tvång. En arbetares felsignal kan fortfarande avge ``job_failed``.",
       "translation_source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "d18f4c3ea2a3b2b84f11f95ab1b8273ee14292e47af4c5297a38e95c80d2f6ca"
+        "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb"
       ]
     },
     "spacr.qt.job_runner.JobRunner.is_busy": {
       "source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+        "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285"
       ],
-      "source_sha256": "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5",
-      "text": "True medan ett inlämnat jobb ännu inte har levererat sitt resultat.",
+      "source_sha256": "d44c1fd351b00059fe72a830f20b2a48604cd4f49afc6ffc54c3aa643dbd0202",
+      "text": "Om slutföranden från trådade jobb väntar; avbrott rensar detta omedelbart.\n\nInline-arbete sätter inte denna flagga. En avbruten arbetare kan fortfarande köras efter att detta returnerar ``False``.",
       "translation_source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+        "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b"
       ]
     },
     "spacr.qt.job_runner.JobRunner.pending_jobs": {
       "source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193"
       ],
-      "source_sha256": "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6",
-      "text": "Hur många resultat har inte levererats ännu.",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "text": "Räkna väntande slutförandeposter från trådade jobb, som rensas omedelbart vid avbrott.",
       "translation_source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9"
       ]
     },
     "spacr.qt.job_runner.JobRunner.shutdown": {
       "source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "0816cfadd686e835c533d078a9ff374dbff4740a8ea48b59e01c3cefd988cb16"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e"
       ],
-      "source_sha256": "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
-      "text": "Avbryt, vänta sedan kort så att ingen QThread överlever widgeten.\n\nAnrop från ``closeEvent``. Qt avbryter processen om en körning QThread förstörs, så en begränsad väntan behövs när en programvy stängs mitt i laddningen. Oberoende körningsvägar som ligger utanför budgeten parkeras med :func:`spacr.qt.bridge.drain_thread` snarare än avslutas.",
+      "source_sha256": "c96601558323f911ac19bebf17e41546c66554ebe2c6d143ae4aecc5c5818928",
+      "text": "Avbryt leveranser och vänta sedan inom en gemensam tidsbudget eller parkera aktiva trådar.\n\nAnropa från ``closeEvent``. Qt avbryter processen om en körande QThread förstörs, så en begränsad väntan behövs när en skärm stängs under inläsning. ``timeout_ms`` delas av alla trådar i denna körare. Trådar som överskrider tiden parkeras av :func:`spacr.qt.bridge.drain_thread` i stället för att tvångsavslutas.",
       "translation_source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "11328991d433b99f114901d8cb645f7101cc471cc31a5ceb0b8ec45eab24d7bb"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd"
       ]
     },
     "spacr.qt.job_runner.JobRunner.submit": {
       "source_blocks_sha256": [
-        "12af44ef7e5938ea0c5f618207afc691e4ef1e01bd1750b09b63daeb772e894c",
-        "3194492a23e4afb0b7c8b3e0e4039de6a49c779dd584968a70e518764dd48b10",
-        "c7c9aad31a6bd67766a3f96db07f69b27590a0ca5fb1cf05d8afcb7c346e59c5",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+        "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+        "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b"
       ],
-      "source_sha256": "e582622136df8f041658862e9493736bd484422b600c0cb5cc99ea658b6bef37",
-      "text": "Kör ``fn()`` utanför huvudvägen GUI och kör sedan ``on_done(result)`` på den.\n\n:param fn: ett nollargument som kan anropas. Det körs på en bakgrundsutförandeenhet och **får inte röra någon komponent** – returnera data istället.\n:param on_done: anropas på huvudsökvägen GUI med ``fn`` s returvärde.\n:returns: True när jobbet startades (eller, ogängat, sprang).",
+      "source_sha256": "97f0e63400fd95006431fc04c4ea7d7587ff52d9e3cbb9178f42dcb3247783eb",
+      "text": "Skicka in ``fn()`` och leverera dess lyckade resultat till ``on_done``.\n\n:param fn: en anropbar funktion utan argument. I trådat läge körs den utanför GUI-tråden och får inte röra widgetar. Inline-läget kör den på den anropande tråden.\n:param on_done: valfri hanterare för returvärdet från ``fn``, anropad på GUI-tråden i trådat läge eller annars inline. Avbrott kasserar väntande leveranser från trådade jobb.\n:returns: ``True`` efter att ett trådat jobb har startats, innan utfallet är känt. Inline-läget returnerar ``False`` om någon av de två anropbara funktionerna kastar ett undantag; annars returneras ``True``.",
       "translation_source_blocks_sha256": [
-        "80f86748c347b4f721d1c7df2e1fa9a0f4e7d15ee7552173a3c3ba87af92741e",
-        "43343668990e9ecb58921a6a3c209b09103cdb176379655b000d5ed5f975dc8b",
-        "88f69f9e8ee7ba8aa0c01335e900d6bcfd921366fe686a34b264625106726951",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+        "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+        "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589"
       ]
     },
     "spacr.qt.job_runner.shutdown_all": {
       "source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ],
-      "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
-      "text": "Stoppa varje levande JobRunner. Återkommer hur många som tillfrågades.\n\nRing en gång på vägen ut, innan Qt börjar förstöra widgets. Beställning betyder mer än fullständighet här: en löpare som inte kan stanna i tid parkeras med `bridge.drain_thread` snarare än avslutas, så detta begränsas.",
+      "source_sha256": "d370dad5b5a783bca409e24001d83745abf282841e4f0b4b9e9c742ba75156c6",
+      "text": "Begär att aktiva körare avbryts; returnera hur många avstängningsanrop som avslutades normalt.\n\nAnropa innan Qt börjar förstöra widgetar. Avbrott begärs för alla körare före någon väntan, och därefter delar de en väntetidsgräns på ``timeout_ms``. Detta begränsar väntan på trådar, inte programmets totala avslutningstid. Trådar som överskrider tidsbudgeten parkeras av :func:`spacr.qt.bridge.drain_thread` och tvångsavslutas inte. Misslyckade avstängningsanrop loggas, räknas inte i returvärdet och hindrar inte att återstående körare behandlas.\n\n:param timeout_ms: den totala väntetidsbudgeten för alla körare tillsammans.",
       "translation_source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ]
     },
     "spacr.qt.laptop_mode": {

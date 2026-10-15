@@ -82223,11 +82223,11 @@
         "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
         "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
         "35459c9d59856122a87e062b581e4055eab02cf6ba3e89cc06ef8affd6c24267",
-        "488c10c66e8c94acde0054ae4de4358f57d83b0371189aab491d3927ffb3c9f8",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+        "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993"
       ],
-      "source_sha256": "cd34b82e0fef38a00f7ef640845299630faacc7d3f1db642735fd671d4fe483a",
-      "text": "将呼叫器从主 GUI 执行路径中运行,并将其结果传递到主 GUI 实施路径上。\n\n应用程序视图如 ``DbBrowserScreen``, ``PlateViewScreen`` 和 ``ReportScreen`` 以前,每个人都有自己的复印件这个逻辑,复制品不同:两个连接 ``thread.finished`` 到 *关闭*,从未退休工作(见 :meth:`_retire_finished_jobs`). 此模块执行规则一次,适用于移动工作的任何应用程序视图的主要 GUI 执行路径。\n\n规则:\n\n* ``PipelineWorker.finished`` 发出 **在背景执行单位**. 一个关闭连接到它被召回在那里. 触摸一个 widget 从它是未定义的行为. 唯一的安全事物一个插槽在这个信号可以做的是重新发出一个 ``Signal`` 接收器是一个连接的方法的一个主要 GUI 执行路径对象 - Qt 然后安排呼叫到主要 GUI 运行路径。\n* **QObject 接收器要求。** 将 ``QThread.finished`` 连接到属于 GUI 线程的 Q Object 上的方法。 是不安全的。  PySide6 指定 QThread 本身为闭包的接收者。  :func:`spacr.qt.bridge.make_thread` 首先连接 ``thread.finished -> thread.deleteLater``。 插槽按连接顺序执行。 返回函数在闭合回调之前发布。  Qt 在销毁其接收器后丢弃排队的回调。 作业保持活动状态,``active_jobs()`` 永远不会达到零。\n* 强烈的引用,这两者 QThread 工作进程必须被拘留到 ``thread.finished``. A QThread 垃圾收集,同时执行堕胎过程。\n* 完成操作员必须执行 **every** 工作,其中包括一个结果不再是想要的,或存储漏洞和筛选永久为 \"busy\"。 是否使用 *result* 是一个单独的决定,从世代计量器 - 见 :meth:`cancel`。\n\n这里提交的一切都通过 ``make_thread``,所以它出现在过程范围的 :func:`spacr.qt.bridge.registry` 中,并转换了背景活动旋转器(:mod:`spacr.qt.widgets.activity_spinner`)而无需召唤者做任何事情。",
+      "source_sha256": "ef279b22872ef65edf0387969c89ca9dba19ecc717bfa5727e00509fe99d65af",
+      "text": "将呼叫器从主 GUI 执行路径中运行,并将其结果传递到主 GUI 实施路径上。\n\n应用程序视图如 ``DbBrowserScreen``, ``PlateViewScreen`` 和 ``ReportScreen`` 以前,每个人都有自己的复印件这个逻辑,复制品不同:两个连接 ``thread.finished`` 到 *关闭*,从未退休工作(见 :meth:`_retire_finished_jobs`). 此模块执行规则一次,适用于移动工作的任何应用程序视图的主要 GUI 执行路径。\n\n规则:\n\n* ``PipelineWorker.finished`` 发出 **在背景执行单位**. 一个关闭连接到它被召回在那里. 触摸一个 widget 从它是未定义的行为. 唯一的安全事物一个插槽在这个信号可以做的是重新发出一个 ``Signal`` 接收器是一个连接的方法的一个主要 GUI 执行路径对象 - Qt 然后安排呼叫到主要 GUI 运行路径。\n* **QObject 接收器要求。** 将 ``QThread.finished`` 连接到属于 GUI 线程的 Q Object 上的方法。 是不安全的。  PySide6 指定 QThread 本身为闭包的接收者。  :func:`spacr.qt.bridge.make_thread` 首先连接 ``thread.finished -> thread.deleteLater``。 插槽按连接顺序执行。 返回函数在闭合回调之前发布。  Qt 在销毁其接收器后丢弃排队的回调。 作业保持活动状态,``active_jobs()`` 永远不会达到零。\n* 强烈的引用,这两者 QThread 工作进程必须被拘留到 ``thread.finished``. A QThread 垃圾收集,同时执行堕胎过程。\n* 结果交付和线程引用清理彼此独立。:meth:`cancel` 会立即清空待交付记录；此后迟到的完成通知不会发出 ``job_finished`` 信号。已结束线程的清理扫描仍会独立释放线程引用。\n\n采用线程的任务通过 ``make_thread`` 提交，因此会出现在进程共享的 :func:`spacr.qt.bridge.registry` 中，并激活后台活动指示器（:mod:`spacr.qt.widgets.activity_spinner`）。内联模式绕过此注册，不改变运行器的忙碌状态。",
       "translation_source_blocks_sha256": [
         "dcdc4c7885888d598e472129494ded92b6ab9df1834c2ebf6ee2ba0c8a7d5f1c",
         "a80b94ff03948af31dc3e3a8d3ecb9c535b15696a1a8c59be7578c3ad8784223",
@@ -82235,120 +82235,126 @@
         "da0963d1bc57319ebdcf93a8b98919a0b2cac1cd514a258e088d764319a035e8",
         "881e8b01d32db2658fbcde0c99b69443140de833e47aa3495931c050f43cbbcb",
         "b86b36add38a7d26b9ed0067cbab9205d54f947de1cbea68b2546c8bfa9d0b10",
-        "4392e74130acfcd7fc08a0519d476eb323c6a70c063cc4fff11b5bcec9c23b50",
-        "fbdcfcd98766e3750c08ded64b482ebcf90086d13dd6b46410684fc35d46890c"
+        "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+        "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae"
       ]
     },
     "spacr.qt.job_runner.JobRunner": {
       "source_blocks_sha256": [
         "8910cf72a115abde1ce47627f46226b8d8f4891b352a6e6eb53290b3c0154698",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
         "b2d33c392b0cc478caf2e1a94221d54ad2ce7dae155ba96dee697eee7a63119e",
         "af9f2b99ce97cad3e0986be5f14829bf8e8b4f9755a0c70534d71237418a97b7",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "048b85c784cc96d879067fff66c027830096bc801c4849097d547a9be221c6a6",
+        "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "d5d9e078cc2c8b2ca8657098691a4a8b3aeeeb82e7367d8b6e9b5e79bf4444f1"
       ],
-      "source_sha256": "09fdc24666af59626c2fd54da3e8c8fcfd6830f3d29598359e2c92aee46c00cf",
-      "text": "运行呼叫器远离主 GUI 执行路径;将其结果传输到它。\n\n:param parent: 作为跑者的 Qt 父母,所以跑者死于它。\n:param threaded: ``False`` 运行每个工作,发出相同的信号在同一顺序,这样一个测试可以同步驱动筛选,而没有行为差异。\n:param app_key: 名称工作在处理会议记录中显示,因此在活动旋转器的工具提示中。\n:param user_visible: ``False`` 为家庭维护用户没有开始. 这样的工作仍然转动活动旋转器 - 某种东西是执行的 - 但从来没有声称处理会议旗帜. 使用查询器每两秒交付; 没有这个家庭闪光“<module>使用 - 执行”在一个模块应用程序视图是开放的。\n创建一个运行器为一个 widget 的背景工作。\n\n它记录了它存在的时刻,所以不能创建一个跑者,然后被停止排水浪费; 注册是弱的,所以它没有任何东西活着 Qt 否则会收集。\n\n:param parent: 所拥有的对象,或 ``None``。\n:param threaded: 在背景执行单元上运行工作. ``False`` 每个单元都以线运行,发出相同的信号在同一顺序。\n:param app_key: 如何在运行记录中命名这个跑者的作品。\n:param user_visible: 设置 ``False`` 用于家庭维护,所以 Home 的运行旗帜不会显示它作为处理会议。",
+      "source_sha256": "6e5f679c082897d95cb6376dc3948c809ece12d9de1ba17932d35ad8b73c288b",
+      "text": "运行呼叫器远离主 GUI 执行路径;将其结果传输到它。\n\n:param parent: 作为跑者的 Qt 父母,所以跑者死于它。\n:param threaded: ``False`` 在调用线程上内联执行任务及其处理函数。失败和完成信号均在返回前发出；不会注册工作对象，也不会改变忙碌状态。\n:param app_key: 名称工作在处理会议记录中显示,因此在活动旋转器的工具提示中。\n:param user_visible: ``False`` 为家庭维护用户没有开始. 这样的工作仍然转动活动旋转器 - 某种东西是执行的 - 但从来没有声称处理会议旗帜. 使用查询器每两秒交付; 没有这个家庭闪光“<module>使用 - 执行”在一个模块应用程序视图是开放的。\n创建一个运行器为一个 widget 的背景工作。\n\n它记录了它存在的时刻,所以不能创建一个跑者,然后被停止排水浪费; 注册是弱的,所以它没有任何东西活着 Qt 否则会收集。\n\n:param parent: 所拥有的对象,或 ``None``。\n:param threaded: 在工作线程上执行任务。``False`` 在调用线程上执行任务及其处理函数，不注册工作对象，也不改变忙碌状态。\n:param app_key: 如何在运行记录中命名这个跑者的作品。\n:param user_visible: 设置 ``False`` 用于家庭维护,所以 Home 的运行旗帜不会显示它作为处理会议。",
       "translation_source_blocks_sha256": [
         "3dfbd1c06cb216af429e8680cbf6669545d07a9215a67352e953085a691ca243",
         "721f53470bb7135c22feed3d801e457dd5a8e961b73c9849f3f5606a81ffbcdc",
-        "04bd825c112ff304164d1439bda830bfdfba717fc86b33c138b28923fd137989",
+        "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
         "3e5af743fb8ed6790be78403f93529d3dfb6ed4bf70068864d43019d94bea1f0",
         "91cf99fb87ff23d7b09bd341260c49cf3dc97d8cca8c34cbaa1812f447cc6cba",
         "9d2061b0457faecd58a5f68b4b1968f6e57e70849ee5365953fd379d764969b7",
         "c12cf1892555f5ce61ed5d6c2fa10c9f8012cb202eae36834a14b67bd23452bc",
         "d0f0348f244642b16b49f89426a38055a21ec0f9589155399a659cd06498dafb",
-        "5ebb543cc092cda186edc74c53232e85628ee9c1012ed2a577c2299c83e67b18",
+        "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
         "84269b2e13c0ad1f46dab3f6a3f690fb73fcd32bf00b60f6f1689498f8804c2e",
         "460cd539047c66bcf53f8057ca4d5e32272103c0b52b4eff441a7b3aa10691ea"
       ]
     },
     "spacr.qt.job_runner.JobRunner.active_jobs": {
       "source_blocks_sha256": [
-        "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ],
-      "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
-      "text": "有多少背景执行单位仍在跳下。",
+      "source_sha256": "d9dade8b109f8c2925c6e84b31b312d13a2d9978424cee210ca6f2cc3263c3a6",
+      "text": "统计受跟踪的工作对象引用，包括正在运行或尚未清理的任务。\n\n已结束的线程仍会计入数量，直到执行清理扫描。关闭操作会清零此计数，即使某个线程仍在别处保留。",
       "translation_source_blocks_sha256": [
-        "19c49fa615bddff20814365f7d0a7c265789612bd4a9a793342b2034ccef4f97"
+        "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+        "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463"
       ]
     },
     "spacr.qt.job_runner.JobRunner.cancel": {
       "source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "3cf69411195547dd50f165161356a8c44dd6043b2d8ab28129d9e3283ce37131"
+        "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24"
       ],
-      "source_sha256": "46c7a780a1ab844880b06ac514b56ca3a3d3751ceb567580db645dac5991a9e2",
-      "text": "放弃飞行中的所有结果。\n\n独立的执行路径被要求停止,然后被留下来退休;他们是*不*加入,因为加入会阻止主要的 GUI执行路线。",
+      "source_sha256": "f7a0bdc5abb5129e7fbf51833ad4084665d294f8d4b19a8df9a18a9e3cc26b5e",
+      "text": "放弃飞行中的所有结果。\n\n请求线程中断而不等待，然后立即清空待交付记录和忙碌状态。迟到的完成通知会被忽略，不会发出 ``job_finished`` 信号。工作对象引用保留到清理或关闭时；中断请求不会强制停止任务。工作对象的错误信号仍可能发出 ``job_failed``。",
       "translation_source_blocks_sha256": [
         "a29a7946e7d4aab82c4e274ead4f13c69dcdd3a4bfb22dc739f9f9e2751b4f52",
-        "d18f4c3ea2a3b2b84f11f95ab1b8273ee14292e47af4c5297a38e95c80d2f6ca"
+        "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb"
       ]
     },
     "spacr.qt.job_runner.JobRunner.is_busy": {
       "source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+        "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285"
       ],
-      "source_sha256": "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5",
-      "text": "True 虽然提交的工作尚未提供其结果。",
+      "source_sha256": "d44c1fd351b00059fe72a830f20b2a48604cd4f49afc6ffc54c3aa643dbd0202",
+      "text": "是否存在待处理的线程任务完成通知；取消操作会立即清除此状态。\n\n内联任务不会设置此标志。此处返回 ``False`` 后，被取消的工作对象仍可能在运行。",
       "translation_source_blocks_sha256": [
-        "b2068e076c140f412501b60d0679034f9773798afbddb53fdbec0f9ed16231c5"
+        "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+        "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b"
       ]
     },
     "spacr.qt.job_runner.JobRunner.pending_jobs": {
       "source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193"
       ],
-      "source_sha256": "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6",
-      "text": "到目前为止还没有得到多少结果。",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "text": "统计待处理的线程任务完成记录；取消操作会立即清空这些记录。",
       "translation_source_blocks_sha256": [
-        "85e4dffc4255b0ca4f09dc9866f92910f3fad4f0039d93ca835a2543c32428b6"
+        "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9"
       ]
     },
     "spacr.qt.job_runner.JobRunner.shutdown": {
       "source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "0816cfadd686e835c533d078a9ff374dbff4740a8ea48b59e01c3cefd988cb16"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e"
       ],
-      "source_sha256": "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
-      "text": "取消,然后等待很短暂,以免 QThread 延长 widget 的使用。\n\n打电话``closeEvent``。 Qt 堕胎过程,如果一个执行 QThread 被摧毁,所以在应用程序视图中间负载关闭时需要限制等待。 超过预算的独立执行路线以 :func:`spacr.qt.bridge.drain_thread` 停车而不是结束。",
+      "source_sha256": "c96601558323f911ac19bebf17e41546c66554ebe2c6d143ae4aecc5c5818928",
+      "text": "取消结果交付，然后在共用时间预算内等待，或保留仍在运行的线程。\n\n从 ``closeEvent`` 调用。如果正在运行的 QThread 被销毁，Qt 会中止整个进程，因此在界面于加载过程中关闭时需要有时限的等待。此运行器的所有线程共用 ``timeout_ms``。超过该时间的线程由 :func:`spacr.qt.bridge.drain_thread` 保留，而不是被强制终止。",
       "translation_source_blocks_sha256": [
-        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
-        "11328991d433b99f114901d8cb645f7101cc471cc31a5ceb0b8ec45eab24d7bb"
+        "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+        "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd"
       ]
     },
     "spacr.qt.job_runner.JobRunner.submit": {
       "source_blocks_sha256": [
-        "12af44ef7e5938ea0c5f618207afc691e4ef1e01bd1750b09b63daeb772e894c",
-        "3194492a23e4afb0b7c8b3e0e4039de6a49c779dd584968a70e518764dd48b10",
-        "c7c9aad31a6bd67766a3f96db07f69b27590a0ca5fb1cf05d8afcb7c346e59c5",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+        "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+        "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b"
       ],
-      "source_sha256": "e582622136df8f041658862e9493736bd484422b600c0cb5cc99ea658b6bef37",
-      "text": "运行 ``fn()`` 离开主 GUI 执行路径,然后 ``on_done(result)`` 在它上。\n\n:param fn: 一个可称之为零的论点。 它在背景执行单元上运行,并且 **must 不得触摸任何 widget** - 返回数据。\n:param on_done: 在主 GUI 执行路径上与 ``fn`` 的返回值进行呼叫。\n:returns: True 当工作开始时(或,未引用,跑步)。",
+      "source_sha256": "97f0e63400fd95006431fc04c4ea7d7587ff52d9e3cbb9178f42dcb3247783eb",
+      "text": "提交 ``fn()``，并将其成功结果交给 ``on_done``。\n\n:param fn: 不接受参数的可调用函数。在线程模式下，它在 GUI 线程之外运行，不得操作控件。内联模式则在调用线程上执行它。\n:param on_done: 处理 ``fn`` 返回值的可选函数；在线程模式下于 GUI 线程调用，否则内联调用。取消操作会丢弃线程任务尚未交付的结果。\n:returns: 在线程任务启动后、结果尚未确定时返回 ``True``。内联模式下，如果两个可调用函数中的任意一个抛出异常，则返回 ``False``；否则返回 ``True``。",
       "translation_source_blocks_sha256": [
-        "80f86748c347b4f721d1c7df2e1fa9a0f4e7d15ee7552173a3c3ba87af92741e",
-        "43343668990e9ecb58921a6a3c209b09103cdb176379655b000d5ed5f975dc8b",
-        "88f69f9e8ee7ba8aa0c01335e900d6bcfd921366fe686a34b264625106726951",
-        "bb793da9c20d576eb76619a9ef013eab7a425fa7769f3623c434dd63ea5fd4ef"
+        "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+        "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+        "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+        "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589"
       ]
     },
     "spacr.qt.job_runner.shutdown_all": {
       "source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ],
-      "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
-      "text": "停止每个直播 JobRunner. 返回有多少被要求。\n\n调用一次出路,在 Qt 开始破坏 widgets. 订单在这里更重要的是完整性:不能停在时间的跑者被停车为 `bridge.drain_thread` 而不是结束,所以这被限制。",
+      "source_sha256": "d370dad5b5a783bca409e24001d83745abf282841e4f0b4b9e9c742ba75156c6",
+      "text": "请求取消活动运行器的任务；返回正常完成的关闭调用数量。\n\n在 Qt 开始销毁控件前调用。在任何等待开始前，先向所有运行器请求取消；随后它们共用一个 ``timeout_ms`` 等待期限。这限制的是等待线程的时间，而不是应用退出的总时间。超过期限的线程由 :func:`spacr.qt.bridge.drain_thread` 保留，不会被强制终止。失败的关闭调用会被记录，不计入返回数量，也不会阻止处理其余运行器。\n\n:param timeout_ms: 所有运行器共用的总等待时间预算。",
       "translation_source_blocks_sha256": [
-        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
-        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+        "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+        "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+        "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5"
       ]
     },
     "spacr.qt.laptop_mode": {
