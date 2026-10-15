@@ -10,7 +10,8 @@ import pytest
 @pytest.mark.parametrize('language', ['sv', 'de', 'es', 'fr', 'pt', 'hi', 'ko', 'is', 'zh_CN'])
 def test_actual_metadata_widgets_use_all_ten_installed_translations(
         qapp, monkeypatch, tmp_path, language):
-    from spacr.qt import i18n
+    from PySide6.QtCore import QSettings
+    from spacr.qt import i18n, preferences
     from spacr.qt.screens import settings_model as model
     from spacr.regex_infer import _metadata_convention, _metadata_convention_example
 
@@ -21,8 +22,12 @@ def test_actual_metadata_widgets_use_all_ten_installed_translations(
     assert len(targets) == 10
     for record in records:
         assert record['source_sha256'] == hashlib.sha256(record['source'].encode()).hexdigest()
-    monkeypatch.setenv('SPACR_LANGUAGE', language)
-    monkeypatch.setattr(i18n, 'current_language', lambda: language)
+    settings = QSettings(str(tmp_path / 'preferences.ini'), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, '_settings', lambda: settings)
+    monkeypatch.delenv(i18n.ENV_LANGUAGE, raising=False)
+    preferences.set_language(language)
+    settings.sync()
+    assert preferences.get_language() == i18n.current_language() == language
     source = tmp_path / 'raw-field-original.tif'
     pixels = b'private opaque pixels; no decoder is used by these UI callbacks'
     source.write_bytes(pixels)
@@ -59,8 +64,14 @@ def test_actual_metadata_widgets_use_all_ten_installed_translations(
                        label=_metadata_convention(name)['label'], key=name)
             for name, count, _ in ranked)
         assert field.report.text() == expected
+        preferences.set_language('en')
+        settings.sync()
+        assert preferences.get_language() == i18n.current_language() == 'en'
         i18n.retranslate_widget_tree(field, 'en')
         assert field.report.text().startswith(model.RANKING_HEADING.format(total=4))
+        preferences.set_language(language)
+        settings.sync()
+        assert preferences.get_language() == i18n.current_language() == language
         i18n.retranslate_widget_tree(field, language)
         assert field.report.text() == expected
         assert ranked == original and field.get_value() == key
