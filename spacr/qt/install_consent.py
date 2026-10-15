@@ -349,3 +349,157 @@ def maybe_show_anonymous_report_notice(parent) -> Optional[QDialog]:
     notice.setAttribute(Qt.WA_DeleteOnClose, True)
     notice.show()
     return notice
+
+
+def _cleanup_dialog_rows(preview):
+    """Freeze the operation identity and display rows of a cleanup preview.
+
+    :param preview: Backend preview containing an operation ID and folders.
+    :returns: The operation ID and immutable folder/content tuples.
+    :raises ValueError: The preview cannot be displayed safely.
+    """
+    invalid = tr("The cleanup preview is invalid. All files will be kept.")
+    if not isinstance(preview, Mapping):
+        raise ValueError(invalid)
+    operation = preview.get("operation_id")
+    folders = preview.get("folders")
+    if not isinstance(operation, str) or not operation.strip() or not isinstance(folders, (list, tuple)):
+        raise ValueError(invalid)
+    rows = []
+    keys = set()
+    for row in folders:
+        if not isinstance(row, Mapping):
+            raise ValueError(invalid)
+        key, path, size = row.get("key"), row.get("path"), row.get("size_bytes")
+        contents = row.get("contents", ())
+        if (not isinstance(key, str) or not key or key in keys
+                or not isinstance(path, str) or not path
+                or (size is not None and (type(size) is not int or size < 0))
+                or not isinstance(contents, (list, tuple))):
+            raise ValueError(invalid)
+        keys.add(key)
+        entries = []
+        for entry in contents:
+            if not isinstance(entry, Mapping) or not isinstance(entry.get("name"), str):
+                raise ValueError(invalid)
+            entry_size = entry.get("size_bytes")
+            if entry_size is not None and (type(entry_size) is not int or entry_size < 0):
+                raise ValueError(invalid)
+            entries.append((entry["name"], entry_size))
+        eligible = (row.get("selectable") is True
+                    and key in {"news", "backgrounds", "sounds", "icons"})
+        rows.append((key, path, size, tuple(entries), eligible, str(row.get("reason") or "")))
+    return operation, tuple(rows)
+
+
+class _InstallerCleanupDialog(QDialog):
+    """Review actual cache folders without granting persistent cleanup access.
+
+    :param preview: Operation-bound backend preview; no discovery runs here.
+    :param parent: Parent application or installer window.
+    """
+
+    def __init__(self, preview, parent=None):
+        """Show paths, contents and sizes with every removal choice off."""
+        operation, rows = _cleanup_dialog_rows(preview)
+        super().__init__(parent)
+        from PySide6.QtWidgets import QAbstractItemView, QTreeWidget, QTreeWidgetItem
+
+        from .preferences import scaled_px
+
+        self._operation = operation
+        self._snapshot = preview.get("snapshot_id")
+        self._folder_choices = []
+        self.setObjectName("InstallerCleanupDialog")
+        self.setWindowTitle(tr("Optional cache cleanup"))
+        self.setMinimumWidth(scaled_px(640))
+        layout = QVBoxLayout(self)
+        explanation = QLabel(tr(
+            "Caches are kept by default. Select only the folders whose cached "
+            "contents you want to remove for this installation. Models, data "
+            "and preferences are kept."
+        ))
+        explanation.setWordWrap(True)
+        explanation.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        layout.addWidget(explanation)
+        tree = QTreeWidget()
+        tree.setObjectName("InstallerCleanupFolders")
+        tree.setHeaderLabels([tr("Cache"), tr("Folder"), tr("Size"), tr("Contents")])
+        tree.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        tree.setRootIsDecorated(True)
+        layout.addWidget(tree)
+        labels = {
+            "news": tr("News"), "backgrounds": tr("Backgrounds"),
+            "sounds": tr("Sounds"), "icons": tr("Icons"),
+            "models": tr("Models"), "backends": tr("Backend environments"),
+            "huggingface": tr("Hugging Face"), "torch": tr("Torch"),
+            "cellpose": tr("Cellpose"), "temporary": tr("Temporary files"),
+            "data": tr("Downloaded data"),
+        }
+        reasons = {
+            "protected": tr("Kept: protected data or application files"),
+            "unverified": tr("Kept: folder ownership is not verified"),
+            "active": tr("Kept: in use"),
+            "missing": tr("Folder not found"),
+            "uninspected": tr("Not inspected"),
+            "coordinator_unavailable": tr("Kept: spaCR cannot confirm these files are no longer in use."),
+        }
+        for key, path, size, contents, eligible, reason in rows:
+            item = QTreeWidgetItem([
+                labels.get(key, tr("Other files")), path,
+                tr("Not inspected") if size is None else f"{size:,} B",
+                reasons.get(reason, tr("Kept")) if not eligible else "",
+            ])
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(0, Qt.Unchecked)
+            for name, entry_size in contents:
+                child = QTreeWidgetItem([
+                    name, "", tr("Not inspected") if entry_size is None else f"{entry_size:,} B", "",
+                ])
+                item.addChild(child)
+            tree.addTopLevelItem(item)
+            item.setExpanded(True)
+            if not eligible:
+                item.setFlags(item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsUserCheckable)
+            self._folder_choices.append((key, item, eligible))
+        tree.resizeColumnToContents(0)
+        tree.resizeColumnToContents(2)
+        buttons = QDialogButtonBox()
+        self._remove = buttons.addButton(tr("Remove selected cache contents"), QDialogButtonBox.AcceptRole)
+        self._remove.setObjectName("InstallerCleanupRemove")
+        self._remove.setEnabled(False)
+        keep = buttons.addButton(tr("Keep all files"), QDialogButtonBox.RejectRole)
+        keep.setObjectName("InstallerCleanupKeep")
+        keep.setDefault(True)
+        self._remove.setAutoDefault(False)
+        self._remove.clicked.connect(self.accept)
+        keep.clicked.connect(self.reject)
+        tree.itemChanged.connect(self._selection_changed)
+        layout.addWidget(buttons)
+
+    def _selection_changed(self, *_args):
+        """Enable removal only when at least one eligible folder is checked."""
+        self._remove.setEnabled(bool(self.choices()["keys"]))
+
+    def choices(self):
+        """Return only the displayed operation ID and selected allowed keys."""
+        return {
+            "operation_id": self._operation,
+            "snapshot_id": self._snapshot,
+            "keys": [key for key, item, eligible in self._folder_choices
+                     if eligible and item.checkState(0) == Qt.Checked],
+        }
+
+
+def _choose_optional_cleanup(preview, parent=None):
+    """Collect a fresh GUI choice, returning no authorization when kept.
+
+    :param preview: Backend preview bound to the current install operation.
+    :param parent: Parent application or installer window.
+    :returns: Explicit selected keys and operation ID, or ``None``.
+    """
+    dialog = _InstallerCleanupDialog(preview, parent)
+    if dialog.exec() != QDialog.Accepted:
+        return None
+    choices = dialog.choices()
+    return choices if choices["keys"] else None

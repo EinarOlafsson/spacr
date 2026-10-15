@@ -1,0 +1,7 @@
+{
+  "exact_committed_fixtures": {
+    "tests/flowview_trace_state.py": "8efb29627f0fa0406f57b712ce02540714b7a96863d4714f8162a000dd73cfb0",
+    "tests/resource_capabilities.py": "b8a8a6f55bf1f805fb300cba1555ae59418fd4df1dc62e7eccbbed45db4b9ab7"
+  },
+  "reason": "All14 setup errors exposed missing normal autouse FlowView restoration helper. Also materialize explicitly imported resource capability helper, no conftest behavior changed."
+}

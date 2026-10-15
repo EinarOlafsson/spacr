@@ -1,0 +1,28 @@
+{
+  "source_commit": "b4e09b6407752818344c01ae40b312a1229fea7e",
+  "source_files": {
+    "spacr/install_cleanup.py": "06b4fd48abb45b9691a0721d4c08b3096d2fd89032ed6913ab66873a5022b32d",
+    "spacr/qt/install_consent.py": "0885af8ba73fbd3b2376b25f78077a01a708bebc587be86ac6c7a65ad822c77a"
+  },
+  "old_rendered_bodies_unchanged": 16,
+  "new_public_symbols": {
+    "spacr.install_cleanup.preview_optional_cleanup": "Inspect dedicated cache layouts without granting removal permission.\n\nOnly the default spaCR home and recognized cache entries are inspected.\nExternal, symlinked, unknown and protected locations remain unavailable.\nInspection is bounded and never follows links. Candidate selection does\nnot establish that another application instance is idle.\n\n:param operation_id: Fresh identity supplied by the current installer or\n    update coordinator, independent of saved privacy preferences.\n:param system: Optional machine adapter for isolated filesystem checks.\n:returns: An immutable operation-bound preview with actual paths, content\n    sizes and a snapshot identity. No file is changed.\n:raises ValueError: The operation identity is empty or invalid.",
+    "spacr.install_cleanup.apply_optional_cleanup": "Validate a fresh selection and refuse unsupported cleanup execution.\n\nThere is currently no cross-process coordinator lease proving that all\nspaCR instances have released these caches. Consequently this boundary\nnever deletes anything, even when the immutable preview is unchanged.\nSaved dictionaries and privacy choices cannot authorize later deletion.\n\n:param preview: Immutable result of :func:`preview_optional_cleanup`.\n:param choices: Current operation ID, snapshot ID and explicitly chosen\n    registered cache keys returned by the GUI.\n:param system: Optional isolated machine adapter used for reinspection.\n:returns: A failure result with a machine-readable reason; no file changes."
+  },
+  "private_visibility": {
+    "spacr.qt.install_consent._InstallerCleanupDialog": false,
+    "spacr.qt.install_consent._InstallerCleanupDialog.choices": false,
+    "spacr.qt.install_consent._choose_optional_cleanup": false,
+    "spacr.qt.install_consent._cleanup_dialog_rows": false
+  },
+  "scoped_normal_nested_inventory_count": 11,
+  "undocumented_enabled_helpers": [
+    "spacr.install_cleanup.preview_optional_cleanup.identity",
+    "spacr.install_cleanup.preview_optional_cleanup.open_directory",
+    "spacr.install_cleanup.preview_optional_cleanup.normalized",
+    "spacr.install_cleanup.preview_optional_cleanup.retained_path"
+  ],
+  "normal_entries_result": "FAIL as expected",
+  "normal_entries_error": "Enabled helper has no docstring: spacr.install_cleanup.preview_optional_cleanup.identity",
+  "boundary": "Two exact source-file snapshot only, using actual normal direct-render/helper functions. No full inventory, app imports, tests, generation, mutation of source-owner tree or validation bypass."
+}

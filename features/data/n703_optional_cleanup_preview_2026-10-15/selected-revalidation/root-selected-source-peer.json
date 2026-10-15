@@ -1,0 +1,18 @@
+{
+  "verdict": "APPROVED",
+  "reviewer": "Original Home root, independent source peer",
+  "patch_sha256": "add7ac712acf12f365305a696ff914913a4bf7251ca8549e0aba6c06d2559a5e",
+  "scope": "Only apply_optional_cleanup selected-root freshness comparison; unrelated cache changes no longer refuse unchanged selected cache",
+  "retained_contracts": [
+    "Original immutable operation/snapshot and explicit-key choice binding",
+    "Existing live application run guard",
+    "Derived selected path equality",
+    "Parent device/inode/mode identity",
+    "Exact selected-root full entry identities",
+    "All selected directories opened and verified before mutation",
+    "No broad recursive deletion or automatic restoration",
+    "Protected models/data/prefs remain ineligible",
+    "One-shot operation consumption"
+  ],
+  "evidence": "Owner reports actual unselected-cache regression1FAIL before;15nativePASS+oneactualnative-dialog integrationPASS after; no normal artifacts/publication claim"
+}

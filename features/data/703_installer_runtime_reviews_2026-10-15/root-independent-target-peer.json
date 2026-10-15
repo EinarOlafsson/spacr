@@ -1,0 +1,17 @@
+{
+  "verdict": "APPROVED",
+  "reviewer": "Original Home root; independent of draft author",
+  "scope": "333 exact Debian diagnostic/prompt targets, nine languages; technical semantic/source/placeholder review only, no native-speaker or native-install acceptance",
+  "source_sha256": "fb90b9181cd04629649fca72c2bcddacf20834d00809675a0dc5b5cc93ddb535",
+  "files": {
+    "de-runtime-review.json": "38f4c86dc6480be50670ed572a365aaf2a2b4b5c2a94e5c6214fc02e82382bb2",
+    "es-runtime-review.json": "03bf22c1fb00b7f05afdb13534140b63fb4a9af124500939233c16aa72ed02ce",
+    "fr-runtime-review.json": "d4477e6a7221db513c28527ff5626d850ed1d3a11e785d6824adc8185a080e3d",
+    "hi-runtime-review.json": "054e9c63c2c4ee9e96164d969619d753a11e79e6ab1d84eca64e99429b03249e",
+    "is-runtime-review.json": "566ade385fe311f20ff7fd5c8e5bf11b7465519ca81af4545b68c61b162c109a",
+    "ko-runtime-review.json": "c614c130078976eff1fcbc815fe986fe57d91706d651bfa1a4a38aeea286c1d6",
+    "pt-runtime-review.json": "b5fe9f4469765195de42bf1971072f1d1da7268f0bfe541873bd79fe5cd26406",
+    "sv-runtime-review.json": "e7621891303cb319c98512d3182c1a8bf4d41a7f025f9777393d2f18aba6c7c3",
+    "zh_CN-runtime-review.json": "f7aef9776c7cab71bcd59696b844ece0c2346de088cbf26af0916e839a770afb"
+  }
+}

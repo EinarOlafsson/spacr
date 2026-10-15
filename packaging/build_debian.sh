@@ -43,6 +43,9 @@ stage=build/debian-root
 rm -rf -- "$stage"
 mkdir -p "$stage"/{DEBIAN,opt/spacr,usr/bin,usr/share/applications,usr/share/icons/hicolor}
 cp -a dist/spacr/. "$stage/opt/spacr/"
+cat > "$stage/opt/spacr/update-protocol.json" <<'PROTOCOL'
+{"schema": 1, "adapter": "linux-deb-v1"}
+PROTOCOL
 cat > "$stage/usr/bin/spacr" <<'LAUNCHER'
 #!/bin/sh
 exec /opt/spacr/spacr "$@"

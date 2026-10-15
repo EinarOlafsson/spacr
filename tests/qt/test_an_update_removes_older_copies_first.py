@@ -86,7 +86,7 @@ class _Window:
         self.closed = True
 
 
-@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"])
+@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"])
 def frozen_window(qtbot, monkeypatch, tmp_path, request):
     from types import SimpleNamespace
     from PySide6.QtWidgets import QMainWindow
@@ -123,9 +123,11 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
             "owner": "S-1-5-21-1001", "user": "S-1-5-21-1001", "has_dacl": True,
             "rules": [{"sid": "S-1-5-21-1001", "type": 0, "rights": 0x1f01ff, "propagation": 0}]})
     online = request.param == "macos-online-uv-v1"
+    debian = request.param == "linux-deb-v1"
     record = install_cleanup.InstallRecord(
-        "environment" if pip else "installer", "venv" if pip else "macos-runtime" if online else "macos-app",
-        "windows" if windows else "linux" if pip else "macos", str(tmp_path / ("venv" if pip else "Application Support" if online else "spaCR.app")), running=True)
+        "environment" if pip else "installer", "venv" if pip else "linux-deb" if debian else "macos-runtime" if online else "macos-app",
+        "windows" if windows else "linux" if pip or debian else "macos", str(tmp_path / ("venv" if pip else "deb-runtime" if debian else "Application Support" if online else "spaCR.app")), running=True,
+        registrations=("deb:spacr",) if debian else ())
     monkeypatch.setattr(install_cleanup, "_macos_online_update_record",
                         lambda records: record if online else None)
     plan = {"adapter": request.param, "command": ["inert-helper"],
@@ -235,6 +237,11 @@ def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_wind
             assert "reinstall spaCR in its current environment" in message
             assert "reopen automatically" in message
             assert "remove" not in message
+        elif state.plan["adapter"] == "linux-deb-v1":
+            assert "graphical administrator authorization" in message
+            assert "previous package will be retained for rollback" in message
+            assert "data and caches will be kept" in message
+            assert "remove the older copies" not in message
         return qt_app.QMessageBox.Ok
 
     monkeypatch.setattr(qt_app.QMessageBox, "information", accept)
@@ -547,7 +554,7 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
         (_title, _marked(DIALOG_CAPTIONS[4].format(version="9.9.9")))]
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"], indirect=True)
 def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window
@@ -560,7 +567,7 @@ def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_win
     restart_state.discard()
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"], indirect=True)
 def test_pip_handoff_refuses_unsaved_state_without_closing_or_approval(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window

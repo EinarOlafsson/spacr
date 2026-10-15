@@ -1,0 +1,11 @@
+{
+  "before_commit": "b4e09b640",
+  "before_sha256": "06b4fd48abb45b9691a0721d4c08b3096d2fd89032ed6913ab66873a5022b32d",
+  "after_commit": "c676919ffc63bc541500003032e40edcca856e0d",
+  "after_sha256": "2e9dcd086681b3b7512db951a996a69bc0e8384a0950a5037341ef10f5d4568d",
+  "only_changed_top_level_ast_owner": [
+    "preview_optional_cleanup"
+  ],
+  "all_function_docstrings_unchanged": true,
+  "root_grant": "Exact sounds-only strip plus one native assertion authorized via collaboration 2026-10-15"
+}

@@ -1,0 +1,7 @@
+{
+  "baseline_app_sha256": "512630cb15f2c7f25d6b9d2cf5ef838c3374367ee373712ec45a4fab1c689561",
+  "proposed_app_sha256": "9becad89e17c4bd87a7aa573070dc9a9843789e97b5a137e5836a8f88520c7d5",
+  "patch_sha256": "9a9a061e24ba58d4ee7b37dff77b875a2a09cbc2da979aea6ee9fcab71872391",
+  "actual_app_untouched": true,
+  "scope": "Root-only patch; manual Help action, current-run guard closure in background, dedicated retained/drained worker, true thread-finished phase transition, keep/cancel no action, plain-text partial retained paths. No automatic installer routing."
+}
