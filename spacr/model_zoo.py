@@ -5034,8 +5034,7 @@ def scorecard_html(entry) -> str:
                           (("mAP50", "mAP50"), ("mAP50–95", "mAP50_95"))
                           if key in metrics)
     curated = bool(getattr(entry, "_curated_card", False))
-    display_rows = (SCORECARD_ROWS[:5] + _curated_scorecard_rows() + SCORECARD_ROWS[-3:]
-                    if curated else SCORECARD_ROWS + detector_rows)
+    display_rows = (_curated_scorecard_rows() if curated else SCORECARD_ROWS + detector_rows)
     if not any(key in metrics for _label, key in display_rows):
         return ""
     name = (getattr(entry, "display_name", "") or getattr(entry, "name", "")

@@ -1,7 +1,7 @@
 {
   "component": "F370 trusted builtin accepted-card propagation and six-row2px scorecard presentation",
   "base_public": "207bb4adea49932d0c857f19c408170a1e962d5f",
-  "source_sha256": "eb5ccaff562411a259602625ea9a528460f4e0beebbbc34933bdcdf90e7909e0",
+  "source_sha256": "fe4227e32aaaf2247c0f1a92248d744827d38eb4f636860e964792c8d42b146e",
   "source_files_changed": [
     "spacr/model_zoo.py"
   ],
@@ -32,5 +32,11 @@
     "runtime": "New tr captions exist onlyin private _curated_scorecard_rows and _curated_scorecard_lines; normal extractor currently allows only model_zoo._ensure_catalogue_model_file. Requestexact2owner whitelist addition, ordinary sourceownership/compactdedup/review/generation, no wholemodule expansion.",
     "api": "Four existing public docs changed: ModelEntry(class/privatefieldparam), ModelEntry.scorecard_lines, ModelEntry.describe, scorecard_html;3newprivate helper normal visibility/signatures must be proven by owner actualtool before addingrecords. No handgenerated files.",
     "remaining": "Normal API/runtime ownership/reviews/artifacts, actual GUIowner integration andscientific/native acceptance ofremainingmodels; versionedscorecardCSV/chart exports andexternalpublication separate; notwholeF370."
+  },
+  "six_row_followup": {
+    "passed": 9,
+    "seconds": 0.7,
+    "scope": "Only9affected builtin cases, each asserting exactly6metric rows+1header; existing generic controls untouched/not repeated",
+    "distinct_cases": "Overlaps original24, not33distinct"
   }
 }
