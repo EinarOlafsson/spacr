@@ -479,3 +479,21 @@ arrival delta needs normal regeneration; baseline9833 retained,1075added/
 151retired/30changed. Merged English-only guard explicitly languages0,
 settings1274/categories242/UI7912/modules77; prior full9audit remains bound
 to its tested premerge source/counts. No unchanged44/native rerun.
+
+
+2026-10-15 — private legacy CZI upload support prepared
+    The existing web input reader now uses explicit old-reader subblock scene
+    bounds through the existing desktop metadata helper. Global axes, integer
+    origins, bounds, shape and dtype are checked; the entire old-reader canvas
+    allocation must fit the byte budget before decoding. Current-reader pixels
+    and receipts retain their path. Scene/T/Z/channel choices preserve exact
+    pixels and input bytes without projection or inferred scene identity.
+    Evidence: features/data/698_legacy_czi_uploads_2026-10-15/.
+    Actual21current/synthetic cases pass. Exact oldczifile2019 real fixture
+    metadata/pixels pass2cases under an explicitly documented child import-
+    compatibility harness with zero JXR decoder calls, after a retained failed
+    old-package import. This is not stockPython3.9 or all-codec acceptance.
+    All25existing runtime caption identities remain unchanged. Source is private
+    pending independent final peer/publication; no fullCI, deployment, model
+    availability or biological acceptance is claimed. PDF provisioning remains
+    a separate CI-owner component.
