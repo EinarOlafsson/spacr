@@ -31,5 +31,15 @@
     "No new assay biological accuracy or expert curation acceptance",
     "Existing alpha gating unchanged",
     "No live/protected data or model training touched"
-  ]
+  ],
+  "final_merge": {
+    "incoming": "d3812e82ddec327abbd8ad1364476d1c9c57a8c2",
+    "source_helpers_AST_unchanged_from_owning_peer_review": true,
+    "exact_public_owner_tool_test_superset": true,
+    "normal_english_write_and_audit_exit": 0,
+    "normal_english_UI_count": 7729,
+    "preservation_proof": "english-merge-receipt.json",
+    "full_preservation_writer_actual_refusal_exit": 1,
+    "foreign_F549": "Actual full-writer refused missing two microscope_positions rows; all nine missing/stale lists retained in metadata proof. Own27reviewed targets current/exact; all unrelated current incoming/previous targets preserved. Global runtime/arrival release acceptance NOT claimed."
+  }
 }

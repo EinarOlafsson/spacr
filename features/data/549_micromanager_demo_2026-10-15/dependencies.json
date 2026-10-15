@@ -1,0 +1,522 @@
+{
+  "environment": {
+    "implementation_name": "cpython",
+    "implementation_version": "3.12.13",
+    "os_name": "posix",
+    "platform_machine": "x86_64",
+    "platform_release": "7.0.0-38-generic",
+    "platform_system": "Linux",
+    "platform_version": "#38~24.04.4-Ubuntu SMP PREEMPT_DYNAMIC Mon Sep 14 16:37:11 UTC 2",
+    "python_full_version": "3.12.13",
+    "platform_python_implementation": "CPython",
+    "python_version": "3.12",
+    "sys_platform": "linux"
+  },
+  "installed": [
+    {
+      "name": "pycromanager",
+      "version": "1.0.2",
+      "requested": true,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/94/4f/5c930f54b1e1cdbe00c8b81d435369ec16cc06fc886fff2dfbdf78079c35/pycromanager-1.0.2-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=9510fd6bc6dff071a81b2b1f5e94a7d175952e863ff69a5ddd7f86ed27247bc7",
+          "hashes": {
+            "sha256": "9510fd6bc6dff071a81b2b1f5e94a7d175952e863ff69a5ddd7f86ed27247bc7"
+          }
+        }
+      }
+    },
+    {
+      "name": "dask",
+      "version": "2026.8.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/f8/3a/4fc99e788bcfa1b3b3f21abf57da45898d807d007e7f6fd1c7300904eb70/dask-2026.8.0-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=ccc0c83a189b0398602435189771d28dad7b5773b6089bb8dce14ae732dd782c",
+          "hashes": {
+            "sha256": "ccc0c83a189b0398602435189771d28dad7b5773b6089bb8dce14ae732dd782c"
+          }
+        }
+      }
+    },
+    {
+      "name": "ndstorage",
+      "version": "0.1.18",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/d4/37/591619cc4ac05ebc0c95d1dbca5f52f13abddcf685573e3002314ec0d84e/ndstorage-0.1.18-py2.py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=e44f94c88f3deda9029c278e8be0a45b668ae413e94b40e9c114f05a8a0e6a31",
+          "hashes": {
+            "sha256": "e44f94c88f3deda9029c278e8be0a45b668ae413e94b40e9c114f05a8a0e6a31"
+          }
+        }
+      }
+    },
+    {
+      "name": "ome-types",
+      "version": "0.6.3",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/fc/6a/1000cad1700ab0af4d1b1d0a9c23c34badddb4f547c008bde2a6c61968f1/ome_types-0.6.3-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=ce9753ff351bbc534ee5c5038d3cf60b1e4c13d69ad2e6b5a5b75de2a52521a5",
+          "hashes": {
+            "sha256": "ce9753ff351bbc534ee5c5038d3cf60b1e4c13d69ad2e6b5a5b75de2a52521a5"
+          }
+        }
+      }
+    },
+    {
+      "name": "ome-writers",
+      "version": "0.3.2",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/6d/56/31042c2de13af74b7c41d62eda5d982caabb361e7326eaf12aa169e2da13/ome_writers-0.3.2-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=25036d860a7458da5039a601d6bc8e2256509661307dd806a308dc8311c619e1",
+          "hashes": {
+            "sha256": "25036d860a7458da5039a601d6bc8e2256509661307dd806a308dc8311c619e1"
+          }
+        }
+      }
+    },
+    {
+      "name": "psygnal",
+      "version": "0.16.1",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/2d/82/bcca742df84341658bc1051722cd346cd9a85f3bd87e83fc2b18c636e3a2/psygnal-0.16.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=c48c6d80a34653e65d0da6a15aac44a59a39e28851c15304c4a8dc7d213948b2",
+          "hashes": {
+            "sha256": "c48c6d80a34653e65d0da6a15aac44a59a39e28851c15304c4a8dc7d213948b2"
+          }
+        }
+      }
+    },
+    {
+      "name": "pymmcore",
+      "version": "12.5.1.75.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/b3/54/a72b37a40f129c78114e22330439dd6b0728296f142451e1667ae4a25440/pymmcore-12.5.1.75.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=4e447e073cbbc7e6191a553965a71ae55ef6db24774c387095770d61b7ba2fbb",
+          "hashes": {
+            "sha256": "4e447e073cbbc7e6191a553965a71ae55ef6db24774c387095770d61b7ba2fbb"
+          }
+        }
+      }
+    },
+    {
+      "name": "typer",
+      "version": "0.27.3",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/07/ea/2e31b67051e91a133189e9c000c222502ddc6969856416de0d095de4c0b0/typer-0.27.3-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=e50022f28b82a86313e54501317a1db64bf8f8d036ff8cfe5ca7e47675454aff",
+          "hashes": {
+            "sha256": "e50022f28b82a86313e54501317a1db64bf8f8d036ff8cfe5ca7e47675454aff"
+          }
+        }
+      }
+    },
+    {
+      "name": "useq-schema",
+      "version": "0.9.2",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/ac/38/30b313b0b83cc86a343f6ebabcca4d210107513b026d48ae8aa489571b52/useq_schema-0.9.2-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=dbecaebca4898df454a7ec221d9bf265d41ee285d80f0285fb1188d8ec1ecb95",
+          "hashes": {
+            "sha256": "dbecaebca4898df454a7ec221d9bf265d41ee285d80f0285fb1188d8ec1ecb95"
+          }
+        }
+      }
+    },
+    {
+      "name": "docstring-inheritance",
+      "version": "3.0.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/28/76/b42a11e16de9a8cecd950cbf8a92da20dcaf54648aa08b97f15233709f28/docstring_inheritance-3.0.0-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=1fbd9b1c8570b63e6670880504adb9c63fc1c8376725a312cf62b5d07728664d",
+          "hashes": {
+            "sha256": "1fbd9b1c8570b63e6670880504adb9c63fc1c8376725a312cf62b5d07728664d"
+          }
+        }
+      }
+    },
+    {
+      "name": "mmpycorex",
+      "version": "0.3.16",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/d5/11/f2219a36e14c0821ad239b976228e8f53bb7718d03ec9aeb3102a5cdaa8c/mmpycorex-0.3.16-py2.py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=b6b2856200c7774052b48175110b4a23cc53620d53c1254df6c9b5cf47bafa49",
+          "hashes": {
+            "sha256": "b6b2856200c7774052b48175110b4a23cc53620d53c1254df6c9b5cf47bafa49"
+          }
+        }
+      }
+    },
+    {
+      "name": "pyjavaz",
+      "version": "1.2.8",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/e4/68/61fdab2ee531f29b0425129d1ff602949fbe052cc949b64a0d4eaac6bd15/pyjavaz-1.2.8-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=182d0b6799003dfe24acc2115b8abe79987108573ec8c6a45bff741d8e8112bb",
+          "hashes": {
+            "sha256": "182d0b6799003dfe24acc2115b8abe79987108573ec8c6a45bff741d8e8112bb"
+          }
+        }
+      }
+    },
+    {
+      "name": "pymmcore-plus",
+      "version": "0.18.1",
+      "requested": true,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/32/e3/edbc204df0a709b9e294f000a2e4c64a162c92c4cf0125c7eeeb21395518/pymmcore_plus-0.18.1-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=d27060781a575fd88e41fa2be042991e3e593f5dfaca537645db1d47aa8f892f",
+          "hashes": {
+            "sha256": "d27060781a575fd88e41fa2be042991e3e593f5dfaca537645db1d47aa8f892f"
+          }
+        }
+      }
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.5",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/3e/30/e900b21425a860e195f32e37657aa1f7c7f2b1bfb26f03ca209b90933c06/annotated_doc-0.0.5-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=117bac03a25ede5df5440e855b32d556049ca169ead221505badf432fed4b101",
+          "hashes": {
+            "sha256": "117bac03a25ede5df5440e855b32d556049ca169ead221505badf432fed4b101"
+          }
+        }
+      }
+    },
+    {
+      "name": "partd",
+      "version": "1.4.2",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/71/e7/40fb618334dcdf7c5a316c0e7343c5cd82d3d866edc100d98e29bc945ecd/partd-1.4.2-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=978e4ac767ec4ba5b86c6eaa52e5a2a3bc748a2ca839e8cc798f1cc6ce6efb0f",
+          "hashes": {
+            "sha256": "978e4ac767ec4ba5b86c6eaa52e5a2a3bc748a2ca839e8cc798f1cc6ce6efb0f"
+          }
+        }
+      }
+    },
+    {
+      "name": "pydantic-extra-types",
+      "version": "2.11.1",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/17/c1/3226e6d7f5a4f736f38ac11a6fbb262d701889802595cdb0f53a885ac2e0/pydantic_extra_types-2.11.1-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=1722ea2bddae5628ace25f2aa685b69978ef533123e5638cfbddb999e0100ec1",
+          "hashes": {
+            "sha256": "1722ea2bddae5628ace25f2aa685b69978ef533123e5638cfbddb999e0100ec1"
+          }
+        }
+      }
+    },
+    {
+      "name": "shellingham",
+      "version": "1.5.4",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686",
+          "hashes": {
+            "sha256": "7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686"
+          }
+        }
+      }
+    },
+    {
+      "name": "tensorstore",
+      "version": "0.1.85",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/78/49/c311f02b82299c6d79e18c7012c8b816141c54721253cbcba1c7c59550d4/tensorstore-0.1.85-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=de27f2d6e063050f4283d1fdfe41e6c0ebc6ceacaab10ca2f7e9ecbf35221962",
+          "hashes": {
+            "sha256": "de27f2d6e063050f4283d1fdfe41e6c0ebc6ceacaab10ca2f7e9ecbf35221962"
+          }
+        }
+      }
+    },
+    {
+      "name": "toolz",
+      "version": "1.2.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/db/17/4c8beb6c8c4176c6bf143bfd7e1e4dd6719b00ced90738c7ac471b71c1df/toolz-1.2.0-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=890f820b1cb8152785aaf9386d8707770110809035800985ca65cb24ce1120ef",
+          "hashes": {
+            "sha256": "890f820b1cb8152785aaf9386d8707770110809035800985ca65cb24ce1120ef"
+          }
+        }
+      }
+    },
+    {
+      "name": "xsdata",
+      "version": "26.2",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/d3/92/f0edcbc2f895ecea14a68e492b24c157625e251279a94b172a6b263290e7/xsdata-26.2-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=85a591a4405d903416afbd4a917e8dda8ea44641a3e66d72134bc2a31b3c16b0",
+          "hashes": {
+            "sha256": "85a591a4405d903416afbd4a917e8dda8ea44641a3e66d72134bc2a31b3c16b0"
+          }
+        }
+      }
+    },
+    {
+      "name": "yaozarrs",
+      "version": "0.3.3",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/39/dc/cceb2705d37412c8abb36c717938c620522d5fa401cdbb89398f51ef8a18/yaozarrs-0.3.3-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=553794c8cbd1433ddbfcac6724575b6f513326b47ba25c6452df1effc24f990d",
+          "hashes": {
+            "sha256": "553794c8cbd1433ddbfcac6724575b6f513326b47ba25c6452df1effc24f990d"
+          }
+        }
+      }
+    },
+    {
+      "name": "wget",
+      "version": "3.2",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/47/6a/62e288da7bcda82b935ff0c6cfe542970f04e29c756b0e147251b2fb251f/wget-3.2.zip",
+        "archive_info": {
+          "hash": "sha256=35e630eca2aa50ce998b9b1a127bb26b30dfee573702782aa982f875e3f16061",
+          "hashes": {
+            "sha256": "35e630eca2aa50ce998b9b1a127bb26b30dfee573702782aa982f875e3f16061"
+          }
+        }
+      }
+    },
+    {
+      "name": "ml_dtypes",
+      "version": "0.6.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/c7/f9/7d76c1eae866f5d4636401b31b6d6dd90e4b4ced1fa7cfdfcca9c60e4bd3/ml_dtypes-0.6.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=3b4a480aa8fd54a1805b8ac10f3f91763926a74f73c0c364c10f9231854f4170",
+          "hashes": {
+            "sha256": "3b4a480aa8fd54a1805b8ac10f3f91763926a74f73c0c364c10f9231854f4170"
+          }
+        }
+      }
+    },
+    {
+      "name": "locket",
+      "version": "1.0.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/db/bc/83e112abc66cd466c6b83f99118035867cecd41802f8d044638aa78a106e/locket-1.0.0-py2.py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=b6c819a722f7b6bd955b80781788e4a66a55628b858d347536b7e81325a3a5e3",
+          "hashes": {
+            "sha256": "b6c819a722f7b6bd955b80781788e4a66a55628b858d347536b7e81325a3a5e3"
+          }
+        }
+      }
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.14.5",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/da/e4/aa172eb534b7f02f1f8ff1c3213347eaf3cf218db91a727c6863c22f1035/aiohttp-3.14.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=20f085697d7e911f1f73c43ed03fafbed1e7121797e2eb5428efa80398060584",
+          "hashes": {
+            "sha256": "20f085697d7e911f1f73c43ed03fafbed1e7121797e2eb5428efa80398060584"
+          }
+        }
+      }
+    },
+    {
+      "name": "s3fs",
+      "version": "2026.7.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/98/cc/bcde19a37952ecc58e7d9d67ecaa048e1e21b17d014ce0863a6a6101e606/s3fs-2026.7.0-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=64edf3c01ebffab1eec38ff9c09eefbf86a3db14c87d248f795da0e7b801d698",
+          "hashes": {
+            "sha256": "64edf3c01ebffab1eec38ff9c09eefbf86a3db14c87d248f795da0e7b801d698"
+          }
+        }
+      }
+    },
+    {
+      "name": "aiobotocore",
+      "version": "3.9.2",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/09/ab/c8f982c4dfaab49200e31820a4ffe6275356f7dcaaa1024735d8f8b4e048/aiobotocore-3.9.2-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=363b4892423b272eb84afbb58000da0be6ccd0cf8a68b98438c957d05b841efc",
+          "hashes": {
+            "sha256": "363b4892423b272eb84afbb58000da0be6ccd0cf8a68b98438c957d05b841efc"
+          }
+        }
+      }
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.7.1",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/71/43/1947f06babed6b3f1d7f38b0c767f52df66bfb2bc10b468c4a7de9eceff2/aiohappyeyeballs-2.7.1-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=9243213661e29250eb41368e5daa826fc017156c3b8a11440826b2e3ed376472",
+          "hashes": {
+            "sha256": "9243213661e29250eb41368e5daa826fc017156c3b8a11440826b2e3ed376472"
+          }
+        }
+      }
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/fb/76/641ae371508676492379f16e2fa48f4e2c11741bd63c48be4b12a6b09cba/aiosignal-1.4.0-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=053243f8b92b990551949e63930a839ff0cf0b0ebbe0597b0f3fb19e1a0fe82e",
+          "hashes": {
+            "sha256": "053243f8b92b990551949e63930a839ff0cf0b0ebbe0597b0f3fb19e1a0fe82e"
+          }
+        }
+      }
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/6a/bd/d91c5e39f490a49df14320f4e8c80161cfcce09f1e2cde1edd16a551abb3/frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=494a5952b1c597ba44e0e78113a7266e656b9794eec897b19ead706bd7074383",
+          "hashes": {
+            "sha256": "494a5952b1c597ba44e0e78113a7266e656b9794eec897b19ead706bd7074383"
+          }
+        }
+      }
+    },
+    {
+      "name": "multidict",
+      "version": "6.9.1",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/ed/5b/db08419c1e1f7c9d60cfd2787b2b517d7ae4ebbda8281b48a33eb5141467/multidict-6.9.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=976fd7689d69ec78d67d31d38d396d8adb562f7e8368279f76aed4aa451fa06d",
+          "hashes": {
+            "sha256": "976fd7689d69ec78d67d31d38d396d8adb562f7e8368279f76aed4aa451fa06d"
+          }
+        }
+      }
+    },
+    {
+      "name": "propcache",
+      "version": "0.5.4",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/85/9f/83a07b6ec0e043c050cfdd35fb0cf1b7897b91d554d6eea293740309afe7/propcache-0.5.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=2814ecd8e818f487bee4b0f921bc4d1c176cc5fc71ac0f072d0fa67eda4ac14b",
+          "hashes": {
+            "sha256": "2814ecd8e818f487bee4b0f921bc4d1c176cc5fc71ac0f072d0fa67eda4ac14b"
+          }
+        }
+      }
+    },
+    {
+      "name": "yarl",
+      "version": "1.25.1",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/bc/7b/ca212cbe170ac8b96e45317ecbcf9c3c3ecf0cdec98d5b088a9c4088929b/yarl-1.25.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hash": "sha256=c6f117789d22dce188e5754e8bc65b7e6ebf8cb73963b9fa761f672a5883769d",
+          "hashes": {
+            "sha256": "c6f117789d22dce188e5754e8bc65b7e6ebf8cb73963b9fa761f672a5883769d"
+          }
+        }
+      }
+    },
+    {
+      "name": "aioitertools",
+      "version": "0.13.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/10/a1/510b0a7fadc6f43a6ce50152e69dbd86415240835868bb0bd9b5b88b1e06/aioitertools-0.13.0-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=0be0292b856f08dfac90e31f4739432f4cb6d7520ab9eb73e143f4f2fa5259be",
+          "hashes": {
+            "sha256": "0be0292b856f08dfac90e31f4739432f4cb6d7520ab9eb73e143f4f2fa5259be"
+          }
+        }
+      }
+    },
+    {
+      "name": "botocore",
+      "version": "1.43.106",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/a8/eb/c51d3b54dfaa9267a687359d946dc2a1ca6a27fb4d381773e59b7bd72bf4/botocore-1.43.106-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=c1fb8818f9957cb5037f73db34ac1a12ba43562e31d6e7f9cb7e5fc64e1dba78",
+          "hashes": {
+            "sha256": "c1fb8818f9957cb5037f73db34ac1a12ba43562e31d6e7f9cb7e5fc64e1dba78"
+          }
+        }
+      }
+    },
+    {
+      "name": "jmespath",
+      "version": "1.1.0",
+      "requested": false,
+      "download_info": {
+        "url": "https://files.pythonhosted.org/packages/14/2f/967ba146e6d58cf6a652da73885f52fc68001525b4197effc174321d70b4/jmespath-1.1.0-py3-none-any.whl",
+        "archive_info": {
+          "hash": "sha256=a5663118de4908c91729bea0acadca56526eb2698e83de10cd116ae0f4e97c64",
+          "hashes": {
+            "sha256": "a5663118de4908c91729bea0acadca56526eb2698e83de10cd116ae0f4e97c64"
+          }
+        }
+      }
+    }
+  ],
+  "source_report_sha256": "796a3f31679cbb756d95c8b92bfe13052a46cf0a04a796c273accb6741a0e9d6"
+}

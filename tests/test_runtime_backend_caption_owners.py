@@ -16,7 +16,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "settings.py", "object.py", "remote_execution.py",
-        "attribution.py", "measure.py", "object_classifier.py",
+        "attribution.py", "measure.py", "object_classifier.py", "core.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -200,3 +200,26 @@ def {owner}():
     return "Internal non-translated detail."
 """
     assert extract_backend_sources(filename, source) == set()
+
+
+def test_feedback_position_validation_captions_reach_the_runtime_inventory(extract_backend_sources):
+    captions = {
+        'microscope_positions {path}: field {field} has a non-finite or invalid {axis} coordinate.',
+        'microscope_positions {path} gives conflicting stage positions for field {field}.',
+    }
+    source = 'def _microscope_positions():\n' + ''.join(
+        f'    tr({caption!r})\n' for caption in sorted(captions))
+    assert extract_backend_sources('core.py', source) == captions
+
+
+def test_feedback_position_scope_excludes_unrelated_core_diagnostics(extract_backend_sources):
+    assert extract_backend_sources('core.py', """
+tr('An unrelated module caption.')
+def unrelated_watch_function():
+    return tr('An unrelated watch caption.')
+class Other:
+    def _microscope_positions(self):
+        return tr('An unrelated method caption.')
+def _microscope_positions():
+    raise ValueError('An existing untranslated internal diagnostic.')
+""") == set()

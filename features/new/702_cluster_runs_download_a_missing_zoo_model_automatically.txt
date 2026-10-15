@@ -518,3 +518,20 @@ pass49 in2.45seconds under2G. Known wrong-local-byte refusals remain intact.
 The POSIX native expansion cases explicitly skip other OSes; no native cluster,
 scientific model loading, network/GPU/fullCI or whole-item acceptance is claimed.
 Evidence: data/702_unavailable_origin_home_2026-10-15/receipt.json.
+
+2026-10-15 — direct Cellpose apply/test APIs honor verified model pins:
+The public apply_cellpose_model/test_cellpose_model constructors now use the
+shared exact pinned-cellpose helper, or the existing legacy base resolver.
+Only the derived effective argument reaches CellposeModel; actual saved CSV/
+JSON settings retain the original request and pin. Once the constructor
+accepts an actual checkpoint file, the active journal records its effective
+path/fullSHA256. Local hash mismatch, incompatible pin kind and disabled
+acquisition refuse before construction. Existing explicit vendor stock alias
+semantics are retained, without new aliases or fuzzy catalogue substitution.
+Native baseline12FAIL/2PASS7.59seconds;18new cases plus strict existing apply/
+training/registered-consumer tests pass37 in10.30seconds under6G/shared lock.
+Actual16px TIFFs, lazy dataset reads, private local/cache/file mirrors and
+native settings/journal writes are exercised; constructor/evaluation are
+recording stand-ins. No actual model/inference/GPU/network/fullCI or scientific
+parity acceptance. These direct APIs remain outside CLI registration; parent
+702 stays partial. Evidence: data/702_direct_cellpose_api_pins_2026-10-15/receipt.json.

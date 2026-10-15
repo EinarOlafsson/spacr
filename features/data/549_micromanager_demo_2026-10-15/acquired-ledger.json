@@ -1,0 +1,72 @@
+{
+ "fields": {
+  "demo_A01": {
+   "events": [
+    {
+     "acquired": 1792038760.058815,
+     "files": [
+      "demo_A01_e000_t000.tif",
+      "demo_A01_e000_t001.tif"
+     ],
+     "id": "demo_A01_e000",
+     "object": "2",
+     "pixel": [
+      45.5,
+      43.5
+     ],
+     "stage": [
+      1006.0,
+      1993.0,
+      7.5
+     ],
+     "status": "acquired"
+    },
+    {
+     "acquired": 1792038760.0750127,
+     "files": [
+      "demo_A01_e001_t000.tif",
+      "demo_A01_e001_t001.tif"
+     ],
+     "id": "demo_A01_e001",
+     "object": "3",
+     "pixel": [
+      17.5,
+      17.5
+     ],
+     "stage": [
+      993.0,
+      2007.0,
+      7.5
+     ],
+     "status": "acquired"
+    }
+   ],
+   "finished": 1
+  },
+  "demo_missing": {
+   "events": [
+    {
+     "id": "demo_missing_e000",
+     "object": "2",
+     "pixel": [
+      45.5,
+      43.5
+     ],
+     "stage": null,
+     "status": "no_position"
+    },
+    {
+     "id": "demo_missing_e001",
+     "object": "3",
+     "pixel": [
+      17.5,
+      17.5
+     ],
+     "stage": null,
+     "status": "no_position"
+    }
+   ],
+   "finished": 2
+  }
+ }
+}

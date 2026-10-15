@@ -1,0 +1,47 @@
+{
+  "scope": "Installer engine same-root concurrency exclusion and private NSIS helper staging; not full Windows wrapper serialization",
+  "source_sha256": {
+    "packaging/online/install_spacr_unix.sh": "b635c331505fdb92629652ec1182cc7c1bba40fdd740d3859b263d397d8d83ce",
+    "packaging/online/install_spacr_windows.ps1": "3348debcf95b6eff35a9851bf4135f4f651a6d85be395823db50532ac2194500",
+    "packaging/online/spacr_online_installer.nsi": "44599aec34b79541ee96b88da64c0b1751eec8610bdf5697f29ed889cd32ed6a",
+    "tests/test_online_installer_transaction_lease_703.py": "1bb5674f3accb0657869792d6ff5af038533086ee206cfbe137e9937dede60a4",
+    "tests/test_installer_metadata_rollback_703.py": "63108c28a78deecb7dc7c51380459899cd0404ec7f46edf1adc6eb4bc9f79add"
+  },
+  "distinct_owning_pass": 93,
+  "runs": {
+    "initial_new_contracts": {
+      "count": 11,
+      "exit": 0
+    },
+    "lease_sidecar_existing_installers": {
+      "count": 92,
+      "exit": 0
+    },
+    "final_nsis_and_existing_installers": {
+      "count": 81,
+      "exit": 0
+    }
+  },
+  "actual_linux_subprocess_proof": [
+    "same-root concurrent installer refuses before mutation",
+    "root/path alias uses same lease",
+    "private update lease coordinates with existing transaction engine",
+    "rollback preserves exclusivity until original runtime restored",
+    "other roots can progress independently",
+    "existing/interrupted leases and unknown evidence untouched",
+    "cleanup refuses to remove a lease whose device/inode changed",
+    "damaged recovery retains both leases"
+  ],
+  "windows_evidence": "Source contracts only; PowerShell and makensis are unavailable on this Linux host",
+  "existing_gui_control_flow": "Parent returns before backend lease acquisition; no lease bypass through child marker; unchanged stub-GUI tests reused",
+  "caption_scope": "Reuses already_running from existing ten installer language files; no new user caption or review",
+  "remaining": [
+    "Native Windows PowerShell and NSIS execution and filesystem handle behavior",
+    "NSIS root icon/status writes before the engine and registration/shortcut/uninstaller writes after it are not covered by the engine lease; complete wrapper handoff remains open",
+    "Cross-root retirement of other old application copies must coordinate active transactions",
+    "Native macOS stat/lease and installer acceptance",
+    "Explicit interrupted-lease recovery UX; no stale PID auto-steal is implemented",
+    "Global caption arrival N700 explicit-review hold, full CI and parent N703 acceptance"
+  ],
+  "no_live_installer_user_data_network_package_or_gpu_operation": true
+}

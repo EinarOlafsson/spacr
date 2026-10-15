@@ -362,3 +362,10 @@ Receipt: data/470_536_current_runtime_2026-10-15/. Scientific/legacy/annotation-
 time/native limitations above remain. Foreign N700 global caption/full-audit
 failures and later F549 owner runtime refresh are separate; no global green
 CI, release acceptance, gate waiver or whole-feature completion is claimed.
+Final ordinary merge retains exact public owner extractor/test superset.
+Normal English-only generator resolves generated conflict and passes current
+English audit (7,729 UI); all27 own target/hash pairs and every unrelated
+source-current target are preserved. Full writer actually refuses two later
+foreign F549 microscope_positions targets; raw failure and per-locale missing
+lists are retained. This source publication leaves global caption/release
+acceptance open; unchanged121 are not needlessly rerun.
