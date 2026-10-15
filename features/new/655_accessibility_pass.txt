@@ -285,3 +285,23 @@ WHAT IS LEFT
   existing mouse/paint/provenance cases also pass. No native Windows/macOS,
   audible reader, whole-application keyboard or tutorial acceptance is claimed.
   Proof: data/655_montage_keyboard_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B Clear figures keyboard-focus marker repaired
+  The clear control already supported Tab, Enter/Space and accessible text;
+  its actual resting and focused renderings were nevertheless identical.
+  A two-pixel border now uses the current Highlight palette role while the
+  control owns focus. Focus entry/departure repaint it, and its painter ends
+  in finally. Existing red text, clear action, mouse-release cancellation and
+  shared click flash remain unchanged. No new captions or rendered public
+  API arrival: the overrides belong to private _ClearFiguresLabel.
+  Baseline: 3 failing and 4 passing cases. Final owning cohort: 14 passed in
+  5.03 s; actual command wall 8.31 s, peak RSS 654440 KiB, no swap. Qt 6.12,
+  Linux offscreen, GPU hidden, 2G hard cap and one computational thread, under
+  the coordinator's measured light-run exception. Existing 650 ms flash tests
+  were preserved. First-candidate failure is retained: a new test incorrectly
+  expected its synthetic palette override to survive Qt stylesheet repolish;
+  the corrected check verifies retained focus and the current palette border.
+  Workflow keyboard selectors and the native figure-list routes were already
+  implemented and left unchanged. This closes a concrete visible-focus gap,
+  not broader native, audible/human, macOS/Windows or tutorial acceptance.
+  Proof: data/655_clear_control_focus_2026-10-15/receipt.json.
