@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical code review",
+  "source_commit": "b7df416dac19aa95d71ad15964325cf85ed6949e",
+  "source_file": {
+    "path": "spacr/qt/widgets/measurement_compare_dialog.py",
+    "sha256": "96209de2cadc2df2f71bcecc8bbf63a6a686ea2e5e3e5c101b090055fc45b836"
+  },
+  "original_source_commit": "c02ece7107c15bee407f86c044ca6683e2715356",
+  "reviewed_behavior": [
+    "workspace_state serializes stable itemData identifiers, raw control text and plain typed selections; data frames, figures and workers are excluded.",
+    "None and an explicit empty list retain distinct meanings for both well selection roles.",
+    "apply_workspace_state validates fields independently before cancellation or mutation and blocks each relevant control signal.",
+    "An active owned join is cancelled through the existing JobRunner generation protocol, so a late result cannot replace restored state.",
+    "No refresh, build, join, file read or graph computation is started while applying state; existing comparison and canvas are preserved.",
+    "Pending measurement, secondary measurement and class choices survive absent columns/classes and are consumed when offered by a later explicit refresh/data update.",
+    "Explicitly restored empty guides survive later data updates instead of being replaced by opening top-hit defaults.",
+    "Final activated handlers remove only the selected pending choice, including reselecting the current index; they do not introduce redraw work.",
+    "Existing closeEvent still shuts down the owned join runner before delegating."
+  ],
+  "owner_tests_read": [
+    "roundtrip plus next actual graph frame/spec comparison",
+    "None versus empty well selection cross-product",
+    "delayed joined column availability",
+    "manual different-index and same-index activation supersession",
+    "actual blocked JobRunner join cancellation and late-result rejection"
+  ],
+  "owner_final_test_output": {
+    "path": "features/data/180_compare_workspace_state_2026-10-15/activation-owning-output.txt",
+    "sha256": "a39ca1920db3415675c51031a1ed5e7aac15ec138798fa99a6a0e745808aae2f",
+    "result": "43 passed in 7.48s"
+  },
+  "limitations": [
+    "No additional panel-only test run by this peer; montage integration acceptance is recorded separately.",
+    "This is a source review of the panel adapter, not a whole workspace or physical GUI acceptance claim.",
+    "The existing constructor performs its usual initial computation; montage restoration avoids creating the panel, and lazy creation occurs only on a later explicit action."
+  ],
+  "result": "PASS: final panel source supports the coordinated montage restoration protocol."
+}

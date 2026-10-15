@@ -701,6 +701,7 @@ SETTING_API_TARGETS = {
     'plot_nr': ('spacr.submodules', 'analyze_recruitment', True),
     'plot_outlines': ('spacr.core', 'generate_image_umap', True),
     'plot_points': ('spacr.core', 'generate_image_umap', True),
+    'png_channel_mapping': ('spacr.cli', '', False),
     'png_dims': ('spacr.measure', 'field_table_settings', True),
     'png_size': ('spacr.annotation_dataset', 'generate_annotation_dataset', True),
     'png_type': ('spacr.crop_source', 'select_crops', True),

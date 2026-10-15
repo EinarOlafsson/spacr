@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "source_commits": [
+    "c02ece7107c15bee407f86c044ca6683e2715356",
+    "b7df416dac19aa95d71ad15964325cf85ed6949e",
+    "e0d54c365f0",
+    "c5e7b630762"
+  ],
+  "published_base": "caa5f882f84b064133c55a45dfe99acee90ddbf8",
+  "normal_collector": "Four normal targeted rendered bodies/fourteen changed or new blocks match frozen source-owner drafts and exact final source hashes; two montage before bodies match published English and two panel keys are absent from all ten prior catalogs. Exact owned source-file hashes verified. Unrelated published English preserved without claiming its global source currency. No full collector replay.",
+  "review_count": 126,
+  "source_docs_sha256": {
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de"
+  },
+  "source_and_context_gates": "PASS all 126 source checks, 126 context checks and126 actual inline parser checks; normal reviewed_api_block_translations passes for nine complete selected document sets.",
+  "retired_review_rows": [
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-008.json",
+      "record_index": 530,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-007.json",
+      "record_index": 122,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-010.json",
+      "record_index": 404,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-006.json",
+      "record_index": 543,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-007.json",
+      "record_index": 214,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-005.json",
+      "record_index": 431,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-010.json",
+      "record_index": 122,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-009.json",
+      "record_index": 59,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-007.json",
+      "record_index": 171,
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+    }
+  ],
+  "unrelated_review_rows": "Exact preservation asserted. Retired source/translation content retained.",
+  "scope": "Review inputs; normal catalog generation separate.",
+  "review_claim": "AI technical review; independent peer review requested, no native-speaker claim."
+}

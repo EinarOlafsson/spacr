@@ -1569,6 +1569,11 @@ def _under_todays_names(settings: Dict[str, Any],
     _fold_toxoplasma(settings)
     _fold_gradient_accumulation(settings)
     _fold_object_bounds(settings)
+    legacy_png_dims = settings.get('png_dims')
+    if ('png_channel_mapping' not in settings
+            and isinstance(legacy_png_dims, (list, tuple)) and legacy_png_dims):
+        from .crops import png_dims_to_channel_mapping
+        settings['png_channel_mapping'] = png_dims_to_channel_mapping(legacy_png_dims)
     if metadata is not None:
         settings["model_metadata"] = metadata
         try:

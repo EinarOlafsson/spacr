@@ -404,3 +404,36 @@ elsewhere in `settings.py`; four have no mention at all and may be renames.
 Handed to the other session in 325 rather than guessed at.
 
 VERIFIED 2026-10-04: corrected_manders gone from settings; spatial_measurements and object_distances default True.
+
+2026-10-15 — REAL LEGACY CROP COLOUR DEFAULT-OVERLAY REPAIR
+The old four renamed/typo/retired setting questions remain classified above;
+manders_thresholds remains in activation-map correlation, not Measure. A
+current compatibility defect remained in supported png_dims: the Measure
+factory/genericCLI file route inserted the modern default mapping ahead of
+the old list, so an existing file choosing [1,3,0] rendered RGB[90,40,10]
+in a native four-plane fixture instead of the promised legacy[10,180,40].
+
+The two existing default-entry seams now invoke the existing converter only
+for a nonempty legacy list/tuple when the current mapping key is absent.
+Explicit current mappings, including typedNone, and None/empty fallback stay
+unchanged. CSVliteralNone remains a string under the unchanged file reader;
+a provided current rawstring still raises the existing CropError. No broad
+loader/schema/alias change was made. Native grayscale/two/three-plane cases
+and realCSV/JSON roundtrips exercise the actual mapping builder; all source
+files remain untouched by the tests. Source signatures/prose/captions and
+the conversion algorithm are unchanged. Detailed initial failures, fixture
+correction and finite necessary followups are preserved in
+features/data/337_legacy_crop_defaults_2026-10-15/. Normal derived-settings
+artifacts and coherent publication follow this source component.
+
+2026-10-15 — COHERENT LEGACY CROP REPAIR ACCEPTANCE
+The normal consumer map and settings-flow generators passed. Normal Help
+first correctly refused two missing published F561 callback API entries;
+that exact refusal and independent-owner dependency proof are retained.
+After adopting the owner's coherent English/nine-locale fix at76d35e70313,
+normal Help generation passed and all nine required generated-current/API
+consumer-link checks passed (49.24s). Both repaired function ASTs remain
+identical to the approved tested source59e64803cea; no captions, loader
+coercion, scientific conversion algorithm or other old aliases were added.
+Raw initial failures and precise necessary final followups remain recorded;
+this does not claim a final whole44 rerun or54 distinct checks.

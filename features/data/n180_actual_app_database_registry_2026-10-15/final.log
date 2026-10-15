@@ -1,0 +1,12 @@
+.....F..........................................                         [100%]
+=================================== FAILURES ===================================
+_____ test_only_matching_namespaced_settings_move_and_skip_reports_survive _____
+tests/test_workspace_restore_order_180.py:53: in test_only_matching_namespaced_settings_move_and_skip_reports_survive
+    assert calls == ["a:settings", "a:databases", "a:extra:settings", "a:extra:panel",
+E   AssertionError: assert ['a0', 'a:set...ettings', ...] == ['a:settings'...ettings', ...]
+E     
+E     At index 0 diff: 'a0' != 'a:settings'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/test_workspace_restore_order_180.py::test_only_matching_namespaced_settings_move_and_skip_reports_survive
+1 failed, 47 passed in 13.05s

@@ -45068,7 +45068,7 @@
         "dd31301bdc07c284eae8f725e299a96ff0ca5e7c8a0f003c812dc0a133bcb7f1",
         "cae14cefb5743bb6962c0fe8f3d848a71d484930c25046dea3be2090c8d67002",
         "a7948d1062a0abfe9cd288fb5e66d040da9e0560635618531df9f20eee28f443",
-        "48321534ca659883643fb0f2c10fd5f0a779ea53db3813940feeb79caa0db496",
+        "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
         "94633bed6ef19f94ecc8c7f134dd33260a49e4c6a91309a2f0a076fac79e7bad",
         "b21f658726f68547c19a46febcf0fc292b88394cf70ded5e56e53ebd76e1ef7d",
         "aac35525bca9e24d0f64af2c85ac7423674cdb050cc407a19c1e5536e1239039",
@@ -45080,8 +45080,8 @@
         "c41a1b40f8225e36b90fe4d28c077957984b5fa4440ad8cc6a5067d117f9ec68",
         "79a2f8fcf8af66887f74fbff41aa32e912aae726897e1fcfe083a5b9fd590651"
       ],
-      "source_sha256": "fe54c1425a484a18a7b3b97cd94f639b21117829439a358dfd3c791a3683f766",
-      "text": "Add one app to the registry. The seam a new module registers through.\n\nCall it at import time from the module that owns the app::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\nThe first four arguments put a tile on Home and a row in the sidebar.\nThe keyword arguments after ``stage`` are what make that tile a\nworking app: they are the app's strings, given ONCE here, and fanned\nout into the tables that used to need a hand-edit each — see\n:data:`APP_META`.\n\n:param key: stable app id. Load-bearing — ``bridge``, ``cli``,\n    ``validate``, the drag-and-drop handlers, ``settings_model`` and\n    saved user state all key off it, so it is chosen once and never\n    renamed. Must be unique across built-ins and plugins.\n:param name: display name; the sidebar row, tile and menu entry.\n:param desc: one-line summary; the tooltip and status tip.\n:param section: one of :data:`SECTION_ORDER`. A section with no apps\n    has no tab, so registering the first app into a new section is\n    what makes that section appear.\n:param factory: optional zero-argument callable returning the app's\n    ``QWidget`` screen. It may declare ``app_key`` and/or ``host``\n    keyword parameters — ``host`` is the :class:`MainWindow`, for a\n    screen that has signals to connect — and is given whichever of\n    the two it accepts. Omit it and the app gets the generic\n    settings-driven ``AppScreen``, like every pipeline module.\n:param stage: optional :data:`STAGES` member. Omitted means stable,\n    which is also what deleting the entry later means.\n:param title: header shown at the top of the app's own screen.\n    Defaults to ``name``; give it only when the screen wants the\n    longer form (\"Illumination Correction\" over a tile that reads\n    \"Illumination\"). Reaches ``app_screen.APP_TITLES``.\n:param intro: the paragraph beside that header — what the module\n    does, in a sentence or two. Defaults to ``desc``. Reaches\n    ``app_screen.APP_INTROS``.\n:param cli_note: for an app with NO headless path: one sentence\n    saying so and what to do instead. Reaches\n    ``cli.INTERACTIVE_ONLY``, which is what ``spacr-run <key>``\n    prints instead of \"unknown module\". Mutually exclusive with\n    ``entry`` in spirit — an app is one or the other.\n:param api_module: dotted-or-slashed module path under the generated\n    API docs (\"qt/layer_viewer\"), for the ⓘ link beside the settings.\n    Reaches ``settings_model._APP_API_MODULE``.\n:param entry: ``\"module:function\"`` of the callable the Run button\n    runs. Resolved lazily by :func:`registered_entry` and consulted\n    by :func:`spacr.qt.bridge.resolve_pipeline_entry`; without it the\n    Run button answers \"Not runnable\".\n:param defaults_module: the module whose import calls\n    :func:`spacr.settings.register_defaults` for this key.\n    ``settings_model.resolve_default_settings`` imports it before\n    asking whether the key has registered defaults — otherwise a\n    module that registers its settings at import has no settings\n    panel until something else happens to import it, and the app\n    opens on an empty form. Imported on demand, so registering an\n    app costs no numpy/pandas/torch at startup.\n:param translations: the display ``name`` in the nine non-English\n    UI languages, in :data:`spacr.qt.i18n.LANGUAGES` order. Reaches\n    ``i18n._ROWS`` and its catalogs.\n:returns: the row that was appended, so a caller can keep it.\n:raises ValueError: on a duplicate key, an unknown section, an\n    unknown stage or an empty name/description.\n:raises TypeError: if ``factory`` is not callable."
+      "source_sha256": "7968939def60679893a349be2b8fe85aead57b0ae3894d8a8d8c7a24e9348448",
+      "text": "Add one app to the registry. The seam a new module registers through.\n\nCall it at import time from the module that owns the app::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\nThe first four arguments put a tile on Home and a row in the sidebar.\nThe keyword arguments after ``stage`` are what make that tile a\nworking app: they are the app's strings, given ONCE here, and fanned\nout into the tables that used to need a hand-edit each — see\n:data:`APP_META`.\n\n:param key: stable app id. Load-bearing — ``bridge``, ``cli``,\n    ``validate``, the drag-and-drop handlers, ``settings_model`` and\n    saved user state all key off it, so it is chosen once and never\n    renamed. Must be unique across built-ins and plugins.\n:param name: display name; the sidebar row, tile and menu entry.\n:param desc: one-line summary; the tooltip and status tip.\n:param section: one of :data:`SECTION_ORDER`. A section with no apps\n    has no tab, so registering the first app into a new section is\n    what makes that section appear.\n:param factory: optional zero-argument callable returning the app's\n    ``QWidget`` screen. It may declare ``app_key`` and/or ``host``\n    keyword parameters — ``host`` is the :class:`MainWindow`, for a\n    screen that has signals to connect — and is given whichever of\n    the two it accepts. Omit it and the app gets the generic\n    settings-driven ``AppScreen``, like every pipeline module.\n:param stage: optional :data:`STAGES` member. If omitted, no explicit\n    stage entry is written. Missing entries read as stable until\n    :func:`spacr.qt.maturity.apply` assigns alpha to unassessed apps\n    without a declaration. Already affirmed stable apps remain stable.\n    Omitting or deleting an entry is not a stability assessment.\n:param title: header shown at the top of the app's own screen.\n    Defaults to ``name``; give it only when the screen wants the\n    longer form (\"Illumination Correction\" over a tile that reads\n    \"Illumination\"). Reaches ``app_screen.APP_TITLES``.\n:param intro: the paragraph beside that header — what the module\n    does, in a sentence or two. Defaults to ``desc``. Reaches\n    ``app_screen.APP_INTROS``.\n:param cli_note: for an app with NO headless path: one sentence\n    saying so and what to do instead. Reaches\n    ``cli.INTERACTIVE_ONLY``, which is what ``spacr-run <key>``\n    prints instead of \"unknown module\". Mutually exclusive with\n    ``entry`` in spirit — an app is one or the other.\n:param api_module: dotted-or-slashed module path under the generated\n    API docs (\"qt/layer_viewer\"), for the ⓘ link beside the settings.\n    Reaches ``settings_model._APP_API_MODULE``.\n:param entry: ``\"module:function\"`` of the callable the Run button\n    runs. Resolved lazily by :func:`registered_entry` and consulted\n    by :func:`spacr.qt.bridge.resolve_pipeline_entry`; without it the\n    Run button answers \"Not runnable\".\n:param defaults_module: the module whose import calls\n    :func:`spacr.settings.register_defaults` for this key.\n    ``settings_model.resolve_default_settings`` imports it before\n    asking whether the key has registered defaults — otherwise a\n    module that registers its settings at import has no settings\n    panel until something else happens to import it, and the app\n    opens on an empty form. Imported on demand, so registering an\n    app costs no numpy/pandas/torch at startup.\n:param translations: the display ``name`` in the nine non-English\n    UI languages, in :data:`spacr.qt.i18n.LANGUAGES` order. Reaches\n    ``i18n._ROWS`` and its catalogs.\n:returns: the row that was appended, so a caller can keep it.\n:raises ValueError: on a duplicate key, an unknown section, an\n    unknown stage or an empty name/description.\n:raises TypeError: if ``factory`` is not callable."
     },
     "spacr.qt.app.registered_entry": {
       "source_blocks_sha256": [
@@ -63856,6 +63856,20 @@
       "source_sha256": "0615d08c4ae670b2f273364bb116726caf2607921167711964a18835d3ad87b3",
       "text": "Read the pages on a worker thread.\n\n``emit`` is a bound signal and the only thing here that reaches\nthe GUI: Qt queues it onto the receiving thread, so the progress\nline moves without this function ever touching a widget."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done": {
+      "source_blocks_sha256": [
+        "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b"
+      ],
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "text": "Accept only a completion belonging to this screen's current run."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress": {
+      "source_blocks_sha256": [
+        "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b"
+      ],
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "text": "Relay backend reports without touching widgets on the worker thread."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
       "source_blocks_sha256": [
         "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"
@@ -80062,13 +80076,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": {
       "source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "d09a2eabf33060e5d34076f3faa2411e1627391fc74987a1fa7c4d3708f65756",
-        "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ],
-      "source_sha256": "715c194898c02d1a2ee9d47e6be34494ad9bba7ba34437d07b05d25c30092de2",
-      "text": "Put the montage's settings back. Does not rebuild it.\n\nReturns whether anything was applied.\n\nThe montage is not rebuilt. Loading the crops is the slow half -- the\nfirst montage of a run reads images off disk for seconds -- and\nstarting it on restore would freeze a window that was just opened. The\nsettings are put back and the button is available.\n\n:param state: mapping as saved with the workspace; its\n    ``picture_settings``, ``widgets``, ``picture_mode`` and\n    ``coefficient`` entries are each applied when present, and a\n    non-dict applies nothing."
+      "source_sha256": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de",
+      "text": "Restore montage and comparison controls without computing images.\n\nRecognized state cancels the pending montage and queued coefficient\nloads. Control signals are blocked while settings are restored, so\nan existing montage does not automatically reload or redraw. Crop\nchoices are applied for the next explicit build; its existing well\ntabs retain their own captions and images.\n\nComparison controls are passed to an existing panel without a\nrefresh. If no panel exists, they remain plain data until an explicit\nmontage build or Compare action creates it. Restoring never creates\na comparison panel, starts a measurement join, or computes a graph.\n\n:param state: saved mapping; recognized entries are\n    ``picture_settings``, ``widgets``, ``picture_mode``,\n    ``coefficient`` and ``comparison``. A non-dict applies nothing.\n:returns: whether recognized state was applied or retained for later."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
       "source_blocks_sha256": [
@@ -80374,12 +80389,12 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": {
       "source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "6ad18ddc1bd8de9c2a6f32c4ad7b9c62fa226b7fd1441e13a2c0ea12476ef997",
-        "4bb274b436dc6d049141d30590c02c2c22da203b326508a285f0f65881ac71bf"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ],
-      "source_sha256": "58037117eea4f795e35862f031a042e398fb810bf926dc8b890631c1d3fea0e4",
-      "text": "The montage the session had open, as data.\n\nThe settings and the choice are saved, not the pixels. A montage is\ntens of megabytes of crops that the run's own images regenerate\nexactly; what cannot be regenerated is which coefficient was on screen,\nhow the cells were picked, and how they were drawn. Those are what go\nin.\n\nThe picked groups are saved as a record, not as an input --\n`picked_groups()` is what the picker chose given these settings, and\nrestoring the settings reproduces it. They are saved so a reader of a\nsaved run can see which cells the result rested on without re-running\nanything."
+      "source_sha256": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+      "text": "Return montage choices and any saved comparison controls as data.\n\nSettings and the selected coefficient are saved, not crop pixels.\nPicked groups record which cells the current montage selected; they\nare not replayed as input to the picker. Rebuilding uses the current\nrun files, settings and picker implementation.\n\nThe comparison contributes its controls when its panel already\nexists. Otherwise a comparison restored before the panel was built\nis retained as plain data. Collecting state never creates the panel\nor computes a comparison."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.write_scores_into_the_databases": {
       "source_blocks_sha256": [
@@ -100100,6 +100115,16 @@
       "source_sha256": "d8408087556cfadada162777292a45b00937da0adc8093f80a43cd491b8d7759",
       "text": "Compare measurements between selected cell groups and a reference.\nBuild the comparison panel: the pickers, the plot and the statistics.\n\nThe panel opens with the top hits selected: the top significant\nguides or genes and the wells that carry them, which the user can\nchange. The regression's results table gives the hits\n(:func:`spacr.well_scope._top_hits`); without one, the guides of the\nmontage's own groups are the selection. The population box then\nstarts on \"gRNAs + other datapoints in selected wells\", the derived\nwells are shown under the controls, and \"gRNAs…\" / \"selected wells…\"\nchange either. Nothing to select starts on \"All datapoints\", so a\npanel with no guides still draws what it drew before.\n\nThe join runs off the GUI thread. It reads every object table out of\nevery attached database and joins them onto the crop rows -- measured at\n3.2 s for one plate's 553 objects, so a four-plate screen of 60,000\nwould block the window for minutes.\n\nThe well selection is held as ``None`` for \"all of them\" rather than as\nthe full list: a well that appears after a re-run should be included,\nand a stored full list would silently exclude it.\n\n:param objects: the object rows for the montage and the contrasts.\n:param groups: selected group names mapped to object-index values.\n:param parent: parent widget, or ``None``.\n:param settings: run settings, saved alongside exported results.\n:param databases: measurement databases available for widening the\n    object table.\n:param counts: per-well counts, used to resolve control wells.\n:param results: the regression's coefficient table, as a frame or a\n    CSV path, for the opening selection."
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+        "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ],
+      "source_sha256": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+      "text": "Restore comparison controls without computing or drawing a graph.\n\nRecognized, correctly typed entries are applied independently. Unknown\nfixed choices are ignored; measurement and class identifiers that are\nnot yet offered remain pending until an ordinary refresh or data update.\nSelected guide and well identifiers are retained without reading files.\nAn active join owned by this panel is cancelled so its late result cannot\nreplace the restored state. No new join, file read or inference starts.\nThe cached comparison and figure remain unchanged until the next refresh.\n\n:param state: mapping returned by :meth:`workspace_state`; non-dicts and\n    mappings without usable entries leave the panel unchanged.\n:returns: ``True`` if at least one usable entry was applied, even if its\n    value was already selected; otherwise ``False``."
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.cancel_the_join": {
       "source_blocks_sha256": [
         "cf9f10aceb8044cae462c47596405599c2dde1ac3fd27942dbe7c048df82db1a",
@@ -100236,6 +100261,14 @@
       ],
       "source_sha256": "7f02b806db918d605eabdf9aba1cff71373a21cba067ac7e580a5c1ae48a47d1",
       "text": "Return annotated wells in first-occurrence order.\n\nReturns\n-------\ntuple of str\n    Unique wells represented by the current selected groups."
+    },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": {
+      "source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9"
+      ],
+      "source_sha256": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+      "text": "Return JSON-compatible comparison choices without collecting data.\n\nCombo values are stable identifiers, not translated labels. Pending\nmeasurement and class choices remain saved until a later refresh can\noffer them. Well selections preserve ``None`` for all annotated wells\nor guide-derived scope wells, respectively; an empty list selects none.\nFrames, figures, database paths and running jobs are not included."
     },
     "spacr.qt.widgets.measurement_scan_panel": {
       "source_blocks_sha256": [
@@ -108692,12 +108725,12 @@
         "dee68aea6a999302631ad6b8faa7e53095f9af5a8abacc2f052997e2e10e4fea",
         "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "ae9f0d0b6c52cf8d6913acd7d66d55c5924a0e7e700988e90a21c490b2e668a5",
+        "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ],
-      "source_sha256": "4980a914264421b7abdf0aa255a417749b71f9bd0d320808564b2eeca5455749",
-      "text": "Column/value editor for excluding rows from UMAP input data.\n\nEverything this widget offers the user comes out of a measurements\ndatabase, and both reads used to happen on the GUI thread:\n\n* ``discover_columns`` opens every database the ``src`` setting resolves\n  to and runs ``sqlite_master`` plus a ``PRAGMA table_info`` per table.\n  It is driven from ``SettingsWidgets._refresh_contextual_widgets``, so\n  it runs every time ``src`` or ``tables`` is set.\n* ``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per\n  ``(database, table)`` pair the chosen column appears in — and the\n  columns a user actually excludes on (``plateID``, ``columnID``,\n  ``rowID``) hold a handful of distinct values across the whole table,\n  so the LIMIT is never reached and SQLite scans every row. Measured on\n  a 200 000-row × 8-table measurements.db with a warm page cache:\n  **196 ms per column**, and the column combo is editable, so\n  ``currentTextChanged`` fires on every keystroke. Eight quick edits\n  froze the window for **894 ms** in one unbroken block; ``set_source``\n  itself cost 183 ms and a single deliberate column choice 220 ms.\n  Threaded, the same three are 29 ms, 5 ms and 2 ms.\n\nSo both go through a :class:`~spacr.qt.job_runner.JobRunner` owned by the\neditor, and the value reads are additionally debounced. Three rules hold\nthis together:\n\n* ``_value_cache`` and ``_column_sources`` are GUI-thread state. The\n  worker returns plain data and the completion handler — which Qt runs on\n  the GUI thread — is the only thing that writes them.\n* Schema discovery and value reads get **separate** runners.\n  :meth:`JobRunner.cancel` works by generation, so one runner cannot\n  supersede a value read without also dropping the schema read that the\n  value read depends on.\n* A debounce timer coalesces keystrokes, and :meth:`JobRunner.cancel`\n  drops whatever an earlier keystroke started, so the last edit wins\n  rather than the slowest read."
+      "source_sha256": "12beaaf3559ea4f5022a57a1affcbcec527169a4bedfa6aef986ac5d326c24cd",
+      "text": "Column/value editor for excluding rows from UMAP input data.\n\nEverything this widget offers the user comes out of a measurements\ndatabase, and both reads used to happen on the GUI thread:\n\n* ``discover_columns`` opens every database the ``src`` setting resolves\n  to and runs ``sqlite_master`` plus a ``PRAGMA table_info`` per table.\n  It is driven from ``SettingsWidgets._refresh_contextual_widgets``, so\n  it runs every time ``src`` or ``tables`` is set.\n* ``distinct_values`` runs one ``SELECT DISTINCT … LIMIT 501`` per\n  ``(database, table)`` pair the chosen column appears in — and the\n  columns a user actually excludes on (``plateID``, ``columnID``,\n  ``rowID``) hold a handful of distinct values across the whole table,\n  so the LIMIT is never reached and SQLite scans every row. Measured on\n  a 200 000-row × 8-table measurements.db with a warm page cache:\n  **196 ms per column**, and the column combo is editable, so\n  ``currentTextChanged`` fires on every keystroke. Eight quick edits\n  froze the window for **894 ms** in one unbroken block; ``set_source``\n  itself cost 183 ms and a single deliberate column choice 220 ms.\n  Threaded, the same three are 29 ms, 5 ms and 2 ms.\n\nSo both go through a :class:`~spacr.qt.job_runner.JobRunner` owned by the\neditor, and the value reads are additionally debounced. Three rules hold\nthis together:\n\n* ``_value_cache`` and ``_column_sources`` are GUI-thread state. Workers\n  return plain data; GUI-thread completion handlers install it. Changing\n  the source clears the value cache before the replacement schema arrives.\n* Schema discovery and value reads get **separate** runners.\n  :meth:`JobRunner.cancel` works by generation, so one runner cannot\n  supersede a value read without also dropping the schema read that the\n  value read depends on.\n* A debounce timer coalesces keystrokes, and :meth:`JobRunner.cancel`\n  drops whatever an earlier keystroke started, so the last edit wins\n  rather than the slowest read."
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor": {
       "source_blocks_sha256": [
@@ -108706,7 +108739,7 @@
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -108714,8 +108747,8 @@
         "18cd0699afc14d577b431789ed60bd0bc69fb62e88adc61c17ef29bcfe884d26",
         "570b81780e0fcdf2a8eb49aaebfa81cb75adbc38ca9c60173525ca6ea4b6f529"
       ],
-      "source_sha256": "133cbed42dbdf3da07e43c60179b1c70b5c11a3884647d535aff5012d89b1296",
-      "text": "Add one or more UMAP row exclusions by choosing columns and values.\n\nThe database reads behind the two dropdowns run on worker threads;\nsee the module docstring for the measured reason. Nothing about the\nwidget's public contract changed — :meth:`set_source` still takes a\nsource and returns, it just no longer waits for sqlite before it does.\n\n:param value: initial rules, in any form\n    :func:`spacr.row_exclusions.normalize_row_exclusions` accepts.\n:param parent: Qt parent.\n:param threaded: ``False`` runs both reads inline, in the same order,\n    emitting the same signals — a caller that must have the values\n    the instant :meth:`set_source` returns can ask for it. Keyword\n    only, and defaulted, because the shipped call site\n    (``SettingsWidgets._widget_for``) passes ``value`` and ``parent``\n    and nothing else.\n:param debounce_ms: how long a column edit waits before it is read.\n    ``0`` reads on the next event-loop turn without coalescing.\nBuild the row-exclusion editor.\n\nTwo runners, not one: ``cancel`` abandons everything a runner has in\nflight, and superseding a keystroke's value read must not also abandon\nthe schema read that says which databases the column even lives in.\n\n:param value: the exclusions to start with.\n:param parent: parent widget, or ``None``.\n:param threaded: read on worker threads. Set ``False`` in tests so a\n    read finishes before it returns.\n:param debounce_ms: how long typing settles before a value read is run."
+      "source_sha256": "1551325b7b603a67afa8cb725be736dc56d2dac2594e61a7a282a8e1501e55c9",
+      "text": "Add one or more UMAP row exclusions by choosing columns and values.\n\nThe database reads behind the two dropdowns run on worker threads;\nsee the module docstring for the measured reason. Nothing about the\nwidget's public contract changed — :meth:`set_source` still takes a\nsource and returns, it just no longer waits for sqlite before it does.\n\n:param value: initial rules, in any form\n    :func:`spacr.row_exclusions.normalize_row_exclusions` accepts.\n:param parent: Qt parent.\n:param threaded: ``False`` runs both reads inline, in the same order,\n    emitting the same signals — a caller that must have the values\n    the instant :meth:`set_source` returns can ask for it. Keyword\n    only, and defaulted, because the shipped call site\n    (``SettingsWidgets._widget_for``) passes ``value`` and ``parent``\n    and nothing else.\n:param debounce_ms: how long a column edit waits before it is read.\n    ``0`` schedules the read for a later event-loop turn; edits before\n    that timer fires can still be coalesced.\nBuild the row-exclusion editor.\n\nTwo runners, not one: ``cancel`` abandons everything a runner has in\nflight, and superseding a keystroke's value read must not also abandon\nthe schema read that says which databases the column even lives in.\n\n:param value: the exclusions to start with.\n:param parent: parent widget, or ``None``.\n:param threaded: read on worker threads. Set ``False`` in tests so a\n    read finishes before it returns.\n:param debounce_ms: how long typing settles before a value read is run."
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.active_jobs": {
       "source_blocks_sha256": [
@@ -108726,13 +108759,13 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent": {
       "source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "62152c11aa07004be9f8d65639f44b9b1fddb980f3999ed34ce73e2f6e26c25f",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ],
-      "source_sha256": "7d62184d9caf47e150cd529672547c0c3e2afeb7b3a604750e5a20aa4973eed8",
-      "text": "Closing mid-read must not leave a thread behind.\n\nQt aborts the process when a running QThread is destroyed, and a\nworker that delivers into a widget on its way out is a\nuse-after-free. ``JobRunner.shutdown`` handles both.\n\nNot the only line of defence, deliberately, because it is not\nalways reached: this editor is a child inside a settings panel,\nand navigating away from that panel destroys it without any\nclose event. What covers that case is the runner itself — the\nQThreads are unparented and retire themselves, and\n``JobRunner._relay`` catches the ``RuntimeError`` PySide6 raises\nwhen a worker settles after its runner's C++ half has gone.\n\n:param event: the close event; passed on unchanged to the base class\n    after the workers are shut down."
+      "source_sha256": "4156e48885a50bacfcaec9ec3c4cd1e896b5cb262a1e11f86dea008cde33c441",
+      "text": "Cancel result delivery and drain both runners when closing mid-read.\n\nQt aborts the process when a running QThread is destroyed, and a\nworker that delivers into a widget on its way out is a\nuse-after-free. ``JobRunner.shutdown`` handles both.\n\nNot the only line of defence, deliberately, because it is not\nalways reached: this editor is a child inside a settings panel,\nand navigating away from that panel destroys it without any\nclose event. What covers that case is the runner itself — the\nQThreads are unparented and retire themselves, and\n``JobRunner._relay`` catches the ``RuntimeError`` PySide6 raises\nwhen a worker settles after its runner's C++ half has gone.\n\n:param event: the close event; passed on unchanged to the base class\n    after both runners have attempted their bounded shutdown."
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value": {
       "source_blocks_sha256": [
@@ -108752,12 +108785,12 @@
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source": {
       "source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
         "87d80f5603b7c2266e0ff92fcd40f3855c868b26ea33552f3c6694aa292391af",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ],
-      "source_sha256": "b65063fcbea16743b3b9a7eabb761809733ef80daa3725d3c1d5ac04f85a3fad",
-      "text": "Populate column/value choices from a dropped measurements DB.\n\nReturns as soon as the schema read is dispatched. The dropdowns\nkeep whatever they are showing until the worker delivers — a\nlist that is half a second stale beats a frozen window, and on\nthe first call they are showing nothing anyway.\n\n:param source: anything :func:`source_paths` accepts: a run folder,\n    its ``measurements`` folder, a ``.db`` file, or a list of them.\n:param tables: restrict the columns to these table names; ``None``\n    reads every table."
+      "source_sha256": "0eda86201147005dbc8b9efbfa460800369b037a9b0755d01bca0e2bc6fe10d7",
+      "text": "Populate column/value choices from a dropped measurements DB.\n\nIn the default threaded mode, returns after dispatching the schema\nread. Existing column choices and checked values remain visible\nwhile it runs, including rules restored before the first source\nwas set. With ``threaded=False``, the reads run inline.\n\n:param source: anything :func:`source_paths` accepts: a run folder,\n    its ``measurements`` folder, a ``.db`` file, or a list of them.\n:param tables: restrict the columns to these table names; ``None``\n    reads every table."
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_value": {
       "source_blocks_sha256": [
@@ -108769,11 +108802,11 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown": {
       "source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "01ebdf8f200e32e2f5d672b4957d27c9b784b66887d7674bd9db3995a8a96aa9"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0"
       ],
-      "source_sha256": "366af60fc4c5bda86796e6c2cf9ccf5df7d642578bed0483f88f6b579ef6dbdf",
-      "text": "Stop reading and let no worker outlive the widget.\n\nPublic because a host that owns this editor inside a larger\nscreen can call it directly — Qt delivers a close event to the\nwindow, not to every widget inside it, so a screen that wants\nthe reads stopped the moment the user navigates away has to say\nso. Idempotent."
+      "source_sha256": "6be5e6528b02b0cc4f9a9a236698ba6a32bdb9e469d49c5f4dc8987b87021eb4",
+      "text": "Cancel pending results and drain both runners with bounded waits.\n\nPublic because a host that owns this editor inside a larger\nscreen can call it directly — Qt delivers a close event to the\nwindow, not to every widget inside it, so a screen that wants\npending results discarded when the user navigates away must call\nit. Slow database reads can continue in parked workers without\ndelivering their results to this editor. Idempotent."
     },
     "spacr.qt.widgets.row_exclusion.discover_columns": {
       "source_blocks_sha256": [
@@ -108799,12 +108832,12 @@
     },
     "spacr.qt.widgets.row_exclusion.source_paths": {
       "source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "2ed4efbe0590e3c33e8093da33f2d99b04ef6c5c5be3d9a08fb922cccfeaf3c4",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ],
-      "source_sha256": "a8f09b0eebe8d43b292acd8916590683b30a0ce957374ba172caa0155f302a8e",
-      "text": "Return the ``measurements.db`` files ``source`` resolves to.\n\nAccepts a path, a list of paths, or the repr of a list (which is what\na settings text field holds after a multi-folder drop), and tolerates\na run folder, its ``measurements`` subfolder, or the database itself.\nPaths that do not exist are dropped rather than reported: this feeds\na dropdown, and a half-typed ``src`` is not an error.\n\n:param source: a path, a list or tuple of paths, or the text of such a\n    list; empty entries are skipped and ``~`` is expanded."
+      "source_sha256": "b85b5688c6bda7c11df18c5408c7923744ce688a264c8bedeec58a4a06785e32",
+      "text": "Return the existing database-file paths ``source`` resolves to.\n\nAccepts a path, a list of paths, or the repr of a list (which is what\na settings text field holds after a multi-folder drop), and tolerates\na run folder, its ``measurements`` subfolder, or the database itself.\nPaths that do not exist are dropped rather than reported: this feeds\na dropdown, and a half-typed ``src`` is not an error.\n\n:param source: a path, a list or tuple of paths, or the text of such a\n    list; empty entries are skipped and ``~`` is expanded."
     },
     "spacr.qt.widgets.sample_project": {
       "source_blocks_sha256": [

@@ -104,7 +104,10 @@
       "source_sha256": "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
       "source": "how long a column edit waits before it is read. ``0`` reads on the next event-loop turn without coalescing.",
       "context": "how long a column edit waits before it is read. ``0`` reads on the next event-loop turn without coalescing.",
-      "translation": "hur länge en kolumnredigering väntar innan den läses. ``0`` läser på nästa händelseslinga tur utan sammanslagning."
+      "translation": "hur länge en kolumnredigering väntar innan den läses. ``0`` läser på nästa händelseslinga tur utan sammanslagning.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Row-exclusion path, restore and lifecycle documentation corrected in ae9fe9df94b. Replacement exact-source review is2026-10-15-row-exclusion-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.tile.HTile#3",

@@ -1,0 +1,109 @@
+{
+  "scope": "N337 existing legacy PNG channel mapping survives factory/generic-file defaults; no Manders/retired-key algorithm change",
+  "baseline_source": "67e37853676",
+  "baseline": {
+    "failed": 3,
+    "passed": 2,
+    "seconds": 1.24,
+    "boundaries": [
+      "factory",
+      "genericCSV",
+      "genericJSON"
+    ],
+    "old_RGB": [
+      90,
+      40,
+      10
+    ],
+    "expected_legacy_RGB": [
+      10,
+      180,
+      40
+    ]
+  },
+  "first_owning": {
+    "passed": 42,
+    "failed": 2,
+    "seconds": 2.5,
+    "failed_cases": [
+      "CSVliteralNone legacy fallback regression from truthy-string guard",
+      "Wrong new fixture expectation that CSVliteralNone currentmapping was typedNone"
+    ]
+  },
+  "guard_correction": {
+    "convert_only": "nonemptylist/tuple after existing string-list parsing in factory",
+    "preserved": "explicit currentmapping including typedNone; legacyNone/empty/rawscalar fallback; rawCSVcurrentNone string unchanged and CropError",
+    "root_approved_fixture_correction": true,
+    "first_followup": {
+      "passed": 1,
+      "failed": 1,
+      "seconds": 1.29,
+      "failure": "Fixture called unchanged load_settings_file with Path, but existing public implementation requiresstr"
+    },
+    "final_affected": {
+      "passed": 2,
+      "seconds": 0.87
+    },
+    "final_positive": {
+      "passed": 10,
+      "deselected": 13,
+      "seconds": 0.75
+    },
+    "unaffected_previous_passing_cases_not_repeated": true,
+    "not_a_claim_of_54_distinct_or_final_whole44_rerun": true
+  },
+  "owning_cases": [
+    "Actual native1/2/3plane RGB/grayscale output across factory and realCSV/JSON boundaries",
+    "Explicit currentmapping precedence and actual typedNone semantics",
+    "Existing loader rawCSVNone string/nooverride/CropError behavior",
+    "LegacyNone/empty/default fallback",
+    "Factory original string-list parse before conversion",
+    "Existing colour mapping and Qtpack compatibility contracts"
+  ],
+  "source_proof": {
+    "spacr/cli.py": {
+      "source_sha256": "9bdfbd02c092940cd3148da6c2ac8ae3491e1687ba72721614e7633489a5cd67",
+      "function_signatures_docstrings_exact": true,
+      "changed_function_only": "_under_todays_names",
+      "raw_CSV_reader_and_file_loader_AST_identical_to_predecessor": true
+    },
+    "spacr/settings.py": {
+      "source_sha256": "5f42852b3354ab89eaf131ce210bcf7c53452dd331790d68af4562730f77ae6d",
+      "function_signatures_docstrings_exact": true,
+      "changed_function_only": "get_measure_crop_settings"
+    }
+  },
+  "source_changes": "Two approved existing entry seams invoke existing png_dims_to_channel_mapping only; no new modules/helpers/aliases/APIprose/captions",
+  "root_review": "Final exact10line typed guard independently approved; root-final-peer.json binds source hashes and unchanged signatures/prose.",
+  "resource": "All actual tests blankCUDA/offscreen/commonheavy.lock/cap6G/singleprocess; no model/network/render/live data",
+  "held": [
+    "Normal public fetch/merge/source-identity/push"
+  ],
+  "derived_artifacts": {
+    "consumer_map": "Normal tool PASS; retained through owner merge, required current checks PASS",
+    "settings_flow": "Normal tool --rst PASS; retained through owner merge, required current checks PASS",
+    "help_index": "Normal full tool PASS after adoption of coherent owner public76d35; initial refusal and exact dependency proof retained",
+    "required_nine_checks": {
+      "passed": 9,
+      "seconds": 49.24,
+      "exit": 0
+    },
+    "owner_dependency_public": "76d35e703137dbc6a4c2798de59de039fd938aaa",
+    "unnecessary_duplicate_consumer_flow_or_active_entries_collection": false
+  },
+  "final_source_proof": {
+    "spacr/cli.py": {
+      "function": "_under_todays_names",
+      "AST_identical_to_approved_tested_source": true,
+      "current_file_sha256": "9bdfbd02c092940cd3148da6c2ac8ae3491e1687ba72721614e7633489a5cd67",
+      "function_ast_sha256": "dd49c5400d9f23507ccdc47cafcbf85a898a7d5d45daf0794b9a43f9c31f25be"
+    },
+    "spacr/settings.py": {
+      "function": "get_measure_crop_settings",
+      "AST_identical_to_approved_tested_source": true,
+      "current_file_sha256": "2e32842aa7190fbb930b34fe7eadbc7057bd881e2bb51fd42f11bdf083654267",
+      "function_ast_sha256": "35e4f9b021798584782573cbf7a36b5459cf337e752742411b6edb174d223efa"
+    }
+  },
+  "publication_scope": "Actual supported legacy png_dims default-overlay repair; no other old six-key functionality restored or scientific validity claim"
+}
