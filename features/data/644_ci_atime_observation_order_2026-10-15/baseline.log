@@ -1,0 +1,112 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization[body-clear] _
+
+cache = (PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-134/test_cache_mutation_refuses_ac0/pr...2-cli-pins-20261014/pytest-of-olafsson/pytest-134/test_cache_mutation_refuses_ac0/private-spacr/cache_locations.json'))
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-134/test_cache_mutation_refuses_ac0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7cf6c01478c0>
+operation = 'clear', phase = 'body'
+
+    @pytest.mark.parametrize('operation', ['clear', 'move'])
+    @pytest.mark.parametrize('phase', ['body', 'finalization'])
+    def test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization(cache, tmp_path, monkeypatch, operation, phase):
+        folder, metadata = cache
+        entered, finish_body, finalizing, finish_finalizing = [threading.Event() for _ in range(4)]
+        errors = []
+        writer = rj.Run._write_manifest
+        def write_manifest(run):
+            if run.end_ts is not None and phase == 'finalization':
+                finalizing.set()
+                assert finish_finalizing.wait(15)
+            return writer(run)
+        monkeypatch.setattr(rj.Run, '_write_manifest', write_manifest)
+        def worker():
+            try:
+                with rj.open_run('mask', {}):
+                    entered.set()
+                    assert finish_body.wait(15)
+            except BaseException as error:
+                errors.append(error)
+        thread = threading.Thread(target=worker)
+        thread.start()
+        before_metadata = metadata.read_bytes()
+        before_stat = metadata.stat()
+        before_cache = (folder / 'kept.json').stat()
+        try:
+            assert entered.wait(15)
+            assert rj.current_run() is None
+            if phase == 'finalization':
+                finish_body.set()
+                assert finalizing.wait(15)
+            if operation == 'clear':
+                removed, refused = rj._clear_cache('news')
+                assert removed == 0
+                assert refused == [CAPTION]
+            else:
+                with pytest.raises(ValueError, match='run is in progress'):
+                    rj._relocate_cache('news', tmp_path / 'destination')
+            assert (folder / 'kept.json').read_bytes() == b'important cache bytes'
+>           assert (folder / 'kept.json').stat() == before_cache
+E           assert os.stat_resul...me=1792066017) == os.stat_resul...me=1792066017)
+E             
+E             At index 7 diff: 1792066018 != 0
+E             Use -v to get more diff
+
+tests/test_n644_active_run_cache_mutations.py:69: AssertionError
+_ test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization[body-move] _
+
+cache = (PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-134/test_cache_mutation_refuses_ac1/pr...2-cli-pins-20261014/pytest-of-olafsson/pytest-134/test_cache_mutation_refuses_ac1/private-spacr/cache_locations.json'))
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-134/test_cache_mutation_refuses_ac1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7cf6a2443e90>
+operation = 'move', phase = 'body'
+
+    @pytest.mark.parametrize('operation', ['clear', 'move'])
+    @pytest.mark.parametrize('phase', ['body', 'finalization'])
+    def test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization(cache, tmp_path, monkeypatch, operation, phase):
+        folder, metadata = cache
+        entered, finish_body, finalizing, finish_finalizing = [threading.Event() for _ in range(4)]
+        errors = []
+        writer = rj.Run._write_manifest
+        def write_manifest(run):
+            if run.end_ts is not None and phase == 'finalization':
+                finalizing.set()
+                assert finish_finalizing.wait(15)
+            return writer(run)
+        monkeypatch.setattr(rj.Run, '_write_manifest', write_manifest)
+        def worker():
+            try:
+                with rj.open_run('mask', {}):
+                    entered.set()
+                    assert finish_body.wait(15)
+            except BaseException as error:
+                errors.append(error)
+        thread = threading.Thread(target=worker)
+        thread.start()
+        before_metadata = metadata.read_bytes()
+        before_stat = metadata.stat()
+        before_cache = (folder / 'kept.json').stat()
+        try:
+            assert entered.wait(15)
+            assert rj.current_run() is None
+            if phase == 'finalization':
+                finish_body.set()
+                assert finalizing.wait(15)
+            if operation == 'clear':
+                removed, refused = rj._clear_cache('news')
+                assert removed == 0
+                assert refused == [CAPTION]
+            else:
+                with pytest.raises(ValueError, match='run is in progress'):
+                    rj._relocate_cache('news', tmp_path / 'destination')
+            assert (folder / 'kept.json').read_bytes() == b'important cache bytes'
+>           assert (folder / 'kept.json').stat() == before_cache
+E           assert os.stat_resul...me=1792066019) == os.stat_resul...me=1792066019)
+E             
+E             At index 7 diff: 1792066019 != 0
+E             Use -v to get more diff
+
+tests/test_n644_active_run_cache_mutations.py:69: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_n644_active_run_cache_mutations.py::test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization[body-clear]
+FAILED tests/test_n644_active_run_cache_mutations.py::test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization[body-move]
+2 failed in 1.56s
