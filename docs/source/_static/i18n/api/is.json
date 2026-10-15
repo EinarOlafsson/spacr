@@ -141344,6 +141344,22 @@
         "4430f253a69652250da2a227e85262f201841e28a52decd0512e06326bdfb9b6"
       ]
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+        "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+        "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+        "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b"
+      ],
+      "source_sha256": "01f8445f69a7e6cb9a617113db457c0f7058fc0845b40f1050b5770b54983aea",
+      "text": "Endurheimta vistaðar forskoðanir án þess að keyra eða endurgera myndrit.\n\nTiltækar PNG- og PDF-skrár eru afritaðar í nýtt geymslusvæði í eigu biðraðarinnar; vinnusvæðispakkinn og upprunalegu skrárnar eru ósnert. Forskoðanir sem vantar halda sætum sínum fyrir hefðbundna birtingu þegar mynd er ekki tiltæk. Endurheimtarskýrsla vinnusvæðisins tilgreinir skrár sem vantar sérstaklega. Ógild stöðugögn eða ógild myndsnið skilja þessa biðröð eftir óbreytta.\n\n:param state: staða frá :meth:`workspace_state`, þar sem endurheimtir vinnusvæðisins hefur þegar leyst slóðir að skrám sem fylgja með.\n:returns: hvort staðan var samþykkt. Skrár sem fara yfir núverandi stærðarmörk afritunar fyrir hverja skrá valda villu sem endurheimtirinn tilkynnir.",
+      "translation_source_blocks_sha256": [
+        "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+        "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+        "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+        "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b"
+      ]
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.cache_budget_entries": {
       "source_blocks_sha256": [
         "723952d71c29f2b4e52a0351b7eab09b51bd14b427ffd332ea88b21ec6f75ffd",
@@ -141736,6 +141752,20 @@
       "text": "Hversu mörg tölur hafa verið fjarlægð frá RAM til skál bara.",
       "translation_source_blocks_sha256": [
         "115c100c1b20ad3723992da3fd0d2f6775448b6758d268ea1bf55691214a701b"
+      ]
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state": {
+      "source_blocks_sha256": [
+        "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+        "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+        "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d"
+      ],
+      "source_sha256": "9102f4c14ccfb4f991ff0681578277c85f28639e88772ab378a72677e95cc172",
+      "text": "Skrá myndritaskrár í röð, titla, keyrsluhluta og valið sæti.\n\nPNG-forskoðanir og tilheyrandi PDF-síður í eigu biðraðarinnar, sem eru innan núverandi stærðarmarka vinnusvæðisins fyrir hverja skrá, eru merktar til að fylgja með jafnvel í tilvísunarham. Ytri skrár og stærri skrár verða áfram tilvísanir. Python-myndritahlutir í minni og skyndiminnisskrár þeirra á pickle-sniði eru aldrei teknar með.\n\n:returns: einföld stöðugögn fyrir :meth:`apply_workspace_state`, þar á meðal skýr skrá yfir þær skrár sem fylgja vinnusvæðinu.",
+      "translation_source_blocks_sha256": [
+        "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+        "4f0f8c1d46a845a9837f59c28d6b8b3da7195382bd2a51119565e488a98edbe4",
+        "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d"
       ]
     },
     "spacr.qt.widgets.figure_queue.figure_text_items": {
