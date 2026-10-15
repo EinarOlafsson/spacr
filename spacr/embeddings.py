@@ -1433,8 +1433,8 @@ def _dino_classifier_from_config(config: Mapping[str, Any]):
                 self.encoder.eval()
             return self
 
-        def forward(self, images):
-            """Scale selected raw NCHW planes and return class logits."""
+        def features(self, images):
+            """Scale selected raw NCHW planes and return recorded encoder features."""
             if (not isinstance(images, torch.Tensor) or images.ndim != 4
                     or images.shape[1] != input_channels
                     or min(images.shape) < 1 or images.is_complex()
@@ -1459,7 +1459,11 @@ def _dino_classifier_from_config(config: Mapping[str, Any]):
                 features = features.reshape(batch, -1)
             if config["normalize_features"]:
                 features = torch.nn.functional.normalize(features, dim=1)
-            return self.head(features)
+            return features
+
+        def forward(self, images):
+            """Scale selected raw NCHW planes and return class logits."""
+            return self.head(self.features(images))
 
     return Classifier()
 
@@ -1669,6 +1673,101 @@ def _dino_finetune_classifier(crops: Any, checkpoint_path: str, output_path: str
         os.link(staged_path, output_path)
     return {"path": os.fspath(output_path), "classes": classes,
             "split": split.to_dict(), "loss": history}
+
+
+
+def _dino_classifier_apply(crops: Any, path: str, *, batch_size: int = 32,
+                           device: str = "cpu") -> Dict[str, Any]:
+    """Apply a saved own-DINO classifier to full raw channel-last crops.
+
+    Saved source-channel order selects physical planes once. Scaling, resize
+    and feature normalization remain inside the reconstructed classifier;
+    this route does not use teacher embedding preprocessing or estimate scales.
+
+    :param crops: nonempty finite numeric raw ``NHWC`` stack, never modified.
+    :param path: local classifier artifact, decoded from the same regular-file
+        stream that supplies its before/after SHA-256 and identity checks.
+    :param batch_size: positive crop count per inference batch.
+    :param device: explicit torch device; CPU by default.
+    :returns: ``features``, ``logits``, ``probabilities``, ``predictions``, saved
+        ``classes`` and ``source_channels``, and the loaded artifact's
+        ``checkpoint_sha256``. Arrays preserve crop order; probability columns
+        and predicted labels follow saved class order.
+    :raises EmbeddingError: incompatible crops, artifact metadata or changed file.
+    """
+    import torch
+    from .qt.i18n import tr
+    from .torch_artifacts import load_model_artifact
+
+    def refuse():
+        """Refuse an incompatible own-DINO classifier application."""
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+
+    array = np.asarray(crops)
+    if (type(batch_size) is not int or batch_size < 1
+            or array.ndim != 4 or min(array.shape) < 1
+            or array.dtype.kind not in "uif" or not np.isfinite(array).all()):
+        refuse()
+    try:
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            os.close(descriptor)
+            refuse()
+        with os.fdopen(descriptor, "rb") as handle:
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+            handle.seek(0)
+            model, payload = load_model_artifact(
+                handle, map_location="cpu", strict=True, weights_only=True)
+            handle.seek(0)
+            after_digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                after_digest.update(chunk)
+            after = os.fstat(handle.fileno())
+            identity = lambda status: (
+                status.st_dev, status.st_ino, status.st_size,
+                status.st_mtime_ns, status.st_ctime_ns)
+            if identity(before) != identity(after) or digest.digest() != after_digest.digest():
+                refuse()
+    except OSError as exc:
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible.")) from exc
+    config = getattr(model, "_own_dino_config", None)
+    classes = payload.get("classes")
+    if (not isinstance(config, Mapping) or payload.get("legacy") is not False
+            or not isinstance(classes, (list, tuple))
+            or len(classes) != config.get("num_classes")
+            or any(not isinstance(value, str) or not value.strip() for value in classes)
+            or len(set(classes)) != len(classes)):
+        refuse()
+    channels = config["source_channels"]
+    if any(channel >= array.shape[-1] for channel in channels):
+        refuse()
+    model.eval().to(torch.device(device))
+    features = []
+    logits = []
+    with torch.inference_mode():
+        for begin in range(0, len(array), batch_size):
+            selected = np.array(array[begin:begin + batch_size, ..., channels].transpose(
+                0, 3, 1, 2), dtype=np.float32, copy=True)
+            if not np.isfinite(selected).all():
+                refuse()
+            encoded = model.features(torch.from_numpy(selected).to(device))
+            output = model.head(encoded)
+            if not torch.isfinite(encoded).all() or not torch.isfinite(output).all():
+                refuse()
+            features.append(encoded.detach().float().cpu().numpy())
+            logits.append(output.detach().float().cpu())
+    joined = torch.cat(logits)
+    probabilities = torch.softmax(joined, dim=1).numpy()
+    return {"features": np.concatenate(features), "logits": joined.numpy(),
+            "probabilities": probabilities,
+            "predictions": [classes[index] for index in joined.argmax(dim=1).tolist()],
+            "classes": list(classes), "source_channels": list(channels),
+            "checkpoint_sha256": digest.hexdigest()}
 
 
 def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:

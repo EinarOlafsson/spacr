@@ -237,7 +237,7 @@ def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
 
 
 def load_model_artifact(
-    path: str,
+    path: Any,
     *,
     map_location: Any = "cpu",
     model: nn.Module | None = None,
@@ -249,7 +249,8 @@ def load_model_artifact(
     The returned metadata dict always contains ``legacy``. Current artifacts
     retain their optimizer/scheduler/RNG state so callers can resume training.
 
-    :param path: checkpoint to read. The legacy default unpickles trusted files.
+    :param path: checkpoint to read, or a seekable binary stream only with
+        ``weights_only=True``. The legacy default unpickles trusted files.
     :param weights_only: use restricted tensor-and-primitive decoding and local
         files only when true; unsupported pickles refuse without unsafe retry.
     :param map_location: forwarded to :func:`torch.load`. The ``cpu`` default
@@ -275,8 +276,10 @@ def load_model_artifact(
         downloaded = _ensure_model_file(path, kinds=("classifier",))
         if downloaded is not None:
             path = downloaded
-    raw = torch.load(os.fspath(path), map_location=map_location,
-                     weights_only=weights_only)
+    restricted_stream = (weights_only and callable(getattr(path, "read", None))
+                         and callable(getattr(path, "seek", None)))
+    raw = torch.load(path if restricted_stream else os.fspath(path),
+                     map_location=map_location, weights_only=weights_only)
     if isinstance(raw, nn.Module):
         return raw, {
             "legacy": True,
