@@ -594,3 +594,23 @@ Remaining: actual free service creation/build/runtime, verified weight provision
 real hosted execution and desktop parity, site endpoint integration and the other
 original N698 browser/export/accessibility requirements. This is not whole-item
 completion or native/hosted acceptance.
+
+2026-10-15 — Explicit managed-startup provisioning (private acceptance)
+Added a tools-only deterministic manifest generator and an explicitly opted-in
+Linux managed-startup adapter. The manifest binds all17 advertised versions to
+actual catalogue identities,40hex immutable repo revisions, exact filenames,
+byte sizes/SHA256 and seven relevant source files. Correct model/dataset URL
+semantics are retained. Only ZERO_GPU=1 plus PROVISION_MODELS=1 at entrypoint
+execution permits acquisition; local/default routes and import never download.
+The private, leased cache refuses unknown/corrupt/symlink state, bounds public
+HTTPS redirects/stream bytes/time, preserves existing verified files and never
+installs partial paths. No ambient Hub credentials, retry or model fallback.
+Normal manifest generation passed;53 pre-format offline/entry cases passed1.71s.
+Review caught a real loader-format issue: three format cases failed0.85s; the
+corrected source preserves original .pt/.CP_model/no-suffix contracts and passes
+the24 affected cases1.10s. Real disposable files/concurrent-process lease and
+bounded transport faults are covered. No actual checkpoint/network/model/server/
+GPU was used. This is software
+mechanics acceptance only. Actual free managed build/disk/native libraries,
+weight acquisition, CUDA/inference/parity/site acceptance and other N698 work
+remain open. Source-bound evidence:698_managed_model_provisioning_2026-10-15.

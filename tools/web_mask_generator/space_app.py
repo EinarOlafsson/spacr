@@ -13,4 +13,6 @@ from tools.web_mask_generator.app import main
 
 
 if __name__ == "__main__":
+    from tools.web_mask_generator.provision import managed_startup
+    managed_startup()
     main()
