@@ -583,8 +583,7 @@ class _TooltipFilter(QObject):
         """Take any tooltip away at once and forget what was hovered."""
         self._show_timer.stop()
         self._hide_timer.stop()
-        if self._showing:
-            self._hide_text()
+        self._hide_text()
         self._track_widget(None)
         self._text = ""
 
