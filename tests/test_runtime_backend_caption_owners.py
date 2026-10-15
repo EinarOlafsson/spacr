@@ -421,3 +421,25 @@ def test_wound_calibration_caption_enters_only_through_its_owner(extract_backend
     caption = "Wound calibration {name} must be a finite number greater than zero, or blank."
     assert extract_backend_sources('measure.py',
         f'def _wound_calibration():\n    raise ValueError(tr({caption!r}, name="pixel_size"))\n') == {caption}
+
+
+def test_shared_stock_preflight_literal_caption_is_owned(extract_backend_sources):
+    caption = "Cellpose stock model {model} is not cached at {path}."
+    assert extract_backend_sources("utils.py",
+        f"def _cellpose_stock_preflight():\n    raise ValueError(tr({caption!r}))\n") == {caption}
+
+
+def test_shared_stock_preflight_excludes_nonliteral_nested_and_class_helpers(
+        extract_backend_sources):
+    assert extract_backend_sources("utils.py", '''
+tr("Unrelated utility metadata.")
+def unrelated():
+    def _cellpose_stock_preflight():
+        return tr("Nested same-name helper.")
+class Unrelated:
+    def _cellpose_stock_preflight(self):
+        return tr("Same-name method.")
+def _cellpose_stock_preflight():
+    """Internal documentation is not a caption."""
+    return "Internal untranslated detail."
+''') == set()
