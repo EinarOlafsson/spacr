@@ -244,3 +244,23 @@ WHAT IS LEFT
   Sequential6G/4G caps, private native desktop/settings, GPU hidden, audio off.
   Audible/human, macOS/Windows and Work tutorial acceptance remain open.
   Proof: data/655_final_integration_f7b358_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B figure-grid keyboard access repaired
+  Saved and interactive figure tiles were mouse-only: Tab skipped them,
+  activation keys did nothing, QAccessible names were empty and keyboard focus
+  had no visible border. Tiles now take Tab focus and Return, numeric Enter or
+  Space opens the focused tile through its existing activation signal. Sparse
+  saved-figure indices and live/pinned panel keys retain their existing meaning;
+  modifier combinations and all mouse paths remain unchanged.
+  Names reuse existing captions, panel letters or live keys. The focused tile
+  paints a two-pixel border using the current Highlight palette role, with its
+  painter finalized even on exceptions. No new captions or rendered API arrival
+  (the event overrides belong to the private _FigureCell class).
+  Baseline: 14 failing and 3 passing cases. Final four-file owning cohort:
+  40 passed in 22.71 s on Qt 6.12/Linux offscreen/6G/GPU hidden. Actual Tab-cycle,
+  key/signal identity, QAccessible names and rendered border pixels are checked;
+  existing mouse, section-fold and layout checks pass. The first rejected border
+  candidate and test-fixture corrections are preserved separately in the receipt.
+  This closes this concrete keyboard gap, not native Windows/macOS, external
+  reader speech, whole-application keyboard or tutorial acceptance.
+  Proof: data/655_figure_grid_keyboard_2026-10-14/receipt.json.
