@@ -1510,7 +1510,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest foreslår mærker til de udsnit, du endnu ikke har besvaret, så giv den først eksempler på begge klasser fra flere brønde. Her mærkes nogle få udsnit af hver klasse i fire brønde, og Next gemmer dem.",
+          "narration": "Suggest foreslår mærker til de udsnit, du endnu ikke har besvaret, så giv den først eksempler på begge klasser fra flere brønde. Her mærkes nogle få udsnit af hver klasse i tre brønde, og Next gemmer dem.",
           "focus": [
             360,
             380,
@@ -1522,7 +1522,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Åbn Suggest, og vælg Suggest for the images on this page. Runden tager nogle sekunder, og hvert udsnit på siden får nu et spørgsmålstegn. Bjælken over gitteret tæller, hvor mange forslag der mangler at blive bedømt.",
+          "narration": "Åbn Suggest, og vælg Suggest for the images on this page. Runden tager nogle sekunder, og de umærkede udsnit på siden får nu et spørgsmålstegn. Bjælken over gitteret tæller, hvor mange forslag der mangler at blive bedømt.",
           "focus": [
             350,
             250,
@@ -1533,7 +1533,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Klik på et foreslået udsnit eller tryk Y for at bekræfte det, og højreklik eller tryk N for at afvise det. Begge svar bliver registreret, afvisninger træner næste runde, og Confirm the rest of the page afgør resten, når du har tjekket dem.",
+          "narration": "Klik på et foreslået udsnit eller tryk Y for at bekræfte det, og højreklik eller tryk N for at afvise det. Begge svar afventer lagring, indtil Next gemmer dem; afvisninger træner næste runde, og Confirm the rest of the page afgør resten, når du har tjekket dem.",
           "focus": [
             350,
             250,
@@ -1564,7 +1564,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1947,7 +1970,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

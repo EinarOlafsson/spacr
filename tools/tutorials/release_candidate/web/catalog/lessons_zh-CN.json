@@ -1654,7 +1654,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
+          "narration": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在三个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
           "focus": [
             360,
             380,
@@ -1663,11 +1663,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。"
+          "speech_text": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在三个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。"
         },
         {
           "visual": "20_suggestions",
-          "narration": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
+          "narration": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上尚未标注的裁剪图像会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
           "focus": [
             350,
             250,
@@ -1675,11 +1675,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。"
+          "speech_text": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上尚未标注的裁剪图像会带上问号标记。网格上方的栏会统计还有多少建议待判断。"
         },
         {
           "visual": "21_judged",
-          "narration": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
+          "narration": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答在 Next 保存前都仍是待保存的更改；拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
           "focus": [
             350,
             250,
@@ -1687,7 +1687,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。"
+          "speech_text": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答在 Next 保存前都仍是待保存的更改；拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。"
         },
         {
           "visual": "17_generate_database_entry",
@@ -1714,7 +1714,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2118,7 +2141,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

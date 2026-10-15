@@ -1,0 +1,8 @@
+{
+  "reviewer": "Original Home root",
+  "patch_sha256": "26968011e23f219e3dc5a70a21fa0e8027c88e52c3197f61f254589ffbeb8ab5",
+  "decision": "approve exact owner-derived09+11 native arrival provenance update",
+  "scope": "Only expectednative_ids set adds09_annotate and11_classify_ml, both published immutable native media arrivals. Full test remains exact equality of all visual provenance references and validates manifest bytes/SHA. No thresholds, ceilings, speech checks or broader exemption change. Owner11 patch already includes09 context; currentmain lacks09 so minimal union is necessary.",
+  "owners": "Work09 publicb82007244; Work11 public84e251c493f42f217118b146502606df79857533 /nativeaudit1b6e378a7. Manifest148 and completepacket208 preflight/importproof verified byEasy.",
+  "required_acceptance": "Coherent148tree hashes/currentrepo preservation plus only known33media/arrival owning tests; no recorder/publicstage/folderpatches, recording/encoding/upload/HFreadback repeat."
+}
