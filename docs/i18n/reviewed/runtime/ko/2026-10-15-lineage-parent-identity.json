@@ -13,5 +13,6 @@
       "source_sha256": "a592f99452297b2824ba0dee998b1946b070b35d0dc90a8c743f38882a11c6de",
       "translation": "계보 표에서 트랙 {track}의 알려진 부모 ID가 서로 충돌합니다."
     }
-  ]
+  ],
+  "independent_technical_peer": "Original Home root; immutable input hashes in features/data/537_parent_identity_2026-10-15/root-target-peer.json; no native-speaker signoff"
 }
