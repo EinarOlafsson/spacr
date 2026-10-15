@@ -4186,6 +4186,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
+    paths.add(ROOT / "spacr" / "utils.py")
     paths.add(ROOT / "spacr" / "attribution.py")
     paths.add(ROOT / "spacr" / "measure.py")
     paths.add(ROOT / "spacr" / "object_classifier.py")
@@ -4218,6 +4219,10 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "utils.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_resolve_cellpose_pretrained"]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",

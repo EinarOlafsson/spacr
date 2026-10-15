@@ -1,0 +1,16 @@
+{
+  "created": "2026-10-15T12:49:05.550241+00:00",
+  "scope": "Register utils.py exact top-level _resolve_cellpose_pretrained literal-tr owner, preserving all prior ownership filters",
+  "source_sha256": {
+    "tools/build_i18n_catalogs.py": "43f280a21e5712a610c16cde7a1f96608a0b711f2ff9de0db4e8365bdd02b94f",
+    "tests/test_runtime_backend_caption_owners.py": "afc48e1230ae377b2bd129b5fa6d4fa181e7a0462c4e12e0a52fcf5b0c968563"
+  },
+  "baseline": "1 failed,1passed45deselected1.33s; actual missing-caption inventory assertion",
+  "final": "47 passed1.17s, original45owner checks plus2new; no exclusions removed",
+  "resources": "2G, offscreen, blank CUDA, one CPU thread, common heavy.lock",
+  "pending": "Independent source/test peer; original owns frozen actual helper source and normal runtime closure",
+  "limits": [
+    "No global canonical collector, runtime writer, utility runtime import, model download or inference.",
+    "No source-only feature publication."
+  ]
+}
