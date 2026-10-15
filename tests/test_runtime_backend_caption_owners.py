@@ -510,3 +510,23 @@ def measure_from_field_table():
     """Documentation is not progress output."""
     return "Unwrapped internal detail."
 ''') == set()
+
+
+def test_pinned_diffusion_refusal_has_exact_backend_caption_owner(extract_backend_sources):
+    caption = "Choose a compatible local diffusion checkpoint and its SHA-256 digest."
+    assert extract_backend_sources("attribution.py",
+        f"def _cf_checkpoint_error():\n    raise ValueError(tr({caption!r}))\n") == {caption}
+
+
+def test_pinned_diffusion_refusal_excludes_nested_and_method_names(extract_backend_sources):
+    assert extract_backend_sources("attribution.py", '''
+def unrelated():
+    def _cf_checkpoint_error():
+        return tr("Unrelated nested checkpoint error.")
+class Unrelated:
+    def _cf_checkpoint_error(self):
+        return tr("Unrelated checkpoint method.")
+def _cf_checkpoint_error():
+    """Internal prose is not a caption."""
+    return "Unwrapped internal error."
+''') == set()

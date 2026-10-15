@@ -1,0 +1,47 @@
+{
+  "status": "Private GUI adapter; coherent backend/settings/runtime/derived integration still required",
+  "base_commit": "b0c91b3c0b598bbbfa7f5e590b8a5c3d2a5d848b",
+  "original_settings_prerequisite": "1e1f2a137516f9d9014b29dd8ce2c38e775f5b3f",
+  "source_path": "spacr/qt/screens/settings_model.py",
+  "before_sha256": "21e20038391afda3da53d96d1bf71041ac32253fc005dcdc98975b38ad0a5713",
+  "after_sha256": "97f14a0f2a6349d583cd82501d9939a8fb485377b6f209224f301e5a59703c7f",
+  "source_scope": [
+    "Counterfactuals two-key category addition",
+    "Two literal object names",
+    "One trailing local-file picker action/private callback",
+    "Two-key empty-to-blank canonicalization for built and unopened forms"
+  ],
+  "other_executable_ast_unchanged": true,
+  "comments_unchanged": true,
+  "all_previous_docstrings_unchanged": 407,
+  "new_private_method": "SettingsWidgets._choose_counterfactual_checkpoint",
+  "new_method_normal_public_visibility": false,
+  "normal_enabled_nested_bodies_unchanged": 10,
+  "api_arrivals": [],
+  "runtime_caption_arrivals": [],
+  "reused_runtime_source": "Choose file…",
+  "settings_translation_owner": "Original Home: two labels and two tooltips, 36 targets; not authored here",
+  "baseline": "5 failed, 1 passed in 4.64s",
+  "final": "7 passed in 3.84s",
+  "new_test": {
+    "path": "tests/qt/test_f564_checkpoint_controls.py",
+    "sha256": "f2f17edb81efa7c9f0beb164acfcd6779f582ed32621921fb7ac6702822b68a7"
+  },
+  "existing_test_change": {
+    "path": "tests/qt/test_generative_counterfactuals_alpha_gate.py",
+    "before_sha256": "11a8936949f0461626be4f86d413589e36c14b8dec1725410a27b4248abcbeda",
+    "after_sha256": "73450c1b4d2d11f3a15377b555f18845f4512a68934ee6d8cf82a19a427a3d55",
+    "scope": "Only two exact new KEYS entries; registry assertion untouched"
+  },
+  "acceptance": [
+    "Actual AppScreen Counterfactuals placement and alpha hide/show with retained values",
+    "Eager/lazy blank defaults, unbuilt collect, JSON roundtrip and cleared values",
+    "Real QAction with isolated file dialog transport: choice commits once; cancellation is inert",
+    "Path selection never alters entered SHA or generator; invalid imported identity remains explicit"
+  ],
+  "limits": [
+    "No file content reads, hashes, model loads, downloads or training in GUI path selection",
+    "SHA/generator compatibility is enforced by the separately owned strict backend",
+    "No complete F564 scientific/checkpoint availability or whole-item completion claim"
+  ]
+}
