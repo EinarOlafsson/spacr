@@ -1,0 +1,32 @@
+{
+  "tests/qt/test_the_preview_uses_the_model_the_run_will_use.py": {
+    "sha256": "f3bb6c0b8f0221ae108f91f28bf5581dd766e4716e161175e453fecceb8db94c",
+    "old_assertions": 58,
+    "final_assertions": 58,
+    "all_original_assertion_ASTs_preserved": true
+  },
+  "tests/test_696_magnification_default_and_auto_diameter.py": {
+    "sha256": "19b369a5005a2af9a94c2561e072335cf1633bb9645f9b3b0cf856449ef4e4ee",
+    "old_assertions": 59,
+    "final_assertions": 59,
+    "all_original_assertion_ASTs_preserved": true
+  },
+  "tests/test_n702_direct_cellpose_api_model_pins.py": {
+    "sha256": "8272c4352ecf37a96ca02f6ac5f338bf1d4194f509f226d48ff8d7f81f89194f",
+    "old_assertions": 13,
+    "final_assertions": 13,
+    "all_original_assertion_ASTs_preserved": true
+  },
+  "tests/test_web_plaque_inference_adapter_n698.py": {
+    "sha256": "0b22f586d183a541aca0aa01b24e000497d6d7d387ceb0f1f2b6458c2cdf5403",
+    "old_assertions": 22,
+    "final_assertions": 22,
+    "all_original_assertion_ASTs_preserved": true
+  },
+  "tests/test_cellpose_api_contract.py": {
+    "sha256": "387d3fd41f7a9e29a2e96897a61195b0530ad9844eaa6dd9392ca8f7c8121aa5",
+    "old_assertions": 50,
+    "final_assertions": 56,
+    "all_original_assertion_ASTs_preserved": true
+  }
+}

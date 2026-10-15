@@ -3854,3 +3854,17 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     identified the stale missing path; final owning two modules20PASS8.32s.
     Models/trainers are intercepted; no real weights, training, GPU or fullCI
     acceptance is claimed. Evidence:data/43_cellpose_catalogue_fixtures_2026-10-15/.
+
+
+2026-10-15 — Cellpose eval double signature contracts repaired
+    Five model doubles declare literal recorded Cellpose4 parameters; the
+    worker3 double declares its real adapter API and is checked at its exact
+    qualified AST location against _Cellpose3Adapter. All202 prior assertion
+    ASTs and partial ceiling13 remain. Actual sweep baseline1FAIL; owning
+    first57PASS2FAIL exposed omitted explicit-default recorder fields; final
+    affected N698/sweep19PASS17.01s. Unchanged owning results are retained,
+    not counted as76 unique tests. Recorder preserves the four unconditional
+    desktop fields plus other nondefault bound values; raw keyword presence
+    is not inferred. Nine existing ad hoc lint findings remain; no fullCI,
+    native model, training or release acceptance is claimed.
+    Evidence:data/43_cellpose_signature_doubles_2026-10-15/.

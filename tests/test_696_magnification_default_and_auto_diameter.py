@@ -22,8 +22,14 @@ import numpy as np
 import pytest
 
 from spacr.object_settings_table import (
-    _AUTO_DIAMETER, _canonical_diameters, _diameter_from_magnification,
-    _diameter_setting, _diameter_used_text, _resolved_diameter)
+    _AUTO_DIAMETER,
+    _canonical_diameters,
+    _diameter_from_magnification,
+    _diameter_setting,
+    _diameter_used_text,
+    _resolved_diameter,
+)
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS, eval_arguments
 
 
 @pytest.mark.parametrize("mag, cell, nucleus, pathogen", [
@@ -143,8 +149,13 @@ class _RecordingModel:
         self.calls = []
         self.estimated_diameters = list(estimated)
 
-    def eval(self, x, **kwargs):
-        self.calls.append(kwargs)
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             rescale=None, diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
+             do_3D=False, anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+             min_size=15, max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+        self.calls.append(eval_arguments(locals()))
         masks = [np.zeros(np.asarray(image).shape[:2], dtype=np.uint16)
                  for image in x]
         flows = [[np.zeros(m.shape + (3,), dtype=np.uint8), None, None, None]
@@ -177,8 +188,14 @@ def test_the_v1_cellpose_sam_call_uses_the_magnification_default(
         def __init__(self, **kwargs):
             pass
 
-        def eval(self, x, **kwargs):
-            seen.append(kwargs["diameter"])
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None, flow3D_smooth=0,
+                 stitch_threshold=0.0, min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            seen.append(diameter)
             masks = [np.zeros(np.asarray(i).shape[:2], dtype=np.uint16)
                      for i in x]
             return masks, [np.zeros(m.shape, np.float32) for m in masks], None
@@ -358,7 +375,9 @@ def test_the_cellpose3_worker_reply_carries_its_estimates(tmp_path):
         ignored, translated = set(), set()
         estimated_diameters = [41.5]
 
-        def eval(self, images, **params):
+        def eval(self, images, channel_axis=-1, diameter=None, normalize=True,
+                 flow_threshold=0.4, cellprob_threshold=0.0, min_size=15,
+                 resample=True, batch_size=None):
             return [np.zeros((4, 4), np.uint16) for _ in images], [], None
 
     image = tmp_path / "image_0.npy"
