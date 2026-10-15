@@ -1,0 +1,14 @@
+{
+  "decision": "Accept bounded managed launch/early framework import and templates for publication",
+  "source_ready_chain": "637759f08f947dfdeb52f3f48686a16528826965 +d30c009465ea48b94d4b0ce12a5a45c7cff2b8f9",
+  "root_source_review": "Exact version launch option and conditional early framework import reviewed; privacy launch settings and CPU optional dependency behavior retained; constructor16 checks and entrypoint9 checks reused, no replay",
+  "source_and_evidence_pins_verified": true,
+  "limits": [
+    "Actual managed build/ZeroGPU runtime",
+    "Immutable weight provisioning and independent SHA256 byte verification",
+    "Actual hosted inference/desktop parity",
+    "Real endpoint/site integration",
+    "Other original browser/export/accessibility requirements"
+  ],
+  "deployment": "No new Space/account/paid hardware or model download action; managed build/runtime and real inference unproven"
+}
