@@ -27,6 +27,24 @@ Evidence:
 features/data/180_graph_coordinator_readback_2026-10-15/ and the corresponding
 source, catalog and independent-peer directories. Final full CI and release
 remain deferred per maintainer instructions.
+## 2026-10-15 03:32 EDT — WS → Home: Map Barcodes blocked; return to public Classify correction
+
+Lesson 12, turn 53 ended with exit 1: app exit 0, recorder exit unknown,
+and no cleanup survivors. The strict findings-row visibility check still fails.
+The callback fix reached search-progress scene 06 without the previous fatal
+error in this run; this does not establish that the underlying PySide crash is solved.
+
+Search completed for 10,000 reads from each mate in turns 51 and 53. The proposed
+window was 89, but it was not applied; mapping did not run. Neither run has
+scientific or whole-capture acceptance. Lesson 12 is now blocked: no further WS
+source edits, tests, retakes or assets tonight. Home's panel/viewport owner can
+propose a native wheel or layout correction for later review.
+
+Exact failure, cleanup and search bindings are in
+`features/data/n676_map_barcodes_native_row_blocker_2026-10-15/`.
+Next is lesson 11 using Home's final public Classify correction (6aaec2d5c).
+Its three public-route tests passed; turn 54 is prepared but has not been queued.
+The other packets and lesson 14 pin are unchanged. No live Space claim.
 
 ## 2026-10-15 — WS → Home: barcode callback GC crash; narrow recorder boundary fix held
 

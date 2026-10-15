@@ -45,6 +45,7 @@ import difflib
 import os
 import re
 import shutil
+import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -1530,7 +1531,7 @@ MANIFEST_COLUMNS = ("kind", "channel", "plate", "well", "field", "time",
                     "set", "original_path", "new_path", "status", "error")
 
 
-def _write_converted(source: str, target: str, kind: str, dest: str) -> None:
+def _write_converted(source: str, target: str, kind: str, dest: str) -> str:
     """Write ``source`` as one converted 2-D plane, then keep the original.
 
     The original is moved to ``<dest>/originals/`` rather than deleted, so a
@@ -1563,7 +1564,21 @@ def _write_converted(source: str, target: str, kind: str, dest: str) -> None:
     write_tiff(target, _convert_plane(np.squeeze(np.asarray(array)), kind))
     originals = os.path.join(dest, "originals")
     os.makedirs(originals, exist_ok=True)
-    shutil.move(source, os.path.join(originals, os.path.basename(source)))
+    private = tempfile.mkdtemp(prefix="spacr-original-",
+                               dir=originals)
+    created = os.stat(private, follow_symlinks=False)
+    saved_original = os.path.join(private, os.path.basename(source))
+    try:
+        shutil.move(source, saved_original)
+    except BaseException:
+        try:
+            current = os.stat(private, follow_symlinks=False)
+            if os.path.samestat(current, created):
+                os.rmdir(private)
+        except OSError:
+            pass
+        raise
+    return saved_original
 
 
 def apply_plan(plan: SortPlan, *, merge: bool = True,
@@ -1618,7 +1633,11 @@ def apply_plan(plan: SortPlan, *, merge: bool = True,
             try:
                 os.makedirs(os.path.dirname(target), exist_ok=True)
                 if kind == "image" and row.convert:
-                    _write_converted(source, target, row.convert, plan.dest)
+                    saved_original = _write_converted(
+                        source, target, row.convert, plan.dest)
+                    writer.writerow(["original"] + base[1:8]
+                                    + [saved_original, "moved", ""])
+                    handle.flush()
                     status = f"converted {row.convert}"
                 else:
                     shutil.move(source, target)

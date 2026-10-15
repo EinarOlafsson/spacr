@@ -366,3 +366,19 @@ Evidence: features/data/n420_fragmented_signin_urls_2026-10-15/. Browser callbac
 is mocked; no vendor/account/network acceptance. Complete ANSI-sequence cleanup
 is preserved; internally fragmented ANSI parsing remains a separate transport
 issue. No Windows/native desktop/whole-item420 completion is claimed.
+
+2026-10-15 — Embedded terminal escape cleanup spans arbitrary reads.
+An original-source forced-read baseline reproduced5FAIL/4PASS: CSI colours,
+OSC titles terminated by BEL/ST and two-byte escape sequences leaked fragments
+when split, including character-at-time prompts. PtySession.read now retains
+only an incomplete supported escape suffix, preserving the public stateless
+stripper and URL extractor. Decoder EOF output is queued before closure; read
+snapshots closure before draining, so producer completion cannot release a
+fragment early. EOF releases incomplete residue once using the existing policy.
+Final37PASS11.48s:12new stream/race/EOF/policy cases plus existing8UTF8,8URL and
+9local terminal lifecycle cases. Pump15/15statements+6/6branches and read14/14+
+2/2 are fully covered, no exclusions; focused module96.02%. Original API prose,
+signatures and captions remain unchanged. Source peer and actual failures/logs:
+features/data/n420_incremental_ansi_terminal_2026-10-15/. This covers only
+currently supported escape families using local stand-ins, not vendor login,
+browser/network/native Windows or whole-item420 acceptance. No full CI run.

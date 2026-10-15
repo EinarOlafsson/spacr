@@ -1725,6 +1725,11 @@ def get_measure_crop_settings(settings=None):
                 settings[_k] = _ast.literal_eval(_v)
             except (ValueError, SyntaxError):
                 pass
+    legacy_png_dims = settings.get('png_dims')
+    if ('png_channel_mapping' not in settings
+            and isinstance(legacy_png_dims, (list, tuple)) and legacy_png_dims):
+        from .crops import png_dims_to_channel_mapping
+        settings['png_channel_mapping'] = png_dims_to_channel_mapping(legacy_png_dims)
     settings.setdefault('src', 'path')
 
     settings.setdefault('verbose', False)

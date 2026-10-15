@@ -170,3 +170,45 @@ amounts and correction of registration/PSF mismatch and strong-spill clipping
 bias described above.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_spectral_unmixing.py, test_spectral_unmixing_alpha_gate.py, test_unmix_preview_f538.py pass.
+
+2026-10-15 — Explicit physical-channel selection boundary (Original Home).
+_prepare_unmixing validates/normalizes explicit selectors before loading
+single-stain controls: bool/fractional/nonfinite/complex/nonscalar, negative,
+duplicate and empty indices refuse. _prepare_measure_unmixing passes raw
+selectors instead of eagerly truncating them with int. Valid integral
+floats/int strings/scalars and selected order remain supported; None still
+selects all channels and unmix-off still returns immediately. No matrix,
+threshold, conditioning/rank, PSF, UI or API prose changes; alpha unchanged.
+Actual8x8 synthetic normal-control estimate/application accepted0.5/bool
+truncation and repeated[0,0,1]; repeatedchannel0 lost variation (std55.42 to
+~1.9e-6, maxdifference179.55). Source arrays/files remain exact. Actual35-case
+old-helper baseline26FAIL9PASS1.26s includes standardized pre-load refusal
+contracts, not26claims of silent scientific corruption. Final owning42PASS
+5.13s includes35new selection cases and7existing spectral matrix/control/
+Mask/Measure CPU cases. Nine later localized refusal callbacks and normal
+owner extractor/runtime closure remain pending at this source note.
+Evidence:data/538_channel_boundary_2026-10-15/. Real double-stain/PSF/
+registration and biological acceptance limits above remain unresolved.
+
+Before publication, root source peer found a candidate hole: zero-dimensional
+NumPy boolean arrays bypassed the initial isinstance check. Actual four-case
+counterexample4FAIL46deselected1.65s retained. Final guard unboxes0d arrays
+before boolean/complex/exact-integrality checks and refuses any still-nested
+array. Necessary affected cohort15PASS0.69s:4new0dbool refusals,6existing
+valid physical-order/scalar cases,2new0dfloat/string cases and3actual Measure
+fraction/bool/duplicate cases. Unchanged42candidate cohort was not repeated;
+its original source scope remains explicit. Nine approved technical target
+texts remain unchanged; final9locale callbacks/normal closure still pending.
+
+2026-10-15 — Physical-channel selection coherent runtime closure.
+Owner082e31d0f6f plus independent32ebd94fef7 extracts only the approved
+_prepare_unmixing diagnostic. Final root source/9target peer adopted with
+records unchanged. One normal writer installs1diagnostic perlocale while
+preserving10,773 unrelated current targets each. Actual full9runtimeaudit
+PASS and normal immutable arrivals PASS:9833baseline/1092added/
+151retired/31changed. Only9newactual Measuretyped-bool localized
+refusals run after installation:9PASS,zero skips, no control reads or partial
+provenance output; input arrays/files/settings unchanged. Initial42owning and
+final15affected source scopes retained, not repeated. Original collector and
+4source/tool/test hashes exact across closure. No handgenerated captions,
+API orphan targets, matrix/scientific/wholefeature/fullCI acceptance claims.
