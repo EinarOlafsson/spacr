@@ -1,0 +1,114 @@
+{
+  "scope": "Reviewed inputs only; normal loader/writer/audit/arrival closure still pending",
+  "new_records": 387,
+  "files": [
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "e7621891303cb319c98512d3182c1a8bf4d41a7f025f9777393d2f18aba6c7c3",
+      "final_sha256": "49dce81b44aff25728a770cad0a186d508f55e54003206768bee65f1c5219480"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "092dc58e36ebc108ab3dfec17fdd2ae66a2a8e3183d9c80f2134c520ba10564c",
+      "final_sha256": "996d76ca2e4a021cf80667276528c115e23f7d45366840ac88d74e358fd389c2"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "38f4c86dc6480be50670ed572a365aaf2a2b4b5c2a94e5c6214fc02e82382bb2",
+      "final_sha256": "0b6bc41ee80cc1fd0c9c305d04c46875f3682e64bde59210d12213adbfe3736a"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "4421996b573015ade166ebc2eba1cfb589f5a211f41407a61812ff99128e3503",
+      "final_sha256": "72a0f2c0694527e26e617bf00281524660248a8187866ff33237084c6b0e2ab5"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "03bf22c1fb00b7f05afdb13534140b63fb4a9af124500939233c16aa72ed02ce",
+      "final_sha256": "d3726d833039af8b299afc25485e3ddf022b9711f1aab0341e58732238e5142a"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "140341df20b38fad35399b64d7feced2bc919ac4c061ba5a57731fabf3cb80cb",
+      "final_sha256": "1dfea10e248df017aca6398461a9763a184a0625f550709de73fd8500c42c3fa"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "f7aef9776c7cab71bcd59696b844ece0c2346de088cbf26af0916e839a770afb",
+      "final_sha256": "7834752c8feeb66b188c5bebd4003fa20864d42c44b77e4d45d1685e23b18712"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "d96ef649d43254add710a2935e3ec8682bec210f637b2d8a447db62529e68695",
+      "final_sha256": "e6b2923adc97da79f9db54ed47101492c43e2600b5c5f75218275a74943324b7"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "d4477e6a7221db513c28527ff5626d850ed1d3a11e785d6824adc8185a080e3d",
+      "final_sha256": "ce13e0fb50340548e72b3cd54beda083cf09e963a228c541c3755eaeef282be7"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "38c61904cead74ed71a8df62e81b43dc652fbb99870b2b5797a024c154ab78d3",
+      "final_sha256": "79bd480ae01e8df72c6bbc11c668da83b6bbe74a0abebc896a94ba863f4ef317"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "b5fe9f4469765195de42bf1971072f1d1da7268f0bfe541873bd79fe5cd26406",
+      "final_sha256": "de6dc5af7fa3d3436b4d0b58bed3ec4eb5d134c31132b1859f42c47d295009cb"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "b66169241dce1c78074553afd65ae07c528c3a50012458eb7f5a86558165821b",
+      "final_sha256": "1560b950c374ec37a65cc1ea2834b6362e60d7cf7277328c8226b4663abfae8f"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "054e9c63c2c4ee9e96164d969619d753a11e79e6ab1d84eca64e99429b03249e",
+      "final_sha256": "ded02e1304f1f77d98aa07fbb6ddfe85c9c04a0e6e7896f1af2e7c3e850b9589"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "67e5ae8ca82b907fdb706b8eda6567a5fecc5bd51a26c54bed26a4fd0ba293c9",
+      "final_sha256": "2ae5b965d3e99958642f42ad4e1cd8ccd4d8ab44ad35400e16ac8cad3c19dc9a"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "c614c130078976eff1fcbc815fe986fe57d91706d651bfa1a4a38aeea286c1d6",
+      "final_sha256": "5e5bbf570e89186bd9a469196a11d0de694c9e4c04d1b8cb2a83b1a7e5aa72a4"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "585a8dbd8da99fd68c559dbb8a4d101d1b0c34fd2b8fbecd4eb5e4b8bd8ffa2f",
+      "final_sha256": "f7e3624cb866d8cdc3ae238ee80d40fc89ad39dbe454cce4757982f04df7e065"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-debian-update-transaction.json",
+      "count": 37,
+      "draft_sha256": "566ade385fe311f20ff7fd5c8e5bf11b7465519ca81af4545b68c61b162c109a",
+      "final_sha256": "4143926208cc7393e4b3167ef4bd2d0d368d345e8ae3faa588961e1c5ca92f74"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-installer-cleanup-action.json",
+      "count": 6,
+      "draft_sha256": "f90a28cd056ceb5be5461415762b1374e81b3925e805ac72a703f6085b08971b",
+      "final_sha256": "8ef25f3a13201566b0ef30fc18fe5b9549255aac33c1780654020912934322cf"
+    }
+  ]
+}

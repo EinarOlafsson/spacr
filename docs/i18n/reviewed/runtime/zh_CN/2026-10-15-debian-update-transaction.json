@@ -1,0 +1,271 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Exact-source AI translation with independent root technical target review; no native-speaker or native-platform acceptance",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "Original Home root, independent of draft author",
+  "draft_input_packet_sha256": "235fc4b60ea8e5a8f56dc6eee0332f53467d2a5da61264a710ba08df90350a65",
+  "draft_adapter_source_sha256": "fb90b9181cd04629649fca72c2bcddacf20834d00809675a0dc5b5cc93ddb535",
+  "review": "37 unique exact sources from parent-provided38occurrences only; no new source inventory or collector. Preserve Debian/spaCR/SHA256 and error placeholder. Private staging means restricted trusted filesystem staging, not cache cleanup. Distinguish authorization, unsupported protocol, failed update with successful restoration, and failed update+rollback retaining BOTH archives. GUI prompt retains graphical consent, prior package and all data/caches. Parent independent review/current final source+owner generation remain required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "unsafe Debian frontend lock",
+      "source": "unsafe Debian frontend lock",
+      "source_sha256": "40095472970a1f1668207cbedb02fb2dc799489a9d865290a5d22766206bc343",
+      "translation": "Debian 前端锁不安全"
+    },
+    {
+      "table": "ui",
+      "key": "Debian archive does not match its published SHA256",
+      "source": "Debian archive does not match its published SHA256",
+      "source_sha256": "d6bf0a0744caa43ba795ec1b2cd5e72593cfb3459e8b9ff63f102480df24f82b",
+      "translation": "Debian 归档与其公布的 SHA256 不匹配"
+    },
+    {
+      "table": "ui",
+      "key": "Debian archives require private trusted staging",
+      "source": "Debian archives require private trusted staging",
+      "source_sha256": "8d44fe96aecdf2800d82e1a19a2f02a182e34a702aacf9dc63b700f6e8492b30",
+      "translation": "Debian 归档需要私有且可信的暂存区域"
+    },
+    {
+      "table": "ui",
+      "key": "Debian staging must not reuse an existing archive",
+      "source": "Debian staging must not reuse an existing archive",
+      "source_sha256": "45d9b8cb7b6912d78242302587f307b745926be1f6251c64266db5a058a5cd4d",
+      "translation": "Debian 暂存不得重复使用现有归档"
+    },
+    {
+      "table": "ui",
+      "key": "a published SHA256 is required for Debian replacement and rollback",
+      "source": "a published SHA256 is required for Debian replacement and rollback",
+      "source_sha256": "1b65ccb6b03c85f7bae176e124a71050669802e439d1806a6b9d09b89bdb7fd3",
+      "translation": "Debian 替换和回滚需要已公布的 SHA256"
+    },
+    {
+      "table": "ui",
+      "key": "unsafe Debian archive staging identity",
+      "source": "unsafe Debian archive staging identity",
+      "source_sha256": "22869feda9a35de6006f52082e1efa74eb9a6ac03b6bcc9b6950361152e1f44c",
+      "translation": "Debian 归档暂存区域的身份不安全"
+    },
+    {
+      "table": "ui",
+      "key": "Debian archive does not match the requested spaCR release",
+      "source": "Debian archive does not match the requested spaCR release",
+      "source_sha256": "82ef17eb596e1673a6fd313a6ae5ddb3776ce001ddcb5ba941ae8b87d403c93c",
+      "translation": "Debian 归档与请求的 spaCR 发行版本不匹配"
+    },
+    {
+      "table": "ui",
+      "key": "invalid Debian package metadata",
+      "source": "invalid Debian package metadata",
+      "source_sha256": "ac3f4b568b5a8e326a2127746c77538856c0732bbff29586231bd8150690c2f8",
+      "translation": "Debian 软件包元数据无效"
+    },
+    {
+      "table": "ui",
+      "key": "unsupported Debian package architecture",
+      "source": "unsupported Debian package architecture",
+      "source_sha256": "2405cf16d6bf15bb774e9d9522033f6c8d7666acd498c2d6af506f8bf3539b74",
+      "translation": "不支持此 Debian 软件包架构"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR Debian package state is ambiguous",
+      "source": "spaCR Debian package state is ambiguous",
+      "source_sha256": "5d0fb39b005a0adba00c774ae007f3d5a57246c3a4fdf26c2f3fd175f2f0eb81",
+      "translation": "spaCR 的 Debian 软件包状态不明确"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR is not a configured native Debian package",
+      "source": "spaCR is not a configured native Debian package",
+      "source_sha256": "f6838e7c234e95bdeb9330ecf0a521d506945a9b48d21c23f2081810a06db4ef",
+      "translation": "spaCR 不是已配置完成的原生 Debian 软件包"
+    },
+    {
+      "table": "ui",
+      "key": "Debian replacement failed: {error}",
+      "source": "Debian replacement failed: {error}",
+      "source_sha256": "aaceb7db3a67bd4baf67d2d9daf9a0b07c340c0c8aeec5d02555d23a5736e2a0",
+      "translation": "Debian 替换失败：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "Debian replacement identity could not be verified",
+      "source": "Debian replacement identity could not be verified",
+      "source_sha256": "ea760ac07820e2eef5d7f28cd9e33fcc1faea130f41a3a323f34c6b7a048cda6",
+      "translation": "无法验证 Debian 替换安装的身份"
+    },
+    {
+      "table": "ui",
+      "key": "Debian update and rollback failed; both archives are retained for recovery",
+      "source": "Debian update and rollback failed; both archives are retained for recovery",
+      "source_sha256": "522eb4d41d0780cc2cc20ded410927d0a6c1c26ebee1f06cd480ee5e06e38c3a",
+      "translation": "Debian 更新和回滚均失败；两个归档均予以保留以供恢复"
+    },
+    {
+      "table": "ui",
+      "key": "Debian update failed; the previous package and runtime were restored",
+      "source": "Debian update failed; the previous package and runtime were restored",
+      "source_sha256": "55c91d413cfc5183f809d47bb47be912899ba8494931f4d2b9606e99dd5da322",
+      "translation": "Debian 更新失败；已恢复先前的软件包和运行环境"
+    },
+    {
+      "table": "ui",
+      "key": "a different Debian package replaced this transaction",
+      "source": "a different Debian package replaced this transaction",
+      "source_sha256": "352cc3786a88ffd14ec37e963b216894ef3df93d55787a648eca9c60f35198b5",
+      "translation": "另一个 Debian 软件包替代了此事务"
+    },
+    {
+      "table": "ui",
+      "key": "restored Debian identity could not be verified",
+      "source": "restored Debian identity could not be verified",
+      "source_sha256": "f167a158aca2b1b5e3cf672b84d3444b94b3ad4b329d93f097ae5f9598cb8105",
+      "translation": "无法验证已恢复的 Debian 身份"
+    },
+    {
+      "table": "ui",
+      "key": "the installed Debian package changed during preparation",
+      "source": "the installed Debian package changed during preparation",
+      "source_sha256": "3da57864237aec78bff84e788c2ae9bc2f17d491d890911f47b7d216e3ef5ba5",
+      "translation": "已安装的 Debian 软件包在准备期间发生更改"
+    },
+    {
+      "table": "ui",
+      "key": "the requested Debian release is not newer than the installed version",
+      "source": "the requested Debian release is not newer than the installed version",
+      "source_sha256": "3484b86517db36dc00fae7a2d93c101d8daf7dde2a7f7a6055b58195e989f201",
+      "translation": "请求的 Debian 发行版本不比已安装版本更新"
+    },
+    {
+      "table": "ui",
+      "key": "Debian package commands require the trusted privileged adapter",
+      "source": "Debian package commands require the trusted privileged adapter",
+      "source_sha256": "1e1ad296cc74e1b2c61ba2da141cf4a9f84d8b6da899dbdb3e7741424a35399a",
+      "translation": "Debian 软件包命令需要可信的特权适配器"
+    },
+    {
+      "table": "ui",
+      "key": "Debian verification requires the authenticated desktop user",
+      "source": "Debian verification requires the authenticated desktop user",
+      "source_sha256": "3d9f4efceb4d1185b704d68bd36a90af39a16a51092c167f9ee1710e1bb17dce",
+      "translation": "Debian 验证需要已通过身份认证的桌面用户"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian application is not a trusted system package",
+      "source": "the Debian application is not a trusted system package",
+      "source_sha256": "812486db044579969ff8dffeae6a8bc17c5e4a5118498b528e96cf52829fbc9e",
+      "translation": "Debian 应用程序不是可信的系统软件包"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian application root must not be redirected",
+      "source": "the Debian application root must not be redirected",
+      "source_sha256": "85a135dca131ebd2bfe60a9c4cc6edf142062be6daec080ccc95f5b6343f94d6",
+      "translation": "不得重定向 Debian 应用程序的根目录"
+    },
+    {
+      "table": "ui",
+      "key": "configured user data inside the Debian application must remain untouched",
+      "source": "configured user data inside the Debian application must remain untouched",
+      "source_sha256": "e2f30c2e58668804e9548033516ddece216bf3cca53473c343d92f3712f788bd",
+      "translation": "Debian 应用程序内已配置的用户数据必须保持不变"
+    },
+    {
+      "table": "ui",
+      "key": "graphical administrator authorization is unavailable",
+      "source": "graphical administrator authorization is unavailable",
+      "source_sha256": "095edf5a58c12747078002f350071ecb13c50d43c9d034f6c2f5282606daaf70",
+      "translation": "无法使用图形化管理员授权"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian update protocol marker is not trusted",
+      "source": "the Debian update protocol marker is not trusted",
+      "source_sha256": "87763ca344d861cf6b9cfc0830875ec7c97c04cc82443fd84f52155e1e33acae",
+      "translation": "Debian 更新协议标记不可信"
+    },
+    {
+      "table": "ui",
+      "key": "the installed Debian updater protocol is unsupported",
+      "source": "the installed Debian updater protocol is unsupported",
+      "source_sha256": "e699c7e008847fc03b25f40d8fa762283562576cbc4ff221d1fa018a5a63c802",
+      "translation": "不支持已安装的 Debian 更新器协议"
+    },
+    {
+      "table": "ui",
+      "key": "this Debian installation has no verified graphical replacement adapter",
+      "source": "this Debian installation has no verified graphical replacement adapter",
+      "source_sha256": "98e96a4e3e445e50cb8c1871fc6b143c0b41466c90150d94bc6ce9c013af4efd",
+      "translation": "此 Debian 安装没有经过验证的图形化替换适配器"
+    },
+    {
+      "table": "ui",
+      "key": "Debian updates require graphical authorization from the desktop user",
+      "source": "Debian updates require graphical authorization from the desktop user",
+      "source_sha256": "e9c4f5880c58051f7da2e8f815c83da7ceb97533252e21910b2e1bdbb9872b6c",
+      "translation": "Debian 更新需要桌面用户通过图形界面授权"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian executable is not exclusively owned by spaCR",
+      "source": "the Debian executable is not exclusively owned by spaCR",
+      "source_sha256": "1e17589d820d60a26eb331bd2347a7b1b078b11140291d10f7eb78e7d192a8ce",
+      "translation": "Debian 可执行文件并非仅属于 spaCR"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian package layout is not a trusted system installation",
+      "source": "the Debian package layout is not a trusted system installation",
+      "source_sha256": "32832632d30428bc2d63ddca8803d29d4163217db824419c741c18e0d9169c51",
+      "translation": "Debian 软件包布局不符合可信系统安装的布局"
+    },
+    {
+      "table": "ui",
+      "key": "the installed Debian package changed before authorization",
+      "source": "the installed Debian package changed before authorization",
+      "source_sha256": "3f50a4a7cbc7ea1b47c293183397b612a9641581f68e4603024be2f55d10c8a5",
+      "translation": "已安装的 Debian 软件包在授权前发生更改"
+    },
+    {
+      "table": "ui",
+      "key": "Debian privileged staging identity changed",
+      "source": "Debian privileged staging identity changed",
+      "source_sha256": "49278c15b2f81ea49842aabc29c3b529028b1b3f4ee0f00e832eba5bfb583eee",
+      "translation": "Debian 特权暂存区域的身份已更改"
+    },
+    {
+      "table": "ui",
+      "key": "Debian replacement must run from its trusted outside-runtime helper",
+      "source": "Debian replacement must run from its trusted outside-runtime helper",
+      "source_sha256": "a5f1de32cd6f3f2cca743c5fed5e972e661e760ffac598b02be9c3c0fb05298f",
+      "translation": "Debian 替换必须通过位于运行环境之外的可信辅助程序执行"
+    },
+    {
+      "table": "ui",
+      "key": "Debian updater staging is not a private system directory",
+      "source": "Debian updater staging is not a private system directory",
+      "source_sha256": "4e4752834a2acba930a31f1a6675d315c2dbb7d735e534dfe739c91aaf321a86",
+      "translation": "Debian 更新器的暂存区域不是私有系统目录"
+    },
+    {
+      "table": "ui",
+      "key": "only the installed Debian helper may prepare privileged replacement",
+      "source": "only the installed Debian helper may prepare privileged replacement",
+      "source_sha256": "08bea987fcf96d92d755f584d77c1dd6dd1d288698032c5d73bdca7ce6adcb9e",
+      "translation": "只有已安装的 Debian 辅助程序可以准备特权替换"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR will close before updating its Debian package. A graphical administrator authorization window will open. The previous package will be retained for rollback. Your data and caches will be kept.",
+      "source": "spaCR will close before updating its Debian package. A graphical administrator authorization window will open. The previous package will be retained for rollback. Your data and caches will be kept.",
+      "source_sha256": "d2525609d20da56b4271adca750a416385cb0a3b0af9eff8806a48eddfaedf2d",
+      "translation": "spaCR 将在更新其 Debian 软件包之前关闭。将打开图形化管理员授权窗口。先前的软件包将保留，以便回滚。您的数据和缓存将保留。"
+    }
+  ]
+}
