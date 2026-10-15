@@ -255,3 +255,16 @@ identity/minimal-edit/phenotype success claim. Other channels can redraw cells.
 Larger/pretrained diffusion, low-strength biological validation and historical
 scientific/publication limitations remain open; whole F564 is not closed here.
 Receipt:features/data/564_reference_channels_2026-10-14/.
+
+2026-10-14 — Reference-channel diagnostic localization prepared, not generated.
+AST audit identifies8tr callsites across four scoped attribution helpers and
+6unique exact messages (report repeats two). Authored54 source-hash-bound
+technical translations in all9runtime locales; normal contextualization and
+candidate-rejection gates pass all54targets, actualexit0. These are direct AI
+technical reviews, not independent/native signoff. Parent independent review and
+Home-B owner-scoped extraction are requested in
+/mnt/wd4tb/scratch/home-b-coordination-20261014/F564_SCOPED_EXTRACTION_REQUEST.txt.
+No wholemodule extraction, catalog hand insertion, exemptions or generated
+runtime edits. Canonical extraction/generation/runtime closure remains pending;
+the backend's scientific caveats above remain unchanged. Receipt:
+features/data/564_reference_channels_2026-10-14/localization-receipt.json.
