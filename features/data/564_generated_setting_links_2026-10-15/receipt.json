@@ -1,0 +1,25 @@
+{
+  "generators": [
+    "tools/build_setting_consumer_map.py",
+    "tools/settings_flow.py --rst",
+    "tools/build_help_search_index.py"
+  ],
+  "all_terminal_exit": 0,
+  "outputs_sha256": {
+    "docs/setting_consumers.json": "3db47f475c873f435879b67a54fd60d2f1333a53e660d1f78f877133244a9f5e",
+    "docs/source/_generated/settings_flow.rst": "2a308fe1296af4a13186ebdde6021a1d4cf8daf107b737b1774ad3d7fafb220d",
+    "spacr/qt/screens/setting_api_targets.py": "b7be6a8ef5569e341510fca7e70a21338ddf29a5e2d0673bd4e5f5376baddd17",
+    "spacr/qt/screens/settings_flow_index.py": "a79cdeea6d3a67056a5ad9d339406d928d9db36839c559c2888cf9e8151d4d7d",
+    "spacr/qt/help_api_index.py": "f7b38dfb0f7bc972986c623e8296934f70e9f08029bbc8fb6563ac9f3b695236"
+  },
+  "raw_evidence_sha256": {
+    "consumers.log": "c98029216e93b40508025a629be8bcea45a5fc8dd0bb8ef269848848ed9f4d28",
+    "consumers.time": "d48bb13c53ceb650dc15b95a154064a4751207858c673959cf67b33a68f952bb",
+    "flows.log": "ab88d1abbd00337d2278cc2f6a8f277c154fc3a397868cc54230109558f1a696",
+    "flows.time": "f5797f37672c0034bc84c35aac9409a0efd69b27968f0b6af03ffc97c969a16b",
+    "help.log": "fd96b95a290abfd31fa70759eb6ffd4d3f8691bb55403b46651c8e01b869c3e3",
+    "help.time": "ded9afe649b0fa389e0602645f5269e978aa612e9b613d6b8f6446c5046389dc",
+    "consumer-delta.json": "fc593ad50dd04e6f5d7f40ed8b9e66a9f362b6beaa2c00eed0311a4dad98a672"
+  },
+  "scope": "Normal complete regeneration. New strength/structure keys reach actual deep_spacr consumer, public function tree, flow sections and Help indexes. Existing line offsets refreshed; channels gains one pre-existing psf_pipeline keyword consumer; cell_cycle_fucci_channels differs only in record order. No hand merging or tutorial generation."
+}
