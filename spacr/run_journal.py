@@ -3870,7 +3870,7 @@ def _is_prunable_name(kind: str, entry: Path) -> bool:
     """
     name = entry.name
     if kind == "logs":
-        return (name.startswith("spacr") and ".log" in name
+        return (re.fullmatch(r"spacr.*\.log(?:\.\d+)?", name) is not None
                 and entry.is_file() and not entry.is_symlink())
     if kind == "run_logs":
         return ((name.endswith(".jsonl") or name.endswith(".resources.json"))
@@ -4162,7 +4162,10 @@ def _read_cache_locations() -> Dict[str, str]:
         data = json.loads(_cache_locations_path().read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
-    return {str(k): str(v) for k, v in data.items()} if isinstance(data, dict) else {}
+    if not isinstance(data, dict):
+        return {}
+    return {key: value for key, value in data.items()
+            if isinstance(value, str) and value.strip() and "\x00" not in value}
 
 
 def _apply_cache_locations() -> int:
@@ -4308,19 +4311,38 @@ def _relocate_cache(key: str, parent: Any) -> Path:
         path = _cache_locations_path()
         target.parent.mkdir(parents=True, exist_ok=True)
         had_source = source.is_dir()
+        had_target = target.exists()
+        copied_source = False
         if had_source:
-            if target.exists():
+            if had_target:
                 target.rmdir()
-            shutil.move(str(source), str(target))
+            try:
+                try:
+                    os.rename(source, target)
+                except OSError as error:
+                    import errno
+
+                    if error.errno != errno.EXDEV:
+                        raise
+                    with tempfile.TemporaryDirectory(prefix=".spacr-cache-move-", dir=target.parent) as staging:
+                        staged = Path(staging) / "cache"
+                        shutil.copytree(source, staged, symlinks=True, copy_function=shutil.copy2)
+                        os.replace(staged, target)
+                    copied_source = True
+            except BaseException:
+                if had_target and not target.exists():
+                    target.mkdir()
+                raise
         else:
-            had_target = target.exists()
             target.mkdir(parents=True, exist_ok=True)
         recorded[env] = str(target)
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
         except OSError:
-            if had_source:
+            if copied_source:
+                LOG.warning("Cache retained at %s", target, exc_info=True)
+            elif had_source:
                 try:
                     if source.exists():
                         raise FileExistsError(str(source))
@@ -4334,6 +4356,11 @@ def _relocate_cache(key: str, parent: Any) -> Path:
                     LOG.warning("Cache retained at %s", target, exc_info=True)
             raise
         os.environ[env] = str(target)
+        if copied_source:
+            try:
+                shutil.rmtree(source)
+            except OSError:
+                LOG.warning("Cache retained at %s", source, exc_info=True)
         return target
 
 

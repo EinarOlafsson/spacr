@@ -1510,7 +1510,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í fjórum brunnum og Next vistar þær.",
+          "narration": "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í þremur brunnum og Next vistar þær.",
           "focus": [
             360,
             380,
@@ -1522,7 +1522,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú ber hver úrklippa á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
+          "narration": "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú bera ómerktar úrklippur á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
           "focus": [
             350,
             250,
@@ -1533,7 +1533,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
+          "narration": "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin bíða vistunar þar til Next vistar þau; höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
           "focus": [
             350,
             250,
@@ -1564,7 +1564,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

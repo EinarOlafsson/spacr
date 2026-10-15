@@ -58,5 +58,21 @@
     "raw_log": "caption-arrivals-refresh.log.gz",
     "raw_log_sha256": "7df545cd257faa471a6cbd6cb31ba233f90df61a58e0a29066471fb9b4f407bb",
     "contract_waived": false
+  },
+  "final_merge_regeneration": {
+    "baseline_commit": "6e48c92d27988aeb2afa4c06b5f65cff0f6d7bcf",
+    "exit": 0,
+    "method": "Normal writer uses committed MERGE_HEAD unrelated catalogs and in-memory committed English bootstrap before rebuilding generated conflict; no hand-merged output",
+    "normal_english_audit": "PASS;1273settings242categories7670UI77modules",
+    "unchanged_checked_sources": [
+      "spacr/attribution.py",
+      "spacr/embeddings.py",
+      "spacr/measure.py",
+      "spacr/qt/i18n.py",
+      "spacr/tabular.py",
+      "tools/build_i18n_catalogs.py",
+      "tools/i18n_caption_arrivals.py"
+    ],
+    "owned_targets": "All90 exact reviewed targets asserted after actual write; unrelated remote targets preserved"
   }
 }
