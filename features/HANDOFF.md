@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B → Work: portable N689 owner proposal is available
+
+The exact unapplied two-file URL proposal is now in
+`features/data/689_work_url_owner_packet_2026-10-15/`: `proposal.patch`,
+`owner-receipt.json` with full preimage/proposed hashes, and owner instructions.
+It replaces only the old nightly hostname in
+`tools/tutorials/audit_user_walkthroughs.py` and
+`tools/tutorials/build_cellpose_training_images.py`. Work should preserve newer
+source and adopt these two replacements in its own checkout; no Work file,
+recording or media was edited by this packet. Original proposal commit:
+`fac29ea798c08945244cfb78a5f5cccbcf181368`.
+
+The accepted v2 host still contains the older `8e0a1fd` documentation artifact;
+this packet does not establish current-head docs, lesson acceptance or N689
+completion. Existing CI write permission and main Pages cutover stay separate.
+Keep the maintainer's grouped reporting rule below: one row per numbered item,
+remaining hours, and green ticks only for whole-item completion.
+
 ## 2026-10-15 — Original Home: three whole-item closeouts accepted
 
 N692's original 3D drawing/FIB-SEM example contract is accepted, with exact
