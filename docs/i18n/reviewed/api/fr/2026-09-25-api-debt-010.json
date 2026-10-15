@@ -650,7 +650,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
       "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
-      "translation": "chemins CSV de comptages ; chacun est associé au score dont les jetons de nom de fichier lui correspondent le mieux de façon unique, ceux sans correspondance remplissent les lignes de scores auxquelles manque encore un comptage, et ceux qui restent reçoivent leurs propres lignes."
+      "translation": "chemins CSV de comptages ; chacun est associé au score dont les jetons de nom de fichier lui correspondent le mieux de façon unique, ceux sans correspondance remplissent les lignes de scores auxquelles manque encore un comptage, et ceux qui restent reçoivent leurs propres lignes.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "File pairing/attachment and one-based coordinate source documentation corrected inf419206a0ed+1f930c37d55+409c1060994. Replacement exact-source review is2026-10-15-file-plate-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "available width in pixels, passed to the layout; without a layout the base class answers.",

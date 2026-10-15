@@ -1,0 +1,8 @@
+{
+  "changed_definitions": [
+    "scorecard_html"
+  ],
+  "api_docstring_identical": true,
+  "runtime_literals_unchanged": true,
+  "source_sha256": "5380259ac8c822eb1d986b690893e2c939a77ccccf988db6ce94595baf06ac47"
+}

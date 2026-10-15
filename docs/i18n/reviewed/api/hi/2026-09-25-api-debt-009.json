@@ -274,7 +274,10 @@
       "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
       "context": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
       "translation": "गिनती CSV पथ; प्रत्येक को उस स्कोर के साथ जोड़ा जाता है जिसके फ़ाइल नाम टोकन से यह अद्वितीय रूप से सबसे अच्छा मेल खाता है, बिना मेल वाले पथ उन स्कोर पंक्तियों को भरते हैं जिनमें अभी गिनती नहीं है, और बचे हुए पथों को अपनी पंक्तियाँ मिलती हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "File pairing/attachment and one-based coordinate source documentation corrected inf419206a0ed+1f930c37d55+409c1060994. Replacement exact-source review is2026-10-15-file-plate-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.flow.FlowHost.heightForWidth#1",
