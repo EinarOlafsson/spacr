@@ -82,3 +82,38 @@ def test_actual_offline_pip_resolves_immutable_git_extra_before_source_copy(tmp_
         assert metadata['Provides-Extra'] == 'plaque'
         assert any(Requirement(value).name == 'managed-plaque-dependency'
                    for value in metadata.get_all('Requires-Dist'))
+
+
+def test_actual_offline_source_archive_hash_and_extra_resolution(tmp_path):
+    source = tmp_path / 'source'; source.mkdir()
+    (source / 'setup.py').write_text("from setuptools import setup\nsetup(name='managed-archive-fixture',version='1.0',py_modules=['archive_model'],extras_require={'plaque':['managed-plaque-dependency==1.0']})\n")
+    (source / 'archive_model.py').write_text("SOURCE = 'reviewed-archive-source'\n")
+    (source / 'pyproject.toml').write_text('[build-system]\nrequires=["setuptools", "wheel"]\nbuild-backend="setuptools.build_meta"\n')
+    archives = tmp_path / 'archives'; archives.mkdir()
+    built = subprocess.run([sys.executable, '-c', 'from setuptools.build_meta import build_sdist; import sys; build_sdist(sys.argv[1])', str(archives)], cwd=source, capture_output=True, text=True, timeout=25)
+    assert built.returncode == 0, built.stdout + built.stderr
+    artifact = next(archives.glob('*.tar.gz'))
+    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    wheelhouse = tmp_path / 'wheelhouse'; wheelhouse.mkdir()
+    dependency_sha = _dependency_wheel(wheelhouse)
+    empty = tmp_path / 'before-copy'; empty.mkdir()
+    environment = dict(os.environ, PIP_NO_INDEX='1', PIP_DISABLE_PIP_VERSION_CHECK='1', PIP_NO_INPUT='1')
+    command = [sys.executable, '-m', 'pip', 'wheel', '--no-index', '--no-cache-dir', '--no-build-isolation', '--find-links', str(wheelhouse)]
+    request = 'managed-archive-fixture[plaque] @ ' + artifact.as_uri() + '#sha256=' + digest
+    outputs = tmp_path / 'verified-wheels'
+    resolved = subprocess.run(command + ['--wheel-dir', str(outputs), request], cwd=empty, env=environment, capture_output=True, text=True, timeout=40)
+    assert resolved.returncode == 0, resolved.stdout + resolved.stderr
+    assert hashlib.sha256((outputs / 'managed_plaque_dependency-1.0-py3-none-any.whl').read_bytes()).hexdigest() == dependency_sha
+    with zipfile.ZipFile(outputs / 'managed_archive_fixture-1.0-py3-none-any.whl') as archive:
+        assert archive.read('archive_model.py') == b"SOURCE = 'reviewed-archive-source'\n"
+        metadata = Parser().parsestr(archive.read('managed_archive_fixture-1.0.dist-info/METADATA').decode())
+        assert metadata['Provides-Extra'] == 'plaque'
+        assert any(Requirement(value).name == 'managed-plaque-dependency'
+                   for value in metadata.get_all('Requires-Dist'))
+    corrupt = tmp_path / artifact.name
+    raw = bytearray(artifact.read_bytes()); raw[-1] ^= 1; corrupt.write_bytes(raw)
+    rejected = subprocess.run(command + ['--wheel-dir', str(tmp_path / 'refused-wheels'), 'managed-archive-fixture[plaque] @ ' + corrupt.as_uri() + '#sha256=' + digest], cwd=empty, env=environment, capture_output=True, text=True, timeout=25)
+    assert rejected.returncode != 0
+    assert 'DO NOT MATCH THE HASHES' in rejected.stderr
+    assert digest in rejected.stderr
+    assert not list((tmp_path / 'refused-wheels').glob('managed_archive_fixture*'))
