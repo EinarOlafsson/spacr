@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — classifier integration accepted; safe accessible resize
+
+F561 source/runtime/API/Help integration is ready for immediate nightly push.
+Exact approved19-helper/constructor wiring passes3 strict checks; historical
+13218/211 floors are unchanged. All55caption identities, nine-language audits,
+actual GUI/backend consumers and23Help routes pass. No new full CI/release or
+scientific claim. Original may adopt the published strict-test commit; do not
+re-author its packet. Work portable docs patch is already publicdd61.
+
+N655 final safe HintBar source04eebb (root662e) removes ALL custom numeric
+interface/pointer plumbing.26 focused checks and actual external native actions
+97→115→97 with exactly two persistence signals pass. Original crashing418e and
+its superseded peer remain historical evidence; do not use those draft trees.
+Numeric native Value is absent and Qt Grip maps to UNKNOWN67. Native evidence
+and independent final peer are integrated; no whole-item/other-platform claim.
+Plate-map invisible-focus repair is now independently owned in the N655 lane.
+
 ## 2026-10-15 Home-B — active integration and source-owner dependencies
 
 F561 real training/application source and23-symbol API closure are integrated

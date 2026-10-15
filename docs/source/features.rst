@@ -85,6 +85,31 @@ Classify CV also offers optional rotations and reflections at inference time.
 See :doc:`classifier_evaluation` for the aggregation methods, original and
 mean probabilities, and orientation-stability flags.
 
+Own-DINO classifiers (alpha)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enable **Preferences → Show alpha features**, then open **Embeddings** and
+load the crop stack. Select an existing own-DINO teacher checkpoint with the
+own-checkpoint control. **Train classifier…** opens the supervised training
+form. Supply a CSV with one row per loaded crop, in exactly the same order,
+and columns ``label`` and ``acquisition_group``. Blank labels are excluded.
+Each labelled crop needs its known acquisition-well identity; complete groups
+are held out for validation. Keep string identities such as ``01`` intact.
+
+Enter the ordered physical source-channel indices for these crops, choose
+training settings, and select a new classifier output file. Existing output
+files are preserved. The saved classifier records its classes, channel order,
+scaling and feature-normalization policy. Progress is shown during training;
+**Stop classifier** requests cancellation.
+
+Use **Apply saved classifier…** to select that classifier and apply it to the
+loaded raw crop stack. Its recorded preprocessing is applied automatically.
+**Classifier results…** shows predictions, features, logits and probabilities,
+with the class order, physical channels and checkpoint digest. CSV export
+includes the complete selected result table. **Cancel classifier result**
+discards pending delivery; the worker can remain active until it finishes.
+These alpha controls do not establish phenotype accuracy for a new dataset.
+
 Map Barcodes
 ~~~~~~~~~~~~
 
