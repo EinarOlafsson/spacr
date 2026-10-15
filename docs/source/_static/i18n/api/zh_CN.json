@@ -100945,14 +100945,14 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "重新下载由 AppScreen 发布的不可变设置截图。\n\n:param module: 要在模块下拉框中选择的 ``spacr.cli.MODULES`` 键；未知的键会保持当前选择不变。\n:param settings: 要提交的设置；会保留一份浅拷贝，在编辑路径字段之前代替设置文件使用。",
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "重新下载由 AppScreen 发布的不可变设置截图。\n\n:param module: 要在模块下拉框中选择的 ``spacr.cli.MODULES`` 键；未知的键会保持当前选择不变。\n:param settings: 要提交的设置。在设置路径被编辑之前，保留包含精确模型标识的深拷贝。",
       "translation_source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
@@ -113945,17 +113945,17 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "更新已知的运行设置,其 widget 不在此格式。\n\n这包括在形状之外的专门控制,以及当前形状忽略的对象行。\n\n隐藏并不意味着缺席:进口值生活在 ``_defaults`` 并且仍然达到 ``collect()``。\n\n现行计算以上的插槽只有当该应用程序拥有计算时才会被接受,而结构化数据名称则是声明设置;外部应用程序结构化信息名称仍然被拒绝。\n\n:param key: 设置键；它必须已经是运行设置，或者在此表单负责细胞器数量时是在 ``expected_types`` 中声明的细胞器槽位键，否则返回 ``False``。\n:param value: 新值，在存储之前会被转换为该设置的预期类型。",
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "更新已知的运行设置,其 widget 不在此格式。\n\n这包括在形状之外的专门控制,以及当前形状忽略的对象行。\n\n隐藏并不意味着缺席:进口值生活在 ``_defaults`` 并且仍然达到 ``collect()``。\n\n现行计算以上的插槽只有当该应用程序拥有计算时才会被接受,而结构化数据名称则是声明设置;外部应用程序结构化信息名称仍然被拒绝。\n\n:param key: 已知的运行设置、此表单控制数量时已声明的细胞器槽位键，或保留键 ``model_metadata``。其他键返回 ``False``。\n:param value: 新值，在存储之前会被转换为该设置的预期类型。",
       "translation_source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87",
-        "b52f9e99da6ca843f89e930355aa5a97211ea15d69e6c6f7f395fe1834a7d4d1",
+        "4c9fb1a2a489d2fae6cdcaec81aad97bfe82d3b38c7db8b4ccf46ed8a46336c7",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ]
     },
@@ -154918,14 +154918,12 @@
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent": {
       "source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ],
-      "source_sha256": "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff",
-      "text": "重新启动隐藏时间表,当 cursor 离开 POPUP 本身时。\n\n比火柴的恩典期更短:离开火柴是故意的行为,在那里离开标签可能只是走向它的道路。\n\n:param event: 离开事件；会传递给基类，此外不读取。",
+      "source_sha256": "7db8e214bd14ad48f49a4a7b8fa1dabeae786451c1d9524d551ff397a17daab6",
+      "text": "重新启动隐藏时间表,当 cursor 离开 POPUP 本身时。\n\n:param event: 离开事件；会传递给基类，此外不读取。",
       "translation_source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ]
     },

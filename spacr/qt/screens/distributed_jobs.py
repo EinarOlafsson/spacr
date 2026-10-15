@@ -619,13 +619,16 @@ class DistributedJobsScreen(QWidget):
 
         :param module: the ``spacr.cli.MODULES`` key to select in the module
             box; an unknown key leaves the selection unchanged.
-        :param settings: the settings to submit; a shallow copy is kept and
-            used instead of a settings file until the path field is edited.
+        :param settings: settings to submit. A deep copy with exact model
+            identities is retained until the settings path is edited.
         """
+        from ...model_zoo import _capture_model_metadata
+
+        snapshot = _capture_model_metadata(module, settings)
         index = self._module.findData(str(module))
         if index >= 0:
             self._module.setCurrentIndex(index)
-        self._settings_snapshot = dict(settings)
+        self._settings_snapshot = snapshot
         self._snapshot_module = str(module)
         self._save_snapshot.setEnabled(True)
         self._settings_path.setText(
@@ -869,8 +872,10 @@ class DistributedJobsScreen(QWidget):
         ):
             self._set_status(tr("Choose an existing settings CSV/JSON."), error=True)
             return
+        from copy import deepcopy
+
         settings_snapshot = (
-            dict(self._settings_snapshot)
+            deepcopy(self._settings_snapshot)
             if self._settings_snapshot is not None else None
         )
         use_allocated_gpus = (module_name == "mask"
@@ -889,6 +894,11 @@ class DistributedJobsScreen(QWidget):
                 if settings_snapshot is not None
                 else resolve_settings(module, settings_path, [])
             )
+            if "model_metadata" in settings:
+                from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+                _validate_model_metadata(
+                    settings, model_kinds=_model_input_kinds(module, settings))
             if use_allocated_gpus:
                 settings = dict(settings, mask_parallel=True,
                                 mask_gpu_indices="")

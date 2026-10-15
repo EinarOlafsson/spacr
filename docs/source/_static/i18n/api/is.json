@@ -100944,14 +100944,14 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "Sækja óþreytt settunar snúandi sem er veitt út af AppScreen.\n\n:param module: ``spacr.cli.MODULES`` lykillinn sem á að velja í einingareitnum; óþekktur lykill lætur valið óbreytt.\n:param settings: stillingarnar sem á að senda inn; grunnt afrit er geymt og notað í stað stillingaskrár þar til slóðarreitnum er breytt.",
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "Sækja óþreytt settunar snúandi sem er veitt út af AppScreen.\n\n:param module: ``spacr.cli.MODULES`` lykillinn sem á að velja í einingareitnum; óþekktur lykill lætur valið óbreytt.\n:param settings: stillingarnar sem á að senda. Djúpt afrit með nákvæmum auðkennum líkana er varðveitt þar til slóð stillinganna er breytt.",
       "translation_source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
@@ -113944,17 +113944,17 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "Upplýsingar um þekkt rún setting sem widget er ekki á þessari form.\n\nÞetta inniheldur sérstaka stjórnunum fyrir utan formann og hlutarríðum sem núverandi formurinn er yfirgefið.\n\nHidden þýðir ekki fjarlægð: innfangið verður í ``_defaults`` og er enn að ná ``collect()``.\n\nSlott yfir núverandi reikning er samþykkt aðeins þegar þessi app eigir reikninginn og struktuð-data nafn er útskýrt sett; fremur-app struktuðu-data nafn virðist neitað.\n\n:param key: stillingalykill; hann verður þegar að vera keyrslustilling, eða lykill frumulíffærahólfs sem tilgreindur er í ``expected_types`` þegar þetta form á fjölda frumulíffæra, annars er ``False`` skilað.\n:param value: nýtt gildi, þvingað í væntanlega gerð stillingarinnar áður en það er vistað.",
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "Upplýsingar um þekkt rún setting sem widget er ekki á þessari form.\n\nÞetta inniheldur sérstaka stjórnunum fyrir utan formann og hlutarríðum sem núverandi formurinn er yfirgefið.\n\nHidden þýðir ekki fjarlægð: innfangið verður í ``_defaults`` og er enn að ná ``collect()``.\n\nSlott yfir núverandi reikning er samþykkt aðeins þegar þessi app eigir reikninginn og struktuð-data nafn er útskýrt sett; fremur-app struktuðu-data nafn virðist neitað.\n\n:param key: þekkt keyrslustilling, yfirlýstur lykill fyrir frumulíffærasæti þegar þetta eyðublað stjórnar fjöldanum, eða frátekni lykillinn ``model_metadata``. Aðrir lyklar skila ``False``.\n:param value: nýtt gildi, þvingað í væntanlega gerð stillingarinnar áður en það er vistað.",
       "translation_source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87",
-        "b52f9e99da6ca843f89e930355aa5a97211ea15d69e6c6f7f395fe1834a7d4d1",
+        "4c9fb1a2a489d2fae6cdcaec81aad97bfe82d3b38c7db8b4ccf46ed8a46336c7",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ]
     },
@@ -154917,14 +154917,12 @@
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent": {
       "source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ],
-      "source_sha256": "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff",
-      "text": "Byrjaðu aftur skugga tímaritinn þegar kurzorinn yfirgefur POPUP sjálfan sig.\n\nStærri en græða tími á tilgangi: að yfirgefa popup er hugsanlega gerð, þar sem yfirgefið tákn getur bara verið ferð til þess.\n\n:param event: brottfararatburðurinn; sendur til grunnklasans og annars ekki lesinn.",
+      "source_sha256": "7db8e214bd14ad48f49a4a7b8fa1dabeae786451c1d9524d551ff397a17daab6",
+      "text": "Byrjaðu aftur skugga tímaritinn þegar kurzorinn yfirgefur POPUP sjálfan sig.\n\n:param event: brottfararatburðurinn; sendur til grunnklasans og annars ekki lesinn.",
       "translation_source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ]
     },

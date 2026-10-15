@@ -20,6 +20,7 @@ def checkpoint(tmp_path, monkeypatch):
     monkeypatch.setattr(zoo, '_spacr_home', lambda: tmp_path / 'node')
     monkeypatch.setattr(zoo, '_on_the_qt_gui_thread', lambda: False)
     monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [entry])
+    monkeypatch.setattr(zoo, '_planning_model_entries', lambda: [entry])
     return entry, data
 
 

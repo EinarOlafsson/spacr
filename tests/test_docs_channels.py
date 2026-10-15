@@ -300,6 +300,19 @@ def test_nightly_site_uploads_atomically_and_deletes_removed_pages(tmp_path, mon
     assert all(op[1]['path_or_fileobj'].is_file() for op in operations if op[0] == 'add')
 
 
+def test_nightly_space_license_matches_the_project_declaration(tmp_path):
+    import re
+    root = Path(__file__).resolve().parents[1]
+    project = re.search(r'^license = "([^"]+)"$',
+                        (root / 'pyproject.toml').read_text(), re.M)[1]
+    assert project == 'BSD-3-Clause'
+    assert (root / 'LICENSE').read_text().startswith('BSD 3-Clause License\n')
+    output = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), output)
+    metadata = (output / 'README.md').read_text().split('---')[1]
+    assert re.search(r'^license: (.+)$', metadata, re.M)[1] == project.lower()
+
+
 def test_failed_nightly_commit_is_not_retried_in_smaller_batches(tmp_path, monkeypatch):
     import types
     import publish_docs_channels as publisher

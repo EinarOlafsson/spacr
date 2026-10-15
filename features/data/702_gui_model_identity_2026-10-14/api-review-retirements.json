@@ -1,0 +1,92 @@
+[
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/sv/2026-09-25-api-debt-007.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/de/2026-09-25-api-debt-004.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/de/2026-09-25-api-debt-004.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/es/2026-09-25-api-debt-008.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-010.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-010.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/pt/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/pt/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/hi/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/hi/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/ko/2026-09-25-api-debt-008.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/ko/2026-09-25-api-debt-009.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/is/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/is/2026-09-25-api-debt-006.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/fr/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+    "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+  },
+  {
+    "path": "/mnt/wd4tb/spacr-worktrees/codex-n702-pinned-export-20261014/docs/i18n/reviewed/api/fr/2026-09-25-api-debt-005.json",
+    "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+    "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a"
+  }
+]

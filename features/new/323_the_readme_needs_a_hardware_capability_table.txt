@@ -176,3 +176,45 @@ DONE MEANS
   would get flattened.
 
 VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.
+
+
+2026-10-14 — Current README requirement restored; generated table retained
+-------------------------------------------------------------------------
+Implementation complete on this source: current inspection found the six-row,
+four-column resolver-derived table already present in all ten READMEs, but the
+required nearby CPU/Metal measurement was absent from the new YAML authoring.
+Restored the recorded 444.5 s versus 3.2 s Cellpose-SAM example with the named
+Intel iMac/Core i5-10500/Radeon Pro 5300 hardware, image size and software
+versions, a historical-example qualification, and a link to N319's measurement.
+CPU execution remains supported; GPU acceleration requires a usable backend.
+
+The normal build_readme_images.py generator produced ten new readable context
+pages and twenty SVG layouts, preserving every existing SVG byte. Hardware
+cells/legends remain unchanged. Focused acceptance: 106 passed, zero failures
+or skips; one duplicate full artwork-redraw test deselected after the normal
+all-language regeneration. Checks include unavailable Metal, all ten current
+hardware blocks and readable destinations, PyPI sanitization and the unchanged
+README prose ceiling. No new timing/hardware claim or release publication.
+
+Per the original explicit no-machine-drafts rule, the new context paragraph
+and existing English table row/header prose retain English fallback in the
+nine locale sources. The source-hashed N316 review queue is
+ docs/i18n/pending/readme/2026-10-14-hardware-context.json
+Existing accepted localized legends are unchanged; translation closure is not
+claimed. Evidence: features/data/323_hardware_context_2026-10-14/.
+
+
+2026-10-14 — Detected-but-unusable CUDA capability corrected
+------------------------------------------------------------
+Closed a remaining original acceptance gap: capabilities() previously marked
+cuML reductions as accelerated for a detected CUDA backend even when unusable.
+The new regression failed for CUDA before the fix while the equivalent Metal
+case passed. UMAP/t-SNE/clustering now requires both usable GPU execution and
+CUDA identity in its flag and detail; is_cuda retains its vendor identity.
+
+The focused hardware-table/resolver cohort passes all 41 cases in 2.67 s,
+including both unavailable backends, the six usable table rows and their
+generated README contract. No artwork changes or regeneration are needed.
+This is mocked CPU/offscreen acceptance, not new physical-hardware evidence.
+Before/after XML and source hashes:
+ features/data/323_unusable_cuda_capability_2026-10-14/

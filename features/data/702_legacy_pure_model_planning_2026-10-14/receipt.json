@@ -1,0 +1,33 @@
+{
+  "scope": "N702 legacy unpinned download=False uses bounded trusted declarations only",
+  "baseline": {
+    "failed": 1,
+    "passed": 1,
+    "exit": 1
+  },
+  "owning": {
+    "passed": 133,
+    "seconds": 4.91,
+    "exit": 0,
+    "new_cases": 2
+  },
+  "claims": [
+    "Planning never invokes broad catalogue/plugin providers/shared HTTP or weight fetch",
+    "Explicit existing local custom files retain priority",
+    "Exact trusted bundled names and verified cache selection remain available without discovery",
+    "Existing cache/kind tests now inject bounded planning-entry seam instead broad execution catalogue"
+  ],
+  "limits": [
+    "External catalogue/provider planning intentionally unsupported",
+    "Actual execution discovery remains existing behavior; separate offline caption/policy integration hold remains",
+    "No model/network/GPU/full CI"
+  ],
+  "sha256": {
+    "spacr/model_zoo.py": "bc8a7253b5704e3ba167091e77a563959b1c7f48727d9b1328cffd1f45610a1f",
+    "tests/test_n702_legacy_planning_never_discovers_providers.py": "5773572f2557fcf1dadf36d23f4ce09743328891f2ae2fadb6fa37a2b1c35418",
+    "tests/test_n702_missing_laptop_model_path.py": "ac2f5d8495b5a0f15988ef5df466051defa74f0be09030399b58264ccec1399d",
+    "tests/test_683_catalogue_path_guards.py": "9aa5c738c929142b1a6e17716fff459cf1e5382e8e2fb2a248b482985da2b8bb",
+    "/mnt/wd4tb/scratch/n702-legacy-pure-planning-20261014/owning.log": "1776022df1efa4501b6babe91d75b6813c8d07558f90701b175b72a592a01e43",
+    "/mnt/wd4tb/scratch/n702-legacy-pure-planning-20261014/owning.xml": "ae8a1dc1d653a315c5366842e246461099120146b9427cd9483377eed05cfbd0"
+  }
+}

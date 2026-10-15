@@ -195,10 +195,12 @@ def identify_masks_finetune(settings):
     else:
         print(f'Segmenting on {describe()}')
 
-    if settings['custom_model'] is None:
-        pretrained = _resolve_cellpose_pretrained(settings['model_name'])
-    else:
-        pretrained = _resolve_cellpose_pretrained(settings['custom_model'])
+    from .model_zoo import _resolve_pinned_model_file
+
+    key = 'model_name' if settings['custom_model'] is None else 'custom_model'
+    pinned = _resolve_pinned_model_file(settings, key, kinds=('cellpose',))
+    pretrained = (str(pinned) if pinned is not None
+                  else _resolve_cellpose_pretrained(settings[key]))
 
     model = cp_models.CellposeModel(pretrained_model=pretrained,
                                     **cellpose_kwargs())

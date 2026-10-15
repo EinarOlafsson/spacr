@@ -1,0 +1,13 @@
+{
+  "owner": "Work / spacr-d7",
+  "request": "Review/adopt these historical Home recorder changes before whole Masks source publication. Home will not publish Work-owned recorder source without owner closure.",
+  "source_tree": "/mnt/wd4tb/spacr-worktrees/codex-workbench-current-20261014",
+  "patch_sha256": "5b2b0ab24c44be2333f3342e78ec37a984497c2c3b0553d3483a7ede7c5aaddd",
+  "scope": [
+    "YOLO navigation waits for requested field",
+    "editor distance transforms off GUI thread/cropped domain",
+    "wait for asynchronous Wand completion",
+    "same GC/thread guard policy in standalone capture driver"
+  ],
+  "native_acceptance": "not claimed; current Work capture source remains authoritative"
+}

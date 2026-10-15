@@ -1,0 +1,18 @@
+{
+  "added_sections": [
+    "app",
+    "model_metadata"
+  ],
+  "removed_sections": [],
+  "changed_sections": [
+    "classifier_family",
+    "custom_model_path",
+    "model_name",
+    "model_path",
+    "pathogen_model",
+    "resume_checkpoint",
+    "segmentation_backend"
+  ],
+  "current_sections": 1368,
+  "cross_references": 6503
+}

@@ -3791,6 +3791,44 @@ def _match_model_reference(record, catalogue_records=None):
     return matches[0]
 
 
+def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
+    """Verify recorded local bytes or acquire the exact trusted recorded identity."""
+    metadata = _validate_model_metadata(settings)
+    if metadata is None or name not in metadata["settings"]:
+        return None
+    record = metadata["settings"][name]
+    if kinds and record["kind"] not in kinds:
+        _bad_model_metadata(f"model_metadata.settings[{name!r}].kind", ", ".join(kinds))
+    requested = Path(record["requested_value"]).expanduser()
+    if requested.is_file():
+        actual = sha256_file(requested)
+        if actual != record["sha256"]:
+            _bad_model_metadata(str(requested), f"sha256={record['sha256']}; actual={actual}")
+        return requested
+    _match_model_reference(record)
+    raw = next(row for row in BUNDLED_REMOTE_MODELS
+               if row.get("key", row.get("name")) == record["key"]
+               and _model_reference_from_record(record["requested_value"], row) == record)
+    resolved = _ensure_catalogue_model_file(_entry_from_mapping(raw), download=download)
+    if resolved is None:
+        _bad_model_metadata(name, f"{record['key']} sha256={record['sha256']}")
+    resolved = Path(resolved)
+    if resolved.is_file():
+        actual = sha256_file(resolved)
+        if actual != record["sha256"]:
+            if not download:
+                return versioned_path(resolved.parent, resolved.name)
+            _bad_model_metadata(str(resolved), f"sha256={record['sha256']}; actual={actual}")
+    elif download:
+        _bad_model_metadata(str(resolved), f"sha256={record['sha256']}")
+    return resolved
+
+
+def _planning_model_entries():
+    """Bounded trusted declarations for planning without providers or network."""
+    return [_entry_from_mapping(record) for record in BUNDLED_REMOTE_MODELS]
+
+
 def _ensure_model_file(requested, *, kinds=(), download=True):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
@@ -3809,7 +3847,8 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
         return None
     path_like = "/" in text or "\\" in text or text.startswith("~")
     identifier = Path(text.replace("\\", "/")).name if path_like else text
-    matches = [item for item in catalogue(remote=True)
+    entries = catalogue(remote=True) if download else _planning_model_entries()
+    matches = [item for item in entries
                if item.key == identifier or item.name == identifier
                or (path_like and Path(item.name).name == identifier)]
     if len(matches) > 1:
@@ -3827,6 +3866,11 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
         raise ModelZooError(
             f"{text!r} is a {entry.kind} model; this operation requires "
             f"one of {', '.join(kinds)}")
+    return _ensure_catalogue_model_file(entry, download=download)
+
+
+def _ensure_catalogue_model_file(entry, *, download=True):
+    """Acquire one already selected identity with shared cache and lock policy."""
     if entry.path and Path(entry.path).is_file():
         return Path(entry.path)
     if not entry.uri:
@@ -3845,7 +3889,7 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
         return cached
     if _on_the_qt_gui_thread():
         raise ModelUnreadable(
-            f"{text!r} is not cached. Download it in Model Zoo, or run "
+            f"{entry.key!r} is not cached. Download it in Model Zoo, or run "
             f"the operation through spacr-run or Python without a GUI.")
     import errno
     from PySide6.QtCore import QLockFile

@@ -584,6 +584,16 @@ def _robustness_sample(src, settings, object_type):
     return chosen
 
 
+def _pinned_object_model(settings, object_type, model_name, backend):
+    """Resolve a role's recorded bytes only at actual model construction."""
+    from .model_zoo import _resolve_pinned_model_file
+
+    key = ('pathogen_model' if object_type == 'pathogen'
+           and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
+    resolved = _resolve_pinned_model_file(settings, key, kinds=(backend,))
+    return str(resolved) if resolved is not None else model_name
+
+
 def _robustness_segmenter(settings, object_type):
     """A ``segment(image, point)`` that runs the run's Cellpose model at one grid point.
 
@@ -610,6 +620,7 @@ def _robustness_segmenter(settings, object_type):
             or _prefixed_backend(model_name) is not None):
         raise ValueError(f"the robustness report runs Cellpose-SAM models only, "
                          f"not {model_name!r}")
+    model_name = _pinned_object_model(settings, object_type, model_name, 'cellpose')
     model = cp_models.CellposeModel(
         pretrained_model=_resolve_cellpose_pretrained(model_name, object_type=object_type),
         **accelerator.cellpose_kwargs())
@@ -1440,6 +1451,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         segmentation_backend = _CELLPOSE_DINO
     elif _prefixed_backend(model_name) is not None:
         segmentation_backend = _prefixed_backend(model_name)
+    model_name = _pinned_object_model(settings, object_type, model_name, segmentation_backend)
     if segmentation_backend == 'cellpose':
         pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
         model = cp_models.CellposeModel(
@@ -1894,6 +1906,7 @@ def generate_cellpose_masks(src, settings, object_type):
     if object_type == 'pathogen' and not settings['pathogen_model'] is None:
         model_name = settings['pathogen_model']
     
+    model_name = _pinned_object_model(settings, object_type, model_name, 'cellpose')
     model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
     
@@ -2210,8 +2223,10 @@ def generate_organelle_masks_sam(src, settings, object_type):
     if method == 'cellpose':
         from .utils import _choose_model
         device = accelerator.torch_device()
+        model_name = _pinned_object_model(
+            settings, object_type, settings['organelle_model_name'], 'cellpose')
         dl_model = _choose_model(
-            settings['organelle_model_name'],
+            model_name,
             device,
             object_type=object_type,
             restore_type=None,

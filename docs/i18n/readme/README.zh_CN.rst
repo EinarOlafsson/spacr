@@ -125,6 +125,10 @@
 
 .. raw:: html
 
+   <div><a href="../../readme_text/zh_CN/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/hardware-support-2.desktop.svg"><img src="../../readme_images/zh_CN/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
+
+.. raw:: html
+
    <div><a href="../../readme_text/zh_CN/install-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-spacr.desktop.svg"><img src="../../readme_images/zh_CN/install-spacr.svg" alt="安装 spaCR. 请选择安装方式： 桌面应用程序：适用于 Linux、macOS 或 Windows 的安装程序，自带 Python。 pip：在 Conda 环境中运行 python -m pip install spacr。 conda-forge：在 Conda 环境中运行 conda install conda-forge::spacr。 Docker：在 Linux 容器中运行命令行处理流程，可使用 CPU 镜像或 NVIDIA GPU 镜像："></picture></a></div>
 
 .. code-block:: bash

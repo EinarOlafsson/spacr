@@ -302,7 +302,7 @@ colorFrom: blue
 colorTo: indigo
 sdk: static
 pinned: false
-license: mit
+license: bsd-3-clause
 short_description: Nightly preview of the spaCR documentation
 ---
 

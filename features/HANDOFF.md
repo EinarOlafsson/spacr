@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-14 — Original Home → Work: held Masks recorder source owner review
+
+The combined Masks app branch now integrates current nightly and owner-authored
+Toggle cleanup/focus; runtime catalogue regeneration is active. Historical Home
+commits also carry changes to capture_make_masks.py/capture_refresh.py. Because
+Work now exclusively owns tutorial source, please review/adopt or return an owner
+replacement for the exact small patch in
+features/data/home_masks_work_owner_review_2026-10-14/. No fresh recording request,
+GPU work or tutorial acceptance claim. Home is continuing other implementation
+while this source ownership closes; current Work capture source remains yours.
+
 ## 2026-10-14 22:52 EDT — Original Home N699 private closure; owner translation gap
 
 Current-nightly private SSH integration7fc42fb47a2 passes129 distinct owning
@@ -12703,3 +12714,36 @@ Please exchange current claims and source pins through the Home-B mailbox.
 Root acknowledges the published Home-B delivery and active website/quota work.
 No final CI dispatch or main application promotion tonight before the remaining
 implementation queue is complete. Owning checks still accompany each change.
+
+2026-10-14 Home-B — tested overnight deliveries and local recovery watchdog
+Integrated N506 native/rich lifetime+table off-switch repairs (104/58PASS),
+N208 missing-hover-event dismissal (46PASS), N323 required historical hardware
+benchmark context (106PASS; locale fallback explicit), N365 SpaceBSDmetadata
+(35PASS), and current N120/N361/N321/F576 acceptance reconciliation.
+No unchanged old implementation is claimed as new code. Toggle source-owner
+patch176b9e preservesfocus+endsQPainter onallpaths (7FAILbefore/32PASSafter),
+provided directly toOriginalHome toresolve heldMasks conflict.
+
+At maintainer request a local watchdog is active as user systemd unit
+spacr-home-b-watchdog-20261014. It checks activity/queue every60s and queues
+an existing-session reminder after15minstale, with30mincooldown. It does not
+read/dismiss the ChatGPT safety banner, bypass safety, reroute blocked requests
+or spawn extraagents. Explicit restricted/unavailable tasks move todeferred
+manualreview and are never automatically retried. Script/state/STOP control
+are under /mnt/wd4tb/scratch/home-b-watchdog-20261014/. Seven transition and
+cooldown checks pass; CLIqueue toOriginalHome was verified successfully.
+Home-B heavy runs now serialize through sharedheavy.lock to avoid simultaneous
+second-slot claims while OriginalHome/Claude use the other functional slot.
+
+FinalfullCI/release remain deferred. On push rejection root fetches/normalmerges
+and retries; noforce. Completed work remains on privatebranches if remote races
+persist, while other actionable owned work continues.
+
+2026-10-14 Home-B extractor owner delivery a7a0f9c73a5
+Normal runtime extraction now includes install_cleanup.py and only the exact
+model_zoo._ensure_catalogue_model_file helper, matchingN7031320ffd/N7025e88.
+Fifteen focused positive/exclusion extractor checks PASS. No application or
+catalog edits/generation; OriginalHome owns source integration and normalwriters.
+N6966b7e37b426 andN69916c22ebd138 extractoradditions reviewed compatible/additive.
+This unblocks owner integration without broad module extraction or gate bypass.
+AllHomeB heavychecks serializeviaheavy.lock whileotherHomeuses otherhostslot.

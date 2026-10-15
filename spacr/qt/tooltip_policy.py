@@ -521,7 +521,11 @@ class _TooltipFilter(QObject):
             return
         self._replaying = True
         try:
-            QApplication.sendEvent(widget, again)
+            delivered = QApplication.sendEvent(widget, again)
+            if delivered and QToolTip.isVisible():
+                text = QToolTip.text()
+                QToolTip.showText(self._pos, text, None, QRect(), HOLD_MS)
+                QToolTip.showText(self._pos, text, widget, QRect(), HOLD_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not replay a tooltip event", exc_info=True)
         finally:
@@ -583,8 +587,7 @@ class _TooltipFilter(QObject):
         """Take any tooltip away at once and forget what was hovered."""
         self._show_timer.stop()
         self._hide_timer.stop()
-        if self._showing:
-            self._hide_text()
+        self._hide_text()
         self._track_widget(None)
         self._text = ""
 
