@@ -2,8 +2,8 @@
 WEBSITE V2: spaCR FLOW THEME, OPEN SANS, A MODEL SHOWCASE AND RELEASE SYNC
 ================================================================================
 
-Status:    PARTIAL — site live and integration links present; current release-sync
-           and startup repairs deployed and verified; performance acceptance pending.
+Status:    DONE 2026-10-15 — original eight-clause contract accepted; see the
+           dated closeout and its explicit scope limits below.
 Requested: 2026-10-10 — "for the new website i want a spacr flow type theme. i
            want the font to be open sans relular and opens sans ligh (regular
            for titles and regular for the rest) / I like the way you show object
@@ -573,3 +573,32 @@ Latest actual release remains1.5.1.4; no1.5.1.5release claim.
 Evidence:data/687_reduced_motion_2026-10-14/publication-receipt.json.
 This closes publication of these repairs. Current mobile Lighthouse thresholds
 and physical mid-range laptop60fps acceptance remain OPEN; full item PARTIAL.
+
+2026-10-15 Home-B — original eight-clause website-v2 contract complete
+
+The final missing README plain Website line is generated at line3 in all
+ten READMEs from the established raw header, reusing the nine previously
+reviewed translations. Package Homepage now points to the free project
+website; Source/Issues retain GitHub. Normal generation/currentness and
+four actual PyPI sanitizer checks pass; all2690 artwork/panel/model/icon
+assets remain byte-identical. No generator algorithm or runtime changed.
+
+Actual deployed site source652f833/publicfe6f4f4 passes all15 cold mobile
+samples across five public URL routes, including protected entrances:
+performance minimum92, accessibility minimum97, maximum transfer397826bytes,
+against unchanged90/95/<1MB requirements. The failed previous15 samples and
+software-context diagnostic failure remain preserved. All15 full reports,
+source/live identities and normal production/Pages runs are recorded.
+
+Independent original-clause review verifies the current theme, fonts, real
+showcase/paper sources, factual copy, route audit, release-poll mechanism and
+README/metadata links. Earlier functional/scientific/release checks remain
+historical and source-bound; they were not replayed or counted as new tests.
+Root verified all12 pinned site assets/tools and unchanged global typography.
+Exact acceptance: data/687_readme_homepage_2026-10-15/
+root-whole-item-acceptance.json. Passing audit evidence:
+data/687_hosted_mobile_after_fallback_2026-10-15/.
+
+No original N687 task remains. N686's explicit physical-laptop60fps check,
+new decrypted-page/human/native-speaker acceptance, final spaCR release/main
+promotion and N704/PyPI hosted validation are separate scopes, not claimed.

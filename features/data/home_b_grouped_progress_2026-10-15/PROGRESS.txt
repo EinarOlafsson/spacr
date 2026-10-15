@@ -6,6 +6,7 @@ Canonical combined85-row tracker, omitting its13 pre-today completions as reques
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N687 — Website v2 and release synchronization | ✅ | 0 | Home-B | Complete original eight-clause website-v2 contract: flow/fonts/showcase/papers/copy/release sync, all15 hosted90/95/<1MB samples and prominent ten-language README links accepted. |
 | N440 — model zoo picker groups by source and folds | ✅ | 0 | Home | Complete original source-picker contract accepted by Original: grouping/folding, default source IDs/preferences and full six-caption nine-language rendering verified. |
 | N448 — keep or discard a field in make masks | ✅ | 0 | Home | Complete original keep/discard-field contract accepted by Original: curation persistence/behavior and complete translated status callbacks verified. |
 | N421 — capture measurements from hand drawn masks | ✅ | 0 | Home | Complete original hand-drawn measurement contract accepted by Original Home. Final Swedish/Hindi API corrections and normal audits passed; initial-scan regression fixed9FAIL→12PASS. Published d05aa3058a. |
@@ -72,7 +73,6 @@ Canonical combined85-row tracker, omitting its13 pre-today completions as reques
 | N685 — make masks curation controls and alpha vvvv export | 95% | Unknown | Home | Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted. |
 | N690 — make masks for tem images | 95% | 1–3 | Home | TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today. |
 | N686 — Free project website | 90% | 2–6 | Home-B | Free site deployed; all15 repaired hosted samples pass90/95/<1MB (min92/97,max397826bytes). Explicit physical60fps acceptance remains; Homepage metadata correction scoped. |
-| N687 — Website v2 and release synchronization | 85% | 3–8 | Home-B | Flow/showcase/release sync and all15 hosted performance/accessibility samples pass. Original literal plain Website line nearREADMEtop remains; normal generator correction scoped. |
 | N688 — Codecov integration | 95% | 1–3 after main promotion | Home-B | Nightly upload and all README badges work; first main upload remains. |
 | N323 — Hardware capability table | 90% | 2–6 + review | Home-B | Table and readable context built; explicit translation review remains. |
 | N647 — Session restoration | 95% | 1–3 + platforms | Home-B | Recovery-preservation repairs built; remaining native platform acceptance. |

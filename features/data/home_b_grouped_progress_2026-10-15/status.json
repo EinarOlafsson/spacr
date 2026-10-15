@@ -5,6 +5,15 @@
   "latest_home_b_public": "9de217e24c",
   "rows": [
     {
+      "item": "N687",
+      "title": "Website v2 and release synchronization",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B",
+      "description": "Complete original eight-clause website-v2 contract: flow/fonts/showcase/papers/copy/release sync, all15 hosted90/95/<1MB samples and prominent ten-language README links accepted.",
+      "completion_basis": "Independent wholeoriginalcontract acceptance2026-10-15, exact site652f833/publicfe6f4f4 and source94bf33; requires this coherent source publication."
+    },
+    {
       "item": "N440",
       "title": "model zoo picker groups by source and folds",
       "percent_done": "✅",
@@ -596,15 +605,6 @@
       "time_left_hours": "2–6",
       "owner": "Home-B",
       "description": "Free site deployed; all15 repaired hosted samples pass90/95/<1MB (min92/97,max397826bytes). Explicit physical60fps acceptance remains; Homepage metadata correction scoped.",
-      "completion_basis": "Planning estimate; whole item remains open"
-    },
-    {
-      "item": "N687",
-      "title": "Website v2 and release synchronization",
-      "percent_done": 85,
-      "time_left_hours": "3–8",
-      "owner": "Home-B",
-      "description": "Flow/showcase/release sync and all15 hosted performance/accessibility samples pass. Original literal plain Website line nearREADMEtop remains; normal generator correction scoped.",
       "completion_basis": "Planning estimate; whole item remains open"
     },
     {
