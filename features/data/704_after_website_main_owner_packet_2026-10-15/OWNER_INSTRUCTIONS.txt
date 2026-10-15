@@ -1,0 +1,32 @@
+N704 README MAIN OWNER PACKET — AFTER WEBSITE LINKS
+==================================================
+Unapplied documentation-only refresh. No main, remote or service changed.
+Target main (freshly fetched): e0bedd1534d71708f65b60a2d9e24b6328d4ce9d
+Published source nightly: 2d5dd8788d542e9d98929d90a59c69235bfaee65
+Verified isolated candidate tree: 1d8039eb56379d5cd53f980b177e366e33ac1375
+Uncompressed patch SHA256: 7b6f3364b64b91e5d73567810713cdf22102346d36f28182749734b99d4d4ec9
+
+Exactly the same738 paths as the retained prior packet: ten READMEs,
+670 readable pages (67 per language),18 model pages and40 SVG assets.
+Only the ten README postimages changed since that packet: the reviewed plain
+Website link on line3. All1747 referenced image assets remain byte-identical.
+All738 postimages/modes equal current published source; every unselected main
+blob/mode stays unchanged. All670 readable routes and direct local references
+exist in the alternate-index candidate (no browser/fragment/HTTP claim).
+Complete prior packet and receipt are retained unchanged in history/prior-738.
+
+Owner application: use only your own clean private main-promotion worktree at
+the exact target main pin. If main advanced, reconcile a new packet; do not
+blindly apply, hand-merge generated output or broadly cherry-pick source.
+Decompress readme-docs-only.patch.gz into WD scratch, verify its SHA256 above,
+then git apply --check and git apply --index there. Use the unchanged portable
+verifier before committing:
+
+  python /absolute/packet/verify_packet.py --repo /your/private/worktree --candidate $(git write-tree)
+
+The owner retains actual main publication and GitHub/PyPI rendering/readback.
+No generator, renderer, pytest, model, main update, upload or deployment ran
+for this refresh. The four real PyPI renderer checks on current ten READMEs
+are already recorded separately in687_readme_homepage_2026-10-15; no replay.
+This packet does not promote pyproject metadata, application source, tools,
+workflows, tutorials, runtime/API catalogs, or any unrelated generated files.

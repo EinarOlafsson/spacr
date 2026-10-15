@@ -1,0 +1,127 @@
+{
+  "item": "N704",
+  "date_utc": "2026-10-15T14:43:12.181727+00:00",
+  "scope": "Portable documentation-only promotion preparation; no branch/main/service publication and no current hosted or whole-item acceptance.",
+  "base_main_commit": "e0bedd1534d71708f65b60a2d9e24b6328d4ce9d",
+  "source_commit": "9263977fc9b977be880ca783d6716d2c6c4aeb6c",
+  "coordinator_commit": "40c379e307e66b6855dabb5b157aac2bb1866fb1",
+  "promotion_tree": "7aab6b60a3925efff264a11143f4925c1c4ab147",
+  "promotion_file_count": 738,
+  "historical_scope_preserved": 678,
+  "necessary_added_text_pages": 20,
+  "necessary_added_svg_assets": 40,
+  "current_readable_panel_routes": {
+    "de": 67,
+    "en": 67,
+    "es": 67,
+    "fr": 67,
+    "hi": 67,
+    "is": 67,
+    "ko": 67,
+    "pt": 67,
+    "sv": 67,
+    "zh_CN": 67
+  },
+  "main_readable_text_page_count": 0,
+  "referenced_assets": {
+    "total": 1747,
+    "already_main_equal": 1707,
+    "new_source_equal_in_patch": 40
+  },
+  "checks": {
+    "alternate_index_apply_check": "PASS",
+    "alternate_index_apply": "PASS",
+    "exact_changed_paths": "PASS: 738",
+    "all_promoted_blob_ids_modes_source_equal": "PASS: 738",
+    "all_unselected_main_blob_ids_modes_unchanged": "PASS",
+    "all_current_direct_local_readme_links_and_images_resolve_in_candidate": "PASS (path existence only; no fragment/render/HTTP claim)",
+    "all_current_readable_panel_destination_paths_present": "PASS: 670, 67 per language",
+    "all_referenced_image_bytes_match_source": "PASS: 1747",
+    "historical_1707_image_sha256_unchanged": "PASS",
+    "coordinator_selected_outputs_match_public_source": "PASS: 738",
+    "pypi_readme_function_ast_equals_historical_renderer_tested_function": "PASS"
+  },
+  "historical_test_scope": "Preserved prior 118 owning checks and both four-case real PyPI sanitizer receipts. Not rerun and not represented as current 67-panel renderer/hosted acceptance.",
+  "not_performed": [
+    "README/model generation",
+    "image rendering",
+    "pytest",
+    "GitHub/PyPI hosted readback",
+    "PyPI upload",
+    "main/remote/config mutation"
+  ],
+  "remaining_owner_work": "Review/apply the exact packet in the established private documentation-promotion lane, publish through that owner procedure, and verify actual GitHub/PyPI rendered links plus destination leading content in all ten locales. PyPI release remains deferred to the maintainer release lane.",
+  "files": {
+    "OWNER_INSTRUCTIONS.txt": {
+      "sha256": "f8752a6fa1cde0eafdf8dd4e80ddd30a6813c9821dc24f4a1bfc564ec1272fb4",
+      "bytes": 4665
+    },
+    "added-dependencies.json": {
+      "sha256": "c4cc6d6688d3c1fdba76236ae9eb9e4fc33c19fd01ca36951fd6b2b934299d24",
+      "bytes": 13608
+    },
+    "files.txt": {
+      "sha256": "c0005c4659a9f4d998635f564bc362a983f39b47d5ee09e631d9caff3d71e4e2",
+      "bytes": 32279
+    },
+    "historical-678-files.txt": {
+      "sha256": "8e0b07574cea6a94f63aee4f645306b281762246ffb5f9e7667c1ed2455c8937",
+      "bytes": 29371
+    },
+    "historical-678-manifest.json.gz": {
+      "sha256": "fdd32db3144926231fe41dd32dd7b37980a035cb81251e57620b1cb0478f65a2",
+      "bytes": 104644
+    },
+    "historical-704_pypi_sanitizer_acceptance_2026-10-14-receipt.json.gz": {
+      "sha256": "28973cb6b60956dc862e9ecf3efdf5422f4cf437e0e12c70e6a19ff8c40c2542",
+      "bytes": 1499
+    },
+    "historical-704_readable_panel_implementation_2026-10-14-receipt.json.gz": {
+      "sha256": "afbeae090860a3cf6f1467ef8250d0f2594b19a4670d22dcdb3a8f51c9680c61",
+      "bytes": 31542
+    },
+    "manifest.json.gz": {
+      "sha256": "36a00793c3653bddd9d94635cff30bd29205edc9dff85c6242d097b9deebaffc",
+      "bytes": 191989
+    },
+    "prepare.log": {
+      "sha256": "5f403e18faed008e573eecd0eebb8658eb8f31a0ac154f9f47f747f7580bca6b",
+      "bytes": 379
+    },
+    "prepare.time": {
+      "sha256": "6a34d45c1c8c0bdbe390dff1e2b1ee59b2ae0f14f77761ed4285ee2c50fbdb68",
+      "bytes": 874
+    },
+    "prepare_packet.py": {
+      "sha256": "1335851a67a543ee135dcfe06ce8d88c1df9d9357285927d27d08879643d9300",
+      "bytes": 13215
+    },
+    "readme-docs-only.patch.gz": {
+      "sha256": "74f3612c5ed4699b9d23be4c6c54d58fa864bd1aec4e778008f659c7a2e9bd15",
+      "bytes": 235522
+    },
+    "verify_packet.py": {
+      "sha256": "5a0b0661df8e11a6ec4a8e50e4f1f162f370a4580c6751fd29693144bac158f7",
+      "bytes": 3337
+    },
+    "verify.log": {
+      "sha256": "c8095e73e3d6ea47e0ae84abb1d1f426236524bade2a4c3a05d4286282ad5875",
+      "bytes": 230
+    }
+  },
+  "execution": {
+    "wall_seconds": 0.98,
+    "peak_rss_kib": 119064,
+    "exit_code": 0,
+    "cap": "2G",
+    "thread_limits": 1,
+    "command": "tools/run_capped.sh 2G /home/olafsson/anaconda3/envs/spacr/bin/python /mnt/wd4tb/scratch/home-b-n704-current-promotion-20261015/prepare_packet.py"
+  },
+  "portable_owner_verifier": {
+    "status": "PASS",
+    "candidate_tree": "7aab6b60a3925efff264a11143f4925c1c4ab147",
+    "exact_promoted_files": 738,
+    "referenced_image_assets": 1747,
+    "scope": "Local immutable packet/candidate bytes only; no hosted/rendered acceptance"
+  }
+}
