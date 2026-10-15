@@ -1,0 +1,11 @@
+{
+  "reviewer": "Original Home root",
+  "decision": "approved read-only component",
+  "patch_sha256": "53c38d863fb65c398807f98075d8d81374867e4e46f0ecce54b2a5b98cd8cde5",
+  "source_sha256": {
+    "spacr/install_cleanup.py": "06b4fd48abb45b9691a0721d4c08b3096d2fd89032ed6913ab66873a5022b32d",
+    "spacr/qt/install_consent.py": "0885af8ba73fbd3b2376b25f78077a01a708bebc587be86ac6c7a65ad822c77a"
+  },
+  "findings": "Anchored no-follow descriptor traversal corrects original scan race. All production selection disabled, no deletion path. Known cache paths displayed; protected/unknown/unsupported paths retained. Existing privacy flow unchanged.",
+  "limits": "No automatic production prompt/cross-process execution lease/deletion capability or wholeN703 acceptance."
+}
