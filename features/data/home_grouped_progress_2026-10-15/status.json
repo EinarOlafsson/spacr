@@ -6,6 +6,24 @@
   "historical_scope_ledger": "/mnt/wd4tb/scratch/original-home-today-completion-scopes-20261015.json",
   "rows": [
     {
+      "item": "N448",
+      "title": "keep or discard a field in make masks",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: Keep/Discard state, current-count atomic CSV, navigation and nine-language button/status closure.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; source/catalog/consumer evidence exact"
+    },
+    {
+      "item": "N440",
+      "title": "model zoo picker groups by source and folds",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: foldable source grouping/defaults, warning, persistence, shared consumers and nine-language picker closure.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; source/catalog/consumer evidence exact"
+    },
+    {
       "item": "N421",
       "title": "capture measurements from hand drawn masks",
       "percent_done": "✅",
@@ -366,30 +384,12 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N440",
-      "title": "model zoo picker groups by source and folds",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "Current item-local final section still owes nine-language picker strings/tr wrapping to consolidated316; no later explicit owner closure in this record.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "N441",
       "title": "metadata type for every common microscope",
       "percent_done": 90,
       "time_left_hours": "1–3",
       "owner": "Home / assigned owner",
       "description": "Named real-name/channel-folder corpus gaps (Incucyte/IN CELL/LAS X/etc) are unsupported inputs or separate Import work; consolidated9-language obligation still item-local pending, not invented vendor formats.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N448",
-      "title": "keep or discard a field in make masks",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "Current-source audit found untranslated Keep/Discard status templates; narrow source/localization repair active.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -710,6 +710,8 @@
   ],
   "source_snapshot": "67de758e4590c3d037e9df6fb885c21d5975e3e7",
   "whole_items_closed_today": [
+    "N448",
+    "N440",
     "N421",
     "N597",
     "N691",
