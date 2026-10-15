@@ -265,11 +265,13 @@ jobs:
         run: |
           tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble-nightly \
             --nightly channels/docs-channel-nightly --output space
-      - name: Upload to the Space, deleting removed pages
+      - name: Upload one complete site and verify its public deployment
         run: |
           revision=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py upload-nightly --site space)
+          source=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py verify-nightly --site space)
           {
             echo "### Nightly documentation"
             echo "Space commit: $revision"
+            echo "Verified public source: $source"
             echo "https://einarolafsson-spacr-docs-nightly.static.hf.space/"
           } >> "$GITHUB_STEP_SUMMARY"
