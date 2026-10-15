@@ -376,7 +376,15 @@ def verify_space_access(space: str) -> dict:
     from huggingface_hub.utils import build_hf_headers
 
     api = HfApi()
-    info = api.space_info(space)
+
+    def access_step(operation, call):
+        try:
+            return call()
+        except Exception as error:
+            error.spacr_space_access_operation = operation
+            raise
+
+    info = access_step("metadata", lambda: api.space_info(space))
     parent = info.sha
     if info.sdk != "static" or not re.fullmatch(r"[0-9a-f]{40}", parent or ""):
         raise ValueError("Expected an existing static Space with an immutable parent")
@@ -393,12 +401,12 @@ def verify_space_access(space: str) -> dict:
             entries[entry.path] = (entry.size, entry.blob_id, lfs)
         return entries
 
-    before = tree(parent)
+    before = access_step("tree", lambda: tree(parent))
     readme = before.get("README.md")
     if readme is None or readme[0] > 65536 or readme[2] is not None:
         raise ValueError("Expected a small existing Git README")
-    path = hf_hub_download(repo_id=space, repo_type="space", filename="README.md",
-                           revision=parent)
+    path = access_step("readme", lambda: hf_hub_download(
+        repo_id=space, repo_type="space", filename="README.md", revision=parent))
     raw = Path(path).read_bytes()
     git_hash = hashlib.sha1(f"blob {len(raw)}\0".encode() + raw).hexdigest()
     if (len(raw), git_hash, None) != readme:
@@ -418,13 +426,16 @@ def verify_space_access(space: str) -> dict:
     request = Request(
         f"{api.endpoint}/api/spaces/{space}/commit/main", headers=headers,
         data=b"".join(json.dumps(row).encode() + b"\n" for row in payload), method="POST")
-    with build_opener(NoRedirect()).open(request, timeout=30) as response:
-        if not 200 <= response.status < 300:
-            raise ValueError("Space commit endpoint did not accept the access check")
-        revision = json.load(response)["commitOid"]
+    def commit():
+        with build_opener(NoRedirect()).open(request, timeout=30) as response:
+            if not 200 <= response.status < 300:
+                raise ValueError("Space commit endpoint did not accept the access check")
+            return json.load(response)["commitOid"]
+
+    revision = access_step("commit", commit)
     if not re.fullmatch(r"[0-9a-f]{40}", revision or ""):
         raise ValueError("Expected an immutable write-access verification commit")
-    if tree(revision) != before:
+    if access_step("readback", lambda: tree(revision)) != before:
         raise ValueError("Space tree changed during write-access verification")
     return {"space": space, "parent_revision": parent, "revision": revision,
             "tree_unchanged": True, "files_verified": len(before),
@@ -617,7 +628,8 @@ def main(argv=None) -> int:
         except Exception as error:
             response = getattr(error, "response", None)
             print(json.dumps({"space": args.space, "error": type(error).__name__,
-                              "status": getattr(response, "status_code", getattr(error, "code", None))}), file=sys.stderr)
+                              "status": getattr(response, "status_code", getattr(error, "code", None)),
+                              "operation": getattr(error, "spacr_space_access_operation", "validation")}), file=sys.stderr)
             return 1
     else:
         print(upload_nightly(args.site, args.space))
