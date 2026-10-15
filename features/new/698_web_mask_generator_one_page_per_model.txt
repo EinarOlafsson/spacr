@@ -439,3 +439,43 @@ exit0; timings are single observations. This verifies native integration for
 that exact default model and tested source snapshot; no biological quality,
 other-family, hosted/browser/GPU or whole698 acceptance. Inputs, ZIP, desktop
 mask, source script/hashes/rawlog: data/698_native_nuclei_cpu_2026-10-15/.
+
+2026-10-15 — Nine-language web controls, refusals and exported README closure:
+Owner-scoped literal extraction covers the ten existing web backend/UI tools
+and family-label values:178 newly canonical normalized UI sources, all1,602
+language pairs independently AI technically reviewed. Adopted41 terminology/
+precision refinements and three exact Korean filename/CLI syntax followups;
+all immutable drafts, source/target hashes and peer approvals are retained.
+No native-speaker signoff is claimed. Normal nine-locale write_language passes,
+preserving10,576 unrelated current targets per locale. English-only writer
+check is explicitly languages0; separate actual full9runtime audit passes
+(settings1273/categories242/UI7911/modules77). Immutable caption baseline9833
+retained; normal refresh1071added/150retired/29changed.
+Actual final owning44PASS7.26s:27real locale-dependent eight-tab/refusal and
+mask/detector ZIP checks plus17owner extractor cases, no skips. Graph controller
+is stubbed and no model runs; real packagers verify translated README content,
+untouched original bytes, member hashes and genuine unavailable semantics.
+At owning-check time, twenty runtime/owner source bodies are byte-exact to
+frozenbaed73656e3; the test-only qualified fixture import repair is hash-bound.
+Later import sorting/explicit fixture reexport preserves every test/fixture
+body AST and exact import bindings; normal Ruff passes. Final incoming F370
+model_zoo and F580 settings bodies are separately identified; all eleven web
+tool files and the owned extractor body remain exact. No unchanged callback
+or native rerun, or new whole-source native parity, is asserted by that merge.
+Initial Korean gate rejection, fixture collection error, base-environment
+Gradio skip and one redundant metadata audit caused by separately scoped
+Python surviving wrapper cancellation are honestly archived; final raw log,
+XML and proper end-to-end audit exit0 are preserved. Existing private Gradio
+runtime reused, no new installs or model downloads.
+Parent698 remains partial: actual free hosting/GPU service, browser WebGPU,
+shared-site integration and broader model/biological acceptance remain open.
+No whole-feature, scientific, finalfullCI or release acceptance is asserted.
+Evidence:data/698_web_runtime_locales_2026-10-15/.
+
+Final normal merge includes F580 public9ade viafd365: all ten runtime catalogs
+merge cleanly. All178 owned targets and every current incoming unrelated
+row/hash are preserved in all9languages. Only the compressed immutable
+arrival delta needs normal regeneration; baseline9833 retained,1075added/
+151retired/30changed. Merged English-only guard explicitly languages0,
+settings1274/categories242/UI7912/modules77; prior full9audit remains bound
+to its tested premerge source/counts. No unchanged44/native rerun.

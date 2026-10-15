@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "reviewer": "ci_release_audit",
+  "review_kind": "Independent exact-source AI technical review; no human/native-speaker claim",
+  "time_utc": "2026-10-15T05:51:38.560544+00:00",
+  "batch_manifest": {
+    "path": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/batch2-manifest.json",
+    "sha256": "8cec751b875520eade73fca3405cb71e8cf4eeabdae11331face0e2288cd34a5"
+  },
+  "snapshots": {
+    "pt": {
+      "snapshot": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/pt.json",
+      "sha256": "869dd749c54d80ac1957fd58582a46fc9f68d6b1387284f66a57573de0cf8b52",
+      "count": 178,
+      "placeholder_issues": []
+    },
+    "ko": {
+      "snapshot": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/ko.json",
+      "sha256": "35a2048e528dbf4c010719c545b384d33a3eaea5194fd6bf621cd0bcad8b38b9",
+      "count": 178,
+      "placeholder_issues": []
+    }
+  },
+  "source_manifest": {
+    "original": "/mnt/wd4tb/spacr-worktrees/codex-n698-public-backend-integration-20261015/features/data/698_web_caption_extractor_2026-10-15/new-sources.json",
+    "snapshot": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/sources.json",
+    "sha256": "31626b0fc404974ed6cd6aa0cd23b616fb86e7eae7d203582edcc0d66f4c54b7",
+    "bytes": 29551
+  },
+  "records_read": {
+    "pt": 178,
+    "ko": 178,
+    "total": 356
+  },
+  "structural": "Complete178 unique source/key/hash sets and all brace placeholders match the exact English178 snapshot in each locale; hashes verified before review.",
+  "semantic_scope": [
+    "Every translation read against exact source",
+    "Detection boxes versus segmented masks and Well geometry",
+    "Vectors, scores, raw logits and absent calibration/physical scale guarantees",
+    "Original upload/ZIP bytes and actual backend output availability",
+    "Research-only scope, upload consent, conditional hosting/GPU quotas, cache configured lifetime",
+    "Axis/page/time/Z/channel choices, bounds and (2,Y,X)/YX/CYX semantics",
+    "Model/checkpoint identity, published hashes and provenance",
+    "Multiline README filenames, formatfields and newline structure"
+  ],
+  "verdict": "Core technical meanings/source bindings accepted. Recommend four Korean determined-diameter terminology corrections and one Korean centroid specificity refinement; supply four optional Portuguese diameter consistency refinements. No omitted consent, invented model/output capability, or calibration/hosting overclaim found.",
+  "corrections": {
+    "path": "/mnt/wd4tb/scratch/n698-independent-runtime-peer-20261015/batch2-corrections.json",
+    "total": 9,
+    "korean_diameter": 4,
+    "korean_centroid_precision": 1,
+    "portuguese_optional": 4
+  },
+  "limits": "No owner-tree/catalog edits, model/test/runtime execution, native/human language acceptance or deployment/scientific acceptance. Owner applies chosen changes and performs normal gates."
+}

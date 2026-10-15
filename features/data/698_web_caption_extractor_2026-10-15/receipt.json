@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "implementation_commit": "d1fe28327d42a898fe1f972ca648ca0abb22e447",
+  "scope": "AST-only explicit web caption owner extraction, added before existing compact/term subtraction. No web source imports or edits, translation targets, generated catalogs, or gate changes.",
+  "source_census": "source-census.json; exact normalized new source inputs in new-sources.json",
+  "before": {
+    "module": "tests/test_web_caption_extraction_n698.py",
+    "failed": 16,
+    "passed": 0,
+    "seconds": 1.14
+  },
+  "after": {
+    "modules": [
+      "tests/test_web_caption_extraction_n698.py",
+      "tests/test_runtime_backend_caption_owners.py"
+    ],
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1.23
+  },
+  "additional_normalization_fixture": {
+    "selection": "canonical_whitespace",
+    "passed": 1,
+    "failed": 0,
+    "reason": "Explicitly preserve existing strip-and-restore catalog key behavior for two multiline result README captions."
+  },
+  "unique_passing_tests": 38,
+  "meaningful_guards": [
+    "Ten explicit file owners, including nested literal calls, parsed without executing fixture imports or top-level raise.",
+    "Unowned tools, dynamic call values, unwrapped metadata/docstrings, other translation methods and nested/wrong-file FAMILY_LABELS excluded.",
+    "Assign and AnnAssign family table values collected; model keys never inventoried.",
+    "Markdown heading exception confined to app.py and keeps original key; global predicate unchanged.",
+    "Production extractor union verified after compact/term-owned caption subtraction.",
+    "Tiny-tree fixtures without optional web directory supported; existing backend owners all pass."
+  ],
+  "resource_policy": {
+    "memory_cap": "2G",
+    "threads": 1,
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "known_light_exception": true
+  },
+  "artifacts": {
+    "n698-whitespace.xml.gz": "c20a66bee16ccd50b89db71da4e3c1cd2b02e7caf2e31aeef7d109a4ab88db9b",
+    "n698-after.xml.gz": "3190978c8b8d77e9d62b759e70b1e33aa91e3d5e8d5543b22a272f92c9c04bbd",
+    "n698-whitespace.log.gz": "9409667c45e0aefa1e501f29b6a84aa7a73d8f9c309c228fc2a02ea1647f7ea1",
+    "n698-before.xml.gz": "82dfc35c6425edb4d90d7ca84cca6f3f4ce986ff9bbc4f73f67ebb1b31247a4d",
+    "n698-before.log.gz": "f4dde2ca51c5167cb5c6bdb958a014c38b6e407f54adb1efc263d85aed9221db",
+    "n698-after.log.gz": "a92221f81a89c53c16600267575b447a1b5a35c4a305d228db7fa518d7f2f2bd"
+  },
+  "evidence_correction": "Initial raw-call census assertion detected the two trailing-newline canonical normalizations; no extraction defect. Updated independent census normalizes keys exactly like existing production extraction and records raw plus canonical hashes.",
+  "remaining": [
+    "Source-owner normal canonical preflight and nine-locale exact reviews/writer for new sources remain separate.",
+    "Measured178-source delta is snapshot evidence, not a relaxed source-arrival ceiling.",
+    "No browser/UI/native/scientific/hosted deployment or full CI acceptance claimed."
+  ]
+}

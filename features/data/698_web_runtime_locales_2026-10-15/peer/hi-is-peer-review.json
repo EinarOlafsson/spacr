@@ -1,0 +1,63 @@
+{
+  "reviewer": "Original Home root independent AI technical peer; no human or native-speaker signoff",
+  "locales": {
+    "hi": {
+      "snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/ec1e5337b009938102785a15cf47a5f9c231968232e6d3cadddbb76e7a5aadde-hi-2026-10-15-web-mask-generator.json",
+      "snapshot_sha256": "ec1e5337b009938102785a15cf47a5f9c231968232e6d3cadddbb76e7a5aadde",
+      "reviewed_records": 178,
+      "decision": "APPROVED exact projected targets after listed corrections and normal gates",
+      "corrections": [
+        {
+          "source": "cell probability contains non-finite values",
+          "source_sha256": "58aa33417ce34c5254db6fd4933ee4618484f2df844e1b164e19c89d4e70fff3",
+          "old_translation": "कोशिका प्रायिकता में अपरिमित मान हैं",
+          "translation": "कोशिका प्रायिकता में गैर-परिमित मान हैं"
+        },
+        {
+          "source": "flows contain non-finite values",
+          "source_sha256": "08a668c69529307469174c63d1bc2d9f467d3ad0c4fadf92c55d436584310da0",
+          "old_translation": "प्रवाह में अपरिमित मान हैं",
+          "translation": "प्रवाह में गैर-परिमित मान हैं"
+        },
+        {
+          "source": "image contains non-finite pixels",
+          "source_sha256": "07433db36e52d1ddc393fc59f90ed11a8bfe11d062a69363cd95cc23b68ab271",
+          "old_translation": "छवि में अपरिमित पिक्सेल हैं",
+          "translation": "छवि में गैर-परिमित पिक्सेल हैं"
+        }
+      ],
+      "projected_records": "/mnt/wd4tb/scratch/n698-root-peer-20261015/hi-peer-corrected-records.json",
+      "projected_sha256": "e6eb4aa80114622aa44559a45e4280636a1a0dadbe66f559b7435844d428bad2",
+      "review_scope": "All178 pairs read independently; exact placeholders, axis and byte bounds, original upload consent, boxes versus masks, unavailable outputs, raw scores versus calibrated probabilities, SHA identifiers and scientific limitations preserved. Hindi non-finite covers NaN and infinity, avoiding infinity-only wording; Icelandic time-frame labels denote an image frame, and detector output remains an actual statement."
+    },
+    "is": {
+      "snapshot": "/mnt/wd4tb/scratch/n698-web-localization-20261015/peer-review/e6134421559bef94fd72a6c8f018fca790e61363d80d39bad7dc3055ed3742c3-is-2026-10-15-web-mask-generator.json",
+      "snapshot_sha256": "e6134421559bef94fd72a6c8f018fca790e61363d80d39bad7dc3055ed3742c3",
+      "reviewed_records": 178,
+      "decision": "APPROVED exact projected targets after listed corrections and normal gates",
+      "corrections": [
+        {
+          "source": "The well detector returns bounding boxes, not instance masks.",
+          "source_sha256": "d231379672dccab3608a4d6a9fef011acefa385c552fd4ca419b5d4e0dab8ca0",
+          "old_translation": "Brunnagreininum er ætlað að skila afmörkunarkössum, ekki tilviksgrímum.",
+          "translation": "Brunnagreinirinn skilar afmörkunarkössum, ekki tilviksgrímum."
+        },
+        {
+          "source": "Time frame",
+          "source_sha256": "ff1d4f92d7a10ff66ecbad15176d3a3f249074443a2f014715b2d7345e192093",
+          "old_translation": "Tímarammi",
+          "translation": "Myndrammi í tímaröð"
+        },
+        {
+          "source": "Time frame (zero-based)",
+          "source_sha256": "78387e0f5babe5ef9b7f53a94a316ac29fbd550d637dd5db08f75efa82e63992",
+          "old_translation": "Tímarammi (talið frá núlli)",
+          "translation": "Myndrammi í tímaröð (talið frá núlli)"
+        }
+      ],
+      "projected_records": "/mnt/wd4tb/scratch/n698-root-peer-20261015/is-peer-corrected-records.json",
+      "projected_sha256": "cb7a4887d24dba0b599c78b5d8e44612146d7dff32372d300b2545c827d5dbf7",
+      "review_scope": "All178 pairs read independently; exact placeholders, axis and byte bounds, original upload consent, boxes versus masks, unavailable outputs, raw scores versus calibrated probabilities, SHA identifiers and scientific limitations preserved. Hindi non-finite covers NaN and infinity, avoiding infinity-only wording; Icelandic time-frame labels denote an image frame, and detector output remains an actual statement."
+    }
+  }
+}
