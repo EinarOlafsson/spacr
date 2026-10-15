@@ -228,3 +228,17 @@ data/689_candidate_representative_readback_2026-10-15/.
 
 2026-10-15 — Home-B publication/status correction
     CI access probe source and isolated workflow are public669ac7395e. Actual direct HTTP-boundary12tests pass; dispatched run38743415875 is pending, no live write permission claimed. Work portable owner patch is being published because Home scratch is unavailable there. Main migration remains owned by Original Home at final promotion.
+
+2026-10-15 — Precise CI write-permission blocker isolated
+Access-only run38754742270 on published67f3753f1a started normally after
+the reviewed scheduling repair. Exact nonsecret failure is HTTP403 at
+operation commit, after metadata/tree/README steps. No new revision or
+readback occurred; no published content changed. Public reads do not
+establish privileged authorization. All documentation build/deployment
+jobs were skipped. Previous38753580765 was cancelled before any job
+and is not an HTTP permission test. Evidence:
+data/689_operation_specific_ci_probe_2026-10-15/.
+Owner action: check existing HF_DOCS_TOKEN write permission to the existing
+einarolafsson/spacr-docs-nightly-v2 Space; no broad local token substitution
+or repeated probe without an actual permission correction. Main cutover,
+canonical variables and current-head deployment remain separate.
