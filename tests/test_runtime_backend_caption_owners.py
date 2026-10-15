@@ -530,3 +530,29 @@ def _cf_checkpoint_error():
     """Internal prose is not a caption."""
     return "Unwrapped internal error."
 ''') == set()
+
+
+def test_model_resolution_context_has_its_exact_runtime_owner(extract_backend_sources):
+    caption = (
+        "Model setting {setting}: no existing checkpoint or exact model-zoo identity "
+        "matches {requested}. Available compatible zoo identities: {candidates}.")
+    source = f'''def _model_resolution_context(requested, *, setting, kinds=()):
+    return tr({caption!r}, setting=setting, requested=repr(requested), candidates="[]")
+'''
+    assert extract_backend_sources('model_zoo.py', source) == {caption}
+
+
+def test_resolution_context_owner_does_not_expand_to_other_backend_text(extract_backend_sources):
+    source = '''
+METADATA = tr("Unrelated model metadata is not a UI diagnostic.")
+def another_resolver():
+    def _model_resolution_context():
+        return tr("A same-named nested helper is not the declared owner.")
+class OtherResolver:
+    def _model_resolution_context(self):
+        return tr("A same-named method is not the declared owner.")
+def _model_resolution_context(requested, *, setting):
+    """Runtime context owner documentation is not a UI caption."""
+    return "An unwrapped internal detail is not a UI caption."
+'''
+    assert extract_backend_sources('model_zoo.py', source) == set()

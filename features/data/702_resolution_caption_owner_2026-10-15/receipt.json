@@ -1,0 +1,10 @@
+{
+  "scope": "ONLY existing model_zoo top-level diagnostic owner set adds _model_resolution_context; all old owners and remaining tool bytes identical. No channel_sorting/Home-B otherbranch mutation.",
+  "source_sha256": "df7e3674083a0510d53fbc13cac737fa7d93bd14c50ea7ce8f9dc847a64a504d",
+  "test_sha256": "4e470689d8abcd746c223fa42e1bd0866ae800e9002c6ebc16493c648400ee27",
+  "patch_sha256": "ee26838c562d850fd04fe87b49eef4cfd7c4a874f1a7bcd443bde6cf06fb3e97",
+  "baseline": "1FAIL1PASS0.94s: actual extraction absent desired literal; same-named nested/method/module metadata/unwrapped exclusions passed.",
+  "final": "64PASS1.09s entire actual owning extractor cohort,2G oneCPU background; no fullcollector/translation/model.",
+  "preservation": "Reverse one owner literal restores exact old tool bytes; removing only two new tests restores exact old test AST.",
+  "publication": "PRIVATE prerequisite only, no tool-alone publication; integrate with final N702 source/runtime/API/input closure."
+}

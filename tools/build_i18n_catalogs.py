@@ -4214,7 +4214,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             # text own captions; unrelated metadata and backend prose do not.
             diagnostic_owners = {
                 "_ensure_catalogue_model_file", "_curated_scorecard_rows",
-                "_curated_scorecard_lines",
+                "_curated_scorecard_lines", "_model_resolution_context",
             }
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
