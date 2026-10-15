@@ -159,3 +159,50 @@ def test_failed_later_override_cannot_leave_a_partly_edited_pinned_payload(input
     with pytest.raises(cli.SettingsError):
         cli.apply_overrides(supplied, ['cell_model_name=/models/other', 'definitely_not_a_setting=1'], module)
     assert supplied == original
+
+
+@pytest.mark.parametrize('route', ['cli', 'batch_file', 'batch_inline'])
+@pytest.mark.parametrize('overrides', [[], ['cell_model_name=/models/replacement']])
+def test_incompatible_imported_kind_fails_before_an_edit_can_remove_it(inputs, tmp_path, route, overrides):
+    module, supplied = inputs
+    supplied['model_metadata']['settings']['cell_model_name']['kind'] = 'classifier'
+    original = deepcopy(supplied)
+    with pytest.raises(cli.SettingsError):
+        if route == 'batch_inline':
+            batch.resolve_job_settings(batch.Job(module='mask', settings=supplied, overrides=overrides))
+        else:
+            path = tmp_path / 'settings.json'
+            path.write_text(json.dumps(supplied))
+            if route == 'cli':
+                cli.resolve_settings(module, str(path), overrides)
+            else:
+                batch.resolve_job_settings(batch.Job(module='mask', settings=str(path), overrides=overrides))
+    assert supplied == original
+
+
+@pytest.mark.parametrize('overrides', [
+    ['segmentation_backend=cellpose3'],
+    ['segmentation_backend=cellpose3', 'cell_model_name=/models/replacement'],
+])
+def test_backend_override_rechecks_all_surviving_pins_and_is_atomic(inputs, overrides):
+    module, supplied = inputs
+    original = deepcopy(supplied)
+    with pytest.raises(cli.SettingsError):
+        cli.apply_overrides(supplied, overrides, module)
+    assert supplied == original
+
+
+def test_changing_backend_and_both_model_values_removes_only_explicit_pins(inputs):
+    module, supplied = inputs
+    result = cli.apply_overrides(supplied, [
+        'segmentation_backend=cellpose3', 'cell_model_name=/models/new-cell',
+        'nucleus_model_name=/models/new-nucleus'], module)
+    assert result['segmentation_backend'] == 'cellpose3'
+    assert result['model_metadata']['settings'] == {}
+
+
+def test_generic_override_call_without_module_preserves_structurally_valid_pins(inputs):
+    _module, supplied = inputs
+    supplied['model_metadata']['settings']['cell_model_name']['kind'] = 'classifier'
+    result = cli.apply_overrides(supplied, ['src=/new'])
+    assert result['model_metadata']['settings']['cell_model_name']['kind'] == 'classifier'

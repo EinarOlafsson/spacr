@@ -193,3 +193,20 @@ at their respective boundaries. No new captions/modules, network/GPU/fullCI.
 Parent702 remains partial: module/backend kind enforcement, automatic capture,
 GUI edit lifecycle and shared acquisition acceptance remain separate work.
 Evidence: data/702_cli_batch_pin_integrity_2026-10-14/receipt.json.
+
+2026-10-14 — CLI/batch enforce model pins against the selected consumer:
+After original-key validation and proven migration/default overlay, imported
+pins must fit the actual module and backend before any override. Overrides
+then invalidate only explicitly edited model fields and the final backend is
+checked against every surviving pin. A classifier pin cannot be smuggled into
+Mask Generation by simultaneously replacing the model. A backend change
+cannot retain unrelated incompatible Cellpose pins, and rejection preserves
+the caller's original payload. Explicit backend and both model changes may
+remove both old pins. Generic moduleless serialization remains structural.
+
+The finite owning cohort passed427tests in8.40seconds, exit0 (one existing
+runpy warning), including ten new kind/route/atomicity cases. Depends on the
+parent-owned module-kind helper registry. No source captions, generated
+artifacts, network/weights/GPU/fullCI. Unsupported consumers, automatic export
+capture and GUI edit lifecycle remain distinct work; parent702 stays partial.
+Evidence: data/702_cli_backend_pin_integrity_2026-10-14/receipt.json.

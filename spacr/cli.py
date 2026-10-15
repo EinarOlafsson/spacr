@@ -1365,11 +1365,14 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
     metadata = None
     if "model_metadata" in settings:
         from .model_zoo import (
-            ModelZooError, _invalidate_model_metadata, _validate_model_metadata,
+            ModelZooError, _invalidate_model_metadata, _model_input_kinds,
+            _validate_model_metadata,
         )
 
         try:
-            metadata = _validate_model_metadata(settings)
+            metadata = _validate_model_metadata(
+                settings, model_kinds=_model_input_kinds(module, settings)
+                if module is not None else None)
         except ModelZooError as exc:
             raise SettingsError(str(exc)) from exc
     if not overrides:
@@ -1403,7 +1406,9 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
         try:
             working["model_metadata"] = _invalidate_model_metadata(
                 original, changed)["model_metadata"]
-            _validate_model_metadata(working)
+            _validate_model_metadata(
+                working, model_kinds=_model_input_kinds(module, working)
+                if module is not None else None)
         except ModelZooError as exc:
             raise SettingsError(str(exc)) from exc
         settings.clear()
