@@ -1,0 +1,33 @@
+{
+  "immutable_incoming_public": "cc42aa2d82ecc2448d0aa35af5f39a78ee7e3938",
+  "tested_coherent_source": "01a787f88",
+  "unrelated_incoming_public_files_exact": 33916,
+  "incoming_changed_python_sources_tr_calls_exact": [
+    "spacr/qt/help_api_index.py",
+    "spacr/qt/widgets/ai_toggle_label.py",
+    "spacr/qt/widgets/dock.py"
+  ],
+  "latest_API_runtime_catalogs_arrivals_tools_exact_incoming": true,
+  "actual_source_test_fixture_and_prepatch_oracle_hashes_exact": {
+    "spacr/attribution.py": "8f4b924ac64600d18c5b3c8466ae07d7ee5358e6071b226c57c1b42d2996952c",
+    "tests/test_counterfactual_sequence_targets.py": "e4271e9f18983cac55c186b16ffc208dcb881a0ca50114e8673c6aa56f5d1567",
+    "tests/test_generative_counterfactuals.py": "4415ecab268e041358699c03082702f06c876620d5f7281a8dd39493d99d26a4",
+    "features/data/564_sequence_target_identity_2026-10-15/valid-oracle.npz": "09594109a6b46b979eaa866f9092cc462e67cf02b0539766abfcdc1d215c1f07",
+    "features/data/564_sequence_target_identity_2026-10-15/valid-oracle.json": "adb2959822a76d6681a2643a567d795a00df88fd97f396951c85961d18e75260"
+  },
+  "checks": "33 targeted checks on exact source; immutable prepatch valid-output oracle, model modes and no transfer/wrapper on invalid targets. Body-only own signature/prose/tr neutrality and incoming preservation prove no new derived target; no tests/writer/inventory repeated after foreign AI/Live/Dock source/API merge.",
+  "limits": "Fixed synthetic scorer/decoder application boundary only; no generator/classifier training, checkpoint/nativeGPU parity, biological counterfactual quality, whole F564, global CI or release acceptance.",
+  "validated_tree_ids": {
+    "spacr": "001da3aada9e5bf96aa9f3c163b4dfa066e6b021",
+    "tools": "0b3f33aa950b7ae803ac0161f5d0868897165eb5",
+    "docs": "5ef764a52b8cf19019a56bf6bc4e71b3500a04a8",
+    "tests": "d40662831a411de7fb8d4ca385da3a58a2c0747c"
+  },
+  "artifact_sha256": {
+    "spacr/attribution.py": "8f4b924ac64600d18c5b3c8466ae07d7ee5358e6071b226c57c1b42d2996952c",
+    "tests/test_counterfactual_sequence_targets.py": "e4271e9f18983cac55c186b16ffc208dcb881a0ca50114e8673c6aa56f5d1567",
+    "tests/test_generative_counterfactuals.py": "4415ecab268e041358699c03082702f06c876620d5f7281a8dd39493d99d26a4",
+    "features/data/564_sequence_target_identity_2026-10-15/valid-oracle.npz": "09594109a6b46b979eaa866f9092cc462e67cf02b0539766abfcdc1d215c1f07",
+    "features/data/564_sequence_target_identity_2026-10-15/valid-oracle.json": "adb2959822a76d6681a2643a567d795a00df88fd97f396951c85961d18e75260"
+  }
+}
