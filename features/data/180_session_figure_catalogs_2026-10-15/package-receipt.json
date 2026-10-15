@@ -32,11 +32,11 @@
     "canonical-snapshot.json.gz": "99ded9e3ba028badfaa273f06f1e2bc969322bfd37c369f63afb886dfe023d61",
     "frozen-output-hashes.json": "9eb8b81a2ed6974c3a3c40835e56b99dd199dc13e78a14697cb11d30189d918c",
     "generate.py": "a1c299fdced00502ac47886222a6002a07440ce8a0400e9577a18e67646ded06",
-    "help-generation.log": "fd96b95a290abfd31fa70759eb6ffd4d3f8691bb55403b46651c8e01b869c3e3",
     "plan.json.gz": "1404fb396fc51abb07d2ddfbf76c07eb477b60b3752e8eb33ce56c13c924eada",
     "prepare_plan.py": "3467a2792b0833ef46367daca55c208662529113b841f44b544031c64154faf7",
     "producer.log.gz": "679fadd99cdd134f6659c10fef6b6438ae40af5010e776ec719c43115d7aadc9",
     "receipt.json": "99cc08c286eedfa01a8dba49c7a49994448d78b7042872a3e65529f26614f757",
-    "run.json": "6326c3c75e87271fd366d940d89f0de439a7e19b7149b016d3629a50dde71acd"
+    "run.json": "6326c3c75e87271fd366d940d89f0de439a7e19b7149b016d3629a50dde71acd",
+    "help-generation.log.gz": "658b02b0f03d5cb8c6e26764ab8afd3d3b7bc600ca79c03a587f4a002a46943d"
   }
 }
