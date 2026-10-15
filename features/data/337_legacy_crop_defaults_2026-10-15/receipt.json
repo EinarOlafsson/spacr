@@ -74,11 +74,17 @@
     }
   },
   "source_changes": "Two approved existing entry seams invoke existing png_dims_to_channel_mapping only; no new modules/helpers/aliases/APIprose/captions",
-  "root_review": "Exact6line source initially approved, subsequent typed-legacy guard and rawCSV fixture correction explicitly approved; final peer pending",
+  "root_review": "Final exact10line typed guard independently approved; root-final-peer.json binds source hashes and unchanged signatures/prose.",
   "resource": "All actual tests blankCUDA/offscreen/commonheavy.lock/cap6G/singleprocess; no model/network/render/live data",
   "held": [
-    "Current public merge before normal consumer/flow/help generation",
-    "Necessary generated-current/consumer-link checks",
-    "Final source peer and normal publication"
-  ]
+    "Adopt Home-B coherent two-helper English and nine-locale artifacts/public baseline",
+    "Normal Help generation and required generated-current/consumer-link checks",
+    "Normal publication after final source/artifact identity proof"
+  ],
+  "derived_artifacts": {
+    "consumer_map": "Normal tool PASS before Help dependency refusal",
+    "settings_flow": "Normal tool --rst PASS before Help dependency refusal",
+    "help_index": "Normal tool refused two pre-existing published F561 enabled helper manifest omissions; help-dependency-proof.json binds exact sources and diagnostic",
+    "required_nine_checks": "Not run because normal Help refusal stopped command chain; pending coherent owner artifacts"
+  }
 }
