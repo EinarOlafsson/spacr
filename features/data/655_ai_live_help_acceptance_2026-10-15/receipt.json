@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-15",
+  "result": "PASS",
+  "exact_tested_commit": "17e8d8ced5f85d5cc9909fe19bb8a16953101821",
+  "existing_checks": {
+    "result": "5 PASS",
+    "pytest_seconds": 2.69,
+    "wall_seconds": 4.93,
+    "peak_rss_kib": 581636,
+    "terminal_exit": 0,
+    "repeated": false
+  },
+  "new_arrival_consumer_checks": {
+    "result": "4 exact symbols and8 production search queries PASS",
+    "wall_seconds": 1.9,
+    "peak_rss_kib": 282348,
+    "terminal_exit": 0,
+    "production_index_rows": 14283,
+    "details": "four-symbols.json"
+  },
+  "harness_correction": {
+    "first_result": "FAIL after api_url imported settings_model and thereby the shared AiToggleLabel; no product defect",
+    "preserved": "before-boundary-*",
+    "correction": "Run all four local_docstring no-target-import assertions before any api_url or build_index call. URL resolution and production index are allowed their normal imports. Only new readback rerun; five pytest checks not repeated.",
+    "first_wall_seconds": 0.78,
+    "first_peak_rss_kib": 148492
+  },
+  "resource": {
+    "cap": "2G",
+    "threads": 1,
+    "lock": "/mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "private_settings": "/mnt/wd4tb/scratch/n655-ai-toggle-help-20261015/config",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "source_artifact_sha256": {
+    "spacr/qt/help_api_index.py": "fb0ab7eda845610e06591c6fc21cd044ba56288d327d7f1ab1af778440807544",
+    "spacr/qt/help_index.py": "16de97f287e1b27d116b39e8cbd35333e2aaaca202c698208f81d675fe9e6139",
+    "spacr/qt/help_search.py": "ff7eefc9931bf1765d2488c773cfd41d1fc66c3a28a6a3d3ee36383f7799e8bd",
+    "spacr/qt/widgets/ai_toggle_label.py": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+    "docs/source/_static/i18n/api/en.json": "eb0291aa523a6693e9a719a11f793afcb8c409268ff69c5cfc9c0c99ba0897e3"
+  },
+  "evidence_sha256": {
+    "check_four_symbols.py": "5933ea4d1a6f6b932a3737601fba320f3905fcf37cdd1050dc726c383b03fade",
+    "run.sh": "7c4ca5e5499a4d443f72a196ee7ed30ea4b74bf57bc0c4511afeedb5988e11d6",
+    "run-readback.sh": "30586c1fdb89a3cfbeb5418896a473aec965ca3d65ff6f22689b35f0a4811224",
+    "existing.log": "c6d2d09aadae7ecfaf3f8f9b383bf8d22df969790554265e31331c8bd9f7c2e9",
+    "existing.time": "abb5585a85e0c474a6afe40b5dc49bd5db915247ca8ac6f60aea4b78650c6970",
+    "four-symbols.json": "b0381168acb46ea04c59550bc041af3003618504b84c0fc085711ae490526264",
+    "four-symbols.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "four-symbols.time": "7e98a0693fd47891d8f159ecc41b12f7c9c6634d1b6499fe5af3171786f7f2ec",
+    "before-boundary-check_four_symbols.py": "1b910f06db7212c1163dfa1092b60f67ccbea5a5baa43d75b673ecf4d014125f",
+    "before-boundary-four-symbols.stderr": "923077de932a665db399780ac4ac177ff98af74b00a65e35466c339c5ebe6412",
+    "before-boundary-four-symbols.time": "877f7a6aa61427d8c192f726b02c5596657b57b168f9bcfd1ffa79e028ff843e",
+    "before-boundary-four-symbols.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "boundary": [
+    "Consumer execution by widget source author; not independent source or translation review.",
+    "Exact new rows, published English summary/local prose, English/Korean URL path+anchors, and all eight exact/qualified queries against the actual14,283-row production index. No network or rendered-HTML check.",
+    "No generator, helper census, widget behavioral replay, target source changes or whole API audit.",
+    "The harness invokes local_docstring/api_url/build_index/search only, with no MainWindow, JobRunner submission, AI provider request or model operation. Production index imports normally; only AST-local-prose phase claims no target import.",
+    "The native source tree at e1f97 remained untouched."
+  ]
+}
