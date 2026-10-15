@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-15T04:58:00.719066+00:00",
+  "source_commit": "607c2291a99cfe7a76fae4601f1f1b519dd2a490",
+  "parent_commit": "32ea9167d295485ed2786a07f67a44cafa6fb9b8",
+  "owning_checks": 72,
+  "tests_passed": true,
+  "independent_source_peer": "pass",
+  "fresh_capture_started": false,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 934,
+      "sha256": "5801da64e9df8b8171554fc7725748fe8f14690e4fba81751c0aa8c16c83bf38"
+    },
+    {
+      "path": "completion-tests.txt",
+      "bytes": 124,
+      "sha256": "2b477e8d35ff3ddefe6d437fa98c57d04e3bc467b0eda57abb1b61abeda6dca3"
+    },
+    {
+      "path": "recorder-lifecycle.patch",
+      "bytes": 13638,
+      "sha256": "38d9b279ab5e79cc4128ed300dfa5954ea9b5a50f6f54ba18f8db3ab9ce9f826"
+    }
+  ]
+}

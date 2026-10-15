@@ -293,3 +293,19 @@ in this source step; other families remain provenance listings pending their
 next adapter integration. No hosting, weights, GPU or scientific acceptance.
 Full localization/browser WebGPU/whole698 remain open.
 Evidence: data/698_gui_detector_integration_2026-10-14/receipt.json.
+
+2026-10-15 — Genuine installed well-detector CPU parity (bounded acceptance):
+Explicitly selected installed toxoplasma_well_detector_v2 (not a missing-default
+substitute), 5,382,085 bytes, full bundled SHA-256 f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7.
+Actual Ultralytics 8.4.157/Torch CPU inference runs both desktop detect_wells
+and the web adapter on declared synthetic grayscale and RGB PNGs. Each returns
+three actual boxes; all coordinates, confidence and Well geometry match exactly.
+Both ZIPs preserve source bytes, exact model/settings provenance and every
+output hash, and correctly omit masks/flows/per-pixel probabilities. Checkpoint
+and five relevant source files remain byte-identical before/after. Exit 0;
+CUDA unavailable/uninitialized, MPS unavailable, one Torch thread. No mocks,
+model/package downloads or biological accuracy claim. One toolkit temporary
+configuration fallback is recorded in the raw log. Inputs, ZIPs, script and
+receipt: data/698_native_well_cpu_2026-10-15/. Other models, default plaque-v4
+availability, actual hosted service/browser/GPU and biological acceptance remain
+open; this does not close N698 or imply all eight routes are public.

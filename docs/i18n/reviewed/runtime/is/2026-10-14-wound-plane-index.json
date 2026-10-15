@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Direct exact-source AI technical translation review; independent parent review requested; no native signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "Reviewed scratch-wound image-plane selection rather than a clinical recommendation, finite nonnegative whole indices and strict upper bound against available plane count. Preserved {index}/{planes} placeholders exactly. No scientific assay accuracy claimed. Normal scoped extraction/generation and independent review remain required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Wound-plane index {index} must be a finite, nonnegative whole number smaller than {planes}.",
+      "source": "Wound-plane index {index} must be a finite, nonnegative whole number smaller than {planes}.",
+      "source_sha256": "949dcd5d4751c0f1f1d9174b83aafce189a8ea80b71f7c4df92de88c27c62e81",
+      "translation": "Vísir myndflatar fyrir greiningu sárslokunar, {index}, verður að vera endanleg, óneikvæð heiltala minni en {planes}."
+    }
+  ]
+}
