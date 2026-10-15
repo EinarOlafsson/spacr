@@ -128,6 +128,7 @@ See Also:
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import logging
 import os
@@ -1289,6 +1290,62 @@ _VERSION_RE = re.compile(r"^(?P<base>.+)_v(?P<n>\d+)$")
 
 
 
+_CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d',
+                          'field_ids_sha256': 'c0759011907c85b3a5fc0d0c1ebfa31ac4c8fd196a29427d8ac80c7e00f47ab5',
+                          'full_card_sha256': '5467b6e446000c87cc61b34802aa4a212c8e8238f283f5fe13fa68afbf65df11',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam.json',
+                          'resource_sha256': '31d63e888366c0bf70048977efc191bba51bc38e06d0c2f846a9dd36c3335888',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/resolve/main/cpsam_plaque_r3?download=true'},
+ 'toxoplasma_plaque_v2': {'checkpoint_sha256': '0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600',
+                          'field_ids_sha256': 'cb872aac8934e014943e40e42c420f1335f1e815415f553210360c6b80b07fc3',
+                          'full_card_sha256': '92e2362a345b8e27cf1595ac11e532126fe92d9dedd321445e6f06b05799684c',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r5.json',
+                          'resource_sha256': 'a541533956c3c570dfb85155839eb568951d76dfe87b63bf3727c487281a2d21',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/weights/cpsam_plaque_r5?download=true'},
+ 'toxoplasma_plaque_v3': {'checkpoint_sha256': '8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c',
+                          'field_ids_sha256': 'de6aa3f20249d5f8d7e3fd8cafae08f74f2a823983b36692b73de2fdd7c05424',
+                          'full_card_sha256': '19af073e0a5c752df94dc4943ed66f2927d2351fffa745d070c3da7faf7e4806',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r5-geldoc.json',
+                          'resource_sha256': 'd9ecd22d0582c4b9668c802964e3e236254c6674afe95616375263c5ce2ef09a',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/weights/cpsam_plaque_r5_geldoc'},
+ 'toxoplasma_plaque_v4': {'checkpoint_sha256': '744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f',
+                          'field_ids_sha256': '5e3dfefe23a2bc51877dc3cb72999b21b1d0b3e4fb393e5d9d2b2bcce686f86f',
+                          'full_card_sha256': '6860674346b819da2045a8a887d39dfc6d343b0250cf748b74d86b4414e2c94a',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r6.json',
+                          'resource_sha256': '2aa5c558b512a5b888a755ac1bf46fa18609c5bd4effb533363c3bdc6695efd9',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6'},
+ 'toxoplasma_pv_v1': {'checkpoint_sha256': '182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0',
+                      'field_ids_sha256': '8192aa87281f8da7d1a4fd7884472e83f57c344b059953db0aa94e359b46a046',
+                      'full_card_sha256': 'a74e00d9d0c0d4f7560a7650618243d393431a1bee78f43047f38c57b5e5edd5',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam.json',
+                      'resource_sha256': '504429f98ee4d86824bb9aedd4291d799be2f5a272d542961c32b09f158f368c',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/resolve/main/cpsam_v2_toxo_r2?download=true'},
+ 'toxoplasma_pv_v2': {'checkpoint_sha256': '17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f',
+                      'field_ids_sha256': 'cb581da5ded17152fb834d7b3c24af0c1ad0ce6f472cc292fa81ede122b4a9ff',
+                      'full_card_sha256': '41015c1eea6fd3366205c121208272d931ccb9954f24b48b90c34fd01533fe69',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r5.json',
+                      'resource_sha256': '4a763040ef118e1e940033723c93ec2750e7880b56eb47f5eb8da703b847235f',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/resolve/main/cpsam_v2_toxo_r5?download=true'},
+ 'toxoplasma_pv_v3': {'checkpoint_sha256': '146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e',
+                      'field_ids_sha256': 'b0196c1902fc479d76aa8df2afbc2c4046088413557ba09c96a1b3363618c1fb',
+                      'full_card_sha256': '544e2321dd7af7b996af19e4ae16f5270e727279d0516ad36b932cd323ac3aad',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r6.json',
+                      'resource_sha256': 'd8621a89fc25ff18801aebf32b8caf75a8af06045feba5b97d9833baa751f84a',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/resolve/main/weights/cpsam_v2_toxo_r6'},
+ 'toxoplasma_pv_v4': {'checkpoint_sha256': '621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2',
+                      'field_ids_sha256': 'd0a6542dd6647b7c1b46742151596d850ec5f2c5dfd0b30fe6582be7684988d8',
+                      'full_card_sha256': '76ebd4a89abb9f98e65b668ce811d85e0cc5a6e5380de8cc168f7705c2b23c3a',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r7.json',
+                      'resource_sha256': '0c92b1167245b2a6ae901d26623761269ed1d65ed0c109b5c0da91a797b50ff5',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/main/weights/cpsam_v2_toxo_r7'},
+ 'toxoplasma_pv_v5': {'checkpoint_sha256': 'a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c',
+                      'field_ids_sha256': 'ff26b2e63f147aaa48da545addadab32505d8417654e7f5d9000ee54187b149d',
+                      'full_card_sha256': '73b49ea573201d9d2d1e51513398dc9917ff10cbee792bae2a499d18c81ceed2',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r8.json',
+                      'resource_sha256': '34c9df8121b591b5c5c8d0b8566dea5a8294fdb1c26197df7a42180db9d4d40f',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/weights/cpsam_v2_toxo_r8'}}
+
+
 class ModelZooError(Exception):
     """Base class for every refusal in this module."""
 
@@ -1354,6 +1411,9 @@ class ModelEntry:
     :param licence: the licence the model or package is published under, as
         its publisher states it (an SPDX identifier where there is one), or
         ``''`` when none is recorded.
+    :param _curated_card: Internal presentation marker set only after the
+        builtin declaration, checkpoint and packaged card match reviewed
+        identities. Serialized catalogue fields do not enable this marker.
     """
 
     key: str
@@ -1372,6 +1432,7 @@ class ModelEntry:
     verified: bool = False
     settings_path: str = ""
     licence: str = ""
+    _curated_card: bool = _dc_field(default=False, compare=False, repr=False)
 
     def __post_init__(self):
         """Fill in the provenance fields and validate the kind.
@@ -1430,16 +1491,20 @@ class ModelEntry:
     def scorecard_lines(self) -> List[str]:
         """The scorecard as display lines, or the sentence saying there is none.
 
-        The lines come from :func:`spacr.scorecard.headline` applied to the
-        fine-tuned values with the vanilla values as baseline, followed by
-        the hold-out set when one is recorded. Without a scorecard the list
-        holds the single line :data:`spacr.scorecard.NO_SCORECARD`.
+        Trusted builtin cards show all six accepted matched-stock measurements
+        and their dataset and counts; their boundary F1 uses a two-pixel
+        tolerance. Other entries keep :func:`spacr.scorecard.headline` applied
+        to their fine-tuned and vanilla values, followed by the recorded
+        hold-out set. One-pixel measurements retain their original meaning.
+        Without a scorecard the list holds :data:`spacr.scorecard.NO_SCORECARD`.
         """
         from .scorecard import NO_SCORECARD, headline
 
         if not self.scorecard_known:
             return [NO_SCORECARD]
         metrics = self.metrics or {}
+        if self._curated_card:
+            return _curated_scorecard_lines(metrics)
         finetuned = {k: v.get("finetuned") for k, v in metrics.items()
                      if isinstance(v, dict)}
         baseline = {k: v.get("vanilla") for k, v in metrics.items()
@@ -1505,7 +1570,13 @@ class ModelEntry:
         return f"https://huggingface.co/{parts[0]}/{parts[1]}"
 
     def describe(self) -> str:
-        """The multi-line provenance card shown next to a selected model."""
+        """The multi-line provenance card shown next to a selected model.
+
+        Trusted builtin cards show the six accepted measurements and explicit
+        evaluation identity. Their historical evaluations and source digests
+        remain in the entry's data without cluttering this presentation.
+        Other entries retain their original complete metadata description.
+        """
         lines = [
             f"{self.name}  [{self.kind} · {self.source} · v{self.version}]",
             f"  path       {self.path or '(not downloaded)'}",
@@ -1524,7 +1595,12 @@ class ModelEntry:
             lines.append(f"  model card {card}")
         if self.settings_path:
             lines.append(f"  provenance {self.settings_path}")
+        if self._curated_card:
+            lines.extend("  " + line for line in self.scorecard_lines())
         for name, value in sorted(self.metrics.items()):
+            if self._curated_card and name not in (
+                    "n_train", "train_objects", "cv", "train_loss", "val_loss", "best_epoch"):
+                continue
             lines.append(f"  {name:<10} {value}")
         for note in self.notes:
             lines.append(f"  ! {note}")
@@ -2204,6 +2280,68 @@ def _entry_from_mapping(data: Mapping[str, Any],
         notes=notes,
         licence=str(data.get("licence") or data.get("license") or ""),
     )
+
+
+def _builtin_entry_from_mapping(record: Mapping[str, Any]) -> ModelEntry:
+    """Attach an accepted card only to its exact trusted builtin checkpoint.
+
+    The declaration object, download URI, checkpoint digest and packaged card
+    digest must all match the reviewed bindings. Custom declarations and changed
+    files retain their original measurements. The earlier evaluation remains
+    available in ``historical_scorecards``; no score is recalculated.
+
+    :param record: One declaration from ``BUNDLED_REMOTE_MODELS``.
+    :returns: Its model entry, with an approved matched-stock evaluation when bound.
+    """
+    from copy import deepcopy
+
+    entry = _entry_from_mapping(record)
+    binding = _CURATED_SCORECARD_BINDINGS.get(entry.key)
+    if (binding is None or not any(record is raw for raw in BUNDLED_REMOTE_MODELS)
+            or entry.source != "remote" or entry.path
+            or entry.uri != binding["uri"]
+            or entry.sha256 != binding["checkpoint_sha256"]):
+        return entry
+    from . import model_cards
+
+    try:
+        payload = (model_cards._CARD_DIR / binding["resource"]).read_bytes()
+    except OSError:
+        return entry
+    if hashlib.sha256(payload).hexdigest() != binding["resource_sha256"]:
+        return entry
+    card = json.loads(payload)
+    scores = card["scores"]
+    rows = {row["key"]: row for row in scores["rows"]}
+    holdout = scores["holdout"]
+    metrics = {key: deepcopy(value) for key, value in entry.metrics.items()
+               if key in ("n_train", "train_objects", "cv", "train_loss", "val_loss", "best_epoch")}
+    for key, source in (("f1", "object_f1"), ("boundary_f1_2px", "boundary_f1"),
+                        ("precision", "precision"), ("recall", "recall"),
+                        ("aji", "aji"), ("dice", "dice")):
+        row = rows[source]
+        mine, stock = row["this"], row["stock"]
+        metrics[key] = {"finetuned": mine, "vanilla": stock,
+                        "delta": None if stock is None else mine - stock}
+    counts = scores.get("counts", {}).get("this", {})
+    for key, source in (("true_positives", "tp"), ("false_positives", "fp"),
+                        ("false_negatives", "fn")):
+        if source in counts:
+            metrics[key] = counts[source]
+    metrics.update({"holdout": "gt_rescore_20261011", "holdout_version": "strict hold-out, pooled",
+                    "n_fields": holdout["n_fields"], "n_objects": holdout["n_objects"],
+                    "n_test": str(holdout["n_fields"]) + " fields",
+                    "test_objects": str(holdout["n_objects"]),
+                    "historical_scorecards": [{"metrics": deepcopy(entry.metrics)}],
+                    "scorecard_provenance": {"schema": "spacr-approved-curated-card-v1",
+                        "stock_model": scores["stock_model"], "boundary_tolerance_px": 2,
+                        "holdout": deepcopy(holdout), "checkpoint_uri": entry.uri,
+                        "checkpoint_sha256": entry.sha256,
+                        "resource_sha256": binding["resource_sha256"],
+                        "full_card_sha256": binding["full_card_sha256"],
+                        "field_ids_sha256": binding["field_ids_sha256"],
+                        "field_ids_included": False}})
+    return replace(entry, metrics=metrics, _curated_card=True)
 
 
 _SHARED_CATALOGUE_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "entries": ()}
@@ -3519,7 +3657,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     if remote:
         have = {(e.key, e.name) for e in entries}
         for record in BUNDLED_REMOTE_MODELS:
-            entry = _entry_from_mapping(record)
+            entry = _builtin_entry_from_mapping(record)
             if (entry.key, entry.name) not in have:
                 entries.append(entry)
                 have.add((entry.key, entry.name))
@@ -4835,6 +4973,42 @@ SCORECARD_ROWS = (
 )
 
 
+def _curated_scorecard_rows():
+    """Name the six approved measurements without changing one-pixel semantics.
+
+    :returns: Translated labels paired with exact approved metric keys.
+    """
+    from .qt.i18n import tr
+
+    return ((tr("F1 @ IoU 0.5"), "f1"), (tr("Boundary F1 (2 px)"), "boundary_f1_2px"),
+            (tr("Precision"), "precision"), (tr("Recall"), "recall"),
+            (tr("AJI"), "aji"), (tr("Dice"), "dice"))
+
+
+def _curated_scorecard_lines(metrics):
+    """Render the accepted six-row evaluation and its explicit holdout identity.
+
+    :param metrics: Measurements attached by the trusted builtin constructor.
+    :returns: Six matched-stock lines followed by dataset, counts and tolerance.
+    """
+    from .qt.i18n import tr
+
+    lines = []
+    for label, key in _curated_scorecard_rows():
+        row = metrics[key]
+        if row["vanilla"] is None:
+            lines.append(tr("{metric}: {value:.4f}", metric=label, value=row["finetuned"]))
+        else:
+            lines.append(tr("{metric}: {value:.4f} (stock {stock:.4f}, difference {delta:+.4f})",
+                            metric=label, value=row["finetuned"], stock=row["vanilla"],
+                            delta=row["delta"]))
+    provenance = metrics["scorecard_provenance"]
+    lines.append(tr("Evaluation: {dataset}; {fields} fields, {objects} objects; boundary tolerance {pixels} px; stock {stock}.",
+                    dataset=metrics["holdout"], fields=metrics["n_fields"], objects=metrics["n_objects"],
+                    pixels=provenance["boundary_tolerance_px"], stock=provenance["stock_model"]))
+    return lines
+
+
 def scorecard_html(entry) -> str:
     """The model's scorecard as an HTML table, for a tooltip.
 
@@ -4842,6 +5016,10 @@ def scorecard_html(entry) -> str:
     can be compared without reading prose. When an entry publishes no
     metrics this returns ``""``, and the Zoo screen's tooltip shows the
     entry's prose description instead.
+
+    Trusted builtin cards include all six accepted matched-stock rows and
+    their evaluation identity; boundary F1 uses a two-pixel tolerance.
+    Other entries keep their published fields and existing interpretation.
 
     Metrics that hold none of the scorecard's keys -- a free-form note, a
     training loss under a name of its own -- are not a scorecard either, and
@@ -4855,7 +5033,10 @@ def scorecard_html(entry) -> str:
     detector_rows = tuple((label, key) for label, key in
                           (("mAP50", "mAP50"), ("mAP50–95", "mAP50_95"))
                           if key in metrics)
-    if not any(key in metrics for _label, key in SCORECARD_ROWS + detector_rows):
+    curated = bool(getattr(entry, "_curated_card", False))
+    display_rows = (SCORECARD_ROWS[:5] + _curated_scorecard_rows() + SCORECARD_ROWS[-3:]
+                    if curated else SCORECARD_ROWS + detector_rows)
+    if not any(key in metrics for _label, key in display_rows):
         return ""
     name = (getattr(entry, "display_name", "") or getattr(entry, "name", "")
             or getattr(entry, "key", ""))
@@ -4865,7 +5046,7 @@ def scorecard_html(entry) -> str:
             return "not recorded"
         return value if str(value).strip() else "not recorded"
     rows = []
-    for label, key in SCORECARD_ROWS + detector_rows:
+    for label, key in display_rows:
         stock = metrics.get(f"stock_{key}", "") if key in ("f1", "aji", "dice") else ""
         value = metrics.get(key, "")
         if isinstance(value, Mapping):
@@ -4886,6 +5067,8 @@ def scorecard_html(entry) -> str:
             "<tr><th align='left'></th><th align='right'>this model</th>"
             "<th align='right'>stock</th></tr>"
             + "".join(rows) + "</table>"
+            + ("<p>" + html.escape(_curated_scorecard_lines(metrics)[-1]) + "</p>"
+               if curated else "")
             + (f"<p>{trained[:200]}</p>" if trained else "")
             + (f"<p>{card}</p>" if card else ""))
 
