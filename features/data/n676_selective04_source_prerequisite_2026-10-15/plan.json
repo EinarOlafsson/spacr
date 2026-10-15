@@ -1,0 +1,262 @@
+{
+  "status": "READ ONLY patch applicability/adoption plan; no source application or tests",
+  "root_pin": "083d21924284249cf1ad08b5bb1ff57ca9bbc1c2",
+  "patches_in_required_order": [
+    {
+      "folder": "source-handoff",
+      "patch": "0001-selective04-mixed-visual-retention.patch",
+      "sha256": "699e421da1a9d6e3496d9b09b2ad650f9d72977d84d8d932eeab62442f27d2fb",
+      "files": [
+        {
+          "file": "tools/tutorials/authoring/web/app_v2.js",
+          "patch_old_blob": "e155bc99a52be05abd253974d4534c33909f5902",
+          "patch_new_blob": "9f35e6a4744d4355d22d8308f221406e46e912b3",
+          "hunks": [
+            {
+              "original_line": 1217,
+              "actual_line": 1217,
+              "old_lines": 7,
+              "new_lines": 8
+            }
+          ],
+          "result_sha256": "938c108a7c0d0b4ae73b85b2cffb44896694c0780294a66e077e1ae4979ab4ff"
+        },
+        {
+          "file": "tools/tutorials/render_installation_route_cards.py",
+          "patch_old_blob": "59055a0f6995fb24406094cad04f976fe460eba6",
+          "patch_new_blob": "5da380079444335fc098b37bab4dd5202faf2f1f",
+          "hunks": [
+            {
+              "original_line": 45,
+              "actual_line": 45,
+              "old_lines": 6,
+              "new_lines": 11
+            }
+          ],
+          "result_sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c"
+        },
+        {
+          "file": "tools/tutorials/retained_visual_refresh.py",
+          "patch_old_blob": "71a985eeb0e1593f21558b4abe2d211d70eaa7cd",
+          "patch_new_blob": "1818ffc5c9265ff561e8f6e61bd43eb9887eec2a",
+          "hunks": [
+            {
+              "original_line": 7,
+              "actual_line": 7,
+              "old_lines": 6,
+              "new_lines": 8
+            },
+            {
+              "original_line": 54,
+              "actual_line": 56,
+              "old_lines": 6,
+              "new_lines": 8
+            },
+            {
+              "original_line": 183,
+              "actual_line": 187,
+              "old_lines": 3,
+              "new_lines": 316
+            }
+          ],
+          "result_sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3"
+        },
+        {
+          "file": "tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+          "patch_old_blob": "0000000000000000000000000000000000000000",
+          "patch_new_blob": "b297d35d0214e05cfc16fa7c7f6e75aec1e830e7",
+          "hunks": [
+            {
+              "original_line": 0,
+              "actual_line": 1,
+              "old_lines": 0,
+              "new_lines": 46
+            }
+          ],
+          "result_sha256": "f28d8cfe97af0cc453a27a287e5c3849dd9774f539cb669bc855120973b52edb"
+        },
+        {
+          "file": "tools/tutorials/tests/test_retained_mixed_visual_refresh.py",
+          "patch_old_blob": "0000000000000000000000000000000000000000",
+          "patch_new_blob": "f4895ed89a6647bd2a9fb7ec78c9b76125274d8f",
+          "hunks": [
+            {
+              "original_line": 0,
+              "actual_line": 1,
+              "old_lines": 0,
+              "new_lines": 225
+            }
+          ],
+          "result_sha256": "ea7d490b6c6101d497d53e6e602a7c04c07b60228605d4408cdf64a49cc64842"
+        },
+        {
+          "file": "tools/tutorials/verify_staged_lesson.py",
+          "patch_old_blob": "8c92e1b04ef2e88211d5c15275b5586771e3cddc",
+          "patch_new_blob": "099373c8d9b61bca100411080ac44e81cd89c07e",
+          "hunks": [
+            {
+              "original_line": 37,
+              "actual_line": 37,
+              "old_lines": 7,
+              "new_lines": 8
+            },
+            {
+              "original_line": 148,
+              "actual_line": 149,
+              "old_lines": 20,
+              "new_lines": 25
+            },
+            {
+              "original_line": 230,
+              "actual_line": 236,
+              "old_lines": 7,
+              "new_lines": 9
+            }
+          ],
+          "result_sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04"
+        }
+      ]
+    },
+    {
+      "folder": "source-handoff-playback-followup",
+      "patch": "0001-selective04-static-playback-clock-followup.patch",
+      "sha256": "341752e42823b15d0a13eae48e34ba04a02affe7e1e403a790f3c8b4496aebfd",
+      "files": [
+        {
+          "file": "tools/tutorials/authoring/web/app_v2.js",
+          "patch_old_blob": "9f35e6a47",
+          "patch_new_blob": "15c52859d",
+          "hunks": [
+            {
+              "original_line": 1349,
+              "actual_line": 1349,
+              "old_lines": 9,
+              "new_lines": 11
+            }
+          ],
+          "result_sha256": "026441d007817bb7c67c2b8cef6d8e8429e8af1ad991b9641a9ecc08abe8f6c8"
+        },
+        {
+          "file": "tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+          "patch_old_blob": "b297d35d0",
+          "patch_new_blob": "9e80b3588",
+          "hunks": [
+            {
+              "original_line": 44,
+              "actual_line": 44,
+              "old_lines": 3,
+              "new_lines": 59
+            }
+          ],
+          "result_sha256": "99a152244dc558938a460327c1cf21e3af5ed941673818e13e14b531a0cb3150"
+        }
+      ]
+    },
+    {
+      "folder": "source-handoff-pending-seek-followup",
+      "patch": "0001-selective04-pending-visual-seek-followup.patch",
+      "sha256": "5db34800f1d519bad95abd4757bbf62a1d5a34241ede9e5a728bc4f70bfd7f7c",
+      "files": [
+        {
+          "file": "tools/tutorials/authoring/web/app_v2.js",
+          "patch_old_blob": "15c52859d29ca78132e905891866b259d4caa497",
+          "patch_new_blob": "46c963a803110c719b5a909054f03a874c54d277",
+          "hunks": [
+            {
+              "original_line": 1439,
+              "actual_line": 1439,
+              "old_lines": 6,
+              "new_lines": 11
+            }
+          ],
+          "result_sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25"
+        },
+        {
+          "file": "tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+          "patch_old_blob": "9e80b3588b975d2bf1972414e5286438ed762987",
+          "patch_new_blob": "fe4ee6f0d05c13e5e2429a6236ec809c682199c8",
+          "hunks": [
+            {
+              "original_line": 100,
+              "actual_line": 100,
+              "old_lines": 3,
+              "new_lines": 70
+            }
+          ],
+          "result_sha256": "f76a317f79f9e3d634a675063ebd48e5c7dd6698896b503164ce57833dbc6115"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "file": "tools/tutorials/authoring/web/app_v2.js",
+      "current_root_sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+      "planned_sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+      "owner_snapshot_sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+      "matches_final_owner_snapshot": true,
+      "source_adoption_needed": true
+    },
+    {
+      "file": "tools/tutorials/render_installation_route_cards.py",
+      "current_root_sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32",
+      "planned_sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c",
+      "owner_snapshot_sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c",
+      "matches_final_owner_snapshot": true,
+      "source_adoption_needed": true
+    },
+    {
+      "file": "tools/tutorials/retained_visual_refresh.py",
+      "current_root_sha256": "9c59acdaee7d9d83f1176f35617b1aa2555248ecbfbcba207c11b01678ecbbc4",
+      "planned_sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3",
+      "owner_snapshot_sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3",
+      "matches_final_owner_snapshot": true,
+      "source_adoption_needed": true
+    },
+    {
+      "file": "tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "current_root_sha256": null,
+      "planned_sha256": "f76a317f79f9e3d634a675063ebd48e5c7dd6698896b503164ce57833dbc6115",
+      "owner_snapshot_sha256": "f76a317f79f9e3d634a675063ebd48e5c7dd6698896b503164ce57833dbc6115",
+      "matches_final_owner_snapshot": true,
+      "source_adoption_needed": true
+    },
+    {
+      "file": "tools/tutorials/tests/test_retained_mixed_visual_refresh.py",
+      "current_root_sha256": null,
+      "planned_sha256": "ea7d490b6c6101d497d53e6e602a7c04c07b60228605d4408cdf64a49cc64842",
+      "owner_snapshot_sha256": "ea7d490b6c6101d497d53e6e602a7c04c07b60228605d4408cdf64a49cc64842",
+      "matches_final_owner_snapshot": true,
+      "source_adoption_needed": true
+    },
+    {
+      "file": "tools/tutorials/verify_staged_lesson.py",
+      "current_root_sha256": "9992fabc5ddc6db81df6b4b4507c4825cca14b177f7ea9dffe61db8d07312696",
+      "planned_sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04",
+      "owner_snapshot_sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04",
+      "matches_final_owner_snapshot": true,
+      "source_adoption_needed": true,
+      "exact_changed_or_added_methods": [
+        "check_complete_native_boundary_playback",
+        "check_complete_native_trace",
+        "check_native_boundary_playback"
+      ],
+      "other_Root_function_ASTs_identical": true,
+      "three_method_ASTs_equal_owner_snapshot": true,
+      "additional_module_delta": "Exact predecessor import sys and _ROOT/sys.path bootstrap; no other module-level AST change."
+    }
+  ],
+  "source_identity_distinction": {
+    "capture_and_stage": "b929b7dc53465132322c3ca0b866f567de773b9f",
+    "final_player": "2427d57f17ad78d97cf81f18720c1cd9e0c7cc02"
+  },
+  "plan": [
+    "Root/Work must approve the exact missing verifier predecessor delta before applying the three supplied patches.",
+    "Prerequisite changes only sys import/root path bootstrap, native interruption/dispatch checks, and two complete-native helpers; every other original Root function AST remains identical.",
+    "Apply the reviewed predecessor delta then exact K4/K5/K6 patches in order in a private integration branch. No whole snapshot replacement.",
+    "In-memory exact hunk application after prerequisite yields all six final owner snapshots byte-for-byte, including verifier099373 and JS/player2427.",
+    "Root assigns finite owning validation and independent final source peer separately; no tests or source application here.",
+    "Exclude additional87 media selector patch: CI owns the two media fixture selectors. No recording/render/encoder/media/network required."
+  ],
+  "limits": "Published selective04 assets are a separate media acceptance. Retained12visuals/legacyPerformance remain disclosed; no wholefresh/nativecomplete/humanlisten or livePagesdeployment claim. Existing owner tests224/225/226 are separate staged histories, not summed or rerun here."
+}
