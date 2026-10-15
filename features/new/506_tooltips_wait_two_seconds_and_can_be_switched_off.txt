@@ -93,3 +93,12 @@ VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_tooltips.py, test
   remains with the documentation owner. No native Mac/Windows claim and no
   blanket delegate-owned popup lifetime claim. Proof:
   data/506_tooltip_lifetime_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B master switch now dismisses real table-cell help
+  A real QTableWidget ToolTipRole popup survived switching tooltips off:
+  delayed delegate replay did not mark it as internally shown, and hide_now
+  only closed popups carrying that flag. The global hide now closes Qt tooltip
+  text regardless of who supplied it. The new real-table regression fails
+  before;58 focused lifecycle/policy tests pass after in30.45s. No caption,
+  API or preference change. Linux offscreen/Qt6.12/6G/GPU hidden; no native
+  Windows/macOS claim. Proof: data/506_delegate_tooltip_off_2026-10-14/receipt.json.

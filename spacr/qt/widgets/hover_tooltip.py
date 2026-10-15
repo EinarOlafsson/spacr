@@ -887,6 +887,7 @@ class HoverTooltip(QFrame):
         event loop, where there is nobody to catch it.
         """
         if self._pointer_is_on_me():
+            self._hide_timer.start(self.HIDE_DELAY_MS)
             return
         anchor = self._anchor
         if anchor is not None:
@@ -895,6 +896,7 @@ class HoverTooltip(QFrame):
 
                 if anchor.rect().contains(
                         anchor.mapFromGlobal(QCursor.pos())):
+                    self._hide_timer.start(self.HIDE_DELAY_MS)
                     return
             except RuntimeError:
                 self._anchor = None
@@ -911,6 +913,7 @@ class HoverTooltip(QFrame):
             animation stops.
         """
         self._hover_delay.cancel()
+        self._hide_timer.stop()
         self._animation_view.stop()
         super().hideEvent(event)
 

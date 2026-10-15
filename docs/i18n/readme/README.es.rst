@@ -125,6 +125,10 @@
 
 .. raw:: html
 
+   <div><a href="../../readme_text/es/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/hardware-support-2.desktop.svg"><img src="../../readme_images/es/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
+
+.. raw:: html
+
    <div><a href="../../readme_text/es/install-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-spacr.desktop.svg"><img src="../../readme_images/es/install-spacr.svg" alt="Instalar spaCR. Elija una vía de instalación: Aplicación de escritorio: un instalador para Linux, macOS o Windows con su propio Python. pip: python -m pip install spacr en un entorno de Conda. conda-forge: conda install conda-forge::spacr en un entorno de Conda. Docker: los flujos de procesamiento de línea de comandos en un contenedor Linux, con la imagen para CPU o la imagen para GPU NVIDIA:"></picture></a></div>
 
 .. code-block:: bash

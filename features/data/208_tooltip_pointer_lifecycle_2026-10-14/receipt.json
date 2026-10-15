@@ -1,0 +1,55 @@
+{
+  "item": "N208",
+  "source_base": "ef65535b976dff15c343ce4d7570cce0fed6b4d0",
+  "scope": "Rich tooltip geometry fallback dismisses after reading even when platform hover events are absent",
+  "before": {
+    "cursor_cases_failed": 2,
+    "cursor_seconds": 8.26,
+    "timer_cleanup_failed": 1,
+    "cleanup_seconds": 2.0
+  },
+  "after": {
+    "passed": 46,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 23.76
+  },
+  "behavior": [
+    "Actual cursor rests on popup or anchor through the first hide deadline; popup remains available.",
+    "With Enter/Leave deliberately suppressed to reproduce the recorded platform condition, moving outside both regions still dismisses the popup via bounded periodic geometry checks.",
+    "Hiding the popup stops its timer, so no geometry checks remain active after dismissal."
+  ],
+  "environment": {
+    "python": "3.12.13",
+    "qt": "6.12.0",
+    "platform": "Linux offscreen with real cursor coordinates and intentionally suppressed Enter/Leave events",
+    "cap": "6G",
+    "CUDA_VISIBLE_DEVICES": ""
+  },
+  "test_files": [
+    "tests/qt/test_208_tooltip_missing_hover_events.py",
+    "tests/qt/test_506_tooltip_lifetime.py",
+    "tests/qt/test_the_tooltip_is_on_the_title_only.py",
+    "tests/qt/test_cov_4_hover_tooltip.py",
+    "tests/qt/test_hover_tooltip_uncovered_paths.py",
+    "tests/qt/test_tooltip_no_duplicate.py"
+  ],
+  "source_sha256": {
+    "spacr/qt/widgets/hover_tooltip.py": "4d24bce6111199962f0cbceb261f489968362739a01c43f2aca7b29eb5cc4ccd",
+    "tests/qt/test_208_tooltip_missing_hover_events.py": "4c56a7156bfa8e232e5a3ba1ced3ab37b86f5e60fccb2f97f7a4aa0099e64582"
+  },
+  "api_or_caption_changes": false,
+  "limits": [
+    "A controlled reproduction of missing hover events, not native macOS/Windows acceptance.",
+    "No new scientific annotation-help copy or translation claim."
+  ],
+  "replay": "bash ../506_tooltip_lifetime_2026-10-14/run.sh tests/qt/test_208_tooltip_missing_hover_events.py tests/qt/test_506_tooltip_lifetime.py tests/qt/test_the_tooltip_is_on_the_title_only.py tests/qt/test_cov_4_hover_tooltip.py tests/qt/test_hover_tooltip_uncovered_paths.py tests/qt/test_tooltip_no_duplicate.py",
+  "payload_sha256": {
+    "pointer-before.xml.gz": "249b318fda4ac66391838984a2a9c4c73428adb55962190622f377dbefa3e3c4",
+    "pointer-cleanup-before.log.gz": "7b5a0b5201a405812f3b7e51d9df4b95d914ee53944df08b04b8c6a2e657de37",
+    "pointer-before.log.gz": "42dae3098ad6ea253e9d960719cb50f43d65afbf40bcb59e51b60ab6866c4c35",
+    "pointer-owning.log.gz": "d280ed1f2f2443e3c87fb7d9cd87a6096e587e9a1090add91eef0580c18d8261",
+    "pointer-cleanup-before.xml.gz": "0c34636bc5344e77fc9e10c157c490c22714a904f49b2ee6dac3994db8482bcc",
+    "pointer-owning.xml.gz": "0d554dfe5f9f248070a01c176f371c395f0e970ed025de3983e29b68fe885015"
+  }
+}

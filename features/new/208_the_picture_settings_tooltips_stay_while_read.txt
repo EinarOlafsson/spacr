@@ -166,3 +166,17 @@ run. Both cases force `underMouse()` to the WRONG answer -- False with the
 pointer on the popup, True with it away -- because that source was measured
 wrong in both directions and is the reason the fault reproduced on one
 desktop and not the other.
+
+2026-10-14 — Home-B geometry fallback now completes the reading lifecycle
+  If a platform omits popup hover events, the first geometry check correctly
+  kept help visible while the cursor rested on its title or text, but no later
+  check ran. Moving away then left the popup stuck. The geometry fallback now
+  checks again after the shared one-second grace while either region is being
+  read. Hiding the popup stops that timer. Actual cursor tests suppress Enter/
+  Leave events, retain help through the first deadline, then move outside both
+  regions and verify dismissal. Both cases fail before; a separate timer-stop
+  regression also fails before. All46 focused owning cases pass after in23.76s,
+  including existing title/popup crossing, duplicate and N506 lifetime cases.
+  Source only hover_tooltip.py; no caption, API or scientific-help changes.
+  Linux offscreen/Qt6.12/6G/GPU hidden; no native macOS/Windows claim.
+  Proof: data/208_tooltip_pointer_lifecycle_2026-10-14/receipt.json.

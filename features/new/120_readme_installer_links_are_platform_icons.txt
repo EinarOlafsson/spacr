@@ -356,3 +356,18 @@ README's WORKFLOW buttons -- 56 buttons against a home-screen registry of 36
 for, not the installer row.
 
 VERIFIED 2026-10-04: the 4 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+
+2026-10-14 — Current implementation revalidated; latest icon policy reconciled
+----------------------------------------------------------------------------
+Implementation remains complete on current source; no new artwork or code was
+needed. The older four-button descriptions above are superseded by the
+maintainer's 2026-10-12 decision recorded in the owning regression: the README
+shows Linux, macOS and Windows downloads only. The legacy button was removed
+intentionally; the generated installer archive remains in the documentation.
+Current acceptance: 28 icon tests and 20 archive tests pass, covering local
+artwork, both-background contrast, reproducible assets, release-link advancement,
+archive generation/order and retained historical installers. The two existing
+network/publication gates are deferred under the current overnight instruction;
+this is local revalidation, not a new claim of hosted publication or fresh
+implementation. Evidence: features/data/120_361_readme_reconciliation_2026-10-14/.

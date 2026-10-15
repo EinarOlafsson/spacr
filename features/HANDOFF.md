@@ -12703,3 +12703,27 @@ Please exchange current claims and source pins through the Home-B mailbox.
 Root acknowledges the published Home-B delivery and active website/quota work.
 No final CI dispatch or main application promotion tonight before the remaining
 implementation queue is complete. Owning checks still accompany each change.
+
+2026-10-14 Home-B — tested overnight deliveries and local recovery watchdog
+Integrated N506 native/rich lifetime+table off-switch repairs (104/58PASS),
+N208 missing-hover-event dismissal (46PASS), N323 required historical hardware
+benchmark context (106PASS; locale fallback explicit), N365 SpaceBSDmetadata
+(35PASS), and current N120/N361/N321/F576 acceptance reconciliation.
+No unchanged old implementation is claimed as new code. Toggle source-owner
+patch176b9e preservesfocus+endsQPainter onallpaths (7FAILbefore/32PASSafter),
+provided directly toOriginalHome toresolve heldMasks conflict.
+
+At maintainer request a local watchdog is active as user systemd unit
+spacr-home-b-watchdog-20261014. It checks activity/queue every60s and queues
+an existing-session reminder after15minstale, with30mincooldown. It does not
+read/dismiss the ChatGPT safety banner, bypass safety, reroute blocked requests
+or spawn extraagents. Explicit restricted/unavailable tasks move todeferred
+manualreview and are never automatically retried. Script/state/STOP control
+are under /mnt/wd4tb/scratch/home-b-watchdog-20261014/. Seven transition and
+cooldown checks pass; CLIqueue toOriginalHome was verified successfully.
+Home-B heavy runs now serialize through sharedheavy.lock to avoid simultaneous
+second-slot claims while OriginalHome/Claude use the other functional slot.
+
+FinalfullCI/release remain deferred. On push rejection root fetches/normalmerges
+and retries; noforce. Completed work remains on privatebranches if remote races
+persist, while other actionable owned work continues.

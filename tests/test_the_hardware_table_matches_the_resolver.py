@@ -154,3 +154,37 @@ def test_a_column_that_lost_its_capability_row_fails_loudly(generator,
                         (("Nonsense", "NoSuchTaskPrefix"),))
     with pytest.raises(ValueError, match="diverged"):
         generator._hardware_table()
+
+
+def test_detected_but_unusable_metal_never_claims_gpu_acceleration(generator, monkeypatch):
+    monkeypatch.setattr(generator, "HARDWARE_ROWS", (
+        ("Detected Metal, unavailable runtime", "beta",
+         dict(kind="mps", device="mps", label="AMD", detected=True, usable=False)),
+    ))
+    assert _row(generator._hardware_table(), "Detected Metal, unavailable runtime") == [
+        f"{RED} CPU"] * 3
+
+
+@pytest.mark.parametrize("language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"))
+def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(generator, table, language):
+    tool = generator.build_readme_images
+    localized = table if language == "en" else generator.localize_hardware_markup(table, language)
+    readme = tool.readme_path(language).read_text(encoding="utf-8")
+    block = readme.partition(generator.HARDWARE_BEGIN)[2].partition(generator.HARDWARE_END)[0]
+    assert block.strip() == tool.convert_generated(localized, language, "hardware", render=False).strip()
+    output = tool.compose(language, render=False)
+    assert output.pages["generated-hardware-1"] == tool.readable_page(
+        tool.parse_rst(localized), language, generated=True)
+    source = tool.load_source(language)
+    position = next(i for i, row in enumerate(source)
+                    if row.get("kind") == "generated" and row.get("name") == "hardware")
+    context = source[position + 1]["text"]
+    for term in ("CPU execution is supported", "444.5 s", "3.2 s", "256×256",
+                 "Core i5-10500", "Radeon Pro 5300", "torch 2.2.2", "historical example",
+                 "usable backend"):
+        assert term in context
+    target = "features/new/319_use_non_nvidia_accelerators_where_they_exist.txt"
+    assert (ROOT / target).is_file() and target in context
+    page = next(value for value in output.pages.values() if "444.5 s" in value)
+    assert "../../../" + target in page
+    assert "444.5 s" in readme

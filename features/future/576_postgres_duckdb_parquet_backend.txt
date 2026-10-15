@@ -145,3 +145,22 @@ NOT added to CI: a service container is cheap, but the workflows belong to
 the CI lane; hand it over there if wanted.
 LEFT: translations of the ~37 new captions into the nine locales (docs and
 translation lane).
+
+2026-10-14 — Translation remainder reconciled with published N615 work
+The final "LEFT" note above is superseded: commit 6fc7353a16a already
+published the nine-locale reviewed translations on 2026-10-10 under
+2026-10-10-n615-captions-store-figure-curation.json. The F576 publication
+introduced 40 captions. Of these, 38 remain current; its two generic
+"Add {side}" templates were replaced by four explicit score/count captions.
+All 42 current captions have matching reviewed, non-English installed text
+in all nine languages: 378 of 378 entries pass current candidate gates.
+
+The bounded readback checks exact current source literals, source hashes,
+review-to-installed-catalog equality, placeholder/protected syntax,
+contextualization, script and semantic gates. Original translation/reviewer
+attribution is preserved; no new translation or native-speaker approval is
+claimed. No app/backend code, generator, translation gate or catalog was
+changed, and no already-passing backend suites were repeated.
+Evidence and portable verifier:
+features/data/576_current_translated_captions_2026-10-14/receipt.json.
+This closes the stale caption remainder; alpha visibility is unchanged.
