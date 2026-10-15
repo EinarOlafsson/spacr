@@ -85,8 +85,8 @@ import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QStackedWidget,
-    QTableWidget, QVBoxLayout, QWidget,
+    QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QSpinBox,
+    QStackedWidget, QTableWidget, QVBoxLayout, QWidget,
 )
 
 from ...crop_loader import (CROP_SOURCE_DATABASE, CROP_SOURCES,
@@ -218,6 +218,8 @@ class EmbeddingsScreen(QWidget):
     #: A load finished, carrying how many crops it put on the screen.
     crops_loaded = Signal(int)
 
+    _dino_progress = Signal(int, int, int, float)
+
     def __init__(self, parent=None, *, threaded: bool = True):
         """Build the screen: the controls above, the preview table below."""
         super().__init__(parent)
@@ -243,6 +245,12 @@ class EmbeddingsScreen(QWidget):
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
         self.crops_progress.connect(self._on_crops_progress)
+        self._dino_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._dino_jobs.job_failed.connect(self._on_dino_failed)
+        self._dino_progress.connect(self._on_dino_progress)
+        self._dino_running = False
+        self._dino_closed = False
+        self._dino_generation = 0
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -1130,10 +1138,21 @@ class EmbeddingsScreen(QWidget):
         dialog.show()
 
     def _add_dino_button(self, controls) -> None:
-        """The alpha button that pretrains a backbone on the loaded crops."""
+        """Group the alpha checkpoint picker, epoch control and training progress."""
         from ..preferences import _apply_alpha_widgets
 
-        self._dino = QPushButton(tr("Pretrain on these crops…"), self)
+        self._dino_controls = QWidget(self)
+        self._dino_controls.setObjectName("EmbeddingsDinoControls")
+        layout = QVBoxLayout(self._dino_controls)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["sm"])
+        buttons = QHBoxLayout()
+        self._dino_checkpoint = QPushButton(
+            tr("Use own DINO checkpoint…"), self._dino_controls)
+        self._dino_checkpoint.setObjectName("EmbeddingsDinoCheckpointButton")
+        self._dino_checkpoint.clicked.connect(self._choose_dino_checkpoint)
+        buttons.addWidget(self._dino_checkpoint)
+        self._dino = QPushButton(tr("Pretrain on these crops…"), self._dino_controls)
         self._dino.setObjectName("EmbeddingsDinoPretrainButton")
         self._dino.setToolTip(tr(
             "Self-supervised (DINO) pretraining of a ResNet-18 on the loaded "
@@ -1143,9 +1162,94 @@ class EmbeddingsScreen(QWidget):
             "checkpoint is offered in the Foundation model picker. Slow "
             "without a GPU. Default 20 epochs from random weights at 64 "
             "px."))
-        self._dino.clicked.connect(lambda: self._pretrain_dino())
-        controls.addWidget(self._dino)
-        _apply_alpha_widgets(self._dino)
+        self._dino.clicked.connect(
+            lambda: self._pretrain_dino(epochs=self._dino_epochs.value()))
+        buttons.addWidget(self._dino)
+        layout.addLayout(buttons)
+        settings = QHBoxLayout()
+        label = QLabel(tr("Epochs:"), self._dino_controls)
+        self._dino_epochs = QSpinBox(self._dino_controls)
+        self._dino_epochs.setObjectName("EmbeddingsDinoEpochs")
+        self._dino_epochs.setRange(1, 10000)
+        self._dino_epochs.setValue(20)
+        self._dino_epochs.setAccessibleName(tr("Epochs"))
+        self._dino_epochs.setToolTip(tr(
+            "Train up to this total number of epochs, including epochs "
+            "already saved in the checkpoint."))
+        label.setBuddy(self._dino_epochs)
+        settings.addWidget(label)
+        settings.addWidget(self._dino_epochs)
+        self._dino_progress_bar = QProgressBar(self._dino_controls)
+        self._dino_progress_bar.setObjectName("EmbeddingsDinoProgress")
+        self._dino_progress_bar.setAccessibleName(tr("Pretraining progress"))
+        self._dino_progress_bar.setRange(0, 20)
+        self._dino_progress_bar.setValue(0)
+        settings.addWidget(self._dino_progress_bar)
+        layout.addLayout(settings)
+        controls.addWidget(self._dino_controls)
+        _apply_alpha_widgets(self._dino_controls)
+
+    def _select_dino_checkpoint(self, path: str) -> None:
+        """Select a checkpoint path without loading it, reusing an existing entry."""
+        from ...embeddings import _DINO_PREFIX
+
+        canonical = os.path.normcase(os.path.realpath(path))
+        index = -1
+        for candidate in range(self._foundation.count()):
+            data = str(self._foundation.itemData(candidate) or "")
+            if data.startswith(_DINO_PREFIX) and os.path.normcase(
+                    os.path.realpath(data[len(_DINO_PREFIX):])) == canonical:
+                index = candidate
+                break
+        if index < 0:
+            self._foundation.addItem(
+                tr("Own DINO: {name}").format(name=os.path.basename(path)),
+                _DINO_PREFIX + path)
+            index = self._foundation.count() - 1
+        self._foundation.setCurrentIndex(index)
+
+    def _choose_dino_checkpoint(self) -> None:
+        """Choose an existing spaCR DINO checkpoint path for the next Embed."""
+        if self._dino_running or self._dino_closed:
+            return
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Choose a spaCR DINO checkpoint"), "",
+            tr("PyTorch checkpoints (*.pt)"))
+        if not path:
+            return
+        if not os.path.isfile(path):
+            self._status.setText(tr(
+                "Choose an existing spaCR DINO checkpoint file."))
+            return
+        self._select_dino_checkpoint(str(path))
+        self._status.setText(tr("Checkpoint selected. Press Embed to use it."))
+
+    def _set_dino_running(self, running: bool) -> None:
+        """Keep training controls unavailable while this screen owns a DINO run."""
+        self._dino_running = bool(running)
+        enabled = not self._dino_running and not self._dino_closed
+        for widget in (self._dino, self._dino_checkpoint, self._dino_epochs):
+            widget.setEnabled(enabled)
+
+    def _on_dino_progress(self, generation: int, epoch: int,
+                         total: int, loss: float) -> None:
+        """Apply reports on the GUI thread only while their run is current."""
+        if (self._dino_closed or not self._dino_running
+                or generation != self._dino_generation):
+            return
+        self._dino_progress_bar.setRange(0, max(1, total))
+        self._dino_progress_bar.setValue(epoch)
+        self._dino_progress_bar.setFormat(tr(
+            "Epoch {epoch}/{total} — loss {loss:.3f}").format(
+                epoch=epoch, total=total, loss=loss))
+
+    def _on_dino_failed(self, message: str) -> None:
+        """Restore this run's controls and retain its error instead of late progress."""
+        if self._dino_closed:
+            return
+        self._set_dino_running(False)
+        self._dino_progress_bar.setFormat(tr("Pretraining failed."))
+        self._status.setText(str(message))
 
     def _pretrain_dino(self, path: str = "", *, epochs: int = 20) -> str:
         """Pretrain a backbone on the loaded crops and offer it as an encoder.
@@ -1158,6 +1262,8 @@ class EmbeddingsScreen(QWidget):
         :param epochs: epochs to train up to.
         :returns: the checkpoint path, or ``''`` when nothing was started.
         """
+        if self._dino_running or self._dino_closed:
+            return ""
         crops = getattr(self, "_crops", None)
         if crops is None:
             self._status.setText(tr("Load crops first."))
@@ -1170,33 +1276,53 @@ class EmbeddingsScreen(QWidget):
             return ""
         path = str(path)
         policy = str(self._policy.currentData())
+        self._dino_generation += 1
+        generation = self._dino_generation
+        emit = self._dino_progress.emit
+        self._set_dino_running(True)
+        self._dino_progress_bar.setRange(0, max(1, int(epochs)))
+        self._dino_progress_bar.setValue(0)
+        self._dino_progress_bar.setFormat(tr("Starting pretraining…"))
         self._status.setText(tr("Pretraining on {n} crops…").format(
             n=crops.shape[0]))
+
+        def _progress(epoch, total, loss):
+            """Relay backend reports without touching widgets on the worker thread."""
+            try:
+                emit(generation, int(epoch), int(total), float(loss))
+            except RuntimeError:
+                pass
 
         def work():
             """Train off the GUI thread."""
             from ...embeddings import _dino_pretrain
 
             return _dino_pretrain(crops, path, channel_policy=policy,
-                                  epochs=epochs, pretrained=False)
+                                  epochs=epochs, pretrained=False,
+                                  progress=_progress)
 
-        self._jobs.submit(work, self._on_dino_done)
+        def _done(summary):
+            """Accept only a completion belonging to this screen's current run."""
+            if not self._dino_closed and generation == self._dino_generation:
+                self._on_dino_done(summary)
+
+        try:
+            self._dino_jobs.submit(work, _done)
+        except Exception as exc:
+            self._on_dino_failed(str(exc))
+            return ""
         return path
 
     def _on_dino_done(self, summary) -> None:
         """Offer the new checkpoint in the picker and choose it."""
-        from ...embeddings import _DINO_PREFIX
-
+        if self._dino_closed:
+            return
         self._dino_summary = dict(summary)
-        data = _DINO_PREFIX + str(summary["path"])
-        index = self._foundation.findData(data)
-        if index < 0:
-            self._foundation.addItem(
-                tr("Own DINO: {name}").format(
-                    name=os.path.basename(str(summary["path"]))), data)
-            index = self._foundation.count() - 1
-        self._foundation.setCurrentIndex(index)
+        self._select_dino_checkpoint(str(summary["path"]))
         loss = summary["loss"][-1] if summary["loss"] else float("nan")
+        epochs = int(summary["epochs"])
+        self._on_dino_progress(self._dino_generation, epochs, epochs, loss)
+        self._set_dino_running(False)
         self._status.setText(tr(
             "Pretrained {epochs} epochs (last loss {loss:.3f}). The "
             "checkpoint is chosen in the Foundation model picker; press "
@@ -1862,28 +1988,33 @@ class EmbeddingsScreen(QWidget):
 
 
     def is_busy(self) -> bool:
-        """Whether a run is in flight.
+        """Whether a crop load, embedding job or DINO pretraining is in flight.
 
-        A crop load counts. It is the longer of the two jobs by far -- a
-        plate of crops off a network mount is minutes -- and a screen that
-        reported itself idle through it would let the window close over a
-        live read.
+        Includes the separate DINO runner until its worker has retired,
+        even after its final result has reached the screen.
         """
-        return bool(self._jobs.active_jobs()) or self._loading
+        return (bool(self._jobs.active_jobs()) or self._loading
+                or self._dino_running or bool(self._dino_jobs.active_jobs()))
 
     def closeEvent(self, event):            # noqa: N802 - Qt name
-        """Let the job runner stop its thread before the widget goes.
+        """Discard pending results and drain both runners before the widget goes.
 
-        The stop flag is set first. ``shutdown`` waits a bounded time and
-        then parks a worker that outlasts it, so a load told to stop between
-        pages finishes in one page instead of reading the rest of the plate
-        into an array whose screen has gone.
+        The crop stop flag is set first and further DINO progress is ignored.
+        Each ``shutdown`` waits a bounded time, then parks any worker that
+        outlasts it. A parked training worker can finish writing its checkpoint
+        without updating this closed screen; it is not forcibly terminated.
 
         :param event: Qt's close event, passed to the base class unchanged.
-            Never ignored -- a screen that refuses to close because a run is
-            in flight would trap the window, so the run is stopped instead.
+            The close is accepted even if a worker must be parked.
         """
         self._stop.set()
+        self._dino_closed = True
+        self._dino_generation += 1
+        self._set_dino_running(False)
+        try:
+            self._dino_jobs.shutdown()
+        except Exception:
+            pass
         try:
             self._jobs.shutdown()
         except Exception:                    # noqa: BLE001

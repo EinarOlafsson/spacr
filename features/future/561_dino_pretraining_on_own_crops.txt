@@ -95,3 +95,18 @@ Retrieval on the 307-crop plate1 set, DINO vs ImageNet resnet18 at 64 px:
 The GPU run widens the CPU run's lead (6-class kNN 0.632 vs 0.586) at a larger backbone and
 crop size. Scorecard: /mnt/wd4tb/scratch/561/scorecard_64px.csv; weights
 dino_scratch_resnet18_64_gpu.pt next to it.
+
+2026-10-15 Home-B — existing-checkpoint, epochs and progress UI implemented
+    The alpha EmbeddingsDinoControls group now contains a path-only own-DINO
+    checkpoint picker, an epoch control (default20, total resume target) and
+    worker progress. Existing paths are deduplicated, including symlinks;
+    selecting one does not load/train/decode a model and selects the next Embed.
+    Backend channel policy and checkpoint trust/resume logic are unchanged.
+    Real fake-worker checks verify GUI-thread progress, busy/error recovery,
+    stale-report rejection and active-close cleanup. The actual registry
+    dependency e4458d409d6 gates the entire group.31 focused Qt tests pass;
+    before cases fail for the formerly absent controls. Exact source/logs in
+    features/data/561_dino_controls_2026-10-15/. Runtime/API translation
+    artifacts remain a required coherent-publication dependency. This closes
+    the explicit picker/epoch/progress implementation gap, not the remaining
+    classifier/scientific multi-seed/held-out-plate acceptance work.
