@@ -452,3 +452,16 @@ normal catalog/arrival regeneration and all nine locale tests MUST pass before
 publication of this private component. Pinned export identity, process
 coalescing, all-model coverage and full parent acceptance remain OPEN.
 Evidence: data/702_offline_runtime_private_2026-10-14/receipt.json.
+
+2026-10-14 — combined legacy/offline implementation validated, HELD:
+Legacy training/plaque/detector/figure keys share exact verified acquisition;
+missing laptop paths use the resolver, figures no longer fuzzy-match and
+preview planning does not fetch. Offline policy blocks metadata and missing
+weight traffic while retaining verified local/cache reuse; its exact copy
+instruction has nine reviewed locale targets through normal writers. Combined
+owning cohort275PASS/29.16seconds/exit0. Publication remains held for caption
+contract owner review and existing foreign N700 review evidence. Public caption
+module --refresh has no CLI and its exit0 was a no-op, not a validation pass.
+The actual combined Masks refresh exited1 at missing sv/UI/AI Error report
+review evidence; owner request sent without weakening pins. Parent702 partial.
+Evidence: data/702_legacy_offline_integration_2026-10-14/receipt.json.
