@@ -201,13 +201,6 @@
     },
     {
       "table": "ui",
-      "key": "spaCR AI: {text}{light}",
-      "source": "spaCR AI: {text}{light}",
-      "source_sha256": "21e5c7246bf8a03643f7c868f6294130892a18fca7be470b5b7daddac9b7bddd",
-      "translation": "Respuesta de spaCR AI: {text}{light}"
-    },
-    {
-      "table": "ui",
       "key": "spaCR hosted AI could not answer this time. Try again later.",
       "source": "spaCR hosted AI could not answer this time. Try again later.",
       "source_sha256": "317c9bd06c71953f84f3ca5865b0ca5273091aeb7edd3323b9b22031e26d0c33",

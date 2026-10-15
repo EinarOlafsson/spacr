@@ -56,7 +56,7 @@ test("invalid JSON and oversized bodies are rejected", async () => {
   let r = await post("/report", "{not json");
   assert.equal(r.status, 400);
   assert.match(r.body.error, /JSON/);
-  r = await post("/report", sampleReport({ user_note: "a ".repeat(9000) }));
+  r = await post("/report", sampleReport({ user_note: "a ".repeat(17000) }));
   assert.equal(r.status, 413);
   assert.equal(gh.calls.length, 0);
 });

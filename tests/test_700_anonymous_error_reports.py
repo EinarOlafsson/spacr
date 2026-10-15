@@ -228,7 +228,8 @@ class TestSchema:
     """Exactly the allowlisted keys, within the relay's caps."""
 
     BASE = set(cr.PUBLIC_SUMMARY_KEYS) - {"user_note", "dry_run",
-                                          "ai_summary", "summarize"}
+                                          "ai_summary", "summarize",
+                                          "screen", "error_text"}
 
     def test_exactly_the_allowlisted_keys(self):
         summary = _summary(module="measure")

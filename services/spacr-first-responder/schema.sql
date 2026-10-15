@@ -29,3 +29,31 @@ CREATE TABLE IF NOT EXISTS issue_signatures (
 );
 
 CREATE INDEX IF NOT EXISTS issue_signatures_issue ON issue_signatures (issue_number);
+
+-- Saved AI explanations, so a repeated error is answered without a model call.
+-- signature: the error signature (src/report.js signatureOf); a relay-written
+-- issue summary is stored under "summary:<signature>".
+-- spacr_minor: the reporter's spaCR major.minor; another version asks again.
+-- created: ISO time the text was written; older than 30 days asks again.
+-- hits: how many requests reused it. Dropped when its issue is found closed.
+CREATE TABLE IF NOT EXISTS ai_explanations (
+  signature   TEXT    PRIMARY KEY,
+  text        TEXT    NOT NULL,
+  model       TEXT    NOT NULL,
+  tier        TEXT    NOT NULL,
+  spacr_minor TEXT    NOT NULL,
+  created     TEXT    NOT NULL,
+  hits        INTEGER NOT NULL DEFAULT 0,
+  cause       TEXT
+);
+
+-- Likely causes the AI named (CAUSE: <slug>), and the hub issue for each:
+-- the oldest open issue with that cause, which gets a comment for every new
+-- issue with the same cause. Different signatures stay separate issues.
+CREATE TABLE IF NOT EXISTS ai_causes (
+  slug       TEXT    PRIMARY KEY,
+  hub_issue  INTEGER NOT NULL,
+  count      INTEGER NOT NULL DEFAULT 1,
+  first_seen TEXT    NOT NULL,
+  last_seen  TEXT    NOT NULL
+);

@@ -8,6 +8,8 @@ export class FakeD1 {
   constructor() {
     this.counters = new Map();
     this.signatures = new Map();
+    this.explanations = new Map();
+    this.causes = new Map();
     this.log = [];
   }
 
@@ -134,6 +136,45 @@ export class FakeD1 {
         row.last_comment_day = a[1];
         return [{ issue_number: row.issue_number, count: row.count, has_summary: row.has_summary }];
       }
+      case SQL.getExplanation: {
+        const row = this.explanations.get(a[0]);
+        return row ? [{ ...row }] : [];
+      }
+      case SQL.putExplanation: {
+        this.explanations.set(a[0], { text: a[1], model: a[2], tier: a[3], spacr_minor: a[4], created: a[5], hits: 0, cause: a[6] ?? null });
+        return [];
+      }
+      case SQL.hitExplanation: {
+        const row = this.explanations.get(a[0]);
+        if (row) row.hits += 1;
+        return [];
+      }
+      case SQL.dropExplanations: {
+        this.explanations.delete(a[0]);
+        this.explanations.delete(a[1]);
+        return [];
+      }
+      case SQL.getCause: {
+        const row = this.causes.get(a[0]);
+        return row ? [{ slug: a[0], hub_issue: row.hub_issue, count: row.count }] : [];
+      }
+      case SQL.insertCause: {
+        if (!this.causes.has(a[0])) this.causes.set(a[0], { hub_issue: a[1], count: 1, first_seen: a[2], last_seen: a[2] });
+        return [];
+      }
+      case SQL.bumpCause: {
+        const row = this.causes.get(a[0]);
+        if (row) {
+          row.count += 1;
+          row.last_seen = a[1];
+        }
+        return [];
+      }
+      case SQL.setCauseHub: {
+        const row = this.causes.get(a[0]);
+        if (row) row.hub_issue = a[1];
+        return [];
+      }
       default:
         throw new Error(`FakeD1: unexpected SQL ${sql}`);
     }
@@ -198,6 +239,9 @@ export class FakeGitHub {
     this.issueStatus = 201;
     this.issueState = "open";
     this.stateStatus = 200;
+    this.labelStatus = 201;
+    this.labels = new Map();
+    this.issueStates = new Map();
   }
 
   install() {
@@ -218,14 +262,26 @@ export class FakeGitHub {
     if (/\/app\/installations\/\d+\/access_tokens$/.test(url)) {
       return reply(201, { token: "ghs_testtoken", expires_at: new Date(Date.now() + 3600e3).toISOString() });
     }
+    if (/\/repos\/[^/]+\/[^/]+\/labels$/.test(url) && init.method === "POST") {
+      return reply(this.labelStatus, { name: body.name });
+    }
+    if (/\/repos\/[^/]+\/[^/]+\/issues\?/.test(url) && init.method === "GET") {
+      const label = decodeURIComponent((/labels=([^&]+)/.exec(url) || [])[1] || "");
+      const open = [...this.labels.entries()]
+        .filter(([n, ls]) => ls.includes(label) && (this.issueStates.get(n) || "open") === "open")
+        .map(([n]) => ({ number: n }));
+      return reply(200, open);
+    }
     if (/\/repos\/[^/]+\/[^/]+\/issues$/.test(url)) {
       if (this.issueStatus >= 300) return reply(this.issueStatus, { message: "fail" });
       const number = this.nextIssue++;
+      this.labels.set(number, body.labels || []);
       return reply(201, { number, html_url: `https://github.com/EinarOlafsson/spacr/issues/${number}` });
     }
     if (/\/issues\/\d+$/.test(url) && init.method === "GET") {
       if (this.stateStatus >= 300) return reply(this.stateStatus, { message: "fail" });
-      return reply(200, { state: this.issueState });
+      const n = Number((/\/issues\/(\d+)$/.exec(url) || [])[1]);
+      return reply(200, { state: this.issueStates.get(n) || this.issueState });
     }
     if (/\/issues\/\d+\/comments$/.test(url)) {
       return reply(this.commentStatus, { id: 1 });

@@ -1,4 +1,4 @@
-"""Every AI summary of a failure reaches the spaCR console as "spaCR AI:".
+"""Every AI summary of a failure reaches the spaCR console under "spaCR AI".
 
 The maintainer's case: a Mask run refused for a missing channel, with
 Preferences -> AI -> AI Error report set to "Summarize and send all errors",
@@ -46,6 +46,15 @@ def _console_text(screen) -> str:
     return "\n".join(w.toPlainText() for w in widgets)
 
 
+def _ai_text(screen) -> str:
+    """What the console's "spaCR AI" entries show."""
+    from PySide6.QtWidgets import QPlainTextEdit
+
+    return "\n".join(
+        w.toPlainText() for w in screen._console.findChildren(QPlainTextEdit)
+        if w.property("consoleContextKind") == "spacr_ai")
+
+
 def _refuse_a_mask_run(qtbot, relay, monkeypatch, mode, report_answer,
                        diagnose=(200, {"advice": ADVICE, "model": "big",
                                        "tier": "best"})):
@@ -74,7 +83,7 @@ def test_the_refused_run_shows_the_ai_explanation(qtbot, qt_theme_applied,
         "issue_number": 149, "issue_url": "u", "deduplicated": False,
         "ai_summary_source": "client"})
     text = _console_text(screen)
-    assert "spaCR AI: " + ADVICE in text
+    assert _ai_text(screen) == ADVICE.replace("**", "")
     assert "Reported as issue #149 (with AI summary)" in text
     assert relay.calls_to("/report")[0]["body"]["ai_summary"] == ADVICE
 
@@ -85,8 +94,7 @@ def test_a_summary_the_relay_wrote_is_shown(qtbot, qt_theme_applied, relay,
         "issue_number": 150, "issue_url": "u", "deduplicated": False,
         "ai_summary_source": "relay", "ai_summary": RELAY_SUMMARY},
         diagnose=(429, {"refused": "quota"}))
-    text = _console_text(screen)
-    assert "spaCR AI: " + RELAY_SUMMARY in text
+    assert _ai_text(screen).startswith(RELAY_SUMMARY + "\n")
 
 
 @pytest.mark.parametrize("mode", ["send_all", "send_faults", "off"])

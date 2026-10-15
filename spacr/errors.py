@@ -804,11 +804,21 @@ def raise_if_strict(message: str, exc: Optional[BaseException] = None,
     :param settings: settings dict consulted for ``strict_errors``.
     :param error_type: exception class to raise.
     :returns: False when not strict, so callers can branch on it.
+
+    The logged record carries the refusal's call stack, formatted as
+    traceback lines, in its ``spacr_call_site`` attribute, so a report of a
+    refused run can say where it was refused.
     """
     if strict_errors(settings):
         error = error_type(message)
         if exc is not None:
             raise error from exc
         raise error
-    LOG.error(message)
+    import traceback as _traceback
+
+    try:
+        call_site = _traceback.format_list(_traceback.extract_stack()[:-1])
+    except Exception:
+        call_site = []
+    LOG.error(message, extra={"spacr_call_site": call_site})
     return False

@@ -125,6 +125,10 @@ _REPORTS_BEING_FILED: dict = {}
 #: so a report that has not come back inside two minutes is not coming back.
 REPORT_IN_FLIGHT_SECONDS = 120.0
 
+#: How much of the console's error text, from its end, a report carries
+#: before scrubbing; the relay takes at most 1500 characters of it.
+MAX_REPORTED_ERROR_TEXT = 1500
+
 #: How long an automatic report waits for spaCR AI to finish explaining the
 #: error it is about, so the report can carry the answer. Short enough that
 #: the wait plus the posting (`gh auth token` 8 s, API calls 20 s each) stays
@@ -8976,6 +8980,7 @@ class AppScreen(QWidget):
 
         import time as _time
         self._run_started_at = _time.time()
+        self._run_settings = dict(settings)
         _pause_the_fractal(self)
         import datetime as _dt
         from ..widgets.sweep_runs import SOURCE_REFIT, SOURCE_RUN
@@ -9373,6 +9378,8 @@ class AppScreen(QWidget):
         console says nothing was sent and how to send it.
         """
         self._last_error_text = tb
+        self._last_error_problems = []
+        self._last_error_console_text = tb[-MAX_REPORTED_ERROR_TEXT:]
         self._failure_kind = self._kind_of_failure(tb)
         self._anonymous_report_due = True
 
@@ -9646,6 +9653,43 @@ class AppScreen(QWidget):
             return False
         app_key = str(self.app_key or "")
         code_context = crashreport.mode_code_context(mode)
+        screen = self._screen_name()
+        error_text = str(getattr(self, "_last_error_console_text", "") or tb)
+        problems = list(getattr(self, "_last_error_problems", None) or [])
+        message = ""
+        if problems:
+            lines = crashreport.public_problem_lines(problems)
+            message = "\n".join(
+                [f"The run did not start: {len(lines)} settings problem"
+                 f"{'' if len(lines) == 1 else 's'}."]
+                + [f"- {line}" for line in lines])
+        import time as _clock
+
+        run_settings = dict(getattr(self, "_run_settings", None) or {})
+        run = {"stage": str(getattr(self._console, "_run_function", "")
+                            or ""),
+               "dry_run": bool(run_settings.get("dry_run", False))}
+        started = getattr(self, "_run_started_at", None)
+        if started:
+            run["elapsed_s"] = max(0.0, _clock.time() - started)
+        try:
+            log_text = self._console.as_text()
+        except Exception:                                    # noqa: BLE001
+            log_text = ""
+        saved = None
+        if explain:
+            try:
+                saved = crashreport.saved_explanation(
+                    crashreport.explanation_key(tb, app_key, kind, message))
+            except Exception:                                # noqa: BLE001
+                saved = None
+        if saved:
+            self._ai_report_entry = None
+            self._console.fill_ai_entry(
+                self._console.begin_ai_entry(thinking=False),
+                saved["text"], saved=True)
+        elif explain:
+            self._ai_report_entry = self._console.begin_ai_entry()
 
         def _send() -> dict:
             """Explain, summarise and post the failure. Off the GUI thread."""
@@ -9656,8 +9700,16 @@ class AppScreen(QWidget):
             try:
                 summary = crashreport.public_summary(
                     traceback_text=tb, module=app_key, kind=kind,
-                    code_context=code_context)
-                if explain:
+                    code_context=code_context, screen=screen,
+                    error_text=error_text, message=message,
+                    settings=run_settings, log_text=log_text, run=run,
+                    diagnostics=True)
+                if saved:
+                    explanation = {"text": saved["text"],
+                                   "tier": saved["tier"], "refused": "",
+                                   "saved": "local",
+                                   "cause": saved.get("cause", "")}
+                elif explain:
                     try:
                         explanation = explain_failure(summary, provider)
                     except Exception as exc:  # noqa: BLE001 - report anyway
@@ -9666,6 +9718,8 @@ class AppScreen(QWidget):
                 if send:
                     if explanation.get("text"):
                         summary["ai_summary"] = explanation["text"]
+                    if explanation.get("cause"):
+                        summary["cause"] = explanation["cause"]
                     outcome = crashreport.submit_public_summary(summary)
                     outcome["ai_summary_attached"] = bool(
                         explanation.get("text"))
@@ -9697,7 +9751,11 @@ class AppScreen(QWidget):
         handler = logging.Handler(level=logging.ERROR)
         handler.emit = seen.append
         logging.getLogger("spacr.errors").addHandler(handler)
-        self._refusal_watch = (handler, seen)
+        problems: list = []
+        listener = logging.Handler(level=logging.INFO)
+        listener.emit = problems.append
+        logging.getLogger("spacr.qt.settings_problems").addHandler(listener)
+        self._refusal_watch = (handler, seen, listener, problems)
 
     def _stop_watching_refusals(self) -> list:
         """Stop noting refusals and return their messages.
@@ -9709,17 +9767,74 @@ class AppScreen(QWidget):
 
         watch = getattr(self, "_refusal_watch", None)
         self._refusal_watch = None
+        self._refusal_call_site = []
+        self._settings_problems = []
         if watch is None:
             return []
-        handler, seen = watch
+        handler, seen, listener, problems = watch
         logging.getLogger("spacr.errors").removeHandler(handler)
+        logging.getLogger("spacr.qt.settings_problems").removeHandler(listener)
         out = []
         for record in seen:
             try:
                 out.append(str(record.getMessage()))
             except Exception:                                # noqa: BLE001
                 continue
+            site = getattr(record, "spacr_call_site", None)
+            if site and not self._refusal_call_site:
+                self._refusal_call_site = list(site)
+        for record in problems:
+            self._settings_problems.extend(
+                getattr(record, "spacr_problems", None) or [])
         return out
+
+    def _every_refusal_problem(self, refusals: list) -> list:
+        """Every reason a refused run did not start, the settings check's first.
+
+        The pipeline stops at the first problem it meets; the settings check
+        the run started with (:func:`spacr.validate.validate_settings`, run
+        by the bridge) found them all. A refusal whose text names a setting
+        the check already listed is the same problem and is not repeated.
+
+        :param refusals: the messages :meth:`_stop_watching_refusals`
+            returned.
+        :returns: the problems, as :class:`spacr.validate.Problem` objects
+            and refusal texts.
+        """
+        found = list(getattr(self, "_settings_problems", None) or [])
+        keys = [str(getattr(p, "setting", "") or "") for p in found]
+        out = list(found)
+        for message in refusals:
+            if not any(key and key in message for key in keys):
+                out.append(message)
+        return out
+
+    @staticmethod
+    def _problem_line(problem) -> str:
+        """One problem as the console shows it: its setting, then what is wrong."""
+        setting = str(getattr(problem, "setting", "") or "")
+        message = str(getattr(problem, "message", problem) or "")
+        if setting and not message.startswith(setting):
+            return f"{setting}: {message}"
+        return message
+
+    def _screen_name(self) -> str:
+        """This screen's name as the sidebar shows it, in English.
+
+        "Mask", not the header's "Mask Generation" and never "Make Masks",
+        which is the manual mask editor. Sent with a report so the AI names
+        the screen the user is on.
+        """
+        import sys
+
+        app = sys.modules.get("spacr.qt.app")
+        for entry in getattr(app, "APPS", None) or ():
+            try:
+                if entry[0] == self.app_key:
+                    return str(entry[1])
+            except Exception:                                # noqa: BLE001
+                continue
+        return str(APP_TITLES.get(self.app_key, self.app_key or ""))
 
     def _report_summary_provider(self):
         """The provider that writes a report's AI summary: the one in use.
@@ -9754,25 +9869,28 @@ class AppScreen(QWidget):
         explanation = dict(outcome.get("explanation") or {})
         refused = str(explanation.get("refused", "") or "")
         relay_text = str(outcome.get("ai_summary", "") or "")
-        if relay_text and not explanation.get("text"):
-            self._console.append_notice(
-                "spaCR AI: {text}{light}\n", text=relay_text,
-                light=" [" + tr("lighter model") + "]")
+        entry = getattr(self, "_ai_report_entry", None)
+        self._ai_report_entry = None
+        if explanation.get("saved") == "local" and entry is None:
+            pass
+        elif relay_text and not explanation.get("text"):
+            self._console.fill_ai_entry(
+                entry, relay_text + "\n\n[" + tr("lighter model") + "]")
         elif outcome.get("explained"):
             if explanation.get("text"):
-                light = " [" + tr("lighter model") + "]" if explanation.get(
+                light = "\n\n[" + tr("lighter model") + "]" if explanation.get(
                     "tier") == "light" else ""
-                self._console.append_notice(
-                    "spaCR AI: {text}{light}\n",
-                    text=explanation["text"], light=light)
+                self._console.fill_ai_entry(
+                    entry, explanation["text"] + light,
+                    saved=bool(explanation.get("saved")))
             elif refused == "quota":
-                self._console.append_notice(
+                self._console.fill_ai_entry(entry, tr(
                     "spaCR AI: today's free AI is used up, so this error is "
                     "not explained. It is still handled as Preferences → AI "
-                    "→ AI Error report says.\n")
+                    "→ AI Error report says."))
             else:
-                self._console.append_notice(
-                    "spaCR AI could not explain this error this time.\n")
+                self._console.fill_ai_entry(entry, tr(
+                    "spaCR AI could not explain this error this time."))
             try:
                 self._console.refresh_ai_usage()
             except Exception:                                # noqa: BLE001
@@ -10888,8 +11006,15 @@ class AppScreen(QWidget):
             self._console.append_notice(
                 "■ Stopped safely at a field, trial, or job boundary\n")
         elif refused:
+            problems = self._every_refusal_problem(refusals)
+            shown = [self._problem_line(p) for p in problems] or refusals[-1:]
+            message = shown[0] if len(shown) == 1 else "".join(
+                f"\n  {index}. {line}" for index, line in enumerate(shown, 1))
+            self._last_error_problems = problems
+            self._last_error_console_text = (
+                "✗ The run did not start: " + message)
             self._console.append_notice(
-                "✗ The run did not start: {message}\n", message=refusals[-1])
+                "✗ The run did not start: {message}\n", message=message)
         else:
             self._console.append_notice(
                 "✓ Finished\n" if ok else
@@ -10898,8 +11023,10 @@ class AppScreen(QWidget):
             from ... import crashreport
 
             self._settle_the_report(failed=False)
+            site = "".join(getattr(self, "_refusal_call_site", None) or [])
             self._last_error_text = (
-                "spacr.errors.ConfigurationError: " + refusals[-1])
+                ("Traceback (most recent call last):\n" + site if site else "")
+                + "spacr.errors.ConfigurationError: " + refusals[-1])
             self._failure_kind = crashreport.KIND_USER_ERROR
             self._send_the_anonymous_report(crashreport.KIND_USER_ERROR)
         else:

@@ -79,6 +79,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 import os
@@ -113,6 +114,14 @@ __all__ = [
     "RelayRefused",
     "public_summary",
     "scrub_public_text",
+    "scrub_public_lines",
+    "public_problem_lines",
+    "explanation_signature",
+    "explanation_key",
+    "saved_explanation",
+    "save_explanation",
+    "normalise_cause",
+    "split_cause",
     "relay_url",
     "network_allowed",
     "anonymous_reports_enabled",
@@ -870,14 +879,31 @@ PUBLIC_SUMMARY_SCHEMA = 1
 PUBLIC_SUMMARY_KEYS: Tuple[str, ...] = (
     "schema_version", "install_id", "spacr_version", "os", "python", "qt",
     "torch", "gpu", "module", "exception_type", "message", "frames",
-    "user_note", "dry_run", "ai_summary", "summarize", "kind",
+    "user_note", "dry_run", "ai_summary", "summarize", "kind", "screen",
+    "error_text", "chain", "settings", "inputs", "environment", "run",
+    "log_tail", "cause",
 )
 
 #: The relay refuses a body larger than this many bytes.
-MAX_SUMMARY_BYTES = 16 * 1024
+MAX_SUMMARY_BYTES = 32 * 1024
 
 #: The longest scrubbed exception message sent, in characters.
 MAX_MESSAGE_CHARS = 300
+
+#: The longest message of a user error, which lists every settings problem.
+MAX_USER_ERROR_MESSAGE_CHARS = 800
+
+#: The longest scrubbed console error text sent with a report.
+MAX_ERROR_TEXT_CHARS = 1500
+
+#: The longest screen title sent with a report.
+MAX_SCREEN_CHARS = 60
+
+#: Public spaCR addresses an AI answer may keep through the scrubber.
+PUBLIC_DOCS_URLS: Tuple[str, ...] = (
+    "https://einarolafsson.github.io/spacr",
+    "https://github.com/EinarOlafsson/spacr",
+)
 
 #: The most call-stack frames sent; the innermost ones are kept.
 MAX_FRAMES = 40
@@ -1364,7 +1390,8 @@ def _identity_scrub(text: str) -> str:
     return text
 
 
-def scrub_public_text(text: Any, limit: int = MAX_MESSAGE_CHARS) -> str:
+def scrub_public_text(text: Any, limit: int = MAX_MESSAGE_CHARS,
+                      keep_docs_urls: bool = False) -> str:
     """Remove anything personal from a short text that will be published.
 
     Absolute paths (POSIX, Windows and network shares) become ``<PATH>``,
@@ -1378,9 +1405,28 @@ def scrub_public_text(text: Any, limit: int = MAX_MESSAGE_CHARS) -> str:
     :param text: the text; anything else is turned into text first.
     :param limit: the longest result, in characters; a longer one is cut and
         ends in ``…``.
+    :param keep_docs_urls: keep the public spaCR addresses in
+        :data:`PUBLIC_DOCS_URLS`, for an AI answer that links the
+        documentation; every other address still becomes ``<URL>``.
     :returns: the scrubbed text on one line.
     """
     value = str(text if text is not None else "")
+    kept: List[str] = []
+    if keep_docs_urls:
+        def _hold(match: "re.Match") -> str:
+            """Keep a public spaCR address aside; any other becomes <URL>."""
+            url = match.group(0)
+            if not any(url == base or url.startswith(base + "/")
+                       or url.startswith(base + "#")
+                       for base in PUBLIC_DOCS_URLS):
+                return "<URL>"
+            trail = ""
+            while url and url[-1] in ".,;:!?)]*":
+                trail = url[-1] + trail
+                url = url[:-1]
+            kept.append(url)
+            return f"\x00{len(kept) - 1}\x00{trail}"
+        value = _URL_RE.sub(_hold, value)
     value = _URL_RE.sub("<URL>", value)
     value = _EMAIL_RE.sub("<EMAIL>", value)
     try:
@@ -1404,6 +1450,9 @@ def scrub_public_text(text: Any, limit: int = MAX_MESSAGE_CHARS) -> str:
     value = _FILE_NAME_RE.sub("<FILE>", value)
     value = _identity_scrub(value)
     value = " ".join(value.split())
+    for index, url in enumerate(kept):
+        value = value.replace(f"\x00{index}\x00", url)
+    value = value.replace("\x00", "")
     limit = max(1, int(limit))
     if len(value) > limit:
         value = value[:limit - 1].rstrip() + "…"
@@ -1573,6 +1622,458 @@ def _gpu_class() -> str:
     return "nvidia" if shutil.which("nvidia-smi") else "none"
 
 
+def scrub_public_lines(text: Any, limit: int = MAX_AI_SUMMARY_CHARS,
+                       keep_docs_urls: bool = False) -> str:
+    """Scrub a text like :func:`scrub_public_text`, keeping its line breaks.
+
+    Each line is scrubbed on its own, so a Markdown answer keeps its headings
+    and numbered steps on lines of their own; runs of blank lines become one.
+
+    :param text: the text; anything else is turned into text first.
+    :param limit: the longest result, in characters; a longer one is cut and
+        ends in ``…``.
+    :param keep_docs_urls: as for :func:`scrub_public_text`.
+    :returns: the scrubbed text, lines joined by ``\\n``.
+    """
+    raw = str(text if text is not None else "").replace("\r\n", "\n")
+    lines: List[str] = []
+    for line in raw.replace("\r", "\n").split("\n"):
+        clean = scrub_public_text(line, max(1, len(line) + 1),
+                                  keep_docs_urls) if line.strip() else ""
+        if clean or (lines and lines[-1]):
+            lines.append(clean)
+    while lines and not lines[-1]:
+        lines.pop()
+    value = "\n".join(lines)
+    limit = max(1, int(limit))
+    if len(value) > limit:
+        value = value[:limit - 1].rstrip() + "…"
+    return value
+
+
+_PATH_MENTION_RE = re.compile(
+    r"\s*(?::\s*)?(?:['\"]?<(?:PATH|FILE)>['\"]?)(?:\s*\(\+\d+ more\))?")
+
+
+def public_problem_lines(problems: Sequence[Any],
+                         limit: int = MAX_USER_ERROR_MESSAGE_CHARS) -> List[str]:
+    """Scrub settings problems into short lines that may be published.
+
+    Paths and file names are taken out rather than replaced, so
+    "src does not exist: /data/plate1" is sent as "src does not exist".
+
+    :param problems: :class:`spacr.validate.Problem` objects, or texts.
+    :param limit: the longest line, in characters.
+    :returns: one line per problem, ``"setting: message"`` when the problem
+        names a setting; duplicates and empty lines are dropped.
+    """
+    out: List[str] = []
+    for problem in problems or ():
+        setting = str(getattr(problem, "setting", "") or "")
+        message = str(getattr(problem, "message", problem) or "")
+        text = scrub_public_text(message, max(1, len(message) + 1))
+        text = _PATH_MENTION_RE.sub("", text).replace("( ", "(").strip()
+        if setting:
+            name = _safe_token(setting, 60)
+            text = f"{name}: {text}" if name and not text.startswith(
+                name) else text
+        text = " ".join(text.split())
+        if len(text) > limit:
+            text = text[:limit - 1].rstrip() + "…"
+        if text and text not in out:
+            out.append(text)
+    return out
+
+
+_SCREEN_RE = re.compile(r"[^A-Za-z0-9 &()+.,'\-]")
+
+
+#: The most settings a report lists.
+MAX_SETTINGS = 150
+
+#: The longest setting value kept as text; longer ones become ``<text>``.
+MAX_SETTING_TEXT = 40
+
+#: The most exceptions of a chain a report lists, the raised one excluded.
+MAX_CHAIN = 5
+
+#: The longest console log excerpt sent, in characters, from its end.
+MAX_LOG_TAIL_CHARS = 3000
+
+#: The most console lines a report's log excerpt holds.
+MAX_LOG_TAIL_LINES = 40
+
+#: File extensions counted as images when a report describes the input.
+_IMAGE_EXTENSIONS = (
+    "tif", "tiff", "png", "jpg", "jpeg", "bmp", "czi", "nd2", "lif", "npy",
+    "npz", "ims", "oib", "oif", "lsm", "dv", "zarr",
+)
+
+_NAME_LIKE_KEYS = re.compile(
+    r"(?i)(name|experiment|plate|user|host|mail|title|label|note|comment|"
+    r"prefix|suffix|tag|project|sample|well|author|owner|desc|token|key|"
+    r"secret|pass|url|regex|pattern)")
+_PATH_LIKE_KEYS = re.compile(
+    r"(?i)(^src$|path|dir|folder|file|dst|dest|root|_db$|database|output|"
+    r"input|location|mount)")
+_PLAIN_VALUE_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.+\-]{0,39}$")
+_SETTING_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,63}$")
+_MARKER_RE = re.compile(
+    r"<(?:path: exists=(?:yes|no)|text|list: n=\d+|mapping: n=\d+|"
+    r"[A-Za-z_]+)>")
+_SAFE_FACT_RE = re.compile(r"[^A-Za-z0-9 ._()+\-]")
+
+
+def _looks_like_a_path(value: str) -> bool:
+    """Whether a setting's text names a file or folder."""
+    return bool(re.search(r"[\\/]|^~|^[A-Za-z]:", value)) or bool(
+        _FILE_NAME_RE.search(value))
+
+
+def _path_marker(value: str) -> str:
+    """``<path: exists=yes|no>`` for a path, without the path itself."""
+    try:
+        exists = os.path.exists(os.path.expanduser(value))
+    except (OSError, ValueError):
+        exists = False
+    return f"<path: exists={'yes' if exists else 'no'}>"
+
+
+def _public_setting_value(key: str, value: Any, depth: int = 0) -> Any:
+    """One setting's value as a report may carry it.
+
+    Numbers, booleans and ``None`` stay. Text stays only when it is a short
+    plain word (an option or a model name) under a key that does not hold
+    names; a path becomes ``<path: exists=yes|no>`` and other text
+    ``<text>``. Short lists are kept item by item.
+    """
+    if value is None or isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return value if value == value and abs(value) != float("inf") \
+            else str(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if not text or _MARKER_RE.fullmatch(text):
+            return text
+        if _PATH_LIKE_KEYS.search(key) or _looks_like_a_path(text):
+            return _path_marker(text)
+        if (_NAME_LIKE_KEYS.search(key) or not _PLAIN_VALUE_RE.match(text)
+                or scrub_public_text(text, 200) != text):
+            return "<text>"
+        return text
+    if isinstance(value, (list, tuple)) and depth == 0:
+        if len(value) > 16:
+            return f"<list: n={len(value)}>"
+        return [_public_setting_value(key, item, 1) for item in value]
+    if isinstance(value, Mapping):
+        return f"<mapping: n={len(value)}>"
+    if isinstance(value, (list, tuple)):
+        return f"<list: n={len(value)}>"
+    return f"<{type(value).__name__}>"
+
+
+def public_settings(settings: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
+    """The settings a run used, with nothing personal left in them.
+
+    Setting names are kept as they are; values go through
+    :func:`_public_setting_value`, so ``src`` reads ``<path: exists=no>``
+    when the folder is missing, without the folder's name. At most
+    :data:`MAX_SETTINGS` settings, in name order.
+
+    :param settings: the run's settings.
+    :returns: ``{name: value}``.
+    """
+    out: Dict[str, Any] = {}
+    for key in sorted(str(k) for k in (settings or {}).keys()):
+        if len(out) >= MAX_SETTINGS:
+            break
+        if not _SETTING_NAME_RE.match(key):
+            continue
+        out[key] = _public_setting_value(key, (settings or {}).get(key))
+    return out
+
+
+def _first_source(settings: Optional[Mapping[str, Any]]) -> str:
+    """The first source folder named in a run's settings, or ``''``."""
+    for key in ("src", "source", "images", "image_folder", "input_folder"):
+        value = (settings or {}).get(key)
+        if isinstance(value, (list, tuple)):
+            value = value[0] if value else ""
+        if isinstance(value, str) and value.strip():
+            return os.path.expanduser(value.strip())
+    return ""
+
+
+def _image_shape(path: str) -> Tuple[List[int], str]:
+    """Shape and dtype of one image, read from its header only."""
+    lower = path.lower()
+    if lower.endswith((".tif", ".tiff")):
+        import tifffile
+
+        with tifffile.TiffFile(path) as handle:
+            series = handle.series[0]
+            return [int(n) for n in series.shape], str(series.dtype)
+    if lower.endswith(".npy"):
+        import numpy
+
+        array = numpy.load(path, mmap_mode="r")
+        return [int(n) for n in array.shape], str(array.dtype)
+    from PIL import Image
+
+    with Image.open(path) as image:
+        bands = len(image.getbands())
+        shape = [image.height, image.width] + ([bands] if bands > 1 else [])
+        return shape, str(image.mode)
+
+
+def public_input_facts(settings: Optional[Mapping[str, Any]],
+                       limit: int = 5000) -> Dict[str, Any]:
+    """What the run's source folder holds, without any name in it.
+
+    Counts the image files directly in the folder (at most ``limit``
+    entries are looked at), the extensions seen, and the shape, dtype and
+    likely channel count of the first image, read from its header.
+
+    :param settings: the run's settings.
+    :param limit: the most folder entries looked at.
+    :returns: ``{"images", "extensions", "shape", "dtype", "channels"}``,
+        only the keys that could be found; ``{}`` without a readable folder.
+    """
+    source = _first_source(settings)
+    if not source or not os.path.isdir(source):
+        return {}
+    images: List[str] = []
+    extensions: Dict[str, int] = {}
+    try:
+        with os.scandir(source) as entries:
+            for index, entry in enumerate(entries):
+                if index >= limit:
+                    break
+                ext = entry.name.rsplit(".", 1)[-1].lower() \
+                    if "." in entry.name else ""
+                if ext in _IMAGE_EXTENSIONS and entry.is_file():
+                    images.append(entry.path)
+                    extensions[ext] = extensions.get(ext, 0) + 1
+    except OSError:
+        return {}
+    facts: Dict[str, Any] = {"images": len(images),
+                             "extensions": sorted(extensions)[:10]}
+    if images:
+        try:
+            shape, dtype = _image_shape(sorted(images)[0])
+            facts["shape"] = shape[:6]
+            facts["dtype"] = _safe_token(dtype, 16)
+            if len(shape) == 2:
+                facts["channels"] = 1
+            elif len(shape) >= 3:
+                facts["channels"] = int(min(shape[-1], shape[0])
+                                        if min(shape[-1], shape[0]) <= 16
+                                        else 1)
+        except Exception:
+            pass
+    return facts
+
+
+def _install_type() -> str:
+    """How spaCR was installed: editable, conda, installer, pip or unknown."""
+    if getattr(sys, "frozen", False):
+        return "installer"
+    try:
+        from importlib.metadata import distribution
+
+        direct = distribution("spacr").read_text("direct_url.json") or ""
+        if '"editable": true' in direct.replace("'", '"').lower():
+            return "editable"
+    except Exception:
+        return "unknown"
+    if os.path.isdir(os.path.join(sys.prefix, "conda-meta")):
+        return "conda"
+    return "pip"
+
+
+def _safe_fact(text: Any, limit: int = 60) -> str:
+    """A hardware or OS name with only plain characters kept."""
+    return _identity_scrub(_SAFE_FACT_RE.sub("", str(text or "")))[:limit]
+
+
+def public_environment() -> Dict[str, Any]:
+    """The computer and libraries a report was made on, without any name.
+
+    OS version, CPU architecture and cores, memory rounded to whole GB, the
+    GPU's model and memory when torch already knows it, CUDA or MPS, the
+    versions of spaCR's main libraries and how spaCR was installed.
+
+    :returns: the facts that could be read.
+    """
+    env: Dict[str, Any] = {
+        "os_version": _safe_fact(
+            platform.mac_ver()[0] if sys.platform == "darwin"
+            else platform.release(), 40),
+        "arch": _safe_fact(platform.machine(), 20),
+        "cores": int(os.cpu_count() or 0),
+        "install": _install_type(),
+    }
+    try:
+        import psutil
+
+        env["ram_gb"] = int(round(psutil.virtual_memory().total / 2 ** 30))
+    except Exception:
+        pass
+    torch = sys.modules.get("torch")
+    if torch is not None:
+        try:
+            env["cuda"] = bool(torch.cuda.is_available())
+            if env["cuda"]:
+                props = torch.cuda.get_device_properties(0)
+                env["gpu_model"] = _safe_fact(props.name, 60)
+                env["vram_gb"] = int(round(props.total_memory / 2 ** 30))
+            mps = getattr(getattr(torch, "backends", None), "mps", None)
+            env["mps"] = bool(mps is not None and mps.is_available())
+        except Exception:
+            pass
+    versions = {}
+    for key, dist in (("torch", "torch"), ("cellpose", "cellpose"),
+                      ("numpy", "numpy"), ("scikit_image", "scikit-image"),
+                      ("pyside6", "PySide6")):
+        found = _distribution_version(dist)
+        if found:
+            versions[key] = found
+    qtcore = sys.modules.get("PySide6.QtCore")
+    if qtcore is not None:
+        try:
+            versions["qt"] = _safe_token(qtcore.qVersion(), 40)
+        except Exception:
+            pass
+    env["versions"] = versions
+    return env
+
+
+_CHAIN_SPLIT_RE = re.compile(
+    r"^(?:The above exception was the direct cause of the following "
+    r"exception:|During handling of the above exception, another exception "
+    r"occurred:)\s*$", re.M)
+
+
+def _exception_chain(exception: Optional[BaseException] = None,
+                     traceback_text: str = "") -> List[Dict[str, str]]:
+    """The exceptions that led to the raised one, oldest first, scrubbed."""
+    found: List[Tuple[str, str]] = []
+    if exception is not None:
+        seen = {id(exception)}
+        node = exception.__cause__ or exception.__context__
+        while node is not None and id(node) not in seen:
+            seen.add(id(node))
+            found.insert(0, (type(node).__name__, str(node)))
+            node = node.__cause__ or node.__context__
+    elif traceback_text:
+        for block in _CHAIN_SPLIT_RE.split(str(traceback_text))[:-1]:
+            kind, message, _frames = _parse_traceback_text(block)
+            if kind:
+                found.append((kind, message))
+    return [{"type": _safe_token(kind, 100),
+             "message": scrub_public_text(message, MAX_MESSAGE_CHARS)}
+            for kind, message in found[-MAX_CHAIN:] if kind]
+
+
+def public_log_tail(text: str, lines: int = MAX_LOG_TAIL_LINES,
+                    limit: int = MAX_LOG_TAIL_CHARS) -> str:
+    """The console's last lines before a failure, scrubbed and cut.
+
+    :param text: the console text.
+    :param lines: the most lines kept, from the end.
+    :param limit: the most characters kept, from the end.
+    :returns: the scrubbed excerpt.
+    """
+    kept = [line for line in str(text or "").splitlines() if line.strip()]
+    value = scrub_public_lines("\n".join(kept[-lines:]), 10 ** 6)
+    if len(value) > limit:
+        value = "…" + value[-(limit - 1):].split("\n", 1)[-1]
+    return value
+
+
+def _public_run(run: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
+    """The run's stage, seconds before failure and preview flag."""
+    out: Dict[str, Any] = {}
+    run = run or {}
+    stage = _safe_token(run.get("stage", ""), 60)
+    if stage:
+        out["stage"] = stage
+    try:
+        elapsed = float(run.get("elapsed_s"))
+        if elapsed >= 0:
+            out["elapsed_s"] = round(elapsed, 1)
+    except (TypeError, ValueError):
+        pass
+    if "dry_run" in run:
+        out["dry_run"] = bool(run.get("dry_run"))
+    return out
+
+
+def _clean_environment(env: Any) -> Dict[str, Any]:
+    """An environment block reduced to its allowlisted keys and types."""
+    if not isinstance(env, Mapping):
+        return {}
+    out: Dict[str, Any] = {}
+    for key in ("os_version", "arch", "gpu_model"):
+        if env.get(key):
+            out[key] = _safe_fact(env[key], 60 if key == "gpu_model" else 40)
+    for key in ("cores", "ram_gb", "vram_gb"):
+        if isinstance(env.get(key), int) and not isinstance(env[key], bool):
+            out[key] = max(0, min(int(env[key]), 100000))
+    for key in ("cuda", "mps"):
+        if isinstance(env.get(key), bool):
+            out[key] = env[key]
+    if env.get("install") in ("pip", "conda", "installer", "editable",
+                              "unknown"):
+        out["install"] = env["install"]
+    versions = env.get("versions")
+    if isinstance(versions, Mapping):
+        out["versions"] = {
+            key: _safe_token(versions[key], 40)
+            for key in ("torch", "cellpose", "numpy", "scikit_image",
+                        "pyside6", "qt") if versions.get(key)}
+    return out
+
+
+def _clean_inputs(facts: Any) -> Dict[str, Any]:
+    """Input facts reduced to counts, extensions, shape and dtype."""
+    if not isinstance(facts, Mapping):
+        return {}
+    out: Dict[str, Any] = {}
+    for key in ("images", "channels"):
+        if isinstance(facts.get(key), int) and not isinstance(facts[key],
+                                                              bool):
+            out[key] = max(0, int(facts[key]))
+    extensions = facts.get("extensions")
+    if isinstance(extensions, (list, tuple)):
+        out["extensions"] = [e for e in (str(x).lower() for x in extensions)
+                             if e in _IMAGE_EXTENSIONS][:10]
+    shape = facts.get("shape")
+    if isinstance(shape, (list, tuple)):
+        out["shape"] = [int(n) for n in shape[:6]
+                        if isinstance(n, int) and not isinstance(n, bool)]
+    if facts.get("dtype"):
+        out["dtype"] = _safe_token(facts["dtype"], 16)
+    return out
+
+
+def _clean_settings(settings: Any) -> Dict[str, Any]:
+    """A settings block re-checked: names, and values as public_settings."""
+    if not isinstance(settings, Mapping):
+        return {}
+    out: Dict[str, Any] = {}
+    for key, value in settings.items():
+        key = str(key)
+        if len(out) >= MAX_SETTINGS or not _SETTING_NAME_RE.match(key):
+            continue
+        out[key] = _public_setting_value(key, value)
+    return out
+
+
+
 def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
     """Return ``summary`` with only allowlisted keys, types and sizes.
 
@@ -1600,6 +2101,9 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
                                      MAX_MESSAGE_CHARS),
         "frames": [],
     }
+    if source.get("kind") == KIND_USER_ERROR:
+        out["message"] = scrub_public_lines(source.get("message", ""),
+                                            MAX_USER_ERROR_MESSAGE_CHARS)
     if not _UUID_RE.fullmatch(out["install_id"]):
         out["install_id"] = install_id()
     frames = source.get("frames") or []
@@ -1623,8 +2127,8 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
         out["user_note"] = note
     if source.get("dry_run") is True:
         out["dry_run"] = True
-    summary_text = scrub_public_text(source.get("ai_summary", ""),
-                                     MAX_AI_SUMMARY_CHARS) \
+    summary_text = scrub_public_lines(source.get("ai_summary", ""),
+                                      MAX_AI_SUMMARY_CHARS, True) \
         if source.get("ai_summary") else ""
     if summary_text:
         out["ai_summary"] = summary_text
@@ -1632,6 +2136,43 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
         out["summarize"] = True
     if source.get("kind") in (KIND_FAULT, KIND_USER_ERROR):
         out["kind"] = source["kind"]
+    screen = " ".join(_SCREEN_RE.sub("", str(source.get("screen", "") or ""))
+                      .split())[:MAX_SCREEN_CHARS].strip()
+    if screen and screen[0].isalnum():
+        out["screen"] = screen
+    error_text = scrub_public_lines(source.get("error_text", ""),
+                                    MAX_ERROR_TEXT_CHARS) \
+        if source.get("error_text") else ""
+    if error_text:
+        out["error_text"] = error_text
+    chain = source.get("chain")
+    if isinstance(chain, (list, tuple)) and chain:
+        out["chain"] = [
+            {"type": _safe_token(item.get("type", ""), 100),
+             "message": scrub_public_text(item.get("message", ""),
+                                          MAX_MESSAGE_CHARS)}
+            for item in list(chain)[-MAX_CHAIN:]
+            if isinstance(item, Mapping) and _safe_token(
+                item.get("type", ""), 100)]
+        if not out["chain"]:
+            out.pop("chain")
+    for key, clean in (("settings", _clean_settings),
+                       ("inputs", _clean_inputs),
+                       ("environment", _clean_environment),
+                       ("run", _public_run)):
+        value = clean(source.get(key)) if source.get(key) else {}
+        if value:
+            out[key] = value
+    cause = normalise_cause(source.get("cause", ""))
+    if cause:
+        out["cause"] = cause
+    log_tail = public_log_tail(source.get("log_tail", "")) \
+        if source.get("log_tail") else ""
+    if log_tail:
+        out["log_tail"] = log_tail
+    for key in ("log_tail", "settings"):
+        if len(json.dumps(out).encode("utf-8")) > MAX_SUMMARY_BYTES:
+            out.pop(key, None)
     while (len(json.dumps(out).encode("utf-8")) > MAX_SUMMARY_BYTES
            and out["frames"]):
         out["frames"].pop(0)
@@ -1641,7 +2182,13 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
 def public_summary(exception: Optional[BaseException] = None, *,
                    traceback_text: str = "", module: str = "",
                    user_note: str = "", dry_run: bool = False,
-                   kind: str = "", code_context: bool = False
+                   kind: str = "", code_context: bool = False,
+                   screen: str = "", error_text: str = "",
+                   message: str = "",
+                   settings: Optional[Mapping[str, Any]] = None,
+                   log_text: str = "",
+                   run: Optional[Mapping[str, Any]] = None,
+                   diagnostics: bool = False
                    ) -> Dict[str, Any]:
     """Build the anonymised summary of an error that may be published.
 
@@ -1665,9 +2212,25 @@ def public_summary(exception: Optional[BaseException] = None, *,
         by :func:`classify_failure` when empty.
     :param code_context: add each spaCR frame's source line as ``code``.
         Frames of any other file never carry code.
+    :param screen: the screen's title as the user sees it, such as
+        ``Mask``; at most :data:`MAX_SCREEN_CHARS` characters.
+    :param error_text: the error as the console showed it, scrubbed with
+        its line breaks kept and cut to :data:`MAX_ERROR_TEXT_CHARS`.
+    :param message: the message to send in place of the exception's own,
+        such as every problem a refused run found; a user error keeps its
+        line breaks and may be :data:`MAX_USER_ERROR_MESSAGE_CHARS` long.
+    :param settings: the run's settings; their names and public values
+        (:func:`public_settings`) and the source folder's input facts
+        (:func:`public_input_facts`) are added.
+    :param log_text: the console text before the failure; its last lines
+        are added, scrubbed (:func:`public_log_tail`).
+    :param run: ``{"stage", "elapsed_s", "dry_run"}`` of the failed run.
+    :param diagnostics: add the environment block
+        (:func:`public_environment`) and the exception chain.
     :returns: the summary, ready for :func:`submit_public_summary`.
     """
     failure_kind = kind or classify_failure(exception, traceback_text)
+    override = message
     kind, message, frames = "", "", []
     if exception is not None:
         kind = type(exception).__name__
@@ -1690,11 +2253,20 @@ def public_summary(exception: Optional[BaseException] = None, *,
         "gpu": _gpu_class(),
         "module": module,
         "exception_type": kind,
-        "message": message,
+        "message": override or message,
         "frames": frames,
         "user_note": user_note,
         "dry_run": bool(dry_run),
         "kind": failure_kind,
+        "screen": screen,
+        "error_text": error_text,
+        "chain": _exception_chain(exception, traceback_text)
+        if diagnostics else [],
+        "settings": public_settings(settings) if settings else {},
+        "inputs": public_input_facts(settings) if settings else {},
+        "environment": public_environment() if diagnostics else {},
+        "run": run or {},
+        "log_tail": log_text,
     })
 
 
@@ -1716,7 +2288,9 @@ def ai_summary_prompt(summary: Mapping[str, Any]) -> str:
         "file and function), then give a short fix the user can apply. Use "
         f"plain prose, at most {AI_SUMMARY_TARGET_CHARS} characters. Do not "
         "include any personal data: no paths, file names, user or host "
-        "names, e-mail or IP addresses, or tokens.\n\n"
+        "names, e-mail or IP addresses, or tokens. End with one last line "
+        "of the form CAUSE: <kebab-case-slug>, at most 5 lowercase words "
+        "naming the root cause, such as CAUSE: no-object-channel-set.\n\n"
         + json.dumps(shown, indent=2))
 
 
@@ -1731,10 +2305,25 @@ def example_public_summary() -> Dict[str, Any]:
     home = _home_variants()[:1] or ["/home/someone"]
     planted = (f"could not open {home[0]}/plates/patient_042.tif for "
                f"someone@example.org with key ghp_0123456789abcdefABCDEF")
+    settings = {"src": f"{home[0]}/plates/patient_042", "cell_channel": 0,
+                "nucleus_channel": None, "cell_diameter": 30.5,
+                "save": True, "cellpose_model": "cyto3",
+                "experiment": "patient_042",
+                "notes": "ask someone@example.org at 10.1.2.3"}
+    log = (f"[INFO] reading {home[0]}/plates/patient_042/A01.tif on "
+           f"labhost42.example.org (10.1.2.3)\n[ERROR] {planted}")
     try:
-        raise FileNotFoundError(planted)
+        try:
+            raise OSError(f"disk error on {home[0]}/plates")
+        except OSError as cause:
+            raise FileNotFoundError(planted) from cause
     except FileNotFoundError as exc:
-        return public_summary(exc, module="mask")
+        return public_summary(
+            exc, module="mask", screen="Mask", settings=settings,
+            log_text=log, error_text=f"FileNotFoundError: {planted}",
+            run={"stage": "preprocess_generate_masks", "elapsed_s": 3.2,
+                 "dry_run": False},
+            diagnostics=True)
 
 
 def _queue_files() -> List[Path]:
@@ -1872,8 +2461,8 @@ def _send_one(summary: Mapping[str, Any], timeout: float) -> Dict[str, Any]:
                    "ai_summary_source": source if source in (
                        "client", "relay", "none") else "none"}
         if source == "relay" and data.get("ai_summary"):
-            text = scrub_public_text(str(data.get("ai_summary", "")),
-                                     MAX_AI_SUMMARY_CHARS)
+            text = scrub_public_lines(str(data.get("ai_summary", "")),
+                                      MAX_AI_SUMMARY_CHARS, True)
             if text:
                 outcome["ai_summary"] = text
         allowance = data.get("allowance")
@@ -2064,8 +2653,9 @@ def diagnose_remotely(summary: Mapping[str, Any], question: str = "", *,
         raise RelayRefused("network", f"{NO_NETWORK_ENV} or safe mode "
                                       f"forbids the network")
     payload = _validated_summary(summary)
-    payload.pop("user_note", None)
-    payload.pop("dry_run", None)
+    for key in ("user_note", "dry_run", "error_text", "chain", "settings",
+                "inputs", "environment", "run", "log_tail"):
+        payload.pop(key, None)
     asked = scrub_public_text(question, MAX_QUESTION_CHARS) if question else ""
     if asked:
         payload["question"] = asked
@@ -2083,12 +2673,204 @@ def diagnose_remotely(summary: Mapping[str, Any], question: str = "", *,
                                         or f"HTTP {status}"))
     answer: Dict[str, Any] = {
         "advice": advice, "model": str(data.get("model", "") or ""),
-        "tier": "light" if data.get("tier") == "light" else "best"}
+        "tier": "light" if data.get("tier") == "light" else "best",
+        "cached": data.get("cached") is True,
+        "cause": normalise_cause(data.get("cause", ""))}
     if isinstance(data.get("allowance"), Mapping):
         answer["allowance"] = _normal_allowance(
             {"ai": data["allowance"],
              "resets_at": data["allowance"].get("resets_at")})
     return answer
+
+
+_CAUSE_LINE_RE = re.compile(
+    r"^\s*[*_`>#-]*\s*CAUSE\s*[:=]\s*[*_`]*\s*(.*?)\s*[*_`]*\s*$", re.I)
+
+
+def normalise_cause(raw: Any) -> str:
+    """A likely-cause key as the relay keeps it: kebab-case, 5 words, 40 chars.
+
+    :param raw: the key as the AI wrote it.
+    :returns: the slug, or ``""``.
+    """
+    words = [w for w in re.split(r"[^a-z0-9]+", str(raw or "").lower()) if w]
+    slug = "-".join(words[:5])
+    return slug[:40].rstrip("-")
+
+
+def split_cause(text: str) -> Tuple[str, str]:
+    """Take the ``CAUSE: <slug>`` line off an AI answer.
+
+    :param text: the answer.
+    :returns: ``(answer without the line, slug or "")``.
+    """
+    kept, cause = [], ""
+    for line in str(text or "").splitlines():
+        match = _CAUSE_LINE_RE.match(line)
+        if match:
+            cause = normalise_cause(match.group(1)) or cause
+            continue
+        kept.append(line)
+    return "\n".join(kept).strip(), cause
+
+
+#: Explanations kept on this computer; the oldest go first past this many.
+MAX_SAVED_EXPLANATIONS = 200
+
+#: Days a saved explanation is reused, as the relay's own cache does.
+SAVED_EXPLANATION_DAYS = 30
+
+_SAVED_LOCK = threading.Lock()
+
+
+def _normalized_problems(message: Any) -> List[str]:
+    """A user error's problem list as the relay's signature reads it.
+
+    The ``- `` lines of the message, lower case, with placeholders, paths
+    and numbers taken out and sorted, so the same problems in another order
+    or on another plate give the same signature.
+    """
+    out: List[str] = []
+    for line in str(message or "").splitlines():
+        line = line.strip()
+        if not re.match(r"^[-*•]\s+\S", line):
+            continue
+        line = re.sub(r"^[-*•]\s+", "", line).lower()
+        line = re.sub(r"<[^<>]*>", " ", line)
+        line = re.sub(r"\S*[\\/]\S*", " ", line)
+        line = re.sub(r"[0-9]+", "", line)
+        line = " ".join(line.split())
+        if line:
+            out.append(line)
+    return sorted(out)
+
+
+def explanation_signature(summary: Mapping[str, Any]) -> str:
+    """The error's signature, computed as the relay computes it.
+
+    The exception type, the module and the innermost five frames
+    (``file:function``); a user error adds its normalised problem list.
+    The relay keys its saved explanations, and its issues, by the same
+    value.
+
+    :param summary: a summary from :func:`public_summary`.
+    :returns: the SHA-256 hex digest.
+    """
+    parts = [str(summary.get("exception_type", "") or ""),
+             str(summary.get("module", "") or "")]
+    for frame in list(summary.get("frames") or [])[-5:]:
+        parts.append(f"{frame.get('file', '')}:{frame.get('function', '')}")
+    if summary.get("kind") == KIND_USER_ERROR:
+        parts.extend(_normalized_problems(summary.get("message", "")))
+    return hashlib.sha256("\n".join(parts).encode("utf-8")).hexdigest()
+
+
+def explanation_key(traceback_text: str, module: str = "", kind: str = "",
+                    message: str = "") -> str:
+    """:func:`explanation_signature` of a failure, without the environment.
+
+    Reads only the traceback, so it is cheap enough for the GUI thread and
+    gives what the full :func:`public_summary` of the same failure gives.
+
+    :param traceback_text: the formatted traceback.
+    :param module: the spaCR module key.
+    :param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.
+    :param message: the message sent in place of the exception's own.
+    :returns: the signature.
+    """
+    exception_type, parsed, frames = _parse_traceback_text(traceback_text)
+    return explanation_signature(_validated_summary({
+        "install_id": "00000000-0000-4000-8000-000000000000",
+        "module": module, "exception_type": exception_type,
+        "message": message or parsed, "frames": frames,
+        "kind": kind or classify_failure(None, traceback_text)}))
+
+
+def _spacr_minor() -> str:
+    """spaCR's ``major.minor``, which a saved explanation must match."""
+    match = re.match(r"^(\d+)\.(\d+)", _spacr_version())
+    return f"{match.group(1)}.{match.group(2)}" if match else _spacr_version()
+
+
+def _saved_path() -> Path:
+    """The file saved explanations live in, in the spaCR home."""
+    return _reports_dir() / "explanations.json"
+
+
+def _read_saved() -> Dict[str, Any]:
+    """The saved explanations, ``{signature: entry}``, or ``{}``."""
+    try:
+        data = json.loads(_saved_path().read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def saved_explanation(signature: str, now: Optional[float] = None
+                      ) -> Optional[Dict[str, Any]]:
+    """The explanation saved on this computer for an error, if still good.
+
+    Good means written for this spaCR ``major.minor`` and less than
+    :data:`SAVED_EXPLANATION_DAYS` days ago.
+
+    :param signature: from :func:`explanation_signature`.
+    :param now: the time, in seconds since the epoch; defaults to now.
+    :returns: ``{"text", "tier", "model"}``, or ``None``.
+    """
+    entry = _read_saved().get(str(signature or ""))
+    if not isinstance(entry, dict) or not entry.get("text"):
+        return None
+    now = time.time() if now is None else now
+    try:
+        age = now - float(entry.get("created", 0))
+    except (TypeError, ValueError):
+        return None
+    if age >= SAVED_EXPLANATION_DAYS * 86400 or entry.get(
+            "minor") != _spacr_minor():
+        return None
+    return {"text": str(entry["text"]), "tier": str(entry.get("tier", "")),
+            "model": str(entry.get("model", "")),
+            "cause": normalise_cause(entry.get("cause", ""))}
+
+
+def save_explanation(signature: str, text: str, tier: str = "",
+                     model: str = "", now: Optional[float] = None,
+                     cause: str = "") -> None:
+    """Keep an explanation on this computer for the next identical error.
+
+    At most :data:`MAX_SAVED_EXPLANATIONS` are kept, oldest dropped first,
+    and expired ones are dropped on every write. A failed write is ignored.
+
+    :param signature: from :func:`explanation_signature`.
+    :param text: the scrubbed explanation.
+    :param tier: ``"best"``, ``"light"`` or ``""``.
+    :param model: the model that wrote it, when known.
+    :param now: the time, in seconds since the epoch; defaults to now.
+    :param cause: the likely-cause key the AI gave, if any.
+    """
+    if not signature or not text:
+        return
+    now = time.time() if now is None else now
+    with _SAVED_LOCK:
+        saved = {key: entry for key, entry in _read_saved().items()
+                 if isinstance(entry, dict)
+                 and now - float(entry.get("created", 0) or 0)
+                 < SAVED_EXPLANATION_DAYS * 86400}
+        saved[str(signature)] = {"text": str(text), "tier": str(tier or ""),
+                                 "model": str(model or ""), "created": now,
+                                 "minor": _spacr_minor(),
+                                 "cause": normalise_cause(cause)}
+        newest = sorted(saved.items(), key=lambda item: float(
+            item[1].get("created", 0) or 0))[-MAX_SAVED_EXPLANATIONS:]
+        try:
+            folder = _reports_dir()
+            folder.mkdir(parents=True, exist_ok=True)
+            temporary = folder / (f"explanations.{os.getpid()}."
+                                  f"{threading.get_ident()}.tmp")
+            temporary.write_text(json.dumps(dict(newest)), encoding="utf-8")
+            os.replace(temporary, _saved_path())
+        except OSError:
+            return
 
 
 def _normal_allowance(data: Mapping[str, Any]) -> Dict[str, Any]:

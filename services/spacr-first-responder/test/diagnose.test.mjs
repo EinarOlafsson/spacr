@@ -49,7 +49,13 @@ function makeEnv(overrides = {}) {
   return { env, calls };
 }
 
-async function post(env, body, { now = DAY1, ip = "203.0.113.7" } = {}) {
+let distinct = 0;
+
+async function post(env, body, { now = DAY1, ip = "203.0.113.7", same = false } = {}) {
+  if (!same && body && typeof body.exception_type === "string") {
+    distinct += 1;
+    body = { ...body, exception_type: `${body.exception_type}${distinct}` };
+  }
   const res = await handle(makeRequest("/diagnose", { body, headers: { "cf-connecting-ip": ip } }), env, null, now);
   return { status: res.status, body: await res.json() };
 }

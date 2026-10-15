@@ -295,3 +295,31 @@ run into "✗ The run did not start: <message>" and a user_error failure.
   settings flow page was regenerated.
 - crashreport, providers and install_consent are back at 100% coverage
   and the console's new lines are covered.
+
+2026-10-15 — BUILT, spaCR AI console entry, every problem, richer issues
+(relay 0.2.4, deployed). The maintainer's Mask run with no channel and a
+missing src, "Summarize and send all errors":
+- spaCR AI is its own console section: a "spaCR AI" heading in spaCR teal
+  (palette chip_class) directly under the error, with working dots while
+  the answer is written; the answer replaces them, its Markdown drawn
+  (bold headings on their own lines, one line per step). Quota and failure
+  notes land in the same entry (ConsolePanel.begin_ai_entry/fill_ai_entry).
+- AI text keeps https://einarolafsson.github.io/spacr/ and
+  github.com/EinarOlafsson/spacr through the scrubber (keep_docs_urls) and
+  keeps its line breaks (scrub_public_lines); every other URL is <URL>.
+- Reports send the sidebar screen name (screen, e.g. "Mask"); the relay
+  prompt names it exactly and knows Mask (batch Cellpose masks) from Make
+  Masks (manual editor).
+- A refused run lists every settings problem: the bridge publishes the
+  validate_settings errors the run started with, and the console says
+  "✗ The run did not start:" with a numbered list; the report message (up
+  to 800 chars for user_error, client and relay) lists them with paths
+  removed. raise_if_strict records its call stack, so the refusal's call
+  site is the report's frames.
+- Issues: Error (with screen), Problems (n), Console error (scrubbed,
+  error_text <=1500, dropped by the relay if it looks personal), Traceback
+  or "Where the run was refused", Environment, then the AI summary under
+  its own heading. A +1 comment carries this occurrence's error sections in
+  a <details> block.
+- The retired "spaCR AI: {text}{light}" caption was removed from the nine
+  AI-reviewed record files and the catalogs rebuilt.

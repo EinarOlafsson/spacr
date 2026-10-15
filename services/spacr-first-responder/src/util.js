@@ -1,6 +1,6 @@
-export const VERSION = "0.2.3";
+export const VERSION = "0.2.4";
 
-export const MAX_BODY_BYTES = 16 * 1024;
+export const MAX_BODY_BYTES = 32 * 1024;
 
 export class HttpError extends Error {
   constructor(status, message, extra) {
