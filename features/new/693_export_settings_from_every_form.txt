@@ -89,3 +89,19 @@ catalogs; all five new GUI-guide messages are translated in all nine guide
 catalogs. This is Linux CPU/offscreen Qt 6.12 evidence, not a new native
 Windows/macOS recording.
 Evidence: features/data/693_export_caption_acceptance_2026-10-14/receipt.json.
+
+2026-10-15 — last-good pipeline JSON snapshots survive failed writes:
+utils._save_settings_json now serializes with its existing plain/JSON format
+before mutation, stages privately, reuses the existing atomic journal writer,
+and publishes only complete JSON. Failed serialization, interrupted native
+streams or refused replacement retain the old bytes, or leave a new target
+absent; staging is cleaned and the original never-raises warning remains.
+Existing symlinks still address their targets, existing permissions and normal
+new-file umask modes are retained, read-only targets still refuse, and missing
+parents are not created. Native baseline6FAIL/2PASS6.74seconds. Initial owning
+writer/export/pin cohort26PASS8.34seconds; final11 native permission/error cases
+PASS5.58seconds after the explicit read-only guard. These overlap:27distinct
+checks,11new cases, under6G/shared lock. CSV remains a separate output, not a
+CSV/JSON transaction. No host power-loss/directory-fsync or concurrent external
+writer guarantee, model/network/GPU/fullCI or native other-OS acceptance.
+Evidence: data/693_atomic_pipeline_json_2026-10-15/receipt.json.
