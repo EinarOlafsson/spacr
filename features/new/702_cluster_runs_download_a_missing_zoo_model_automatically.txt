@@ -714,3 +714,23 @@ Evidence:data/702_verified_picker_pin_backend_2026-10-15/.
 2026-10-15 Original — Real-object single-file classifier provenance repaired. The Mask model registry now captures classifier identities; the actual filter resolves/verifies an exported file pin before calling its existing loader, without rewriting original settings. Existing local directory bundles and unpinned private files retain their prior loader contract. Baseline5FAIL/2PASS exposed missing registry entries, ignored acquired path and corrupt pinned bytes reaching deserialization; final7 new plus full existing classifier module42PASS14.44s. Independent source peer confirms only two owning methods changed, all docs/signatures/tr calls unchanged; no new translation generation. Evidence:702_real_object_file_pin_2026-10-15. This is no hostile-file atomic-deserialization or scientific acceptance claim; parent N702 remains open for the explicitly tracked preview/log/error/guide work.
 
 2026-10-15 Original — Verified Live Preview propagation repaired. An explicit private capsule channel preserves ordinary public callback(dict) and Propagate-off behavior. Actual Mask and Cellpose Masks registry routes retain exact model references on propagation/export and subsequent diameter/threshold edits; changed model values still invalidate old pins. Verified-only noneditable combo entries are inserted after validation and removed on refusal, restoring all prior items/selection and pins. Seventeen distinct owning cases passed across staged runs, including final three registry and four affected noncombo rollback cases; no claim of one full final17-case run. Independent peer and unchanged normal128 public/26nested documentation inventory confirm zero new caption/API targets. Root verified four tested source hashes exact on integration. Evidence:702_preview_verified_propagation_2026-10-15. Required full logging, candidate errors/offline lookup and short translated cluster guide remain the final tracked software/documentation batch; parent remains open until that acceptance.
+
+2026-10-15 — PRIVATE exact acquisition/error context and offline provider guard.
+Shared acquisition logs actual setting/request/key/raw version/SHA/final path
+only after fetch succeeds; cache hits and failures emit no false success.
+Pinned raw versions retain001/None, and foreign URI rows cannot borrow a
+bundled publisher version. Offline selection uses only bundled declarations,
+explicit local catalogue files and already-cached shared entries; arbitrary
+providers and metadata transport are not executed. Unknown Cellpose, training,
+plaque/detector and named classifier inputs refuse with their actual setting
+and declared compatible candidate identities, preserving local/default/stock
+and preview boundaries. Pathogen overrides forward their actual computed key.
+Named classifier resolution precedes initialization-policy reads and retains
+blank/new-training and existing file/directory behavior. Necessary finite
+source-bound cohorts and all failures/affected retries are recorded separately;
+no total obtained by summing overlapping runs. Two new runtime sources have18
+Root-reviewed targets, and public train_model#43 has9 Root-reviewed API targets.
+Normal owning extractor/catalog/API/arrival and localized callback closure is
+still pending; source not published alone. Guide closure is separately Root-owned.
+No real model, inference/training, network/GPU, actual cluster or fullCI claim.
+Evidence:data/702_resolution_context_2026-10-15/receipt.json.

@@ -18,6 +18,7 @@ import re
 import numpy as np
 import pandas as pd
 import pytest
+from spacr.model_zoo import ModelZooError
 
 import spacr.utils as U
 
@@ -748,28 +749,29 @@ def test_choose_model_raises_on_a_missing_checkpoint_path(fake_cellpose, tmp_pat
     """Falling back to cpsam would segment with the wrong weights and say
     nothing, which is worse than stopping."""
     missing = tmp_path / "gone" / "model.pth"
-    with pytest.raises(FileNotFoundError) as exc:
+    with pytest.raises(ModelZooError) as exc:
         U._choose_model(str(missing), device="cpu", object_type="nucleus")
     msg = str(exc.value)
     assert str(missing) in msg
     assert "nucleus" in msg
-    assert "cpsam" in msg          # tells the user what to write instead
+    assert "stock weights were not substituted" in msg
 
 
 def test_choose_model_raises_on_a_missing_path_without_an_extension(
         fake_cellpose, tmp_path):
     missing = tmp_path / "models" / "trained_on_hela"
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ModelZooError):
         U._choose_model(str(missing), device="cpu")
 
 
 def test_choose_model_bare_unknown_word_is_not_treated_as_a_path(
         fake_cellpose, capsys):
-    """A typo'd model name has no separator and no extension, so it falls back
-    to cpsam with a message rather than raising."""
-    model = U._choose_model("cytoo", device="cpu")
-    assert model.kwargs["pretrained_model"] == "cpsam"
-    assert "cytoo" in capsys.readouterr().out
+    """A typo refuses stock substitution and names the exact requested input."""
+    with pytest.raises(ModelZooError) as error:
+        U._choose_model("cytoo", device="cpu")
+    assert "cytoo" in str(error.value)
+    assert "stock weights were not substituted" in str(error.value)
+    assert "model_name" in str(error.value)
 
 
 def test_choose_model_cpsam_by_name_does_not_touch_the_filesystem(fake_cellpose):

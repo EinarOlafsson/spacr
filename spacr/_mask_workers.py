@@ -88,7 +88,7 @@ def _prepare_mask_model(settings, object_type):
            and prepared.get('pathogen_model') is not None else f'{object_type}_model_name')
     pinned = _resolve_pinned_model_file(prepared, key, kinds=('cellpose',))
     resolved = (str(pinned) if pinned is not None
-                else _resolve_cellpose_pretrained(model, object_type=object_type))
+                else _resolve_cellpose_pretrained(model, object_type=object_type, setting=key))
     path = Path(resolved).expanduser()
     if not path.is_file():
         cache = getattr(cp_models, 'cache_model_path', None)

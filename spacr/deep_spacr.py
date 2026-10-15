@@ -259,11 +259,30 @@ def _empty_device_cache() -> None:
 
 
 def _classifier_model_input(settings, name):
-    """Use verified recorded classifier bytes without rewriting their request."""
-    from .model_zoo import _resolve_pinned_model_file
+    """Resolve one named classifier input without rewriting its recorded request.
+
+    :param settings: original classifier settings, including any validated model pins.
+    :param name: actual input-field name, such as ``model_path`` or ``resume_checkpoint``.
+    :returns: verified pinned/acquired file path, or the unchanged optional/existing path.
+    :raises ModelZooError: no existing input or exact compatible zoo identity is available.
+    """
+    from .model_zoo import (
+        ModelZooError, _ensure_model_file, _model_resolution_context,
+        _resolve_pinned_model_file,
+    )
 
     resolved = _resolve_pinned_model_file(settings, name, kinds=('classifier',))
-    return str(resolved) if resolved is not None else settings.get(name)
+    if resolved is not None:
+        return str(resolved)
+    requested = settings.get(name)
+    if (not requested or (isinstance(requested, str) and not requested.strip())
+            or os.path.exists(requested)):
+        return requested
+    resolved = _ensure_model_file(requested, kinds=('classifier',), setting=name)
+    if resolved is None:
+        raise ModelZooError(_model_resolution_context(
+            requested, setting=name, kinds=('classifier',)))
+    return str(resolved)
 
 
 def _load_inference_model(model_path, device):
@@ -2586,8 +2605,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         class count differs from ``num_classes``, a ``resume_checkpoint``
         carrying no optimizer state, or a checkpoint that already completed
         ``epochs``.
-    :raises FileNotFoundError: if ``custom_model_path`` or
-        ``resume_checkpoint`` does not exist.
+    :raises spacr.model_zoo.ModelZooError: if ``custom_model_path`` or
+        ``resume_checkpoint`` names neither an existing checkpoint nor an
+        exact compatible model-zoo identity.
     """
 
     _flowview_advance("model")
@@ -2639,12 +2659,13 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     loaded_payload = None
     if initialization_path:
         if not os.path.isfile(initialization_path):
-            from .model_zoo import _ensure_model_file
+            from .model_zoo import ModelZooError, _ensure_model_file, _model_resolution_context
+            initialization_setting = 'resume_checkpoint' if resume_checkpoint else 'custom_model_path'
             downloaded = _ensure_model_file(
-                initialization_path, kinds=("classifier",))
+                initialization_path, kinds=("classifier",), setting=initialization_setting)
             if downloaded is None:
-                raise FileNotFoundError(
-                    f"Training checkpoint does not exist: {initialization_path}")
+                raise ModelZooError(_model_resolution_context(
+                    initialization_path, setting=initialization_setting, kinds=("classifier",)))
             initialization_path = str(downloaded)
         loaded_model, loaded_payload = load_model_artifact(
             initialization_path, map_location=device, model=model)

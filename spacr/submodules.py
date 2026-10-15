@@ -1373,20 +1373,18 @@ def _resolve_detector_weights(requested, setting):
         fetched into ``~/.spacr/models`` on first use.
     :param setting: the setting it came from, named in the error.
     :returns: the checkpoint path.
-    :raises ValueError: when it is neither a file nor a model-zoo key.
+    :raises ModelZooError: when no existing file or exact compatible zoo identity matches.
     """
     if os.path.isfile(requested):
         return requested
     from . import model_zoo
 
-    resolved = model_zoo._ensure_model_file(requested, kinds=('detector',))
+    resolved = model_zoo._ensure_model_file(
+        requested, kinds=('detector',), setting=setting)
     if resolved is not None:
         return str(resolved)
-    if '/' in requested or '\\' in requested or requested.startswith('~'):
-        raise ModelZooMissing(requested)
-    raise ValueError(
-        f"{setting}={requested!r} is neither a file nor a model_zoo "
-        f"key")
+    raise model_zoo.ModelZooError(model_zoo._model_resolution_context(
+        requested, setting=setting, kinds=('detector',)))
 
 
 class ModelZooMissing(FileNotFoundError):
@@ -1412,14 +1410,12 @@ def _resolve_training_base(requested):
         return name
     from . import model_zoo
 
-    resolved = model_zoo._ensure_model_file(name, kinds=('cellpose',))
+    resolved = model_zoo._ensure_model_file(name, kinds=('cellpose',), setting='base_model')
     if resolved is not None:
         return str(resolved)
-    if '/' in name or '\\' in name or name.startswith('~'):
-        raise ModelZooMissing(name)
     from .utils import _resolve_cellpose_pretrained
 
-    return _resolve_cellpose_pretrained(name)
+    return _resolve_cellpose_pretrained(name, setting='base_model')
 
 
 #: The plaque model a run segments with when none is named: the cpsam_v2
@@ -1592,19 +1588,14 @@ def _resolve_plaque_model(settings, fetch=True):
 
     from . import model_zoo
 
-    resolved = model_zoo._ensure_model_file(requested, kinds=('cellpose',), download=fetch)
+    resolved = model_zoo._ensure_model_file(
+        requested, kinds=('cellpose',), download=fetch, setting='plaque_model')
     if resolved is not None:
         if fetch or os.path.isfile(resolved):
             return str(resolved)
         raise ModelZooMissing(str(resolved))
-    if '/' in requested or '\\' in requested or requested.startswith('~'):
-        raise ModelZooMissing(requested)
-    entries = (model_zoo.catalogue(remote=True) if fetch
-               else model_zoo._planning_model_entries())
-    raise ValueError(
-        f"plaque_model={requested!r} is neither a file that exists, the "
-        f"string 'bundled', nor a model_zoo key. Known keys: "
-        f"{sorted(e.key for e in entries)}")
+    raise model_zoo.ModelZooError(model_zoo._model_resolution_context(
+        requested, setting='plaque_model', kinds=('cellpose',)))
 
 
 def analyze_plaques(settings):

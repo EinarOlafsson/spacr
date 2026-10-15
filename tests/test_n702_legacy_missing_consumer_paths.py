@@ -57,7 +57,7 @@ def test_preview_of_missing_legacy_path_never_fetches(checkpoint, monkeypatch):
 
 
 def test_unknown_training_path_is_refused_before_cellpose_can_use_stock(checkpoint):
-    with pytest.raises(submodules.ModelZooMissing):
+    with pytest.raises(zoo.ModelZooError):
         submodules._resolve_training_base('/old/published-r6.CP_model')
 
 

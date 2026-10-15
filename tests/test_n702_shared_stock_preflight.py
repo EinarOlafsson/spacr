@@ -1,5 +1,6 @@
 """Direct segmentation and training consumers share the stock offline boundary."""
 from pathlib import Path
+import json
 
 import pytest
 
@@ -81,7 +82,13 @@ def test_exact_existing_and_online_routes_are_preserved(offline, monkeypatch, tm
         checkpoint.write_bytes(b'private exact catalogue checkpoint')
         entry = zoo.ModelEntry(key=requested, name=checkpoint.name,
                                kind='cellpose', path=str(checkpoint))
-        monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [entry])
+        catalogue = tmp_path / 'explicit-catalogue.json'
+        catalogue.write_text(json.dumps([{
+            'key': entry.key, 'name': entry.name, 'kind': entry.kind,
+            'path': str(checkpoint)}]))
+        monkeypatch.setenv(zoo.CATALOGUE_ENV_VAR, str(catalogue))
+        monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs:
+                            pytest.fail('Offline local declaration consulted providers'))
         expected = str(checkpoint)
     else:
         monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', '1')
@@ -95,6 +102,7 @@ def test_exact_existing_and_online_routes_are_preserved(offline, monkeypatch, tm
 
 def test_training_missing_explicit_path_retains_its_error(offline, tmp_path):
     missing = str(tmp_path / 'missing.CP_model')
-    with pytest.raises(submodules.ModelZooMissing):
+    with pytest.raises(zoo.ModelZooError) as error:
         submodules._resolve_training_base(missing)
+    assert missing in str(error.value) and 'base_model' in str(error.value)
     assert not offline.exists()

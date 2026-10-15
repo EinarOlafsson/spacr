@@ -1,0 +1,43 @@
+{
+  "status": "PRIVATE source/test/review evidence; normalruntime/API/tool-owner closure still required before publication",
+  "source_base": "d5849e0d7bea55d833b3049c66b675e235354f31",
+  "source_prerequisite_commit": "87ee9ad87ed728ebdfe4df6b2bcbf17eebf7b04b",
+  "current_source_sha256": {
+    "spacr/model_zoo.py": "a05f8fc127e3c41f7f11ce1d2266defacd982d6770d58ce8ffd3bb948beb530b",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "spacr/submodules.py": "c7587d7bd6f3a27d204ddb73020848c10ae78846546da922a99a2658c5ebfd74",
+    "spacr/deep_spacr.py": "97d9bc1e5898ff468901998de8f44533158491424d695ffab45c63f385efee6c",
+    "spacr/plaque_papers.py": "1f2c3f5d8577f851b60c6b214604e2e92966678f156ff2eb12e50d2612f6a808",
+    "spacr/_mask_workers.py": "b39f5743dcffbff5a4f9f4fadb37c5b58553e10560c17fc7e2eaf4d3c6f24ebf",
+    "spacr/object.py": "4fcbea011c1ab5afb9f910c3f293040f9df163d59e0ba785ba6e434c298dab9c"
+  },
+  "cohorts_overlap_not_summed": true,
+  "actual_runs": {
+    "initial_baseline": "6FAIL2PASS7.40s",
+    "offline_version_baseline": "3FAIL5.18s",
+    "core_owning": "145PASS1stale-fixtureFAIL13.73s",
+    "stale_fixture_affected": "1PASS5.75s",
+    "caller_baseline": "7FAIL5.25s",
+    "caller_owning": "7PASS5.48s",
+    "compatibility": "53PASS3fixtureFAIL9.36s",
+    "compatibility_affected": "3PASS5.69s",
+    "actualfield_uri_baseline": "4FAIL3PASS5.92s",
+    "actualfield_uri_final": "7PASS6.22s",
+    "rawuri_positive_final": "2PASS5.47s",
+    "classifier_input_baseline": "7FAIL5PASS6.87s",
+    "classifier_input_final": "12PASS6.11s"
+  },
+  "fixture_changes": "OldFNF/rawfallback expectations now enforce N702 precise ModelZooError/request/candidates; offline injectedbroadcatalogue fixtures use actual explicit localJSON and providertripwire; strict warmstart resolverfake accepts and assertsactualsetting. No ratchet/gate/algorithm weakened. Slow actualtraining fixture notrun.",
+  "orchestration_failure": "AfterURI+workerpatch, object guard found same oldstatement in twofunctions. No owning script had beenwritten; shellprematurelaunch127 archived. Fixed via exactASTfunctionbounds and set-e before newaffected7 run. No testclaim fromfailedlaunch.",
+  "normal_generation_pending": {
+    "runtime": "2sources18Root-reviewedtargets; exact_model_resolution_context owner pending/coordinator",
+    "API": "publictrain_model#43 onechangedblock9Root-reviewedtargets, no otherAPIarrival; privatehelperaddendum proves sameexisting108nested inventory",
+    "guide": "Rootowns separate source/gettext9locale closure",
+    "consumers": "Actual18runtimecallbacks after ordinary artifacts required; not executed yet"
+  },
+  "limits": [
+    "No realmodel/decoder/inference/training/network/GPU/account/nativecluster/fullCI/wholeN702 claim. Nativeprivate filemirrors and intercepted classifierloader/constructor boundaries only.",
+    "Preserve sharedcatalogue, cachelocking/checksum/nooverwrite and originalrequestedsettings; offline purelocaldeclared/memorycache pool executesno arbitraryproviders.",
+    "Root owns realobjectclassifier context and Easy owns three nonCellposehelpers; not duplicated here."
+  ]
+}

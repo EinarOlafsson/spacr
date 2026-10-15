@@ -4093,7 +4093,9 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
     raw = next(row for row in BUNDLED_REMOTE_MODELS
                if row.get("key", row.get("name")) == record["key"]
                and _model_reference_from_record(record["requested_value"], row) == record)
-    resolved = _ensure_catalogue_model_file(_entry_from_mapping(raw), download=download)
+    resolved = _ensure_catalogue_model_file(
+        _entry_from_mapping(raw), download=download, setting=name,
+        requested=record['requested_value'], publisher_version=record['version'])
     if resolved is None:
         _bad_model_metadata(name, f"{record['key']} sha256={record['sha256']}")
     resolved = Path(resolved)
@@ -4113,13 +4115,43 @@ def _planning_model_entries():
     return [_entry_from_mapping(record) for record in BUNDLED_REMOTE_MODELS]
 
 
-def _ensure_model_file(requested, *, kinds=(), download=True):
+def _resolution_model_entries(download):
+    """Select declared metadata without executing providers on an offline node.
+
+    :param download: false retains the existing bundled-only pure planning index.
+    :returns: online catalogue entries, or offline bundled/local/cached declarations
+        in first-key/name order without provider calls or metadata transport.
+    """
+    if not download:
+        return _planning_model_entries()
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() not in (
+            "0", "off", "false", "no"):
+        return catalogue(remote=True)
+    entries = _planning_model_entries()
+    path = os.environ.get(CATALOGUE_ENV_VAR, "")
+    if path and os.path.isfile(path):
+        entries.extend(load_catalogue_file(path))
+    entries.extend(_SHARED_CATALOGUE_CACHE["entries"])
+    selected = []
+    have = set()
+    for entry in entries:
+        identity = (entry.key, entry.name)
+        if identity not in have and entry.name not in RETIRED_MODEL_NAMES:
+            selected.append(entry)
+            have.add(identity)
+    return selected
+
+
+def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, original_request=None):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
     Local paths win. Unknown identifiers return None for the caller's
     existing stock-model or missing-path handling. With download=False,
     return the intended cache path without fetching checkpoint bytes.
     A Qt GUI-thread caller must use the model picker for a missing model.
+    Optional ``setting`` names the actual input field in a successful-download log.
+    ``original_request`` preserves a caller's unmodified prefix/target string in
+    that log; None uses the lookup request. It never changes identity selection.
     """
     text = os.fspath(requested).strip() if requested is not None else ""
     if not text:
@@ -4134,7 +4166,7 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
         return None
     path_like = "/" in text or "\\" in text or text.startswith("~")
     identifier = Path(text.replace("\\", "/")).name if path_like else text
-    entries = catalogue(remote=True) if download else _planning_model_entries()
+    entries = _resolution_model_entries(download)
     matches = [item for item in entries
                if item.key == identifier or item.name == identifier
                or (path_like and Path(item.name).name == identifier)]
@@ -4153,11 +4185,49 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
         raise ModelZooError(
             f"{text!r} is a {entry.kind} model; this operation requires "
             f"one of {', '.join(kinds)}")
-    return _ensure_catalogue_model_file(entry, download=download)
+    return _ensure_catalogue_model_file(
+        entry, download=download, setting=setting,
+        requested=text if original_request is None else original_request,
+        publisher_version=next((row.get("version") for row in BUNDLED_REMOTE_MODELS
+                                if row.get("key", row.get("name")) == entry.key
+                                and row.get("name") == entry.name
+                                and row.get("kind", "cellpose") == entry.kind
+                                and row.get("sha256") == entry.sha256
+                                and _entry_from_mapping(row).uri == entry.uri), Ellipsis))
 
 
-def _ensure_catalogue_model_file(entry, *, download=True):
-    """Acquire one already selected identity with shared cache and lock policy."""
+def _model_resolution_context(requested, *, setting, kinds=()):
+    """Describe an unresolved input using only trusted declared candidate identities.
+
+    :param requested: original missing request, retained verbatim in the diagnostic.
+    :param setting: actual setting or direct API parameter name supplied by its caller.
+    :param kinds: accepted model kinds; other declarations are excluded.
+    :returns: localized setting/request context and exact declared keys, versions and hashes.
+    """
+    from .qt.i18n import tr
+
+    choices = [
+        f"{row.get('key', row.get('name'))}@{row.get('version')!r} "
+        f"[sha256={row.get('sha256')}]"
+        for row in BUNDLED_REMOTE_MODELS
+        if not kinds or row.get("kind", "cellpose") in kinds]
+    return tr(
+        "Model setting {setting}: no existing checkpoint or exact model-zoo identity matches {requested}. Available compatible zoo identities: {candidates}.",
+        setting=setting, requested=repr(requested), candidates="\n".join(choices) or "[]")
+
+
+def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requested=None,
+                                 publisher_version=Ellipsis):
+    """Acquire one identity under the cache lock and report successful contextual downloads.
+
+    :param entry: exact selected catalogue entry.
+    :param download: permit acquisition; false retains pure planning behavior.
+    :param setting: actual input field, or None when the caller has no field context.
+    :param requested: original path/key, preserved independently of the effective path.
+    :param publisher_version: raw recorded version, including None when unspecified;
+        Ellipsis uses the selected entry version without inferring one from storage suffixes.
+    :returns: verified existing or acquired path, or None for a non-acquirable entry.
+    """
     if entry.path and Path(entry.path).is_file():
         return Path(entry.path)
     if not entry.uri:
@@ -4207,7 +4277,17 @@ def _ensure_catalogue_model_file(entry, *, download=True):
                 if version.is_file() and sha256_file(version) == entry.sha256.lower():
                     return version
         LOG.info("Downloading requested model %s into %s", entry.key, destination)
-        return fetch(entry, destination)
+        acquired = fetch(entry, destination)
+        if setting is not None:
+            from .qt.i18n import tr
+
+            version = (f"ModelEntry.version={entry.version!r}"
+                       if publisher_version is Ellipsis else repr(publisher_version))
+            LOG.info(tr(
+                "{setting}: {requested} was not found here; downloaded zoo model {key} {version} (sha256 {sha256}) to {path}.",
+                setting=setting, requested=requested, key=entry.key,
+                version=version, sha256=entry.sha256, path=str(acquired)))
+        return acquired
     finally:
         lock.unlock()
 

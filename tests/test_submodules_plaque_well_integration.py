@@ -269,7 +269,9 @@ def test_an_unknown_plaque_model_key_lists_the_known_keys(monkeypatch):
     entry = model_zoo.ModelEntry(key="known-plaque", name="known.CP_model")
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
 
-    with pytest.raises(ValueError, match="known-plaque"):
+    monkeypatch.setattr(model_zoo, "BUNDLED_REMOTE_MODELS", [
+        {"key": entry.key, "name": entry.name, "kind": "cellpose", "sha256": "1" * 64}])
+    with pytest.raises(model_zoo.ModelZooError, match="known-plaque"):
         sm._resolve_plaque_model({"plaque_model": "unknown-plaque"})
 
 

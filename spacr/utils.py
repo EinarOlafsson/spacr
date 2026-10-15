@@ -6572,7 +6572,7 @@ def _cellpose_stock_preflight(pretrained):
     return pretrained
 
 
-def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None):
+def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None, *, setting=None):
     """Return the ``pretrained_model`` string Cellpose 4 should actually load.
 
     Cellpose 4 ships exactly one model, ``cpsam``. ``model_type=`` and
@@ -6596,9 +6596,8 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
         when the caller genuinely has no object type to name.
     :param restore_type: unsupported under Cellpose 4; reported and ignored.
     :returns: the string to pass as ``pretrained_model``.
-    :raises FileNotFoundError: if ``model_name`` looks like a path but no file
-        is there. Falling back to cpsam would silently segment with the wrong
-        weights, which is worse than stopping.
+    :param setting: actual input-field name for diagnostics/logging; when absent,
+        use the named object model field or this direct API parameter ``model_name``.
     :raises ModelZooError: if an explicit name matches no installed stock
         name, existing checkpoint or exact catalogue entry. Blank settings,
         known legacy names and the existing ``sam`` shorthand retain their
@@ -6615,6 +6614,8 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
             f"(the denoise/deblur/upsample checkpoints are pre-SAM). Ignoring it.")
 
     name = str(model_name).strip() if model_name else ''
+    field = setting if setting is not None else (
+        f"{object_type}_model_name" if object_type else "model_name")
 
     if name and name in _installed_cellpose_models():
         if name != CPSAM_MODEL:
@@ -6630,27 +6631,22 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
                 f"Loading fine-tuned Cellpose checkpoint{clause}: {name}")
             return name
         from .model_zoo import _ensure_model_file
-        downloaded = _ensure_model_file(name, kinds=("cellpose",))
+        downloaded = _ensure_model_file(name, kinds=("cellpose",), setting=field)
         if downloaded is not None:
             _report_cellpose_once(
                 ('checkpoint', name, object_type),
                 f"Loading model-zoo Cellpose checkpoint{clause}: {downloaded}")
             return str(downloaded)
-        if os.sep in name or name.endswith(('.pth', '.pt')):
-            raise FileNotFoundError(
-                f"Cellpose model {name!r}{clause} looks like a "
-                f"checkpoint path but no file is there. Cellpose would quietly "
-                f"fall back to the stock cpsam weights, so this stops instead. "
-                f"Check the path, or use 'cpsam' for the stock model.")
         if name == 'sam':
             return _cellpose_stock_preflight(CPSAM_MODEL)
 
-        from .model_zoo import ModelZooError
+        from .model_zoo import ModelZooError, _model_resolution_context
         from .qt.i18n import tr
 
         raise ModelZooError(tr(
             "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
-            name=repr(name)))
+            name=repr(name)) + "\n" + _model_resolution_context(
+                name, setting=field, kinds=("cellpose",)))
     elif name in LEGACY_CELLPOSE_MODELS:
         _report_cellpose_once(
             ('legacy', name, object_type),
@@ -6674,8 +6670,6 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
     :param restore_type: unsupported under Cellpose 4; reported and ignored.
     :param object_settings: unused, kept for call-site compatibility.
     :returns: a ``CellposeModel``.
-    :raises FileNotFoundError: if ``model_name`` looks like a path but no file
-        is there.
     :raises ModelZooError: if an explicit name cannot be resolved exactly,
         before any model is constructed.
     :raises ModelUnreadable: if automatic downloads are disabled and a stock

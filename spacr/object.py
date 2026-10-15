@@ -660,8 +660,11 @@ def _robustness_segmenter(settings, object_type):
         raise ValueError(f"the robustness report runs Cellpose-SAM models only, "
                          f"not {model_name!r}")
     model_name = _pinned_object_model(settings, object_type, model_name, 'cellpose')
+    model_key = ('pathogen_model' if object_type == 'pathogen'
+                 and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
     model = cp_models.CellposeModel(
-        pretrained_model=_resolve_cellpose_pretrained(model_name, object_type=object_type),
+        pretrained_model=_resolve_cellpose_pretrained(
+            model_name, object_type=object_type, setting=model_key),
         **accelerator.cellpose_kwargs())
     return partial(_robustness_segment, model, object_settings, object_type)
 
@@ -1492,7 +1495,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         segmentation_backend = _prefixed_backend(model_name)
     model_name = _pinned_object_model(settings, object_type, model_name, segmentation_backend)
     if segmentation_backend == 'cellpose':
-        pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
+        model_key = ('pathogen_model' if object_type == 'pathogen'
+                     and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
+        pretrained = _resolve_cellpose_pretrained(
+            model_name, object_type=object_type, setting=model_key)
         model = cp_models.CellposeModel(
             pretrained_model=pretrained,
             **accelerator.cellpose_kwargs(),
