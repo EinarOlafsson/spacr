@@ -876,3 +876,18 @@ under data/703_debian_update_transaction_2026-10-15/,
 data/n703_optional_cleanup_preview_2026-10-15/ and Home-B API/Help receipts.
 Whole N703 remains OPEN for native cross-platform installer/restart/recovery
 acceptance and the final source-frozen CI/release gates.
+
+
+2026-10-15 — Hosted checkout paths no longer contaminate offline runtime fixtures.
+Run38699600639 at8fc2 inherited PYTHONPATH=$GITHUB_WORKSPACE. Matching
+checkout/old-wheel metadata let pip skip the disposable macOS old-wheel install;
+the ordinary pip console probe instead imported checkout spacr.qt. Two original
+nodes reproduce both failures under that same path/metadata condition. Only the
+two installation fixtures now remove inherited PYTHONPATH, verify physical old
+qt.py bytes and require the actual isolated old distribution/code identity.
+All original test assertions and production guards remain unchanged, including
+external PYTHONPYCACHEPREFIX behavior. Final26 affected original cases PASS
+65.17s/exit0 with the original hosted-style wrapper: rollback/fault branches,
+actual current-version floor and both internal/external bytecode-cache cases.
+No native macOS/Windows, full CI or whole N703 acceptance is claimed. Evidence:
+features/data/n703_hosted_path_fixture_isolation_2026-10-15/.
