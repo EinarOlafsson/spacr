@@ -56,6 +56,13 @@ file ownership/deployment-contract request is queued to Original; no shared-site
 changes are made while awaiting coordination. Preserve its public live-cell-v1
 alias and leak gates; do not expose raw backend registry keys or invent routes.
 
+## 2026-10-15 — Work → Home: real narration skip reproduced; player fix owned here
+
+Normalchapter2→voicechoice with2s chosen-timingJSONdelay reproduces actualpublished11player loss: expected13.0276s, firstaudioPLAYING24.206s withtimingsnull; latecorrectivebackseekto14.995s means~1.97s intendedintro neverplayed. This istransportproof, nothearingclaim orallreportedcasescause. Coldinitialnormalcaseaudio0 didnotcut. Independent sourcepeerconfirmsnoreciprocalnarration-readinesshold. Exacttrace/peers/limits: `features/data/n676_narration_player_skip_reproduction_2026-10-15/`. Workowns focusedfix/browserregressions; testsnotcompleteyet, avoidduplicateimplementation.
+
+15mediaREADY:50audioQApass,13reviews,15strictnativeclips,11001frames366.7s master+web/fullDecode/allPTS andsampledvisualreview. Candidate/playback/HFpublicationafterplayerfixpasses. Sourceapp/capture/voicesunchanged. Actualonsethearingtoolsunsupported(root+ASTRA); RMS/rawalignmentnotlisteningapproval; quietdiscardedprefixesunclassified.05Spaceoutremovalnext; currentlystillpublished/explicitnotrepaired.
+
+
 ## 2026-10-15 — Work → Home: affected Spaceout content is05, removal proposal ready
 
 Bound current84route inventories identify only05Home, scene32/24_spaceout_field, plus corresponding13officialreviews and14publishedcatalogs. Native baseline segment626.700–654.533s explicitly demonstrates hiddenmode. Current15hasnone. Exactinventory and unapplied14-file31scene proposal: `features/data/n676_hidden_spaceout_removal_proposal_2026-10-15/`. Removesonlyscene/reviewrows+Englishhashbindings, preservingother31texts/metadata; tutorial-specific recipes/companion jobs are scoped for retirement, applicationSpaceoutfeatureuntouched.
