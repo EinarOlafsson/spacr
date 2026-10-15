@@ -4087,7 +4087,9 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
     if requested is not None and requested.is_file():
         actual = sha256_file(requested)
         if actual != record["sha256"]:
-            _bad_model_metadata(str(requested), f"sha256={record['sha256']}; actual={actual}")
+            _bad_model_metadata(
+                f"{name}={record['requested_value']!r}; {record['key']} {record['version']!r}; {requested}",
+                f"sha256={record['sha256']}; actual={actual}")
         return requested
     _match_model_reference(record)
     raw = next(row for row in BUNDLED_REMOTE_MODELS
@@ -4104,7 +4106,9 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
         if actual != record["sha256"]:
             if not download:
                 return versioned_path(resolved.parent, resolved.name)
-            _bad_model_metadata(str(resolved), f"sha256={record['sha256']}; actual={actual}")
+            _bad_model_metadata(
+                f"{name}={record['requested_value']!r}; {record['key']} {record['version']!r}; {resolved}",
+                f"sha256={record['sha256']}; actual={actual}")
     elif download:
         _bad_model_metadata(str(resolved), f"sha256={record['sha256']}")
     return resolved
@@ -4277,7 +4281,15 @@ def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requeste
                 if version.is_file() and sha256_file(version) == entry.sha256.lower():
                     return version
         LOG.info("Downloading requested model %s into %s", entry.key, destination)
-        acquired = fetch(entry, destination)
+        try:
+            acquired = fetch(entry, destination)
+        except ChecksumMismatch as error:
+            if setting is None:
+                raise
+            version = (f"ModelEntry.version={entry.version!r}"
+                       if publisher_version is Ellipsis else repr(publisher_version))
+            context = f"{setting}={requested!r}; {entry.key} {version} sha256={entry.sha256}"
+            raise ChecksumMismatch(context + "\n" + str(error)) from error
         if setting is not None:
             from .qt.i18n import tr
 

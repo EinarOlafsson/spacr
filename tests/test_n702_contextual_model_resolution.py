@@ -326,3 +326,86 @@ def test_lookup_and_original_backend_request_remain_distinct_in_success_log(decl
     assert len(lines) == 1 and original in lines[0] and 'pathogen_model' in lines[0]
     assert raw['key'] in lines[0] and raw['sha256'] in lines[0]
     assert result.read_bytes() == payload and source.read_bytes() == payload
+
+
+@pytest.mark.parametrize('mode', ['pinned', 'prefixed', 'foreign_uri', 'corrupt_cache'])
+def test_corrupt_acquisition_preserves_checksum_type_and_original_context(
+        declared_model, tmp_path, monkeypatch, caplog, mode):
+    raw, source, payload = declared_model
+    requested = str(tmp_path / 'laptop' / source.name)
+    setting = 'cell_model_name'
+    if mode == 'prefixed':
+        requested = 'cellpose3:' + requested + '#nucleus'
+    if mode == 'foreign_uri':
+        alternate = tmp_path / 'foreign-source.CP_model'
+        alternate.write_bytes(b'foreign corrupt mirror')
+        foreign = dict(raw, uri=alternate.as_uri())
+        monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [zoo._entry_from_mapping(foreign)])
+        corrupted_source = alternate
+    else:
+        source.write_bytes(b'corrupt controlled mirror')
+        corrupted_source = source
+    bad_bytes = corrupted_source.read_bytes()
+    cached = tmp_path / 'node' / 'models' / source.name
+    if mode == 'corrupt_cache':
+        cached.parent.mkdir(parents=True)
+        cached.write_bytes(b'existing corrupt cache retained')
+    before_cache = cached.read_bytes() if cached.exists() else None
+    with caplog.at_level(logging.INFO, logger='spacr.model_zoo'):
+        with pytest.raises(zoo.ChecksumMismatch) as error:
+            if mode == 'pinned':
+                settings = {setting: requested, 'model_metadata': {
+                    'schema_version': 1, 'settings': {setting:
+                        zoo._model_reference_from_record(requested, raw)}}}
+                before = deepcopy(settings)
+                zoo._resolve_pinned_model_file(settings, setting, kinds=('cellpose',))
+            else:
+                zoo._ensure_model_file('/laptop/' + source.name,
+                                       kinds=('cellpose',), setting=setting,
+                                       original_request=requested)
+    message = str(error.value)
+    assert all(value in message for value in (setting, repr(requested), raw['key'],
+                                              raw['sha256'], 'expected sha256',
+                                              hashlib.sha256(bad_bytes).hexdigest()))
+    assert 'no existing checkpoint or exact model-zoo identity matches' not in message
+    assert isinstance(error.value.__cause__, zoo.ChecksumMismatch)
+    assert str(error.value.__cause__) in message
+    assert not any('downloaded zoo model' in record.getMessage() for record in caplog.records)
+    assert corrupted_source.read_bytes() == bad_bytes
+    assert (cached.read_bytes() if cached.exists() else None) == before_cache
+    assert not list(cached.parent.glob('*_v*'))
+    if mode == 'pinned':
+        assert settings == before
+
+
+@pytest.mark.parametrize('existing', [True, False])
+def test_corrupt_pinned_local_or_returned_path_names_actual_setting_and_identity(
+        declared_model, tmp_path, monkeypatch, caplog, existing):
+    raw, source, payload = declared_model
+    requested = str(tmp_path / 'laptop' / 'exact-pinned.CP_model')
+    bad_path = Path(requested) if existing else tmp_path / 'returned.CP_model'
+    bad_path.parent.mkdir(parents=True, exist_ok=True)
+    corrupt = b'controlled corrupt pinned bytes'
+    bad_path.write_bytes(corrupt)
+    settings = {'cell_model_name': requested, 'model_metadata': {
+        'schema_version': 1, 'settings': {'cell_model_name':
+            zoo._model_reference_from_record(requested, raw)}}}
+    before = deepcopy(settings)
+    acquisitions = []
+    def acquired(entry, **context):
+        acquisitions.append((entry.key, context))
+        return bad_path
+    monkeypatch.setattr(zoo, '_ensure_catalogue_model_file', acquired)
+    with caplog.at_level(logging.INFO, logger='spacr.model_zoo'):
+        with pytest.raises(zoo.ModelZooError) as error:
+            zoo._resolve_pinned_model_file(settings, 'cell_model_name', kinds=('cellpose',))
+    message = str(error.value)
+    assert all(value in message for value in ('cell_model_name', repr(requested),
+                                              raw['key'], raw['sha256'], str(bad_path),
+                                              'actual=' + hashlib.sha256(corrupt).hexdigest()))
+    assert 'no existing checkpoint or exact model-zoo identity matches' not in message
+    assert not isinstance(error.value, zoo.ChecksumMismatch)
+    assert len(acquisitions) == (0 if existing else 1)
+    assert bad_path.read_bytes() == corrupt and source.read_bytes() == payload
+    assert settings == before
+    assert not any('downloaded zoo model' in record.getMessage() for record in caplog.records)

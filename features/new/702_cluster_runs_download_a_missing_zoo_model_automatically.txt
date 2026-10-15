@@ -734,3 +734,16 @@ Normal owning extractor/catalog/API/arrival and localized callback closure is
 still pending; source not published alone. Guide closure is separately Root-owned.
 No real model, inference/training, network/GPU, actual cluster or fullCI claim.
 Evidence:data/702_resolution_context_2026-10-15/receipt.json.
+
+2026-10-15 — PRIVATE known-checksum failure context completed.
+Actual fetch ChecksumMismatch now preserves its type, cause and expected/got
+bytes while naming actual setting, unmodified request and selected identity.
+Both pinned local/returned SHA failures retain existing metadata refusal types
+and expected/actual hashes with actual setting/request/key/version/path context.
+Known identities are not falsely described as unmatched. Six actual baseline
+failures across two scoped runs become nine final focused passes5.14s, including
+three unchanged acquisition/success-log controls. Corrupt files and settings
+remain untouched; no false success log. All tr calls, signatures, docstrings and
+nested definitions are unchanged. This isolated source is private pending Root
+normal current-source reconciliation after the active runtime/API producer.
+Evidence:data/702_checksum_failure_context_2026-10-15/receipt.json.

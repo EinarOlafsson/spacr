@@ -1,0 +1,10 @@
+{
+  "base": "66e217dd3c411e3fb15d781538215bc2c6cde7a4",
+  "source_sha256": "db5f8916766b6416c4c97e4596354b7c3b0c2903df486d1d94783054f85a3583",
+  "test_sha256": "fdef83cb152ce5c60265bc982417672a9a97f65e02f9505884801764ba682c6c",
+  "patch_sha256": "f31849cd818ffbc2a025a981e48dba6f8bbb8d5dd9af52e9697686ec7d181c97",
+  "outside_two_helpers_AST_unchanged": true,
+  "all_tr_calls_AST_unchanged": true,
+  "all_signatures_docstrings_and_nested_definition_names_unchanged": true,
+  "scope": "ChecksumMismatch catch only around actual fetch; preserve exact type/fromcause/expectedgot and no successlog. No-context direct acquisition rethrows original. Both pinned SHA failures retain _bad_model_metadata type/expectedactual with structured actualsetting/request/key/rawversion/path field. No unknown-identity sentence reused."
+}
