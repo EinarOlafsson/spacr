@@ -1,0 +1,25 @@
+F.....                                                                   [100%]
+=================================== FAILURES ===================================
+______ test_minimum_profile_covers_every_lower_bounded_direct_requirement ______
+
+    def test_minimum_profile_covers_every_lower_bounded_direct_requirement():
+        declared = [
+            requirement
+            for requirement in _declared_requirements()
+            if _applies_to_minimum_job(requirement) and _has_lower_bound(requirement)
+        ]
+        constraints = _minimum_constraints()
+    
+        missing = sorted(
+            requirement.name
+            for requirement in declared
+            if canonicalize_name(requirement.name) not in constraints
+        )
+>       assert not missing, f"minimum profile is missing direct requirements: {missing}"
+E       AssertionError: minimum profile is missing direct requirements: ['markdown-it-py', 'readme-renderer']
+E       assert not ['markdown-it-py', 'readme-renderer']
+
+tests/test_dependency_profiles.py:101: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_dependency_profiles.py::test_minimum_profile_covers_every_lower_bounded_direct_requirement
+1 failed, 5 passed in 0.48s
