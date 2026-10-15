@@ -512,3 +512,18 @@ to its tested premerge source/counts. No unchanged44/native rerun.
     until independent final peer and normal runtime catalogs/actual locale
     callbacks close; no hosted fullCI or universal/native/scientific claim.
     Evidence: data/698_legacy_czi_uploads_2026-10-15/resource-correction/.
+
+
+2026-10-15 — legacy CZI source/runtime closure complete locally
+    Independent final source/technical target peer accepts the corrected53d
+    source. Normal nine-language review/candidate/source checks, catalog writer,
+    full9runtime audit, arrival refresh and fresh source/body checks pass,
+    preserving10854 unrelated targets in every locale and all incoming English
+    source hashes. Exactly one CZI scene-limit caption arrives.
+    All9actual localized limit-refusal callbacks pass after a retained test-only
+    collection/import error was repaired through the existing tests namespace.
+    No unchanged model/source checks or generators were repeated for that repair.
+    Coherent source publication is pending. This closes the scoped legacy input
+    software/localization component only, not wholeN698, stockPython3.9/allcodecs,
+    scientific model performance, hosted fullCI or1.5.1.5 release acceptance.
+    Evidence: data/698_legacy_czi_uploads_2026-10-15/runtime-closure/.

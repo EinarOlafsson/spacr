@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from test_web_mask_legacy_czi_n698 import legacy
+from tests.test_web_mask_legacy_czi_n698 import legacy as legacy
 from tools.web_mask_generator import inputs
 
 
