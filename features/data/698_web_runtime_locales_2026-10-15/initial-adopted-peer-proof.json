@@ -1,0 +1,56 @@
+{
+  "sv": {
+    "records": 178,
+    "exact_adopted_corrections": 7,
+    "final_review_sha256": "15e27810fc33d11f0c82e7bf260368c106be183da167fb44ee7e4f251f95e24c",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "de": {
+    "records": 178,
+    "exact_adopted_corrections": 4,
+    "final_review_sha256": "1aba866e73192d667f9013cbd6d6674d9d2eefc284a62c7a094f64f524f281a1",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "es": {
+    "records": 178,
+    "exact_adopted_corrections": 4,
+    "final_review_sha256": "c90bf4501eea757e6abe1f28205a2432ef07963cd1c7c26c4ed8c3cfaae5e410",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "zh_CN": {
+    "records": 178,
+    "exact_adopted_corrections": 6,
+    "final_review_sha256": "06dd632f9b91647c3e42760ded853a36e54221d0704090df9edd7685f6cd0960",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "fr": {
+    "records": 178,
+    "exact_adopted_corrections": 5,
+    "final_review_sha256": "c7b35a5646ce04bd12688a1cb2e6b8e36c266b1c5fa00b5133343524e38d5e10",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "pt": {
+    "records": 178,
+    "exact_adopted_corrections": 4,
+    "final_review_sha256": "881835ceea9d0c3610338a8a172edc1974844dfaf413a82689a0f3045893fa22",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "ko": {
+    "records": 178,
+    "exact_adopted_corrections": 5,
+    "final_review_sha256": "74c23611de6229f370ac1c97e4dac5f39ff5875ae18ee1f0d47bb8c5de68059a",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "hi": {
+    "records": 178,
+    "exact_adopted_corrections": 3,
+    "final_review_sha256": "db3f785c438c90ceb6d506c2a4b858f1adb277e83a2163c766b124c59a92b165",
+    "exact_immutable_plus_peer_corrections": true
+  },
+  "is": {
+    "records": 178,
+    "exact_adopted_corrections": 3,
+    "final_review_sha256": "24e5f673afb92ac09e8d16dc0d9034b3ff6428cec2a5045bb272c0de792a6544",
+    "exact_immutable_plus_peer_corrections": true
+  }
+}

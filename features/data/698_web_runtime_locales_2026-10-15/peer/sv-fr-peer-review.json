@@ -1,0 +1,99 @@
+{
+  "reviewer": "Original Home root, independent AI technical peer; no human/native signoff",
+  "locales": {
+    "sv": {
+      "snapshot": "/mnt/wd4tb/scratch/n698-root-peer-20261015/sv-1aeb8cdb4d60bb1d4b0aaa2b5a0a4f449bb836df307465749818b14fd8d57f2c.json",
+      "snapshot_sha256": "1aeb8cdb4d60bb1d4b0aaa2b5a0a4f449bb836df307465749818b14fd8d57f2c",
+      "reviewed_records": 178,
+      "decision": "APPROVED exact projected targets after listed terminology corrections and normal gates",
+      "corrections": [
+        {
+          "source": "Run the experimental model download backend with operator-provided local weights.",
+          "source_sha256": "2755af5a2c28ce875770ac00d355d4715a2e89ccec5ea3e8928b9a65b300df17",
+          "old_translation": "Kör den experimentella modellnedladdningsbakänden med lokala vikter som operatören tillhandahåller.",
+          "translation": "Kör den experimentella backendfunktionen för modellnedladdning med lokala vikter som operatören tillhandahåller."
+        },
+        {
+          "source": "The desktop Mask backend returned no score map.",
+          "source_sha256": "60759b07433eafd1fa2d6b512ae43a586c25c614f61fb8e83ccef5bdb427ef23",
+          "old_translation": "Skrivbordsappens Mask-bakände returnerade ingen poängkarta.",
+          "translation": "Mask-backenden i skrivbordsappen returnerade ingen poängkarta."
+        },
+        {
+          "source": "The desktop Mask backend returned no vector field.",
+          "source_sha256": "98f975465ff15dd3522a49b13c818b30b1b3f7757b04a5a0bc1579d0e310767a",
+          "old_translation": "Skrivbordsappens Mask-bakände returnerade inget vektorfält.",
+          "translation": "Mask-backenden i skrivbordsappen returnerade inget vektorfält."
+        },
+        {
+          "source": "The desktop backend returned no score map.",
+          "source_sha256": "c24ee9593b686057318d18ab0eaaf09ebcde4a03cce82f0ef33a1fdbf483f5d6",
+          "old_translation": "Skrivbordsbakänden returnerade ingen poängkarta.",
+          "translation": "Backenden i skrivbordsappen returnerade ingen poängkarta."
+        },
+        {
+          "source": "The desktop backend returned no vector field.",
+          "source_sha256": "dc65618c059ee89fd3a41cfcdd4f258dc5c99745e7bc2c466deea8f3bf185e39",
+          "old_translation": "Skrivbordsbakänden returnerade inget vektorfält.",
+          "translation": "Backenden i skrivbordsappen returnerade inget vektorfält."
+        },
+        {
+          "source": "declare logits or probability for the backend output",
+          "source_sha256": "d807fc5439ff7413a8e9d8e0859a2324b7fa32a239688a4754752faaf59d1b53",
+          "old_translation": "ange logits eller sannolikhet för bakändens utdata",
+          "translation": "ange logits eller sannolikhet för backendens utdata"
+        },
+        {
+          "source": "spaCR web mask result (research use only)\nModel: {id}; version: {version}; spaCR: {spacr}\nSelected image: image.tif; labels: mask.tif; objects: objects.csv.\nThe input/ folder preserves the uploaded bytes.\nMeasurements use pixels, zero-based centroid coordinates and the selected image intensities.\nflows.npy stores actual backend Y/X vector components when available.\ncell_probability.npy stores actual backend scores when available.\nRaw logits are not calibrated probabilities; no calibration is claimed.\nMissing backend outputs are omitted, with reasons in manifest.json.\nExact model weights SHA-256, settings and file hashes are in manifest.json.",
+          "source_sha256": "d4df8baa9dae7fb1bc08ea5ffca8338441a559f408030a970ce801dbadf0e946",
+          "old_translation": "spaCR webbmaskresultat (endast för forskning)\nModell: {id}; version: {version}; spaCR: {spacr}\nVald bild: image.tif; etiketter: mask.tif; objekt: objects.csv.\nMappen input/ bevarar uppladdade byte.\nMätningar använder pixlar, nollbaserade centroidkoordinater och den valda bildens intensiteter.\nflows.npy lagrar bakändens faktiska Y/X-vektorkomponenter när de finns.\ncell_probability.npy lagrar bakändens faktiska poäng när de finns.\nRåa logits är inte kalibrerade sannolikheter; ingen kalibrering hävdas.\nSaknade bakändsutdata utelämnas, med orsaker i manifest.json.\nExakt SHA-256 för modellvikter, inställningar och filhashar finns i manifest.json.",
+          "translation": "spaCR webbmaskresultat (endast för forskning)\nModell: {id}; version: {version}; spaCR: {spacr}\nVald bild: image.tif; etiketter: mask.tif; objekt: objects.csv.\nMappen input/ bevarar uppladdade byte.\nMätningar använder pixlar, nollbaserade centroidkoordinater och den valda bildens intensiteter.\nflows.npy lagrar backendens faktiska Y/X-vektorkomponenter när de finns.\ncell_probability.npy lagrar backendens faktiska poäng när de finns.\nRåa logits är inte kalibrerade sannolikheter; ingen kalibrering hävdas.\nSaknade backendutdata utelämnas, med orsaker i manifest.json.\nExakt SHA-256 för modellvikter, inställningar och filhashar finns i manifest.json."
+        }
+      ],
+      "projected_records": "/mnt/wd4tb/scratch/n698-root-peer-20261015/sv-peer-corrected-records.json",
+      "projected_sha256": "9d9e5891eafba3a21ebb3f0d7f7301824f9ca35eb537f6e773909b07e28fea4a",
+      "rationale": "Use explicit software backend/application terms; preserve masks versus boxes, raw logits versus probabilities, axes, limits, placeholders, upload consent, unavailable outputs and all provenance/file identifiers."
+    },
+    "fr": {
+      "snapshot": "/mnt/wd4tb/scratch/n698-root-peer-20261015/fr-a7aeadf05f309f8362cf08e9a0a9684dfcf00c0ec8f7b7eb2ee1638bed2e7857.json",
+      "snapshot_sha256": "a7aeadf05f309f8362cf08e9a0a9684dfcf00c0ec8f7b7eb2ee1638bed2e7857",
+      "reviewed_records": 178,
+      "decision": "APPROVED exact projected targets after listed terminology corrections and normal gates",
+      "corrections": [
+        {
+          "source": "Additional desktop normalization and object filters as JSON.",
+          "source_sha256": "3ad7adaa1c56ad7abe69df995d3cefba86c00fec387d0944355b9df04d305070",
+          "old_translation": "Normalisation de bureau et filtres d’objets supplémentaires en JSON.",
+          "translation": "Normalisation et filtres d’objets supplémentaires de l’application de bureau, en JSON."
+        },
+        {
+          "source": "Additional desktop object-filter settings (JSON)",
+          "source_sha256": "e82331eccb17372a6ec6e131bb13bdaf697e9fc218f39b044141d4133bcb60a7",
+          "old_translation": "Réglages supplémentaires des filtres d’objets de bureau (JSON)",
+          "translation": "Réglages supplémentaires des filtres d’objets de l’application de bureau (JSON)"
+        },
+        {
+          "source": "Desktop settings must be valid JSON.",
+          "source_sha256": "ab89682eefd63704a63a72873ac9a1869af1f743a9830630c930e59293ad6e65",
+          "old_translation": "Les réglages de bureau doivent être du JSON valide.",
+          "translation": "Les réglages de l’application de bureau doivent être du JSON valide."
+        },
+        {
+          "source": "Unsupported desktop normalization or filter settings.",
+          "source_sha256": "373a829b99bb579bc531157e4bfaa7f3f8f34b2d4926ce1915bd1fdd4dd444f4",
+          "old_translation": "Réglages de normalisation ou de filtrage de bureau non pris en charge.",
+          "translation": "Réglages de normalisation ou de filtrage de l’application de bureau non pris en charge."
+        },
+        {
+          "source": "Use the same effective diameter as your desktop run.",
+          "source_sha256": "05cd5c295dffea05c242a67893920045c1b464311f8289df790b9cd8ae01ee64",
+          "old_translation": "Utilisez le même diamètre effectif que pour votre exécution de bureau.",
+          "translation": "Utilisez le même diamètre effectif que pour votre exécution dans l’application de bureau."
+        }
+      ],
+      "projected_records": "/mnt/wd4tb/scratch/n698-root-peer-20261015/fr-peer-corrected-records.json",
+      "projected_sha256": "40c9f7a86b9fb950b24adb6ef200a22bfe2a6bc41f815bd6fd006b3adc9e8555",
+      "rationale": "Use explicit software backend/application terms; preserve masks versus boxes, raw logits versus probabilities, axes, limits, placeholders, upload consent, unavailable outputs and all provenance/file identifiers."
+    }
+  }
+}
