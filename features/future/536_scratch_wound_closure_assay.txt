@@ -434,3 +434,15 @@ source/tool bytes unchanged. No orphan API generation. Evidence:
 data/536_calibration_boundary_2026-10-15/. This closes the software calibration
 boundary and its runtime localization only; biological calibration, whole F536
 and final global CI/release remain separate.
+
+2026-10-15 Original Home — preserve current HintBar runtime publication
+While this source waited for the CI publication window, Home-B published real
+HintBar runtime additions and reviewed-source retirements. The old wholecatalog
+byte proof correctly refused before staging/push. A single necessary normal
+merged nine-locale writer, full runtime audit and arrivals refresh now pass
+against pinned public7ca1994091554a6d9f16a2c628be868640307b86, retaining every
+incoming current target and the exact reviewed wound diagnostic. Prior30owning
+and18actual localized checks are unchanged and not repeated. The original
+closure receipt remains historical; merged-runtime-receipt.json and the final
+publication proof bind the current generated outputs. Scope remains software
+calibration metadata/localization, not biological or whole-feature acceptance.
