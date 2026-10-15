@@ -1,0 +1,17 @@
+2026-10-15 — Original-contract completion reconciliation (Original Home).
+The original Keep/Discard contract and final nine-language debt are complete.
+Current CSV/location/read/verdict/write helpers and curationsource semantics
+match the accepted hosted8fc AST; the original9engine+9Qt cases remain
+unchanged with recorded passes. The four required columns andimagefolder
+csv/ location, exact savedmask path,currentobjectcount,true/false,one-row
+replacement,samefoldertemporary+replace,existing-verdict buttons,no-deletion
+andnext/last/walkback followups remain intact. No crossprocessatomicity or
+newnativefilesystem guarantee is claimed.
+Two captions,two tooltips and8complete status templates are sourcebound in
+all9compiled catalogs. Normalfull9runtime audit0,currentowning/catalog/review
+pins,arrival9833 and actual16English/French+9alllocale consumers close the
+remaining locale work. The first9test-review-path failures are retained;
+only those9affected cases reran after correcting thefilename,withno product
+or generatedcatalog alteration. No tutorial/model/nativegate is added.
+Evidence:data/440_448_original_contract_closeout_2026-10-15/ and the prior
+448_440_421_runtime_closure_2026-10-15/ producer/consumer packet.
