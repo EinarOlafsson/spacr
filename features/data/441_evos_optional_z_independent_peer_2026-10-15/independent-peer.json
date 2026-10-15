@@ -1,0 +1,39 @@
+{
+  "verdict": "ACCEPT exact bounded EVOS optional-Z source/tests/evidence",
+  "review_kind": "independent AI technical source/evidence review; no author tests rerun or native-device signoff",
+  "source_commit": "bb06f4c1201373e431f8ea810bba99defa06e9ae",
+  "author_base": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "production_patch_sha256": "e5bb5c1320cc60b62551968aab32a9e4566b54b1ece83b2320dcd0b4b2570d06",
+  "source_test_pins": {
+    "spacr/regex_infer.py": "4ab946f0272fd1d8579e77f7324c9cc8e03c2e2f4be21a7a8d27af5032bb00b2",
+    "spacr/utils.py": "0df8f3d85b62758ca8de7d5a6724c61c98df3f7673435b973d53057f13739826",
+    "spacr/io.py": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+    "spacr/convert.py": "d70cc4f94f5bf1132cf72d816d3428c5afd12367f6393c42e452f71d7e46d22c",
+    "tests/test_evos_documented_optional_z_441.py": "0b5fa5542b4aafbb26e777fbc7a59cffffc882cb2627a71862553da16d1a8db1",
+    "tests/test_a_metadata_type_for_every_common_microscope.py": "692b163fa563435d4e423312207efedb9778e00e4d8212985498594a4ae257ca"
+  },
+  "author_receipt_sha256": "7744f01d83d0d8bb1dba46cc37182eca47d6e9e146f66e21945265a76f49e733",
+  "checks": [
+    "Only exact EVOS recordfields and ArrayScanpattern change; allother17table records and originalfour conventionrecords exact. EntireexternalregexAST restored after approvedtwo-record normalization.",
+    "Only utilsNonecondition changes; normalizedcondition restores entireoldutilsAST. Allfunction/class/docstring/signature andtrcallASTprojections exactbothmodules; zero API/captionarrivals.",
+    "Optional_z segment retainsNone whenabsent; knownZ unchanged. Required well/field/channel/time/grid meanings unchanged; no syntheticplane/default.",
+    "ArrayScan excludes same newlyacceptedfamily; overlapallowance unchanged. Testexception names only exactEVOSnoZliteral; allothermandatorygroups strict.",
+    "Importmetadata keepszNone. ActualauthorrawMaskingest case usesrealTIFFplanes/preservesstackpixels/originalbytes. Outputindex fromcontainer is distinctfrom acquisitionfilenameZ.",
+    "Allrawlog/script/XML/network/sourceproof hashes independently verified from immutableGit. Actualbaseline7FAIL8PASS1warning21.68 then29PASS7.54 exit0/noskips; planned30 notrelabeled.",
+    "Provenance properly distinguishes two vendor-doc filenames/save-dialogliteral from acquiredimages/nativeEVOSruns; M5000stilluntested."
+  ],
+  "scope_limit": "Arbitrarymixedunknown/known-Z same-region legacyaggregation not newlycertified; authorlimitation preserves this. No model/GPU/network/realacquisition/globalwriter/fullCI/wholeN441 claim.",
+  "not_performed": [
+    "reviewerpytest",
+    "applicationimports",
+    "collector/writer",
+    "downloads",
+    "source/test mutation"
+  ],
+  "portable_proof_files": {
+    "final-ast-exposure-proof.json": "14382630a473fcdbf0cc7f4ddd3c5f9f6cddc670bb5c94d914197dc3b0851662",
+    "initial-api-caption-exposure.json": "5521b9ea1edc0a9d56c6ebb1d34b6200081fe8ca887e2faae4f853b3a773b177",
+    "downstream-plan-review.json": "08761f2c2244be457c0d595967921810e9641d507f4c49d2d59a540d63817387"
+  },
+  "reviewer_note": "Initial receipt-packaging exactsummary guard omitted authorbaseline1warning; corrected onlylogmatching, no source/test rerun."
+}
