@@ -1,0 +1,13 @@
+{
+  "RuntimeMaxUSec": "5min 30s",
+  "MainPID": "2706188",
+  "ExecMainStartTimestamp": "Thu 2026-10-15 12:48:53 EDT",
+  "ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/spacr-n698-one-nuclei-smoke-20261015.service",
+  "MemoryCurrent": "52400128",
+  "CPUQuotaPerSecUSec": "1s",
+  "MemoryMax": "2147483648",
+  "MemorySwapMax": "0",
+  "ActiveState": "active",
+  "SubState": "running",
+  "time_utc": "2026-10-15T16:50:35.086705+00:00"
+}

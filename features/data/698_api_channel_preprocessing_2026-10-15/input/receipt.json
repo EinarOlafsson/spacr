@@ -1,0 +1,58 @@
+{
+  "scope": "Exactly one root operator-approved public DATASET input acquisition/header only; no image transformation, upload, inference, model or GPU action",
+  "approval": "Parent/root explicitly approved this exact immutable record after README CC-BY4.0+cell-mask input and both fields/by-well test rows(62objects) review; no allhistoricalmodel unseen claim",
+  "record": {
+    "family": "nuclei_from_cellmask",
+    "repo_id": "einarolafsson/cross-channel-nuclei-from-cellmask",
+    "revision": "67c45ebd25000a36dc42120379e06285bdcb4b1d",
+    "filename": "images/CSA_screen__screen_20250124_133156__plate1_A14_11_1.tif",
+    "sha256": "e84718d522edef0d3430a15834c6b5cfbcc5ac062e56cb5d29301722a1e98ffb",
+    "bytes": 4132206,
+    "credit": "Einar Olafsson / spaCR cross-channel nuclei-from-cellmask dataset, CC BY 4.0",
+    "split": "test",
+    "source_url": "https://huggingface.co/datasets/einarolafsson/cross-channel-nuclei-from-cellmask/blob/67c45ebd25000a36dc42120379e06285bdcb4b1d/images/CSA_screen__screen_20250124_133156__plate1_A14_11_1.tif"
+  },
+  "started_utc": "2026-10-15T16:40:43.843029+00:00",
+  "redirect_chain": [
+    {
+      "host": "huggingface.co",
+      "status": 302
+    },
+    {
+      "host": "us.aws.cdn.hf.co",
+      "status": 200
+    }
+  ],
+  "network_credentials": "NONE; requests Session trust_envFalse/no token",
+  "status": "PASS",
+  "verified_bytes": 4132206,
+  "verified_sha256": "e84718d522edef0d3430a15834c6b5cfbcc5ac062e56cb5d29301722a1e98ffb",
+  "file": "CSA_screen__screen_20250124_133156__plate1_A14_11_1.tif",
+  "description": {
+    "format": "TIFF",
+    "series": [
+      {
+        "shape": [
+          1998,
+          1998
+        ],
+        "axes": "YX",
+        "dtype": "uint16"
+      }
+    ]
+  },
+  "image_unchanged_after_header_read": true,
+  "input_reader_source_sha256": "53d9b366baf372e31b1d9de550419e0207299a306ebb822e2c0d14ad284ddcab",
+  "source_metadata_sha256": {
+    "fields.csv": "73becb9de0dc2ffed1c549599101aafd469588c0e6d2c846375c0bdc7eb993db",
+    "split_by_well.csv": "be83764798bc660484dfa483a4a5978d2ebb051f761cd8c5d16653ce6dce63ef",
+    "README.md": "a742d521d943faff51635b5264030a4a61c2250ee5712d202c903f78ad0abe45"
+  },
+  "semantics": "Dataset card declares cell-mask input for nuclei prediction. Channel index must follow actual header;20x remains an explicit software default, not a measured acquisition fact.",
+  "limits": [
+    "No selected-plane pixel read/transformation/inference yet.",
+    "Test split metadata agrees bywell/fields; not proof of unseen status for everyhistoricalmodel.",
+    "No preview/service/upload/GPU/model/website mutation or calls."
+  ],
+  "finished_utc": "2026-10-15T16:40:45.526512+00:00"
+}

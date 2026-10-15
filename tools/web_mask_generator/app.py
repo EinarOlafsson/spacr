@@ -137,7 +137,7 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                     series = gr.Number(0, precision=None, minimum=0, label=tr("Image series / position (zero-based)"))
                     time = gr.Number(0, precision=None, minimum=0, label=tr("Time frame (zero-based)"))
                     depth = gr.Number(0, precision=None, minimum=0, label=tr("Z plane (zero-based)"))
-                channels = gr.Dropdown([], multiselect=True, max_choices=channel_limit, value=[], label=tr("Input channels"))
+                channels = gr.Dropdown([], multiselect=True, allow_custom_value=True, max_choices=channel_limit, value=[], label=tr("Input channels"))
                 with gr.Row():
                     page = gr.Number(0, precision=None, minimum=0, label=tr("PDF page (zero-based)"))
                     dpi = gr.Number(150, precision=None, minimum=1, maximum=600, label=tr("PDF rendering DPI"))
@@ -170,7 +170,7 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
 
                 def choices(path, selected_series):
                     if not path:
-                        return gr.Dropdown(choices=[], value=[], multiselect=True, max_choices=channel_limit), ""
+                        return gr.Dropdown(choices=[], value=[], multiselect=True, allow_custom_value=True, max_choices=channel_limit), ""
                     description = describe_upload(path)
                     if description["format"] == "PDF":
                         count = 3
@@ -184,7 +184,7 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                         count = sizes.get("C", 1)
                         text = tr("{width} × {height} pixels; {channels} channels; {series} image series.", width=sizes["X"], height=sizes["Y"], channels=count, series=len(description["series"]))
                     return gr.Dropdown(choices=[(tr("Channel {number}", number=i + 1), i) for i in range(count)],
-                                       value=[0] if count == 1 else [], multiselect=True, max_choices=channel_limit), text
+                                       value=[0] if count == 1 else [], multiselect=True, allow_custom_value=True, max_choices=channel_limit), text
                 upload.change(choices, inputs=[upload, series], outputs=[channels, dimensions], api_visibility="private", queue=False)
                 series.change(choices, inputs=[upload, series], outputs=[channels, dimensions], api_visibility="private", queue=False)
 
@@ -217,14 +217,19 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                     chosen_channels = [_selection_index(value, tr("Image channel")) for value in chosen_channels]
                     header = describe_upload(path)
                     indices = {}
+                    channel_count = 3
                     if header["format"] != "PDF":
                         if selected_series < 0 or selected_series >= len(header["series"]):
                             raise gr.Error(tr("Image series is out of range."))
                         info = header["series"][selected_series]
+                        sizes = dict(zip(info["axes"].replace("S", "C"), info["shape"]))
+                        channel_count = sizes.get("C", 1)
                         if "T" in info["axes"]:
                             indices["T"] = selected_t
                         if "Z" in info["axes"]:
                             indices["Z"] = selected_z
+                    if len(set(chosen_channels)) != len(chosen_channels) or max(chosen_channels) >= channel_count:
+                        raise gr.Error(tr("Image channels must be distinct and within the declared range."))
                     if len(chosen_channels) > channel_limit or (is_detector and len(chosen_channels) not in (1, 3)):
                         raise gr.Error(tr("Choose one channel for segmentation, or one grey/three RGB channels for detection."))
                     if is_detector:
