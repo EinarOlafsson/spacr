@@ -1,0 +1,53 @@
+{
+  "source_commit": "03647f0827274824ab26c361259dc022a858d342",
+  "normal_inventory": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/scoped-api-inventory.json",
+  "languages": {
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/sv.json",
+      "sha256": "471ba68b95d00b4f01d99459bdbe1b61b1caa73165b94f89eca9c9fd987de01a",
+      "records": 3
+    },
+    "de": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/de.json",
+      "sha256": "c2ccb77236720ddbe9072727f49f44616a9a545bced61f87f17532e2ccfc1b71",
+      "records": 3
+    },
+    "es": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/es.json",
+      "sha256": "38ab8c6639f20a0731480705b17134c344314a4235cace9f63b7c46332a3ec61",
+      "records": 3
+    },
+    "fr": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/fr.json",
+      "sha256": "83dbb46e6f0dfbe6eee5f932e192dafed3370cdcfb64f7942755bcf4a8721350",
+      "records": 3
+    },
+    "pt": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/pt.json",
+      "sha256": "7dbedaa8927471e5603f28d6b1d4ac016d531ac2d1e7710abfa5a2e1289e6910",
+      "records": 3
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/hi.json",
+      "sha256": "4b6ad9421048c8b1c319475eada38969b55b4fdf3f4d384151837c458277b0c5",
+      "records": 3
+    },
+    "ko": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/ko.json",
+      "sha256": "c9cb4829dad8028488e26ce0187cdaa2eb4ca4582dc711d857472a3f5321ffcd",
+      "records": 3
+    },
+    "is": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/is.json",
+      "sha256": "ed6712ef90a4a3fc748de9bc88184074ee6a1c67bd60869902f8dfdc854122cf",
+      "records": 3
+    },
+    "zh_CN": {
+      "path": "/mnt/wd4tb/scratch/f561-classifier-application-20261015/api-drafts/zh_CN.json",
+      "sha256": "a490ac66b2b6ea48bc3024f307d088393a0fed2085c7285fddf0c6c9f3814dfb",
+      "records": 3
+    }
+  },
+  "prior81drafts": "Unchanged; only exact prior stream parameter source/context requires normal supersession, history retained.",
+  "targets": 27
+}
