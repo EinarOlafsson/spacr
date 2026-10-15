@@ -70,3 +70,17 @@ features/data/639_organizer_role_display_2026-10-15/.
 The untranslated Apply summary and its inaccurate flat-layout merge promise
 remain a separate display repair. The two-button tutorial remains Work-owned;
 this note does not close the whole item.
+
+2026-10-15 — LAYOUT-AWARE APPLY SUMMARY PREPARED
+The dialog now describes its selected output: Measure builds channel stacks
+and supported merged arrays; Mask Generation writes one image folder and its
+masks/ without either array output. The private display helper retains every
+warning and problem in order and leaves the backend/CLI summary, move plan,
+role IDs and file operations unchanged. All 12 actual confirmation/status
+cases failed before the repair; those plus 48 existing organizer cases pass.
+Normal API visibility finds no new public or nested-helper entry. Evidence:
+features/data/639_organizer_plan_summary_2026-10-15/.
+This source is pending coherent publication with four new nine-language
+captions and the root-owned localized, layout-neutral backend diagnostics.
+The regex-sort report still has a separate English backend summary path;
+tutorial acceptance remains Work-owned. No whole-item completion is claimed.
