@@ -1,6 +1,6 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
-## 2026-10-14 22:50 EDT — Original Home: Toxoplasma guide normal-registration repair
+## 2026-10-14 22:44 EDT — Original Home: Toxoplasma guide normal-registration repair
 
 The navigation-only reference guide now registers explicitly stable rather than
 inheriting an absent stage that the normal maturity pass changes to alpha.
