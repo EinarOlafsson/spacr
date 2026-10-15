@@ -571,3 +571,27 @@ def test_wound_default_channel_selection_is_also_strict(value):
     from spacr.measure import _wound_plane
     with pytest.raises(ValueError, match='finite, nonnegative whole number'):
         _wound_plane(np.zeros((8, 9, 3)), {'channels': [value]})
+
+
+@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
+@pytest.mark.parametrize('source', ['texture', 'intensity', 'masks'])
+def test_wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic(monkeypatch, language, source):
+    import json
+    from pathlib import Path
+
+    from spacr.measure import _wound_plane
+    from spacr.qt import i18n
+
+    monkeypatch.setattr(i18n, 'current_language', lambda: language)
+
+    class NoPixelSelection:
+        shape = (8, 9, 3)
+
+        def __getitem__(self, selection):
+            pytest.fail('localized index refusal reached image selection')
+
+    review = Path(__file__).resolve().parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-14-wound-plane-index.json'
+    target = json.loads(review.read_text())['records'][0]['translation']
+    with pytest.raises(ValueError) as error:
+        _wound_plane(NoPixelSelection(), {'wound_source': source, 'wound_channel': 0.5, 'cell_mask_dim': 0.5})
+    assert str(error.value) == target.format(index='0.5', planes=3)
