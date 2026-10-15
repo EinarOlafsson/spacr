@@ -7,6 +7,7 @@ import pytest
 from spacr import model_zoo as zoo
 from spacr import utils as utilities
 from tests.test_n702_stock_offline_boundary import native_cache as native_cache
+from tests.test_n702_unknown_cellpose_model_refusal import isolated as isolated
 
 
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is"])
