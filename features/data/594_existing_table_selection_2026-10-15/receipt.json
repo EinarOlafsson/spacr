@@ -1,0 +1,34 @@
+{
+  "scope": "N594 existing ML table choice, exact native loader/fit-boundary component; public source pending coherent API/runtime owner generation",
+  "baseline_source": "e8a17831f29a73857ba4f94975f633f990692b68",
+  "baseline": {
+    "failed": 1,
+    "passed": 1,
+    "seconds": 21.05
+  },
+  "first_owning": {
+    "failed": 1,
+    "passed": 18,
+    "seconds": 19.14,
+    "failure": "Optional selected png_list and annotation join produced test_x/test_y then KeyError test; preserved trace"
+  },
+  "final": {
+    "passed": 19,
+    "seconds": 18.62,
+    "actual_classifier_fitting": false
+  },
+  "acceptance": [
+    "Default native frame and exact4 table order unchanged",
+    "Selected cell+nucleus has identical nucleus exclusion and uninfected retained cohort, with only explicitly excluded feature columns omitted",
+    "Actual scoring path reaches intercepted ml_analysis with tuple/registered organelle/optional crop choices intact",
+    "Malformed, duplicate, unknown and anchor-free choices refuse before settings writer or DB reader",
+    "Optional crop+annotation preserves authoritative exact o1=1,o2=0,o4=0 labels, many_to_one join and no duplicate target suffixes"
+  ],
+  "held": [
+    "Nine public API reviewed/current-source normal owner outputs",
+    "Nine root-peer-reviewed tables tooltip normal runtime outputs and arrival refresh",
+    "Necessary normal generated settings consumer/flow/help artifacts",
+    "Normal merge/source identity/publication after F580"
+  ],
+  "scientific_limits": "No classifier fitting/model accuracy, biological labels, GPU, network, live data or new scientific cohort/join policy"
+}
