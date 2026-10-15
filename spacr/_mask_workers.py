@@ -173,7 +173,8 @@ def _resolved_backend_model(settings, object_type, *, root=None):
     :returns: ``(prepared, signature, identity)`` like
         :func:`_prepare_mask_model`, with ``identity['backend']`` set.
     :raises ValueError: for the Cellpose-SAM backend, an unsupported role,
-        a missing model or an uninstalled environment.
+        or an uninstalled environment.
+    :raises ModelZooError: when an explicit model has no exact compatible identity.
     """
     from . import _segmentation_backends as sb
     from .artifacts import material_settings
@@ -195,14 +196,12 @@ def _resolved_backend_model(settings, object_type, *, root=None):
         if pinned is not None:
             model = str(pinned)
         elif sb._cellpose_dino_choice(value) is not None:
-            backend, model = sb._CELLPOSE_DINO, sb._cellpose_dino_choice(value)
-            if not model or not os.path.exists(os.path.expanduser(model)):
-                raise FileNotFoundError(f'no Cellpose-DINO checkpoint at {model!r}')
+            backend, model = sb._CELLPOSE_DINO, sb._cellpose_dino_model(value, setting=key)
         elif sb._cellpose3_choice(value) is None and sb._prefixed_backend(value) is not None:
             backend = sb._prefixed_backend(value)
-            model = sb._prefixed_model(backend, value)
+            model = sb._prefixed_model(backend, value, setting=key)
         elif sb._cellpose3_choice(value) is not None or backend == sb._CELLPOSE3:
-            backend, model = sb._CELLPOSE3, sb._cellpose3_model(value, object_type)
+            backend, model = sb._CELLPOSE3, sb._cellpose3_model(value, object_type, setting=key)
         elif backend in (sb._DINOCELL, sb._SAMCELL):
             text = str(value or '').strip()
             model = (os.path.abspath(os.path.expanduser(text))

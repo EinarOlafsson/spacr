@@ -191,10 +191,15 @@ def test_the_value_round_trips_and_names_an_existing_checkpoint(tmp_path):
     assert value == f"cellpose_dino:{path}"
     assert SB._cellpose_dino_value(value) == value
     assert SB._cellpose_dino_model(value) == str(path)
-    with pytest.raises(FileNotFoundError, match="not there"):
-        SB._cellpose_dino_model(f"cellpose_dino:{tmp_path / 'gone'}")
-    with pytest.raises(FileNotFoundError):
+    requested = f"cellpose_dino:{tmp_path / 'gone'}"
+    with pytest.raises(zoo.ModelZooError) as error:
+        SB._cellpose_dino_model(requested)
+    assert str(error.value) == zoo._model_resolution_context(
+        requested, setting="model_name", kinds=("cellpose_dino",))
+    with pytest.raises(zoo.ModelZooError) as error:
         SB._cellpose_dino_model("cellpose_dino:")
+    assert str(error.value) == zoo._model_resolution_context(
+        "cellpose_dino:", setting="model_name", kinds=("cellpose_dino",))
 
 
 def test_a_run_knows_when_an_object_chose_cellpose_dino():

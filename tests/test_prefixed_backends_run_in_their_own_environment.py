@@ -233,8 +233,11 @@ def test_the_model_is_a_name_the_default_or_a_path_that_exists(
     folder = tmp_path / "my_model"
     folder.mkdir()
     assert SB._prefixed_model(name, f"{prefix}{folder}") == str(folder)
-    with pytest.raises(FileNotFoundError, match="no file or folder"):
-        SB._prefixed_model(name, f"{prefix}{tmp_path / 'gone'}")
+    requested = f"{prefix}{tmp_path / 'gone'}"
+    with pytest.raises(zoo.ModelZooError) as error:
+        SB._prefixed_model(name, requested)
+    assert str(error.value) == zoo._model_resolution_context(
+        requested, setting="model_name", kinds=(name,))
     assert SB._prefixed_model_ok(prefix) is True
     assert SB._prefixed_model_ok(f"{prefix}{folder}") is True
     assert SB._prefixed_model_ok(f"{prefix}nope") is False

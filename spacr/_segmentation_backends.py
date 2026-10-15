@@ -1096,19 +1096,20 @@ def _backend_name(value):
     return name
 
 
-def _cellpose3_model(model_name=None, object_type=None):
+def _cellpose3_model(model_name=None, object_type=None, *, setting=None):
     """The Cellpose 3 model an object's model setting selects.
 
-    A Cellpose 3 name, or a checkpoint file, is used as it is. A blank, or
-    the NAME of a model of another Cellpose -- spaCR's default ``cpsam`` --
-    means the Cellpose 3 model for the object: ``nuclei`` for nuclei,
-    ``cyto3`` for everything else. A PATH that is not there is refused:
-    Cellpose 3 itself would quietly run cyto3 in its place.
+    A Cellpose 3 name, or a checkpoint file, is used as it is. A blank
+    value, or spaCR's default ``cpsam``, means the Cellpose 3 model for the
+    object: ``nuclei`` for nuclei, ``cyto3`` for everything else. Unknown
+    explicit names and missing checkpoint paths are refused: Cellpose 3
+    itself would quietly run cyto3 in their place.
 
     :param model_name: the object's ``<object>_model_name`` setting.
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'``, ...
+    :param setting: actual caller field, or the direct parameter ``model_name``.
     :returns: a model name or an absolute path.
-    :raises FileNotFoundError: for a path that names no file.
+    :raises ModelZooError: when an explicit model has no exact compatible identity.
     """
     chosen = _cellpose3_choice(model_name)
     name = chosen if chosen is not None else str(model_name or "").strip()
@@ -1119,14 +1120,17 @@ def _cellpose3_model(model_name=None, object_type=None):
         return os.path.abspath(path)
     if name and name != "cpsam":
         from .model_zoo import _ensure_model_file
-        downloaded = _ensure_model_file(name, kinds=("cellpose3",))
+        downloaded = _ensure_model_file(
+            name, kinds=("cellpose3",), setting=setting if setting is not None else "model_name",
+            original_request=model_name)
         if downloaded is not None:
             return str(downloaded)
-    if name and (os.sep in name or "/" in name or os.path.splitext(name)[1]):
-        raise FileNotFoundError(
-            f"no Cellpose 3 model at {name!r}: the file is not there. Name "
-            f"one of {', '.join(_CELLPOSE3_MODELS)}, or the path of a "
-            f"Cellpose 3 checkpoint.")
+    if name and name != "cpsam":
+        from .model_zoo import ModelZooError, _model_resolution_context
+
+        raise ModelZooError(_model_resolution_context(
+            model_name, setting=setting if setting is not None else "model_name",
+            kinds=("cellpose3",)))
     return "nuclei" if object_type == "nucleus" else "cyto3"
 
 
@@ -1203,15 +1207,16 @@ def _cellpose_dino_value(path):
                                     else str(path or "").strip())
 
 
-def _cellpose_dino_model(model_name):
+def _cellpose_dino_model(model_name, *, setting=None):
     """The checkpoint file a ``cellpose_dino:`` model setting names.
 
     Cellpose 4 handed a path that is not there logs a warning and runs
     cpsam_v2 in its place, so a missing file is refused here instead.
 
     :param model_name: the setting, with or without the prefix.
+    :param setting: actual caller field, or the direct parameter ``model_name``.
     :returns: the checkpoint's absolute path.
-    :raises FileNotFoundError: when no file is there, or none is named.
+    :raises ModelZooError: when no existing file or exact compatible identity matches.
     """
     chosen = _cellpose_dino_choice(model_name)
     name = chosen if chosen is not None else str(model_name or "").strip()
@@ -1219,14 +1224,16 @@ def _cellpose_dino_model(model_name):
     if not name or not os.path.isfile(path):
         if name:
             from .model_zoo import _ensure_model_file
-            downloaded = _ensure_model_file(name, kinds=("cellpose_dino",))
+            downloaded = _ensure_model_file(
+                name, kinds=("cellpose_dino",), setting=setting if setting is not None else "model_name",
+                original_request=model_name)
             if downloaded is not None:
                 return str(downloaded)
-        raise FileNotFoundError(
-            f"no Cellpose-DINO checkpoint at {name!r}: the file is not "
-            f"there. Download a Cellpose-DINO model from the model zoo and "
-            f"press Use this model, which writes "
-            f"{_CELLPOSE_DINO_PREFIX}<its path>.")
+        from .model_zoo import ModelZooError, _model_resolution_context
+
+        raise ModelZooError(_model_resolution_context(
+            model_name, setting=setting if setting is not None else "model_name",
+            kinds=("cellpose_dino",)))
     return os.path.abspath(path)
 
 
@@ -1298,7 +1305,7 @@ def _prefixed_split(name, model_name):
     return model.strip(), target.strip().lower()
 
 
-def _prefixed_model(name, model_name, *, download=True):
+def _prefixed_model(name, model_name, *, download=True, setting=None):
     """The model a prefixed backend's setting selects.
 
     One of the backend's own model names is used as it is, a blank one is
@@ -1308,8 +1315,9 @@ def _prefixed_model(name, model_name, *, download=True):
 
     :param name: a backend from :func:`_prefixed_names`.
     :param model_name: the setting, with or without the prefix.
+    :param setting: actual caller field, or the direct parameter ``model_name``.
     :returns: a model name or an absolute path.
-    :raises FileNotFoundError: for a path that names nothing.
+    :raises ModelZooError: when no existing path or exact compatible identity matches.
     """
     spec = _SPECS[name]
     model, _target = _prefixed_split(name, model_name)
@@ -1321,12 +1329,15 @@ def _prefixed_model(name, model_name, *, download=True):
     if os.path.exists(path):
         return os.path.abspath(path)
     from .model_zoo import _ensure_model_file
-    downloaded = _ensure_model_file(model, kinds=(name,), download=download)
+    downloaded = _ensure_model_file(
+        model, kinds=(name,), download=download,
+        setting=setting if setting is not None else "model_name", original_request=model_name)
     if downloaded is not None:
         return str(downloaded)
-    raise FileNotFoundError(
-        f"no {spec.label} model called {model!r}: it is not one of "
-        f"{', '.join(spec.models)}, and no file or folder is there.")
+    from .model_zoo import ModelZooError, _model_resolution_context
+
+    raise ModelZooError(_model_resolution_context(
+        model_name, setting=setting if setting is not None else "model_name", kinds=(name,)))
 
 
 def _prefixed_model_ok(value):

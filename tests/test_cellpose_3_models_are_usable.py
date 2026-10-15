@@ -174,8 +174,13 @@ def test_any_cellpose3_weights_file_is_a_model(tmp_path):
 
 
 def test_a_weights_path_that_is_not_there_is_refused(tmp_path):
-    with pytest.raises(FileNotFoundError, match="not there"):
-        SB._cellpose3_model(f"cellpose3:{tmp_path}/gone.pth", "cell")
+    from spacr import model_zoo
+
+    requested = f"cellpose3:{tmp_path}/gone.pth"
+    with pytest.raises(model_zoo.ModelZooError) as error:
+        SB._cellpose3_model(requested, "cell")
+    assert str(error.value) == model_zoo._model_resolution_context(
+        requested, setting="model_name", kinds=("cellpose3",))
 
 
 def test_a_bare_prefix_means_the_objects_own_default():
