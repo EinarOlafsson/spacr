@@ -6586,6 +6586,9 @@ def _readme_picker_links_to_index(readme: str) -> bool:
             if data.strip():
                 self.valid = False
 
+        def unknown_decl(self, data):
+            self.valid = False
+
     picker = Picker()
     try:
         picker.feed(raw.group("html"))
