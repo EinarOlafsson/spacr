@@ -119,3 +119,84 @@ def test_pin_kind_and_untrusted_missing_identity_refuse_acquisition(pinned, monk
     monkeypatch.setattr(zoo, 'BUNDLED_REMOTE_MODELS', [])
     with pytest.raises(zoo.ModelZooError):
         zoo._resolve_pinned_model_file(settings, 'cell_model_name')
+
+
+@pytest.mark.parametrize('flag', ['--force', '--no-preflight'])
+def test_actual_cli_refuses_wrong_pinned_bytes_before_pipeline_import(pinned, tmp_path, monkeypatch, flag):
+    import json
+    import logging
+    from pathlib import Path
+    from spacr import cli
+    settings, _raw, _payload = pinned
+    Path(settings['cell_model_name']).write_bytes(b'incorrect supplied bytes')
+    path = tmp_path / 'settings.json'
+    path.write_text(json.dumps(settings))
+    module = cli.Module('mask', 'fixture', 'spacr.fake:run', None, 'mask')
+    monkeypatch.setattr(cli, 'resolve_module', lambda _name: module)
+    monkeypatch.setattr(cli, 'module_defaults', lambda _module: {'segmentation_backend': 'cellpose'})
+    monkeypatch.setattr(cli, 'setup_logging', lambda *a: logging.getLogger('n702'))
+    monkeypatch.setattr(cli, '_preflight', lambda *a, **k: [])
+    monkeypatch.setattr(cli, 'import_entry', lambda *a: pytest.fail('wrong bytes reached pipeline import'))
+    assert cli.main(['mask', '--settings', str(path), flag]) == cli.EXIT_USAGE
+
+
+def test_actual_cli_dry_run_never_acquires_pinned_bytes(pinned, tmp_path, monkeypatch):
+    import json
+    import logging
+    from spacr import cli
+    settings, _raw, _payload = pinned
+    path = tmp_path / 'settings.json'
+    path.write_text(json.dumps(settings))
+    module = cli.Module('mask', 'fixture', 'spacr.fake:run', None, 'mask')
+    monkeypatch.setattr(cli, 'resolve_module', lambda _name: module)
+    monkeypatch.setattr(cli, 'module_defaults', lambda _module: {'segmentation_backend': 'cellpose'})
+    monkeypatch.setattr(cli, 'setup_logging', lambda *a: logging.getLogger('n702'))
+    monkeypatch.setattr(cli, '_preflight', lambda *a, **k: [])
+    monkeypatch.setattr(cli, 'import_entry', lambda *a: pytest.fail('dry run imported pipeline'))
+    monkeypatch.setattr(zoo, 'fetch', lambda *a, **k: pytest.fail('dry run acquired weights'))
+    assert cli.main(['mask', '--settings', str(path), '--dry-run']) == cli.EXIT_OK
+
+
+def test_actual_cli_records_verified_path_but_keeps_original_settings(pinned, tmp_path, monkeypatch):
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+    import json
+    import logging
+    from spacr import cli, run_journal
+    settings, _raw, payload = pinned
+    original = deepcopy(settings)
+    path = tmp_path / 'settings.json'
+    path.write_text(json.dumps(settings))
+    module = cli.Module('mask', 'fixture', 'spacr.fake:run', None, 'mask')
+    events = []
+    monkeypatch.setattr(cli, 'resolve_module', lambda _name: module)
+    monkeypatch.setattr(cli, 'module_defaults', lambda _module: {'segmentation_backend': 'cellpose'})
+    monkeypatch.setattr(cli, 'setup_logging', lambda *a: logging.getLogger('n702'))
+    monkeypatch.setattr(cli, 'use_agg_if_headless', lambda: False)
+    def import_entry(_module):
+        events.append('import')
+        return lambda supplied: events.append(('pipeline', deepcopy(supplied)))
+    monkeypatch.setattr(cli, 'import_entry', import_entry)
+    @contextmanager
+    def open_run(_module, supplied):
+        events.append(('original', deepcopy(supplied)))
+        def record(name, actual):
+            assert actual.read_bytes() == payload
+            events.append(('record', name, actual))
+        yield SimpleNamespace(dir=tmp_path, record_model=record)
+    monkeypatch.setattr(run_journal, 'open_run', open_run)
+    def fetch(entry, destination):
+        events.append('fetch')
+        actual = destination / entry.name
+        actual.write_bytes(payload)
+        return actual
+    monkeypatch.setattr(zoo, 'fetch', fetch)
+    assert cli.main(['mask', '--settings', str(path), '--no-preflight']) == cli.EXIT_OK
+    assert events[0:2] == ['fetch', 'import']
+    assert events[2][0] == 'original'
+    assert events[3][0:2] == ('record', 'cell_model_name')
+    assert events[4][0] == 'pipeline'
+    for event in (events[2], events[4]):
+        assert event[1]['cell_model_name'] == original['cell_model_name']
+        assert event[1]['model_metadata'] == original['model_metadata']
+    assert settings == original

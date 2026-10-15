@@ -1943,6 +1943,19 @@ def cmd_run(args: argparse.Namespace) -> int:
     if _quiet_progress_bars():
         log.debug("stdout is not a tty — tty-only progress output disabled")
 
+    resolved_model_files = {}
+    if "model_metadata" in settings:
+        from .model_zoo import ModelZooError, _model_input_kinds, _resolve_pinned_model_file
+
+        kinds = _model_input_kinds(module, settings)
+        try:
+            for name in settings["model_metadata"]["settings"]:
+                resolved_model_files[name] = _resolve_pinned_model_file(
+                    settings, name, kinds=kinds.get(name, ()))
+        except (ModelZooError, OSError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return EXIT_USAGE
+
     try:
         func = import_entry(module)
     except SettingsError as exc:
@@ -1958,6 +1971,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             log.info("recording reproducibility input hashes")
             with open_run(module.key, settings) as run:
                 log.info("reproducibility manifest %s", run.dir)
+                for name, model_path in resolved_model_files.items():
+                    run.record_model(name, model_path)
                 lock = getattr(run, "_analysis_lock", None)
                 if lock:
                     (log.info if lock.get("status") == "verified"

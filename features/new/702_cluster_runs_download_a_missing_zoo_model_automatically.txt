@@ -260,3 +260,20 @@ Figure mode intercepts the actual measure boundary. No network/weights/GPU/
 scientific or fullCI claim. Mask/classifier consumers and CLI provenance remain
 separate work; parent702 stays partial.
 Evidence: data/702_training_plaque_pinned_consumers_2026-10-14/receipt.json.
+
+2026-10-14 — actual CLI runs verify pinned bytes before pipeline import:
+The actual-run boundary now verifies/acquires every recorded model input
+after planning and before importing the pipeline. --force/--no-preflight
+cannot bypass checksum refusal. Dry-run exits before this acquisition gate.
+Original settings and pins go unchanged to open_run and the pipeline; the
+existing journal record_model hook separately receives the effective verified
+checkpoint paths. Both normal batch runners invoke this CLI boundary.
+
+Four new actual CLI cases and finite CLI/batch owning tests passed400cases
+in8.94seconds, exit0 (one existing runpy warning). Native stub fetcher and
+intercepted journal/pipeline boundaries establish ordering, original request
+preservation and record_model arguments; actual manifest-file acceptance is
+not claimed. A first failed test attempt exposed an unstubbed reserved
+trusted.invalid URL/DNS failure; the corrected test performs no network.
+Consumer-specific wiring/strict planning remain separate; parent702 partial.
+Evidence: data/702_cli_runtime_verification_gate_2026-10-14/receipt.json.
