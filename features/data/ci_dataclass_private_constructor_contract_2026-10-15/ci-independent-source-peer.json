@@ -1,0 +1,29 @@
+{
+  "status": "ACCEPT",
+  "reviewer": "Independent Original CI source peer",
+  "commit": "b8984d5e45fface5ac0df587b0324f8623660a72",
+  "test_before_sha256": "a46334c871b58355ac5498870c0d9b82fc56649e21ad09ceb43bc6a70a33ef77",
+  "test_after_sha256": "c59253ba62b881e45197c004d985a68786d3a50366a35b16f34115775526d199",
+  "verified": [
+    "Private dataclass init fields are real constructor parameters even when repr=False; new opt-in models this only for dataclasses.",
+    "Namedtuple helper call retains include_private=False default; ClassVar, KW_ONLY and explicit field(init=False) exclusions remain.",
+    "Fixture compares analyzer parameters against actual stdlib inspect.signature; private _internal is accepted and init=False _hidden is rejected.",
+    "Only three named definitions changed; every other module AST including all ratchet counts, hashes and historical ghost allowlist is exact.",
+    "No production files changed; raw two-node baseline2FAIL and final2PASS logs/exits and source SHA pins verified."
+  ],
+  "raw_evidence": {
+    "baseline": {
+      "exit": 1,
+      "log_sha256": "66fb392c24ab49251ef7b2d083339cfcfa2f8029b9a9553ca908935df6a25bcd",
+      "terminal": "2 failed in 14.17s"
+    },
+    "final": {
+      "exit": 0,
+      "log_sha256": "9fb3f0b02b8f1fd17889bc8f689f3933127317c57631014745c118221e12d91f",
+      "terminal": "2 passed in 12.35s"
+    }
+  },
+  "findings": [],
+  "no_runtime_tests_imports_models_or_writers_executed": true,
+  "limits": "Source/evidence peer only; not a complete callable census or CI acceptance."
+}
