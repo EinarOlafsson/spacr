@@ -120,15 +120,15 @@ def test_an_output_inside_the_source_is_not_copied_into_itself(tmp_path):
 def test_a_failed_copy_is_recorded_and_its_partial_file_removed(
         tmp_path, monkeypatch):
     source = _tree(tmp_path / "src", {"a/1.tif": "1", "a/2.tif": "2"})
-    real_copy = shutil.copy2
+    real_copy = shutil.copyfileobj
 
     def half_copy(src, dst):
-        if str(src).endswith("2.tif"):
-            Path(dst).write_text("partial")
+        if str(src.name).endswith("2.tif"):
+            dst.write(b"partial")
             raise OSError("disk full")
         return real_copy(src, dst)
 
-    monkeypatch.setattr(fc.shutil, "copy2", half_copy)
+    monkeypatch.setattr(fc.shutil, "copyfileobj", half_copy)
     lines = []
     result = fc.consolidate_folder(source, tmp_path / "out", log=lines.append)
     assert (result.copied, result.failed) == (1, 1)
@@ -189,5 +189,5 @@ def test_copy_and_rename_fails_when_any_copy_failed(tmp_path, monkeypatch):
     def broken(_src, _dst):
         raise OSError("no")
 
-    monkeypatch.setattr(fc.shutil, "copy2", broken)
+    monkeypatch.setattr(fc.shutil, "copyfileobj", broken)
     assert fc.copy_and_rename(source, tmp_path / "out") == 1

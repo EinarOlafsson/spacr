@@ -30,10 +30,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+import errno
 import hashlib
 import os
 import re
 import shutil
+import stat
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -321,15 +323,29 @@ def consolidate_folder(source, output=None, *,
                 if not _wanted(name, exts):
                     continue
                 destination = None
+                created = None
                 try:
                     destination = available_filename(
                         output, stem, file_extension(original), used, counters)
-                    shutil.copy2(original, destination)
+                    with original.open("rb") as incoming, destination.open("xb") as outgoing:
+                        created = os.fstat(outgoing.fileno())
+                        shutil.copyfileobj(incoming, outgoing)
+                        outgoing.flush()
+                        os.fsync(outgoing.fileno())
+                        destination_info = destination.lstat()
+                        if not stat.S_ISREG(destination_info.st_mode) or not os.path.samestat(destination_info, created):
+                            raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(destination))
+                        shutil.copystat(original, destination, follow_symlinks=False)
+                        destination_info = destination.lstat()
+                        if not stat.S_ISREG(destination_info.st_mode) or not os.path.samestat(destination_info, created):
+                            raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(destination))
                 except (OSError, ValueError) as exc:
                     result.failed += 1
-                    if destination is not None and destination.exists():
+                    if destination is not None and created is not None:
                         try:
-                            destination.unlink()
+                            destination_info = destination.lstat()
+                            if stat.S_ISREG(destination_info.st_mode) and os.path.samestat(destination_info, created):
+                                destination.unlink()
                         except OSError:
                             pass
                     record((str(original), "", "error", str(exc)))
