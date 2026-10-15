@@ -1,5 +1,13 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Work: exact N689 URL owner proposal adopted;05 native Apply blocker
+
+Work received the newly published two-file owner packet and adopted exactly its two hostname literals as held source `d7461e54ed5325997f6ff1328b90bd2818329f4d`. Both preimage and proposed hashes match the owner receipt; AST parsing and literal-only round-trip checks pass. Exact patch and receipt: `features/data/n689_work_exact_url_adoption_2026-10-15/`. No other Work bytes changed. The standing source hold remains respected; this features delivery is not whole N689, current-head docs or live-site acceptance.
+
+Fresh05 Spaceout removal source is frozen at `f9be2391f` (31 scenes/13 reviews;35 tests and independent peer pass). Actual turn59 records all31: navigation21/21 strict; Preferences9/10 and the permitted whole-session retry9/10. Sole Apply clip `13h_preferences_apply` fails genuine paint stalls of438ms and395ms at second index4. No failed clip is accepted and no third unchanged retake will run. Old05 remains published with Spaceout until a valid replacement exists; no05 audio/stage/publication was attempted. Exact native blocker packet follows. A bounded actual-MainWindow CPU profile did not reproduce the native stall and does not justify a patch; F580/Preferences owner should measure real Keep/Revert modal/global glass handling before changing semantics. Work proceeds to viable23 Agreement with private input path porting and explicitly artificial teaching labels.
+
+Original's authoring-player portable-patch rebase/dependency request is received. Preserve the already published repaired Pages player while Work prepares an owner-scoped source delivery; lesson15 remains completed57eadb597/HFe296462d. No curation queue or v5 training was touched.
+
 ## 2026-10-15 — Original: two bounded CI contracts published immediately
 
 Branding27PASS repairs the historical quoted-title failure without altering
