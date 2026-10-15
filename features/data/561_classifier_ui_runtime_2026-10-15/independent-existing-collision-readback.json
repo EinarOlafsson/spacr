@@ -1,0 +1,251 @@
+{
+  "mode": "Read-only AST literal inspection of existing catalogs; no runtime import, canonical collection, generation or audit execution.",
+  "foreign_same_source_records": 3,
+  "cross_table_pairs": 27,
+  "conflicts": [],
+  "pairs": [
+    {
+      "language": "sv",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "sv",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "sv",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "de",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "de",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "de",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "es",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "es",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "es",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "fr",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "fr",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "fr",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "pt",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "pt",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "pt",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "is",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "is",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "is",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "zh_CN",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "zh_CN",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "zh_CN",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "hi",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "hi",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "hi",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    },
+    {
+      "language": "ko",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "batch_size"
+      ],
+      "source": "Batch size",
+      "matches_owned_target": true
+    },
+    {
+      "language": "ko",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "learning_rate"
+      ],
+      "source": "Learning rate",
+      "matches_owned_target": true
+    },
+    {
+      "language": "ko",
+      "foreign_identity": [
+        "SETTING_LABELS",
+        "train"
+      ],
+      "source": "Train",
+      "matches_owned_target": true
+    }
+  ]
+}

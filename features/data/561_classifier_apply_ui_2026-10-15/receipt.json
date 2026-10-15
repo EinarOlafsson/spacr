@@ -1,0 +1,67 @@
+{
+  "base": "456f8aaa380932a6a6cc413e2f1a8a9b9c71deb7",
+  "backend_source_commit": "03647f0827274824ab26c361259dc022a858d342",
+  "source_file": "spacr/qt/screens/embeddings.py",
+  "source_sha256": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+  "test_file": "tests/qt/test_own_dino_classifier_apply_controls.py",
+  "test_sha256": "3b088158c1e4b3f95be27ffbfb76929a01e2ec418b8914c1e166add1cbe73e84",
+  "source_scope": [
+    "spacr/qt/screens/embeddings.py"
+  ],
+  "test_scope": [
+    "tests/qt/test_own_dino_classifier_apply_controls.py"
+  ],
+  "baseline": "2 FAIL in2.94s: absent saved-classifier control/method. Exact unchanged hosted slim-bar guard separately FAIL in7.78s naming both training bars.",
+  "intermediate": "12 PASS /4 FAIL in9.42s: numeric-only sort key passed string predictions; control restoration missed worker retirement after cancelled/prestart jobs. Corrected real caller/lifecycle behavior.",
+  "final": "16 PASS in8.42s:13 application/progress-label cases plus exact slim-bar guard and two existing real-worker training-progress tests. After read-only table/PlainText provenance refinement, the one actual matrix/view case PASS in2.46s; no broad replay.",
+  "distinct_cases": 16,
+  "cap": "4G; GPU hidden; Qt offscreen; thread limits1; shared heavy.lock",
+  "scope_claim": "Real Qt controls, JobRunner, actual CSV tabular export, raw-argument/row-order boundary and result/cancellation lifecycle; inert classifier adapter only. No checkpoint decode, scientific inference/training, network or downloads.",
+  "adapter_contract": "Full original raw NHWC object passed with CPU and batch_size only. Saved channel order/scale applied by backend exactly once. Results have dedicated views/export, never inserted into teacher picker or logistic/embedding route.",
+  "cancellation": "Delivery suppression only: backend has no cancelled/progress arguments. Active-only25ms GUI timer observes actual runner retirement, stops when idle/closed; overlapping training/application prevented. Close uses normal bounded JobRunner shutdown/parking.",
+  "progress_ci": "Both QProgressBars hide painted text; separate word-wrapped PlainText labels retain exact captions; bar format and accessibleDescription reflect same text. Numeric progress unchanged.",
+  "alpha": "All new literal ObjectNames inherit existing registered EmbeddingsDinoControls F561 alpha container.",
+  "previous_training_inputs": "e68a4d7 preserved unchanged; source-followup changes two is_busy blocks requiring exact18 review replacements. Other accepted training inputs/source docstrings remain unchanged.",
+  "comments_exact": true,
+  "api_changed_bodies": 6,
+  "api_changed_blocks": 7,
+  "new_tr_literals": 22,
+  "logs": {
+    "before.log": {
+      "sha256": "a71a927182263ac2ff727a823ddc7ff7b75ad749de3d6395acc0dfdeebcc24db",
+      "compressed_file": "before.log.gz"
+    },
+    "before.time": {
+      "sha256": "8380428fd29477c1b6a911251ddc0a9cde99e56e36b92890489c326defd7f8e8",
+      "compressed_file": "before.time.gz"
+    },
+    "progress-before.log": {
+      "sha256": "01e9e09dc749df42e43a816c41c173bcb1a01dc9572fccab35f796477ec21cfd",
+      "compressed_file": "progress-before.log.gz"
+    },
+    "after.log": {
+      "sha256": "49b7a5f0d720aa7768f851b86b85a9889a78ff8a4bc045dece2ee710395c366a",
+      "compressed_file": "after.log.gz"
+    },
+    "after.time": {
+      "sha256": "6a0c95b028cc38f06b2466b475f95b9dceae80a8408b88202cf76e472671858b",
+      "compressed_file": "after.time.gz"
+    },
+    "final.log": {
+      "sha256": "009e717e9620cf8805704130f2bad9906c429980ac2126d19b5428ef9424881d",
+      "compressed_file": "final.log.gz"
+    },
+    "final.time": {
+      "sha256": "c9c9e6a8b7e58a46ac2afdd60302753b158e90eec3c54d8f4945fe0855501ae7",
+      "compressed_file": "final.time.gz"
+    },
+    "read-only-view.log": {
+      "sha256": "ebe7616af2106c5a70f8921beb67cd42a995ff8b95248ec550c72100dbbc6554",
+      "compressed_file": "read-only-view.log.gz"
+    },
+    "read-only-view.time": {
+      "sha256": "eb919c3b0ef7c71d1c9e440bd590e28603bd58a45ddc98855ea67b2937e272a8",
+      "compressed_file": "read-only-view.time.gz"
+    }
+  }
+}

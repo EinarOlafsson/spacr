@@ -443,3 +443,24 @@ def _cellpose_stock_preflight():
     """Internal documentation is not a caption."""
     return "Internal untranslated detail."
 ''') == set()
+
+
+@pytest.mark.parametrize("owner", ["_dino_classifier_from_config", "_dino_classifier_from_checkpoint", "_dino_finetune_classifier", "_dino_classifier_apply"])
+def test_own_classifier_diagnostics_have_exact_top_level_owners(extract_backend_sources, owner):
+    caption = "Own-DINO classifier settings, checkpoint or input are incompatible."
+    assert extract_backend_sources("embeddings.py",
+        f"def {owner}():\n    def refuse():\n        raise ValueError(tr({caption!r}))\n") == {caption}
+
+
+def test_classifier_diagnostic_ownership_excludes_unrelated_nested_and_methods(extract_backend_sources):
+    assert extract_backend_sources("embeddings.py", '''
+def unrelated():
+    def _dino_classifier_apply():
+        return tr("Unrelated nested diagnostic.")
+class Unrelated:
+    def _dino_classifier_apply(self):
+        return tr("Unrelated method diagnostic.")
+def _dino_classifier_apply():
+    """Internal documentation is not a caption."""
+    return "Unwrapped internal detail."
+''') == set()

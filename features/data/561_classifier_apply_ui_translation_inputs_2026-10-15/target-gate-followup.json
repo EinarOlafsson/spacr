@@ -1,0 +1,92 @@
+[
+  {
+    "language": "sv",
+    "domain": "api",
+    "index": 1,
+    "before": "Omfattar körarna för träning och tillämpning tills deras arbetstrådar har avregistrerats, även efter att deras slutresultat har nått GUI-vyn.",
+    "after": "Omfattar körarna för träning och tillämpning tills deras arbetstrådar har avregistrerats, även efter att deras slutresultat har nått vyn i det grafiska gränssnittet.",
+    "before_sha256": "7b473a4c221edec24e90cf7130438102b311cb5a2483c5fc25325f39693d5f50",
+    "after_sha256": "a5466fd9c42442e6b47c62c7c9fcc03023116567bc78a6076d29e89eb325907a",
+    "reason": "Equivalent ordinary GUI-view wording without introducing a protected acronym absent from the source."
+  },
+  {
+    "language": "de",
+    "domain": "api",
+    "index": 1,
+    "before": "Berücksichtigt die Ausführer für Training und Anwendung, bis ihre Arbeitsthreads aus der Verwaltung entfernt wurden, auch nachdem ihre Endergebnisse die GUI-Ansicht erreicht haben.",
+    "after": "Berücksichtigt die Ausführer für Training und Anwendung, bis ihre Arbeitsthreads aus der Verwaltung entfernt wurden, auch nachdem ihre Endergebnisse die Ansicht der grafischen Oberfläche erreicht haben.",
+    "before_sha256": "3c725bb1de39fc2f2a107d98d9867966ddbc2634ebe0b142047410e82c50cb15",
+    "after_sha256": "77d37cfaa47e2f09cda91b79446d318b4430eadc02ee0425f73cb7802f13fcc3",
+    "reason": "Equivalent ordinary GUI-view wording without introducing a protected acronym absent from the source."
+  },
+  {
+    "language": "es",
+    "domain": "api",
+    "index": 1,
+    "before": "Incluye los ejecutores de entrenamiento y aplicación hasta que sus hilos de trabajo se hayan retirado del registro, incluso después de que sus resultados finales hayan llegado a la vista de la GUI.",
+    "after": "Incluye los ejecutores de entrenamiento y aplicación hasta que sus hilos de trabajo se hayan retirado del registro, incluso después de que sus resultados finales hayan llegado a la vista de la interfaz gráfica.",
+    "before_sha256": "17f887732fffa5bf666ec6c8695e3d6e755aed67e51e31074acc838606db1ce3",
+    "after_sha256": "a59670f92c3579a41f6fd200e296234058ac4843dd188f77fbc6d1366aef9c68",
+    "reason": "Equivalent ordinary GUI-view wording without introducing a protected acronym absent from the source."
+  },
+  {
+    "language": "pt",
+    "domain": "runtime",
+    "index": 0,
+    "before": "Classificador aplicado a {n} recortes de imagem. Classes: {classes}. Abra Resultados de classificação para inspecionar ou exportar.",
+    "after": "Classificador aplicado em {n} recortes de imagem. Classes: {classes}. Abra Resultados de classificação para inspecionar ou exportar.",
+    "before_sha256": "7b39bab4c9e89ee67a817f593cf6c1ba545897229fca08462194cdc13d5d03e3",
+    "after_sha256": "375351e6cfe0cd753ed0c39adebd73ff9626c64def0af8ec15b04b9df55dbbdf",
+    "reason": "Equivalent Portuguese application preposition avoids false crop-gender match after placeholder removal, preserving both meaning and normal gate."
+  },
+  {
+    "language": "pt",
+    "domain": "runtime",
+    "index": 2,
+    "before": "Aplicando o classificador a {n} recortes de imagem…",
+    "after": "Aplicando o classificador em {n} recortes de imagem…",
+    "before_sha256": "434d037682ee102597eb4f4c20c2829a0912b93332a08949b778b9ea40389e2d",
+    "after_sha256": "efc3ea4858429b48b642f91f77ec8dd14aa328979ff7abbc8a346f8ee5d22320",
+    "reason": "Equivalent Portuguese application preposition avoids false crop-gender match after placeholder removal, preserving both meaning and normal gate."
+  },
+  {
+    "language": "is",
+    "domain": "api",
+    "index": 1,
+    "before": "Telur með keyrslustjóra þjálfunar og beitingar þar til vinnuþræðir þeirra hafa verið fjarlægðir úr skráningu, jafnvel eftir að lokaniðurstöður þeirra hafa borist GUI-sýninni.",
+    "after": "Telur með keyrslustjóra þjálfunar og beitingar þar til vinnuþræðir þeirra hafa verið fjarlægðir úr skráningu, jafnvel eftir að lokaniðurstöður þeirra hafa borist sýn grafíska viðmótsins.",
+    "before_sha256": "38a96b5e18d0947f1082f0593c33923e561fcd992e7e5133b5022fad4d90bbef",
+    "after_sha256": "6c5a08f5100dabb01a019b7055bfedaab8a73b36615788e3e739b70d9c4b056e",
+    "reason": "Equivalent ordinary GUI-view wording without introducing a protected acronym absent from the source."
+  },
+  {
+    "language": "zh_CN",
+    "domain": "api",
+    "index": 1,
+    "before": "在工作线程退出管理之前，训练和应用任务运行器均计入其中，即使其最终结果已经到达 GUI 视图。",
+    "after": "在工作线程退出管理之前，训练和应用任务运行器均计入其中，即使其最终结果已经到达 图形界面视图。",
+    "before_sha256": "9e9e9d6b65e7d94182072a487fca68732c271437123fe7f7743ec51aa18b2d9a",
+    "after_sha256": "aa02ab63979b0ec708c17a41d698ee990ab4eb661c2cdd602cbb70f3d4571f51",
+    "reason": "Equivalent ordinary GUI-view wording without introducing a protected acronym absent from the source."
+  },
+  {
+    "language": "hi",
+    "domain": "api",
+    "index": 1,
+    "before": "प्रशिक्षण और अनुप्रयोग के रनर तब तक शामिल रहते हैं जब तक उनके वर्कर थ्रेड प्रबंधन से हट नहीं जाते, भले ही उनके अंतिम परिणाम GUI दृश्य तक पहुँच चुके हों।",
+    "after": "प्रशिक्षण और अनुप्रयोग के रनर तब तक शामिल रहते हैं जब तक उनके वर्कर थ्रेड प्रबंधन से हट नहीं जाते, भले ही उनके अंतिम परिणाम ग्राफ़िकल इंटरफ़ेस दृश्य तक पहुँच चुके हों।",
+    "before_sha256": "711300b5e2761a93a688959e8bbd72b7202b55bbdbce5ed99fde922c61705849",
+    "after_sha256": "06cf45b16088168d970014b9c438c6294ee7752114e207fae4f7d6bc5b758b4c",
+    "reason": "Equivalent ordinary GUI-view wording without introducing a protected acronym absent from the source."
+  },
+  {
+    "language": "ko",
+    "domain": "api",
+    "index": 1,
+    "before": "최종 결과가 GUI 뷰에 도착한 뒤에도 작업 스레드가 관리 대상에서 제거될 때까지 학습 및 적용 실행기를 포함합니다.",
+    "after": "최종 결과가 그래픽 인터페이스 화면에 도착한 뒤에도 작업 스레드가 관리 대상에서 제거될 때까지 학습 및 적용 실행기를 포함합니다.",
+    "before_sha256": "04a5ebcb5637ce574221364e637297f31675c076cd00da64b1f2be84a76c7afb",
+    "after_sha256": "b91e554286f73de4da6d443091ca1ea16d71f80bb615caaeebbc7b893869bd34",
+    "reason": "Equivalent ordinary GUI-view wording without introducing a protected acronym absent from the source."
+  }
+]

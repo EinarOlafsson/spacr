@@ -1,0 +1,91 @@
+{
+  "source_files": {
+    "spacr/embeddings.py": "965148f2ec847f40df8e3d0c8bd79a7cc2d9f7693d184013936c1f1843a9efbf",
+    "spacr/torch_artifacts.py": "34dcae10260adb94af207aca56c884d86d78260e3a8abd1d8c5f7727c666d496",
+    "spacr/qt/screens/embeddings.py": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea"
+  },
+  "selected_symbols": 23,
+  "new_symbols": 19,
+  "current_authored_records": 234,
+  "korean_historical_repairs": 4,
+  "current_selected_review_records": 238,
+  "backend_context_only_normalizations": 36,
+  "backend_stream_drafts_retired": 9,
+  "active_historical_shift_record_retired": 1,
+  "previous_ui_records_retired_in_0b55": 18,
+  "other_shifted_targets_to_preserve": 41,
+  "new_review_files_and_exact_retired_file": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-f561-own-classifier-backend-home-b.json": "45bacc78e2445304239582e39674a12c6d617dd75560af5c5e27d447b52e74ed",
+    "docs/i18n/reviewed/api/sv/2026-10-15-f561-classifier-application-backend-home-b.json": "665a4fe0007e69229c840f68934581ea1e2ee311b2bafe8fb5b693040de2cf3f",
+    "docs/i18n/reviewed/api/de/2026-10-15-f561-own-classifier-backend-home-b.json": "2f65189cb8304145602f9a9c8bf12cc02291aff5513026e50feadf10904d8ff8",
+    "docs/i18n/reviewed/api/de/2026-10-15-f561-classifier-application-backend-home-b.json": "39b47cbffcc6396ca3619ba02050d5dcb002c6ef876bd2535f9b21a925846961",
+    "docs/i18n/reviewed/api/es/2026-10-15-f561-own-classifier-backend-home-b.json": "7bdfff5a27068873aa6b58fe81d648623a61ca010af6e997b8151c07bcf86611",
+    "docs/i18n/reviewed/api/es/2026-10-15-f561-classifier-application-backend-home-b.json": "4cb616b87316cbb26db181703cca784b0ea0a738a34be0e8fa1a10cd328996cc",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-own-classifier-backend-home-b.json": "308cd2c942aa68de79581b7f9f9e32c81d4579bb6723424f37066912efdd7862",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-classifier-application-backend-home-b.json": "6ecec472283b2cb2cffed46331c47ceea739a39706f98f67a9f431c65ba86cc0",
+    "docs/i18n/reviewed/api/pt/2026-10-15-f561-own-classifier-backend-home-b.json": "d016fa7d66af42e42f7d3a3d82f82f433df0a94ec03b2ae249c28d043bd3e943",
+    "docs/i18n/reviewed/api/pt/2026-10-15-f561-classifier-application-backend-home-b.json": "615039eaf19b3cf577462418beecf6e0d2409c756d7fb174b218818c904d9236",
+    "docs/i18n/reviewed/api/hi/2026-10-15-f561-own-classifier-backend-home-b.json": "f63969310f6354d400791e52472828cbd8361f748a5aa855ed2af7af00b8b78f",
+    "docs/i18n/reviewed/api/hi/2026-10-15-f561-classifier-application-backend-home-b.json": "1f0a3d9d20881e97a6cc6cf3d94542a219a3370677fd3caa795ae38cd7b83326",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f561-own-classifier-backend-home-b.json": "a51562c2926c6c05a15a21b3ebcd319b7ba526cc0f296c595d31b50675fbbed8",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f561-classifier-application-backend-home-b.json": "9cc00555eba2806ab513e391507c59f0fdf290fd201875cbcde2c25e49baf614",
+    "docs/i18n/reviewed/api/is/2026-10-15-f561-own-classifier-backend-home-b.json": "54a4403b9740329c6c128e7b338f3dba76d6a76ce1af17641ba2f3dc800fb2e8",
+    "docs/i18n/reviewed/api/is/2026-10-15-f561-classifier-application-backend-home-b.json": "f55618056d50d3573be03e0cb4c337f8f9b4ade3aac39b9658e90fbb2504d9ae",
+    "docs/i18n/reviewed/api/fr/2026-10-15-f561-own-classifier-backend-home-b.json": "3eca0a3b08aa3c5ac81d79b0b1bc60886d42197d47e477377867b80accd45a36",
+    "docs/i18n/reviewed/api/fr/2026-10-15-f561-classifier-application-backend-home-b.json": "fb108515aa5d5dac366df424ae78ffcd1786deb7602797147bd59820d8e36aae",
+    "docs/i18n/reviewed/api/ko/2026-08-14-current-final-020-039.json": "4601401f149a2b817d2c24fb690287099714ebd42b1258a4aa1c4641c35c63d3",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f561-loader-ko-shift-repairs-home-b.json": "b8bfeef76889d7e4f85a44dd792c093b29924da83d2ca0487f2a1df01cf8cfc3"
+  },
+  "normal_selected_review_loader": {
+    "sv": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    },
+    "de": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    },
+    "es": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    },
+    "zh_CN": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    },
+    "pt": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    },
+    "hi": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    },
+    "ko": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 4
+    },
+    "is": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    },
+    "fr": {
+      "normal_selected_review_loader": "PASS",
+      "authored_current_records": 26,
+      "approved_historical_repairs": 0
+    }
+  },
+  "all_original_backend_draft_packets_unchanged": true,
+  "all_previous_ui_input_packets_unchanged": true,
+  "canonical_collector_called": false,
+  "catalog_writer_called": false,
+  "generator_gate": "Wait for coordinator final source/baseline/Original writer release. Normal source currentness/scoped translation and Help outputs still pending."
+}

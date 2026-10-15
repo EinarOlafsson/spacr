@@ -1,0 +1,17 @@
+{
+  "status": "PASS independent artifact/source/target binding verification",
+  "api_artifact": "af2d3fad8fbb8e362ee0aadc0be6b2f037bc9336",
+  "backend_owner_inputs": "c1fc8a14eb1d130d6b539f361971bbd9f8e3cfa1",
+  "api_readback_result": "247 exact targets:234 current+4 approved Korean repairs+9 literal provenance;41 shifts and36 unchanged selected blocks preserved.13,417 foreign records per locale,13,491 English and complete source history unchanged.",
+  "execution": "One capped2G read-only immutable Git/JSON/hash/pure-block-parser readback,8.8849seconds, terminal0. No producer/test/runtime collector/model/Help execution repeated.",
+  "backend_result": "Four exact top-level extractor owners accepted;1 new incompatibility identity/9 targets. Existing stopped-training translations preserved;6 conflicting historical draft targets deliberately not installed.",
+  "author_boundaries": "API artifact binding checked independently of source/catalog author. Backend nine new translations independently reviewed technically; no native-speaker claim.",
+  "evidence_sha256": {
+    "api-artifact-peer.json": "2b345345836ec29075c0875c9cf124e507b845214188c0843b181a71b44c23e8",
+    "verify.log.gz": "768580f393311141605712a55968aa13335ff5b8f31260309807e322752fff2c",
+    "backend-source-target-peer.json": "477345752e892408f088add7a528af378b6cb6c27936f0bee5eb1a5ab20d6e90",
+    "verify.py.gz": "59695a640e2c487f45f2698b452b9cf9c8d260e1d60f260366c4a7a4fc03abe3",
+    "backend-final-input-binding.json": "09ff9a0015efd1e7cf3e63e49c2a3d86f3b021d7e386225cc478e9b90352f1e7"
+  },
+  "limits": "No whole-itemF561 completion or published/inference/scientific acceptance claim; final integrated API/Help/runtime closure remains coordinator-owned."
+}

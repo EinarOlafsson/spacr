@@ -1,5 +1,71 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — classifier integration accepted; safe accessible resize
+
+F561 source/runtime/API/Help integration is ready for immediate nightly push.
+Exact approved19-helper/constructor wiring passes3 strict checks; historical
+13218/211 floors are unchanged. All55caption identities, nine-language audits,
+actual GUI/backend consumers and23Help routes pass. No new full CI/release or
+scientific claim. Original may adopt the published strict-test commit; do not
+re-author its packet. Work portable docs patch is already publicdd61.
+
+N655 final safe HintBar source04eebb (root662e) removes ALL custom numeric
+interface/pointer plumbing.26 focused checks and actual external native actions
+97→115→97 with exactly two persistence signals pass. Original crashing418e and
+its superseded peer remain historical evidence; do not use those draft trees.
+Numeric native Value is absent and Qt Grip maps to UNKNOWN67. Native evidence
+and independent final peer are integrated; no whole-item/other-platform claim.
+Plate-map invisible-focus repair is now independently owned in the N655 lane.
+
+## 2026-10-15 Home-B — active integration and source-owner dependencies
+
+F561 real training/application source and23-symbol API closure are integrated
+privately, with54UI sources plus one backend diagnostic in all nine locales.
+Normal nine-language runtime audit/fresh canonical and actual45GUI buttons,
+nine dialogs/486lookups pass; backend application refusal passes nine locales.
+Original owns the shared strict API test: exact19-helper fixture plus one
+nested Classifier.__init__ admission must be wired without raising historical
+13218 floor. Exact fixture is retained with combined API evidence; this is an
+active coordinated dependency, not a whole-item completion or full-CI claim.
+
+N655 WARNING: private418e custom ValueInterface crashes actual external AT-SPI
+GetState enumeration despite33 passing in-process tests. DO NOT publish/adopt
+that source. The owner is removing custom pointer/value-interface handling and
+will verify safe Grip/actions/value text. Prior peer82f is explicitly superseded.
+No unsafe source has been pushed by Home-B; final fallback remains pending.
+
+N689 actual CI probe38743415875 returnedHTTP403 with an existing token; all build
+and deploy jobs skipped as intended. Live permission/canonical variables/main
+routing remain open; no broad local credential copied. Portable Work patch is
+features/data/689_work_url_owner_packet_2026-10-15/proposal.patch, with both exact
+preimage/proposed hashes and instructions. Work should preserve newer source.
+
+## 2026-10-15 — maintainer reporting and unattended work rule
+
+Use ONE progress-table row per whole numbered item. Combine every subtask under
+that item; green ticks require ALL of its tasks finished. Time left is an
+estimate in HOURS. Reprint the full grouped table only when a whole item closes,
+not on component delivery. Earlier component ledgers are evidence only. Check
+and update HANDOFF and dated item notes for away-at-work messages; continue
+useful owned implementation without questions or waiting for the final release.
+## 2026-10-15 Home-B → Work: portable N689 owner proposal is available
+
+The exact unapplied two-file URL proposal is now in
+`features/data/689_work_url_owner_packet_2026-10-15/`: `proposal.patch`,
+`owner-receipt.json` with full preimage/proposed hashes, and owner instructions.
+It replaces only the old nightly hostname in
+`tools/tutorials/audit_user_walkthroughs.py` and
+`tools/tutorials/build_cellpose_training_images.py`. Work should preserve newer
+source and adopt these two replacements in its own checkout; no Work file,
+recording or media was edited by this packet. Original proposal commit:
+`fac29ea798c08945244cfb78a5f5cccbcf181368`.
+
+The accepted v2 host still contains the older `8e0a1fd` documentation artifact;
+this packet does not establish current-head docs, lesson acceptance or N689
+completion. Existing CI write permission and main Pages cutover stay separate.
+Keep the maintainer's grouped reporting rule below: one row per numbered item,
+remaining hours, and green ticks only for whole-item completion.
+
 ## 2026-10-15 — Original Home: three whole-item closeouts accepted
 
 N692's original 3D drawing/FIB-SEM example contract is accepted, with exact

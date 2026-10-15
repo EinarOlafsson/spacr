@@ -1347,6 +1347,429 @@ def _dino_pretrain(crops: Any, path: str, *, arch: str = "resnet18",
             "seconds": time.time() - began}
 
 
+def _dino_classifier_from_config(config: Mapping[str, Any]):
+    """Rebuild an own-DINO classifier without reading a checkpoint or network.
+
+    :param config: primitive constructor settings including ordered source
+        channels, recorded scaling, resize, policy and encoder freezing.
+    :returns: trainable torch module accepting raw ``NCHW`` selected planes.
+    :raises EmbeddingError: settings or input violate the recorded contract.
+    """
+    import copy
+    import torch
+    import timm
+    from .qt.i18n import tr
+
+    def refuse():
+        """Refuse an incompatible own-DINO classifier contract."""
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+
+    config = copy.deepcopy(dict(config))
+    try:
+        for name in ("in_chans", "size", "num_classes"):
+            value = config[name]
+            if type(value) is not int or value < 1:
+                refuse()
+        if type(config["freeze_encoder"]) is not bool:
+            refuse()
+        if type(config["normalize_features"]) is not bool:
+            refuse()
+        scales = config["scale"]
+        channels = config["source_channels"]
+        if (not isinstance(scales, (list, tuple)) or not scales
+                or not isinstance(channels, (list, tuple))
+                or len(channels) != len(scales)
+                or any(type(c) is not int or c < 0 for c in channels)
+                or len(set(channels)) != len(channels)
+                or any(type(s) not in (int, float) or not np.isfinite(s)
+                       or s < 0 or s > np.finfo(np.float32).max for s in scales)):
+            refuse()
+        policy = config["channel_policy"]
+        if policy not in CHANNEL_POLICIES:
+            refuse()
+        if config["in_chans"] != (len(scales) if policy == CHANNEL_PROJECT else 1):
+            refuse()
+        arch = config["arch"]
+        if not isinstance(arch, str) or arch not in timm.list_models():
+            refuse()
+        digest = config["source_sha256"]
+        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            refuse()
+    except (KeyError, TypeError, OverflowError) as exc:
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible.")) from exc
+    kwargs = {"pretrained": False, "num_classes": 0,
+              "in_chans": config["in_chans"]}
+    if arch.startswith(("vit", "deit")):
+        kwargs.update(img_size=config["size"], dynamic_img_size=True)
+    backbone = timm.create_model(arch, **kwargs)
+    width = int(backbone.num_features)
+    input_channels = len(scales)
+    if policy == CHANNEL_PER_CHANNEL:
+        width *= input_channels
+
+    class Classifier(torch.nn.Module):
+        """Own-DINO encoder with immutable preprocessing and a trainable head."""
+
+        def __init__(self):
+            """Attach recorded scaling, teacher encoder and an untrained head."""
+            super().__init__()
+            self.encoder = backbone
+            self.head = torch.nn.Linear(width, config["num_classes"])
+            self.model_name = "own_dino"
+            self.num_classes = config["num_classes"]
+            self.image_size = config["size"]
+            self._own_dino_config = copy.deepcopy(config)
+            self.register_buffer("channel_scale", torch.tensor(
+                scales, dtype=torch.float32).reshape(1, input_channels, 1, 1))
+            self.encoder.requires_grad_(not config["freeze_encoder"])
+            self.train(True)
+
+        def train(self, mode=True):
+            """Keep a frozen teacher in evaluation mode while training its head."""
+            super().train(mode)
+            if config["freeze_encoder"]:
+                self.encoder.eval()
+            return self
+
+        def features(self, images):
+            """Scale selected raw NCHW planes and return recorded encoder features."""
+            if (not isinstance(images, torch.Tensor) or images.ndim != 4
+                    or images.shape[1] != input_channels
+                    or min(images.shape) < 1 or images.is_complex()
+                    or images.dtype == torch.bool):
+                refuse()
+            images = images.to(dtype=self.channel_scale.dtype)
+            if not torch.isfinite(images).all():
+                refuse()
+            scale = self.channel_scale
+            images = torch.where(scale > 0, images / torch.where(
+                scale > 0, scale, torch.ones_like(scale)), 0).clamp(0, 1)
+            batch = images.shape[0]
+            if policy == CHANNEL_PER_CHANNEL:
+                images = images.reshape(batch * input_channels, 1,
+                                        images.shape[-2], images.shape[-1])
+            if images.shape[-2:] != (self.image_size, self.image_size):
+                images = torch.nn.functional.interpolate(
+                    images, size=(self.image_size, self.image_size),
+                    mode="bilinear", align_corners=False)
+            features = self.encoder(images)
+            if policy == CHANNEL_PER_CHANNEL:
+                features = features.reshape(batch, -1)
+            if config["normalize_features"]:
+                features = torch.nn.functional.normalize(features, dim=1)
+            return features
+
+        def forward(self, images):
+            """Scale selected raw NCHW planes and return class logits."""
+            return self.head(self.features(images))
+
+    return Classifier()
+
+
+def _dino_classifier_from_checkpoint(path: str, *, num_classes: int,
+                                     source_channels: Sequence[int],
+                                     freeze_encoder: bool = True,
+                                     normalize_features: bool = True):
+    """Create a headed classifier from a locally supplied own-DINO teacher.
+
+    :param path: local checkpoint, decoded strictly with ``weights_only=True``.
+    :param num_classes: positive output width; the new head is untrained.
+    :param source_channels: caller declaration of physical-channel order matching
+        the saved scale. Historical DINO files do not prove that declaration.
+    :param freeze_encoder: freeze teacher parameters and running statistics.
+    :param normalize_features: L2-normalize concatenated features before the head.
+    :returns: trainable module; no source file is changed or downloaded.
+    :raises EmbeddingError: checkpoint does not describe compatible DINO weights.
+    """
+    import torch
+    from .qt.i18n import tr
+
+    with open(path, "rb") as stream:
+        before_hash = hashlib.sha256()
+        for chunk in iter(lambda: stream.read(1 << 20), b""):
+            before_hash.update(chunk)
+        digest = before_hash.hexdigest()
+        stream.seek(0)
+        state = torch.load(stream, map_location="cpu", weights_only=True)
+        stream.seek(0)
+        after_hash = hashlib.sha256()
+        for chunk in iter(lambda: stream.read(1 << 20), b""):
+            after_hash.update(chunk)
+        if after_hash.hexdigest() != digest:
+            raise EmbeddingError(tr(
+                "Own-DINO classifier settings, checkpoint or input are incompatible."))
+    if (not isinstance(state, Mapping) or not isinstance(state.get("setup"), Mapping)
+            or not isinstance(state.get("teacher"), Mapping)):
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+    setup = state["setup"]
+    config = {name: setup.get(name) for name in
+              ("arch", "in_chans", "size", "channel_policy")}
+    config.update(scale=state.get("scale"), source_channels=list(source_channels),
+                  num_classes=num_classes, freeze_encoder=freeze_encoder,
+                  normalize_features=normalize_features, source_sha256=digest)
+    weights = state["teacher"]
+    if any(not isinstance(value, torch.Tensor) or
+           (value.is_floating_point() and not torch.isfinite(value).all())
+           or value.is_complex() for value in weights.values()):
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+    model = _dino_classifier_from_config(config)
+    model.encoder.load_state_dict(weights, strict=True)
+    return model
+
+
+def _dino_finetune_classifier(crops: Any, checkpoint_path: str, output_path: str,
+                               *, labels: Sequence[Any], groups: Sequence[Any],
+                               source_channels: Sequence[int],
+                               freeze_encoder: bool = True,
+                               normalize_features: bool = True,
+                               epochs: int = 20, batch_size: int = 32,
+                               lr: float = 1e-4, holdout: float = 0.2,
+                               seed: int = 0, device: str = "cpu",
+                               progress: Optional[Callable] = None,
+                               cancelled: Optional[Callable] = None) -> Dict[str, Any]:
+    """Fine-tune a local own-DINO teacher on explicitly labelled raw crops.
+
+    :param crops: full raw ``NHWC`` stack; inputs are never modified.
+    :param checkpoint_path: locally supplied, restricted-load DINO teacher.
+    :param output_path: new best-classifier artifact; existing files refuse.
+    :param labels: one nonblank class per crop, in crop order.
+    :param groups: one known acquisition-well identity per crop; whole groups
+        are held out and every class must occur on both sides.
+    :param source_channels: ordered physical indices selecting raw planes and
+        declaring the order represented by the teacher's saved scaling.
+    :param freeze_encoder: train only the new head when true, otherwise both.
+    :param normalize_features: L2-normalize features before the classifier head.
+    :param epochs: positive supervised epoch count, independent of pretraining.
+    :param batch_size: positive number of labelled crops per optimizer step.
+    :param lr: finite positive AdamW learning rate.
+    :param holdout: fraction passed to the existing grouped split utility.
+    :param seed: nonnegative CPU shuffle and initialization seed.
+    :param device: explicitly selected torch device; CPU by default.
+    :param progress: optional ``(epoch, epochs, train_loss, validation_loss)``.
+    :param cancelled: optional predicate checked before each training batch.
+    :returns: best artifact path, classes, actual split provenance and losses.
+    :raises EmbeddingError: invalid data, settings or teacher configuration.
+    :raises InterruptedError: cancellation; no result artifact is published.
+    """
+    import tempfile
+    import torch
+    from .qt.i18n import tr
+    from .classifier_evaluation import grouped_split
+    from .torch_artifacts import atomic_torch_save, make_model_artifact
+
+    def refuse():
+        """Refuse an incompatible own-DINO classifier contract."""
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+
+    for value in (epochs, batch_size):
+        if type(value) is not int or value < 1:
+            refuse()
+    if type(seed) is not int or seed < 0:
+        refuse()
+    if type(lr) not in (int, float) or not np.isfinite(lr) or lr <= 0:
+        refuse()
+    channels = tuple(source_channels)
+    array = np.asarray(crops)
+    if (array.ndim != 4 or min(array.shape) < 1
+            or array.dtype.kind not in "uif" or not np.isfinite(array).all()
+            or not channels or len(set(channels)) != len(channels)
+            or any(type(c) is not int or c < 0 or c >= array.shape[-1]
+                   for c in channels)):
+        refuse()
+    if (len(labels) != len(array) or len(groups) != len(array)
+            or any(value is None or str(value).strip().casefold() in
+                   ("", "nan", "none", "unknown", "<na>")
+                   for value in list(labels) + list(groups))):
+        refuse()
+    if os.path.exists(output_path) or os.path.realpath(output_path) == os.path.realpath(checkpoint_path):
+        refuse()
+    classes = sorted({str(value) for value in labels})
+    if len(classes) < 2:
+        refuse()
+    targets = np.asarray([classes.index(str(value)) for value in labels], dtype=np.int64)
+    train_indices, validation_indices, split = grouped_split(
+        [str(value) for value in groups], targets, holdout, seed, group_by="well")
+    selected = np.array(array[..., channels].transpose(0, 3, 1, 2),
+                        dtype=np.float32, copy=True)
+    if not np.isfinite(selected).all():
+        refuse()
+    tensor = torch.from_numpy(selected)
+    target_tensor = torch.from_numpy(targets)
+    with torch.random.fork_rng(devices=[]):
+        torch.random.default_generator.manual_seed(seed)
+        model = _dino_classifier_from_checkpoint(
+            checkpoint_path, num_classes=len(classes), source_channels=channels,
+            freeze_encoder=freeze_encoder, normalize_features=normalize_features)
+    model.to(torch.device(device))
+    optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=lr)
+    generator = torch.Generator().manual_seed(seed)
+    history = []
+    best_loss = float("inf")
+
+    def stop_if_requested():
+        """Stop between batches when the caller requests cancellation."""
+        if cancelled is not None and cancelled():
+            raise InterruptedError(tr("Classifier training stopped."))
+
+    output_parent = os.path.dirname(os.path.abspath(output_path))
+    os.makedirs(output_parent, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".spacr-own-dino-", dir=output_parent) as staging:
+        staged_path = os.path.join(staging, "best.pt")
+        for epoch in range(1, epochs + 1):
+            stop_if_requested()
+            model.train()
+            total_loss = 0.0
+            shuffled = train_indices[torch.randperm(len(train_indices), generator=generator).numpy()]
+            for begin in range(0, len(shuffled), batch_size):
+                stop_if_requested()
+                indices = shuffled[begin:begin + batch_size]
+                images = tensor[indices].to(device)
+                targets_batch = target_tensor[indices].to(device)
+                optimizer.zero_grad(set_to_none=True)
+                loss = torch.nn.functional.cross_entropy(model(images), targets_batch)
+                if not torch.isfinite(loss):
+                    refuse()
+                loss.backward()
+                optimizer.step()
+                total_loss += float(loss.detach().cpu()) * len(indices)
+            model.eval()
+            validation_loss = 0.0
+            with torch.no_grad():
+                for begin in range(0, len(validation_indices), batch_size):
+                    stop_if_requested()
+                    indices = validation_indices[begin:begin + batch_size]
+                    loss = torch.nn.functional.cross_entropy(
+                        model(tensor[indices].to(device)), target_tensor[indices].to(device))
+                    if not torch.isfinite(loss):
+                        refuse()
+                    validation_loss += float(loss.cpu()) * len(indices)
+            stop_if_requested()
+            train_loss = total_loss / len(train_indices)
+            validation_loss /= len(validation_indices)
+            history.append({"epoch": epoch, "train_loss": train_loss,
+                            "validation_loss": validation_loss})
+            if validation_loss < best_loss:
+                best_loss = validation_loss
+                payload = make_model_artifact(
+                    model, epoch=epoch, metrics=history[-1], best_metric=best_loss,
+                    include_rng=False, classes=classes,
+                    channels=[str(c) for c in channels],
+                    preprocessing={"raw_channel_last": True,
+                                   "scaling_in_model": True,
+                                   "source_channel_order_is_caller_declared": True})
+                payload["grouped_split"] = split.to_dict()
+                payload["train_groups"] = sorted({str(groups[i]) for i in train_indices})
+                payload["validation_groups"] = sorted({str(groups[i]) for i in validation_indices})
+                stop_if_requested()
+                atomic_torch_save(payload, staged_path)
+            if progress is not None:
+                progress(epoch, epochs, train_loss, validation_loss)
+        stop_if_requested()
+        os.link(staged_path, output_path)
+    return {"path": os.fspath(output_path), "classes": classes,
+            "split": split.to_dict(), "loss": history}
+
+
+
+def _dino_classifier_apply(crops: Any, path: str, *, batch_size: int = 32,
+                           device: str = "cpu") -> Dict[str, Any]:
+    """Apply a saved own-DINO classifier to full raw channel-last crops.
+
+    Saved source-channel order selects physical planes once. Scaling, resize
+    and feature normalization remain inside the reconstructed classifier;
+    this route does not use teacher embedding preprocessing or estimate scales.
+
+    :param crops: nonempty finite numeric raw ``NHWC`` stack, never modified.
+    :param path: local classifier artifact, decoded from the same regular-file
+        stream that supplies its before/after SHA-256 and identity checks.
+    :param batch_size: positive crop count per inference batch.
+    :param device: explicit torch device; CPU by default.
+    :returns: ``features``, ``logits``, ``probabilities``, ``predictions``, saved
+        ``classes`` and ``source_channels``, and the loaded artifact's
+        ``checkpoint_sha256``. Arrays preserve crop order; probability columns
+        and predicted labels follow saved class order.
+    :raises EmbeddingError: incompatible crops, artifact metadata or changed file.
+    """
+    import torch
+    from .qt.i18n import tr
+    from .torch_artifacts import load_model_artifact
+
+    def refuse():
+        """Refuse an incompatible own-DINO classifier application."""
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+
+    array = np.asarray(crops)
+    if (type(batch_size) is not int or batch_size < 1
+            or array.ndim != 4 or min(array.shape) < 1
+            or array.dtype.kind not in "uif" or not np.isfinite(array).all()):
+        refuse()
+    try:
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            os.close(descriptor)
+            refuse()
+        with os.fdopen(descriptor, "rb") as handle:
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+            handle.seek(0)
+            model, payload = load_model_artifact(
+                handle, map_location="cpu", strict=True, weights_only=True)
+            handle.seek(0)
+            after_digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                after_digest.update(chunk)
+            after = os.fstat(handle.fileno())
+            identity = lambda status: (
+                status.st_dev, status.st_ino, status.st_size,
+                status.st_mtime_ns, status.st_ctime_ns)
+            if identity(before) != identity(after) or digest.digest() != after_digest.digest():
+                refuse()
+    except OSError as exc:
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible.")) from exc
+    config = getattr(model, "_own_dino_config", None)
+    classes = payload.get("classes")
+    if (not isinstance(config, Mapping) or payload.get("legacy") is not False
+            or not isinstance(classes, (list, tuple))
+            or len(classes) != config.get("num_classes")
+            or any(not isinstance(value, str) or not value.strip() for value in classes)
+            or len(set(classes)) != len(classes)):
+        refuse()
+    channels = config["source_channels"]
+    if any(channel >= array.shape[-1] for channel in channels):
+        refuse()
+    model.eval().to(torch.device(device))
+    features = []
+    logits = []
+    with torch.inference_mode():
+        for begin in range(0, len(array), batch_size):
+            selected = np.array(array[begin:begin + batch_size, ..., channels].transpose(
+                0, 3, 1, 2), dtype=np.float32, copy=True)
+            if not np.isfinite(selected).all():
+                refuse()
+            encoded = model.features(torch.from_numpy(selected).to(device))
+            output = model.head(encoded)
+            if not torch.isfinite(encoded).all() or not torch.isfinite(output).all():
+                refuse()
+            features.append(encoded.detach().float().cpu().numpy())
+            logits.append(output.detach().float().cpu())
+    joined = torch.cat(logits)
+    probabilities = torch.softmax(joined, dim=1).numpy()
+    return {"features": np.concatenate(features), "logits": joined.numpy(),
+            "probabilities": probabilities,
+            "predictions": [classes[index] for index in joined.argmax(dim=1).tolist()],
+            "classes": list(classes), "source_channels": list(channels),
+            "checkpoint_sha256": digest.hexdigest()}
+
+
 def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     """The teacher backbone of a :func:`_dino_pretrain` checkpoint, as an encoder.
 

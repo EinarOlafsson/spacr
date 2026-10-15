@@ -1,0 +1,488 @@
+[
+  {
+    "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Om inläsning av bildutsnitt, inbäddning eller någon av de två egna DINO-träningsåtgärderna pågår.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Om inläsning av bildutsnitt, inbäddning eller någon av de två egna DINO-träningsåtgärderna pågår.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "77e6900ee6bd435ef5fedeebc877ce52651b78de5e464b68d2d293a06f08cf18",
+    "after_file_sha256": "2f14fa77aa93fdfdc7b314df8eb3adf514b8082a582262cc3105268ac927b964"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/sv/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Inkluderar båda träningsjobbkörarna tills deras arbetstrådar har avvecklats, även efter att deras slutliga resultat har nått skärmen.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Inkluderar båda träningsjobbkörarna tills deras arbetstrådar har avvecklats, även efter att deras slutliga resultat har nått skärmen.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "77e6900ee6bd435ef5fedeebc877ce52651b78de5e464b68d2d293a06f08cf18",
+    "after_file_sha256": "2f14fa77aa93fdfdc7b314df8eb3adf514b8082a582262cc3105268ac927b964"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Ob das Laden von Bildausschnitten, die Einbettung oder eine der beiden eigenen DINO-Trainingsaktionen läuft.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Ob das Laden von Bildausschnitten, die Einbettung oder eine der beiden eigenen DINO-Trainingsaktionen läuft.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "9f611cfbe10757fdfc16d59a0d6a321964e3e4ad42f5cc1a169b4fbf5be2c499",
+    "after_file_sha256": "ec33f57deac497c83bec21b335b225a811894b8e44d32eb43cee4eb91adbf6c9"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/de/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Umfasst beide Trainings-JobRunner, bis ihre Arbeitsthreads vollständig aus dem Lauf entfernt wurden, auch nachdem ihre abschließenden Ergebnisse den Bildschirm erreicht haben.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Umfasst beide Trainings-JobRunner, bis ihre Arbeitsthreads vollständig aus dem Lauf entfernt wurden, auch nachdem ihre abschließenden Ergebnisse den Bildschirm erreicht haben.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "9f611cfbe10757fdfc16d59a0d6a321964e3e4ad42f5cc1a169b4fbf5be2c499",
+    "after_file_sha256": "ec33f57deac497c83bec21b335b225a811894b8e44d32eb43cee4eb91adbf6c9"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Indica si está en curso la carga de recortes, la generación de embeddings o alguna de las dos acciones de entrenamiento con DINO propio.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Indica si está en curso la carga de recortes, la generación de embeddings o alguna de las dos acciones de entrenamiento con DINO propio.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "f06658e08f4693df413c22c44a283aa28dc0ddcd0c8cccbf5d8227091954dda2",
+    "after_file_sha256": "04b429c36d44ea3e12c581746b12d7c3016e289ea6cc917d5508ecd2d000f5e0"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/es/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Incluye ambos ejecutores de entrenamiento hasta que se hayan retirado sus hilos de trabajo, incluso después de que sus resultados finales hayan llegado a la pantalla.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Incluye ambos ejecutores de entrenamiento hasta que se hayan retirado sus hilos de trabajo, incluso después de que sus resultados finales hayan llegado a la pantalla.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "f06658e08f4693df413c22c44a283aa28dc0ddcd0c8cccbf5d8227091954dda2",
+    "after_file_sha256": "04b429c36d44ea3e12c581746b12d7c3016e289ea6cc917d5508ecd2d000f5e0"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "裁剪图像加载、嵌入计算或两种自有 DINO 训练操作之一是否正在进行。",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "裁剪图像加载、嵌入计算或两种自有 DINO 训练操作之一是否正在进行。",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "6e6a69becd9fe4662e26197bf521718510ed421c2266941e9ce6031caec64a7e",
+    "after_file_sha256": "5e20146b62fb89ac76cc88ae507405d807474c909b1a77ebe61d3310d2588217"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "包括两个训练任务执行器，直到各自的工作线程完成退役，即使最终结果已经送达界面。",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "包括两个训练任务执行器，直到各自的工作线程完成退役，即使最终结果已经送达界面。",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "6e6a69becd9fe4662e26197bf521718510ed421c2266941e9ce6031caec64a7e",
+    "after_file_sha256": "5e20146b62fb89ac76cc88ae507405d807474c909b1a77ebe61d3310d2588217"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Indica se o carregamento de recortes, o cálculo de embeddings ou uma das duas ações de treinamento com DINO próprio está em andamento.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Indica se o carregamento de recortes, o cálculo de embeddings ou uma das duas ações de treinamento com DINO próprio está em andamento.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "a4da038cd2e6a404de4a91341a4d5360c4dce122d3aaf839880d130b8c39aef5",
+    "after_file_sha256": "7f39f4a5dbfdd7e401429b62ee8b4e4702ca048607774169bc57087f3d436ebb"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/pt/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Inclui os dois executores de treinamento até que suas threads de trabalho tenham sido retiradas, mesmo depois que seus resultados finais chegam à tela.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Inclui os dois executores de treinamento até que suas threads de trabalho tenham sido retiradas, mesmo depois que seus resultados finais chegam à tela.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "a4da038cd2e6a404de4a91341a4d5360c4dce122d3aaf839880d130b8c39aef5",
+    "after_file_sha256": "7f39f4a5dbfdd7e401429b62ee8b4e4702ca048607774169bc57087f3d436ebb"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "क्या छवि-खंड लोड करना, एम्बेडिंग निकालना या अपने DINO की दोनों प्रशिक्षण क्रियाओं में से कोई चल रही है।",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "क्या छवि-खंड लोड करना, एम्बेडिंग निकालना या अपने DINO की दोनों प्रशिक्षण क्रियाओं में से कोई चल रही है।",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "4b7c9c89f5a6424383aad82eb58c11210bfc113be1012d9986a1756906542dbd",
+    "after_file_sha256": "d0d817498ac6661c277d9741809a070f0d54400d1a339aeb536bca1017a98eb3"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/hi/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "दोनों प्रशिक्षण रनर उनके कार्य-थ्रेड हटाए जाने तक शामिल रहते हैं, भले ही उनके अंतिम परिणाम स्क्रीन पर पहुँच चुके हों।",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "दोनों प्रशिक्षण रनर उनके कार्य-थ्रेड हटाए जाने तक शामिल रहते हैं, भले ही उनके अंतिम परिणाम स्क्रीन पर पहुँच चुके हों।",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "4b7c9c89f5a6424383aad82eb58c11210bfc113be1012d9986a1756906542dbd",
+    "after_file_sha256": "d0d817498ac6661c277d9741809a070f0d54400d1a339aeb536bca1017a98eb3"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "이미지 영역 불러오기, 임베딩 계산 또는 두 자체 DINO 학습 작업 중 하나가 진행 중인지 여부.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "이미지 영역 불러오기, 임베딩 계산 또는 두 자체 DINO 학습 작업 중 하나가 진행 중인지 여부.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "e8594b87cccf82ba0936a49679f7c242a1883233e85f35c4e76659ed008ebc5b",
+    "after_file_sha256": "04bd193ec90f1eec7bd6bc08fcdf4ba8e54bc593b37ebb131f3b3d88a059ba2b"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/ko/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "최종 결과가 화면에 전달된 뒤에도 작업 스레드가 정리될 때까지 두 학습 실행기를 모두 포함합니다.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "최종 결과가 화면에 전달된 뒤에도 작업 스레드가 정리될 때까지 두 학습 실행기를 모두 포함합니다.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "e8594b87cccf82ba0936a49679f7c242a1883233e85f35c4e76659ed008ebc5b",
+    "after_file_sha256": "04bd193ec90f1eec7bd6bc08fcdf4ba8e54bc593b37ebb131f3b3d88a059ba2b"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Hvort hleðsla myndútskurða, útreikningur innfellingar eða önnur tveggja þjálfunaraðgerða fyrir eigin DINO er í gangi.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Hvort hleðsla myndútskurða, útreikningur innfellingar eða önnur tveggja þjálfunaraðgerða fyrir eigin DINO er í gangi.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "98bea41e3caaaab3cb4cf5ab94aa5e62e88493144c8fa49d4b60abd7e079aed9",
+    "after_file_sha256": "babdaa83d3adaabdca494f174ff35abe0115fc4311d944e33e2dc4efc6ea47fd"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/is/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Telur með báða keyrslustjóra þjálfunar þar til vinnuþræðir þeirra hafa verið teknir úr umferð, jafnvel eftir að lokaniðurstöður þeirra hafa borist á skjáinn.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Telur með báða keyrslustjóra þjálfunar þar til vinnuþræðir þeirra hafa verið teknir úr umferð, jafnvel eftir að lokaniðurstöður þeirra hafa borist á skjáinn.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "98bea41e3caaaab3cb4cf5ab94aa5e62e88493144c8fa49d4b60abd7e079aed9",
+    "after_file_sha256": "babdaa83d3adaabdca494f174ff35abe0115fc4311d944e33e2dc4efc6ea47fd"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 0,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Indique si le chargement d’extraits d’image, le calcul des embeddings ou l’une des deux actions d’entraînement avec son propre DINO est en cours.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding or either own-DINO training action is in flight.",
+      "context": "Whether extracted image region loading, embedding or either own-DINO training action is in flight.",
+      "source_sha256": "60012b2773f4cff6da66a34e4e95f4bd57a6bd9447e149979364b9495289bae0",
+      "previous_same_source_indexes": [],
+      "translation": "Indique si le chargement d’extraits d’image, le calcul des embeddings ou l’une des deux actions d’entraînement avec son propre DINO est en cours.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "7825941fe58de7c47c34d876d3b8ec576ff54e5d082c3cb7e9ce8ea2aa0ca3a3",
+    "after_file_sha256": "2847354e1e53d4546566a71102ceb537eb170807e292d74205e22d92593b404f"
+  },
+  {
+    "path": "docs/i18n/reviewed/api/fr/2026-10-15-f561-classifier-ui-api-home-b.json",
+    "record_index": 1,
+    "before": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Inclut les deux exécuteurs d’entraînement jusqu’au retrait de leurs threads de travail, même après l’arrivée de leurs résultats finaux à l’écran.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    "after": {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes both training runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "94b357c8937d8bb595f1c990642d71b644de24ca12c3c3ff15cf66196b30ddd4",
+      "previous_same_source_indexes": [],
+      "translation": "Inclut les deux exécuteurs d’entraînement jusqu’au retrait de leurs threads de travail, même après l’arrivée de leurs résultats finaux à l’écran.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw crop/channel/label-group contracts, worker cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 saved-classifier application extends busy ownership to the dedicated application runner. Replacement exact-source review is 2026-10-15-f561-classifier-apply-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    "before_file_sha256": "7825941fe58de7c47c34d876d3b8ec576ff54e5d082c3cb7e9ce8ea2aa0ca3a3",
+    "after_file_sha256": "2847354e1e53d4546566a71102ceb537eb170807e292d74205e22d92593b404f"
+  }
+]
