@@ -6,6 +6,7 @@ Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/t
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N690 — make masks for tem images | ✅ | 0 | Home / assigned owner | Complete: TEM readers, pixel scale, contrast, drawing/save, public example, recorded draft F1 and current translations; separate tutorial withdrawn. |
 | N180 — a saved run can carry the whole workspace | ✅ | 0 | Home-B / shared owner | Complete original workspace contract accepted: real session figures/PDFs survive save/close/restore, missing-PNG resave repaired, nine-language API/runtime and actual Help/search consumers pass. |
 | F549 — Microscope acquisition | ✅ | 0 | Home / assigned owner | Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified. |
 | N197 — Page/focus navigation | ✅ | 0 | Home-B / shared owner | Complete original keyboard-map contract accepted: Help/key/palette entry points, full scoped map, native key spelling and wrapping; today’s actual Annotate page/focus repair and final nine-language output verified. |
@@ -69,7 +70,6 @@ Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/t
 | N655 — Accessibility | 90% | 2–6 + platforms | Home-B / shared owner | Linux Clear/fold native accessibility actions and three numeric-Enter repairs published, with current source preservation verified. Explicit wider platform/human acceptance remains. |
 | N675 — conda forge update to latest spacr release | 90% | 1–3 + review | Home | Publish existing correction via authorized external owner, normal PR checks/review/feedstock merge/package release, then clean current-channel install. No duplicate patch/build; no account/PR mutation in this audit. |
 | N685 — make masks curation controls and alpha vvvv export | 95% | Unknown | Home | Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted. |
-| N690 — make masks for tem images | 95% | 0.5–1 | Home | Current runtime/source checks pass; original tutorial obligation explicitly dropped by Work. One existing French API paragraph review/normal selected audit queued after N180. |
 | N686 — Free project website | 90% | 2–6 | Home-B | Free site, package Homepage, ten README links and all15 hosted audits accepted. Explicit physical-device60fps acceptance remains. |
 | N688 — Codecov integration | 95% | 1–3 after main promotion | Home-B | Nightly upload and all README badges work; first main upload remains. |
 | N323 — Hardware capability table | 90% | 2–6 + review | Home-B | Table and readable context built; explicit translation review remains. |

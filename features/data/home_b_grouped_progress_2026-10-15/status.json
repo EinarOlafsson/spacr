@@ -2,8 +2,17 @@
   "date": "2026-10-15",
   "format": "One row per numbered item; whole-item ticks only; estimated remaining active hours; external waits may be unknown. Historical completed items omitted.",
   "source": "Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/today rows retained with current owner updates.",
-  "latest_home_b_public": "bcdf081f6a",
+  "latest_home_b_public": "d54dd8682e",
   "rows": [
+    {
+      "item": "N690",
+      "title": "make masks for tem images",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: TEM readers, pixel scale, contrast, drawing/save, public example, recorded draft F1 and current translations; separate tutorial withdrawn.",
+      "completion_basis": "Whole original contract independently reconciled2026-10-15; exact current source/artifact evidence verified."
+    },
     {
       "item": "N180",
       "title": "a saved run can carry the whole workspace",
@@ -569,15 +578,6 @@
       "time_left_hours": "Unknown",
       "owner": "Home",
       "description": "Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N690",
-      "title": "make masks for tem images",
-      "percent_done": 95,
-      "time_left_hours": "0.5–1",
-      "owner": "Home",
-      "description": "Current runtime/source checks pass; original tutorial obligation explicitly dropped by Work. One existing French API paragraph review/normal selected audit queued after N180.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
