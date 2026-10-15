@@ -240,3 +240,19 @@ def test_planning_still_refuses_wrong_explicitly_supplied_local_bytes(pinned):
     with pytest.raises(zoo.ModelZooError):
         zoo._resolve_pinned_model_file(settings, 'cell_model_name', download=False)
     assert original.read_bytes() == b'incorrect explicit input'
+
+
+def test_recorded_identity_reuses_relocated_cache_while_offline(pinned, monkeypatch, tmp_path):
+    from pathlib import Path
+    settings, raw, payload = pinned
+    original = deepcopy(settings)
+    destination = tmp_path / 'relocated-models'
+    destination.mkdir()
+    expected = destination / raw['name']
+    expected.write_bytes(payload)
+    monkeypatch.setenv('SPACR_MODEL_CACHE', str(destination))
+    monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', 'off')
+    monkeypatch.setattr(zoo, 'fetch', lambda *a, **k: pytest.fail('verified relocated pin fetched'))
+    assert zoo._resolve_pinned_model_file(settings, 'cell_model_name', kinds=('cellpose',)) == expected
+    assert settings == original
+    assert not (tmp_path / 'home' / 'models').exists()

@@ -5036,18 +5036,21 @@ def _field_split(groups, fraction=0.2, seed=0):
     return np.array([g in held for g in groups])
 
 
-def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
+def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1,
+                        group_by="field"):
     """Cell-cycle phase of every nucleus from a CPU gradient-boosted classifier.
 
-    Trained on the labelled nuclei and applied to all of them. Whole fields
-    are first held out to score the classifier on nuclei it never saw; the
-    model that calls every nucleus is then refitted on all the labels.
-    Scores are calculated on the held-out fields below; fitting does not
+    Trained on labelled nuclei and applied to all of them. The shared
+    classifier splitter holds out the requested whole acquisition groups;
+    the model that calls every nucleus is then refitted on all the labels.
+    Scores are calculated on held-out groups below; fitting does not
     request XGBoost's separate per-iteration training metrics.
 
     :param features: the frame from :func:`_phase_features`.
     :param labels: phase or None per row.
-    :param groups: field identity per row, for the held-out split.
+    :param groups: resolved acquisition-group identity per row.
+    :param group_by: isolation level named by those groups. Direct callers
+        retain the legacy field default; the Measure caller defaults to well.
     :param seed: random seed.
     :param n_jobs: xgboost threads.
     :returns: ``(phases, confidence, report, model)``; ``report`` holds the
@@ -5057,7 +5060,9 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
     from xgboost import XGBClassifier
 
     from .openmp_guard import single_threaded_openmp
+    from .classifier_evaluation import grouped_split, normalize_split_level
 
+    level = normalize_split_level(group_by)
     labelled = labels.notna().to_numpy()
     classes = [p for p in _CELL_CYCLE_PHASES
                if (labels[labelled] == p).any()]
@@ -5078,15 +5083,27 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
             disable_default_eval_metric=True)
 
     report = {'classes': classes,
-              'counts': {p: int((labels == p).sum()) for p in classes}}
-    held = _field_split(np.asarray(groups)[labelled], seed=seed)
+              'counts': {p: int((labels == p).sum()) for p in classes},
+              'split_group_by': level}
     x_lab, y_lab = x_all[labelled], y_all[labelled]
+    try:
+        train_rows, held_rows, split_report = grouped_split(
+            np.asarray(groups)[labelled], y_lab, 0.2,
+            seed=seed, group_by=level)
+    except ValueError as error:
+        from .qt.i18n import tr
+
+        report['held_out_unavailable'] = tr("The requested acquisition groups cannot place every class in both training and held-out data.")
+        report['held_out_split_detail'] = str(error)
+        train_rows = held_rows = None
+    else:
+        report['split'] = split_report.to_dict()
     with single_threaded_openmp('cell-cycle phase classifier'):
-        if held.any() and len(set(y_lab[~held].tolist())) == len(classes):
-            model = _model().fit(x_lab[~held], y_lab[~held])
-            guess = model.predict(x_lab[held])
+        if held_rows is not None:
+            model = _model().fit(x_lab[train_rows], y_lab[train_rows])
+            guess = model.predict(x_lab[held_rows])
             report['held_out'] = _phase_scores(
-                [classes[i] for i in y_lab[held]],
+                [classes[i] for i in y_lab[held_rows]],
                 [classes[i] for i in guess], phases=tuple(classes))
         model = _model().fit(x_lab, y_lab)
         proba = model.predict_proba(x_all)
@@ -5626,10 +5643,13 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
         columns = [column] + [_measured_channel_column(settings, c)
                               for c in fucci]
         features = _phase_features(nuclei, measured, columns)
-        fields = table[list(_CELL_CYCLE_KEYS)].astype(str).agg('_'.join,
-                                                               axis=1)
+        from .classifier_evaluation import split_group_values
+
+        split_level, split_groups = split_group_values(
+            group_by=settings.get('cv_group_by', 'well'), frame=table,
+            table=_CELL_CYCLE_TABLE)
         phases, confidence, xgb_report, model = _phases_by_xgboost(
-            features, labels, fields.to_numpy(),
+            features, labels, split_groups, group_by=split_level,
             n_jobs=int(settings.get('n_jobs') or 1))
         table['phase_xgboost'] = _keep_content_calls(phases, measured)
         table['confidence_xgboost'] = confidence

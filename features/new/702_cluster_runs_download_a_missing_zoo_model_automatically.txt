@@ -394,6 +394,78 @@ private offline-caption policy was silently adopted. Real weights, scientific
 parity, native cluster acceptance and finalCI remain open; parent702 partial.
 Evidence: data/702_integrated_model_runtime_2026-10-14/receipt.json.
 
+2026-10-14 — legacy training/plaque/detector/figure missing paths resolve exactly:
+Missing POSIX/Windows model paths in legacy training, plaque analysis and
+figure measurement now reuse the exact shared basename resolver, including
+cache verification and cross-process acquisition. Well-detector paths enforce
+the detector kind. Unknown training paths fail before Cellpose could silently
+use stock weights. Plaque preview keeps pure download=False planning and does
+not acquire weights; explicit existing custom files retain priority.
+Eleven new native consumer/private-file-mirror cases and finite owning cohort
+passed41tests in6.78seconds, exit0 (one existing skimage warning). Stock/key
+legacy semantics are unchanged by this bounded repair; direct key-only fetch
+loops and broader figure-key fuzzy behavior remain separate gaps. No real
+models/external network/GPU/fullCI. Parent702 remains partial.
+Evidence: data/702_legacy_consumer_missing_paths_2026-10-14/receipt.json.
+
+2026-10-14 — legacy bare zoo keys share verified acquisition and exact identity:
+Training bases, plaque segmentation, well detection and figure models now
+reuse the shared cache/OS lock/acquisition path for bare catalogue keys as
+well as missing filenames. Repeated requests reuse verified cached bytes
+rather than fetching directly again. Figure model lookup no longer calls
+the fuzzy resolver, and actual detector/segmenter calls specify their kind.
+Plaque key preview uses the pure planning index only. Stock training names
+and supplied existing custom paths retain their semantics.
+Seven new native key/cache/fuzzy/kind/preview cases plus finite existing
+training/plaque/figure tests passed81cases in23.84seconds, exit0 (two existing
+skimage warnings). Older minimal mock namespaces now use the actual model
+entry protocol and shared destination type; no guard was relaxed. Legacy
+bulk bundled pack/historical provenance and offline catalog localization
+remain separate. No scientific model/GPU/external network/fullCI; parent702
+remains partial.
+Evidence: data/702_legacy_shared_key_acquisition_2026-10-14/receipt.json.
+
+2026-10-14 — offline runtime component private delivery; ARTIFACT HOLD:
+SPACR_MODEL_DOWNLOAD=off (also false/0/no, case/space-insensitive) now
+returns shared catalogue cache without foreground or daemon metadata traffic,
+even when forced. Verified cached weights and preflight remain usable. An
+uncached exact entry raises a tr()-wrapped message naming the model key,
+SHA-256 and precise cache file to copy, before creating files or fetching.
+Baseline: 9 FAIL, 2 existing guards PASS. Initial owning runtime cohort51PASS;
+final52PASS/9deselected (7.37s, actual exit0) includes the real resolver to
+declared-catalogue/shared-catalogue chain with both metadata paths forbidden.
+
+Nine exact-source AI technical runtime reviews are authored, with placeholders
+and SPACR_MODEL_DOWNLOAD preserved; no native-speaker signoff. Actual nine-
+locale error-path tests read shipped catalog rows and exercise the resolver.
+All9 currently FAIL (KeyError), as expected while normal owner-generated
+catalogs are pending. They are not skipped and localization is NOT accepted.
+The normal full builder encountered unrelated missing N700 translations and
+was stopped rather than running an unrelated MT sweep (exit143). Source-only
+English generation succeeded; generated files were restored to exact tracked
+bytes. The normal arrival CLI prerequisite is separate31d31495814, identical
+to reviewed7e269's tool; no pin or gzip was manually edited.
+
+Home-B owns translation tooling. Its required scoped extractor addition is
+only spacr.model_zoo._ensure_model_file's new literal tr() call. Combined
+normal catalog/arrival regeneration and all nine locale tests MUST pass before
+publication of this private component. Pinned export identity, process
+coalescing, all-model coverage and full parent acceptance remain OPEN.
+Evidence: data/702_offline_runtime_private_2026-10-14/receipt.json.
+
+2026-10-14 — combined legacy/offline implementation validated, HELD:
+Legacy training/plaque/detector/figure keys share exact verified acquisition;
+missing laptop paths use the resolver, figures no longer fuzzy-match and
+preview planning does not fetch. Offline policy blocks metadata and missing
+weight traffic while retaining verified local/cache reuse; its exact copy
+instruction has nine reviewed locale targets through normal writers. Combined
+owning cohort275PASS/29.16seconds/exit0. Publication remains held for caption
+contract owner review and existing foreign N700 review evidence. Public caption
+module --refresh has no CLI and its exit0 was a no-op, not a validation pass.
+The actual combined Masks refresh exited1 at missing sv/UI/AI Error report
+review evidence; owner request sent without weakening pins. Parent702 partial.
+Evidence: data/702_legacy_offline_integration_2026-10-14/receipt.json.
+
 2026-10-14 — legacy explicit bundled-pack corruption repair:
 The bulk dataset downloader stages every file in a private sibling folder,
 flushes successful bytes and publishes the complete directory atomically only
@@ -409,3 +481,27 @@ Existing nonempty legacy packs remain trusted without a manifest; abrupt OS
 termination may leave a hidden staging sibling, never a final partial pack.
 No real network/model/GPU/fullCI or native other-OS acceptance. Parent702 partial.
 Evidence: data/702_atomic_bulk_model_download_2026-10-14/receipt.json.
+
+2026-10-15 — legacy/offline implementation publication closure:
+Normal current-public merge preserves all six owning source hashes from the
+275PASS cohort. All nine actual offline target/hash pairs still exactly match
+reviewed inputs; normal English generation reconstructs the merged inventory
+(1273settings,242categories,7661UI) instead of hand-merging its conflict.
+The earlier missing offline-artifact/extractor hold is closed. Existing foreign
+N700 global failures remain explicitly open:37 exact-English runtime rows and
+missing AI Error report reviewed evidence. Nightly SOURCE publication does not
+claim those shared gates, finalCI, native cluster/scientific acceptance or whole
+702 completion. Original nonempty bulk packs/external raw catalogues and
+remaining historical provenance are separate work.
+Evidence: data/702_legacy_offline_integration_2026-10-14/receipt.json.
+2026-10-15 — recorded model filename must actually name a file:
+Metadata now refuses directory-like filename leaves (dot or trailing separator)
+and embedded NUL before the matching-local-byte shortcut or settings export.
+A malformed pin can no longer overwrite existing CSV/JSON outputs. Exact nested
+POSIX/Windows names and ./checkpoint.pt stay valid, as does opaque version001;
+existing traversal/absolute-path/URL/kind/identity checks remain intact. Root
+explicitly delegated this isolated helper hunk. Native baseline10FAIL/4PASS
+6.72seconds; the14new local-byte/serializer cases plus prior recorded-identity/
+CLI/batch owning cohort pass81 in2.22seconds under2G. No scientific model loading,
+network/GPU/fullCI or whole-item closure. Parent702 remains partial. Evidence:
+data/702_pin_filename_leaf_validation_2026-10-15/receipt.json.

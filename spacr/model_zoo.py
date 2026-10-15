@@ -2308,6 +2308,9 @@ def shared_catalogue(uri: Optional[str] = None, *,
     """
     import time
 
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+            "0", "off", "false", "no"):
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
     target = uri or REMOTE_CATALOGUE_URI
     now = time.time()
     if (not force and float(_SHARED_CATALOGUE_CACHE["fetched_at"]) > 0
@@ -3721,7 +3724,8 @@ def _validate_model_metadata_structure(settings, *, model_kinds=None):
         elif record["version_status"] != "unspecified" or record["version"] is not None:
             _bad_model_metadata(f"{field}.version_status/version", "declared/string | unspecified/null")
         filename = record["filename"]
-        if (filename.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", filename)
+        if ("\x00" in filename or re.split(r"[/\\]", filename)[-1] in {"", "."}
+                or filename.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", filename)
                 or "://" in filename or ".." in re.split(r"[/\\]", filename)):
             _bad_model_metadata(f"{field}.filename", "relative catalogue filename")
         if record["kind"] not in KINDS:
@@ -3893,6 +3897,14 @@ def _ensure_catalogue_model_file(entry, *, download=True):
                 return version
     if not download:
         return cached
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+            "0", "off", "false", "no"):
+        from .qt.i18n import tr
+
+        raise ModelUnreadable(tr(
+            "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
+            "Copy verified model {model} (sha256 {sha256}) to {path}.",
+            model=entry.key, sha256=entry.sha256, path=str(cached)))
     if _on_the_qt_gui_thread():
         raise ModelUnreadable(
             f"{entry.key!r} is not cached. Download it in Model Zoo, or run "

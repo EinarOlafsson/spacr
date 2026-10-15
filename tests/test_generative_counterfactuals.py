@@ -348,3 +348,137 @@ def test_the_activation_run_passes_the_generator_setting(trained, tmp_path):
         model, [x[:12]], names, str(tmp_path / "cf"), "cpu")
     assert summary["generator"] == "diffusion"
     assert (tmp_path / "cf" / "counterfactual_diffusion.pt").exists()
+
+
+class _ReferenceScore(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.seen = []
+
+    def forward(self, image):
+        self.seen.append(image.detach().clone())
+        score = image[:, 0].mean(dim=(1, 2))
+        return torch.stack([-score, score], dim=1)
+
+
+class _BothChannelEdit(nn.Module):
+    side = 8
+    n_classes = 2
+
+    def encode(self, image):
+        return image.clone()
+
+    def decode(self, latent, code):
+        return latent + code[:, 1, None, None, None]
+
+
+def test_preserved_reference_is_exact_in_frames_finals_and_actual_scorer():
+    model = _ReferenceScore()
+    generator = _BothChannelEdit()
+    crops = torch.stack([torch.full((8, 8), 0.2), torch.full((8, 8), 0.3)])[None]
+    before = crops.clone()
+    finals = []
+    rows, frames = _counterfactual_sequences(model, generator, crops, keep=1, finals=finals, preserve_channels=[0])
+    np.testing.assert_array_equal(frames[0, :, 0], np.repeat(crops.numpy()[0:1, 0], 7, axis=0))
+    assert not np.allclose(frames[0, -1, 1], crops.numpy()[0, 1])
+    assert torch.equal(model.seen[-1], torch.from_numpy(frames[0]))
+    assert torch.equal(finals[0], torch.from_numpy(frames[0, -1:]))
+    assert rows[0]['score_end'] == rows[0]['score_start'] and not rows[0]['flipped']
+    assert rows[0]['preserved_channels'] == '0'
+    assert torch.equal(crops, before)
+    free_rows, free_frames = _counterfactual_sequences(_ReferenceScore(), generator, crops, keep=1)
+    assert free_rows[0]['flipped'] and not np.allclose(free_frames[0, -1, 0], crops[0, 0].numpy())
+    assert 'preserved_channels' not in free_rows[0]
+
+
+@pytest.mark.parametrize('dtype', [torch.float16, torch.float32, torch.float64])
+@pytest.mark.parametrize('batch', [1, 3])
+def test_reference_copy_preserves_dtype_shape_and_inputs(dtype, batch):
+    from spacr.attribution import _cf_preserve_reference_channels
+    edited = torch.arange(3 * 2 * 4 * 5, dtype=dtype).reshape(3, 2, 4, 5)
+    source = torch.full((batch, 2, 4, 5), 0.125, dtype=dtype)
+    before, original = edited.clone(), source.clone()
+    result = _cf_preserve_reference_channels(edited, source, [1])
+    assert result.dtype == dtype and result.shape == edited.shape
+    assert torch.equal(result[:, 1], source[:, 1].expand(3, -1, -1))
+    assert torch.equal(result[:, 0], edited[:, 0])
+    assert torch.equal(source, original) and torch.equal(edited, before)
+    assert result.data_ptr() != edited.data_ptr()
+
+
+@pytest.mark.parametrize('channels', [[-1], [2], [0.5], [True], [float('nan')], [0, 0], '0'])
+def test_invalid_reference_indices_refuse_before_any_classifier_call(channels):
+    model = _ReferenceScore()
+    with pytest.raises(ValueError, match='channel'):
+        _counterfactual_sequences(model, _BothChannelEdit(), torch.ones(1, 2, 8, 8), preserve_channels=channels)
+    assert model.seen == []
+
+
+@pytest.mark.parametrize('kind', ['dtype', 'shape', 'batch', 'integer', 'nan', 'empty'])
+def test_reference_copy_rejects_invalid_tensors(kind):
+    from spacr.attribution import _cf_preserve_reference_channels
+    edited, source = torch.ones(3, 2, 4, 5), torch.zeros(1, 2, 4, 5)
+    if kind == 'dtype':
+        source = source.double()
+    elif kind == 'shape':
+        source = torch.zeros(1, 2, 5, 4)
+    elif kind == 'batch':
+        source = source.expand(2, -1, -1, -1)
+    elif kind == 'integer':
+        edited, source = edited.long(), source.long()
+    elif kind == 'nan':
+        source[0, 0, 0, 0] = float('nan')
+    else:
+        edited, source = edited[:, :, :0], source[:, :, :0]
+    with pytest.raises(ValueError):
+        _cf_preserve_reference_channels(edited, source, [0])
+
+
+def test_reference_constraint_also_applies_to_class_mean_baseline():
+    from spacr.attribution import _class_mean_baseline
+    train = torch.stack([torch.full((2, 8, 8), -1.0), torch.full((2, 8, 8), 1.0)])
+    test = torch.full((1, 2, 8, 8), 0.2)
+    original = test.clone()
+    unconstrained = _class_mean_baseline(_ReferenceScore(), train, test)
+    constrained = _class_mean_baseline(_ReferenceScore(), train, test, preserve_channels=[0])
+    assert unconstrained[0] == 1 and constrained[0] == 0
+    assert constrained[1] < unconstrained[1]
+    assert torch.equal(test, original)
+
+
+def test_reference_report_passes_constraint_to_outputs_and_baseline(monkeypatch, tmp_path):
+    import spacr.attribution as attribution
+    model = _ReferenceScore()
+    crops = torch.stack([torch.full((8, 8), 0.2), torch.full((8, 8), 0.3)])[None].repeat(8, 1, 1, 1)
+    crops[::2, 0] *= -1
+    monkeypatch.setattr(attribution, '_train_counterfactual_generator', lambda *a, **kw: (_BothChannelEdit(), []))
+    monkeypatch.setattr(attribution, '_cf_realism', lambda *a, **kw: (0.0, 0.0))
+    summary, rows, frames = attribution._counterfactual_report(model, crops, epochs=0, show=2, preserve_channels=[0], out_dir=str(tmp_path))
+    assert summary['preserved_channels'] == '0'
+    assert all(row['preserved_channels'] == '0' for row in rows)
+    assert summary['flip_rate'] == 0 and summary['baseline_flip_rate'] == 0
+    np.testing.assert_array_equal(frames[:, :, 0], np.repeat(frames[:, :1, 0], 7, axis=1))
+    assert 'preserved_channels' in (tmp_path / 'counterfactual_summary.csv').read_text()
+
+
+@pytest.mark.parametrize('entry', ['sequence', 'report'])
+def test_nonfinite_reference_refuses_before_scoring_or_training(entry, monkeypatch):
+    import spacr.attribution as attribution
+    model = _ReferenceScore()
+    crops = torch.ones(8, 2, 8, 8)
+    crops[0, 0, 0, 0] = float('nan')
+    monkeypatch.setattr(attribution, '_train_counterfactual_generator', lambda *a, **kw: pytest.fail('nonfinite reference reached training'))
+    with pytest.raises(ValueError, match='finite pixels'):
+        if entry == 'sequence':
+            attribution._counterfactual_sequences(model, _BothChannelEdit(), crops, preserve_channels=[0])
+        else:
+            attribution._counterfactual_report(model, crops, preserve_channels=[0])
+    assert model.seen == []
+
+
+def test_reference_overflow_during_existing_float32_conversion_refuses_before_scoring():
+    model = _ReferenceScore()
+    crops = torch.full((1, 2, 8, 8), 1e300, dtype=torch.float64)
+    with pytest.raises(ValueError, match='finite pixels'):
+        _counterfactual_sequences(model, _BothChannelEdit(), crops, preserve_channels=[0])
+    assert model.seen == []
