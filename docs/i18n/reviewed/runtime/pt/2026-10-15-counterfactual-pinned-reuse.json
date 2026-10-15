@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical translation and self-review; four setting targets awaiting independent peer; previously reviewed diagnostic retained exact; no human/native signoff",
+  "review": "Exact local-reuse setting labels/tooltips and technical refusal. Keep spaCR/SHA-256/sha256/64 identity, explicit no-training fallback and blank default semantics. Matching checksum establishes file identity, never biological accuracy or independent validation.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source": "Counterfactual checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "translation": "Ponto de controlo contrafactual"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source": "Optional existing local diffusion checkpoint to reuse without training. Requires the diffusion generator and its expected SHA-256. The saved architecture, channels, preprocessing, classifier and condition identities must match the current run. Missing, legacy or incompatible metadata is refused; spaCR does not train a replacement. Blank keeps the existing training route. Default blank.",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "translation": "Ponto de controlo de difusão local existente e opcional, para reutilização sem treino. Requer o gerador de difusão e o seu SHA-256 esperado. A arquitetura, os canais, o pré-processamento, o classificador e as identidades das condições guardados têm de corresponder à execução atual. Metadados em falta, de formato antigo ou incompatíveis são recusados; o spaCR não treina um substituto. Deixar em branco mantém o percurso de treino existente. Predefinição: em branco."
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source": "Counterfactual checkpoint sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "translation": "sha256 do ponto de controlo contrafactual"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source": "Expected 64-character hexadecimal SHA-256 of the selected local diffusion checkpoint. Required when a checkpoint is selected; ignored when the checkpoint path is blank. A matching checksum identifies the file but does not establish biological accuracy or independent validation. Default blank.",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "translation": "SHA-256 hexadecimal esperado, com 64 caracteres, do ponto de controlo de difusão local selecionado. Obrigatório quando se seleciona um ponto de controlo; ignorado se o respetivo caminho estiver em branco. Uma soma de verificação correspondente identifica o ficheiro, mas não comprova precisão biológica nem validação independente. Predefinição: em branco."
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "translation": "O ponto de controlo contrafactual está em falta, é ilegível, inseguro ou incompatível com as entradas atuais."
+    }
+  ]
+}

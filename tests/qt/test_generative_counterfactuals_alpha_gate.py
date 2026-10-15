@@ -20,7 +20,8 @@ from PySide6.QtCore import QSettings                              # noqa: E402
 KEYS = ("counterfactuals", "counterfactual_crops", "counterfactual_epochs",
         "counterfactual_condition", "counterfactual_target",
         "counterfactual_generator", "counterfactual_strength",
-        "counterfactual_structure_weight")
+        "counterfactual_structure_weight", "counterfactual_checkpoint",
+        "counterfactual_checkpoint_sha256")
 
 
 @pytest.fixture

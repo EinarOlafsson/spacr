@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical translation and self-review; independent peer pending; no human/native signoff",
+  "review": "Selected local counterfactual generator checkpoint refuses missing/unreadable/unsafe/incompatible input before training fallback. This is a technical compatibility refusal, not a biological quality guarantee.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "translation": "O ponto de controlo contrafactual está em falta, é ilegível, inseguro ou incompatível com as entradas atuais."
+    }
+  ]
+}

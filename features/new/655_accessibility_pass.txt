@@ -608,3 +608,46 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   Evidence:data/655_clear_figures_accessible_action_2026-10-15/receipt.json.
   This is in-process Linux/Qt6.12/offscreen acceptance; no native reader,
   other-OS or whole-item completion claim is added.
+
+2026-10-15 — Numeric Enter opens figure tiles through their existing route
+  The actual Qt Key_Enter plus KeypadModifier event failed for saved, live
+  and pinned figure tiles, despite the ordinary Enter route already working.
+  _FigureCell now accepts keypad-only Enter through its existing focused
+  activation path. Named modifiers and keypad-modified Space/Return remain
+  refused; saved indices, live keys and the pinned signal stay distinct.
+  Three baseline route failures become 26PASS3.13s: nine new keypad/refusal
+  cases plus seventeen existing keyboard/name/focus cases. Shared lock,
+  2G/offscreen Qt6.12/thread1/private settings, no native replay or data work.
+  Only that private handler body changes; all docs, signatures, comments
+  and other module AST remain exact, with no caption/API arrival.
+  Evidence: data/655_figure_keypad_enter_2026-10-15/receipt.json.
+  This closes the concrete event-routing defect, not all N655 acceptance.
+
+2026-10-15 — Numeric Enter opens montage crop provenance
+  An actual _WellTab regression confirmed that Key_Enter with KeypadModifier
+  opened no details dialog. Only _Thumb.keyPressEvent now accepts keypad-only
+  Enter through its existing focused route. The real selected crop's complete
+  provenance appears in one visible dialog, while measurement rows and crop
+  pixels remain unchanged. All four named modifiers, with or without keypad,
+  and keypad-modified Space/Return still refuse activation.
+  Baseline1FAIL2.51s; final18PASS3.98s covers the expanded existing provenance,
+  Tab, naming and focus module under the shared lock/2G/offscreen/thread1.
+  All other module AST, comments, signatures and docstrings are exact; no
+  workspace/model changes or runtime/API arrival. No native replay or whole
+  N655 acceptance claim. Evidence:
+  data/655_montage_keypad_enter_2026-10-15/receipt.json.
+
+2026-10-15 — Numeric Enter enlarges the focused model card
+  The actual viewer could not enlarge its current card with Key_Enter plus
+  KeypadModifier. That one baseline failure is repaired only in the existing
+  keyPressEvent guard. Numeric Enter now opens the same card/page dialog;
+  the enlarged viewer still refuses recursion, child page buttons do not
+  trigger enlargement, and empty cards refuse it. All four named modifiers,
+  alone or combined with keypad, and keypad-modified Space/Return refuse.
+  Final12PASS2.24s includes ordinary keys, Tab/page buttons, current names and
+  focus. Local generated PNG input/private cache, shared lock,2G/offscreen/
+  thread1; no network/model operation or native replay. All other module AST,
+  docs, signatures and comments remain exact, with no runtime/API arrival.
+  Evidence:data/655_model_card_keypad_enter_2026-10-15/receipt.json.
+  No additional widget Enter guard rejecting KeypadModifier was identified
+  in the bounded source inspection; this is not whole-program acceptance.

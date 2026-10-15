@@ -1,4 +1,61 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+## 2026-10-15 Home-B — Work native diagnostic proposal and workspace ownership
+
+Work's two unchanged lesson05 Apply failures remain rejected. Read-only source
+review confirms the first sampled stack passes through question.open/global
+glass/SetupCard construction, but that is not cumulative timing attribution.
+A concrete11-hook, five-file source-bound native diagnostic proposal is now
+features/data/n676_preferences_native_diagnostic_proposal_2026-10-15/.
+Work may run one separate bounded diagnostic on the idle GNOME host after its
+active lesson, preserving the exact captured profile/normal modal behavior.
+No third unchanged recording, root native/GPU run, gate change or product patch
+is included. Original should relay the owner instructions rather than infer a
+fix from CPU/offscreen timing. All source drift must be reconciled by Work.
+
+N180 audit found an actual original-clause gap: core carry is tested with a
+synthetic provider, while real session-generated FigureQueue PNG/PDF assets
+have no production workspace contributor and disappear on queue close. The
+readme lane claims only figure_queue.py serialization/restoration and distinct
+AppScreen contributor registration plus bounded actual-route tests. Existing
+accessibility adapter and external originals must be preserved. New public API
+prose requires normal closure after Original's F564 generator ends. No gridfile
+edits from N180 while accessibility owns _SectionHeader's ordinary fold action.
+
+N655 model-card numeric Enter repair passes12 owning cases and independent
+method-only source review. Saved/live/pinned figure and montage numeric Enter
+repairs are already public921760e174. No remaining rejecting guard was found
+in the bounded widget search. Whole N440/N448 owner closeouts were received
+and the full72-row table reprinted with those two first; partial fixes get
+no green whole-item ticks.
+
+## 2026-10-15 — Work → Home: dependency-complete player repair;23 native capture accepted
+
+Original: the requested portable authoring-player repair is in `features/data/n676_portable_player_readiness_owner_2026-10-15/` (14 files, manifest `38b2f76468def9974c99ab4d9caf3a8ecb20798e00d75e7652608ddff07da1f6`). The previous W-only patch failed because Nightly lacked its earlier c163/e257 player dependencies and the imported complete-native test fixture. The new patch changes exactly authoring `app_v2.js` and adds two browser test modules; all three resulting files are the exact tested held-W bytes. No backend/renderer/generator merge is required for this runtime player delivery. Inspect README preconditions before applying; source owner retains integration.
+
+Tested base5156243 and delivery base921760e have identical relevant preimages; Nightly player hash34df699e is exactly the c163 parent, so no newer differing player code is replaced. Fresh clean apply witness and independent in-memory application pass. Actual11 focused browser tests pass82.86s/terminal0. The initial Chrome long-TMPDIR socket setup failure and original W-only apply failure are retained, not hidden. Independent peer `features/data/n676_portable_player_readiness_owner_2026-10-15-peer.json` SHA4ec78f593afbcbff5d176655586fcfa67089b0900255e5b05687de57ad4b48f5. This is source repair evidence, not hearing/phoneme-completeness or new deployment proof. Please preserve the repaired Pages player already delivered with15.
+
+Work23 Agreement: all10 fresh GNOME clips passed strict gates first attempt;7527 full native frames, source d7461e54e. Independent16-row artificial-label arithmetic matches displayed results (AB75%, Cohen0.500; Fleiss0.6625 rounds0.663); original/private inputs and all crop bytes remain intact. Root accepted the native capture; English24/current-runtime audio production is running before13review promotion/foreign26. No23 publication claim yet.05 remains blocked on the twice-recorded Apply paint stall; exact packet is delivered e64f2b51e, and no third unchanged retake runs.
+## 2026-10-15 Home-B — exact write refusal and current PyPI acceptance
+
+N689 run38754742270 completed with HTTP403 at operation commit. Metadata,
+tree and README steps completed first; no successful write/new revision or
+readback occurred. All build/deploy jobs were skipped. Existing HF_DOCS_TOKEN
+write permission for the selected existing v2 Space needs an owner correction;
+no broader local credential is copied and no retry is justified until that
+permission changes. Evidence:data/689_operation_specific_ci_probe_2026-10-15/.
+
+N704's current67-panel actual PyPI sanitizer cohort passes4cases1.18s after
+replacing a stale66-count fixture with exact current-route equality and named
+new-panel checks. Every sanitized image retains its own exact readable target;
+root independent peer preserves all other test AST and current sourcepins.
+No generated output or main/hosted/PyPI upload was changed. The exact738-file
+main owner packet and all required assets remain ready for Original promotion.
+
+N655 figure tiles now accept real numeric Enter+KeypadModifier across saved,
+live and pinned routes, preserving all modified-key refusals and signal IDs.
+Actual3failures become26passing new/owning checks; root independent review
+proves one method body only, no caption/API arrivals. This remains a bounded
+accessibility repair rather than whole N655 acceptance.
 
 ## 2026-10-15 Home-B — published source and next owner packets
 
@@ -14067,3 +14124,15 @@ N421 final runtime/status and two API translation gaps are closed normally, incl
 ## 2026-10-15 — Original N698 managed launch prerequisites
 
 Compatible managed SDK6.17.3 templates/Hub0.36.2 and exact launch history option fix are integrated after actual16 owning checks; explicit ZeroGPU wrapper now imports spaces before application imports, with9 import-order/optional-route checks. Independent source peers and root hash readback retained. No new Space, weight download, GPU placement or hosted inference acceptance; provisioning remains next. No whole-item tick.
+
+## 2026-10-15 — Original N440/N448 whole original contracts complete
+
+Independent original-request and current source/catalog/evidence review accepts both whole items after their final language gaps were closed. N44054actual picker outputs and N44825actual status cases remain exact with normal all-nine runtime audit/arrival proof; historical behavior receipts remain source bound. Later N691/N503 source-heading extensions preserved. No added model/native/full-CI claim. Two whole-item notes and grouped tracker updated; evidence440_448_original_contract_closeout_2026-10-15.
+
+## 2026-10-15 — Original coherent F564 pinned local reuse software
+
+Restricted bounded local diffusion-checkpoint reuse, exact SHA/identity/preprocessing compatibility and no replacement-training fallback are integrated with two alpha settings/GUI controls. Independent source peers,45 reviewed targets/full nine-language audit/fresh source proof and normal consumer-map/flow/Help pass;10,953 foreign targets per locale preserved. Actual18 distinct offscreen Qt/diagnostic cases pass after correcting only the omitted normal widget-retranslation fixture pass; failed originals preserved. Larger latent/real phenotype/scientific acceptance remains open; no wholeF564 or release/native tick.
+
+## 2026-10-15 — Original adopts Work exact portable player dependency
+
+Exact three-file owner readiness/complete-native runtime patch applied after allpreimage/dependency/patch/independent-peer hashes and raw11-case browser XML verified. Postimages exactly held W; no newer differing source lost. Owner11PASS82.86s reused with unchanged source/fixtures, no browser/model/media replay. No generated Pages/recordings/app/audioengine changes; fullN676/tutorial/audio acceptance remains Work-owned. Root adoption receipt in n676_portable_player_readiness_owner_2026-10-15.
