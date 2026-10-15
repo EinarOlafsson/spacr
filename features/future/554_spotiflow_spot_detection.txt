@@ -1,8 +1,7 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: DONE (alpha) 2026-10-02 — threshold/hybiss and FISH runs recorded
-        2026-10-03 (exploratory mode). Not yet measured: GPU timing (a GPU
-        turn) and the strict real-field replay.
+Status: DONE (alpha) 2026-10-15 — real installation, field comparisons,
+        paired CPU/GPU MERFISH and strict original OPS replay accepted.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); threshold/hybiss and FISH runs recorded 2026-10-03 (exploratory mode); only external points left: GPU timing (GPU turn) and the strict real-field replay.
         replay remains unavailable (2026-10-02).
@@ -235,3 +234,9 @@ hashes, so these new source-bound observations cannot prove retrospective
 byte identity; agreement is not biological accuracy. Prior paired MERFISH
 CPU/GPU, real installation and object-prefix evidence remain independently
 recorded. Evidence: data/554_recovered_strict_ops_2026-10-15/.
+
+2026-10-15 — Original Home whole-contract acceptance. The recovered-input
+strict replay resolves the last explicit gate; prior paired CPU/GPU timing
+and threshold/FISH receipts remain accepted. All required detector routes and
+alpha registration are retained. No biological superiority or retrospective
+identity of the old unhashed run is claimed. Whole original F554 is complete.
