@@ -38,5 +38,11 @@
     "Shared target publication/extraction/destination concurrency remains separate; this repair isolates stream staging only",
     "No actual network, GUI rendering, Windows-native acceptance, model/GPU or full CI run"
   ],
-  "publication": "Await active Home-B publication window release; then normal source-identical merge/push"
+  "publication": "Normal source-identical merge completed; push follows evidence commit",
+  "normal_reconciliation": {
+    "merged_public": "7964b1ff338f9119f51c94e56655c88286faf0ac",
+    "own_source_byte_identical_to_tested": "f9d51914544",
+    "no_unchanged_13_rerun": true,
+    "public_API_docs_captions_signature_unchanged": true
+  }
 }
