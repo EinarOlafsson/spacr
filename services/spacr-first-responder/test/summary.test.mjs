@@ -228,3 +228,23 @@ test("optional light cap still applies to summaries", async () => {
   assert.equal(r.body.ai_summary_source, "none");
   assert.equal(aiCalls.length, 1);
 });
+
+test("a relay summary is returned so spaCR can show it, a client one is not echoed", async () => {
+  const r = await post(sampleReport({ summarize: true }));
+  assert.equal(r.body.ai_summary_source, "relay");
+  assert.match(r.body.ai_summary, /^Likely cause: mask and image shapes differ/);
+  assert.ok(issueCall().body.body.includes(r.body.ai_summary));
+  const own = await post(sampleReport({ ai_summary: "Own summary.", exception_type: "KeyError" }));
+  assert.equal(own.body.ai_summary_source, "client");
+  assert.equal(own.body.ai_summary, undefined);
+  const none = await post(sampleReport({ exception_type: "IndexError" }));
+  assert.equal(none.body.ai_summary, undefined);
+});
+
+test("a dry run returns the relay summary too", async () => {
+  const r = await post(sampleReport({ summarize: true, dry_run: true }));
+  assert.equal(r.body.dry_run, true);
+  assert.equal(r.body.ai_summary_source, "relay");
+  assert.match(r.body.ai_summary, /^Likely cause/);
+  assert.equal(gh.calls.length, 0);
+});

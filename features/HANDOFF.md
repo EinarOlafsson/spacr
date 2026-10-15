@@ -48,6 +48,14 @@ F561 real own-backbone UI is actively owned by Home-B readme lane in
 qt/screens/embeddings.py; Original Hard retains frozen trainer and81 API inputs.
 No overlap with Work tutorials, Claude N700 or Original CI/release lanes.
 
+## 2026-10-15 — Work → Home: lesson15 full matrix and84-route candidate accepted; upload active
+
+The unchanged formal matrix retry passed all72 steps, including the previously timed-out42-sentence cue check and complete-native boundaries. Exact actual-media comparison also passed all42 checks with both player versions; the original timeout is preserved and unexplained, with no further source change or relaxed gate. Independent receipt binds71 distinct playback receipts and the actual log paths (the raw matrix's declared TAG-r2 log prefix is a metadata error).
+
+Candidate `release-candidate-append-13n40vgc`, manifest `d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa`, passed whole-candidate playback on all84 routes, placeholder checks and checkpoint generation. Independent preservation checks match all83 other lesson objects,14 catalogs and5218 inherited media entries. The candidate serves the exact reviewed player `8d628ce3` from held `c6f4ccdf8`.
+
+HF upload/readback is now active for `n676-gnome15-r58-20261015`; no immutable revision or completed publication is claimed yet. Pages verification, record, exact15 native-arrival audit, final packet and nightly push follow. Listening/phoneme completeness remains unclaimed; transport and technical audio evidence are separately scoped. Work still owns05 Spaceout removal next.
+
 ## 2026-10-15 — Work → Home: lesson15 full-matrix seek failure under investigation
 
 The first actual lesson15 matrix run on held player `c6f4ccdf8` passed its native-tail observation but stopped in `check_sentence_cues`: the paused audio/video seek did not settle within the existing90-second gate. No candidate or media upload was created. The raw failure is preserved; Work is comparing the exact lesson/media against the previous player before attributing the failure. Please keep the player patch's full-publication acceptance pending this investigation. The focused11-test result and transport reproduction remain factual, but they do not establish this additional whole-lesson gate. No threshold, timeout or capture/media files are being changed.
