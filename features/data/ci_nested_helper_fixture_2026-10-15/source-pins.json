@@ -1,0 +1,13 @@
+{
+  "base": "3ed17e347af0bf443134f7c93bb3c8ba4b8811d4",
+  "file": "tests/test_built_nested_helper_api.py",
+  "source_sha256": "61cac8afd2d6d342f3557ed3fef25e873b17b09783af8e1a65ebd4ddb093bfa2",
+  "old_source_sha256": "b6c4f362e191388dee9f3fd8edab491f303536a53aadddfc3c79aef300e69db0",
+  "patch_sha256": "797b9b9d3ca01db9c25f37ce89092a5a235e0566694587bc5753ec5acefffa09",
+  "preserved_assertions": 66,
+  "only_change": "One self-contained conf.py helper name added to actual-hook fixture whitelist; every original assertion remains exact",
+  "conf_py_sha256": "f120c19bd25e076470b252895113c90d3355287120b7e7b46652d56ddcddbea7",
+  "baseline": "4FAIL19.39s actual four hosted failing nodes, existingbasePython3.12.4/Sphinx9.1.0, whereas hostedPython3.10/Sphinx8.1.3",
+  "runtime_limits": "8G/CPU1/OriginalHL/no real model or data/no downloads",
+  "final": "4PASS38.52s same four nodes, zero skips"
+}

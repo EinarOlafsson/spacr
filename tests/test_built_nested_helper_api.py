@@ -171,7 +171,7 @@ def _build_site(fixture_source, enabled, label, *, inventory_root=None):
     hooks = "\n\n".join(ast.unparse(node) for node in conf_tree.body
         if (isinstance(node, ast.FunctionDef) and node.name in {
             "autoapi_prepare_jinja_env", "_skip_implementation_data", "setup",
-            "_qualify_helper_annotations",
+            "_qualify_helper_annotations", "_omit_unused_viewcode_catalog_version",
         }) or (isinstance(node, ast.Assign) and any(
             isinstance(target, ast.Name)
             and target.id == "_HELPER_ANNOTATION_TARGETS"
