@@ -1,0 +1,14 @@
+{
+  "status": "ACCEPT",
+  "source_commit": "20c33729e749042605e9a294daf08367d80777d1",
+  "source_sha256": "eae762279c014d6fe27c1374f87de010960e4fb7fc1fa70061b23c5a4638894e",
+  "independent_proof": "Removing exactly two private declarations/factoryregistration andthreeimports restores entire originalmoduleAST; originalmethods unchanged.",
+  "review": [
+    "Ordinary Button/Press role/action reuses exact flash+clicked once; unknown action delegates.",
+    "Disabled action exits before sideeffects and exposes empty actionlist.",
+    "Current translated label or explicit accessible name used; ordinary QLabel/QPushButton unaffected.",
+    "Class-only retainedfactory handles cache lifecycle; no rawpointer/value interface.",
+    "Read current real2FAILbaseline/25PASSfinal; no test replay or nativebridge assertion."
+  ],
+  "limits": "No wholeN655, speech/human or nativeOS acceptance."
+}
