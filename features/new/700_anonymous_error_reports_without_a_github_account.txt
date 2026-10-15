@@ -279,3 +279,19 @@ run into "✗ The run did not start: <message>" and a user_error failure.
 - /report gains kind ("fault" | "user_error") and frames[].code; the
   allowance gains ai.neurons_left, share_neurons, share_pct, active_users,
   tier_now and pool_pct_left.
+
+2026-10-15 — CI repairs after the CI run on 8baeaeb22.
+- "light model" read as "light mode" to the theme-naming guard; the
+  user-facing text now says "lighter model" (providers, notice, console
+  tag, now through tr()), and the catalogs were rebuilt.
+- 38 new captions are registered as reviewed arrivals in the caption
+  contract, with AI-reviewed records in nine languages
+  (docs/i18n/reviewed/runtime/*/2026-10-14-700-error-reports-and-spacr-ai.json,
+  no native-speaker signoff); the two retired provider-question captions
+  are recorded as retirements.
+- "AI Error report" carries its explanation on its label; the console's
+  allowance poll uses spacr.qt._after (PySide6 6.6); the setup alignment
+  test offers the provider question back, as the slide tests do; the
+  settings flow page was regenerated.
+- crashreport, providers and install_consent are back at 100% coverage
+  and the console's new lines are covered.

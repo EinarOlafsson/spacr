@@ -1943,9 +1943,8 @@ class ConsolePanel(QWidget):
             return
         import threading
 
-        from PySide6.QtCore import QTimer
-
         from ... import crashreport
+        from .. import _after
 
         box: dict = {}
 
@@ -1962,13 +1961,13 @@ class ConsolePanel(QWidget):
         def _collect() -> None:
             """On the GUI thread: show the allowance once it has arrived."""
             if "allowance" not in box and fetcher.is_alive():
-                QTimer.singleShot(100, self, _collect)
+                _after(100, self, _collect)
                 return
             if self._current_provider_name == name:
                 self._show_ai_usage(box.get("allowance"))
 
         fetcher.start()
-        QTimer.singleShot(100, self, _collect)
+        _after(100, self, _collect)
 
     def _show_ai_usage(self, allowance: object) -> None:
         """Draw the usage bar and its text for the selected provider.

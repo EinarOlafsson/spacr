@@ -1,23 +1,17 @@
-"""The screen that covers the preload.
+"""Full-window loading cover and startup photomosaic animation.
 
-spaCR imports ~3.1 s of heavy modules (torch, cellpose, pandas and the
-pipeline that depends on them) before the first click on a module can be
-instant. Measured on a real windowed launch: ``spacr.core`` alone is 1968 ms
-and ``spacr.deep_spacr`` 711 ms.
+The application shows this cover while constructing its window. With eager
+preloading, :class:`spacr.qt.app._PipelinePreloader` imports pipeline modules
+on a worker thread and reports progress through a GUI-thread timer. The
+default on-demand policy ends the loading phase without importing those
+modules. The host then closes the cover or starts its photomosaic animation,
+according to the startup preferences.
 
-Those imports have to run on the main thread -- doing them on a worker races
-Qt's own GPU initialisation and segfaults, which is recorded above
-:class:`spacr.qt.app._PipelinePreloader`. The event loop is therefore blocked
-for seconds, and a window that looked interactive during that time would not
-respond.
-
-This screen covers the whole window until the imports are done, so the
-blocked event loop is not mistaken for a hung window.
-
-Progress is shown by the strap line rather than a bar: the three phases of
-:data:`STRAP_LINE` light up in turn as the modules load -- microscopy, then
-single-cell analysis, then genotype-to-phenotype. The denominator is the
-number of modules, which is known before the first one is imported.
+Reported progress lights the three phases of :data:`STRAP_LINE` and fills
+the thin rule below them. :meth:`LoadingScreen.show_mosaic` replaces the
+plain logo with the photomosaic; :meth:`LoadingScreen.blow_away` animates
+its removal. :func:`replay_startup_animation` runs the sequence again over
+an existing window.
 """
 from __future__ import annotations
 
@@ -228,9 +222,9 @@ def startup_animation_allowed() -> bool:
     """Whether the photomosaic may blow away when the window is ready.
 
     No when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while
-    Accessibility > Reduce motion is on, or when Preferences > Animation >
-    Startup animation is off. A preference that cannot be read counts as
-    no: a still cover is always safe.
+    Preferences > Appearance > Accessibility > Reduce motion is on, or when
+    Preferences > Appearance > Animation > Startup animation is off. An
+    unreadable preference disables the animation.
 
     :returns: ``True`` when the blow-away should play.
     """
@@ -481,7 +475,7 @@ class BlowAway:
 
 
 class LoadingScreen(QWidget):
-    """Full-window cover shown until the pipeline modules are imported.
+    """Full-window loading cover with optional photomosaic animation.
 
     By default it shows the white mark beside the strap line. Once
     :meth:`show_mosaic` is called it shows the spaCR photomosaic above the
@@ -1217,10 +1211,11 @@ def replay_startup_animation(window: QWidget) -> Optional[LoadingScreen]:
 
     Help > Show startup animation. The black container with the logo comes
     back over the window, holds for two seconds and blows away as it does
-    at startup. It plays even when Preferences > Animation > Startup
-    animation is off; under Accessibility > Reduce motion the logo holds and
-    then cross-fades away in one second. A click or a key skips it. The
-    window's size, state and keyboard focus are left as they were.
+    at startup. It plays even when Preferences > Appearance > Animation >
+    Startup animation is off; under Preferences > Appearance > Accessibility
+    > Reduce motion the logo holds and then cross-fades away in one second.
+    A click or a key skips it. The window's size, state and keyboard focus
+    are left as they were.
 
     :param window: the window to play it in.
     :returns: the cover now playing, or ``None`` when the logo cannot be

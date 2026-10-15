@@ -2688,7 +2688,8 @@ def set_borderless_window(on: bool) -> None:
 def get_startup_animation() -> bool:
     """Whether the startup photomosaic blows away when spaCR is ready.
 
-    Preferences > Animation > Startup animation. Reduce motion overrides it.
+    Preferences > Appearance > Animation > Startup animation. Reduce motion
+    overrides it.
 
     :returns: ``True`` unless the switch was turned off; on by default.
     """
@@ -10510,6 +10511,10 @@ class PreferencesDialog:
         error_report_layout.setContentsMargins(0, 0, 0, 0)
         error_report_layout.addWidget(error_report_combo, 1)
         error_report_layout.addWidget(error_report_what)
+        error_report_row.setToolTip(error_report_combo.toolTip())
+        error_report_combo.setAccessibleDescription(
+            error_report_combo.toolTip())
+        error_report_combo.setToolTip("")
         ai_form.addRow(tr("AI Error report"), error_report_row)
 
         alpha_check = Toggle(tr("Show Alpha modules and settings"))

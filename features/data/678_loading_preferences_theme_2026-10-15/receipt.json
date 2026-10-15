@@ -1,0 +1,416 @@
+{
+  "item": "N678",
+  "source_base": "beab10b1087f86693d75f0b6a795df35f1ee24c0",
+  "scope": "23 selected source docstrings in loading_screen.py, preferences.py and theme.py. This is a bounded follow-up, not review of every paragraph in those files or completion of N678.",
+  "revised": 6,
+  "retained": 17,
+  "runtime_captions_changed": 0,
+  "scientific_or_runtime_behavior_changed": false,
+  "public_signatures_changed": false,
+  "new_tests_run": 0,
+  "validation": "All three whole-file executable ASTs are identical after removing docstring expressions; all docstring changes lie inside declared scope. Current source anchors bind factual corrections. No Qt/native/timing tests were rerun for documentation-only changes.",
+  "api_generation_status": "Pending normal source extraction and all nine locale paragraph review/generation by coordinator API lane; no generated artifacts edited here.",
+  "excluded": [
+    "Root-owned figure_queue.py/figure_grid_view.py/cell_montage_view.py",
+    "Original Home app.py implementation",
+    "Remaining Preferences/theme/loading docstrings outside the selected symbol list",
+    "Other app/API/docs/tutorial surfaces and publication/native-language acceptance"
+  ],
+  "source_files": [
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "before_sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+      "after_sha256": "ae3bf21dc0ac27b29f21d2dcd2e53f905270947a0af3ef47bfe5e0c061667855",
+      "executable_ast_identical": true
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "before_sha256": "ef094ec30cca6fe95dd9f40387d16ce2f3d22953ea8748957c3a9f65fb5a0358",
+      "after_sha256": "fe7e4a7f53add4f5f645b9b0a119a9c08d47dda62a171b9c6cb41d4d2beb7f88",
+      "executable_ast_identical": true
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "before_sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a",
+      "after_sha256": "70cec896248a67fb9ace7d247175a0a05eb6eb22e6a091ad5bf59b5839851a76",
+      "executable_ast_identical": true
+    }
+  ],
+  "behavior_evidence": [
+    {
+      "path": "spacr/qt/app.py",
+      "sha256": "cbdc1833d5ee613c96df2c1099aed6caaecf570de45fe7a677cc94fac6c48d1d",
+      "anchors": [
+        {
+          "literal": "self._thread = threading.Thread(",
+          "line": 513,
+          "excerpt": "self._thread = threading.Thread("
+        },
+        {
+          "literal": "self._poll.timeout.connect(self._drain)",
+          "line": 518,
+          "excerpt": "self._poll.timeout.connect(self._drain)"
+        },
+        {
+          "literal": "if get_preload_policy() != \"eager\":",
+          "line": 3001,
+          "excerpt": "if get_preload_policy() != \"eager\":"
+        }
+      ]
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "sha256": "fe7e4a7f53add4f5f645b9b0a119a9c08d47dda62a171b9c6cb41d4d2beb7f88",
+      "anchors": [
+        {
+          "literal": "value(_KEY_PRELOAD, \"on_demand\")",
+          "line": 3484,
+          "excerpt": "raw = str(_settings().value(_KEY_PRELOAD, \"on_demand\")).strip().lower()"
+        },
+        {
+          "literal": "appearance = _page(\"Appearance\", \"PreferencesTabAppearance\")",
+          "line": 9207,
+          "excerpt": "appearance = _page(\"Appearance\", \"PreferencesTabAppearance\")"
+        },
+        {
+          "literal": "\"Animation\", \"PreferencesTabAnimation\"",
+          "line": 9231,
+          "excerpt": "\"Animation\", \"PreferencesTabAnimation\")"
+        }
+      ]
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "sha256": "ae3bf21dc0ac27b29f21d2dcd2e53f905270947a0af3ef47bfe5e0c061667855",
+      "anchors": [
+        {
+          "literal": "text_w * self.fraction()",
+          "line": 756,
+          "excerpt": "painter.drawRect(QRectF(rule_x, rule_y, text_w * self.fraction(), 2.0))"
+        },
+        {
+          "literal": "cover.blow_away(force=True, plain=plain)",
+          "line": 1242,
+          "excerpt": "cover.blow_away(force=True, plain=plain)"
+        }
+      ]
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "sha256": "70cec896248a67fb9ace7d247175a0a05eb6eb22e6a091ad5bf59b5839851a76",
+      "anchors": [
+        {
+          "literal": "FOCUS_RING_PX = 3",
+          "line": 3063,
+          "excerpt": "FOCUS_RING_PX = 3"
+        },
+        {
+          "literal": "QAbstractButton:focus, QLineEdit:focus",
+          "line": 3101,
+          "excerpt": "QAbstractButton:focus, QLineEdit:focus, QAbstractSpinBox:focus,"
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "<module>",
+      "disposition": "revised",
+      "before": "The screen that covers the preload.\n\nspaCR imports ~3.1 s of heavy modules (torch, cellpose, pandas and the\npipeline that depends on them) before the first click on a module can be\ninstant. Measured on a real windowed launch: ``spacr.core`` alone is 1968 ms\nand ``spacr.deep_spacr`` 711 ms.\n\nThose imports have to run on the main thread -- doing them on a worker races\nQt's own GPU initialisation and segfaults, which is recorded above\n:class:`spacr.qt.app._PipelinePreloader`. The event loop is therefore blocked\nfor seconds, and a window that looked interactive during that time would not\nrespond.\n\nThis screen covers the whole window until the imports are done, so the\nblocked event loop is not mistaken for a hung window.\n\nProgress is shown by the strap line rather than a bar: the three phases of\n:data:`STRAP_LINE` light up in turn as the modules load -- microscopy, then\nsingle-cell analysis, then genotype-to-phenotype. The denominator is the\nnumber of modules, which is known before the first one is imported.",
+      "after": "Full-window loading cover and startup photomosaic animation.\n\nThe application shows this cover while constructing its window. With eager\npreloading, :class:`spacr.qt.app._PipelinePreloader` imports pipeline modules\non a worker thread and reports progress through a GUI-thread timer. The\ndefault on-demand policy ends the loading phase without importing those\nmodules. The host then closes the cover or starts its photomosaic animation,\naccording to the startup preferences.\n\nReported progress lights the three phases of :data:`STRAP_LINE` and fills\nthe thin rule below them. :meth:`LoadingScreen.show_mosaic` replaces the\nplain logo with the photomosaic; :meth:`LoadingScreen.blow_away` animates\nits removal. :func:`replay_startup_animation` runs the sequence again over\nan existing window.",
+      "reason": "Corrects obsolete main-thread-only import claim, unconditional eager-loading claim and unsupported fixed historical timing; reflects current worker/QTimer preloader, on-demand default and painted progress rule.",
+      "source_span": [
+        1,
+        1243
+      ],
+      "symbol_source_sha256": "33ed2c065e7586a5591887b3a8ed3e5df37414330809332a0da110b456679d8c"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "mosaic_splash_wanted",
+      "disposition": "retained",
+      "before": "Whether the loading cover shows the photomosaic.\n\n:returns: ``False`` when :data:`NO_SPLASH_ENV` is set, otherwise ``True``.",
+      "after": "Whether the loading cover shows the photomosaic.\n\n:returns: ``False`` when :data:`NO_SPLASH_ENV` is set, otherwise ``True``.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        213,
+        218
+      ],
+      "symbol_source_sha256": "f3332174d1662adec5904cc4cd460de584f43c36fe38c200e57abd161ec5b8bd"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "startup_animation_allowed",
+      "disposition": "revised",
+      "before": "Whether the photomosaic may blow away when the window is ready.\n\nNo when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while\nAccessibility > Reduce motion is on, or when Preferences > Animation >\nStartup animation is off. A preference that cannot be read counts as\nno: a still cover is always safe.\n\n:returns: ``True`` when the blow-away should play.",
+      "after": "Whether the photomosaic may blow away when the window is ready.\n\nNo when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while\nPreferences > Appearance > Accessibility > Reduce motion is on, or when\nPreferences > Appearance > Animation > Startup animation is off. An\nunreadable preference disables the animation.\n\n:returns: ``True`` when the blow-away should play.",
+      "reason": "Uses current Appearance > Accessibility and Appearance > Animation navigation; preserves environment/platform/preference/error gates.",
+      "source_span": [
+        221,
+        242
+      ],
+      "symbol_source_sha256": "230b7e88bf364646122acd3275fb61f5056324bf51f1d82f4c62b3a24d4cb3c7"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "will_blow_away",
+      "disposition": "retained",
+      "before": "Whether ``screen`` will end with the blow-away rather than vanish.\n\n:param screen: the window's loading cover, or anything standing in for\n    it.\n:returns: ``True`` for a :class:`LoadingScreen` showing the mosaic, not\n    yet asked to skip, where :func:`startup_animation_allowed` says yes.",
+      "after": "Whether ``screen`` will end with the blow-away rather than vanish.\n\n:param screen: the window's loading cover, or anything standing in for\n    it.\n:returns: ``True`` for a :class:`LoadingScreen` showing the mosaic, not\n    yet asked to skip, where :func:`startup_animation_allowed` says yes.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        245,
+        254
+      ],
+      "symbol_source_sha256": "49fb99d3938b5e3df26bed2ef3febf08bbf530b857faee15e2ceb616f3ab5d3d"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "LoadingScreen",
+      "disposition": "revised",
+      "before": "Full-window cover shown until the pipeline modules are imported.\n\nBy default it shows the white mark beside the strap line. Once\n:meth:`show_mosaic` is called it shows the spaCR photomosaic above the\nstrap line instead, and :meth:`blow_away` ends it by blowing the mosaic's\ntiles off the window to reveal the window underneath.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.",
+      "after": "Full-window loading cover with optional photomosaic animation.\n\nBy default it shows the white mark beside the strap line. Once\n:meth:`show_mosaic` is called it shows the spaCR photomosaic above the\nstrap line instead, and :meth:`blow_away` ends it by blowing the mosaic's\ntiles off the window to reveal the window underneath.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.",
+      "reason": "Cover also exists for on-demand startup/replay; its lifetime is not necessarily until pipeline modules have imported.",
+      "source_span": [
+        477,
+        1130
+      ],
+      "symbol_source_sha256": "09587c3ca2fb274ef63c0fd7f10eeb900a23719050e3e9c95a5cd4b2c0836615"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "LoadingScreen.show_mosaic",
+      "disposition": "retained",
+      "before": "Show the photomosaic instead of the mark.\n\n:param mosaic: the map to show; the packaged one by default.\n:returns: whether the mosaic is now shown. ``False`` when its files\n    are missing, and the cover keeps the mark.",
+      "after": "Show the photomosaic instead of the mark.\n\n:param mosaic: the map to show; the packaged one by default.\n:returns: whether the mosaic is now shown. ``False`` when its files\n    are missing, and the cover keeps the mark.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        592,
+        606
+      ],
+      "symbol_source_sha256": "92b70bb227fb46ff21f5130b8bf6c21761b28fccbccabeca729c1a7af9c08364"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "LoadingScreen.blow_away",
+      "disposition": "retained",
+      "before": "End the cover by blowing the mosaic's tiles off the window.\n\nThe logo holds until two seconds after the cover first painted (at\nonce when called later than that), then blows away over four\nseconds: the black container fades from one to three seconds in and\nthe last tile has gone at four. The cover deletes itself then.\n\n:param on_finished: called once, when the cover has gone.\n:param force: play even where :func:`startup_animation_allowed` says\n    no; for the Help replay, tests and previews.\n:param plain: hold the logo, then cross-fade it and the container\n    away in one second instead of blowing it away (Reduce motion).\n:returns: ``True`` when the blow-away will play and the cover will\n    take itself down; ``False`` when it will not -- no mosaic, the\n    animation is off, or a click already asked to skip -- and the\n    caller takes the cover down as before.",
+      "after": "End the cover by blowing the mosaic's tiles off the window.\n\nThe logo holds until two seconds after the cover first painted (at\nonce when called later than that), then blows away over four\nseconds: the black container fades from one to three seconds in and\nthe last tile has gone at four. The cover deletes itself then.\n\n:param on_finished: called once, when the cover has gone.\n:param force: play even where :func:`startup_animation_allowed` says\n    no; for the Help replay, tests and previews.\n:param plain: hold the logo, then cross-fade it and the container\n    away in one second instead of blowing it away (Reduce motion).\n:returns: ``True`` when the blow-away will play and the cover will\n    take itself down; ``False`` when it will not -- no mosaic, the\n    animation is off, or a click already asked to skip -- and the\n    caller takes the cover down as before.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        827,
+        861
+      ],
+      "symbol_source_sha256": "a0384b59ee626e0b7bef532def1c67c2b985390ec3fc61bd442d35fbffa536ac"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "LoadingScreen._hold_then_begin",
+      "disposition": "retained",
+      "before": "Begin once the mosaic has been up for the hold.",
+      "after": "Begin once the mosaic has been up for the hold.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        863,
+        870
+      ],
+      "symbol_source_sha256": "e11c2881cdd96683038ce068767cb52251a710496e66067e928d1a0056dbd04d"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "LoadingScreen._paint_strap",
+      "disposition": "retained",
+      "before": "Draw the strap line from ``tx`` on ``baseline``, and its rule.\n\n:param painter: the painter, with the strap font already set.\n:param tx: left edge of the line.\n:param baseline: the text baseline.\n:param strap: what :meth:`_strap_metrics` returned.",
+      "after": "Draw the strap line from ``tx`` on ``baseline``, and its rule.\n\n:param painter: the painter, with the strap font already set.\n:param tx: left edge of the line.\n:param baseline: the text baseline.\n:param strap: what :meth:`_strap_metrics` returned.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        726,
+        756
+      ],
+      "symbol_source_sha256": "773769989c8dc60b05c4098c2d8313484a525eeacacd705d35a2a38ac9652570"
+    },
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "replay_startup_animation",
+      "disposition": "revised",
+      "before": "Play the startup sequence again inside ``window``.\n\nHelp > Show startup animation. The black container with the logo comes\nback over the window, holds for two seconds and blows away as it does\nat startup. It plays even when Preferences > Animation > Startup\nanimation is off; under Accessibility > Reduce motion the logo holds and\nthen cross-fades away in one second. A click or a key skips it. The\nwindow's size, state and keyboard focus are left as they were.\n\n:param window: the window to play it in.\n:returns: the cover now playing, or ``None`` when the logo cannot be\n    read or a cover is already over the window.",
+      "after": "Play the startup sequence again inside ``window``.\n\nHelp > Show startup animation. The black container with the logo comes\nback over the window, holds for two seconds and blows away as it does\nat startup. It plays even when Preferences > Appearance > Animation >\nStartup animation is off; under Preferences > Appearance > Accessibility\n> Reduce motion the logo holds and then cross-fades away in one second.\nA click or a key skips it. The window's size, state and keyboard focus\nare left as they were.\n\n:param window: the window to play it in.\n:returns: the cover now playing, or ``None`` when the logo cannot be\n    read or a cover is already over the window.",
+      "reason": "Uses current Appearance navigation; preserves forced replay, reduced-motion one-second fade and key/focus semantics.",
+      "source_span": [
+        1209,
+        1243
+      ],
+      "symbol_source_sha256": "c1432402967b40d696330f4d8e96fccd377304455d4b4c5194aae1b43a67c25a"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "resolve_effective_theme",
+      "disposition": "retained",
+      "before": "Return the theme to render — one of :data:`PALETTE_THEMES`.\n\nResolves an explicitly chosen ``\"system\"`` to the operating system's\ncolour scheme as Qt reports it (``QStyleHints.colorScheme``), and to\ndark when Qt can't tell. It does not read the application palette:\nthat is spaCR's own once a theme has been applied, so it would answer\nwith whatever was applied last. Every other value passes through, so\ncallers that only understand light/dark should compare against\n``\"light\"`` and treat everything else as dark (Space and Cell are dark\nthemes).",
+      "after": "Return the theme to render — one of :data:`PALETTE_THEMES`.\n\nResolves an explicitly chosen ``\"system\"`` to the operating system's\ncolour scheme as Qt reports it (``QStyleHints.colorScheme``), and to\ndark when Qt can't tell. It does not read the application palette:\nthat is spaCR's own once a theme has been applied, so it would answer\nwith whatever was applied last. Every other value passes through, so\ncallers that only understand light/dark should compare against\n``\"light\"`` and treat everything else as dark (Space and Cell are dark\nthemes).",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        1975,
+        1995
+      ],
+      "symbol_source_sha256": "2797208e0d1f95186f8dab005b2ddfd797ac97777cc2efb676b5ef1aabf8b37f"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_startup_animation",
+      "disposition": "revised",
+      "before": "Whether the startup photomosaic blows away when spaCR is ready.\n\nPreferences > Animation > Startup animation. Reduce motion overrides it.\n\n:returns: ``True`` unless the switch was turned off; on by default.",
+      "after": "Whether the startup photomosaic blows away when spaCR is ready.\n\nPreferences > Appearance > Animation > Startup animation. Reduce motion\noverrides it.\n\n:returns: ``True`` unless the switch was turned off; on by default.",
+      "reason": "Uses current Appearance > Animation navigation; stored default and Reduce motion override remain unchanged.",
+      "source_span": [
+        2688,
+        2696
+      ],
+      "symbol_source_sha256": "9ebb39e5d984a4b63d8efd563e9a33e49d2bafef9de0a6973d739b3259cbc198"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_preload_policy",
+      "disposition": "retained",
+      "before": "When to import torch and the rest. 'on_demand' or 'eager'.",
+      "after": "When to import torch and the rest. 'on_demand' or 'eager'.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        3482,
+        3485
+      ],
+      "symbol_source_sha256": "a236e4e9736630174978c298e1610aef9891636a1f4b9f7b62f01f8dae724b23"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_performance_level",
+      "disposition": "retained",
+      "before": "The single performance level, one of :data:`PERFORMANCE_LEVELS`.\n\n:returns: the stored level, migrating an older pair of settings on\n    first read.\n\nMIGRATION HAPPENS HERE rather than in a startup step, because every\nreader of the old settings comes through this function and a migration\nthat only ran at launch would be skipped by a headless run, a test, or\na second process. It is idempotent: once a level is stored the old\nvalues are never consulted again.\n\nAn explicit Laptop mode of ``on`` becomes ``Laptop`` -- that user asked\nfor the most constrained profile and still gets it. With Laptop off or\nautomatic the previous mode is kept as-is, so ``balanced`` stays\n``Balanced``, and nobody's choice is silently changed.",
+      "after": "The single performance level, one of :data:`PERFORMANCE_LEVELS`.\n\n:returns: the stored level, migrating an older pair of settings on\n    first read.\n\nMIGRATION HAPPENS HERE rather than in a startup step, because every\nreader of the old settings comes through this function and a migration\nthat only ran at launch would be skipped by a headless run, a test, or\na second process. It is idempotent: once a level is stored the old\nvalues are never consulted again.\n\nAn explicit Laptop mode of ``on`` becomes ``Laptop`` -- that user asked\nfor the most constrained profile and still gets it. With Laptop off or\nautomatic the previous mode is kept as-is, so ``balanced`` stays\n``Balanced``, and nobody's choice is silently changed.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        3874,
+        3923
+      ],
+      "symbol_source_sha256": "9c78e7f40ea2ef9f2f43c1215f8fdd40b73c2e11a23e6e6a2aab61ff1824bc7e"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "_get_tooltip_delay",
+      "disposition": "retained",
+      "before": "How long the pointer rests before a tooltip appears, in seconds.\n\nTwo seconds unless chosen otherwise, clamped to 0-10 on read so a\nhand-edited store cannot make tooltips unreachable. Read by\n:mod:`spacr.qt.tooltip_policy`, which caches it.",
+      "after": "How long the pointer rests before a tooltip appears, in seconds.\n\nTwo seconds unless chosen otherwise, clamped to 0-10 on read so a\nhand-edited store cannot make tooltips unreachable. Read by\n:mod:`spacr.qt.tooltip_policy`, which caches it.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        4415,
+        4423
+      ],
+      "symbol_source_sha256": "507860a3b16e565590cd7743166cf7d06e9231eee094d3c9e543688dc724af18"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_font_scale",
+      "disposition": "retained",
+      "before": "Return the saved UI font scale, clamped to supported bounds.",
+      "after": "Return the saved UI font scale, clamped to supported bounds.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        4544,
+        4551
+      ],
+      "symbol_source_sha256": "8868dedcf53d132199662a5494347ea5d9b2bef2c0fd68362a15c5841ab3de9b"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_high_contrast",
+      "disposition": "retained",
+      "before": "Whether the High contrast theme is the chosen theme.\n\n:returns: ``True`` when Preferences > Appearance > Theme reads High\n    contrast.",
+      "after": "Whether the High contrast theme is the chosen theme.\n\n:returns: ``True`` when Preferences > Appearance > Theme reads High\n    contrast.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        5177,
+        5183
+      ],
+      "symbol_source_sha256": "19a099e8e6784490357f1a3776a008eb02929ee06ce5cf487ab3674231b06f2c"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_reduce_motion",
+      "disposition": "retained",
+      "before": "Whether Reduce motion holds every animated backdrop still.\n\nWhile it is on, the backdrops draw one still frame and do not tick, and\nripples, click ripples, popup waves and mouse gravity are off.\n\n:returns: ``True`` when Reduce motion is on; off by default.",
+      "after": "Whether Reduce motion holds every animated backdrop still.\n\nWhile it is on, the backdrops draw one still frame and do not tick, and\nripples, click ripples, popup waves and mouse gravity are off.\n\n:returns: ``True`` when Reduce motion is on; off by default.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        5238,
+        5246
+      ],
+      "symbol_source_sha256": "b3e1947d5120e627e97438d36a459f8d58a3f04319f6f2c0828ea185d4f999b1"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_strong_focus",
+      "disposition": "retained",
+      "before": "Whether the keyboard-focused control wears a thick focus ring.\n\n:returns: ``True`` when Stronger focus outlines is on; off by default.",
+      "after": "Whether the keyboard-focused control wears a thick focus ring.\n\n:returns: ``True`` when Stronger focus outlines is on; off by default.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        5379,
+        5384
+      ],
+      "symbol_source_sha256": "84ff2e1d57c847c19d4e355fb8ced6f7a4e4ec64e1f2ca7fb9ce06da879dafcb"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "symbol": "palette_for",
+      "disposition": "retained",
+      "before": "Return the palette dict for ``theme``.\n\n``theme`` is one of :data:`THEMES`; anything else (including\n``\"system\"``, which the caller is expected to have resolved) falls\nback to the dark palette. The returned dict always carries every\ntheme-invariant key from :data:`CONSTANT_ROLES` so callers can hit\ne.g. ``palette_for(t)[\"button_accent\"]`` and know the value is the\nsame across themes.\n\nUnder the ``spaceout`` dressing (:func:`spaceout_enabled`) the result is\nre-hued onto the spectrum on the way out, at whatever offset the drift\nhas reached. The keys and the count are unchanged, and so is every\nsurface role's relative luminance, so callers, contrast rules and the\nlight/dark distinction all go on working. The three ink roles are the\nexception and are solved rather than carried — see\n:data:`SPACEOUT_INK_ROLES`.",
+      "after": "Return the palette dict for ``theme``.\n\n``theme`` is one of :data:`THEMES`; anything else (including\n``\"system\"``, which the caller is expected to have resolved) falls\nback to the dark palette. The returned dict always carries every\ntheme-invariant key from :data:`CONSTANT_ROLES` so callers can hit\ne.g. ``palette_for(t)[\"button_accent\"]`` and know the value is the\nsame across themes.\n\nUnder the ``spaceout`` dressing (:func:`spaceout_enabled`) the result is\nre-hued onto the spectrum on the way out, at whatever offset the drift\nhas reached. The keys and the count are unchanged, and so is every\nsurface role's relative luminance, so callers, contrast rules and the\nlight/dark distinction all go on working. The three ink roles are the\nexception and are solved rather than carried — see\n:data:`SPACEOUT_INK_ROLES`.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        1810,
+        1838
+      ],
+      "symbol_source_sha256": "a926d9ebc0a9a0699bd312a9ba1567db8d9427ecb7706b3ad66f073f90d655c7"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "symbol": "focus_ring_colour",
+      "disposition": "retained",
+      "before": "The colour of the thick focus ring for ``theme``.\n\nThe theme's accent, which is what its own thin focus border already\nuses, while the accent clears :data:`FOCUS_RING_MIN_CONTRAST` against\nthe page and the field surface; otherwise the theme's ink.\n\n:param theme: one of :data:`THEMES`.\n:returns: a ``#rrggbb`` colour.",
+      "after": "The colour of the thick focus ring for ``theme``.\n\nThe theme's accent, which is what its own thin focus border already\nuses, while the accent clears :data:`FOCUS_RING_MIN_CONTRAST` against\nthe page and the field surface; otherwise the theme's ink.\n\n:param theme: one of :data:`THEMES`.\n:returns: a ``#rrggbb`` colour.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        3070,
+        3085
+      ],
+      "symbol_source_sha256": "18983b6bb79a425eef159d60039d3f71449b9827ac8d8c28d31e250d3b6a05b8"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "symbol": "focus_ring_qss",
+      "disposition": "revised",
+      "before": "The rules that put a thick ring round the keyboard-focused control.\n\nPreferences > Appearance > Accessibility > Stronger focus outlines. A\n1 px accent border is the only focus mark the themes draw, and on a\nbusy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX`\nwide in :func:`focus_ring_colour`.\n\n:param theme: one of :data:`THEMES`.\n:returns: QSS, appended last by :func:`stylesheet` while the\n    preference is on.",
+      "after": "The rules that put a thick ring round the keyboard-focused control.\n\nPreferences > Appearance > Accessibility > Stronger focus outlines.\nThese rules replace the listed widgets' normal focus borders with a\n:data:`FOCUS_RING_PX`-pixel border in :func:`focus_ring_colour`.\n\n:param theme: one of :data:`THEMES`.\n:returns: QSS, appended last by :func:`stylesheet` while the\n    preference is on.",
+      "reason": "Describes its listed-widget override without falsely asserting a universal one-pixel normal focus mark; custom controls now have two-pixel ordinary rings.",
+      "source_span": [
+        3088,
+        3108
+      ],
+      "symbol_source_sha256": "41c2ca400ced1822ee41edbde1b829849e9dfdd0f31f4147587837bc652cde0e"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "symbol": "_the_focus_ring",
+      "disposition": "retained",
+      "before": "The focus ring rules when the user asked for them, else nothing.\n\nRead here, as :func:`_the_backdrop_is_on` is, because\n:func:`stylesheet`'s callers do not know about the preference.",
+      "after": "The focus ring rules when the user asked for them, else nothing.\n\nRead here, as :func:`_the_backdrop_is_on` is, because\n:func:`stylesheet`'s callers do not know about the preference.",
+      "reason": "Checked against current source/defaults/callers; retain factual description in this bounded review.",
+      "source_span": [
+        3111,
+        3119
+      ],
+      "symbol_source_sha256": "1a74dea7ee10b5455d81acf5589eef82cc0e2b68967431f88813e7ae56090ff6"
+    }
+  ]
+}

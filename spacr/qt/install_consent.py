@@ -280,7 +280,7 @@ class AnonymousReportNotice(QDialog):
             "report.\n\n"
             "spaCR AI is free with no account, within a daily share of "
             "spaCR's free capacity: about {best} questions a day on the best "
-            "model, then {light} more on a light model. Connect your own "
+            "model, then {light} more on a lighter model. Connect your own "
             "Claude, Codex or Gemini CLI for unlimited use.",
             reports=crashreport.REPORTS_PER_DAY,
             best=crashreport.AI_BEST_PER_DAY,

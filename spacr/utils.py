@@ -1592,6 +1592,10 @@ def save_settings(settings, name='settings', show=False):
     See Also:
         :func:`load_settings` — inverse operation.
     """
+    if 'model_metadata' in settings:
+        from .model_zoo import _validate_model_metadata
+
+        _validate_model_metadata(settings)
     settings_2 = settings.copy()
     
     if isinstance(settings_2['src'], list):

@@ -941,7 +941,7 @@ class HostedProvider(ChatProvider):
         self.last_tier = answer.get("tier", "best")
         yield answer["advice"].rstrip() + "\n\n"
         if self.last_tier == "light":
-            yield "[" + tr("light model") + "] "
+            yield "[" + tr("lighter model") + "] "
         yield tr("Generated advice from spaCR hosted AI ({model}). It can be "
                  "wrong; check it before you act on it.",
                  model=answer.get("model") or tr("free model"))
@@ -1005,15 +1005,15 @@ def hosted_allowance_text(allowance: Optional[Dict]) -> str:
         return tr("No free spaCR AI questions left today · resets at {time}",
                   time=when)
     if pool == "light":
-        return tr("Free capacity is low, so everyone gets the light model "
+        return tr("Free capacity is low, so everyone gets the lighter model "
                   "now · {light} questions left today · resets at {time}",
                   light=light, time=when)
     if best <= 0:
         return tr("Best-model questions used today · {light} of {total} "
-                  "light-model questions left · resets at {time}",
+                  "lighter-model questions left · resets at {time}",
                   light=light, total=crashreport.AI_LIGHT_PER_DAY, time=when)
     return tr("{best} of {total} best-model questions left today · then "
-              "{light} on the light model · resets at {time}",
+              "{light} on the lighter model · resets at {time}",
               best=best, total=crashreport.AI_BEST_PER_DAY, light=light,
               time=when)
 
@@ -1319,7 +1319,7 @@ def usage_bar(provider_name: Optional[str],
               "{time}", pct=percent, n=int(ai.get("active_users", 0) or 0),
               time=local_reset_time(allowance.get("resets_at")))
     if ai.get("tier_now") == "light":
-        text += " · " + tr("light model")
+        text += " · " + tr("lighter model")
     return percent, text
 
 
@@ -1332,7 +1332,7 @@ def hosted_daily_allowance_text() -> str:
     from ..i18n import tr
 
     return tr("Free every day: {best} questions on the best model, then "
-              "{light} on a light model. Resets at {time}.",
+              "{light} on a lighter model. Resets at {time}.",
               best=crashreport.AI_BEST_PER_DAY,
               light=crashreport.AI_LIGHT_PER_DAY,
               time=local_reset_time())
