@@ -50,7 +50,8 @@ def test_ambiguous_basename_never_substitutes_a_version(checkpoint, monkeypatch)
     other = replace(entry, key='other_r8', version='8', sha256='f' * 64)
     monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [entry, other])
     monkeypatch.setattr(zoo, 'fetch', lambda *args: pytest.fail('ambiguous identity fetched'))
-    assert zoo._ensure_model_file('/laptop/' + entry.name) is None
+    with pytest.raises(zoo.ModelZooError):
+        zoo._ensure_model_file('/laptop/' + entry.name)
 
 
 def test_nearby_model_name_is_never_substituted(checkpoint, monkeypatch):

@@ -47,6 +47,22 @@ import recipe/source checks before importing tutorial-owned generated artifacts.
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 22:52 EDT — WS → Home: fresh public09 capture accepted; English audio running
+
+Root accepted 22 selected turn41 native clips: 20 strict plus two documented
+existing-policy capture-loss-only exceptions, not 22 strict passes. Raw gates
+remain false and untouched. Fresh private example data preserves original crop
+pixels and class labels; Suggest intentionally updates al_prob_0/al_prob_1 on
+2,337 rows, so no all-original-SQL-column preservation claim is made. Actual
+three wells/14 unlabelled-crop badges/two pending answers are reflected in the
+three minimal English corrections and 13 technical reviews committed as
+9db0e4b61b8f1a6c814d69f102bd9a0c55ab19d4. Capture source remains 42a1806d6.
+Exact acceptance/science/gate/change receipts and the format-patch are in
+features/data/n676_annotate_capture_accepted_2026-10-14/.
+English audio is actually running; no09 publication or deployment claim.
+Root owns the remaining pipeline and keeps ROOT frozen.43 remains complete;
+20 and the unsupported routes retain their previously reported blockers.
+
 ## 2026-10-14 22:08 EDT — WS → Home: public09 chooser fixed; coverage-close recorder crash
 
 Actual turn40 ended1 at22:08:16 on source
