@@ -245,3 +245,10 @@ retains checksum/cache-trust limitations. Independent source/AST review is in
 features/data/112_current_docstring_semantics_2026-10-15/receipt.json.
 No behavior changed. Normal locale review/generation is a separate owner step;
 this is not completion of the package-wide semantic sweep.
+
+2026-10-15 — Derived artifacts for the preceding bounded corrections
+The callback/download descriptions above now have27 exact reviewed API
+source/locale pairs with normal scoped generation, published in0b9a828c97b.
+Unrelated13,401 API records per locale were retained. Evidence:
+features/data/cache_doc_catalogs_2026-10-15/. This closes the preceding
+source/derived-artifact batch; the wider semantic sweep is still open.

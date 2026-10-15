@@ -121,3 +121,17 @@ This is owned source preparation; normal English API refresh and nine-locale
 paragraph review remain pending with the shared writer. It does not complete
 N678's final broad pass or claim native-platform acceptance. Source-bound
 ledger: features/data/678_shortcuts_prose_2026-10-15/receipt.json.
+
+2026-10-15 — Published bounded API review batches
+The loading/preferences/theme and figure-queue/montage source corrections
+now have117 independently reviewed targets and normal nine-locale catalogs.
+The export dialog/settings corrections have54 reviewed targets. Picture
+export and shortcut prose now have270 reviewed targets in public348c63b842a,
+including four peer-requested Spanish/Swedish corrections and eight precise
+legacy constructor repairs. All13,394 unrelated API records per locale were
+preserved in the latter batch; both source executable ASTs are unchanged.
+Evidence: features/data/678_picture_shortcut_catalogs_2026-10-15/,
+678_shortcuts_independent_api_review_2026-10-15/ and
+678_picture_export_api_peer_review_2026-10-15/. These notes supersede pending
+translation statements for these exact scopes only; the broad text review,
+tutorial ownership and other acceptance gates remain open.
