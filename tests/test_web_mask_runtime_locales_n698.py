@@ -1,8 +1,8 @@
 """Exercise real localized graph callbacks and exported readmes without inference."""
 import hashlib
 import json
-from pathlib import Path
 import zipfile
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -10,9 +10,9 @@ import tifffile
 
 from spacr import __version__
 from spacr.qt import i18n
+from tests.test_web_mask_gradio_app_n698 import demo as demo
+from tests.test_web_mask_gradio_app_n698 import function
 from tools.web_mask_generator import app, detector, results
-from tests.test_web_mask_gradio_app_n698 import demo, function
-
 
 LOCALES = ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is']
 ROOT = Path(__file__).parents[1]

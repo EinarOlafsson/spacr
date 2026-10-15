@@ -52,7 +52,7 @@
   "combined_owning_cases": 44,
   "final_owning_errors_failures_skips": 0,
   "frozen_runtime_and_owner_bodies_exact": 20,
-  "test_body_change": "Exact package-qualified fixture import repair only",
+  "test_body_change": "Exact package-qualified fixture import repair tested by44cases. Later Ruff-only import sorting/explicitsame-name fixture reexport preserves every function/class AST and exact import bindings; source hashes bound in test-import-hygiene.json, no callback rerun for that static-equivalent hygiene.",
   "audit_lifecycle": "First wrapper stop left separately capped audit child running; it actually returned internal audit0 and refresh counts, preserved intermediate JSON, no wrapper exit available and stdout overwritten. Final healthy end-to-end chain intentionally completed one redundant metadata pass; no callbacks repeated after44PASS. Lifecycle/raw failures archived, no reconstructed stdout.",
   "audit_and_arrivals": {
     "mode": "One actual canonical snapshot reused for ordinary loaders only, original collector rechecked before/after; all normal review/hash/candidate/arrival gates retained",
