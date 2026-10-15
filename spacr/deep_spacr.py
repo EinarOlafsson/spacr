@@ -2586,8 +2586,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         class count differs from ``num_classes``, a ``resume_checkpoint``
         carrying no optimizer state, or a checkpoint that already completed
         ``epochs``.
-    :raises FileNotFoundError: if ``custom_model_path`` or
-        ``resume_checkpoint`` does not exist.
+    :raises spacr.model_zoo.ModelZooError: if ``custom_model_path`` or
+        ``resume_checkpoint`` names neither an existing checkpoint nor an
+        exact compatible model-zoo identity.
     """
 
     _flowview_advance("model")
@@ -2639,12 +2640,13 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     loaded_payload = None
     if initialization_path:
         if not os.path.isfile(initialization_path):
-            from .model_zoo import _ensure_model_file
+            from .model_zoo import ModelZooError, _ensure_model_file, _model_resolution_context
+            initialization_setting = 'resume_checkpoint' if resume_checkpoint else 'custom_model_path'
             downloaded = _ensure_model_file(
-                initialization_path, kinds=("classifier",))
+                initialization_path, kinds=("classifier",), setting=initialization_setting)
             if downloaded is None:
-                raise FileNotFoundError(
-                    f"Training checkpoint does not exist: {initialization_path}")
+                raise ModelZooError(_model_resolution_context(
+                    initialization_path, setting=initialization_setting, kinds=("classifier",)))
             initialization_path = str(downloaded)
         loaded_model, loaded_payload = load_model_artifact(
             initialization_path, map_location=device, model=model)
