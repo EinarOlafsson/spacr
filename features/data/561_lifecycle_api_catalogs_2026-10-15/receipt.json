@@ -1,0 +1,182 @@
+{
+  "schema": 1,
+  "source_head": "22f74e455e4e5b284340037dec23fec9cebd3081",
+  "source_commits": [
+    "e4458d409d6",
+    "f35b59248ae812751b31e608a1ff0ec8e6c9e7d7",
+    "efe3784e64a6a527a5ca557ccd2dbffc45272052"
+  ],
+  "published_base": "c98f0cd6bd73ba26e3075693edce2ef13479f2c3",
+  "scope": "Normal scoped API generation for five reviewed blocks in two existing symbols across nine locales; exact prior public English plus only owned normal AST-rendered replacements, no global current-source claim.",
+  "owned_source_files": {
+    "spacr/qt/screens/embeddings.py": "9fda21401f1777bf049b0ccbf11015e38f0e22c19fcb9b972ae46e50040d5785"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-f561-lifecycle-contracts.json": "0a49ff800d145eec5b131a65e9490c95a05026879f5a1d78fb25442cb487bd93",
+    "docs/i18n/reviewed/api/de/2026-10-15-f561-lifecycle-contracts.json": "149520876a91303052643e60b7bbf8209a63aa5a70fbc18c58ab9da6c9c53f92",
+    "docs/i18n/reviewed/api/es/2026-10-15-f561-lifecycle-contracts.json": "878fe1845aa2031aedb200ee0decb3dc4b3f27806c24d51dffc203dab5b9c6f9",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-lifecycle-contracts.json": "7113903f238607a019e24ad6de1d17dbb24ee452cf0ebc9b8171bd712435d4f3",
+    "docs/i18n/reviewed/api/pt/2026-10-15-f561-lifecycle-contracts.json": "819e6c3996694677d7702f0683c99e24fa241135040c77b60082323a533c8439",
+    "docs/i18n/reviewed/api/hi/2026-10-15-f561-lifecycle-contracts.json": "2048b735bd1e16e5ad8c19da940378cb3d21425595a98b9f696e48600049381d",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f561-lifecycle-contracts.json": "de5abc07ea9b53f8fbeb06cc8982ee2be3744b8e85806b089c31acd7dee55569",
+    "docs/i18n/reviewed/api/is/2026-10-15-f561-lifecycle-contracts.json": "fe934080d9ebc0a69f4f8f118aa53f96885c705db6b56f726dca43f906c4188d",
+    "docs/i18n/reviewed/api/fr/2026-10-15-f561-lifecycle-contracts.json": "74e62d2b1296d20367ce002e19ca89255f27d52f7cbc4fc6183c11cc7f7c9364"
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "13e1a8a8becc5ee572555c7d9649676214e34487df898c58a2257505590925b3",
+      "unrelated_after_sha256": "13e1a8a8becc5ee572555c7d9649676214e34487df898c58a2257505590925b3",
+      "catalog_sha256": "774364c102ee455f8992c18dc0af8af2b14cfeb1ffd62361ed668eeeeaf92f2e"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "5d7c09dc428d6ed96cde8d408b11839c889ee9677d2486a9e9ba3c057e18fd16",
+      "unrelated_after_sha256": "5d7c09dc428d6ed96cde8d408b11839c889ee9677d2486a9e9ba3c057e18fd16",
+      "catalog_sha256": "c1be5f6819649a5ed5cdceea8057dea95000ddb15e69a816107ccc0b444ce127"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "7ff76a6040b2d0996c2035470ee39f291f9a2447967a827f07cad1def3d75698",
+      "unrelated_after_sha256": "7ff76a6040b2d0996c2035470ee39f291f9a2447967a827f07cad1def3d75698",
+      "catalog_sha256": "29937825cc32e9c49ac0ba7a679ca93cfac00e4d591569500ada3eb7858b2615"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "3498e524766d85f1174b78450145122cf27a01e40f61a6df815af956defe4d2a",
+      "unrelated_after_sha256": "3498e524766d85f1174b78450145122cf27a01e40f61a6df815af956defe4d2a",
+      "catalog_sha256": "387e5f53a946adf1574ccfc3052870cbe1056d5bac5d8f15546e390bd5056663"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "f70d850d3255675231ffc46dc78de8bebd78b742d465413b002b044d877c997d",
+      "unrelated_after_sha256": "f70d850d3255675231ffc46dc78de8bebd78b742d465413b002b044d877c997d",
+      "catalog_sha256": "bd6737b1657548876d925be13c5bdeb96e4305300eb3fc3edce64ab203530a9e"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "fe1f1ef1b2d0bcdc44fe23fe89dad89cce41ce3fa7d7694e06e35f4d7a208293",
+      "unrelated_after_sha256": "fe1f1ef1b2d0bcdc44fe23fe89dad89cce41ce3fa7d7694e06e35f4d7a208293",
+      "catalog_sha256": "543233c354c236ae70ba51932d9520ef796ace034a34722a8097bc2ee0b6c729"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "38356dacda78cdb42cf58bd589a086bd44e02453e83e60fbf8526091bc015bcb",
+      "unrelated_after_sha256": "38356dacda78cdb42cf58bd589a086bd44e02453e83e60fbf8526091bc015bcb",
+      "catalog_sha256": "0dbac3d017d70c821ebedc3c29b8cd34cca953a1a99851940d4fff6075416eb9"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "dfc03dacceb1c68baae8228358db0eb728e451ec7f817311b5643f9e2347ec0c",
+      "unrelated_after_sha256": "dfc03dacceb1c68baae8228358db0eb728e451ec7f817311b5643f9e2347ec0c",
+      "catalog_sha256": "bd31773ea18d5fef2e7765af9196873c1019b883af76b5d604b2918432cdf07d"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+      ],
+      "reviewed_blocks_exact": 5,
+      "unchanged_blocks_preserved": 0,
+      "unrelated_records_preserved": 13402,
+      "unrelated_before_sha256": "f3c1c56af8adc2f14945d66035472b70bc38bf5ba9dbcdd3801cec205dc830e9",
+      "unrelated_after_sha256": "f3c1c56af8adc2f14945d66035472b70bc38bf5ba9dbcdd3801cec205dc830e9",
+      "catalog_sha256": "b09b3b6c96c8de81d06f9f8f70ded29cb1c7061a967137394cc382104d9750ac"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy"
+  ],
+  "unrelated_english_records_preserved": 13476,
+  "normal_functions": [
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "runtime_collection_policy": "Light mode refuses before any full canonical collection. Heavy mode lazily freezes one real canonical_sources result only if requested, then re-collects and compares; all normal review/candidate validators unchanged.",
+  "normal_api_collector_run": false,
+  "model_decoder_requests": 0,
+  "stats": {
+    "mode": "light",
+    "runtime_canonical_requests": 0,
+    "actual_runtime_collections": 0,
+    "runtime_collection_seconds": [],
+    "model_decode_requests": 0,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "written_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ]
+  },
+  "limitations": [
+    "AI technical review; no native-speaker claim.",
+    "No Sphinx, runtime/global arrivals, native-platform or external publication claim."
+  ]
+}

@@ -63915,12 +63915,12 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
       "source_blocks_sha256": [
-        "4105b719d131be273bcf078a64a419aebd6f148d5e15e6675266a1daa76128de",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "39d3c72137f96a440437ef8d2b92b8caca64ff021ab21acc5015cf1498eab95c"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ],
-      "source_sha256": "a79ed4bc3c1d83dcbb87f10ef19560cb9edfa3def94828dbd00422a10d58a6b4",
-      "text": "Let the job runner stop its thread before the widget goes.\n\nThe stop flag is set first. ``shutdown`` waits a bounded time and\nthen parks a worker that outlasts it, so a load told to stop between\npages finishes in one page instead of reading the rest of the plate\ninto an array whose screen has gone.\n\n:param event: Qt's close event, passed to the base class unchanged.\n    Never ignored -- a screen that refuses to close because a run is\n    in flight would trap the window, so the run is stopped instead."
+      "source_sha256": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24",
+      "text": "Discard pending results and drain both runners before the widget goes.\n\nThe crop stop flag is set first and further DINO progress is ignored.\nEach ``shutdown`` waits a bounded time, then parks any worker that\noutlasts it. A parked training worker can finish writing its checkpoint\nwithout updating this closed screen; it is not forcibly terminated.\n\n:param event: Qt's close event, passed to the base class unchanged.\n    The close is accepted even if a worker must be parked."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query": {
       "source_blocks_sha256": [
@@ -63968,11 +63968,11 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+        "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ],
-      "source_sha256": "f6b2458f1fcb10a13133dd1ca2d3e76f6530fc040f79538d2500d93837e4a745",
-      "text": "Whether a run is in flight.\n\nA crop load counts. It is the longer of the two jobs by far -- a\nplate of crops off a network mount is minutes -- and a screen that\nreported itself idle through it would let the window close over a\nlive read."
+      "source_sha256": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
+      "text": "Whether a crop load, embedding job or DINO pretraining is in flight.\n\nIncludes the separate DINO runner until its worker has retired,\neven after its final result has reached the screen."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
       "source_blocks_sha256": [

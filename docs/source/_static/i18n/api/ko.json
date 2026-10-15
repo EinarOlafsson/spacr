@@ -101480,16 +101480,16 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
       "source_blocks_sha256": [
-        "4105b719d131be273bcf078a64a419aebd6f148d5e15e6675266a1daa76128de",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "39d3c72137f96a440437ef8d2b92b8caca64ff021ab21acc5015cf1498eab95c"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ],
-      "source_sha256": "a79ed4bc3c1d83dcbb87f10ef19560cb9edfa3def94828dbd00422a10d58a6b4",
-      "text": "작업 실행자는 위젯이 진행되기 전에 독립적 인 실행 경로를 멈추게하십시오.\n\n멈추는 깃발은 먼저 설정됩니다. ``shutdown``는 한정된 시간을 기다리고 그 후에 그것을 과도하게하는 노동자를 주차하므로 페이지 사이에 멈출 것이라고 말한 부하가 하나의 페이지에서 끝나는 대신 나머지 플레이트를 스크린이 사라졌던 순서로 읽습니다.\n\n:param event: Qt 결코 무시하지 않았다 - 실행이 비행 중이기 때문에 닫기를 거부하는 응용 프로그램 전망은 창을 잡을 것입니다, 그래서 실행은 대신 중단됩니다.",
+      "source_sha256": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24",
+      "text": "위젯이 제거되기 전에 대기 중인 결과를 버리고 두 작업 실행기의 종료 처리를 마칩니다.\n\n잘라낸 이미지 영역의 중지 플래그를 먼저 설정하고 이후 DINO 진행 알림은 무시합니다. 각 ``shutdown`` 호출은 제한된 시간 동안 기다린 뒤 계속 실행 중인 작업 스레드를 별도로 관리합니다. 이렇게 별도로 관리되는 학습 스레드는 닫힌 화면을 갱신하지 않고 체크포인트 쓰기를 마칠 수 있으며, 강제로 종료되지 않습니다.\n\n:param event: 기본 클래스에 변경 없이 전달되는 Qt 닫기 이벤트입니다. 작업 스레드를 별도로 관리해야 하는 경우에도 닫기를 허용합니다.",
       "translation_source_blocks_sha256": [
-        "e0cc3b23651bbe7cc9b9c86694d274085e1ec2e40c0b65bd2987d213d9b40a39",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "7f86d6c6668ae0a51a0ccb106ebcb34b3bda682585618dd5a0175e36d9f3a3b4"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "dc8984a0772acbe6fa05f1014241b462faca9a8104a04bf160fbb045badc9d3c",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query": {
@@ -101558,14 +101558,14 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+        "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ],
-      "source_sha256": "f6b2458f1fcb10a13133dd1ca2d3e76f6530fc040f79538d2500d93837e4a745",
-      "text": "비행 중에 누군가가 움직이고 있는지 여부.\n\n추출 이미지 영역 로드도 포함됩니다. 두 작업 중 훨씬 긴 쪽이며(네트워크 마운트에서 마이크로플레이트의 추출 이미지 영역을 읽으면 몇 분이 걸림), 그 동안 유휴 상태로 보고하는 화면은 실행 중인 읽기 위로 창이 닫히게 할 것입니다.",
+      "source_sha256": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
+      "text": "잘라낸 이미지 영역 로드, 임베딩 작업 또는 DINO 사전 학습이 진행 중인지 여부입니다.\n\n별도의 DINO 작업 실행기는 최종 결과가 화면에 도착한 뒤에도 해당 작업 스레드가 종료될 때까지 포함됩니다.",
       "translation_source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "037d7fc54e36101250627eacee915596353c74bd28cae0a91c09d53a325689c9"
+        "bf89ba6600a5433def77648af0ff21cb9c67ac483b0fc988658088c17fe5d065",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
