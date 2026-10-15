@@ -50765,10 +50765,11 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ],
-      "source_sha256": "c595a4e194a5267acb2b45b18ae2f4a7e6347522136e4ced8ea2a6a9059e2779",
-      "text": "하나의 모델의 기록 : 위치, 체크스 및 출처.\n\n냉동된 것은 입력이 *순간에 파일의 기록*이기 때문에 - 해시, 크기 및 출처는 그 바이트를 설명합니다. 위치에서 하나를 변경하면 다른 두 개를 침묵적으로 무효화 할 것입니다; :func:`dataclasses.replace`은 새 기록을 명확하게 만듭니다.\n\n:param key: 안정된 ID, 목록 내에서 독특합니다.이 파일은 현지 파일의 이름으로 인해 발생합니다; 카탈로그 입력은 카탈로가 선언한 것과는 달리.\n:param name: ()은 인간이 읽는 것과 같은 이름을 가지고 있다.\n:param kind: ``'cellpose'`` 또는 ``'classifier'``; :data:`KINDS`을 참조하십시오.\n:param source: ``'bundled'`` (spaCR 포함), ``'local'`` (이 머신에서 발견됨) 또는 ``'remote'`` (카탈로그에서 선언됨, 아직 가져오지 않음).\n:param path: 이 기계에서 절대 경로, 또는 ``''`` 원격 입력.\n:param uri: 원격 입력이 끌려가는 곳, 또는 ``''``.\n:param version: 동물원 자체 버전 번호는 필름 이름을 위한 ``'1'``, 깔끔한 이름을 위해 ``'2'``, ``foo_v2.CP_model`` (보기 :func:`versioned_path`), 또는 어떤 카탈로그가 선언된지에 대하여.\n:param sha256: 다운로드 된 모델의 경우 이것은 실제로 쓰여진 바이트의 소화입니다; 카탈로그 입력의 경우 그것은 게시 된 소화에 대하여 확인해야합니다; ``''``는 \"no checksum known\"를 의미하며, :func:`fetch`는 거부 대신 통과로 취급됩니다.\n:param size_bytes: 파일 크기, ``0`` 알려지지 않은 경우.\n:param trained_on: 어떤 데이터가 이 모델을 생성했는지, 프로세스에서, 또는 :data:`UNKNOWN`결코 ``''``.\n:param trained_by: 누가 그것을 생산, 또는 :data:`UNKNOWN`. 결코 ``''``.\n:param metrics: 숫자가 무엇이든 - 기계 학습 분류 모델의 경우, 최고의/마지막 시대의 메트릭 :func:`spacr.train_compare.load_run`이 회복되었습니다.평등에서 제외 : 동일한 바이트의 두 개의 기록은 숫자 중 하나에 누군가가 붙어 있든 똑같은 모델입니다.\n:param notes: 독자가 알아야 할 모든 것은 필드가 아닙니다 : 실종 된 출처, 확인되지 않은 다운로드, 체크 포인트처럼 보이지 않는 파일.\n:param verified: True 오직 그때만 :attr:`sha256` 게시된 소화에 대하여 검사되었습니다. 다운로드 된 파일은 단순히 해시였습니다. *녹음된* 확인되지 않았고, 그렇게 말한다.\n:param settings_path: 출처가 어디에서 왔는지, 가고 싶어하는 독자에게서 그것을 보고 싶어합니다.\n:param licence: 게시자가 밝힌 모델 또는 패키지의 라이선스(있으면 SPDX 식별자)이며, 기록된 것이 없으면 ``''`` 입니다.",
+      "source_sha256": "41d818f12120b29303ae51f487dedc7771495589d8cafc8e73267bd22ce6b3a2",
+      "text": "하나의 모델의 기록 : 위치, 체크스 및 출처.\n\n냉동된 것은 입력이 *순간에 파일의 기록*이기 때문에 - 해시, 크기 및 출처는 그 바이트를 설명합니다. 위치에서 하나를 변경하면 다른 두 개를 침묵적으로 무효화 할 것입니다; :func:`dataclasses.replace`은 새 기록을 명확하게 만듭니다.\n\n:param key: 안정된 ID, 목록 내에서 독특합니다.이 파일은 현지 파일의 이름으로 인해 발생합니다; 카탈로그 입력은 카탈로가 선언한 것과는 달리.\n:param name: ()은 인간이 읽는 것과 같은 이름을 가지고 있다.\n:param kind: ``'cellpose'`` 또는 ``'classifier'``; :data:`KINDS`을 참조하십시오.\n:param source: ``'bundled'`` (spaCR 포함), ``'local'`` (이 머신에서 발견됨) 또는 ``'remote'`` (카탈로그에서 선언됨, 아직 가져오지 않음).\n:param path: 이 기계에서 절대 경로, 또는 ``''`` 원격 입력.\n:param uri: 원격 입력이 끌려가는 곳, 또는 ``''``.\n:param version: 동물원 자체 버전 번호는 필름 이름을 위한 ``'1'``, 깔끔한 이름을 위해 ``'2'``, ``foo_v2.CP_model`` (보기 :func:`versioned_path`), 또는 어떤 카탈로그가 선언된지에 대하여.\n:param sha256: 다운로드 된 모델의 경우 이것은 실제로 쓰여진 바이트의 소화입니다; 카탈로그 입력의 경우 그것은 게시 된 소화에 대하여 확인해야합니다; ``''``는 \"no checksum known\"를 의미하며, :func:`fetch`는 거부 대신 통과로 취급됩니다.\n:param size_bytes: 파일 크기, ``0`` 알려지지 않은 경우.\n:param trained_on: 어떤 데이터가 이 모델을 생성했는지, 프로세스에서, 또는 :data:`UNKNOWN`결코 ``''``.\n:param trained_by: 누가 그것을 생산, 또는 :data:`UNKNOWN`. 결코 ``''``.\n:param metrics: 숫자가 무엇이든 - 기계 학습 분류 모델의 경우, 최고의/마지막 시대의 메트릭 :func:`spacr.train_compare.load_run`이 회복되었습니다.평등에서 제외 : 동일한 바이트의 두 개의 기록은 숫자 중 하나에 누군가가 붙어 있든 똑같은 모델입니다.\n:param notes: 독자가 알아야 할 모든 것은 필드가 아닙니다 : 실종 된 출처, 확인되지 않은 다운로드, 체크 포인트처럼 보이지 않는 파일.\n:param verified: True 오직 그때만 :attr:`sha256` 게시된 소화에 대하여 검사되었습니다. 다운로드 된 파일은 단순히 해시였습니다. *녹음된* 확인되지 않았고, 그렇게 말한다.\n:param settings_path: 출처가 어디에서 왔는지, 가고 싶어하는 독자에게서 그것을 보고 싶어합니다.\n:param licence: 게시자가 밝힌 모델 또는 패키지의 라이선스(있으면 SPDX 식별자)이며, 기록된 것이 없으면 ``''`` 입니다.\n:param _curated_card: 내장 선언, 모델 체크포인트, 함께 제공된 모델 카드가 검토된 식별 정보와 일치한 뒤에만 설정되는 내부 표시 마커입니다. 직렬화된 카탈로그 필드는 이 마커를 활성화하지 않습니다.",
       "translation_source_blocks_sha256": [
         "ad44ea86f72154c401797be36589ae526a39d0c59be70efb1c6e569f141fe5a3",
         "ee3466ed99b0742fd1d5e7d6f75ae656b8ed640fcdb14898742b934c818e9462",
@@ -50787,7 +50788,8 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ]
     },
     "spacr.model_zoo.ModelEntry.__post_init__": {
@@ -50818,12 +50820,14 @@
     },
     "spacr.model_zoo.ModelEntry.describe": {
       "source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ],
-      "source_sha256": "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
-      "text": "선택한 모델 옆에 표시된 멀티 라인 출력 카드.",
+      "source_sha256": "e0b1edd24db47e6517623a0046698a5a1bd5b47359cce0d31430d139f6cbc2f3",
+      "text": "선택한 모델 옆에 표시된 멀티 라인 출력 카드.\n\n신뢰할 수 있는 내장 모델 카드는 승인된 측정값 여섯 개와 명시적인 평가 식별 정보를 표시합니다. 과거 평가와 소스 해시 요약은 항목 데이터에 남아 있으며 이 표시를 복잡하게 만들지 않습니다. 다른 항목은 원래의 완전한 메타데이터 설명을 유지합니다.",
       "translation_source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ]
     },
     "spacr.model_zoo.ModelEntry.exists": {
@@ -50885,13 +50889,13 @@
     "spacr.model_zoo.ModelEntry.scorecard_lines": {
       "source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ],
-      "source_sha256": "04652c5d684db1c904e98786f945120ad770d48643c253d16a848b9a71f6c042",
-      "text": "표시 라인으로 점수 카드, 또는 단어가 없다고 말하는 문장.\n\n라인은 기본 라인으로 바닐라 가치와 함께 :func:`spacr.scorecard.headline`에 적용되며, 하나가 기록되면 홀드 아웃 세트가 따릅니다. 점수 카드가 없으면 목록은 단일 라인 :data:`spacr.scorecard.NO_SCORECARD`을 유지합니다.",
+      "source_sha256": "646d8c135ddd202def53fb1fd4a438ffc3cb2e18f56f6776dc042f26f2054e7b",
+      "text": "표시 라인으로 점수 카드, 또는 단어가 없다고 말하는 문장.\n\n신뢰할 수 있는 내장 모델 카드는 기본 모델과 대응시켜 비교한 승인된 측정값 여섯 개 모두와 해당 데이터셋 및 개수를 표시하며, 경계 F1에는 2픽셀 허용 오차를 사용합니다. 다른 항목은 미세 조정된 모델과 미세 조정하지 않은 기본 모델의 값에 :func:`spacr.scorecard.headline` 함수를 계속 적용한 다음, 기록된 별도 평가 세트를 표시합니다. 1픽셀 측정은 원래 의미를 유지합니다. 점수 카드가 없으면 목록에는 :data:`spacr.scorecard.NO_SCORECARD` 값이 들어 있습니다.",
       "translation_source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ]
     },
     "spacr.model_zoo.ModelEntry.summary_line": {
@@ -51732,15 +51736,17 @@
       "source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"
       ],
-      "source_sha256": "59306e507093cfcf2ae27b6754f1a79e843d025c1c49991be8b8143255f4c2be",
-      "text": "툴팁용으로 모델의 성적표를 HTML 표로 나타낸 것입니다.\n\n테이블은 모델 카드 인쇄와 동일하므로 두 모델의 숫자를 읽지 않고 비교할 수 있습니다. 입력이 메트릭을 게시하지 않을 때 이것은 ``\"\"``로 반환되며 동물원 화면의 도구 팁은 입력의 프로세스 설명을 대신합니다.\n\n성적표의 키를 하나도 갖지 않은 지표(자유 형식 메모, 자체 이름으로 된 학습 손실)도 성적표가 아니므로 역시 아무것도 반환하지 않습니다. \"not recorded\" 행이 열한 개인 표는 무언가를 말해 주던 두 줄짜리 메모를 대체하게 될 것이기 때문입니다.\n\n:param entry: 카탈로그 항목, 또는 ``metrics`` 와 이름을 가진 모든 객체입니다.\n:returns: HTML 표이며, 보여 줄 성적표가 없으면 ``\"\"`` 입니다.",
+      "source_sha256": "2ecb03fc23af28e49da4fb9ddfde2c0879b0942497f10d59d9518d54315f1571",
+      "text": "툴팁용으로 모델의 성적표를 HTML 표로 나타낸 것입니다.\n\n테이블은 모델 카드 인쇄와 동일하므로 두 모델의 숫자를 읽지 않고 비교할 수 있습니다. 입력이 메트릭을 게시하지 않을 때 이것은 ``\"\"``로 반환되며 동물원 화면의 도구 팁은 입력의 프로세스 설명을 대신합니다.\n\n신뢰할 수 있는 내장 모델 카드에는 기본 모델과 대응시켜 비교한 승인된 행 여섯 개 모두와 해당 평가 식별 정보가 포함되며, 경계 F1에는 2픽셀 허용 오차를 사용합니다. 다른 항목은 게시된 필드와 기존 해석을 유지합니다.\n\n성적표의 키를 하나도 갖지 않은 지표(자유 형식 메모, 자체 이름으로 된 학습 손실)도 성적표가 아니므로 역시 아무것도 반환하지 않습니다. \"not recorded\" 행이 열한 개인 표는 무언가를 말해 주던 두 줄짜리 메모를 대체하게 될 것이기 때문입니다.\n\n:param entry: 카탈로그 항목, 또는 ``metrics`` 와 이름을 가진 모든 객체입니다.\n:returns: HTML 표이며, 보여 줄 성적표가 없으면 ``\"\"`` 입니다.",
       "translation_source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "49e15e3e04723280993a98113e2e957dd03f4b1ab98e82df0f4dd5fa0b11e028",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"

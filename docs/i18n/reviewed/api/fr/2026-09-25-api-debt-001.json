@@ -468,7 +468,9 @@
       "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
       "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
       "translation": "Des métriques qui ne contiennent aucune des clés de la fiche d’évaluation -- une note libre, une perte d’entraînement sous un nom qui lui est propre -- ne constituent pas non plus une fiche d’évaluation, et ne renvoient rien non plus : une table de onze lignes \"not recorded\" remplacerait une note de deux lignes qui disait quelque chose.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#3",
@@ -476,7 +478,9 @@
       "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
       "context": "a catalogue entry, or anything with ``metrics`` and a name.",
       "translation": "une entrée du catalogue, ou tout objet doté de ``metrics`` et d’un nom.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#4",
@@ -484,7 +488,9 @@
       "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
       "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
       "translation": "la table HTML, ou ``\"\"`` lorsqu’il n’y a pas de fiche d’évaluation à afficher.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.source_of#0",

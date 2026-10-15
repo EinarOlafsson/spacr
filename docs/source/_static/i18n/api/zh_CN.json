@@ -50766,10 +50766,11 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ],
-      "source_sha256": "c595a4e194a5267acb2b45b18ae2f4a7e6347522136e4ced8ea2a6a9059e2779",
-      "text": "记录一个模型:它的位置、检查和起源。\n\n冻结,因为一个输入是 *记录的文件在某一时刻* - 哈希,大小和来源描述这些字节. 更改一个位置会沉默地破坏其他两个; :func:`dataclasses.replace` 使新记录明确。\n\n:param key: 固定ID,在列表中独特. 对于本地文件,此源于文件名;对于目录输入,它是任何目录声明。\n:param name: 字名(或出版的名称) - 人类所读的。\n:param kind: ``'cellpose'`` 或 ``'classifier'``;见 :data:`KINDS`。\n:param source: ``'bundled'``(与 spaCR 搭载), ``'local'``(在此机器上发现)或 ``'remote'``(已在目录中公布,尚未获取)。\n:param path: 绝对路径在这个机器上,或 ``''`` 为远程输入。\n:param uri: 远程输入被抓到,或 ``''``。\n:param version: 动物园的版号为字名,``'1'``为平面名称,``'2'``为 ``foo_v2.CP_model``(参见 :func:`versioned_path`),或任何声明的目录。\n:param sha256: 对于下载的模型,这是实际上写的比特的消化;对于一个目录输入,它是发布的消化的检查; ``''`` 意味着 \"no checksum known\",这 :func:`fetch` 被视为拒绝而不是过渡。\n:param size_bytes: 文件大小, ``0`` 如果不明。\n:param trained_on: 该模型产生了什么数据,在预测中,或 :data:`UNKNOWN`. 永远不会``''``。\n:param trained_by: 谁制作了它,或 :data:`UNKNOWN`. 永远不会``''``。\n:param metrics: 无论数字是什么,对于机器学习分类模型,最好的/最后的时代测量 :func:`spacr.train_compare.load_run` 恢复。\n:param notes: 读者需要知道的一切,这不是一个字段:失去的起源,未经记录下载,不像检查点的文件。\n:param verified: True 只有当 :attr:`sha256` 被检查到发布的消化器。 下载的文件,其标记仅为 *记录* 不被验证,并这样说。\n:param settings_path: 原来是从哪里来的,对于读者想要去看。\n:param licence: 模型或软件包发布时所用的许可证，以发布者声明的为准（有 SPDX 标识符时使用该标识符）；未记录时为 ``''``。",
+      "source_sha256": "41d818f12120b29303ae51f487dedc7771495589d8cafc8e73267bd22ce6b3a2",
+      "text": "记录一个模型:它的位置、检查和起源。\n\n冻结,因为一个输入是 *记录的文件在某一时刻* - 哈希,大小和来源描述这些字节. 更改一个位置会沉默地破坏其他两个; :func:`dataclasses.replace` 使新记录明确。\n\n:param key: 固定ID,在列表中独特. 对于本地文件,此源于文件名;对于目录输入,它是任何目录声明。\n:param name: 字名(或出版的名称) - 人类所读的。\n:param kind: ``'cellpose'`` 或 ``'classifier'``;见 :data:`KINDS`。\n:param source: ``'bundled'``(与 spaCR 搭载), ``'local'``(在此机器上发现)或 ``'remote'``(已在目录中公布,尚未获取)。\n:param path: 绝对路径在这个机器上,或 ``''`` 为远程输入。\n:param uri: 远程输入被抓到,或 ``''``。\n:param version: 动物园的版号为字名,``'1'``为平面名称,``'2'``为 ``foo_v2.CP_model``(参见 :func:`versioned_path`),或任何声明的目录。\n:param sha256: 对于下载的模型,这是实际上写的比特的消化;对于一个目录输入,它是发布的消化的检查; ``''`` 意味着 \"no checksum known\",这 :func:`fetch` 被视为拒绝而不是过渡。\n:param size_bytes: 文件大小, ``0`` 如果不明。\n:param trained_on: 该模型产生了什么数据,在预测中,或 :data:`UNKNOWN`. 永远不会``''``。\n:param trained_by: 谁制作了它,或 :data:`UNKNOWN`. 永远不会``''``。\n:param metrics: 无论数字是什么,对于机器学习分类模型,最好的/最后的时代测量 :func:`spacr.train_compare.load_run` 恢复。\n:param notes: 读者需要知道的一切,这不是一个字段:失去的起源,未经记录下载,不像检查点的文件。\n:param verified: True 只有当 :attr:`sha256` 被检查到发布的消化器。 下载的文件,其标记仅为 *记录* 不被验证,并这样说。\n:param settings_path: 原来是从哪里来的,对于读者想要去看。\n:param licence: 模型或软件包发布时所用的许可证，以发布者声明的为准（有 SPDX 标识符时使用该标识符）；未记录时为 ``''``。\n:param _curated_card: 内部显示标记，仅在内置声明、模型检查点和随附模型卡均与已审核的身份信息匹配后才设置。序列化的目录字段不会启用此标记。",
       "translation_source_blocks_sha256": [
         "ad44ea86f72154c401797be36589ae526a39d0c59be70efb1c6e569f141fe5a3",
         "ee3466ed99b0742fd1d5e7d6f75ae656b8ed640fcdb14898742b934c818e9462",
@@ -50788,7 +50789,8 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ]
     },
     "spacr.model_zoo.ModelEntry.__post_init__": {
@@ -50819,12 +50821,14 @@
     },
     "spacr.model_zoo.ModelEntry.describe": {
       "source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ],
-      "source_sha256": "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
-      "text": "多线出发卡显示在选择的模型旁边。",
+      "source_sha256": "e0b1edd24db47e6517623a0046698a5a1bd5b47359cce0d31430d139f6cbc2f3",
+      "text": "多线出发卡显示在选择的模型旁边。\n\n受信任的内置模型卡显示六项已认可测量值和明确的评估身份信息。历史评估及来源摘要仍保留在条目数据中，不会使此处的展示过于繁杂。其他条目保留原有的完整元数据描述。",
       "translation_source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ]
     },
     "spacr.model_zoo.ModelEntry.exists": {
@@ -50886,13 +50890,13 @@
     "spacr.model_zoo.ModelEntry.scorecard_lines": {
       "source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ],
-      "source_sha256": "04652c5d684db1c904e98786f945120ad770d48643c253d16a848b9a71f6c042",
-      "text": "标志图作为显示线,或句子说没有。\n\n线路从 :func:`spacr.scorecard.headline` 应用到精细调的值与瓦尼拉值作为基线,随后由 hold-out 设置,当一个记录。 没有点数,列表保持单行:data:`spacr.scorecard.NO_SCORECARD`.",
+      "source_sha256": "646d8c135ddd202def53fb1fd4a438ffc3cb2e18f56f6776dc042f26f2054e7b",
+      "text": "标志图作为显示线,或句子说没有。\n\n受信任的内置模型卡显示与基础模型配对比较的全部六项已认可测量值，以及相应的数据集和计数；其中的边界 F1 使用两像素容差。其他条目仍将 :func:`spacr.scorecard.headline` 应用于微调模型和未微调基础模型的数值，然后显示已记录的留出评估集。使用一像素容差的测量保持原有含义。没有评分卡时，列表包含 :data:`spacr.scorecard.NO_SCORECARD` 。",
       "translation_source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ]
     },
     "spacr.model_zoo.ModelEntry.summary_line": {
@@ -51733,15 +51737,17 @@
       "source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"
       ],
-      "source_sha256": "59306e507093cfcf2ae27b6754f1a79e843d025c1c49991be8b8143255f4c2be",
-      "text": "以 HTML 表格形式呈现的模型评分卡，用于工具提示。\n\n图表是模型卡打印的相同,所以两种模型的数字可以比较,而不阅读预测。当一个输入发布没有测量时,它会返回 ``\"\"``,而动物园筛选的工具提示则显示输入的预测描述。\n\n不包含评分卡任何键的指标——一条自由格式的说明、一个以自己的名称记录的训练损失——同样不是评分卡，也不返回任何内容：一张包含十一行 \"not recorded\" 的表格会取代一条原本言之有物的两行说明。\n\n:param entry: 一个目录条目，或任何带有 ``metrics`` 和名称的对象。\n:returns: HTML 表格；没有可显示的评分卡时为 ``\"\"``。",
+      "source_sha256": "2ecb03fc23af28e49da4fb9ddfde2c0879b0942497f10d59d9518d54315f1571",
+      "text": "以 HTML 表格形式呈现的模型评分卡，用于工具提示。\n\n图表是模型卡打印的相同,所以两种模型的数字可以比较,而不阅读预测。当一个输入发布没有测量时,它会返回 ``\"\"``,而动物园筛选的工具提示则显示输入的预测描述。\n\n受信任的内置模型卡包含与基础模型配对比较的全部六行已认可结果及其评估身份信息；边界 F1 使用两像素容差。其他条目保留已发布的字段及其现有解释。\n\n不包含评分卡任何键的指标——一条自由格式的说明、一个以自己的名称记录的训练损失——同样不是评分卡，也不返回任何内容：一张包含十一行 \"not recorded\" 的表格会取代一条原本言之有物的两行说明。\n\n:param entry: 一个目录条目，或任何带有 ``metrics`` 和名称的对象。\n:returns: HTML 表格；没有可显示的评分卡时为 ``\"\"``。",
       "translation_source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "49e15e3e04723280993a98113e2e957dd03f4b1ab98e82df0f4dd5fa0b11e028",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"

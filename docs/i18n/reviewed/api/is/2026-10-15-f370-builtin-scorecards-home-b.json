@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Source-bound technical review;36 authored targets independently reviewed by coordinator;27 proven historical targets preserved exactly. No native-speaker claim.",
+  "records": [
+    {
+      "label": "spacr.model_zoo.ModelEntry#18",
+      "source": "Internal presentation marker set only after the builtin declaration, checkpoint and packaged card match reviewed identities. Serialized catalogue fields do not enable this marker.",
+      "context": "Internal presentation marker set only after the builtin declaration, checkpoint and packaged card match reviewed identities. Serialized catalogue fields do not enable this marker.",
+      "source_sha256": "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9",
+      "translation": "Innri birtingarmerking sem er aðeins sett þegar innbyggða skilgreiningin, vistuð staða líkansins og meðfylgjandi líkanaspjald samsvara yfirförnum auðkennum. Reitir í raðvæddri líkanaskrá virkja ekki þessa merkingu.",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.scorecard_lines#1",
+      "source": "Trusted builtin cards show all six accepted matched-stock measurements and their dataset and counts; their boundary F1 uses a two-pixel tolerance. Other entries keep :func:`spacr.scorecard.headline` applied to their fine-tuned and vanilla values, followed by the recorded hold-out set. One-pixel measurements retain their original meaning. Without a scorecard the list holds :data:`spacr.scorecard.NO_SCORECARD`.",
+      "context": "Trusted builtin cards show all six accepted matched-stock measurements and their dataset and counts; their boundary F1 uses a two-pixel tolerance. Other entries keep :func:`spacr.scorecard.headline` applied to their fine-tuned and vanilla values, followed by the recorded hold-out set. One-pixel measurements retain their original meaning. Without a scorecard the list holds :data:`spacr.scorecard.NO_SCORECARD`.",
+      "source_sha256": "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e",
+      "translation": "Traust innbyggð líkanaspjöld sýna öll sex samþykktu mæligildin í samanburði við grunnlíkanið ásamt gagnasafninu og fjöldatölum þess; F1-gildi þeirra fyrir útlínur notar tveggja mynddíla vikmörk. Fyrir aðrar færslur er :func:`spacr.scorecard.headline` áfram beitt á gildi fínstillta líkansins og óbreytta grunnlíkansins, og síðan birtist skráða gagnasafnið sem var haldið eftir til mats. Mælingar með eins mynddíls vikmörkum halda upprunalegri merkingu sinni. Ef ekkert niðurstöðuspjald er til staðar inniheldur listinn :data:`spacr.scorecard.NO_SCORECARD`.",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.describe#1",
+      "source": "Trusted builtin cards show the six accepted measurements and explicit evaluation identity. Their historical evaluations and source digests remain in the entry's data without cluttering this presentation. Other entries retain their original complete metadata description.",
+      "context": "Trusted builtin cards show the six accepted measurements and explicit evaluation identity. Their historical evaluations and source digests remain in the entry's data without cluttering this presentation. Other entries retain their original complete metadata description.",
+      "source_sha256": "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954",
+      "translation": "Traust innbyggð líkanaspjöld sýna sex samþykktu mæligildin og skýrt auðkenni matsins. Eldra mat þeirra og gátsummur upprunagagna haldast í gögnum færslunnar án þess að fylla þessa framsetningu. Aðrar færslur halda upprunalegri heildarlýsingu lýsigagnanna.",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Trusted builtin cards include all six accepted matched-stock rows and their evaluation identity; boundary F1 uses a two-pixel tolerance. Other entries keep their published fields and existing interpretation.",
+      "context": "Trusted builtin cards include all six accepted matched-stock rows and their evaluation identity; boundary F1 uses a two-pixel tolerance. Other entries keep their published fields and existing interpretation.",
+      "source_sha256": "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
+      "translation": "Traust innbyggð líkanaspjöld innihalda allar sex samþykktu línurnar í samanburði við grunnlíkanið og auðkenni matsins; F1-gildi fyrir útlínur notar tveggja mynddíla vikmörk. Aðrar færslur halda birtum reitum sínum og núverandi túlkun þeirra.",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "translation": "Mælikvarðar sem innihalda enga af lyklum einkunnaspjaldsins -- frjáls athugasemd, þjálfunartap undir eigin heiti -- eru heldur ekki einkunnaspjald, og skila líka engu: tafla með ellefu \"not recorded\" röðum kæmi í stað tveggja lína athugasemdar sem sagði eitthvað.",
+      "review_basis": "Exact byte-preserved historical target, normal source/context/history and actual inline gates passed; only positional label changed."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "translation": "færsla í líkanaskránni, eða hvaðeina með ``metrics`` og heiti.",
+      "review_basis": "Exact byte-preserved historical target, normal source/context/history and actual inline gates passed; only positional label changed."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#5",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "translation": "HTML-taflan, eða ``\"\"`` þegar ekkert einkunnaspjald er til að sýna.",
+      "review_basis": "Exact byte-preserved historical target, normal source/context/history and actual inline gates passed; only positional label changed."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Source-bound technical review;36 authored targets independently reviewed by coordinator;27 proven historical targets preserved exactly. No native-speaker claim.",
+  "records": [
+    {
+      "label": "spacr.model_zoo.ModelEntry#18",
+      "source": "Internal presentation marker set only after the builtin declaration, checkpoint and packaged card match reviewed identities. Serialized catalogue fields do not enable this marker.",
+      "context": "Internal presentation marker set only after the builtin declaration, checkpoint and packaged card match reviewed identities. Serialized catalogue fields do not enable this marker.",
+      "source_sha256": "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9",
+      "translation": "内部显示标记，仅在内置声明、模型检查点和随附模型卡均与已审核的身份信息匹配后才设置。序列化的目录字段不会启用此标记。",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.scorecard_lines#1",
+      "source": "Trusted builtin cards show all six accepted matched-stock measurements and their dataset and counts; their boundary F1 uses a two-pixel tolerance. Other entries keep :func:`spacr.scorecard.headline` applied to their fine-tuned and vanilla values, followed by the recorded hold-out set. One-pixel measurements retain their original meaning. Without a scorecard the list holds :data:`spacr.scorecard.NO_SCORECARD`.",
+      "context": "Trusted builtin cards show all six accepted matched-stock measurements and their dataset and counts; their boundary F1 uses a two-pixel tolerance. Other entries keep :func:`spacr.scorecard.headline` applied to their fine-tuned and vanilla values, followed by the recorded hold-out set. One-pixel measurements retain their original meaning. Without a scorecard the list holds :data:`spacr.scorecard.NO_SCORECARD`.",
+      "source_sha256": "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e",
+      "translation": "受信任的内置模型卡显示与基础模型配对比较的全部六项已认可测量值，以及相应的数据集和计数；其中的边界 F1 使用两像素容差。其他条目仍将 :func:`spacr.scorecard.headline` 应用于微调模型和未微调基础模型的数值，然后显示已记录的留出评估集。使用一像素容差的测量保持原有含义。没有评分卡时，列表包含 :data:`spacr.scorecard.NO_SCORECARD` 。",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.describe#1",
+      "source": "Trusted builtin cards show the six accepted measurements and explicit evaluation identity. Their historical evaluations and source digests remain in the entry's data without cluttering this presentation. Other entries retain their original complete metadata description.",
+      "context": "Trusted builtin cards show the six accepted measurements and explicit evaluation identity. Their historical evaluations and source digests remain in the entry's data without cluttering this presentation. Other entries retain their original complete metadata description.",
+      "source_sha256": "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954",
+      "translation": "受信任的内置模型卡显示六项已认可测量值和明确的评估身份信息。历史评估及来源摘要仍保留在条目数据中，不会使此处的展示过于繁杂。其他条目保留原有的完整元数据描述。",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Trusted builtin cards include all six accepted matched-stock rows and their evaluation identity; boundary F1 uses a two-pixel tolerance. Other entries keep their published fields and existing interpretation.",
+      "context": "Trusted builtin cards include all six accepted matched-stock rows and their evaluation identity; boundary F1 uses a two-pixel tolerance. Other entries keep their published fields and existing interpretation.",
+      "source_sha256": "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
+      "translation": "受信任的内置模型卡包含与基础模型配对比较的全部六行已认可结果及其评估身份信息；边界 F1 使用两像素容差。其他条目保留已发布的字段及其现有解释。",
+      "review_basis": "Home-B website author; independent coordinator semantic approval of all36 new targets on2026-10-15. Technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "translation": "不包含评分卡任何键的指标——一条自由格式的说明、一个以自己的名称记录的训练损失——同样不是评分卡，也不返回任何内容：一张包含十一行 \"not recorded\" 的表格会取代一条原本言之有物的两行说明。",
+      "review_basis": "Exact byte-preserved historical target, normal source/context/history and actual inline gates passed; only positional label changed."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "translation": "一个目录条目，或任何带有 ``metrics`` 和名称的对象。",
+      "review_basis": "Exact byte-preserved historical target, normal source/context/history and actual inline gates passed; only positional label changed."
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#5",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "translation": "HTML 表格；没有可显示的评分卡时为 ``\"\"``。",
+      "review_basis": "Exact byte-preserved historical target, normal source/context/history and actual inline gates passed; only positional label changed."
+    }
+  ]
+}

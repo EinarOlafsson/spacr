@@ -468,7 +468,9 @@
       "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
       "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
       "translation": "성적표의 키를 하나도 갖지 않은 지표(자유 형식 메모, 자체 이름으로 된 학습 손실)도 성적표가 아니므로 역시 아무것도 반환하지 않습니다. \"not recorded\" 행이 열한 개인 표는 무언가를 말해 주던 두 줄짜리 메모를 대체하게 될 것이기 때문입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#3",
@@ -476,7 +478,9 @@
       "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
       "context": "a catalogue entry, or anything with ``metrics`` and a name.",
       "translation": "카탈로그 항목, 또는 ``metrics`` 와 이름을 가진 모든 객체입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#4",
@@ -484,7 +488,9 @@
       "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
       "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
       "translation": "HTML 표이며, 보여 줄 성적표가 없으면 ``\"\"`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.source_of#0",

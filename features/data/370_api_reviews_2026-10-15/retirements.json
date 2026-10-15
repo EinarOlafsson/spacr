@@ -1,0 +1,617 @@
+[
+  {
+    "path": "docs/i18n/reviewed/api/de/2026-09-22-field-projects-and-model-routing.json",
+    "record_index": 41,
+    "before_file_sha256": "827a4b23b008b9fa5dd65e57ec87ce711e6d8de4596e73194986282ffdd82ce4",
+    "original_record": {
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "translation": "Kennzahlen ohne einen der vorgesehenen Schlüssel, etwa ein freier Hinweis oder ein Trainingsverlust unter einem eigenen Namen, bilden ebenfalls keine solche Übersicht und führen zu einer leeren Rückgabe. Elf Tabellenzeilen mit \"not recorded\" würden sonst einen aussagekräftigen zweizeiligen Hinweis verdrängen."
+    },
+    "replacement_record": {
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "translation": "Kennzahlen ohne einen der vorgesehenen Schlüssel, etwa ein freier Hinweis oder ein Trainingsverlust unter einem eigenen Namen, bilden ebenfalls keine solche Übersicht und führen zu einer leeren Rückgabe. Elf Tabellenzeilen mit \"not recorded\" würden sonst einen aussagekräftigen zweizeiligen Hinweis verdrängen.",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/de/2026-09-22-field-projects-and-model-routing.json",
+    "record_index": 42,
+    "before_file_sha256": "827a4b23b008b9fa5dd65e57ec87ce711e6d8de4596e73194986282ffdd82ce4",
+    "original_record": {
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "translation": "ein Katalogeintrag oder ein anderes Objekt mit ``metrics`` und einem Namen."
+    },
+    "replacement_record": {
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "translation": "ein Katalogeintrag oder ein anderes Objekt mit ``metrics`` und einem Namen.",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/de/2026-09-22-field-projects-and-model-routing.json",
+    "record_index": 43,
+    "before_file_sha256": "827a4b23b008b9fa5dd65e57ec87ce711e6d8de4596e73194986282ffdd82ce4",
+    "original_record": {
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "translation": "die HTML-Tabelle oder ``\"\"``, wenn keine Kennzahlenübersicht angezeigt werden kann."
+    },
+    "replacement_record": {
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "translation": "die HTML-Tabelle oder ``\"\"``, wenn keine Kennzahlenübersicht angezeigt werden kann.",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-001.json",
+    "record_index": 48,
+    "before_file_sha256": "d3f3e789402d6a4ea06a8de65b2885a51c7653bf64bd15781d517a08563d8613",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Las métricas que no contienen ninguna de las claves de la ficha de puntuación -- una nota de formato libre, una pérdida de entrenamiento con un nombre propio -- tampoco son una ficha de puntuación, y tampoco devuelven nada: una tabla de once filas \"not recorded\" sustituiría a una nota de dos líneas que decía algo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Las métricas que no contienen ninguna de las claves de la ficha de puntuación -- una nota de formato libre, una pérdida de entrenamiento con un nombre propio -- tampoco son una ficha de puntuación, y tampoco devuelven nada: una tabla de once filas \"not recorded\" sustituiría a una nota de dos líneas que decía algo.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-001.json",
+    "record_index": 49,
+    "before_file_sha256": "d3f3e789402d6a4ea06a8de65b2885a51c7653bf64bd15781d517a08563d8613",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "una entrada del catálogo, o cualquier cosa con ``metrics`` y un nombre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "una entrada del catálogo, o cualquier cosa con ``metrics`` y un nombre.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-001.json",
+    "record_index": 50,
+    "before_file_sha256": "d3f3e789402d6a4ea06a8de65b2885a51c7653bf64bd15781d517a08563d8613",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "la tabla HTML, o ``\"\"`` cuando no hay ficha de puntuación que mostrar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "la tabla HTML, o ``\"\"`` cuando no hay ficha de puntuación que mostrar.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-001.json",
+    "record_index": 56,
+    "before_file_sha256": "257425e34edb7b99b8ad70abbacc3d2ef6ef6292acc5efc4dfc829293cd0f8a5",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Des métriques qui ne contiennent aucune des clés de la fiche d’évaluation -- une note libre, une perte d’entraînement sous un nom qui lui est propre -- ne constituent pas non plus une fiche d’évaluation, et ne renvoient rien non plus : une table de onze lignes \"not recorded\" remplacerait une note de deux lignes qui disait quelque chose.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Des métriques qui ne contiennent aucune des clés de la fiche d’évaluation -- une note libre, une perte d’entraînement sous un nom qui lui est propre -- ne constituent pas non plus une fiche d’évaluation, et ne renvoient rien non plus : une table de onze lignes \"not recorded\" remplacerait une note de deux lignes qui disait quelque chose.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-001.json",
+    "record_index": 57,
+    "before_file_sha256": "257425e34edb7b99b8ad70abbacc3d2ef6ef6292acc5efc4dfc829293cd0f8a5",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "une entrée du catalogue, ou tout objet doté de ``metrics`` et d’un nom.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "une entrée du catalogue, ou tout objet doté de ``metrics`` et d’un nom.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-001.json",
+    "record_index": 58,
+    "before_file_sha256": "257425e34edb7b99b8ad70abbacc3d2ef6ef6292acc5efc4dfc829293cd0f8a5",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "la table HTML, ou ``\"\"`` lorsqu’il n’y a pas de fiche d’évaluation à afficher.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "la table HTML, ou ``\"\"`` lorsqu’il n’y a pas de fiche d’évaluation à afficher.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-001.json",
+    "record_index": 56,
+    "before_file_sha256": "bf4027159d93dd8f20a78007a40d1912365f7b8ae0112532661447f65d362fc8",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "जिन मेट्रिक्स में स्कोरकार्ड की कोई कुंजी नहीं है -- कोई मुक्त-रूप टिप्पणी, अपने ही नाम से कोई प्रशिक्षण loss -- वे भी स्कोरकार्ड नहीं हैं, और वे भी कुछ नहीं लौटाते: ग्यारह \"not recorded\" पंक्तियों वाली तालिका उस दो-पंक्ति टिप्पणी की जगह ले लेती जिसमें कुछ कहा गया था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "जिन मेट्रिक्स में स्कोरकार्ड की कोई कुंजी नहीं है -- कोई मुक्त-रूप टिप्पणी, अपने ही नाम से कोई प्रशिक्षण loss -- वे भी स्कोरकार्ड नहीं हैं, और वे भी कुछ नहीं लौटाते: ग्यारह \"not recorded\" पंक्तियों वाली तालिका उस दो-पंक्ति टिप्पणी की जगह ले लेती जिसमें कुछ कहा गया था।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-001.json",
+    "record_index": 57,
+    "before_file_sha256": "bf4027159d93dd8f20a78007a40d1912365f7b8ae0112532661447f65d362fc8",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "कैटलॉग प्रविष्टि, या ``metrics`` और नाम वाली कोई भी चीज़।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "कैटलॉग प्रविष्टि, या ``metrics`` और नाम वाली कोई भी चीज़।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-001.json",
+    "record_index": 58,
+    "before_file_sha256": "bf4027159d93dd8f20a78007a40d1912365f7b8ae0112532661447f65d362fc8",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML तालिका, या दिखाने को कोई स्कोरकार्ड न होने पर ``\"\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML तालिका, या दिखाने को कोई स्कोरकार्ड न होने पर ``\"\"``।",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-001.json",
+    "record_index": 56,
+    "before_file_sha256": "fc79ee86b8ecf016464e30a0e84ff1b570bf26dd7b17c984ead364d61a39a2e3",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Mælikvarðar sem innihalda enga af lyklum einkunnaspjaldsins -- frjáls athugasemd, þjálfunartap undir eigin heiti -- eru heldur ekki einkunnaspjald, og skila líka engu: tafla með ellefu \"not recorded\" röðum kæmi í stað tveggja lína athugasemdar sem sagði eitthvað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Mælikvarðar sem innihalda enga af lyklum einkunnaspjaldsins -- frjáls athugasemd, þjálfunartap undir eigin heiti -- eru heldur ekki einkunnaspjald, og skila líka engu: tafla með ellefu \"not recorded\" röðum kæmi í stað tveggja lína athugasemdar sem sagði eitthvað.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-001.json",
+    "record_index": 57,
+    "before_file_sha256": "fc79ee86b8ecf016464e30a0e84ff1b570bf26dd7b17c984ead364d61a39a2e3",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "færsla í líkanaskránni, eða hvaðeina með ``metrics`` og heiti.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "færsla í líkanaskránni, eða hvaðeina með ``metrics`` og heiti.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-001.json",
+    "record_index": 58,
+    "before_file_sha256": "fc79ee86b8ecf016464e30a0e84ff1b570bf26dd7b17c984ead364d61a39a2e3",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML-taflan, eða ``\"\"`` þegar ekkert einkunnaspjald er til að sýna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML-taflan, eða ``\"\"`` þegar ekkert einkunnaspjald er til að sýna.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-001.json",
+    "record_index": 56,
+    "before_file_sha256": "14f074f77bbee8c6f89c4f53737b24f5a3e4ce477ed597174a1a6edae75fe968",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "성적표의 키를 하나도 갖지 않은 지표(자유 형식 메모, 자체 이름으로 된 학습 손실)도 성적표가 아니므로 역시 아무것도 반환하지 않습니다. \"not recorded\" 행이 열한 개인 표는 무언가를 말해 주던 두 줄짜리 메모를 대체하게 될 것이기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "성적표의 키를 하나도 갖지 않은 지표(자유 형식 메모, 자체 이름으로 된 학습 손실)도 성적표가 아니므로 역시 아무것도 반환하지 않습니다. \"not recorded\" 행이 열한 개인 표는 무언가를 말해 주던 두 줄짜리 메모를 대체하게 될 것이기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-001.json",
+    "record_index": 57,
+    "before_file_sha256": "14f074f77bbee8c6f89c4f53737b24f5a3e4ce477ed597174a1a6edae75fe968",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "카탈로그 항목, 또는 ``metrics`` 와 이름을 가진 모든 객체입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "카탈로그 항목, 또는 ``metrics`` 와 이름을 가진 모든 객체입니다.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-001.json",
+    "record_index": 58,
+    "before_file_sha256": "14f074f77bbee8c6f89c4f53737b24f5a3e4ce477ed597174a1a6edae75fe968",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML 표이며, 보여 줄 성적표가 없으면 ``\"\"`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML 표이며, 보여 줄 성적표가 없으면 ``\"\"`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-001.json",
+    "record_index": 54,
+    "before_file_sha256": "f11c0dfca2d271dc36cc72792ac83a064083a60041185b53dfaa479590fa2eea",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Métricas que não contêm nenhuma das chaves do scorecard -- uma nota em formato livre, uma perda de treinamento com nome próprio -- também não são um scorecard, e também não retornam nada: uma tabela de onze linhas \"not recorded\" substituiria uma nota de duas linhas que dizia alguma coisa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Métricas que não contêm nenhuma das chaves do scorecard -- uma nota em formato livre, uma perda de treinamento com nome próprio -- também não são um scorecard, e também não retornam nada: uma tabela de onze linhas \"not recorded\" substituiria uma nota de duas linhas que dizia alguma coisa.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-001.json",
+    "record_index": 55,
+    "before_file_sha256": "f11c0dfca2d271dc36cc72792ac83a064083a60041185b53dfaa479590fa2eea",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "uma entrada do catálogo, ou qualquer coisa com ``metrics`` e um nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "uma entrada do catálogo, ou qualquer coisa com ``metrics`` e um nome.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-001.json",
+    "record_index": 56,
+    "before_file_sha256": "f11c0dfca2d271dc36cc72792ac83a064083a60041185b53dfaa479590fa2eea",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "a tabela HTML, ou ``\"\"`` quando não há scorecard a mostrar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "a tabela HTML, ou ``\"\"`` quando não há scorecard a mostrar.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-001.json",
+    "record_index": 99,
+    "before_file_sha256": "982a60313435202b4374f03c1bd523c035a2cbfc9a8817ae468aa52ef36ff9ab",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Mått som inte innehåller någon av resultatkortets nycklar -- en fritextanteckning, en träningsförlust under ett eget namn -- är inte heller ett resultatkort och returnerar inte heller något: en tabell med elva rader \"not recorded\" skulle ersätta en tvåradig anteckning som faktiskt sade något.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Mått som inte innehåller någon av resultatkortets nycklar -- en fritextanteckning, en träningsförlust under ett eget namn -- är inte heller ett resultatkort och returnerar inte heller något: en tabell med elva rader \"not recorded\" skulle ersätta en tvåradig anteckning som faktiskt sade något.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-001.json",
+    "record_index": 100,
+    "before_file_sha256": "982a60313435202b4374f03c1bd523c035a2cbfc9a8817ae468aa52ef36ff9ab",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "en katalogpost, eller vad som helst med ``metrics`` och ett namn.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "en katalogpost, eller vad som helst med ``metrics`` och ett namn.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-001.json",
+    "record_index": 101,
+    "before_file_sha256": "982a60313435202b4374f03c1bd523c035a2cbfc9a8817ae468aa52ef36ff9ab",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML-tabellen, eller ``\"\"`` när det inte finns något resultatkort att visa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML-tabellen, eller ``\"\"`` när det inte finns något resultatkort att visa.",
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-001.json",
+    "record_index": 99,
+    "before_file_sha256": "f93a174bf1744b7feaaa6af931387cf9a80df22f07f51f2290e1f0c3bc084120",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "不包含评分卡任何键的指标——一条自由格式的说明、一个以自己的名称记录的训练损失——同样不是评分卡，也不返回任何内容：一张包含十一行 \"not recorded\" 的表格会取代一条原本言之有物的两行说明。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "不包含评分卡任何键的指标——一条自由格式的说明、一个以自己的名称记录的训练损失——同样不是评分卡，也不返回任何内容：一张包含十一行 \"not recorded\" 的表格会取代一条原本言之有物的两行说明。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-001.json",
+    "record_index": 100,
+    "before_file_sha256": "f93a174bf1744b7feaaa6af931387cf9a80df22f07f51f2290e1f0c3bc084120",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "一个目录条目，或任何带有 ``metrics`` 和名称的对象。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "一个目录条目，或任何带有 ``metrics`` 和名称的对象。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  },
+  {
+    "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-001.json",
+    "record_index": 101,
+    "before_file_sha256": "f93a174bf1744b7feaaa6af931387cf9a80df22f07f51f2290e1f0c3bc084120",
+    "original_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML 表格；没有可显示的评分卡时为 ``\"\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    "replacement_record": {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML 表格；没有可显示的评分卡时为 ``\"\"``。",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
+    }
+  }
+]

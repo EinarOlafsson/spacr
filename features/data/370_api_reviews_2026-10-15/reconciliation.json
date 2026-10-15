@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "source_commit": "983947450066838d5acf22fc4993e44f649663d5",
+  "source_files": {
+    "spacr/model_zoo.py": "fe4227e32aaaf2247c0f1a92248d744827d38eb4f636860e964792c8d42b146e"
+  },
+  "published_base": "f8260ead02bc57b5253aefbde852f1c0d349ac89",
+  "source_packet_sha256": "ab3f3bfb129f20ce5949ea9a17ad47709f6312cc819eadcc07255040610ade2b",
+  "targets_file_sha256": "a52a8179c117bc27e12ad2d5003804df6940ad2b6842c0849a34ed714aeab32e",
+  "selected_existing_symbols": 4,
+  "new_symbols": 0,
+  "new_authored_pairs": 36,
+  "byte_preserved_shifted_pairs": 27,
+  "source_context_checks": 126,
+  "inline_checks": 63,
+  "selected_normal_review_loaders": "PASS all9",
+  "retired_records": 27,
+  "retired_files": 9,
+  "other_review_files_exact": 1790,
+  "normal_api_writer_executed": false,
+  "full_collector_or_runtime_import": false,
+  "limits": [
+    "Technical AI authoring and independent review; no native-speaker signoff.",
+    "Current normal one-file visibility proves no new eligible private-helper symbols.",
+    "No model/scientific/native UI/publication acceptance."
+  ]
+}
