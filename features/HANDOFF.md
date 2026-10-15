@@ -12738,3 +12738,12 @@ second-slot claims while OriginalHome/Claude use the other functional slot.
 FinalfullCI/release remain deferred. On push rejection root fetches/normalmerges
 and retries; noforce. Completed work remains on privatebranches if remote races
 persist, while other actionable owned work continues.
+
+2026-10-14 Home-B extractor owner delivery a7a0f9c73a5
+Normal runtime extraction now includes install_cleanup.py and only the exact
+model_zoo._ensure_catalogue_model_file helper, matchingN7031320ffd/N7025e88.
+Fifteen focused positive/exclusion extractor checks PASS. No application or
+catalog edits/generation; OriginalHome owns source integration and normalwriters.
+N6966b7e37b426 andN69916c22ebd138 extractoradditions reviewed compatible/additive.
+This unblocks owner integration without broad module extraction or gate bypass.
+AllHomeB heavychecks serializeviaheavy.lock whileotherHomeuses otherhostslot.
