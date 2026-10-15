@@ -10060,6 +10060,16 @@
       "source_sha256": "443c7d99e0f454518028bbf0b6a993a54cf30de94b071895aa503dd7ea5289e9",
       "text": "A likely-cause key as the relay keeps it: kebab-case, 5 words, 40 chars.\n\n:param raw: the key as the AI wrote it.\n:returns: the slug, or ``\"\"``."
     },
+    "spacr.crashreport.normalise_question": {
+      "source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ],
+      "source_sha256": "b3c1cbdcd69c16d48490cc1b07f7c452a668a90836895c0123c59a024a2425db",
+      "text": "A question as both caches compare it.\n\nLower case, placeholders such as ``<PATH>`` removed, and every run of\nwhitespace or punctuation folded into one space, the way the relay's\n``normaliseQuestion`` does it.\n\n:param text: the question.\n:returns: the normalised question."
+    },
     "spacr.crashreport.public_environment": {
       "source_blocks_sha256": [
         "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
@@ -10134,6 +10144,18 @@
       ],
       "source_sha256": "9dee6cbe285403aa8ffe3d3e6914851e3b428124ce150b2614f6b377f2d27537",
       "text": "Build the anonymised summary of an error that may be published.\n\nOnly the keys in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is\npassed through :func:`scrub_public_text` and cut to\n:data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES`\n``{file, function, line}`` records with the file as a basename, or\n``<user-code>`` for a file outside spaCR, Python and its libraries.\nNo log, setting, environment variable or path is read into it.\n\n:param exception: the exception, with its traceback.\n:param traceback_text: a formatted traceback, used when no exception\n    object is at hand (a failed pipeline run reports one as text).\n:param module: the spaCR module key the error happened in, such as\n    ``mask`` or ``measure``.\n:param user_note: what the user adds, scrubbed and cut to\n    :data:`MAX_NOTE_CHARS`; left out when empty.\n:param dry_run: ask the relay to validate without filing; left out when\n    false.\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out\n    by :func:`classify_failure` when empty.\n:param code_context: add each spaCR frame's source line as ``code``.\n    Frames of any other file never carry code.\n:param screen: the screen's title as the user sees it, such as\n    ``Mask``; at most :data:`MAX_SCREEN_CHARS` characters.\n:param error_text: the error as the console showed it, scrubbed with\n    its line breaks kept and cut to :data:`MAX_ERROR_TEXT_CHARS`.\n:param message: the message to send in place of the exception's own,\n    such as every problem a refused run found; a user error keeps its\n    line breaks and may be :data:`MAX_USER_ERROR_MESSAGE_CHARS` long.\n:param settings: the run's settings; their names and public values\n    (:func:`public_settings`) and the source folder's input facts\n    (:func:`public_input_facts`) are added.\n:param log_text: the console text before the failure; its last lines\n    are added, scrubbed (:func:`public_log_tail`).\n:param run: ``{\"stage\", \"elapsed_s\", \"dry_run\"}`` of the failed run.\n:param diagnostics: add the environment block\n    (:func:`public_environment`) and the exception chain.\n:returns: the summary, ready for :func:`submit_public_summary`."
+    },
+    "spacr.crashreport.question_key": {
+      "source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "9ea846a8c806fae26730dac71ac0808afada88d86894dd298c043596416e21c2",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "45bcfbe21202e8b0dd3f46d708cce163f714a466f901d8881a067d4043faa3a3",
+      "text": "The key a question's saved answer is kept under, or ``\"\"``.\n\nSHA-256 of the scrubbed, normalised question, the place it was asked\n(screen or module) and spaCR's ``major.minor``, prefixed ``q:``. A\nquestion with more than :data:`QUESTION_CACHE_CONTEXT_MAX` characters\nof question and pasted context is never saved.\n\n:param question: what the user asked.\n:param place: the screen or module it was asked on.\n:param context_chars: characters of console context, code or traceback\n    pasted with it.\n:returns: the key, or ``\"\"`` when the answer must not be saved."
     },
     "spacr.crashreport.queued_summaries": {
       "source_blocks_sha256": [
@@ -44176,6 +44198,16 @@
       "source_sha256": "bcbd42692cf749c6de19da3a3384f69c02ac93190fe9a4548c4a003e33f26bcf",
       "text": "Name the operating system :data:`INSTALL_METHODS` is keyed by.\n\n:param platform: a ``sys.platform`` value.\n:returns: ``\"win32\"`` for any Windows value, ``\"darwin\"`` for macOS, and\n    ``\"linux\"`` for everything else."
     },
+    "spacr.qt.ai.providers.question_cache_key": {
+      "source_blocks_sha256": [
+        "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+        "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+        "69388d176540fe771c0695e09aad7cd9085a60e08c44e2306bdd418f531232a3",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "7d905ed404532b8cbc7d5a9b07bdef623398297d4b8ef3dbe97a371ec34c8cab",
+      "text": "The key a fresh question's answer is saved under on this computer.\n\nOnly the first question of a conversation is saved, and only when the\nquestion and whatever was pasted with it (console context, code,\ntraceback) stay within\n:data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The\nkey is :func:`spacr.crashreport.question_key` of the question and the\nactive app; it is the same for every provider.\n\n:param messages: conversation history as ``{role, content}`` dicts.\n:returns: the key, or ``\"\"`` when the answer must not be saved."
+    },
     "spacr.qt.ai.providers.quote_path": {
       "source_blocks_sha256": [
         "088d535bbe89606e095500d7e3e269d1f4f42a8e74eab843576bc10b044ba4bb",
@@ -44499,10 +44531,11 @@
       "source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199"
+        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ],
-      "source_sha256": "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f",
-      "text": "Consume the provider stream, emitting stage/chunk/finished signals.\n\n``finished`` carries ``(True, the whole reply)`` only when the stream\nended on its own and the provider did not report a failure. Anything\nelse gives ``(False, <what to tell the user>)``, and whatever the\nprovider printed before failing is not an answer. A stream that was\ncancelled gives ``(False, \"Cancelled.\")`` even when ending the child\nmade the provider raise, because the user asked for the stop.\n\nThe exception's class name is prefixed to its message, except for a\n:class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty\nmessage. The console writes this text after \"[AI error] \", and a\nProviderFailed message is written to be read there, including the\nsign-in command to run. For every other exception the class name is\nkept because it often names the error: a bare ``[Errno 2] No such\nfile or directory`` does not say it is a FileNotFoundError."
+      "source_sha256": "7b2189afeee30042fdff6226115e24c36df4d5e3f85707f26cd28cecf0838ddb",
+      "text": "Consume the provider stream, emitting stage/chunk/finished signals.\n\n``finished`` carries ``(True, the whole reply)`` only when the stream\nended on its own and the provider did not report a failure. Anything\nelse gives ``(False, <what to tell the user>)``, and whatever the\nprovider printed before failing is not an answer. A stream that was\ncancelled gives ``(False, \"Cancelled.\")`` even when ending the child\nmade the provider raise, because the user asked for the stop.\n\nThe exception's class name is prefixed to its message, except for a\n:class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty\nmessage. The console writes this text after \"[AI error] \", and a\nProviderFailed message is written to be read there, including the\nsign-in command to run. For every other exception the class name is\nkept because it often names the error: a bare ``[Errno 2] No such\nfile or directory`` does not say it is a FileNotFoundError.\n\nA fresh, short question\n(:func:`~spacr.qt.ai.providers.question_cache_key`) asked before is\nanswered from this computer's saved answers with no provider call,\nand :attr:`saved` is then ``True``; a new complete answer to such a\nquestion is saved, whatever the provider."
     },
     "spacr.qt.ai.worker.make_stream_thread": {
       "source_blocks_sha256": [

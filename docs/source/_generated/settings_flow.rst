@@ -3307,6 +3307,10 @@ classifier_family
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_attach_model_reference``
+|     ``_model_input_kinds``
+|         :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.screens.app_screen.apply_settings_dict`
 |     ``_model_input_kinds``
 |         :py:func:`~spacr.classify.resolve_family` **-- reads it**
@@ -13015,6 +13019,11 @@ model_metadata
 |                 ``_resolve_pinned_model_file``
 |                     ``_validate_model_metadata``
 |                         ``_validate_model_metadata_structure`` **-- reads it**
+|         ``_drop_unreal_objects``
+|             ``_resolve_pinned_model_file``
+|                 ``_validate_model_metadata``
+|                     ``_validate_model_metadata_structure`` **-- reads it**
+|                         ``isinstance(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.utils.save_settings`
 |             ``_validate_model_metadata``
 |                 ``_validate_model_metadata_structure`` **-- reads it**
@@ -13144,6 +13153,11 @@ model_metadata
 |             ``_validate_model_metadata_structure`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
+| ``_attach_model_reference`` **-- reads it**
+|     ``_validate_model_metadata``
+|         ``_validate_model_metadata_structure`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_pinned_object_model``
 |         ``_resolve_pinned_model_file``
@@ -13330,7 +13344,7 @@ model_metadata
 |                 ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_under_todays_names``, ``cmd_run``, ``write_settings_file``, ``deep_spacr``, ``_capture_model_metadata``, ``_invalidate_model_metadata``, ``_validate_model_metadata_structure``, ``apply_settings_dict``.
+Read by ``_under_todays_names``, ``cmd_run``, ``write_settings_file``, ``deep_spacr``, ``_attach_model_reference``, ``_capture_model_metadata``, ``_invalidate_model_metadata``, ``_validate_model_metadata_structure``, ``apply_settings_dict``.
 
 .. _setting-flow-model_name:
 
@@ -22243,6 +22257,9 @@ segmentation_backend
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_attach_model_reference``
+|     ``_model_input_kinds`` **-- reads it**
+|     ``deepcopy(...)  [UNRESOLVED]``
 | ``_prefixed_model_route`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**

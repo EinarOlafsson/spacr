@@ -323,3 +323,25 @@ missing src, "Summarize and send all errors":
   a <details> block.
 - The retired "spaCR AI: {text}{light}" caption was removed from the nine
   AI-reviewed record files and the catalogs rebuilt.
+
+2026-10-15 — BUILT, AI answer cache and likely-cause grouping (relay 0.2.5,
+deployed; /health reports 0.2.5 with cache stats):
+- One D1 table ai_cache (key, kind error|question, text, model, tier,
+  cause_slug, spacr_minor, created, last_used, hits, bytes; index on hits,
+  last_used) replaces ai_explanations (dropped). Reads by primary key only
+  (live EXPLAIN QUERY PLAN: sqlite_autoindex_ai_cache_1 (key=?)). Error keys
+  are the signature (a user error's includes its problem list); questions
+  are q: + SHA-256 of the normalised question + screen|module + spaCR
+  major.minor; more than 500 characters of question and pasted context are
+  never cached. A hit answers cached:true with no model call, neurons, share
+  or active-user mark. AI_CACHE_MAX_ROWS 20000, AI_CACHE_MAX_BYTES 60 MB,
+  AI_CACHE_TTL_DAYS 30; another major.minor asks again. ai_cache_meta keeps
+  the running counts; every 50th insert or past a cap, expired rows go and
+  then about 10% by hits, last_used. A closed issue drops its error entries.
+- A plain question may come with no exception or module (the hosted chat's
+  questions without a traceback were refused with a 400).
+- spaCR keeps up to 200 answers for 30 days on this computer for errors and
+  for a fresh short question (StreamWorker), whatever the provider.
+- The AI ends error answers with CAUSE: <slug>; issues get cause:<slug>
+  labels, a "Same likely cause" section, and the oldest open issue per cause
+  (D1 ai_causes) gets one comment per new signature. Signatures never merge.

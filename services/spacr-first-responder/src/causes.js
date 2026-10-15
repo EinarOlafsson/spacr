@@ -6,7 +6,8 @@ export const CAUSE_WORDS = 5;
 export const CAUSE_LABEL_PREFIX = "cause:";
 export const CAUSE_LABEL_COLOR = "0e7c86";
 
-const CAUSE_LINE_RE = /^\s*[*_`>#-]*\s*CAUSE\s*[:=]\s*[*_`]*\s*(.*?)\s*[*_`]*\s*$/i;
+const CAUSE_LINE_RE =
+  /^\s*[*_`>#-]*\s*(?:CAUSE\s*[:=]\s*[*_`]*\s*(.*?)|[Cc][Aa][Uu][Ss][Ee]\s*[:=]\s*[*_`]*\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)+))\s*[*_`]*\s*$/;
 
 export function normaliseCause(raw) {
   const words = String(raw || "")
@@ -27,7 +28,7 @@ export function splitCause(text) {
   for (const line of lines) {
     const m = CAUSE_LINE_RE.exec(line);
     if (m) {
-      cause = normaliseCause(m[1]) || cause;
+      cause = normaliseCause(m[1] || m[2]) || cause;
       continue;
     }
     kept.push(line);

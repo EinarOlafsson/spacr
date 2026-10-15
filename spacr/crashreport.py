@@ -2684,7 +2684,9 @@ def diagnose_remotely(summary: Mapping[str, Any], question: str = "", *,
 
 
 _CAUSE_LINE_RE = re.compile(
-    r"^\s*[*_`>#-]*\s*CAUSE\s*[:=]\s*[*_`]*\s*(.*?)\s*[*_`]*\s*$", re.I)
+    r"^\s*[*_`>#-]*\s*(?:CAUSE\s*[:=]\s*[*_`]*\s*(.*?)"
+    r"|(?i:cause)\s*[:=]\s*[*_`]*\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)+))"
+    r"\s*[*_`]*\s*$")
 
 
 def normalise_cause(raw: Any) -> str:
@@ -2708,7 +2710,7 @@ def split_cause(text: str) -> Tuple[str, str]:
     for line in str(text or "").splitlines():
         match = _CAUSE_LINE_RE.match(line)
         if match:
-            cause = normalise_cause(match.group(1)) or cause
+            cause = normalise_cause(match.group(1) or match.group(2)) or cause
             continue
         kept.append(line)
     return "\n".join(kept).strip(), cause
@@ -2833,6 +2835,14 @@ def saved_explanation(signature: str, now: Optional[float] = None
             "cause": normalise_cause(entry.get("cause", ""))}
 
 
+def _created(entry: Mapping[str, Any]) -> float:
+    """When a saved answer was written; ``0`` for a damaged entry."""
+    try:
+        return float(entry.get("created", 0) or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def save_explanation(signature: str, text: str, tier: str = "",
                      model: str = "", now: Optional[float] = None,
                      cause: str = "") -> None:
@@ -2854,14 +2864,13 @@ def save_explanation(signature: str, text: str, tier: str = "",
     with _SAVED_LOCK:
         saved = {key: entry for key, entry in _read_saved().items()
                  if isinstance(entry, dict)
-                 and now - float(entry.get("created", 0) or 0)
-                 < SAVED_EXPLANATION_DAYS * 86400}
+                 and now - _created(entry) < SAVED_EXPLANATION_DAYS * 86400}
         saved[str(signature)] = {"text": str(text), "tier": str(tier or ""),
                                  "model": str(model or ""), "created": now,
                                  "minor": _spacr_minor(),
                                  "cause": normalise_cause(cause)}
-        newest = sorted(saved.items(), key=lambda item: float(
-            item[1].get("created", 0) or 0))[-MAX_SAVED_EXPLANATIONS:]
+        newest = sorted(saved.items(), key=lambda item: _created(item[1])
+                        )[-MAX_SAVED_EXPLANATIONS:]
         try:
             folder = _reports_dir()
             folder.mkdir(parents=True, exist_ok=True)
@@ -2871,6 +2880,50 @@ def save_explanation(signature: str, text: str, tier: str = "",
             os.replace(temporary, _saved_path())
         except OSError:
             return
+
+
+#: The most characters of question and pasted context an answer is saved for.
+QUESTION_CACHE_CONTEXT_MAX = 500
+
+
+def normalise_question(text: Any) -> str:
+    """A question as both caches compare it.
+
+    Lower case, placeholders such as ``<PATH>`` removed, and every run of
+    whitespace or punctuation folded into one space, the way the relay's
+    ``normaliseQuestion`` does it.
+
+    :param text: the question.
+    :returns: the normalised question.
+    """
+    text = re.sub(r"<[^<>]*>", " ", str(text or "").lower())
+    return " ".join(re.sub(r"[\W_]+", " ", text).split())
+
+
+def question_key(question: str, place: str = "",
+                 context_chars: int = 0) -> str:
+    """The key a question's saved answer is kept under, or ``""``.
+
+    SHA-256 of the scrubbed, normalised question, the place it was asked
+    (screen or module) and spaCR's ``major.minor``, prefixed ``q:``. A
+    question with more than :data:`QUESTION_CACHE_CONTEXT_MAX` characters
+    of question and pasted context is never saved.
+
+    :param question: what the user asked.
+    :param place: the screen or module it was asked on.
+    :param context_chars: characters of console context, code or traceback
+        pasted with it.
+    :returns: the key, or ``""`` when the answer must not be saved.
+    """
+    question = str(question or "")
+    if len(question) + max(0, int(context_chars)) > QUESTION_CACHE_CONTEXT_MAX:
+        return ""
+    normal = normalise_question(scrub_public_text(question, MAX_QUESTION_CHARS))
+    if not normal:
+        return ""
+    digest = hashlib.sha256(
+        f"{normal}\n{place}\n{_spacr_minor()}".encode("utf-8")).hexdigest()
+    return f"q:{digest}"
 
 
 def _normal_allowance(data: Mapping[str, Any]) -> Dict[str, Any]:

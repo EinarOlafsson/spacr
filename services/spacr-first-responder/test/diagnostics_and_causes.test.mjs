@@ -193,3 +193,11 @@ test("a closed hub hands over to the new issue", async () => {
   assert.equal(comments().length, 0);
   assert.equal(env.DB.causes.get("no-object-channel-set").hub_issue, 102);
 });
+
+test("a prose 'Cause:' sentence stays in the text; only CAUSE or a slug is taken", () => {
+  const prose = splitCause("Cause: a missing column in measure_crop.");
+  assert.equal(prose.cause, null);
+  assert.equal(prose.text, "Cause: a missing column in measure_crop.");
+  assert.equal(splitCause("Answer\nCause: missing-column").cause, "missing-column");
+  assert.equal(splitCause("Answer\n**CAUSE:** Missing Column Name").cause, "missing-column-name");
+});

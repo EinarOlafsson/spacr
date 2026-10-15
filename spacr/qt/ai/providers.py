@@ -863,6 +863,39 @@ def _hosted_request(messages: List[Dict]) -> Tuple[Dict, str]:
     return summary, question.strip()
 
 
+def question_cache_key(messages: List[Dict]) -> str:
+    """The key a fresh question's answer is saved under on this computer.
+
+    Only the first question of a conversation is saved, and only when the
+    question and whatever was pasted with it (console context, code,
+    traceback) stay within
+    :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The
+    key is :func:`spacr.crashreport.question_key` of the question and the
+    active app; it is the same for every provider.
+
+    :param messages: conversation history as ``{role, content}`` dicts.
+    :returns: the key, or ``""`` when the answer must not be saved.
+    """
+    import re
+
+    from ... import crashreport
+
+    asked = [m for m in messages or [] if m.get("role", "user") == "user"]
+    if len(asked) != 1 or len(messages or []) != 1:
+        return ""
+    content = str(asked[0].get("content", "") or "")
+    if "Traceback (most recent call last)" in content:
+        return ""
+    found = re.search(r"^Active app:\s*(\S+)", content, re.MULTILINE)
+    question = re.sub(r"<spacr_console_context>.*?</spacr_console_context>",
+                      " ", content, flags=re.DOTALL)
+    question = re.sub(r"```.*?```", " ", question, flags=re.DOTALL)
+    question = re.sub(r"(?m)^Active app:.*$", " ", question).strip()
+    context = len(content) - len(question)
+    return crashreport.question_key(question, found.group(1) if found else "",
+                                    context)
+
+
 class HostedProvider(ChatProvider):
     """spaCR's hosted assistant: advice from spaCR's relay, no account needed.
 

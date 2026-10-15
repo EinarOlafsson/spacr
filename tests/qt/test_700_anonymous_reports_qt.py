@@ -163,7 +163,7 @@ class TestFailedRunWiring:
                                 source.format(**values)))
         screen._notices = notices
         monkeypatch.setattr(screen._console, "fill_ai_entry",
-                            lambda block, text: notices.append(
+                            lambda block, text, saved=False: notices.append(
                                 "spaCR AI: " + text))
         recorder = _Jobs()
         monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
@@ -644,7 +644,7 @@ class TestReportAiSummary:
                                 source.format(**values)))
         screen._notices = notices
         monkeypatch.setattr(screen._console, "fill_ai_entry",
-                            lambda block, text: notices.append(
+                            lambda block, text, saved=False: notices.append(
                                 "spaCR AI: " + text))
         recorder = _Jobs()
         monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
@@ -766,7 +766,7 @@ class TestEveryAiErrorReportChoice:
                                 source.format(**values)))
         screen._notices = notices
         monkeypatch.setattr(screen._console, "fill_ai_entry",
-                            lambda block, text: notices.append(
+                            lambda block, text, saved=False: notices.append(
                                 "spaCR AI: " + text))
         recorder = _Jobs()
         monkeypatch.setattr(screen._jobs, "submit", recorder.submit)

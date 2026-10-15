@@ -19,6 +19,15 @@
       "source_sha256": "23bafc7319af9cb7102cb843454669557b6440d1a99e091ddf6ee3e3c7f2956e",
       "text": "Show ``fig`` through matplotlib itself. True if the canvas is up.\n\nThis is what makes a figure crisp: the canvas redraws from the Figure\nat the widget's device resolution every time it changes size or zoom,\nso there is never a raster being stretched to fit. It is also what\nmakes it fast -- looking at a figure costs no render at all.\n\n:param fig: the Matplotlib figure to embed in a Qt canvas with its\n    navigation toolbar; the canvas already showing it is just redrawn."
     },
+    "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f": {
+      "source_blocks_sha256": [
+        "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
+        "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
+        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199"
+      ],
+      "source_sha256": "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f",
+      "text": "Consume the provider stream, emitting stage/chunk/finished signals.\n\n``finished`` carries ``(True, the whole reply)`` only when the stream\nended on its own and the provider did not report a failure. Anything\nelse gives ``(False, <what to tell the user>)``, and whatever the\nprovider printed before failing is not an answer. A stream that was\ncancelled gives ``(False, \"Cancelled.\")`` even when ending the child\nmade the provider raise, because the user asked for the stop.\n\nThe exception's class name is prefixed to its message, except for a\n:class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty\nmessage. The console writes this text after \"[AI error] \", and a\nProviderFailed message is written to be read there, including the\nsign-in command to run. For every other exception the class name is\nkept because it often names the error: a bare ``[Errno 2] No such\nfile or directory`` does not say it is a FileNotFoundError."
+    },
     "352ef6b86894d787e737e9e5607643f609b66d2f8e3146c71827fc299fbe36a5": {
       "source_blocks_sha256": [
         "a4c8622eeea975c2481bbb996bf1d4ba428c408285b8f1c0575628ee069efeb9",
