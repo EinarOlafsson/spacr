@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "scope": "Exact literal tr source, record shape and SHA-256 verified for18 new runtime inputs;18 existing focus translations have matching current English source hashes.",
+  "records": [
+    {
+      "language": "de",
+      "source": "Previous page",
+      "translation": "Vorherige Seite"
+    },
+    {
+      "language": "de",
+      "source": "Next page",
+      "translation": "Nächste Seite"
+    },
+    {
+      "language": "es",
+      "source": "Previous page",
+      "translation": "Página anterior"
+    },
+    {
+      "language": "es",
+      "source": "Next page",
+      "translation": "Página siguiente"
+    },
+    {
+      "language": "fr",
+      "source": "Previous page",
+      "translation": "Page précédente"
+    },
+    {
+      "language": "fr",
+      "source": "Next page",
+      "translation": "Page suivante"
+    },
+    {
+      "language": "hi",
+      "source": "Previous page",
+      "translation": "पिछला पृष्ठ"
+    },
+    {
+      "language": "hi",
+      "source": "Next page",
+      "translation": "अगला पृष्ठ"
+    },
+    {
+      "language": "is",
+      "source": "Previous page",
+      "translation": "Fyrri síða"
+    },
+    {
+      "language": "is",
+      "source": "Next page",
+      "translation": "Næsta síða"
+    },
+    {
+      "language": "ko",
+      "source": "Previous page",
+      "translation": "이전 페이지"
+    },
+    {
+      "language": "ko",
+      "source": "Next page",
+      "translation": "다음 페이지"
+    },
+    {
+      "language": "pt",
+      "source": "Previous page",
+      "translation": "Página anterior"
+    },
+    {
+      "language": "pt",
+      "source": "Next page",
+      "translation": "Próxima página"
+    },
+    {
+      "language": "sv",
+      "source": "Previous page",
+      "translation": "Föregående sida"
+    },
+    {
+      "language": "sv",
+      "source": "Next page",
+      "translation": "Nästa sida"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Previous page",
+      "translation": "上一页"
+    },
+    {
+      "language": "zh_CN",
+      "source": "Next page",
+      "translation": "下一页"
+    }
+  ],
+  "normal_candidate_context_validation": "PENDING root batched normal writer; no acceptance or bypass claimed.",
+  "cancelled_readonly_probe": {
+    "pid": 725663,
+    "termination": "Coordinator requested SIGTERM to prevent redundant broad review recursion; shell exit143, time reports signal15.",
+    "wall_seconds": 147.21,
+    "peak_rss_kib": 476084,
+    "cap": "2G, one thread, CPU, offscreen",
+    "result": "No completed result and no catalog writes."
+  },
+  "native_speaker_review": false
+}

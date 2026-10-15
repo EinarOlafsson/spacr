@@ -1,0 +1,59 @@
+{
+  "reviewer": "Home-B coordinator",
+  "kind": "Independent AI technical review, not native-speaker approval",
+  "scope": "54 exact runtime translation pairs for six factual export messages",
+  "findings": [
+    "Targets retain vector files may contain rasters and resolution editing is disabled, without claiming no raster resolution exists.",
+    "Matplotlib axes/frame/text restrictions remain distinct from fast-plot line/width behavior.",
+    "DPI units and PNG/TIFF scope retained.",
+    "Fallback message promises current styling with chosen resolution/transparency/tight crop; no exact on-screen-appearance promise."
+  ],
+  "files": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-figure-export-factual.json",
+      "sha256": "8d2a132c4101f1c529ff29ee1247de181e4a4de537dfdeef435b7a33cdddb27b",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-figure-export-factual.json",
+      "sha256": "2d473e8709387ca3055480270c7363795f37168b00b46ea274de884a9fcf8570",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-figure-export-factual.json",
+      "sha256": "51ec332c0575e45208485ae36938f64488492e09f2fab9257ac3e3cdba21e933",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-figure-export-factual.json",
+      "sha256": "8b52d07bb93eaf44b6234bd5a7f95b7c5157f859ff12d7bd4f7c6ddb97fafd31",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-figure-export-factual.json",
+      "sha256": "9b659135a76997c0b44079140388b0d38073c020c15b170d8dfa29aae5f406ee",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-figure-export-factual.json",
+      "sha256": "58c4c39b8a5e2d0230ac75831ef7169e11003c9dbd7527070881125e91d84b8e",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-figure-export-factual.json",
+      "sha256": "e5e7b2ecb186b6dc198c68a11b5c11787aa94f1606250763913a57274006b6c1",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-figure-export-factual.json",
+      "sha256": "e9e22cd458fd420bb5136144586a5c228ecd02ac7febb7cabb9bc00d30a0da5a",
+      "pairs": 6
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-figure-export-factual.json",
+      "sha256": "f43b25a82f30964d3d42b87ecd74ee1ba892bc320d0f984c71f641889fd5318e",
+      "pairs": 6
+    }
+  ],
+  "normal_gates": "Combined normal reviewed-runtime/context/candidate/writer validation remains a separate step."
+}

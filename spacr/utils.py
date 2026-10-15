@@ -1662,9 +1662,26 @@ def _save_settings_json(settings, path):
         return repr(value)
 
     try:
-        with open(path, 'w', encoding='utf-8') as out:
-            json.dump({str(k): plain(v) for k, v in dict(settings).items()},
-                      out, indent=2, sort_keys=True)
+        import stat
+        import tempfile
+        from pathlib import Path
+        from .run_journal import _atomic_write_text
+
+        payload = json.dumps({str(k): plain(v) for k, v in dict(settings).items()},
+                             indent=2, sort_keys=True)
+        target = Path(path)
+        if target.is_symlink():
+            target = target.resolve()
+        if target.exists() and not os.access(target, os.W_OK):
+            raise PermissionError(str(target))
+        with tempfile.TemporaryDirectory(prefix=".spacr-settings-json-", dir=target.parent) as staging:
+            staged = Path(staging) / "snapshot.json"
+            with staged.open("x", encoding="utf-8"):
+                pass
+            mode = stat.S_IMODE(target.stat().st_mode if target.exists() else staged.stat().st_mode)
+            _atomic_write_text(staged, payload)
+            staged.chmod(mode)
+            os.replace(staged, target)
     except Exception as error:                               # noqa: BLE001
         print(f"Warning: could not write {path}: {error}")
 

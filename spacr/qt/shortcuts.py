@@ -463,10 +463,19 @@ _ANNOTATE_SHORTCUTS = [
 
 def _screen_specs(scope: str) -> List[ShortcutSpec]:
     """Declared bindings for one screen, including shared navigation keys."""
-    return [spec for spec in SCREEN_SHORTCUTS
+    specs = [spec for spec in SCREEN_SHORTCUTS
             if (spec.keys in ("Left", "Right") and scope in _ARROW_SCOPES)
-            or spec.scope == _SCREEN_SCOPES.get(scope)] + (
-                list(_ANNOTATE_SHORTCUTS) if scope == "Annotate" else [])
+            or spec.scope == _SCREEN_SCOPES.get(scope)]
+    if scope == "Annotate":
+        navigation = {
+            "Left": "Move focus left", "Right": "Move focus right",
+            "PageUp": "Previous page", "Alt+Left": "Previous page",
+            "PageDown": "Next page", "Alt+Right": "Next page",
+        }
+        specs = [ShortcutSpec(spec.keys, navigation.get(spec.keys, spec.label),
+                              spec.category, spec.scope) for spec in specs]
+        specs.extend(_ANNOTATE_SHORTCUTS)
+    return specs
 
 
 def _screen_label(label: str) -> str:
@@ -477,6 +486,8 @@ def _screen_label(label: str) -> str:
         'Move focus down': tr('Move focus down'),
         'Move focus left': tr('Move focus left'),
         'Move focus right': tr('Move focus right'),
+        'Previous page': tr('Previous page'),
+        'Next page': tr('Next page'),
         'Skip forward one crop': tr('Skip forward one crop'),
         'Step back one crop': tr('Step back one crop'),
         'Save and load the next batch': tr('Save and load the next batch'),

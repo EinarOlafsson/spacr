@@ -162,8 +162,11 @@ class FigureSettingsDialog(QDialog):
         :param figure: the matplotlib figure to restyle.
         :param parent: parent widget, or ``None``.
         :param on_change: called to redraw; takes ``preview`` when it can.
-        :param propagate_callback: writes the values into the owning module's
-            settings panel. ``None`` disables Propagate and says why.
+        :param propagate_callback: receives the current Image UMAP control
+            values to write into the owning module's settings panel. Other
+            figure-style edits are not included; a figure without Image UMAP
+            controls supplies an empty dictionary. ``None`` disables Propagate
+            and says why.
         """
         super().__init__(parent)
         self.setWindowTitle("Figure settings")
@@ -1152,7 +1155,7 @@ def graph_style_as_dict(general=None, per_graph=None) -> dict:
     -------
     dict
         Style data with ``spacr_style_kind``, ``general``, and ``per_graph``
-        keys. Per-graph values that are not mappings are omitted.
+        keys. Per-graph values that are not dictionaries are omitted.
 
     Notes
     -----
@@ -1268,7 +1271,7 @@ def apply_graph_style(general, per_graph) -> None:
     general : mapping
         General style overrides.
     per_graph : mapping of str to mapping
-        Style overrides keyed by graph type. Values that are not mappings are
+        Style overrides keyed by graph type. Values that are not dictionaries are
         omitted.
     """
     from ..preferences import set_figure_style, set_figure_style_per_graph

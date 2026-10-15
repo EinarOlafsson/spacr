@@ -141483,10 +141483,10 @@
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "e62c753d0334d95a0edfb877bf41ed784131c4f03b5a29f2696afcc8408fbf9b",
-        "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
+        "a690fcdcf7947d314d31a8684b92a0a07e49d8015511619c85db10b408ed4089"
       ],
-      "source_sha256": "82717ccf340d914e78889a9386998d2bb7183b62d8c8c64376d422d2bcb88839",
-      "text": "라이브 숫자의 지원되는 외관 설정을 편집합니다.\n\n컨트롤은 숫자의 현재 좌석, 아티스트, 전설 및 선택적 spaCR 메타데이터에서 생성됩니다. 변경 사항은 짧은 데뷔 후 예상됩니다; 거부 대화는 캡처 될 수있을 때 개방 상태를 복원합니다.\n\n그림의 픽셀 스크립트가 촬영되므로 취소는 다시 가야 할 무언가를 가지고 있습니다 : 라이브 애플리케이션은 밖으로 나갈 방법이 없습니다 - 사용자는 그것이 무엇을하고 있는지 확인하기 위해 스핀 상자를 끌어 내고 더 이상 \"as it was\"가 없습니다. 텍스트 크기 초록은 별도로 유지되기 때문에 취소가 개체를 복사하는 대신 촬영에서 좌석을 복사함으로써 그림을 복원합니다.\n\n통계 탭은 그룹을 비교하는 숫자에만 나타납니다: Q-Q 플랫폼에 t 테스트를 제공하는 사람은 아무것도 의미하지 않는 숫자를 보고하도록 초대합니다. UMAP 탭에는 그것이 끌려온 삽입을 가져온 숫자가 나타나는데 - 그렇지 않으면 \"live\"은 감소를 다시 실행하고 각 포인트가 움직일 것이라는 것을 의미합니다.\n\n:param figure: matplotlib 숫자를 재설정합니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.\n:param on_change: 다시 녹음하도록 호출; 할 수있을 때 ``preview``를 가져옵니다.\n:param propagate_callback: 값을 소유 모듈의 설정 패널에 입력합니다. ``None`` Propagate를 방해하고 왜 하는지 알려줍니다.",
+      "source_sha256": "2bbe1f5e5f79771074902723895db2b121e917734d2b099dd9228ded21ea25ce",
+      "text": "라이브 숫자의 지원되는 외관 설정을 편집합니다.\n\n컨트롤은 숫자의 현재 좌석, 아티스트, 전설 및 선택적 spaCR 메타데이터에서 생성됩니다. 변경 사항은 짧은 데뷔 후 예상됩니다; 거부 대화는 캡처 될 수있을 때 개방 상태를 복원합니다.\n\n그림의 픽셀 스크립트가 촬영되므로 취소는 다시 가야 할 무언가를 가지고 있습니다 : 라이브 애플리케이션은 밖으로 나갈 방법이 없습니다 - 사용자는 그것이 무엇을하고 있는지 확인하기 위해 스핀 상자를 끌어 내고 더 이상 \"as it was\"가 없습니다. 텍스트 크기 초록은 별도로 유지되기 때문에 취소가 개체를 복사하는 대신 촬영에서 좌석을 복사함으로써 그림을 복원합니다.\n\n통계 탭은 그룹을 비교하는 숫자에만 나타납니다: Q-Q 플랫폼에 t 테스트를 제공하는 사람은 아무것도 의미하지 않는 숫자를 보고하도록 초대합니다. UMAP 탭에는 그것이 끌려온 삽입을 가져온 숫자가 나타나는데 - 그렇지 않으면 \"live\"은 감소를 다시 실행하고 각 포인트가 움직일 것이라는 것을 의미합니다.\n\n:param figure: matplotlib 숫자를 재설정합니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.\n:param on_change: 다시 녹음하도록 호출; 할 수있을 때 ``preview``를 가져옵니다.\n:param propagate_callback: 현재 Image UMAP 컨트롤 값을 받아 해당 모듈의 설정 패널에 기록합니다. 다른 그림 스타일 변경은 포함하지 않으며, Image UMAP 컨트롤이 없는 그림은 빈 딕셔너리를 제공합니다. ``None`` 은 Propagate를 비활성화하고 이유를 표시합니다.",
       "translation_source_blocks_sha256": [
         "7e8a49eeac12cfc7fb4a41aa7472670066bb58fca1386c233d5991f66bc21da8",
         "44335159cabd57379f07a758f2871fc163c62c8630f66dbcf2ca78143470e8e9",
@@ -141495,7 +141495,7 @@
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "e62c753d0334d95a0edfb877bf41ed784131c4f03b5a29f2696afcc8408fbf9b",
-        "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
+        "f8446aed75bc86a0ed7e8df0b6a806290b3e3200b3ca7c23053b92f9efaa74cc"
       ]
     },
     "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge": {
@@ -141962,14 +141962,14 @@
       "source_blocks_sha256": [
         "3282d496928d959d8ac7c174647e4d67a04088b7163c98478181178370266567",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "83f03171e1dcb7a9638cff5ea96c379859a5fa2c27e2da6705c549d92efe3149"
+        "e21f374fa116635a4ee0b040b4d86172013b5ca121cf66555cb0ac9fb9e03cbf"
       ],
-      "source_sha256": "d42d0831969539715570056a1a8a59122b3d292a78f851055a590fe6b7ef448f",
-      "text": "그래픽 스타일을 활성 옵션으로 저장합니다.\n\n매개변수\n----------\ngeneral : mapping 일반적인 스타일이 과장됩니다. per_graph : mapping of str to mapping 스타일은 그래픽 타입에 따라 키를 과장합니다.",
+      "source_sha256": "2e149964d4cdaf4c42ea3612589c74594a51e4155f752e0fed60a5571e108b63",
+      "text": "그래픽 스타일을 활성 옵션으로 저장합니다.\n\n매개변수\n----------\ngeneral : mapping 일반 스타일 재정의입니다. per_graph : mapping of str to mapping 그래프 유형을 키로 하는 스타일 재정의입니다. 딕셔너리가 아닌 값은 생략합니다.",
       "translation_source_blocks_sha256": [
         "3282d496928d959d8ac7c174647e4d67a04088b7163c98478181178370266567",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "83f03171e1dcb7a9638cff5ea96c379859a5fa2c27e2da6705c549d92efe3149"
+        "0caa3175edb59d3cec9df8b4476b047a4742aee8def0ab098c88edc5bc4deb12"
       ]
     },
     "spacr.qt.widgets.figure_settings.apply_line_colour": {
@@ -142136,18 +142136,18 @@
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "9be8b2cbed177806aea26c1b4d5de1708118e96f86b15aedcb461474af6802fb",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
-        "9cae15c3329d04b017ae764dfb72ff43e2915c0889f4162c2a1e8ad92be9e05b",
+        "a3209f6e0fbcc206acc8634456d0444048dac5c41ffbc852a4f83c1215a59392",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "16207bf62ced7957a1192829fb0ab40a7897a3ca604942590897ad7c0102dcb5"
       ],
-      "source_sha256": "0e5fb24d9309a12fcf9c2df5869647b68e161646625610051613dc03535f230e",
-      "text": "시리얼 그래픽 스타일 선호도는 키 가치 맵링을 초과합니다.\n\n매개변수\n----------\ngeneral : mapping, optional 일반적인 스타일이 과장됩니다. ``None`` 경우 현재의 선호도를 읽으십시오. per_graph : mapping of str to mapping, optional 그래픽 타입으로 키를 눌러 과장합니다. ``None`` 경우 해당 선호도를 읽어보십시오.\n\n반환값\n-------\n``spacr_style_kind``, ``general`` 및 ``per_graph`` 구조화된 데이터 이름을 가진 스타일 데이터를 맵링하는 키 값.\n\n메모\n-----\n테마 해결 색상 및 패키지 결함은 현재 표시된 숫자에서 캡처되지 않습니다.",
+      "source_sha256": "4a5f41b84d60a13090a676a7623b9a9f869b3ccc7871a36bff5bd701c90ed6b8",
+      "text": "시리얼 그래픽 스타일 선호도는 키 가치 맵링을 초과합니다.\n\n매개변수\n----------\ngeneral : mapping, optional 일반적인 스타일이 과장됩니다. ``None`` 경우 현재의 선호도를 읽으십시오. per_graph : mapping of str to mapping, optional 그래픽 타입으로 키를 눌러 과장합니다. ``None`` 경우 해당 선호도를 읽어보십시오.\n\n반환값\n-------\ndict ``spacr_style_kind``, ``general``, ``per_graph`` 키를 가진 스타일 데이터입니다. 그래프별 값이 딕셔너리가 아니면 생략합니다.\n\n메모\n-----\n테마 해결 색상 및 패키지 결함은 현재 표시된 숫자에서 캡처되지 않습니다.",
       "translation_source_blocks_sha256": [
         "6ef3ecb00045e231b50e7f633fb50510b6c60719daa9ae7831730739562863a0",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "9be8b2cbed177806aea26c1b4d5de1708118e96f86b15aedcb461474af6802fb",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
-        "439d9aa6601d52b7b8f6a43973fdc0ddcbe3f62ae3f8d399fa6392c5e20bc58f",
+        "207f42b87ebea7fa422b8c735546eeae6777e550f3a8fcc2e219b96bcdad18c8",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "16207bf62ced7957a1192829fb0ab40a7897a3ca604942590897ad7c0102dcb5"
       ]
@@ -171708,14 +171708,14 @@
       "source_blocks_sha256": [
         "bd80699456c116e24ba937d018607bf3422c0f2af4d7bfaa0df3000f7dfd8d64",
         "241cae3fd0c7a14ed10a3002b3351314d502ee1ad120e01a53e26929de6bf2e1",
-        "cf7ca0048d87597f4a117f604aca949c7840ca459834951c3f8ded4d92fb3313"
+        "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65"
       ],
-      "source_sha256": "acd872bfeceb1d198358a41d9611e9310a6aa2df5fad8b8e0c74b0cb454aadf1",
-      "text": "사전 보기 및 스크리닝 대신 파일에 대한 스타일링 된 숫자를 저장합니다.\n\n숫자에 표시된 spaCR Matplotlib 숫자는 스타일링되기 전에 복사됩니다; pyqtgraph plot는 안전하게 복사 할 수 없습니다, 그래서 그것은 오프 스크린 레이더의 길이에만 스타일링되고 그 후에 다시 넣습니다.\n\n대화는 파일에 속하는 것을 제공합니다 - 그것의 배경, 색상 및 라인의 폭, 그것의 텍스트의 색상, 그것은 그것의 페이지의 모양, 그리고 그것이 어떤 종류의 파일입니다. 다른 모든 숫자는 말할 수 있습니다 PLOT에 속하고 그것은 스크린에 도달하고 각 수출을 동시에 자신의 오른쪽 클릭 메뉴에 살고있다; 거기에서 유산 된 값은 두 번째로 제공하는 대신 여기에 표시됩니다.",
+      "source_sha256": "a6a5e4a6011b2c4cc34714a6fd57ab7f77f78bfac214c35f3533b4f6c21a6645",
+      "text": "사전 보기 및 스크리닝 대신 파일에 대한 스타일링 된 숫자를 저장합니다.\n\n숫자에 표시된 spaCR Matplotlib 숫자는 스타일링되기 전에 복사됩니다; pyqtgraph plot는 안전하게 복사 할 수 없습니다, 그래서 그것은 오프 스크린 레이더의 길이에만 스타일링되고 그 후에 다시 넣습니다.\n\n이 대화 상자는 파일에 속하는 설정을 제공합니다. 배경, 선의 색상과 너비, 글자 색상, 페이지 모양, 파일 유형입니다. 다른 모든 그림 설정은 플롯에 속하며 플롯의 자체 오른쪽 클릭 메뉴에 있습니다. 이 메뉴의 설정은 화면과 모든 내보내기에 함께 적용됩니다. 여기서는 그 메뉴에서 물려받은 값을 다시 설정하도록 제공하지 않고 표시합니다. Matplotlib 그림에도 표시 중인 그림을 바로 변경하는 그림 설정 메뉴가 있습니다. 이 대화 상자는 출력 페이지 크기가 바뀔 때 독립된 Matplotlib 복사본에 적용할 내보내기 전용 글자 크기 배율을 추가로 제공합니다.",
       "translation_source_blocks_sha256": [
         "bd80699456c116e24ba937d018607bf3422c0f2af4d7bfaa0df3000f7dfd8d64",
         "241cae3fd0c7a14ed10a3002b3351314d502ee1ad120e01a53e26929de6bf2e1",
-        "cf7ca0048d87597f4a117f604aca949c7840ca459834951c3f8ded4d92fb3313"
+        "26625e5ded841b72b7903cd57715e0d5a4fe692af287e2b1d50b1abb10bddb65"
       ]
     },
     "spacr.qt.widgets.save_figure_dialog.SaveFigureDialog": {
@@ -171725,22 +171725,22 @@
         "31433db814efe79103bb776b9ac24b484bd470a8e82567d7ebdba50e947f42b6",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "ccd05a9cf1f1bec6a9ece68be55ba0aaf15eb8ff3955a04c0ab07697c61e0f66",
-        "625343f5227f082cc3d6262c662cbde8adeb2684a5bb7aa8c82fc9b688e993ff",
+        "3d1b3e9da7e7fbd0ee38c27637c904702a5cdc1ae40a90bb47ff1365d56290db",
         "356a26d92dbfe92b282fdfd4f2a37ae674ef36d1f26e76d0979e260a8f1594f9",
         "bc5f3627ffd9aafb53c1584422eefbaac66a5f45f31cabe2cdc3c6b98ddb5c4d",
         "f0b77df58a371a8a92721d8a9ec95eb0c65c2f20d8cb3c080cb3c88042eee65d",
         "ea21d0af2cfdb115c3051699d6d56a32d841909272d66d7fc14d7a8e55f26977",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "d282c607fc1f4870023d03869e0730a8c7dddde10a82360088d60cdd00730cfb",
-      "text": "사전 보기 및 독립적으로 스타일링 된 숫자 복사본을 저장합니다.\n\n매개변수\n----------\n숫자 : matplotlib.figure.Figure 또는 빠른 플레이트 출처 숫자를. Matplotlib 숫자는 사전 시각화 스타일링 전에 복사됩니다; 빠른 숫자가 스스로 스타일링 된 스냅샷과 수출 방법을 제공합니다. 부모 : QWidget, 선택적 부모 대화를위한 위젯.\n\n메모\n-----\n수출 설정은 응용 프로그램에 표시된 출처를 변경하지 않습니다.\n\n그것은 무엇을 제공하고, 왜 그것은 짧은. 빠른 스크립트를 위해, 네 개의 설정 그룹은 파일이 어떻게 보이는지 변경 - 배경, 라인의 색상과 폭, 텍스트 색상, 그리고 페이지의 모양 - 그리고 세 개의 더 말하는 파일 IS : 그것의 형식, 해상도 및 페이지 크기. 다른 모든 것은 스크린의 자신의 오른쪽 클릭 메뉴에 속합니다, 그것은 스크림과 각 수출을 동시에 적용됩니다.\n\n스크립트에서 유산 된 설정이 표시되며 설명되지 않습니다. 페이지 크기 pyqtgraph 스크린을 쓰는 것은 그 메뉴에 설정되어 있습니다; 이 대화는 크기를 표시하고 숫자 옆에 조용한 메모로 어디에서 오는지에 대한 문장을 유지합니다. 저장 대화를 구축 : 네 가지 스타일 선택, 모양 및 페이지.\n\n숫자가 빠른 스크립트인지 여부는 두 가지 유형이 다른 방법으로 스타일링되고 쓰여지기 때문에 여기서 한 번 결정되며 아래의 각 지점은 개체를 다시 자르는 대신 깃발을 읽습니다.\n\n텍스트 스케일 컨트롤은 matplotlib 숫자에만 제공됩니다 : 응용 프로그램에서 광범위한 시각 숫자를 잡지 열로 줄이는 것은 라벨을 완전한 크기로 남겨 두고 좌석을 밀어 넣으며 빠른 스크립트는 이미 자신의 메뉴에 하나의 글꼴 크기 설정을 소유하고 있습니다.\n\n:param figure: 구할 수 있는 숫자입니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
+      "source_sha256": "6e148b496af6053e5af64a43df690fa53c93ab6f9e99f8554f8824b2e1ad7345",
+      "text": "사전 보기 및 독립적으로 스타일링 된 숫자 복사본을 저장합니다.\n\n매개변수\n----------\n숫자 : matplotlib.figure.Figure 또는 빠른 플레이트 출처 숫자를. Matplotlib 숫자는 사전 시각화 스타일링 전에 복사됩니다; 빠른 숫자가 스스로 스타일링 된 스냅샷과 수출 방법을 제공합니다. 부모 : QWidget, 선택적 부모 대화를위한 위젯.\n\n메모\n-----\n수출 설정은 응용 프로그램에 표시된 출처를 변경하지 않습니다.\n\n제공하는 설정과 간단하게 구성한 이유. 빠른 플롯에서는 네 설정 그룹이 파일의 모양을 바꿉니다. 배경, 선의 색상과 너비, 글자 색상, 페이지 모양입니다. 세 설정은 파일의 속성인 형식, 해상도, 페이지 크기를 정합니다. 나머지는 모두 플롯 자체의 오른쪽 클릭 메뉴에 속하며 화면과 모든 내보내기에 함께 적용됩니다. Matplotlib 그림에도 표시 중인 그림을 바로 변경하는 그림 설정 메뉴가 있습니다. 이 대화 상자는 내보내기 복사본에 적용할 추가 글자 크기 배율을 제공합니다.\n\n스크립트에서 유산 된 설정이 표시되며 설명되지 않습니다. 페이지 크기 pyqtgraph 스크린을 쓰는 것은 그 메뉴에 설정되어 있습니다; 이 대화는 크기를 표시하고 숫자 옆에 조용한 메모로 어디에서 오는지에 대한 문장을 유지합니다. 저장 대화를 구축 : 네 가지 스타일 선택, 모양 및 페이지.\n\n숫자가 빠른 스크립트인지 여부는 두 가지 유형이 다른 방법으로 스타일링되고 쓰여지기 때문에 여기서 한 번 결정되며 아래의 각 지점은 개체를 다시 자르는 대신 깃발을 읽습니다.\n\n텍스트 스케일 컨트롤은 matplotlib 숫자에만 제공됩니다 : 응용 프로그램에서 광범위한 시각 숫자를 잡지 열로 줄이는 것은 라벨을 완전한 크기로 남겨 두고 좌석을 밀어 넣으며 빠른 스크립트는 이미 자신의 메뉴에 하나의 글꼴 크기 설정을 소유하고 있습니다.\n\n:param figure: 구할 수 있는 숫자입니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
       "translation_source_blocks_sha256": [
         "d9496625243465b6b21574de68f680282f8e7811e97cf6b51cf79e6130554557",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "31433db814efe79103bb776b9ac24b484bd470a8e82567d7ebdba50e947f42b6",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "ccd05a9cf1f1bec6a9ece68be55ba0aaf15eb8ff3955a04c0ab07697c61e0f66",
-        "9d297e15d39bba31a387f54d89ee259d24a7bfbf31b67888083a887b9bf1bff8",
+        "f59a87e16e91e8874f0746e46226284413e43acec08cf1bb74dd22d2d96ee9d7",
         "2662ad0a100f17fabd6b2ab67e4a6bfa1eb1d6eb04c50fecae268eec7e3b1dae",
         "bc5f3627ffd9aafb53c1584422eefbaac66a5f45f31cabe2cdc3c6b98ddb5c4d",
         "4523cbdcf9c7741a3f29704527089e7e6b53d85270c0a3e460779c48715019aa",
@@ -171858,18 +171858,18 @@
       "source_blocks_sha256": [
         "1208c21224d57375ebdc07976591a4c08bf56958313044da9dc9b1e08a1dfcb3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "74070cabc56e1be5895123b1671bb6d9014d38d3d86a51bf7ea3558e2a8962c4",
+        "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "12a0820b34a859c09e12fe7b7188e2a1a9e45ecee502399b47499eee3408df0f",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "03d0fa680c9db3203be0cb84a1893899069dddd98417ae9b6101d510fcba5c38"
       ],
-      "source_sha256": "c311d19bd84d4feaf60a638b0f676a5abf8b48460b0ef5aab1ca57b708260d8b",
-      "text": "매트플로트리브 숫자에 대한 수출-만 스타일링을 적용합니다.\n\n매개변수\n----------\n숫자 : matplotlib.figure.Figure 또는 None 수정할 수 있는 그림 복사본. ``None``은 프리비전 붕괴를 위해 받아 들여집니다. ink : str, optional 색상은 제목, 라벨, 꼬리, 스핀, 전설 및 텍스트에 적용 - 글과 라인, 즉 종이 또는 슬라이드 프레세트가 의미하는 것입니다. 빈 끈은 기존 색상을 보존합니다. text_colour : str, optional 색상 텍스트만: 제목, 좌석 라벨, 꼬리 숫자 및 전설. 그 반을 위해 ``ink``을 초과합니다. line_colour : str, optional LINES만을 위한 색상 : 척추와 꼬리표. 그 반을 위해 ``ink``을 초과합니다. background : str, optional 그림 및 좌석 배경 색상. 빈 스트립은 두 배의 배경을 투명하게 만듭니다. grid : bool or None, default None ``True``에서 주요 네트워크 라인을 그려 놓고 ``False``에서 그들을 비활성화합니다. ``None``은 숫자의 자신의 네트워크를 혼자 남겨 두고, 그것은 자신의 욕망의 네트워킹이없는 호출자가 원하는 것입니다 : ``False``의 결함이 숫자가 끌어 들이고 아무도 그것에 대해 묻지 않습니다. width, height : float, default 0 인치의 출력 차원. 크기는 두 가치 모두 긍정적 인 경우에만 변경됩니다. dpi : int, default 0 출력 해상도 0은 현재의 숫자의 해상도를 유지합니다. font_scale : float, default 0 Multiplier는 모든 텍스트 아티스트에 적용됩니다. 0 위 또는 아래의 값은 현재 텍스트 크기를 유지합니다.\n\n반환값\n-------\nmatplotlib.figure.Figure 또는 None 스타일링 후 동일한 숫자 개체 또는 ``None`` ``figure``가 ``None``이었을 때.\n\n메모\n-----\n이 기능은 분리된 수출 복사본을 위해 고안되었습니다.이 기능은 라이브 숫자 선호도를 읽거나 업데이트하지 않습니다.",
+      "source_sha256": "2d42df3bc13fb58d3b50fce5252993a90c71a278d81dff9ce19b17effbd223d4",
+      "text": "매트플로트리브 숫자에 대한 수출-만 스타일링을 적용합니다.\n\n매개변수\n----------\nfigure : matplotlib.figure.Figure or None 수정할 그림 복사본입니다. 미리보기의 대체 처리에는 ``None`` 을 허용합니다. ink : str, optional 축 제목, 축 레이블, 눈금 레이블, 범례 항목, 축 안의 글자, 축 테두리, 눈금선에 적용할 색상입니다. 그림 수준의 글자, 범례 제목, 그려진 데이터 선은 바뀌지 않습니다. 빈 문자열은 기존 색상을 유지합니다. text_colour : str, optional ``ink`` 아래에 나열된 축의 글자 요소에 적용할 색상입니다. 이 요소들에 대해서는 ``ink`` 를 재정의합니다. line_colour : str, optional 선에만 적용할 색상으로, 축 테두리와 눈금선이 해당합니다. 이 부분에 대해서는 ``ink`` 를 재정의합니다. background : str, optional 그림과 축의 배경색입니다. 빈 문자열은 두 배경을 모두 투명하게 만듭니다. grid : bool or None, default None ``True`` 이면 주 격자선을 그리고 ``False`` 이면 비활성화합니다. ``None`` 은 그림 자체의 격자를 그대로 둡니다. 이는 별도의 격자 제어가 없는 호출 측에 필요한 동작입니다. 기본값이 ``False`` 이면 그림을 그릴 때 있던 격자가 요청 없이 꺼집니다. width, height : float, default 0 인치 단위의 출력 크기입니다. 두 값이 모두 양수일 때만 크기를 바꿉니다. dpi : int, default 0 출력 해상도입니다. 영이면 그림의 현재 해상도를 유지합니다. font_scale : float, default 0 각 글자 객체에 적용할 배율입니다. 영 이하의 값은 현재 글자 크기를 유지합니다.\n\n반환값\n-------\nmatplotlib.figure.Figure 또는 None 스타일링 후 동일한 숫자 개체 또는 ``None`` ``figure``가 ``None``이었을 때.\n\n메모\n-----\n이 기능은 분리된 수출 복사본을 위해 고안되었습니다.이 기능은 라이브 숫자 선호도를 읽거나 업데이트하지 않습니다.",
       "translation_source_blocks_sha256": [
         "1208c21224d57375ebdc07976591a4c08bf56958313044da9dc9b1e08a1dfcb3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "74070cabc56e1be5895123b1671bb6d9014d38d3d86a51bf7ea3558e2a8962c4",
+        "9077f39847f446b761a4dddbf1f47d7414c5440f27efd358d4f355e34c3e4695",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "12a0820b34a859c09e12fe7b7188e2a1a9e45ecee502399b47499eee3408df0f",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
