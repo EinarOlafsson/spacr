@@ -26,9 +26,8 @@ pytest.importorskip("pytestqt")
 from spacr.qt.widgets import fold_strip                          # noqa: E402
 from spacr.qt.widgets.fold_strip import FoldButton, _describe    # noqa: E402
 
-#: A module that is still a tile: the registry knows its display name, its
-#: sentence and that it is alpha, so all three answers change when the
-#: registry cannot be reached.
+#: A module that is still a tile: the registry supplies its name, sentence
+#: and assessed stable stage; a missing registry changes the name and copy.
 REGISTERED_KEY = "classify_merged"
 
 
@@ -50,9 +49,12 @@ def test_the_registry_answers_a_folded_button_with_name_sentence_and_stage():
     """The baseline the broken-import case is measured against."""
     name, description, stage = _describe(REGISTERED_KEY)
 
+    from spacr.qt import maturity
+
     assert name == "Classify"
     assert description
-    assert stage == "alpha"
+    assert maturity.AFFIRMED[REGISTERED_KEY][0] == "stable"
+    assert stage == "stable"
 
 
 def test_a_fold_button_still_describes_itself_when_the_app_module_will_not_import(

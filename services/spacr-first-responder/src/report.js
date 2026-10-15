@@ -143,6 +143,12 @@ export function sourceOf(summary) {
   return summary ? summary.source : "none";
 }
 
+export function summaryFields(summary) {
+  const out = { ai_summary_source: sourceOf(summary) };
+  if (summary && summary.source === "relay" && summary.text) out.ai_summary = summary.text;
+  return out;
+}
+
 function issueUrl(env, number) {
   return number ? `https://github.com/${env.REPO}/issues/${number}` : null;
 }
@@ -164,7 +170,7 @@ async function openNewIssue(env, r, signature, now, getSummary) {
     issue_number: issue.number,
     issue_url: issue.url,
     deduplicated: false,
-    ai_summary_source: sourceOf(summary),
+    ...summaryFields(summary),
   };
 }
 
@@ -179,7 +185,7 @@ async function reopenAsRecurred(env, r, signature, closedNumber, getSummary) {
     issue_url: issue.url,
     deduplicated: false,
     recurred_from: closedNumber,
-    ai_summary_source: sourceOf(summary),
+    ...summaryFields(summary),
   };
 }
 
@@ -235,7 +241,7 @@ export async function fileReport(env, r, { day, now, getSummary }) {
         issue_url: issueUrl(env, claim.issue_number),
         deduplicated: true,
         commented: true,
-        ai_summary_source: sourceOf(summary),
+        ...summaryFields(summary),
       };
     }
     await env.DB.prepare(SQL.dropSignature).bind(signature).run();

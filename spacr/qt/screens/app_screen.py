@@ -9697,7 +9697,12 @@ class AppScreen(QWidget):
         status = outcome.get("status")
         explanation = dict(outcome.get("explanation") or {})
         refused = str(explanation.get("refused", "") or "")
-        if outcome.get("explained"):
+        relay_text = str(outcome.get("ai_summary", "") or "")
+        if relay_text and not explanation.get("text"):
+            self._console.append_notice(
+                "spaCR AI: {text}{light}\n", text=relay_text,
+                light=" [" + tr("lighter model") + "]")
+        elif outcome.get("explained"):
             if explanation.get("text"):
                 light = " [" + tr("lighter model") + "]" if explanation.get(
                     "tier") == "light" else ""

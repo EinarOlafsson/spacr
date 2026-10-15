@@ -1,0 +1,38 @@
+{
+  "base": "72e412b9f37a3f661981de19e8c4ad5ccffd9cc8",
+  "hosted_run": 38699600639,
+  "scope": "Three existing SaveFigure tests current exact tooltip/reason contracts",
+  "baseline": {
+    "failed": 3,
+    "seconds": 3.15,
+    "causes": [
+      "oldcapitalized Dots per inch substring versus current complete PNG/TIFF resolution sentence",
+      "oldvector substring versus accurate PDF/SVG can contain raster images and dialog disables resolution editing explanation"
+    ]
+  },
+  "verification": {
+    "passed": 4,
+    "seconds": 3.5,
+    "cases": "threeaffected nodes plus unchanged PNG-restores-editing control",
+    "resource": "background newOriginalCIheavy.lock capped8G tasksetoneCPU blankCUDA offscreen"
+  },
+  "preserved": [
+    "all size/width/height ownership and format assertions",
+    "PNG DPI editable",
+    "PDF/SVG DPI disabled",
+    "restored PNG DPI editable",
+    "actualdialog controls and current render policy",
+    "all production/caption/catalog/tool/testunowned source"
+  ],
+  "stronger_expectations": [
+    "exact translatedPNG/TIFF tooltip",
+    "exact translatedPDF/SVG explanatory tooltip",
+    "direct reason-label exact source/text suffix/tooltip/disabled-state"
+  ],
+  "production_changed": false,
+  "limits": [
+    "No sourcecaption/renderpolicy changes",
+    "Does not claim PDF/SVG never contain raster data or Matplotlib storedDPI has no effect",
+    "No native/fullUI/fullCI/scientific export acceptance"
+  ]
+}

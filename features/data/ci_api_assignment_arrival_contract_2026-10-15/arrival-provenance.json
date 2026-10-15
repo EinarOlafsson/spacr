@@ -1,0 +1,70 @@
+{
+  "key": "spacr.qt.widgets.object_settings_grid.AUTO_TEXT",
+  "exact_ast_prose": "What an unset value reads as. ``None`` means \"work it out\" for most of\nthese, and an empty cell would read as \"nobody has filled this in yet\",\nwhich is a different claim. An object diameter is the exception: its\n``None`` is the magnification default, drawn greyed (item 696).",
+  "normalized_source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567",
+  "english_symbol": {
+    "source_blocks_sha256": [
+      "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    ],
+    "source_sha256": "c893aa4e897119493efa9c1e2d097eff9ac73485f95059bff4f74125c4331996",
+    "text": "What an unset value reads as. ``None`` means \"work it out\" for most of\nthese, and an empty cell would read as \"nobody has filled this in yet\",\nwhich is a different claim. An object diameter is the exception: its\n``None`` is the magnification default, drawn greyed (item 696)."
+  },
+  "review_inputs": [
+    {
+      "locale": "de",
+      "path": "docs/i18n/reviewed/api/de/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "1423ed8e4072e04bee851468b1280983f1d5ab8a97d323faa956ff2a22166883",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "es",
+      "path": "docs/i18n/reviewed/api/es/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "00daf5b0ff38dfacd7854cd150ba620e38b42b2b029453f8a6d40d989caf4961",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "fr",
+      "path": "docs/i18n/reviewed/api/fr/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "82d032ba8bbfcb9657c3c9b9a39103d4fc264cf943db048ccc50def041f68133",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "hi",
+      "path": "docs/i18n/reviewed/api/hi/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "2ca473775f575f8153bcdcbdd275713fe184bac3bd7705907df405728e9bdf39",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "is",
+      "path": "docs/i18n/reviewed/api/is/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "cb0d6eb462bb9bbd30be33886dffe833764873afa3c42f1b561a9e728d79b827",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "ko",
+      "path": "docs/i18n/reviewed/api/ko/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "5e5235611cc69b6488dd96889cb744f4dd4d278e4dc5b03d0568fe6a321c83a2",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "pt",
+      "path": "docs/i18n/reviewed/api/pt/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "878f6bb39505cedf848703743ccfb3e88d94cc5581c0e09f8ec6e690882072d4",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "sv",
+      "path": "docs/i18n/reviewed/api/sv/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "51161dc65a68bb5cd88ce5fcfa5d729b6d451221a10cfaa7f15626c6a49766ba",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    },
+    {
+      "locale": "zh_CN",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-14-auto-text-diameter-default.json",
+      "sha256": "63f0b3394ef806b02a93dd9a05d4a369ff02f7fe1f548c6a3910ddc4698519cd",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+    }
+  ],
+  "proposal_sha256": "fc7dbf6f4015c2566b1691294416ba9594749ae064ebd9daf9123ccc9fa90537",
+  "notes": "Named already-published N696 arrival only. Existing numerical historical floors and all digests remain unchanged. No extractor or generated files changed."
+}

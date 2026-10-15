@@ -1542,7 +1542,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Counterfactuals", (
             "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
             "counterfactual_condition", "counterfactual_target",
-            "counterfactual_generator",
+            "counterfactual_generator", "counterfactual_strength",
+            "counterfactual_structure_weight",
         )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs", "ram_guard",
@@ -6446,6 +6447,11 @@ def attach_api_tooltip(
     html = format_tooltip(body, app_key, key)
     widget.setProperty("settingsAppKey", app_key)
     widget.setProperty("settingKey", key)
+    if app_key == "activation":
+        if key == "counterfactual_strength":
+            widget.setObjectName("ActivationCounterfactualStrength")
+        elif key == "counterfactual_structure_weight":
+            widget.setObjectName("ActivationCounterfactualStructureWeight")
     widget.setProperty("apiTooltipDescriptionSource", body)
     widget.setProperty("apiTooltipDescription", body)
     widget.setProperty("apiTooltipHtml", html)

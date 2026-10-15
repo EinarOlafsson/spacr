@@ -13427,6 +13427,8 @@ SETTING_CONSUMERS = {
     'counterfactual_crops': (('spacr.deep_spacr', 'generate_activation_map'), ('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_epochs': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_generator': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
+    'counterfactual_strength': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
+    'counterfactual_structure_weight': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_target': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactuals': (('spacr.deep_spacr', 'generate_activation_map'), ('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'cov_type': (('spacr.qt.screens.settings_model', 'organelle_morphology_now'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'get_perform_regression_default_settings'), ('spacr.settings', 'organelle_measurement_caveats'),),

@@ -450,7 +450,10 @@ def test_a_database_that_names_no_plate_says_which_row_it_went_to(
     assert rows[1]["database"] == str(anonymous), (
         "row 1 already had one, so the first FREE row takes it")
     assert "plate2" in message and "row 2" in message
-    assert "first row with no database" in message
+    from spacr.qt.i18n import tr
+    assert message.endswith(tr(
+        "This row was the first without a database. Filename matching "
+        "did not attach the database to a plate row."))
     assert message in paired.status.text()
 
 

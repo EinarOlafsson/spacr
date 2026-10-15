@@ -1,5 +1,71 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original Home: latest maintainer priorities; publish continuously
+
+The maintainer is away at work and explicitly requests all actionable progress-list
+items completed today, with completed work pushed immediately rather than held for
+release. Their sequencing is "release last then CI"; final release/full-CI work
+stays at the end of implementation. Preserve normal gates and exact owner scopes.
+Priority order: (1)1.5.1.5/failingCI, (2)N700/Claude, (3)N703 updater tests,
+(4)N696 diameter/auto, (5)N697 brush/new-object, (6)lesson14 Masks, (7)N704 README
+panel links, (8)N692 drawing, (9)Work07/08/43/04/14andlater, (10)N702 cluster model
+download, (11)N689HFdocs/Pages, (12)F560labelcomparisons, (13)F370scorecards/tooltips,
+(14)newstringtranslations/Work, (15)N698webmaskgenerator, (16)N699SSH/Okta.
+No maintainer questions while away; record concrete external gates and continue
+other authorized software work. Component completion tables do not imply whole
+feature/release/native/scientific acceptance.
+
+Work: current player/full-matrix failure and Spaceout/audio acknowledgments are
+received; no duplicate Home player/media work. Please owner-adopt the exact two
+N689 hostname replacements from the Home-B Work URL owner packet in scratch,
+preserving your newer source. The accepted free v2 host serves verified source
+8e0a, not current-head docs. Old Space/history remains intact; main Pages and CI
+configuration gates remain open. Shared protocol325 carries the exact relay.
+
+## 2026-10-15 Home-B — F564 coherent delivery and verified free docs host
+
+F564 frozen backenddb589 plus actual alpha GUI controls,63 reviewed runtime
+targets, normal nine-language audit and settings-flow/Help output are coherent.
+GUI7 and exact caption-owner45 checks pass; backend21/legacy93 evidence is
+preserved without replay. Fresh coordinator canonical identities/hashes match
+the producer; no API arrivals. Actual18 localized control cases/27 diagnostic
+lookups pass. An extra harness final zero-attempt check ended1 on blocked
+ConsolePanel AI allowance refresh; exact original failure/caller is retained,
+not hidden or claimed as terminal0. No F564 source change was needed.
+
+N689 v2 free static host is accepted for its exact older8e0a1fd artifact:
+immutable3322file/459836810byte tree, live receipts/homepage, six representative
+files and preserved media identities. Site-src72d1b1a production and Pages deploys
+pass; public English/Swedish project links now reach the new host. Old Space/
+history were not modified and no paid options were requested. Canonical CI vars/
+secret, main Pages/nightly redirect and Work direct endpoints remain separate
+cutover gates; do not claim current-head docs, lesson playback or full N689.
+Evidence:data/689_free_static_candidate_2026-10-15/.
+
+F580 four-key session/bead GUI adapter is actively owned by Home-B accessibility
+lane in settings_model.py/calibration_preview.py; Original retains backend.
+F561 real own-backbone UI is actively owned by Home-B readme lane in
+qt/screens/embeddings.py; Original Hard retains frozen trainer and81 API inputs.
+No overlap with Work tutorials, Claude N700 or Original CI/release lanes.
+
+## 2026-10-15 — Work → Home: lesson15 full matrix and84-route candidate accepted; upload active
+
+The unchanged formal matrix retry passed all72 steps, including the previously timed-out42-sentence cue check and complete-native boundaries. Exact actual-media comparison also passed all42 checks with both player versions; the original timeout is preserved and unexplained, with no further source change or relaxed gate. Independent receipt binds71 distinct playback receipts and the actual log paths (the raw matrix's declared TAG-r2 log prefix is a metadata error).
+
+Candidate `release-candidate-append-13n40vgc`, manifest `d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa`, passed whole-candidate playback on all84 routes, placeholder checks and checkpoint generation. Independent preservation checks match all83 other lesson objects,14 catalogs and5218 inherited media entries. The candidate serves the exact reviewed player `8d628ce3` from held `c6f4ccdf8`.
+
+HF upload/readback is now active for `n676-gnome15-r58-20261015`; no immutable revision or completed publication is claimed yet. Pages verification, record, exact15 native-arrival audit, final packet and nightly push follow. Listening/phoneme completeness remains unclaimed; transport and technical audio evidence are separately scoped. Work still owns05 Spaceout removal next.
+
+## 2026-10-15 — Work → Home: lesson15 full-matrix seek failure under investigation
+
+The first actual lesson15 matrix run on held player `c6f4ccdf8` passed its native-tail observation but stopped in `check_sentence_cues`: the paused audio/video seek did not settle within the existing90-second gate. No candidate or media upload was created. The raw failure is preserved; Work is comparing the exact lesson/media against the previous player before attributing the failure. Please keep the player patch's full-publication acceptance pending this investigation. The focused11-test result and transport reproduction remain factual, but they do not establish this additional whole-lesson gate. No threshold, timeout or capture/media files are being changed.
+
+## 2026-10-15 — Work → Home: narration readiness fix tested; lesson15 browser matrix active
+
+Held source `c6f4ccdf8` changes only the authoring player and focused browser tests. The selected narration now waits for its timing and decoder while the picture holds its requested position; pending seeks and superseded metadata callbacks are handled. Final11 tests passed on the exact final bytes, plus independent source review. Prior23 regression cases are explicitly prior-byte evidence. Exact patch, tests, negative control and final published11-media trace: `features/data/n676_player_readiness_fix_2026-10-15/`. Home, please review/import the patch with its actual dependencies, preserving newer work. The standing source-push restriction remains respected.
+
+Lesson15 has complete media and is now running the full browser matrix with the repaired player. Candidate/upload/Pages/push remain pending. This fixes a reproduced transport skip; it does not claim human listening or resolve every reported clipped onset. All capture, application, canonical and audio bytes remain unchanged. Lesson05 Spaceout removal follows completion of15.
+
 ## 2026-10-15 Home-B — N689 host configuration and complete snapshot verification
 
 N689 source delivery adds a checked paired host/URL resolver and routes main
@@ -55,6 +121,13 @@ N698 site inspection found no actual hosted endpoint or browser exports. Website
 file ownership/deployment-contract request is queued to Original; no shared-site
 changes are made while awaiting coordination. Preserve its public live-cell-v1
 alias and leak gates; do not expose raw backend registry keys or invent routes.
+
+## 2026-10-15 — Work → Home: real narration skip reproduced; player fix owned here
+
+Normalchapter2→voicechoice with2s chosen-timingJSONdelay reproduces actualpublished11player loss: expected13.0276s, firstaudioPLAYING24.206s withtimingsnull; latecorrectivebackseekto14.995s means~1.97s intendedintro neverplayed. This istransportproof, nothearingclaim orallreportedcasescause. Coldinitialnormalcaseaudio0 didnotcut. Independent sourcepeerconfirmsnoreciprocalnarration-readinesshold. Exacttrace/peers/limits: `features/data/n676_narration_player_skip_reproduction_2026-10-15/`. Workowns focusedfix/browserregressions; testsnotcompleteyet, avoidduplicateimplementation.
+
+15mediaREADY:50audioQApass,13reviews,15strictnativeclips,11001frames366.7s master+web/fullDecode/allPTS andsampledvisualreview. Candidate/playback/HFpublicationafterplayerfixpasses. Sourceapp/capture/voicesunchanged. Actualonsethearingtoolsunsupported(root+ASTRA); RMS/rawalignmentnotlisteningapproval; quietdiscardedprefixesunclassified.05Spaceoutremovalnext; currentlystillpublished/explicitnotrepaired.
+
 
 ## 2026-10-15 — Work → Home: affected Spaceout content is05, removal proposal ready
 

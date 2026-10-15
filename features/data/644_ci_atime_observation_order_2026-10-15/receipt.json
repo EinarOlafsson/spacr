@@ -1,0 +1,36 @@
+{
+  "base": "55c949c802fe5d58e045cc413efa986e364bdb3d",
+  "hosted_run": 38699600639,
+  "scope": "Only test observation order; fullstat invariance before test-owned reads",
+  "source_proof": {
+    "test_before_sha256": "da86ccefbc401ad349c14f4a224e369a9727112130e88d5b7505f46e4066d9ed",
+    "test_after_sha256": "4e60e24d66f6443138b70f56f88166a86bef7cb53e61bcdcb3338c352341a4dc",
+    "all_assertion_AST_multiset_identical": true,
+    "all_other_AST_and_target_signature_decorators_identical": true,
+    "production_run_journal_unchanged": true
+  },
+  "baseline": {
+    "failed": 2,
+    "seconds": 1.56,
+    "condition": "Fixture plugin changes only disposable cache/metadata atime to1ns before existing test records snapshots; ext4relatime ownread then advancesatime. Exactly same tuplefield7 discrepancy as hosted."
+  },
+  "verification": {
+    "passed": 4,
+    "seconds": 1.49,
+    "cases": "body/finalization \u00d7clear/move with same old-atime counterexamplefixture",
+    "resource": "background commonheavy.lock capped8G blankCUDA offscreen"
+  },
+  "preserved": [
+    "every fullstat field and exact content assertion",
+    "active worker/finalization synchronization",
+    "zero mutation/refusal checks",
+    "metadata bytes and stat",
+    "destination absence",
+    "after-finalization success",
+    "thread finally cleanup"
+  ],
+  "not_claimed": [
+    "production cache mutation defect repaired",
+    "wholeN644/native/fullCI acceptance"
+  ]
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="3.738" timestamp="2026-10-15T08:12:04.841110-04:00" hostname="olafsson"><testcase classname="tests.qt.test_626_partial_consolidation" name="test_failed_copy_preserves_working_state_and_aborts_every_action[sort_button]" time="2.628"><failure message="AssertionError: assert 0 == 1&#10; +  where 0 = &lt;built-in method count of list object at 0x7eb305ae6cc0&gt;('error')&#10; +    where &lt;built-in method count of list object at 0x7eb305ae6cc0&gt; = ['copied', 'copied', 'copied', 'copied'].count">tests/qt/test_626_partial_consolidation.py:66: in test_failed_copy_preserves_working_state_and_aborts_every_action
+    assert [item['status'] for item in receipt].count('error') == 1
+E   AssertionError: assert 0 == 1
+E    +  where 0 = &lt;built-in method count of list object at 0x7eb305ae6cc0&gt;('error')
+E    +    where &lt;built-in method count of list object at 0x7eb305ae6cc0&gt; = ['copied', 'copied', 'copied', 'copied'].count
+----------------------------- Captured Qt messages -----------------------------
+QtWarningMsg: This plugin does not support propagateSizeHints()
+QtWarningMsg: This plugin does not support propagateSizeHints()</failure></testcase></testsuite></testsuites>

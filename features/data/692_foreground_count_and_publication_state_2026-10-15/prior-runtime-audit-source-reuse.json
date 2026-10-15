@@ -1,0 +1,17 @@
+{
+  "spacr/qt/mask_engine.py": {
+    "prior_full9_audit_sha256": "e48da20fe4f2a5d950f318a8877c20c269f0b28fa4186b8276cb9595964f3e92",
+    "current_sha256": "e48da20fe4f2a5d950f318a8877c20c269f0b28fa4186b8276cb9595964f3e92",
+    "all_module_bytes_identical": true
+  },
+  "spacr/qt/screens/make_masks.py": {
+    "prior_full9_audit_sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d",
+    "current_sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d",
+    "all_module_bytes_identical": true
+  },
+  "spacr/qt/make_masks_demo.py": {
+    "prior_full9_audit_sha256": "940e739d77ec40b30e40fd88a84b36a0f0c19942b31ef5027d115e3b97c8c4ed",
+    "current_sha256": "940e739d77ec40b30e40fd88a84b36a0f0c19942b31ef5027d115e3b97c8c4ed",
+    "all_module_bytes_identical": true
+  }
+}

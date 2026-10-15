@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source": "Counterfactual strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "translation": "반사실적 강도"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source": "Counterfactual structure weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "translation": "반사실적 구조 가중치"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source": "Fraction of the diffusion noise schedule used for inversion, from 0 to 1. Lower values retain more of the source but may change the phenotype less. Zero leaves the crop unchanged. Used only by the diffusion counterfactual generator. Default 0.95.",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "translation": "역변환에 사용하는 확산 노이즈 스케줄의 비율로, 범위는 0에서 1까지입니다. 값이 낮을수록 원본을 더 많이 보존하지만 표현형 변화는 작아질 수 있습니다. 0이면 잘라낸 이미지를 변경하지 않습니다. 확산 반사실적 생성기에서만 사용합니다. 기본값은 0.95입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source": "Nonnegative weight of the diffusion training penalty for changes in spatial gradients at several scales. Uniform channel offsets are not penalized. This encourages layout retention but does not guarantee biological identity or phenotype success. Zero keeps denoising-only training. Used only by the diffusion counterfactual generator. Default 0.",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "translation": "여러 척도에서 공간 기울기가 변하는 데 부과하는 확산 학습 페널티의 음이 아닌 가중치입니다. 채널 값의 균일한 이동에는 페널티를 부과하지 않습니다. 공간 배치의 유지를 유도하지만 생물학적 정체성이나 표현형 변화의 성공을 보장하지는 않습니다. 0이면 노이즈 제거만 수행하는 학습을 유지합니다. 확산 반사실적 생성기에서만 사용합니다. 기본값은 0입니다."
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "translation": "반사실적 구조 가중치는 유한한 음이 아닌 수여야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "translation": "반사실적 확산 강도는 0과 1 사이여야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "translation": "구조 보존에는 서로 일치하는 유한한 부동소수점 값을 가진 NCHW 텐서가 필요합니다."
+    }
+  ]
+}
