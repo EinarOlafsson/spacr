@@ -13,5 +13,6 @@
       "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
       "translation": "측정 채널은 음이 아닌 정수 인덱스여야 합니다."
     }
-  ]
+  ],
+  "independent_technical_peer": "Original Home Easy independent AI technical peer; immutable draft hashes in features/data/535_540_channel_identity_2026-10-15/easy-runtime-target-peer.json; no native-speaker signoff"
 }
