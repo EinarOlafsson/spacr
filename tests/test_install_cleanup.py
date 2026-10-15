@@ -2041,15 +2041,56 @@ def test_a_process_that_already_exited_is_not_waited_for():
     assert ic._wait_for_exit(child.pid, timeout=5)
 
 
+@pytest.mark.parametrize("pid", [0, -1, 1 << 32])
+def test_windows_shutdown_proof_requires_a_positive_dword_pid(monkeypatch, pid):
+    calls = []
+    kernel32 = types.SimpleNamespace(
+        OpenProcess=lambda *_args: calls.append("open invalid PID") or 0,
+        GetLastError=lambda: 87)
+    monkeypatch.setattr(ctypes, "windll", types.SimpleNamespace(kernel32=kernel32), raising=False)
+    assert not ic._wait_for_exit(pid, timeout=1.5, os_name="nt")
+    assert calls == []
+
+
+@pytest.mark.parametrize("error", [5, 0], ids=["access-denied", "unclassified-failure"])
+@pytest.mark.parametrize("through_plan", [False, True], ids=["exit-probe", "actual-update-plan"])
+def test_windows_unqueryable_process_never_authorizes_replacement(tmp_path, monkeypatch, error, through_plan):
+    calls = []
+    kernel32 = types.SimpleNamespace(
+        OpenProcess=lambda access, inherit, pid: calls.append(("open", access, inherit, pid)) or 0,
+        GetLastError=lambda: calls.append(("error", error)) or error,
+        WaitForSingleObject=_refuse("wait without process handle"),
+        CloseHandle=_refuse("close without process handle"))
+    monkeypatch.setattr(ctypes, "windll", types.SimpleNamespace(kernel32=kernel32), raising=False)
+    if through_plan:
+        _box, root, machine, plan = _helper_plan(tmp_path)
+        before = {str(path.relative_to(root)): path.read_bytes()
+                  for path in root.rglob("*") if path.is_file()}
+        events = []
+        code = ic._run_plan(plan, wait=lambda pid: ic._wait_for_exit(pid, os_name="nt"),
+                            fetch=lambda *_args: events.append("fetch"),
+                            run=lambda _argv: events.append("install") or 1,
+                            remove=lambda *_args, **_kw: events.append("remove"),
+                            spawn=lambda *_args: events.append("relaunch"), system=machine)
+        assert code == 3, (code, events)
+        assert events == []
+        assert {str(path.relative_to(root)): path.read_bytes()
+                for path in root.rglob("*") if path.is_file()} == before
+    else:
+        assert not ic._wait_for_exit(4242, timeout=1.5, os_name="nt")
+    assert calls == [("open", 0x00100000, False, 4242), ("error", error)]
+
+
 @pytest.mark.parametrize(("handle", "waited", "ended"), [
-    (0, None, True), (77, 0, True), (77, 258, False)],
-    ids=["already-gone", "exited", "still-running"])
+    (0, None, True), (77, 0, True), (77, 258, False), (77, 0xFFFFFFFF, False)],
+    ids=["already-gone", "exited", "still-running", "wait-failed"])
 def test_on_windows_the_helper_waits_on_the_process_handle(
         monkeypatch, handle, waited, ended):
     calls = []
     kernel32 = types.SimpleNamespace(
         OpenProcess=lambda access, inherit, pid: calls.append(
             ("open", access, inherit, pid)) or handle,
+        GetLastError=lambda: 87,
         WaitForSingleObject=lambda h, ms: calls.append(("wait", h, ms)) or waited,
         CloseHandle=lambda h: calls.append(("close", h)))
     monkeypatch.setattr(ctypes, "windll", types.SimpleNamespace(kernel32=kernel32),

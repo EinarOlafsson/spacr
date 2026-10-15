@@ -1,0 +1,25 @@
+{
+  "base_commit": "d1811bc7934d1f5e430021164375ae95f1b264a5",
+  "source_sha256": "a4306433731e32404ae70f17780e2a71a39cc394f81b50fba08f3cd4bd2fce84",
+  "proposed_sha256": "b60e629f08036d8d0a56b0a99a8b522c8683e84f85d2d9470ac9345d4384534c",
+  "patch_sha256": "8a4a31564df08921d78846e127470d47d0c38abb7585080e388779a8058e8194",
+  "baseline": {
+    "exit": 1,
+    "failed": 4,
+    "seconds": 1.24
+  },
+  "actual_update_plan_failure": "Both access-denied5 and unclassified0 NULL handle outcomes returned exit1 after mocked fetch/install were reached. Expected exit3 with zero fetch/install/retire/relaunch and exact old-runtime bytes. No real process/installer/network actions.",
+  "source": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess",
+    "https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-"
+  ],
+  "semantics": "NULL indicates OpenProcess failure, not exit. GetLastError distinguishes access denied5 from invalid parameter87. Production caller supplies captured positive GUI PID. Invalid/nonexistent process PID yields87; only that recognized absence is accepted. Error0 or other unknown failures decline shutdown proof.",
+  "scope": "Only NULL error distinction; real handles retain WaitForSingleObject and finally CloseHandle, WAIT_FAILED remains false, timeout/POSIX/approval unchanged. Existing gone-process mock must explicitly provide GetLastError87; original behavior assertions retained.",
+  "additional_pid_baseline": {
+    "exit": 1,
+    "failed": 3,
+    "seconds": 0.87
+  },
+  "positive_pid_boundary": "Before native lookup refuse PID0 (real System Idle process), negative process-group values and values outside DWORD32. Only a valid positive DWORD with OpenProcess error87 may indicate absent target. Other access/error outcomes never prove shutdown.",
+  "test_sha256": "a2149533905d213ec326624b78f9ad896bb0d2ac65347efb7f62bd19ee396ddc"
+}
