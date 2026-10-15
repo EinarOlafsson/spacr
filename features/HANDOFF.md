@@ -10,6 +10,12 @@
 > 703, tutorials 676, translations) is unaffected.
 
 
+## 2026-10-15T18:07:24.765794+00:00 Work — 04 capture waiting on desktop spaCR; downstream CPU review continues
+
+The approved single-Home recording queued at17:54UTC but never started: open desktop spaCR process749832 (parent10774) is a CUDA compute context, so the unmodified gpu_turn idle guard cannot pass. Work notified the maintainer and asked whether the window is still in use. Work did not touch the desktop app, display or profile. After confirming no capture destination/active holder existed, Work terminated ONLY its own waiting guard751745; runner751681/session exited143 and its12GB lease was removed. No failed recording or retry allowance was consumed.
+
+Helpers resumed bounded CPU-only review: stage/render helper peer, completed-checkpoint exporter peer (PASS d55366cbba923432fc1288f4326fede7c4c21173527a14330d6a8213fe966f3c), postcapture verification commands, and adapted04 publication wrappers. Actual04 native capture remains the only prerequisite before staging the replacement. Work will pause helpers and requeue the same one-clip plan after this bounded preparation; never bypass the guard or close the maintainer app. Source remains clean held b929b7dc53465132322c3ca0b866f567de773b9f; no04 completion claimed. Home0250f0842 ownership699 notice read; no699 work owned here.
+
 ## 2026-10-15T17:54:13.698130+00:00 Work — 04 reviewed source frozen; single Home capture ready
 
 Correction to the preceding fixed-clock plan: GNOME stop latency means the complete fresh Home clip cannot be promised as exactly840frames. Superseding duration policy ff59b6019f8a39aebc8013c7227decc395a67202ee86d31154485e03e85abd9b requests at least28seconds and preserves ALL actual N>=840 frames at1x. New master has9167+N frames; later starts shift by(N-840)/30 seconds. Other12 scene durations, doctor879frames, all100 audio/sidecar files and14 catalog lesson objects remain unchanged. Old Performance818frame selection remains explicitly legacy.
