@@ -1,0 +1,43 @@
+{
+  "status": "READ_ONLY_OWNER_TEST_PROPOSAL_READY_NOT_APPLIED",
+  "source_public": "4108d3f99dbe326837aa45a222a1b023609ca81b",
+  "owner_test": "tests/test_own_dino_classifier_locales.py",
+  "owner_test_preimage_sha256": "ebdfe69512faf5b264f9356285726a560c216aa156a3a7b5afaeddac6335ca9e",
+  "proposal_patch_sha256": "5b49ce439b3fb3536dc8e90b8615c82f748c6c8870c1626403d249920936c1e4",
+  "cause": "The test names 2026-10-15-own-dino-classifier.json, which is absent. The two actual messages are present in separate active backend/UI review files in every locale.",
+  "metadata_acceptance": {
+    "active_review_rows": 18,
+    "locales": 9,
+    "exact_source_hash_and_compiled_target": true,
+    "retired_or_archive_fallback": false
+  },
+  "proposed_contract": "Select the explicit active file per boundary, require exactly one table/key/source row, bind literal SHA to review and compiled SOURCE_HASHES, and bind compiled UI target to reviewed translation. Preserve original non-English, actual callback/refusal, checkpoint-byte and output-preservation assertions.",
+  "scope": "Evidence and proposed test patch only. Owner test, production, review records, compiled catalogues and tools unchanged.",
+  "executed": "Read-only Git/JSON/AST metadata comparisons, syntax parse and git apply --check only. No callback, runtime test, model, network, collector or writer run.",
+  "remaining": "Home-B owner review/adoption and all 18 original runtime cases against ordinary active catalogues remain required. Metadata validation is not runtime acceptance.",
+  "files": {
+    "current-bindings.json": "0bcfc11e5f573e5127f5a6b267960f716d90e69cc9ee0e84a39c1da6db375941",
+    "owner-test-preimage.py": "ebdfe69512faf5b264f9356285726a560c216aa156a3a7b5afaeddac6335ca9e",
+    "proposal-proof.json": "2650f2242fcb701d40659745298e89f4601a07da950b408919d32563339b10f9",
+    "proposed-test.py": "265f753f1cb0d2e6eeaae9435ba96d5ea9fac804c674de3621c7b943cc9fea52",
+    "proposed.patch": "5b49ce439b3fb3536dc8e90b8615c82f748c6c8870c1626403d249920936c1e4",
+    "review-preimages/docs/i18n/reviewed/runtime/de/2026-10-15-f561-classifier-backend-home-b.json": "7866e158fdf8aecea390f960b61f58bb01addf01fad1dfcde133058fa2373901",
+    "review-preimages/docs/i18n/reviewed/runtime/de/2026-10-15-f561-classifier-ui-runtime-home-b.json": "50adbaa1e0d2e9bef747bdf75652392b93e710073dc826168fe7ce922f204fe6",
+    "review-preimages/docs/i18n/reviewed/runtime/es/2026-10-15-f561-classifier-backend-home-b.json": "3deafbd82016d3cce788e1caec530d39d4cf174abd72fa25fb04e850c8278d04",
+    "review-preimages/docs/i18n/reviewed/runtime/es/2026-10-15-f561-classifier-ui-runtime-home-b.json": "52dbce00e1ee698252e63168208bc26eeaf787e72f9ffcf47492d6d7e6810cce",
+    "review-preimages/docs/i18n/reviewed/runtime/fr/2026-10-15-f561-classifier-backend-home-b.json": "f79c061441dac0f5c2c9ea7bbda2d6966af317b84fbcb16f2ee80e515a838c0a",
+    "review-preimages/docs/i18n/reviewed/runtime/fr/2026-10-15-f561-classifier-ui-runtime-home-b.json": "02d1cf45fc19dd586376ae54cf3d5e62b86fc5617a403503b87983150212aabf",
+    "review-preimages/docs/i18n/reviewed/runtime/hi/2026-10-15-f561-classifier-backend-home-b.json": "3e0865e7146d090ebb2685e75222f7161b2b672ef2ecbd1399a6bff0a7e09fe2",
+    "review-preimages/docs/i18n/reviewed/runtime/hi/2026-10-15-f561-classifier-ui-runtime-home-b.json": "637f14dfd73efd0ccdbdf71138fb3a5026e69286dd03ac601cde7ade92cdd7b4",
+    "review-preimages/docs/i18n/reviewed/runtime/is/2026-10-15-f561-classifier-backend-home-b.json": "9096e2dc0e736cb97a694bca68320d52e6624cde249ce178e1b3833e789b40fa",
+    "review-preimages/docs/i18n/reviewed/runtime/is/2026-10-15-f561-classifier-ui-runtime-home-b.json": "37c143f1a06dea379aff7656b6d23f9209d400d7866569de73a7ded7bae229d5",
+    "review-preimages/docs/i18n/reviewed/runtime/ko/2026-10-15-f561-classifier-backend-home-b.json": "abc1624cf1c512a103cd8262c2cd43919d4c6ca498584dd6f2a5f40169ca5f74",
+    "review-preimages/docs/i18n/reviewed/runtime/ko/2026-10-15-f561-classifier-ui-runtime-home-b.json": "424a0a46f71a80233b939a54422c22316ab7207746a5ea87e57de073e302293f",
+    "review-preimages/docs/i18n/reviewed/runtime/pt/2026-10-15-f561-classifier-backend-home-b.json": "3e77b534e20ac31683b039cd1021582a2e9e007d10718848bd43d407a2a91163",
+    "review-preimages/docs/i18n/reviewed/runtime/pt/2026-10-15-f561-classifier-ui-runtime-home-b.json": "a1fdba117b9837235ea3d7c2c9fb0b738f2e6ea26ccbfc8994c1391a67c314a2",
+    "review-preimages/docs/i18n/reviewed/runtime/sv/2026-10-15-f561-classifier-backend-home-b.json": "8598bc50170313006dbefa2df262d1a6f736fc3dd7f45e359a8f0a61c202e1a7",
+    "review-preimages/docs/i18n/reviewed/runtime/sv/2026-10-15-f561-classifier-ui-runtime-home-b.json": "59207d1d84ccfb589ab2ed6a61e39bc42e011df04c220dd6384550892b3ccde0",
+    "review-preimages/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f561-classifier-backend-home-b.json": "19cb5996d2a90a578d9c15863af9078be6b08534dd83c9adb1febbbe63fae4a9",
+    "review-preimages/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f561-classifier-ui-runtime-home-b.json": "432fc8913411d59bdda38750f62e09f6bdf630d7b5dd4d4a52312e0b2ce2a3b9"
+  }
+}
