@@ -412,3 +412,18 @@ Left:
     fails after the logging_util tests in one process (also on base);
     test_documentation_i18n en catalog stale for home.RecentRunsPanel /
     TotalsPanel (from 0af688ea0..ea74caf5b, needs a catalog rebuild).
+
+2026-10-15 — FilePathListWidget folder-drop collection moved off GUI thread.
+The actual drop handler baseline proved os.listdir ran on the GUI thread.
+Multi-path drops now collect directory members on the existing drop scanner,
+then append ready batches on the GUI thread in drop order. Clear/replacement
+invalidate pending delivery; close uses existing scanner cancellation. Refused
+scanner submissions drain the pending queue without inline filesystem fallback.
+Synchronous add_paths/pick_folder and all pairing code remain unchanged.
+Six distinct lifecycle/order/refusal cases PASS; initial three output failures
+were a new fixture naming .txt as unsupported although table mode supports it.
+The fixture alone changed to .png, and all three failed cases passed. All raw
+results remain in features/data/n641_async_path_drop_2026-10-15/.
+Two new nested callback paragraphs have 18 exact-source technical AI review
+records plus independent peer review. Normal generated API closure follows the
+current public owner pairing merge; no native smoothness/full-CI claim.
