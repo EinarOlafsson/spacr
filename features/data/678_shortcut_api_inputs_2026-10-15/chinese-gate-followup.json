@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "review_input_base": "ee7e7c1abd52b154d43db62d03b914f9120200ed",
+  "reason": "Normal API owner gate rejected these two targets because OpenCC t2s changes their original wording. Natural Simplified Chinese alternatives retain saved-key override and overlay-return semantics. Validators, canonical sources and contexts remain unchanged.",
+  "changes": [
+    {
+      "label": "spacr.qt.shortcuts.install#1",
+      "source_sha256": "ebf9a5b54b8786da2529631c6a2bcef7aa60741987a6f6560e7e6b208c59d1fb",
+      "old_translation": "复用现有的快捷键承载对象。菜单按键和滚动手势在其他位置安装；此函数还安装可选的窗口钩子，并应用已保存的键位映射覆盖设置。",
+      "new_translation": "复用现有的快捷键承载对象。菜单按键和滚动手势在其他位置安装；此函数还安装可选的窗口钩子，并应用已保存的自定义键位设置。",
+      "old_target_sha256": "ae22699422ea8fd56569d9406154d5e6a26b19101c777a155de2e9e2b0a6fdef",
+      "new_target_sha256": "a3a575db82ff6e10af210240f90c02b2daf01e15f9be9d9dcf3298e9851a06a1",
+      "normal_source_and_context_candidate_checks": "PASS"
+    },
+    {
+      "label": "spacr.qt.shortcuts.show_cheat_sheet#3",
+      "source_sha256": "7ca3f41e238f8bf92047bfb151d45c774b0b582e92ce5224bdccd3e46d2f5f4f",
+      "old_translation": "显示覆盖层时返回该覆盖层，或在备用对话框关闭后返回 ``None``。",
+      "new_translation": "显示浮层时返回该浮层，或在备用对话框关闭后返回 ``None``。",
+      "old_target_sha256": "b44aa6ffb7eee43c1a7522464bebd2f864a019a7954876c6ba948c8f64f46db0",
+      "new_target_sha256": "674e60c9f05c913257161b85449ca7659602ebc37df042c71af5039359d5dca2",
+      "normal_source_and_context_candidate_checks": "PASS"
+    }
+  ],
+  "review_file_sha256": "f4d95acdd8e41d741739d4dda975c72c42861d7411652be03ad4d6f217ed1e8f",
+  "native_speaker_review": false
+}
