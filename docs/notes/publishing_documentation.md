@@ -9,13 +9,24 @@ size budget:
 - Nightly preview: https://einarolafsson-spacr-docs-nightly.static.hf.space/
   (Hugging Face static Space `einarolafsson/spacr-docs-nightly`)
 
-The Pages site keeps a `/nightly/` stub: `/spacr/nightly/<page>` redirects to
-the same page on the Space. A main deploy fails before upload if the Pages
+The publisher generates a `/nightly/` stub: `/spacr/nightly/<page>` redirects to
+the same page on the Space. This requires a successful main deployment with
+the split-host workflow; committing the workflow on nightly alone does not
+replace the existing public Pages site. A main deploy fails before upload if the Pages
 site exceeds 900 MB (`PAGES_LIMIT` in `tools/publish_docs_channels.py`); the
 step summary reports the size. The nightly upload replaces the Space's files
-(`upload_folder` with `delete_patterns`), so removed pages disappear. It needs
+in one `create_commit` operation pinned to the inspected parent revision, so
+removed pages disappear and a concurrent update refuses instead of overwriting
+an unseen revision. The host's `.gitattributes` is retained when it is absent
+from the assembled site. It needs
 the repository secret `HF_DOCS_TOKEN`: a fine-grained Hugging Face token with
 write access to that one Space.
+
+Avoid replacing this with a batched `upload_folder`: a quota failure after an
+earlier batch can leave files from different documentation builds. Successful
+homepage and receipt checks establish those checked files, not the identity of
+every file in a site left by a historical partial upload. A quota refusal is a
+failed publication; it is not fixed by a successful build or an older live page.
 
 A local commit becomes public after it is pushed and the build/deployment
 succeeds. No manual documentation dispatch is needed. Include this workflow
