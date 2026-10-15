@@ -24,7 +24,7 @@ from typing import Dict, Optional
 from .. import _after
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QTextDocument, QTextOption
+from PySide6.QtGui import QColor, QPainter, QPalette, QPen, QTextDocument, QTextOption
 from PySide6.QtWidgets import QFrame, QLabel, QTextEdit, QVBoxLayout, QWidget
 
 #: What the bar says when nothing is under the pointer.
@@ -50,11 +50,64 @@ class _HintResizeHandle(QFrame):
         super().__init__(bar)
         self._bar = bar
         self._drag = None
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setObjectName("HintBarResizeHandle")
         self.setFrameShape(QFrame.HLine)
         self.setFrameShadow(QFrame.Sunken)
         self.setFixedHeight(8)
         self.setCursor(Qt.SizeVerCursor)
+
+    def changeEvent(self, event) -> None:
+        """Refresh the cached focus outline when the widget style changes."""
+        super().changeEvent(event)
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange,
+                            QEvent.ApplicationPaletteChange,
+                            QEvent.ApplicationFontChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+
+    def paintEvent(self, event) -> None:
+        """Paint the grip and its cached outline while keyboard focus is here."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def focusInEvent(self, event) -> None:
+        """Repaint when keyboard focus enters the grip."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event) -> None:
+        """Remove the outline when keyboard focus leaves the grip."""
+        super().focusOutEvent(event)
+        self.update()
+
+    def keyPressEvent(self, event) -> None:
+        """Grow with Up and shrink with Down, committing only changed heights."""
+        if (self.hasFocus() and event.modifiers() == Qt.NoModifier
+                and event.key() in (Qt.Key_Up, Qt.Key_Down)):
+            previous = self._bar.height()
+            step = max(1, self._bar.fontMetrics().lineSpacing())
+            direction = 1 if event.key() == Qt.Key_Up else -1
+            self._bar._set_manual_height(previous + direction * step)
+            if self._bar.height() != previous:
+                self._bar.helpHeightCommitted.emit(self._bar.height())
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def mousePressEvent(self, event) -> None:
         """Start a vertical drag at the currently reserved height."""
@@ -118,9 +171,9 @@ class HintBar(QLabel):
         self._resize_handle = _HintResizeHandle(self)
         try:
             from ..i18n import tr
-            resize_tip = tr("Drag this edge to make the help area taller or shorter.")
+            resize_tip = tr("Drag this edge or use Up and Down to resize the help area.")
         except Exception:
-            resize_tip = "Drag this edge to make the help area taller or shorter."
+            resize_tip = "Drag this edge or use Up and Down to resize the help area."
         self._resize_handle.setAccessibleName(resize_tip)
         self._resize_handle.setAccessibleDescription(resize_tip)
         self._view = QTextEdit(self)

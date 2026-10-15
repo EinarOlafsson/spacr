@@ -418,3 +418,20 @@ independent target peer are required before publication. No full translated
 HTML, hosted, native-speaker or tutorial acceptance is claimed.
 Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
 data/655_678_features_guide_catalogs_2026-10-15/.
+
+2026-10-15 — Home-B private HintBar keyboard resize and focus repair
+Five actual baseline failures showed that Tab skipped the help resize grip,
+Up did not resize it, and focus was invisible in all three supported themes.
+The grip now supports bounded, font-aware Up/Down resizing, held-arrow repeats,
+and normal Tab exit; only actual changed keyboard heights emit the existing
+persistence signal. Ordinary/strong outlines track live style changes through
+cached style values. Existing mouse and height-limit/restore code is unchanged.
+Final focused plus owning cohort:46PASS5.16s,2G/offscreen/thread1, GPU hidden.
+The existing actual Preferences mouse-save/reopen check and new keyboard
+signal checks pass; no direct native or keyboard-reopen acceptance is inferred.
+One shared translated caption now explains keyboard resizing at the handle
+and Preferences help registration. Source remains private until parent normal
+nine-locale runtime/guide closure and independent source peer are integrated.
+Five added direct methods of the private class are excluded by actual public
+API policy calls; no public docstrings or nested helper arrivals were added.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/. Broader N655 gates stay open.
