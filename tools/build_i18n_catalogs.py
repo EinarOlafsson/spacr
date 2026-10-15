@@ -4165,6 +4165,47 @@ def _web_mask_generator_ui_sources() -> set[str]:
     return found
 
 
+def _metadata_type_status_sources(
+    tree: ast.Module, constants: Mapping[str, ast.AST],
+) -> set[str]:
+    """Return four indirect report templates owned by the microscope field.
+
+    :param tree: parsed settings-model module, without importing runtime code.
+    :param constants: literal module assignments used by the field's callbacks.
+    :returns: stripped presentation sources; unrelated and nested owners are excluded.
+    """
+    names = {"READING_THE_FOLDER", "NO_IMAGES_IN_THE_FOLDER",
+             "ALL_FILES_PARSE", "SOME_FILES_PARSE"}
+    found: set[str] = set()
+    for owner in tree.body:
+        if not isinstance(owner, ast.ClassDef) or owner.name != "_MetadataTypeField":
+            continue
+        for method in owner.body:
+            if not isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            pending = list(method.body)
+            while pending:
+                node = pending.pop()
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                     ast.ClassDef, ast.Lambda)):
+                    continue
+                if (isinstance(node, ast.Call) and node.args
+                        and isinstance(node.func, ast.Attribute)
+                        and node.func.attr == "_say"
+                        and isinstance(node.func.value, ast.Name)
+                        and node.func.value.id == "self"):
+                    argument = node.args[0]
+                    values = (argument.values if isinstance(argument, ast.BoolOp)
+                              and isinstance(argument.op, ast.Or) else [argument])
+                    for value in values:
+                        if isinstance(value, ast.Name) and value.id in names:
+                            found.update(text.strip() for text in
+                                         _literal_strings(value, constants)
+                                         if _looks_translatable(text))
+                pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4292,6 +4333,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                   and isinstance(statement.target, ast.Name)
                   and statement.value is not None):
                 constants[statement.target.id] = statement.value
+        if helper_module == "screens/settings_model.py":
+            found.update(_metadata_type_status_sources(tree, constants))
         if helper_module == "widgets/model_zoo_picker.py":
             mapping = constants.get("_SOURCE_TOOLTIPS")
             if isinstance(mapping, ast.Dict):
