@@ -1,0 +1,127 @@
+{
+  "date": "2026-10-15",
+  "status": "targeted_test_fixture_repair_passed",
+  "source_base": "8682123aecdd9cf5f1e2a43f0e3dbc4f244862f8",
+  "hosted_failure": {
+    "run": 38774384694,
+    "head": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+    "job": 116568856354,
+    "test_file": "tests/qt/test_the_preview_uses_the_model_the_run_will_use.py",
+    "nodes": [
+      "test_a_model_the_user_picked_survives_an_object_switch",
+      "test_the_preview_offers_only_cellpose_models"
+    ]
+  },
+  "cause": "Both tests mocked the obsolete choose_model helper. Current LivePreviewPanel constructs ModelZooPicker directly to preserve a verified reference capsule, so the unchanged headless-modal guard refused actual exec.",
+  "repair": "Mock only the current dialog-construction seam. Accepted fake returns the disposable path with explicitNone capsule; rejected fake forbids reading chosen_path. Preserve original model survival and exact MASK_KINDS assertions, add parent/capsule and cancel no-mutation checks.",
+  "baseline": {
+    "exit": 1,
+    "failed": 2,
+    "seconds": 19.16,
+    "network_attempts_blocked": 1
+  },
+  "final": {
+    "exit": 0,
+    "passed": 2,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 8.64,
+    "network_attempts_blocked": 1
+  },
+  "validation": {
+    "production_and_modal_guard_byte_identical": true,
+    "outside_two_test_bodies_AST_unchanged": true,
+    "all_original_assertion_ASTs_preserved": true,
+    "fatal_ruff": "PASS",
+    "full_ruff": "Same2 pre-existing E402 before/after, output byte-identical.",
+    "post_test_import_sort": "Only normal Ruff sorting of the two newly added local import blocks. Original assertions/inputs and behavior unchanged; no repeat owning run.",
+    "diff_check": "PASS"
+  },
+  "review": "Root approved exact two test-body scope and dialog factory before mutation.",
+  "limits": [
+    "No model download, deserialization, inference or actual modal interaction. Python network attempts were blocked in both runs.",
+    "Only two original affected nodes run; no full-file/full-CI/release acceptance claim."
+  ],
+  "evidence_files": {
+    "baseline.log": {
+      "sha256": "948df8ea5262e32d9b5c77551d1a5fbf9dae92e742837f781f5f05de1581bef4",
+      "bytes": 2200
+    },
+    "baseline.xml": {
+      "sha256": "e201a24faff5ea550b47564f59241211a3977bf3671e16fd19a3254ff08594c1",
+      "bytes": 2385
+    },
+    "baseline.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "baseline-startup.json": {
+      "sha256": "2dcbe7adac2cfcadb20ea7d41fc7e817625fd5f6205596f43537740a7c34cb82",
+      "bytes": 237
+    },
+    "baseline-network.json": {
+      "sha256": "ac7adab397b955bdcae040c04d54db91b4894d8024863b7adc17f0f996a91c1c",
+      "bytes": 49
+    },
+    "final.log": {
+      "sha256": "29d2dc4d1c49fe9473d3fcb5fc4807425f2227cb3a45364f6e9063ce07307acc",
+      "bytes": 402
+    },
+    "final.xml": {
+      "sha256": "abde3768a4a79dcdd0c64ad30cef63ef46435d4daa4d61ed8dd047f71009e10c",
+      "bytes": 548
+    },
+    "final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "final-startup.json": {
+      "sha256": "9bf44f5ab8bdcb6f51b5c981fbe7f495efc48a01c5d5005c299f24c1bf5939d5",
+      "bytes": 237
+    },
+    "final-network.json": {
+      "sha256": "ac7adab397b955bdcae040c04d54db91b4894d8024863b7adc17f0f996a91c1c",
+      "bytes": 49
+    },
+    "ruff.log": {
+      "sha256": "89b44e4f43bc4de9489dd27222de9a543f310151c4ee9dda3d995713cf3f3225",
+      "bytes": 531
+    },
+    "ruff-baseline.log": {
+      "sha256": "89b44e4f43bc4de9489dd27222de9a543f310151c4ee9dda3d995713cf3f3225",
+      "bytes": 531
+    },
+    "ruff-before-import-sort.log": {
+      "sha256": "557f43317fac1a76dbd4a4a1bb467a55425590d75cc67f758d66f53ce26344a7",
+      "bytes": 2054
+    },
+    "ruff-fatal.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "import-sort.log": {
+      "sha256": "6f4e3c8cb6a43f32a8b47add0b65207f17bd814c84308623b3720ad789c0d769",
+      "bytes": 39
+    },
+    "source-proof.json": {
+      "sha256": "40d4b3a712652c073075f2dbc2a9aad5b2f6b42f34ee233b660ca5b9d2e941d6",
+      "bytes": 1536
+    },
+    "proposed.patch": {
+      "sha256": "65b28c842e0b2e754e4d38c27a79f9d14b29b8642faf4b729c1a86c1e2541668",
+      "bytes": 2424
+    },
+    "final.patch": {
+      "sha256": "260511df77b1355eddf4f75a4fb78a1a142780bd017d9a9a0f578e8730f85ad3",
+      "bytes": 2901
+    },
+    "run.sh": {
+      "sha256": "5180057dfaa2e4c64cc2e51abcab080aa994f20e5e3ff0364dbfc152392de1d9",
+      "bytes": 1003
+    },
+    "pytest-driver.py": {
+      "sha256": "89b4080e2a0aedc25e9e6a99739c339884fbcad95b61d8061e05754375ca7e3d",
+      "bytes": 1779
+    }
+  }
+}
