@@ -633,3 +633,47 @@ def test_standalone_grid_keeps_its_original_path_only_selection_contract(
     monkeypatch.setattr(picker_module, 'choose_model', lambda *a, **k: selected)
     assert grid.choose_model_for('cell') is (selected == 'standalone-new.pt')
     assert grid.settings()['cell_model_name'] == (selected or 'standalone-old.pt')
+
+
+def test_actual_preview_chooser_propagation_exports_its_verified_pin(
+        selected_model, qtbot, monkeypatch, tmp_path):
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    path, raw, entry = selected_model
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    panel = LivePreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    panel.apply_settings(screen._settings_model.collect())
+    assert panel._primary_object() == 'cell'
+    real_dialog = picker_module.ModelZooPicker
+    dialogs = []
+
+    def factory(*args, **kwargs):
+        dialog = real_dialog(*args, **kwargs)
+        dialog._rebuild([replace(entry, path=str(path))])
+        dialog.table.selectRow(0)
+        dialogs.append(dialog)
+        dialog.exec = lambda: _REAL_DIALOG_EXEC(dialog)
+        deadline = QTimer(dialog)
+        deadline.setSingleShot(True)
+        deadline.timeout.connect(dialog.reject)
+        deadline.start(5000)
+        QTimer.singleShot(0, dialog._accept_selected)
+        return dialog
+
+    monkeypatch.setattr(picker_module, 'ModelZooPicker', factory)
+    panel._choose_a_preview_model()
+    assert dialogs and dialogs[0]._chosen_reference is not None
+    assert panel._model_box.currentText() == str(path)
+    propagated = panel.settings_for_propagation()
+    assert propagated['cell_model_name'] == str(path)
+    screen._propagate_live_settings(propagated)
+    assert screen._settings_model.collect()['cell_model_name'] == str(path)
+    destination = tmp_path / 'preview-selected.csv'
+    monkeypatch.setattr(QFileDialog, 'getSaveFileName', lambda *a, **k: (str(destination), ''))
+    screen._on_export_settings()
+    exported = load_settings_file(str(destination))
+    assert exported['cell_model_name'] == str(path)
+    assert exported['model_metadata']['settings']['cell_model_name'] == zoo._model_reference_from_record(
+        str(path), raw)
