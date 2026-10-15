@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-15",
+  "scope": [
+    "F470 read-only annotated-crop integrity helper",
+    "F536 strict wound-plane index helper"
+  ],
+  "owner_extractor_commit": "891ab9ab36f",
+  "normal_runtime_writer": {
+    "exit": 0,
+    "owned_diagnostics_per_locale": 3,
+    "unrelated_source_current_targets_preserved_per_locale": 10566,
+    "locales": 9,
+    "normal_english_audit": "PASS7726UI"
+  },
+  "owning": {
+    "passed": 121,
+    "deselected": 37,
+    "seconds": 5.1,
+    "exit": 0,
+    "actual_production_callback_locale_cases": 45
+  },
+  "source_sha256": {
+    "spacr/object_classifier.py": "4c1f00811f97873c1c53f54734afafd392cedf10a90d83935910042d7ffa58fc",
+    "spacr/measure.py": "93768dd63fcf5cfce6704791d8e932fd5a9a59d038dca94f229578e72aa210d2",
+    "tools/build_i18n_catalogs.py": "f22f46ab0e75555f706ef9818795013c3402e179de4f4a604a0e427ee699ada3"
+  },
+  "root_peer_review": "Exact F47017d4702225c/F536e1f1e38db98 helper diffs have no source blocker. Source-only review; no independent native/scientific/runtime translation acceptance claim.",
+  "global_gates": "No global CI/release claim. Prior executed N700 full-nine exact-English and explicit-review failures retained in features/data/scientific_backends_integration_2026-10-15/. Later foreign F549 two-row runtime closure owner active; preserve every current target on final merge.",
+  "limits": [
+    "Legacy no-hash annotations remain unverified; no label copying or annotation-time binding",
+    "No new assay biological accuracy or expert curation acceptance",
+    "Existing alpha gating unchanged",
+    "No live/protected data or model training touched"
+  ]
+}

@@ -385,3 +385,15 @@ Nine source-bound technical translation review inputs pass normal candidate
 gates; owner extraction and actual runtime publication remain separate.
 Receipt: features/data/536_plane_indices_2026-10-15/. Existing alpha gating
 retained. This does not resolve the assay accuracy limits recorded above.
+
+2026-10-15 — Coherent source and actual runtime callback closure:
+Home-B exact scoped extractor891ab9ab36f plus normal nine-locale writer
+publish the three F470/F536 diagnostics, preserving every one of 10,566
+unrelated current targets per locale. Normal English audit PASS (7,726 UI).
+Finite combined cohort121PASS,37unrelateddeselected,5.10s,exit0, including
+45 actual helper error callbacks across all nine locales. Root peer-reviewed
+each exact helper source and found no blocker; this is source review only.
+Receipt: data/470_536_current_runtime_2026-10-15/. Scientific/legacy/annotation-
+time/native limitations above remain. Foreign N700 global caption/full-audit
+failures and later F549 owner runtime refresh are separate; no global green
+CI, release acceptance, gate waiver or whole-feature completion is claimed.
