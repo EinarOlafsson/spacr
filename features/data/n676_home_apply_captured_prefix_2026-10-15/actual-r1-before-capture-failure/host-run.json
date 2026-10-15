@@ -1,0 +1,7 @@
+{
+  "app_exit_code": 0,
+  "recorder_rc": 1,
+  "failure": "RuntimeError",
+  "clips": {},
+  "gate_failed": []
+}
