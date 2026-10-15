@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Exact-source AI technical translation and self-review; normal source/candidate gates and independent peer required; no native-speaker signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "Images require explicit physical channel axis and at least three dimensions. Lower-dimensional spatial columns must not be interpreted as channels. No upper dimension limit, exactly-three-only requirement or exclusion of explicit single-channel YXC(C=1) arrays; no matrix/rank/PSF or biological efficacy claim.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Spectral unmixing requires images with an explicit channel axis and at least three dimensions.",
+      "source": "Spectral unmixing requires images with an explicit channel axis and at least three dimensions.",
+      "source_sha256": "3d35ecc1304a21bb9e1504d6acab6caeae0e7f05556f7809e545da646adbc32c",
+      "translation": "La séparation spectrale nécessite des images avec un axe de canaux explicite et au moins trois dimensions."
+    }
+  ],
+  "independent_technical_peer": "Original Home root; immutable draft hashes in features/data/538_shape_boundary_2026-10-15/root-target-peer.json; no native-speaker signoff"
+}

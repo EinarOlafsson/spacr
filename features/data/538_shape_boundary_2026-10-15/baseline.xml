@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="17" time="1.312" timestamp="2026-10-15T03:57:57.109031-04:00" hostname="olafsson"><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_channel_last_leading_axes_and_selected_order_remain_valid[channels1-leading2]" time="0.508" /><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_channel_last_leading_axes_and_selected_order_remain_valid[channels1-leading1]" time="0.004" /><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_channel_last_leading_axes_and_selected_order_remain_valid[channels1-leading0]" time="0.003" /><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_control_without_spatial_and_channel_axes_refuses[channels1-1]" time="0.003"><failure message="AssertionError: assert 'the single-s... be estimated' == 'Spectral unm...e dimensions.'&#10;  &#10;  - Spectral unmixing requires images with an explicit channel axis and at least three dimensions.&#10;  + the single-stain control for channel 0 is flat, so its bleed-through cannot be estimated">tmp_path = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a0')
+ndim = 1, channels = (0, 1)
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    @pytest.mark.parametrize('channels', [None, (0, 1)])
+    def test_control_without_spatial_and_channel_axes_refuses(tmp_path, ndim, channels):
+        field = low_dimension(ndim)
+        before = field.copy()
+        folder = tmp_path / 'controls'
+        hashes = write_fields(folder, [field])
+        with pytest.raises(ValueError) as error:
+            psf._prepare_unmixing(settings('0:A01'), folder, channels=channels)
+&gt;       assert str(error.value) == SOURCE
+E       AssertionError: assert 'the single-s... be estimated' == 'Spectral unm...e dimensions.'
+E         
+E         - Spectral unmixing requires images with an explicit channel axis and at least three dimensions.
+E         + the single-stain control for channel 0 is flat, so its bleed-through cannot be estimated
+
+tests/test_unmix_shape_boundary_f538.py:58: AssertionError</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_control_without_spatial_and_channel_axes_refuses[None-2]" time="0.005"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a1')
+ndim = 2, channels = None
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    @pytest.mark.parametrize('channels', [None, (0, 1)])
+    def test_control_without_spatial_and_channel_axes_refuses(tmp_path, ndim, channels):
+        field = low_dimension(ndim)
+        before = field.copy()
+        folder = tmp_path / 'controls'
+        hashes = write_fields(folder, [field])
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_unmix_shape_boundary_f538.py:56: Failed</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_one_explicit_channel_axis_is_still_default_identity" time="0.003" /><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_plan_refuses_missing_axes_before_copying_or_indexing[1]" time="0.003"><failure message="Failed: DID NOT RAISE ValueError">actual_plan = _UnmixPlan(channels=(0, 1), matrix=((1.0, 0.1), (0.2, 1.0)), background_percentile=5.0, controls={0: ('A01',), 1: ('B01',)}, fields={0: ('plate1_A01_1',), 1: ('plate1_B01_1',)})
+ndim = 1
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    def test_plan_refuses_missing_axes_before_copying_or_indexing(actual_plan, ndim):
+        image = low_dimension(ndim)
+        before = image.copy()
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_unmix_shape_boundary_f538.py:74: Failed</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_channel_last_leading_axes_and_selected_order_remain_valid[None-leading1]" time="0.011" /><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_channel_last_leading_axes_and_selected_order_remain_valid[None-leading0]" time="0.007" /><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_plan_refuses_missing_axes_before_copying_or_indexing[0]" time="0.010"><failure message="IndexError: too many indices for array: array is 0-dimensional, but 1 were indexed">actual_plan = _UnmixPlan(channels=(0, 1), matrix=((1.0, 0.1), (0.2, 1.0)), background_percentile=5.0, controls={0: ('A01',), 1: ('B01',)}, fields={0: ('plate1_A01_1',), 1: ('plate1_B01_1',)})
+ndim = 0
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    def test_plan_refuses_missing_axes_before_copying_or_indexing(actual_plan, ndim):
+        image = low_dimension(ndim)
+        before = image.copy()
+        with pytest.raises(ValueError) as error:
+&gt;           actual_plan.apply(image)
+
+tests/test_unmix_shape_boundary_f538.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = _UnmixPlan(channels=(0, 1), matrix=((1.0, 0.1), (0.2, 1.0)), background_percentile=5.0, controls={0: ('A01',), 1: ('B01',)}, fields={0: ('plate1_A01_1',), 1: ('plate1_B01_1',)})
+image = array(20.)
+
+    def apply(self, image):
+        """Unmix the plan's channels of one field, the other planes untouched.
+    
+        :param image: YXC or ZYXC intensities holding every plan channel.
+        :returns: float32 copy with the plan's channels unmixed.
+        """
+        array = np.asarray(image)
+        out = np.array(array, dtype=np.float32, copy=True)
+        channels = list(self.channels)
+&gt;       out[..., channels] = _unmix(array[..., channels], self.matrix,
+                                    ^^^^^^^^^^^^^^^^^^^^
+                                    self.background_percentile)
+E       IndexError: too many indices for array: array is 0-dimensional, but 1 were indexed
+
+spacr/psf_pipeline.py:412: IndexError</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_control_without_spatial_and_channel_axes_refuses[channels1-0]" time="0.005"><failure message="IndexError: tuple index out of range">tmp_path = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a2')
+ndim = 0, channels = (0, 1)
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    @pytest.mark.parametrize('channels', [None, (0, 1)])
+    def test_control_without_spatial_and_channel_axes_refuses(tmp_path, ndim, channels):
+        field = low_dimension(ndim)
+        before = field.copy()
+        folder = tmp_path / 'controls'
+        hashes = write_fields(folder, [field])
+        with pytest.raises(ValueError) as error:
+&gt;           psf._prepare_unmixing(settings('0:A01'), folder, channels=channels)
+
+tests/test_unmix_shape_boundary_f538.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+settings = {'unmix': True, 'unmix_controls': '0:A01', 'unmix_background_percentile': 5.0}
+source_dir = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a2/controls')
+channels = (0, 1), load = &lt;function load at 0x75110491e7a0&gt;
+
+    def _prepare_unmixing(settings, source_dir, channels=None, load=None):
+        """Estimate the run's unmixing plan from its single-stain control wells.
+    
+        :param settings: ``unmix``, ``unmix_controls`` and
+            ``unmix_background_percentile``.
+        :param source_dir: folder of ``plate_well_field[_time].npy`` fields.
+        :param channels: channel indices to unmix; None means every channel of
+            the fields, as Make Masks unmixes whole stacks.
+        :param load: reads one field into a channel-last array; ``np.load``.
+        :returns: a :class:`_UnmixPlan`, or None when ``unmix`` is off.
+        :raises ValueError: for missing or unreadable controls or settings.
+        """
+        from .schema import parse_field_stem, parse_well
+    
+        if not settings.get('unmix', False):
+            return None
+        if channels is not None:
+            try:
+                if isinstance(channels, (str, bytes)):
+                    raise ValueError
+                selected = []
+                for channel in channels:
+                    if np.ndim(channel) != 0:
+                        raise ValueError
+                    if isinstance(channel, np.ndarray):
+                        channel = channel.item()
+                    if isinstance(channel, (bool, np.bool_, complex, np.complexfloating, np.ndarray)):
+                        raise ValueError
+                    index = int(channel)
+                    if not isinstance(channel, (str, bytes)) and channel != index:
+                        raise ValueError
+                    if index &lt; 0 or index in selected:
+                        raise ValueError
+                    selected.append(index)
+                if not selected:
+                    raise ValueError
+            except (TypeError, ValueError, OverflowError):
+                from .qt.i18n import tr
+    
+                raise ValueError(tr("Spectral unmixing requires distinct nonnegative integer channel indices.")) from None
+            channels = tuple(selected)
+        controls = _parse_unmix_controls(settings.get('unmix_controls'))
+        if not controls:
+            raise ValueError(
+                'unmix is on but unmix_controls names no single-stain control '
+                'wells; give them as channel:well[,well], for example 0:A01; 1:B01')
+        percentile = float(settings.get('unmix_background_percentile', 5.0))
+        if not 0.0 &lt;= percentile &lt; 100.0:
+            raise ValueError('unmix_background_percentile must be at least 0 '
+                             'and below 100')
+        load = load or np.load
+        wanted = {dye: {parse_well(well, strict=True) for well in wells}
+                  for dye, wells in controls.items()}
+        source = Path(source_dir)
+        names = sorted(path.name for path in source.glob('*.npy')
+                       if not path.name.startswith('.')) if source.is_dir() else []
+        stems = {dye: [] for dye in controls}
+        for name in names:
+            try:
+                identity = parse_field_stem(name)
+            except ValueError:
+                continue
+            for dye, wells in wanted.items():
+                if ((identity.rowID, identity.columnID) in wells
+                        and len(stems[dye]) &lt; _UNMIX_MAX_FIELDS):
+                    stems[dye].append(name)
+        missing = sorted(dye for dye, found in stems.items() if not found)
+        if missing:
+            raise ValueError(
+                f'no field in {source} comes from the single-stain control wells '
+                f'of channel {missing[0]}: {", ".join(controls[missing[0]])}')
+        fields_by_dye = {}
+        for dye, found in stems.items():
+            fields_by_dye[dye] = []
+            for name in found:
+                checkpoint()
+                field = np.asarray(load(source / name))
+                if channels is None:
+                    channels = tuple(range(field.shape[-1]))
+&gt;               outside = [c for c in (*channels, dye) if not 0 &lt;= c &lt; field.shape[-1]]
+                                                                       ^^^^^^^^^^^^^^^
+E               IndexError: tuple index out of range
+
+spacr/psf_pipeline.py:606: IndexError</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_channel_last_leading_axes_and_selected_order_remain_valid[None-leading2]" time="0.006" /><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_plan_refuses_missing_axes_before_copying_or_indexing[2]" time="0.005"><failure message="Failed: DID NOT RAISE ValueError">actual_plan = _UnmixPlan(channels=(0, 1), matrix=((1.0, 0.1), (0.2, 1.0)), background_percentile=5.0, controls={0: ('A01',), 1: ('B01',)}, fields={0: ('plate1_A01_1',), 1: ('plate1_B01_1',)})
+ndim = 2
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    def test_plan_refuses_missing_axes_before_copying_or_indexing(actual_plan, ndim):
+        image = low_dimension(ndim)
+        before = image.copy()
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_unmix_shape_boundary_f538.py:74: Failed</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_control_without_spatial_and_channel_axes_refuses[None-1]" time="0.005"><failure message="AssertionError: assert 'the single-s... be estimated' == 'Spectral unm...e dimensions.'&#10;  &#10;  - Spectral unmixing requires images with an explicit channel axis and at least three dimensions.&#10;  + the single-stain control for channel 0 is flat, so its bleed-through cannot be estimated">tmp_path = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a3')
+ndim = 1, channels = None
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    @pytest.mark.parametrize('channels', [None, (0, 1)])
+    def test_control_without_spatial_and_channel_axes_refuses(tmp_path, ndim, channels):
+        field = low_dimension(ndim)
+        before = field.copy()
+        folder = tmp_path / 'controls'
+        hashes = write_fields(folder, [field])
+        with pytest.raises(ValueError) as error:
+            psf._prepare_unmixing(settings('0:A01'), folder, channels=channels)
+&gt;       assert str(error.value) == SOURCE
+E       AssertionError: assert 'the single-s... be estimated' == 'Spectral unm...e dimensions.'
+E         
+E         - Spectral unmixing requires images with an explicit channel axis and at least three dimensions.
+E         + the single-stain control for channel 0 is flat, so its bleed-through cannot be estimated
+
+tests/test_unmix_shape_boundary_f538.py:58: AssertionError</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_control_without_spatial_and_channel_axes_refuses[channels1-2]" time="0.005"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a4')
+ndim = 2, channels = (0, 1)
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    @pytest.mark.parametrize('channels', [None, (0, 1)])
+    def test_control_without_spatial_and_channel_axes_refuses(tmp_path, ndim, channels):
+        field = low_dimension(ndim)
+        before = field.copy()
+        folder = tmp_path / 'controls'
+        hashes = write_fields(folder, [field])
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_unmix_shape_boundary_f538.py:56: Failed</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_control_without_spatial_and_channel_axes_refuses[None-0]" time="0.005"><failure message="IndexError: tuple index out of range">tmp_path = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a5')
+ndim = 0, channels = None
+
+    @pytest.mark.parametrize('ndim', [0, 1, 2])
+    @pytest.mark.parametrize('channels', [None, (0, 1)])
+    def test_control_without_spatial_and_channel_axes_refuses(tmp_path, ndim, channels):
+        field = low_dimension(ndim)
+        before = field.copy()
+        folder = tmp_path / 'controls'
+        hashes = write_fields(folder, [field])
+        with pytest.raises(ValueError) as error:
+&gt;           psf._prepare_unmixing(settings('0:A01'), folder, channels=channels)
+
+tests/test_unmix_shape_boundary_f538.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+settings = {'unmix': True, 'unmix_controls': '0:A01', 'unmix_background_percentile': 5.0}
+source_dir = PosixPath('/mnt/wd4tb/scratch/f538-shape-boundary-20261015/baseline-pytest/test_control_without_spatial_a5/controls')
+channels = None, load = &lt;function load at 0x75110491e7a0&gt;
+
+    def _prepare_unmixing(settings, source_dir, channels=None, load=None):
+        """Estimate the run's unmixing plan from its single-stain control wells.
+    
+        :param settings: ``unmix``, ``unmix_controls`` and
+            ``unmix_background_percentile``.
+        :param source_dir: folder of ``plate_well_field[_time].npy`` fields.
+        :param channels: channel indices to unmix; None means every channel of
+            the fields, as Make Masks unmixes whole stacks.
+        :param load: reads one field into a channel-last array; ``np.load``.
+        :returns: a :class:`_UnmixPlan`, or None when ``unmix`` is off.
+        :raises ValueError: for missing or unreadable controls or settings.
+        """
+        from .schema import parse_field_stem, parse_well
+    
+        if not settings.get('unmix', False):
+            return None
+        if channels is not None:
+            try:
+                if isinstance(channels, (str, bytes)):
+                    raise ValueError
+                selected = []
+                for channel in channels:
+                    if np.ndim(channel) != 0:
+                        raise ValueError
+                    if isinstance(channel, np.ndarray):
+                        channel = channel.item()
+                    if isinstance(channel, (bool, np.bool_, complex, np.complexfloating, np.ndarray)):
+                        raise ValueError
+                    index = int(channel)
+                    if not isinstance(channel, (str, bytes)) and channel != index:
+                        raise ValueError
+                    if index &lt; 0 or index in selected:
+                        raise ValueError
+                    selected.append(index)
+                if not selected:
+                    raise ValueError
+            except (TypeError, ValueError, OverflowError):
+                from .qt.i18n import tr
+    
+                raise ValueError(tr("Spectral unmixing requires distinct nonnegative integer channel indices.")) from None
+            channels = tuple(selected)
+        controls = _parse_unmix_controls(settings.get('unmix_controls'))
+        if not controls:
+            raise ValueError(
+                'unmix is on but unmix_controls names no single-stain control '
+                'wells; give them as channel:well[,well], for example 0:A01; 1:B01')
+        percentile = float(settings.get('unmix_background_percentile', 5.0))
+        if not 0.0 &lt;= percentile &lt; 100.0:
+            raise ValueError('unmix_background_percentile must be at least 0 '
+                             'and below 100')
+        load = load or np.load
+        wanted = {dye: {parse_well(well, strict=True) for well in wells}
+                  for dye, wells in controls.items()}
+        source = Path(source_dir)
+        names = sorted(path.name for path in source.glob('*.npy')
+                       if not path.name.startswith('.')) if source.is_dir() else []
+        stems = {dye: [] for dye in controls}
+        for name in names:
+            try:
+                identity = parse_field_stem(name)
+            except ValueError:
+                continue
+            for dye, wells in wanted.items():
+                if ((identity.rowID, identity.columnID) in wells
+                        and len(stems[dye]) &lt; _UNMIX_MAX_FIELDS):
+                    stems[dye].append(name)
+        missing = sorted(dye for dye, found in stems.items() if not found)
+        if missing:
+            raise ValueError(
+                f'no field in {source} comes from the single-stain control wells '
+                f'of channel {missing[0]}: {", ".join(controls[missing[0]])}')
+        fields_by_dye = {}
+        for dye, found in stems.items():
+            fields_by_dye[dye] = []
+            for name in found:
+                checkpoint()
+                field = np.asarray(load(source / name))
+                if channels is None:
+&gt;                   channels = tuple(range(field.shape[-1]))
+                                           ^^^^^^^^^^^^^^^
+E                   IndexError: tuple index out of range
+
+spacr/psf_pipeline.py:605: IndexError</failure></testcase><testcase classname="tests.test_unmix_shape_boundary_f538" name="test_disabled_unmixing_does_not_load_or_validate_controls" time="0.005" /></testsuite></testsuites>

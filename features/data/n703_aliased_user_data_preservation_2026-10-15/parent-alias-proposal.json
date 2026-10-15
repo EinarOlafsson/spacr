@@ -1,0 +1,7 @@
+{
+  "original_approved_userdata_source_sha256": "bc9d50b69ea9b91a3e9657ab296087cecb0d0e2d49e4ddee17ac021e0ab51a48",
+  "proposed_final_sha256": "28f22e8ef3acbaa66f31618612f53780c93c3df8f6fe0d6d13de9a045e06d5a9",
+  "proof": "First cohort190PASS plus one real parent-aliased installer root data-loss failure;9 missing sparse locale-input failures closed separately.",
+  "behavior": "Locally express preserved paths contained in the physical installation root using the record root spelling that _delete will walk. Both existing keep spellings and physical userdata targets remain. Never remap a physical target outside this root; global _inside/_delete/purge/record symlink unlink behavior unchanged.",
+  "production_applied": false
+}
