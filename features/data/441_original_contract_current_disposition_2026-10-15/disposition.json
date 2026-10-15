@@ -1,0 +1,86 @@
+{
+  "status": "READ ONLY original-contract disposition, no wholefeature completion declaration",
+  "source_head": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "item_sha256": "c1f6998b716de673e70a4fe9ddf043d9aaf79b293c75ffe160a869c20aff99b9",
+  "regex_sha256": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce",
+  "interpretation_correction": "Original clause1 explicitly accepts vendor documentation, BioFormats source, datasets and first-person user reports. Original clause2 confirms against vendor docs and permits provisionals inferred online. Downloaded pixels, unchangedrawimagebytes, biologicalvalidation and nativeinstrumentexecution are NOT original requirements. Earlier acquired/raw-only evidence phrasing is superseded.",
+  "clauses": [
+    {
+      "id": 1,
+      "state": "Research/source inventory substantially implemented with explicit limits",
+      "evidence": "19 source-carrying records spanning requested majorvendorfamilies and opensource; missingdefault schemes are documented, not silently guessed. Incucyte folderchannels properly separated into Import; no new filename-only channelinventing.",
+      "remaining": "Nanolive no verifiednames, Etaluma variable naming, newerINCell/LASX singleexamples are bounded research/coverage limits; do not turn them into invented unsupported regexes."
+    },
+    {
+      "id": 2,
+      "state": "Table/schema/status mechanics implemented; remaining exact provenance dispositions below",
+      "evidence": "All19 records carry key,label,vendor,instrument,pattern,examples,groups,source,status. Provisional is permitted by originalspec; customuserpattern cannot have universalexample and legacykeys remain intentionally stable.",
+      "remaining": "EVOS optionalZ repair pendingCI/Easy; ScanR currently one runnableexample with inferred.tif suffix; Zeiss two examples are constructedfromactualvendormacro, not literalvendoroutput listings."
+    },
+    {
+      "id": 3,
+      "state": "MET by retainedsource/tests",
+      "evidence": "Fouroriginalkeys/patterns pinned byteforbyte in owningtest and unchanged by localization/Cytationwork.",
+      "remaining": null
+    },
+    {
+      "id": 4,
+      "state": "MET fornewgrammar by retainedsource/tests",
+      "evidence": "Tableownexamples/groupcoverage/crossnegatives and no newbaregreedy captures implemented; documentedoldcellvoyager/auto overlap retained because clause3 explicitlypreservesboth.",
+      "remaining": "CI owns meaningfulEVOS updatedoptionalZ/group controls; reviewer didnotrerun or duplicateparserpeer."
+    },
+    {
+      "id": 5,
+      "state": "Software/UI/localization closure evidenced",
+      "evidence": "Vendor groupedmenu/stablekeys/example/provisionalwarning/foldercount/firstbad/threadlifetime implemented. Normal90reviewedtargets+full9audit/freshsource and actual9compiledQt consumersPASS2.63 viarealtempINI sourceeebe; priorwrongrunnerabort disclosed, no widget/model/dataset acceptance invented.",
+      "remaining": "CoherentRootpublication bookkeeping pending ascoordinator determines; no remainingtranslationsoftwaregap identified."
+    },
+    {
+      "id": 6,
+      "state": "MET by retainedsource/actual9consumer invariants",
+      "evidence": "Rankallconventions offeronly, excludesauto/custom; rankingreadout preservesselectedkey/itemorder/rawfiles and rerenderssameactualwidget acrosslanguages.",
+      "remaining": null
+    }
+  ],
+  "example_dispositions": {
+    "evos": {
+      "state": "Two actualunmodifiedvendor-documentation literals now available; no downloadedrawimages required",
+      "names": [
+        "scan_R_p2_z1_0_B03f01d0.tif",
+        "image_0002_Top Slide_R_p00_0_A01f00d0.TIF"
+      ],
+      "provenance": "ThermoMAN0018326 printed198 explicitdiagram and printed41 actualNextfilename screenshot. Same source accepted underoriginalvendor-doc clause.",
+      "groups": "Diagram declaresrawR/time2/Z1/grid0/wellB03/field01/channel0. Screenshot declaresR/time00/grid0/wellA01/field00/channel0 withprefiximage_0002_Top Slide; Z absent. NeverclaimmeasuredZ fromname.",
+      "remaining": "Only boundedoptionalZ/parserconsumer handling and ownproof, alreadyCI/Easyowned."
+    },
+    "scanr": {
+      "state": "Second independently reportedactualstem found, suffix notpresent",
+      "stem": "A1--W00001--P00001--Z00000--T00000--mCherry1",
+      "source": "https://forum.knime.com/t/combining-images-to-stack/2119",
+      "source_context": "Acquisitionuser29June2012 first-person OlympusScanR Z-stack statement, verbatimbasename withnoextension.",
+      "assessment": "DeclaredTIFFsupport independentlyexplains possiblecontainer but doesnotprove this particularliteralended.tif. A runnableexample assembledfromauthorstem+documentedTIFFsuffix may beadded ONLYasexplicitlyderived/provisional example, not mislabeled unmodifiedfullfilename. ExistingAlexa488example hassamehiddenextensioninference, so source-note shoulddiscloseboth.",
+      "next_action": "Narrow metadata/example/provenance-note proposal preservingcurrentregex/status; no suffixinference masquerading asobservedfilename, no grammarwidening.",
+      "excluded_variant": "OfficialOME filenames beginning--W lackwellname; Windex cannot be silently converted toA01withoutlayoutmetadata. Outsidecurrentgrammar; handle viaImport or separatelyvalidatedcontract, not arbitrarywidening."
+    },
+    "cytation": {
+      "state": "Three traceableliterals nowpresent; two newonesexplicitlysanitizedupstreamrealworldderived",
+      "assessment": "No needrawpixel/downloadgate. PreservePROVISIONAL and exactsanitizationcaveat; sourceproof adequateforboundeddeclaredexamplecoverage, not originalacquisitionbyteauthentication."
+    },
+    "zeiss": {
+      "state": "Two currentrunnableexamples exactlyderivedfromprimaryvendorOADmacro; no uniqueZENbuiltinexportdefault is claimed",
+      "assessment": "KeepPROVISIONAL and clearconstructed/macro-specificlabel. This satisfiestraceablegrammarbasis, but stricttwoactualfilename-literals remainsunproven; do not call it confirmedvendor-default or require instrumentexecution.",
+      "next_action": "Retaintruthfulprovisionaldisposition; if literalexamplesremainrequired, identifytwoactualvendor-scriptoutputs fromexistingpublicsource ratherthan inventingnames. No broadsearch authorized here."
+    },
+    "leica_series": {
+      "state": "Eachrecordhas3literalexamples; exactvendorattributionremainsprovisional",
+      "assessment": "No filenamecount/softwaregap; retainattributionwarning. Do not add rawdownload/nativeacceptance gate."
+    }
+  },
+  "recommended_sequence": [
+    "FinishalreadyownedEVOSoptionalZsource/test/peer withvendorliteralprovenance.",
+    "PrepareboundedScanR secondstem/provenance amendment preservingregex andPROVISIONAL; discloseinferredsuffixforbothcurrent/newexamples.",
+    "RecordZeiss macro-specificconstructedexample limitation accurately; coordinator decides originalprovisionalclosure without falselyclaimingconfirmeddefaults.",
+    "PublishcoherentN441 UI/runtime/actualconsumer evidence andcurrentitemstate; no newscientific/native/rawimagegate."
+  ],
+  "limits": "No newsearch beyondreadingoneexactRootsuppliedprimaryforum, tests,collector,model,data/image/archive downloads, source/regex/gate changes or parserpeer duplication."
+}
