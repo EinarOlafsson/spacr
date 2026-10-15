@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "normal_runtime_producer_receipt": "final-receipt.json.gz",
+  "payload_sha256": {
+    "generation.log": "7ff6a267803027ddfc20ba22d336fe1cd86a757b6600738c8de8870d28a1a0f6",
+    "generate.py": "5ba00bb046c6f1a1cacf1be66604b863af318a7fdbbd50175a618c9936ba5d63",
+    "receipt.json": "d8c6e221f44ada0f32716eb6126c535e02a7f3692645169dd74340692e5e50b6"
+  },
+  "output_sha256": {
+    "spacr/qt/i18n_catalogs/pt.py": "82a6de6ae6c63b6b81097cab9ce8b1859e5987e214ce5e934daa7084c2c7ba0d",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "daa214b81bfa52ba9918b85e5b66efac43f6340a0c8341ee8aa70940fc791ff5",
+    "spacr/qt/i18n_catalogs/fr.py": "b57a3322a1e01ae328fc5d3d4b45aa69c1b1acd155739ef6b24770ae29befc76",
+    "spacr/qt/i18n_catalogs/is.py": "b3e8aad20d26f166982ddf55b579459c9e1a909ea935b672aa69900bc9c834f2",
+    "spacr/qt/i18n_catalogs/hi.py": "cabf161e83cf0d9946f86fe2cb8ab9e159ed6ec538fc15e39b8e1e72dc3a4d59",
+    "spacr/qt/i18n_catalogs/sv.py": "3f8bf243c7fb265f82ebc6d5a1fe681968cc1b832587d2600d0fc4ab773af46f",
+    "spacr/qt/i18n_catalogs/ko.py": "566d4d9d63d515f8a98e4f632b807838fff04672cab0e630bec96b56c01b3234",
+    "spacr/qt/i18n_catalogs/de.py": "2b993c1499e132712182a1b408612d91b7897f36ab2bb92d275263262a78be92",
+    "spacr/qt/i18n_catalogs/en.py": "f3bf4e9c8af06ab8300a8f535ebb20a0ee4eefb64ff086b4d0e0f1052becf668",
+    "spacr/qt/i18n_catalogs/es.py": "7daf8e00194371bbd1792912c3fcfd95bce9da7b439c2cb46459f617b7e6c394"
+  },
+  "normal_source_collection": "Real full canonical sources before preparation and again before output; no unrelated source drift.",
+  "retirement": "Exactly old mouse-only caption retired; all other rows and targets retained. Initial strict loader refusal, selected-retirement guard failure and producer indentation error retained separately. No production loader/writer/audit changed.",
+  "checks": "One selected runtime target per9locales normal reviewed loader/candidate gates;10777 unrelated targets perlocale exact; all keys and source hashes current; normal English audit PASS.",
+  "limits": "No model inference, foreign target retranslation, full unrelated-target audit, fullCI/release or whole N655 acceptance."
+}

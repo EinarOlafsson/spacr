@@ -1,0 +1,106 @@
+[
+  {
+    "domain": "features",
+    "msgid": "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When ``pred`` is selected and a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A missing response-column error lists available score-table columns to help you choose a valid response.",
+    "msgstr": "``dependent_variable``, a variável de resposta, é uma lista suspensa das colunas numéricas do arquivo ou dos arquivos de pontuações selecionados, com ``pred`` em primeiro lugar quando estiver presente. Colunas de identificadores como ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` e ``count`` não são oferecidas. A lista é lida do cabeçalho e das primeiras 200 linhas de cada arquivo quando os arquivos mudam. Um valor salvo que não esteja no arquivo é mantido e sinalizado. ``pred`` é a probabilidade gravada por um classificador: Classify a salva como ``<date>_<dataset>_<model>_result.csv`` ao lado do tar, e a pontuação por ML a salva como ``results/<model>/<features>/results.csv``. Quando ``pred`` está selecionado e um arquivo de pontuações não tem uma coluna ``pred``, uma nota sob o campo informa isso, nomeia essas duas saídas e lista as colunas que podem ser usadas; o spaCR não escolhe uma resposta por você. Um erro de coluna de resposta ausente lista as colunas disponíveis na tabela de pontuações para ajudar a escolher uma resposta válida.",
+    "source_sha256": "799a0804038a9a55ca77e3470f7ac181d9518137ae7230e237b5de1c0f5c2a42",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Starting spaCR",
+    "msgstr": "Iniciar o spaCR",
+    "source_sha256": "91568eddbef9f8af1915c46504ca52976eee9dff39142449540c6e012cfea166",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away.",
+    "msgstr": "O spaCR abre com um contentor preto que apresenta o logótipo do spaCR como um fotomosaico. O logótipo permanece imóvel enquanto a janela carrega; depois, o mosaico dispersa-se peça a peça e o contentor desaparece gradualmente para mostrar a janela. Um clique ou uma tecla salta a sequência. Esta fica desativada quando **Preferências → Aparência → Animation → Animação de inicialização** está desmarcado (o mosaico aparece sem animação), enquanto **Reduzir movimento** está ativado e quando a variável de ambiente ``SPACR_NO_SPLASH`` está definida como ``1`` (o mosaico não é mostrado). **Ajuda → Mostrar a animação de inicialização** reproduz a sequência novamente dentro da janela aberta, mesmo quando Animação de inicialização está desativada; com Reduzir movimento, o logótipo permanece imóvel e depois desaparece gradualmente.",
+    "source_sha256": "6b823be805233201895a1a53e9d891473503fe3caed422bbe6f4a30a08d0036c",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered.",
+    "msgstr": "A janela abre como **Borderless** por padrão: não tem barra de título, ocupa a área de trabalho da tela e pode ser movida pela barra de menus, enquanto os símbolos na extremidade direita da barra a minimizam, maximizam e fecham. Desmarque **Ajuda → Janela → Janela sem bordas** para usar a janela com moldura da própria plataforma. A escolha é lembrada.",
+    "source_sha256": "d5626a1b3e9b98f97d7b8c222136086ed4b409bf88005acdc933e7c352394426",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Settings files",
+    "msgstr": "Arquivos de configurações",
+    "source_sha256": "2d6c5fe003de86d50b7f079edb4a095bc4d4f0b7f90a6b35b16117eb50fa5a8b",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Use **Export settings…**, next to **Import settings…**, to save the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates.",
+    "msgstr": "Use **Exportar configurações…**, ao lado de **Importar configurações…**, para salvar os valores atuais do formulário como um CSV de configurações sem executar nada. Na tela Distributed Jobs, **Salvar CSV de configurações…** salva o retrato das configurações enviado por **Enviar remotamente…**. Ambas as opções gravam o arquivo lido por ``spacr-run --settings``; consulte :ref:`Arquivos de configurações pela interface gráfica <settings-files-from-the-gui>` e :doc:`shortcuts_and_templates` para modelos de configurações.",
+    "source_sha256": "26f972718de43f032b739bf6bc0af0ae0737511ed80f4e7739efadc9a942ba1b",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Gate Editor keys and overlapping elements",
+    "msgstr": "Teclas do Gate Editor e elementos sobrepostos",
+    "source_sha256": "56fa61c9802a12c7edbdb5d3d46cb6e0a3f15f7f330e1dd90558254b0f0f4cfd",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:",
+    "msgstr": "Quando Gate Editor tem o foco, estas teclas escolhem o modo de arrasto e, em 3D, o plano ou eixo. Estão listadas em **Alterar atalhos** com o âmbito *Gate Editor* e podem ser reatribuídas aí:",
+    "source_sha256": "ae212c0c3f2f2041783d7881500da20326d7ac6a4c2c11c6850161f410d12bf1",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;",
+    "msgstr": "**Shift+E** escolhe Editar, **Shift+S** Spin (free) e **Shift+D** Desenhar;",
+    "source_sha256": "f6a9264ff0c9d69c7b0f3d512a036459ae9295743cf796e8e777ded7fcb767b0",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead.",
+    "msgstr": "**Shift+X**, **Shift+Y** e **Shift+Z** escolhem o plano X, Y ou Z. Se forem premidas até 1,5 s depois de **Shift+S**, escolhem o eixo de rotação em vez do plano.",
+    "source_sha256": "ad5812a74d9ab6468202b1d2e530d9604267466f4cc6c3ab911c296152004c0c",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The initial click grabs the nearest anchor under the pointer, if any; otherwise it grabs the nearest sheet. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list.",
+    "msgstr": "Make Masks utiliza as mesmas teclas na vista True 3D. Quando um clique atinge mais de uma superfície ou âncora, no modo Editar em 3D e em 2D, os elementos sob o clique são realçados e listados no canto superior esquerdo do gráfico em **Elementos sob o clique**, por ordem de camada, com as superfícies antes das âncoras; a camada superior é azul e as restantes são brancas. O primeiro clique agarra a âncora mais próxima sob o ponteiro, se existir; caso contrário, agarra a superfície mais próxima. Clique numa linha ou prima as setas para Cima e para Baixo para escolher o elemento que o próximo clique nessa sobreposição seleciona e move. **Escape**, clicar num espaço vazio, sair de Editar, alternar entre 2D e 3D ou substituir o conjunto de gates fecha a lista.",
+    "source_sha256": "ab272cc4f85101b929531352c1abf70a1ae3d7835e65b545245f8571a8a6c92b",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`.",
+    "msgstr": "Use :kbd:`Tab` ou :kbd:`Shift+Tab` para chegar a **IA** ou **Ao vivo**. Um contorno indica qual rótulo tem o foco do teclado. Prima :kbd:`Space`, :kbd:`Return` ou :kbd:`Enter` do teclado numérico, sem manter outras teclas premidas, para o ativar ou desativar. Manter uma tecla premida altera o estado apenas uma vez. Se o seu leitor de ecrã tratar diretamente :kbd:`Enter` do teclado numérico, use :kbd:`Space` ou :kbd:`Return`.",
+    "source_sha256": "bf98e3fbd780de19bb0b6ba6389d6026db7049aaf08119551286240b5642cbd6",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.",
+    "msgstr": "Make Masks corrige máscaras manualmente e oferece o ciclo do Cellpose no cabeçalho. Sua área de desenho tem dez ferramentas: Brush, Erase, Apagar objeto, Varinha, Desenhar, Caixa, Dividir / Unir, Zoom, Recortar novamente e Régua. Varinha adiciona uma região por padrão; mantenha Ctrl pressionado ao clicar para removê-la. A :doc:`referência de Make Masks <make_masks>` abrange essas ferramentas, Níveis, configurações de detecção, pareamento de máscaras primárias e secundárias, salvamento e medição. Volumes (pilhas TIFF, OME-TIFF e MRC) abrem na mesma visualização com um controle deslizante de cortes e uma lista View com Padrão, Ortogonal e True 3D; micrografias eletrônicas (``.dm3``, ``.dm4``, ``.mrc``) têm uma predefinição de contraste. Consulte :ref:`volumes 3D <mm-volumes>` e :ref:`micrografias eletrônicas <mm-tem>`.",
+    "source_sha256": "05b6f9398099bc19e7d20eaa45069f18577576ac7bcb0f2d8a3c4933ac53928a",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  }
+]

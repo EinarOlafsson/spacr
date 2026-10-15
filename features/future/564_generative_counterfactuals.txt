@@ -301,3 +301,19 @@ are identical, so there is no new API/runtime target or generated artifact.
 Evidence: data/564_target_identity_2026-10-15/. This closes only this software
 class-index boundary, not biological counterfactual quality/minimal edits,
 whole F564, final global CI or release acceptance.
+
+2026-10-15 Original Home — explicit per-crop target identity before model changes
+The direct sequence API now validates explicit scalar class targets with the
+existing strict helper before wrapping/moving/evaluating models or converting
+crop devices. Fractional/nonfinite targets cannot silently select another class;
+legacy integer/integral-float and binary Boolean list/NumPy/Tensor targets and
+None defaults retain their existing outputs. Original baseline15FAIL17PASS;
+final33PASS. Fifteen invalid cases preserve initial model/generator training
+modes and inputs, with no wrapper/transfer/scoring call. Sixteen valid forms and
+the default match exact rows/frame bytes captured once from the prior public
+fixed synthetic test modules; existing reference/scorer control also passes.
+An initial test namespace collection error is retained separately. No fitting,
+learned prediction quality or native GPU acceptance is claimed. Only the existing
+function body changes, with unchanged signatures/prose/tr calls and no new
+caption/API target. Evidence: data/564_sequence_target_identity_2026-10-15/.
+Whole F564/scientific calibration and final global CI/release remain open.

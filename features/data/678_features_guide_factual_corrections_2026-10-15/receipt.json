@@ -1,0 +1,29 @@
+{
+  "source_path": "docs/source/features.rst",
+  "before_sha256": "eb7f76563f283509256785262a1020e9a3294a30d32dc1903b36146cadd29e39",
+  "after_sha256": "e7f40e0d20abe1e0974d7d235893204393a8b83d61abcdac380371097bdff708",
+  "corrections": [
+    {
+      "before": "Preferences → Animation → Startup animation",
+      "after": "Preferences → Appearance → Animation → Startup animation",
+      "code_anchors": [
+        "spacr/qt/preferences.py:get_startup_animation",
+        "spacr/qt/preferences.py:_AppearancePage (Appearance/Animation form construction)"
+      ]
+    },
+    {
+      "before": "blue and the others white. The click still grabs the first element. Click a\nrow or press the Up and Down arrows to choose which element the next click on",
+      "after": "blue and the others white. The initial click grabs the nearest anchor under\nthe pointer, if any; otherwise it grabs the nearest sheet. Click a row or\npress the Up and Down arrows to choose which element the next click on",
+      "code_anchors": [
+        "spacr/qt/widgets/gate_editor.py:_layer_order",
+        "spacr/qt/widgets/gate_editor.py:GateEditor._first_choice",
+        "spacr/qt/widgets/gate_editor.py:GateEditor._press_overlap"
+      ]
+    }
+  ],
+  "implementation_hashes": {
+    "spacr/qt/preferences.py": "b1b9edbc6729cf4e62e38cdfb31d6490a5c9e71857070e922975c6da99e26b47",
+    "spacr/qt/widgets/gate_editor.py": "84b94268efed23a09813410602c10c43170dca7accbb4741f0718b471a7d60de"
+  },
+  "scope": "Only two independently identified false user-guide statements. Implementation/tutorial files unchanged. Final independent source peer pending."
+}

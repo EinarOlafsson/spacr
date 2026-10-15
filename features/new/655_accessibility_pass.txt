@@ -389,3 +389,75 @@ usage and other platforms remain open. Guide translations follow separately.
 Evidence:data/655_ai_live_keyboard_2026-10-15/,
 data/655_ai_live_help_acceptance_2026-10-15/,
 data/655_native_ai_live_keyboard_2026-10-15/ and coordinator review folders.
+
+2026-10-15 — Dock collapse responds once to an ordinary keyboard gesture
+The existing dock edge previously toggled for every auto-repeat and for
+modified Space/Return/Enter. Sixteen real-widget assertions reproduced these
+failures. The existing handler now consumes repeat presses without toggling
+and forwards unrelated modified keys, while native numeric Enter remains
+accepted. Release followed by a fresh activation toggles again.
+Final26PASS3.79s includes16 new cases and10 existing collapse/glyph/mouse/resize
+cases;2G/offscreen/thread1/private settings/GPU hidden. Independent peer verified
+all payload hashes and exact AST outside the existing handler, with unchanged
+docstrings/comments. No new caption or API arrival. The initial test fixture
+lifetime failure is retained separately from the actual source baseline.
+Evidence:data/655_dock_keyboard_activation_2026-10-15/ and independent peer.
+Native/human/other-platform and broader N655 acceptance remain open.
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.
+
+2026-10-15 — Home-B private HintBar keyboard resize and focus repair
+Five actual baseline failures showed that Tab skipped the help resize grip,
+Up did not resize it, and focus was invisible in all three supported themes.
+The grip now supports bounded, font-aware Up/Down resizing, held-arrow repeats,
+and normal Tab exit; only actual changed keyboard heights emit the existing
+persistence signal. Ordinary/strong outlines track live style changes through
+cached style values. Existing mouse and height-limit/restore code is unchanged.
+Final focused plus owning cohort:46PASS5.16s,2G/offscreen/thread1, GPU hidden.
+The existing actual Preferences mouse-save/reopen check and new keyboard
+signal checks pass; no direct native or keyboard-reopen acceptance is inferred.
+One shared translated caption now explains keyboard resizing at the handle
+and Preferences help registration. Source remains private until parent normal
+nine-locale runtime/guide closure and independent source peer are integrated.
+Five added direct methods of the private class are excluded by actual public
+API policy calls; no public docstrings or nested helper arrivals were added.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/. Broader N655 gates stay open.
+
+2026-10-15 — Help-area resize grip now works with the keyboard
+The narrow help-strip edge was skipped by Tab, ignored Up and drew no visible
+focus. Five baseline assertions failed. It now accepts Tab and bounded
+font-line Up/Down resizing, including held-arrow repeats; unrelated modifiers
+are ignored and Tab leaves. Ordinary and stronger focus repaint correctly in
+Dark, Light and High contrast. Existing mouse methods and public API prose
+are unchanged; all five new private overrides are excluded by normal policy.
+Final46PASS5.16s covers9new+37existing checks,2G/offscreen/thread1/GPUhidden.
+An actual Preferences probe reaches the grip with two Tab presses from
+Cancel, changes97 to115, writes the existing private saved-height key and
+restores115 after actual close/reopen. It takes3.39s/340456KiB/4G, attempts no
+network connection and leaves source unchanged. This is offscreen consumer
+acceptance, not native/human or other-platform acceptance.
+One shared hover/accessibility caption has9 independent reviewed targets and
+normal runtime artifacts, preserving10777 unrelated targets perlocale. Nine
+obsolete mouse-only review rows are retained as retired provenance, every
+other record unchanged. Normal source audit passes; no gate is weakened.
+The guide adds9 reviewed/compiled targets;1539 existing records (including
+the prior117 targets) and297 other-domain files remain unchanged.126 actual
+compiled gettext lookups pass. Source, runtime target, guide target and old
+record retirement each have separate independent peer evidence.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/,
+data/655_hint_resize_preferences_consumer_2026-10-15/,
+data/655_hint_resize_runtime_artifacts_2026-10-15/ and corresponding peer/
+guide evidence. Broader N655 native/human/macOS/Windows/tutorial gates remain.

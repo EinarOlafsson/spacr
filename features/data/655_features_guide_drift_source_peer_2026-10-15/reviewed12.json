@@ -1,0 +1,213 @@
+[
+  {
+    "number": 1,
+    "msgid": "**Export settings…**, next to **Import settings…** on every module screen, saves the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates.",
+    "source_path": "docs/source/features.rst",
+    "start_line": 236,
+    "end_line": 241,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "c7ea0cbf9d72ad2ac92e23cd3f2a0b29552e3ed2db66d2305d5b7073fe18d2a1",
+    "disposition": "corrected and approved",
+    "review": "AppScreen buttons are adjacent and export collect() values without a job; DistributedJobs saves captured settings via same export helper. Standalone QWidget modules do not all have this pair.",
+    "implementation_anchors": "spacr/qt/screens/app_screen.py::_on_export_settings,export_settings_csv,AppScreen button construction;spacr/qt/screens/distributed_jobs.py::configure_submission,_save_snapshot_csv",
+    "final_msgid": "Use **Export settings…**, next to **Import settings…**, to save the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates.",
+    "final_msgid_sha256": "26f972718de43f032b739bf6bc0af0ae0737511ed80f4e7739efadc9a942ba1b",
+    "result": "PASS",
+    "resolved_finding": "Export scope limited to actual adjacent controls; no every-screen claim."
+  },
+  {
+    "number": 2,
+    "msgid": "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;",
+    "source_path": "docs/source/features.rst",
+    "start_line": 269,
+    "end_line": 269,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "f6a9264ff0c9d69c7b0f3d512a036459ae9295743cf796e8e777ded7fcb767b0",
+    "disposition": "retained and approved",
+    "review": "Explicit Gate Editor shortcut defaults map Shift+E/S/D to edit/free spin/draw; free-spin selection clears axis lock.",
+    "implementation_anchors": "spacr/qt/shortcuts.py::SCREEN_SHORTCUTS;spacr/qt/widgets/gate_editor.py::_bind_mode_keys,_arm_spin_chord",
+    "final_msgid": "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;",
+    "final_msgid_sha256": "f6a9264ff0c9d69c7b0f3d512a036459ae9295743cf796e8e777ded7fcb767b0",
+    "result": "PASS"
+  },
+  {
+    "number": 3,
+    "msgid": "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead.",
+    "source_path": "docs/source/features.rst",
+    "start_line": 270,
+    "end_line": 271,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "ad5812a74d9ab6468202b1d2e530d9604267466f4cc6c3ab911c296152004c0c",
+    "disposition": "retained and approved",
+    "review": "Actual monotonic timer uses1.5s; X/Y/Z selects spin axis within interval, otherwise drawing plane. Make Masks True3D shares this rule.",
+    "implementation_anchors": "spacr/qt/widgets/gate_editor.py::_axis_key,_SPIN_CHORD_SECONDS;spacr/qt/screens/make_masks.py::axis_key,drag_key,SPIN_CHORD_SECONDS",
+    "final_msgid": "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead.",
+    "final_msgid_sha256": "ad5812a74d9ab6468202b1d2e530d9604267466f4cc6c3ab911c296152004c0c",
+    "result": "PASS"
+  },
+  {
+    "number": 4,
+    "msgid": "Gate Editor keys and overlapping elements",
+    "source_path": "docs/source/features.rst",
+    "start_line": 262,
+    "end_line": 262,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "56fa61c9802a12c7edbdb5d3d46cb6e0a3f15f7f330e1dd90558254b0f0f4cfd",
+    "disposition": "retained and approved",
+    "review": "Heading names its current guide section.",
+    "implementation_anchors": "docs/source/features.rst",
+    "final_msgid": "Gate Editor keys and overlapping elements",
+    "final_msgid_sha256": "56fa61c9802a12c7edbdb5d3d46cb6e0a3f15f7f330e1dd90558254b0f0f4cfd",
+    "result": "PASS"
+  },
+  {
+    "number": 5,
+    "msgid": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.",
+    "source_path": "docs/source/features.rst",
+    "start_line": 450,
+    "end_line": 459,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e",
+      "b6c1a18efe040e18c40009c18d95dcdba7ea7c89",
+      "da4253f716f2600ed1b026be7cbb0e8878833dcc",
+      "f7cdd7e3e3e1a6098267e2ca1d56d64a447ba4f3"
+    ],
+    "source_msgid_sha256": "05b6f9398099bc19e7d20eaa45069f18577576ac7bcb0f2d8a3c4933ac53928a",
+    "disposition": "retained and approved",
+    "review": "Actual ten TOOL_MODES match; Ctrl-left Wand calls erase action. Volume stage has slider and Default/Orthogonal/True3D; supported spatial TIFF/MRC and TEM formats/preset routes exist; both RST refs exist.",
+    "implementation_anchors": "spacr/qt/screens/make_masks.py::TOOL_MODES,mousePressEvent,open_volume,_MaskVolumeStage,_on_contrast_preset;spacr/qt/mask_engine.py::read_image,load_volume_image_and_mask,CONTRAST_PRESETS;spacr/io.py::read_tem_image;docs/source/make_masks.rst",
+    "final_msgid": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.",
+    "final_msgid_sha256": "05b6f9398099bc19e7d20eaa45069f18577576ac7bcb0f2d8a3c4933ac53928a",
+    "result": "PASS"
+  },
+  {
+    "number": 6,
+    "msgid": "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The click still grabs the first element. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list.",
+    "source_path": "docs/source/features.rst",
+    "start_line": 273,
+    "end_line": 280,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "9ffbeac098fad7516efcd485422bf7621de717c3091aff3660254ccfce385c9c",
+    "disposition": "corrected and approved",
+    "review": "Actual list sorts layer/sheet/anchor and colors top-layer rows blue/others white. Initial grab chooses nearest anchor if hit, otherwise nearest sheet; first displayed row is not guaranteed. Subsequent selection and dismissal paths match.",
+    "implementation_anchors": "spacr/qt/widgets/gate_editor.py::_layer_order,_first_choice,_press_overlap,_grab_overlap,_choose_overlap,_show_overlap,_close_overlap,set_gates,set_mode,set_drag_mode,_OverlapList",
+    "final_msgid": "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The initial click grabs the nearest anchor under the pointer, if any; otherwise it grabs the nearest sheet. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list.",
+    "final_msgid_sha256": "ab272cc4f85101b929531352c1abf70a1ae3d7835e65b545245f8571a8a6c92b",
+    "result": "PASS",
+    "resolved_finding": "Initial grab states nearest anchor when present, otherwise nearest sheet; later chosen overlap remains handled normally."
+  },
+  {
+    "number": 7,
+    "msgid": "Settings files",
+    "source_path": "docs/source/features.rst",
+    "start_line": 233,
+    "end_line": 233,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "2d6c5fe003de86d50b7f079edb4a095bc4d4f0b7f90a6b35b16117eb50fa5a8b",
+    "disposition": "retained and approved",
+    "review": "Heading names its current guide section.",
+    "implementation_anchors": "docs/source/features.rst",
+    "final_msgid": "Settings files",
+    "final_msgid_sha256": "2d6c5fe003de86d50b7f079edb4a095bc4d4f0b7f90a6b35b16117eb50fa5a8b",
+    "result": "PASS"
+  },
+  {
+    "number": 8,
+    "msgid": "Starting spaCR",
+    "source_path": "docs/source/features.rst",
+    "start_line": 196,
+    "end_line": 196,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "91568eddbef9f8af1915c46504ca52976eee9dff39142449540c6e012cfea166",
+    "disposition": "retained and approved",
+    "review": "Heading names its current guide section.",
+    "implementation_anchors": "docs/source/features.rst",
+    "final_msgid": "Starting spaCR",
+    "final_msgid_sha256": "91568eddbef9f8af1915c46504ca52976eee9dff39142449540c6e012cfea166",
+    "result": "PASS"
+  },
+  {
+    "number": 9,
+    "msgid": "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered.",
+    "source_path": "docs/source/features.rst",
+    "start_line": 210,
+    "end_line": 214,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "d5626a1b3e9b98f97d7b8c222136086ed4b409bf88005acdc933e7c352394426",
+    "disposition": "retained and approved",
+    "review": "get_borderless_window defaultsTrue; MainWindow frameless flag/menu drag and window marks; startup showMaximized constrained to availableGeometry; switch persists.",
+    "implementation_anchors": "spacr/qt/preferences.py::get_borderless_window,set_borderless_window;spacr/qt/app.py::MainWindow.__init__,_set_borderless,_show_at_launch",
+    "final_msgid": "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered.",
+    "final_msgid_sha256": "d5626a1b3e9b98f97d7b8c222136086ed4b409bf88005acdc933e7c352394426",
+    "result": "PASS"
+  },
+  {
+    "number": 10,
+    "msgid": "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:",
+    "source_path": "docs/source/features.rst",
+    "start_line": 265,
+    "end_line": 267,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "ae212c0c3f2f2041783d7881500da20326d7ac6a4c2c11c6850161f410d12bf1",
+    "disposition": "retained and approved",
+    "review": "Bindings use owner-scoped Gate Editor registry and share configurable shortcut identity.",
+    "implementation_anchors": "spacr/qt/widgets/gate_editor.py::_bind_mode_keys;spacr/qt/shortcuts.py::SCREEN_SHORTCUTS,_bind_screen_key",
+    "final_msgid": "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:",
+    "final_msgid_sha256": "ae212c0c3f2f2041783d7881500da20326d7ac6a4c2c11c6850161f410d12bf1",
+    "result": "PASS"
+  },
+  {
+    "number": 11,
+    "msgid": "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A run whose response is not a numeric column of the score file stops with the same list.",
+    "source_path": "docs/source/features.rst",
+    "start_line": 103,
+    "end_line": 114,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "34c69bcaf20b1f51cdabceb6c9b362f90a94b5326b24f7e0a5a291c63fc36f80",
+    "disposition": "corrected and approved",
+    "review": "Numeric CSV choices sample200 rows, exclude identifier set, preferpred, retain savedtext, refresh oninputchanges. No-pred note requires currentresponsepred; missing-column run branch lists available columns but doesnot promise allnonnumeric invalidresponses produce same list. Classify/ML score output paths match.",
+    "implementation_anchors": "spacr/columns.py::numeric_headers,RESPONSE_EXCLUDED;spacr/qt/screens/settings_model.py::_CsvColumnField._read_columns,_update_note,_connect_column_fields,_ColumnCombo.set_choices;spacr/ml.py::perform_regression;spacr/deep_spacr.py::apply_model;spacr/utils.py::get_ml_results_paths",
+    "final_msgid": "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When ``pred`` is selected and a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A missing response-column error lists available score-table columns to help you choose a valid response.",
+    "final_msgid_sha256": "799a0804038a9a55ca77e3470f7ac181d9518137ae7230e237b5de1c0f5c2a42",
+    "result": "PASS",
+    "resolved_finding": "Missing-pred guidance conditioned on selected pred; missing-column error described without universal nonnumeric/derived-column claim."
+  },
+  {
+    "number": 12,
+    "msgid": "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away.",
+    "source_path": "docs/source/features.rst",
+    "start_line": 199,
+    "end_line": 208,
+    "source_commits": [
+      "72f2f752b5e742e33ea63d77c9831ac208ab4a0e"
+    ],
+    "source_msgid_sha256": "480bbd1e132fe8f6484fb4759c36df82a57140b13161a2da2b0cb954520bcb6b",
+    "disposition": "corrected and approved",
+    "review": "Startup switch is Preferences/Appearance/Animation, Reduce motion underAppearance/Accessibility; mosaic/env/hold/skip/replay-force/plaincrossfade semantics match loading-screen code.",
+    "implementation_anchors": "spacr/qt/preferences.py::get_startup_animation;spacr/qt/widgets/loading_screen.py::mosaic_splash_wanted,startup_animation_allowed,will_blow_away,LoadingScreen,replay_startup_animation;spacr/qt/app.py::_install_loading_screen,_on_preload_done",
+    "final_msgid": "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away.",
+    "final_msgid_sha256": "6b823be805233201895a1a53e9d891473503fe3caed422bbe6f4a30a08d0036c",
+    "result": "PASS",
+    "resolved_finding": "Actual Appearance section included in navigation."
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "domain": "features",
+    "msgid": "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on.",
+    "source_sha256": "1668b4a0963cf0a363e117f9473f107423a7eb66fab4dfb0a1508174c94a7df8",
+    "msgstr": "Dans **Préférences**, utilisez :kbd:`Tab` pour placer le focus sur le bord supérieur étroit de la zone d’aide, puis appuyez sur :kbd:`Up` ou :kbd:`Down`, sans maintenir d’autres touches, pour augmenter ou réduire sa hauteur dans les limites autorisées ; :kbd:`Tab` passe au contrôle suivant.",
+    "target_sha256": "1d7b9e29bf0185155ce3f828c46737b74ac58e48a5bc5ea16bfa014eabbc158d",
+    "review_kind": "AI technical review; no native-speaker signoff"
+  }
+]

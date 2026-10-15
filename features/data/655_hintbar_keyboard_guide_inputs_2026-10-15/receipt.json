@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "published_base": "8d23aa1d993181cf285d82cc3670960b2e68adf4",
+  "source_commit": "c7ac29fc40048016afba5766b0a0ac9bac845510",
+  "implementation_freeze": {
+    "implementation_commit": "58a19d0775b6337d184c8d4caffdadff643ebf93",
+    "independent_source_peer_commit": "924dc6a9dfa543f0149b98b40e2297a020565726",
+    "source_files": {
+      "spacr/qt/widgets/hint_bar.py": "0efad77e9991951b19f5363325fbf78b737231a457bd0239d95274a6ae95c202",
+      "spacr/qt/preferences.py": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680"
+    },
+    "source_checks": [
+      "Actual private handle StrongFocus and keyPressEvent accept only unmodified Up/Down; existing bounds clamp height.",
+      "Qt base handling preserves Tab exit; existing Preferences constructs this same HintBar and registers the new caption."
+    ],
+    "owner_test_receipt": "features/data/655_hint_resize_keyboard_2026-10-15/receipt.json",
+    "owner_result": "46 passed; no duplicate behavioral replay by guide author",
+    "limits": "No new claim of keyboard-specific save/reopen or native screen-reader acceptance."
+  },
+  "source_path": "docs/source/features.rst",
+  "source_file_sha256": "56b32be7efbe226b757d684127933aaf85441967051ee41ac67ad4be8bcdaf83",
+  "template_sha256": "8073a0ed21931029f7648679b5ae7787a68b631c2f6214291d491a4a1812c2ff",
+  "messages": [
+    {
+      "domain": "features",
+      "msgid": "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on.",
+      "source_sha256": "1668b4a0963cf0a363e117f9473f107423a7eb66fab4dfb0a1508174c94a7df8"
+    }
+  ],
+  "new_or_changed_messages": 1,
+  "unchanged_messages_per_locale": 171,
+  "previous_117_targets_preserved": true,
+  "obsolete_msgids": [],
+  "independent_target_peer": "website_686_687",
+  "review_kind": "AI technical review; no native-speaker signoff"
+}

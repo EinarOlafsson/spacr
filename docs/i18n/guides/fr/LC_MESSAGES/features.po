@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-15 05:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -79,6 +79,10 @@ msgstr "Régression"
 
 msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
 msgstr "La régression estime les effets des guides, des gènes, des conditions et des contrôles. Ses familles de modèles couvrent les réponses continues, fractionnaires, binaires et de comptage, les ajustements robustes et quantiles, les plans pénalisés de grande dimension, les effets mixtes et la permutation des guides. Les diagnostics et les résumés d’exécution sont écrits à côté du résultat."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When ``pred`` is selected and a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A missing response-column error lists available score-table columns to help you choose a valid response."
+msgstr "``dependent_variable``, la variable réponse, est une liste déroulante des colonnes numériques du ou des fichiers de scores sélectionnés, avec ``pred`` en premier lorsqu'elle est présente. Les colonnes d'identifiants telles que ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` et ``count`` ne sont pas proposées. La liste est lue dans l'en-tête et les 200 premières lignes de chaque fichier lorsque les fichiers changent. Une valeur enregistrée qui ne figure pas dans le fichier est conservée et signalée. ``pred`` est la probabilité écrite par un classifieur : Classify l'enregistre dans ``<date>_<dataset>_<model>_result.csv`` à côté du tar, et le calcul des scores par ML l'enregistre dans ``results/<model>/<features>/results.csv``. Lorsque ``pred`` est sélectionné et qu'un fichier de scores ne contient pas de colonne ``pred``, une note sous le champ l'indique, nomme ces deux sorties et énumère les colonnes utilisables ; spaCR ne choisit pas de réponse à votre place. Une erreur de colonne de réponse manquante énumère les colonnes disponibles dans la table de scores pour vous aider à choisir une réponse valide."
 
 msgid "Planning, quality control and exploration"
 msgstr "Planification, contrôle qualité et exploration"
@@ -183,6 +187,18 @@ msgstr "Atelier Cellpose, Générer les masques de tout le dossier, Comparer les
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "Balayage de paramètres s’atteint par une troisième voie : c’est un panneau de l’écran Régression, ouvert par l’interrupteur **Balayage des paramètres** de son formulaire de paramètres."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Starting spaCR"
+msgstr "Démarrer spaCR"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
+msgstr "spaCR s’ouvre avec un conteneur noir présentant son logo sous forme de photomosaïque. Le logo reste immobile pendant le chargement de la fenêtre, puis la mosaïque se disperse tuile par tuile et le conteneur s’efface pour révéler la fenêtre. Un clic ou une touche permet de passer cette séquence. Elle est désactivée lorsque **Préférences → Apparence → Animation → Animation de démarrage** est décoché (la mosaïque s’affiche alors sans animation), lorsque **Réduire les animations** est activé et lorsque la variable d’environnement ``SPACR_NO_SPLASH`` vaut ``1`` (la mosaïque n’apparaît alors pas du tout). **Aide → Afficher l’animation de démarrage** la rejoue dans la fenêtre ouverte, même si Animation de démarrage est désactivé ; avec Réduire les animations, le logo reste immobile, puis disparaît en fondu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered."
+msgstr "La fenêtre s'ouvre en mode **Borderless** par défaut : elle n'a pas de barre de titre, remplit la zone de travail de son écran et se déplace à l'aide de sa barre de menus, tandis que les symboles à l'extrémité droite de cette barre permettent de la réduire, de l'agrandir et de la fermer. Décochez **Aide → Fenêtre → Fenêtre sans bordure** pour utiliser la fenêtre encadrée propre à la plateforme. Le choix est mémorisé."
+
 msgid "Picking up where you left off"
 msgstr "Reprendre là où vous vous étiez arrêté"
 
@@ -191,6 +207,14 @@ msgstr "**Restauration de session** : chaque démarrage ordinaire rouvre le modu
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**Enregistrement automatique des paramètres** : toutes les 30 secondes, les paramètres non enregistrés de chaque module ouvert sont conservés comme brouillon dans le magasin de préférences ; rien n’est écrit si rien n’a changé. Une fermeture normale supprime les brouillons. Si spaCR s’est terminé sans être fermé, le démarrage suivant demande une fois s’il faut les restaurer (aucune question pour les brouillons identiques à la session rouverte). Le même comportement s’applique sous Linux, macOS et Windows, car le magasin est le magasin de paramètres propre à Qt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Settings files"
+msgstr "Fichiers de paramètres"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Export settings…**, next to **Import settings…**, to save the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates."
+msgstr "Utilisez **Exporter les paramètres…**, à côté de **Importer des paramètres…**, pour enregistrer les valeurs actuelles du formulaire dans un CSV de paramètres sans rien exécuter. Dans l'écran Distributed Jobs, **Enregistrer le CSV des paramètres…** enregistre l'instantané transmis par **Soumettre à distance…**. Les deux options écrivent le fichier lu par ``spacr-run --settings`` ; consultez :ref:`Fichiers de paramètres depuis l'interface graphique <settings-files-from-the-gui>` et :doc:`shortcuts_and_templates` pour les modèles de paramètres."
 
 msgid "Undo and redo"
 msgstr "Annuler et rétablir"
@@ -213,6 +237,26 @@ msgstr "l’éditeur de **Créer des masques** conserve ses propres **Annuler** 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo."
 msgstr "Le menu **Édition** propose **Annuler** et **Rétablir** pour l’éditeur affiché à l’écran. Ils agissent d’abord sur un champ de texte ayant le focus, sinon sur l’historique propre de l’écran, et sont grisés lorsqu’il n’y a rien à annuler ou à rétablir."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Gate Editor keys and overlapping elements"
+msgstr "Touches de Gate Editor et éléments superposés"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:"
+msgstr "Lorsque Gate Editor a le focus, ces touches choisissent son mode de déplacement par glissement et, en 3D, le plan ou l’axe. Elles figurent dans **Modifier les raccourcis** avec la portée *Gate Editor* et peuvent y être réaffectées :"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;"
+msgstr "**Shift+E** choisit Édition, **Shift+S** Spin (free) et **Shift+D** Dessiner ;"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead."
+msgstr "**Shift+X**, **Shift+Y** et **Shift+Z** choisissent le plan X, Y ou Z. Si elles sont pressées dans les 1,5 s suivant **Shift+S**, elles choisissent plutôt l’axe de rotation."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The initial click grabs the nearest anchor under the pointer, if any; otherwise it grabs the nearest sheet. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list."
+msgstr "Make Masks utilise les mêmes touches dans sa vue True 3D. Lorsqu’un clic touche plusieurs surfaces ou points d’ancrage, en mode Édition 3D ou en 2D, les éléments sous le clic sont surlignés et listés en haut à gauche du graphique dans **Éléments sous le clic**, par ordre de couche, les surfaces précédant les points d’ancrage ; la couche supérieure est bleue et les autres sont blanches. Le premier clic saisit le point d’ancrage le plus proche sous le pointeur, s’il y en a un ; sinon, il saisit la surface la plus proche. Cliquez sur une ligne ou utilisez les flèches Haut et Bas pour choisir l’élément que le prochain clic sur ce chevauchement sélectionnera et déplacera. **Escape**, un clic dans une zone vide, quitter Édition, passer de la 2D à la 3D ou inversement, ou remplacer l’ensemble de gates ferme la liste."
 
 msgid "Running jobs"
 msgstr "Tâches en cours"
@@ -243,6 +287,14 @@ msgstr "Accessibilité"
 
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
 msgstr "Chaque contrôle possède un nom annoncé par les lecteurs d’écran, tiré de son libellé, de son infobulle ou de son texte indicatif, et ces noms suivent la langue de l’interface. **Tab** quitte les zones de texte et les tableaux pour passer au contrôle suivant au lieu d’insérer une tabulation. **Préférences → Apparence → Thème** propose **Contraste élevé**, dans lequel tout texte présente un rapport de contraste d’au moins 7:1 avec son arrière-plan."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
+msgstr "Utilisez :kbd:`Tab` ou :kbd:`Shift+Tab` pour atteindre **IA** ou **Direct**. Un contour indique quel libellé a le focus clavier. Appuyez sur :kbd:`Space`, :kbd:`Return` ou :kbd:`Enter` du pavé numérique, sans maintenir d’autres touches enfoncées, pour l’activer ou le désactiver. Maintenir une touche enfoncée ne fait basculer l’état qu’une seule fois. Si votre lecteur d’écran traite lui-même :kbd:`Enter` du pavé numérique, utilisez :kbd:`Space` ou :kbd:`Return`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "Dans **Préférences**, utilisez :kbd:`Tab` pour placer le focus sur le bord supérieur étroit de la zone d’aide, puis appuyez sur :kbd:`Up` ou :kbd:`Down`, sans maintenir d’autres touches, pour augmenter ou réduire sa hauteur dans les limites autorisées ; :kbd:`Tab` passe au contrôle suivant."
 
 msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
 msgstr "**Préférences → Apparence → Accessibilité** rassemble les paramètres qui aident le plus :"
@@ -360,8 +412,8 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "Pour redimensionner une fenêtre contextuelle, pointez l’un de ses bords ou de ses coins. Une fine ligne guide bleue apparaît sur la moitié centrale de chaque côté que vous pouvez faire glisser. Faites glisser depuis n’importe quel point de ce bord ou de ce coin ; la ligne ne fait que signaler le côté."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Make Masks corrige les masques à la main et affiche la boucle Cellpose dans son en-tête. Son canevas comporte dix outils : Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop et Ruler. Wand ajoute une région par défaut ; maintenez Ctrl en cliquant pour la supprimer. La :doc:`référence Make Masks <make_masks>` décrit ces outils, Levels, les réglages de détection, l’appariement primaire/secondaire, l’enregistrement et la mesure."
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks corrige les masques à la main et propose le cycle Cellpose dans son en-tête. Sa zone de dessin comporte dix outils : Brush, Erase, Effacer l'objet, Baguette, Dessiner, Boîte, Diviser / Fusionner, Zoom, Recadrer à nouveau et Règle. Baguette ajoute une région par défaut ; maintenez Ctrl pendant le clic pour la retirer. La :doc:`référence de Make Masks <make_masks>` décrit ces outils, Niveaux, les paramètres de détection, l'appariement des masques primaires et secondaires, l'enregistrement et la mesure. Les volumes (piles TIFF, OME-TIFF et MRC) s'ouvrent dans la même vue avec un curseur de coupe et une liste View proposant Par défaut, Orthogonale et True 3D ; les micrographies électroniques (``.dm3``, ``.dm4``, ``.mrc``) disposent d'un préréglage de contraste. Voir :ref:`volumes 3D <mm-volumes>` et :ref:`micrographies électroniques <mm-tem>`."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."

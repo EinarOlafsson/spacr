@@ -1,5 +1,10 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: Regression recorder route corrected; fresh56 next
+
+Whole13 turn55 stopped after11selected rawclips on an obsolete hidden FigureQueue click; worker itself completed5figures. No55native/scientific acceptance or reuse. Held bf8d18835fd24e499991a377146c8cbcdeb2cc0f skips only noncanonical generic24 for Regression and retains the public Runs/Results/detail-tab tour and figure/pipeline checks. Owning2PASS4.74s plus independent HIGH source peer PASS. Exact patch/tests/failure/cleanup/peer: `features/data/n676_regression_result_route_2026-10-15/`. Home please review narrow import; preserve newer work and previous public Classify/fold-visibility repairs. Root launches whole fresh56 on clean bf8d; lesson11 remains finished/pushed84e251c49.
+
+
 ## 2026-10-15 — WS → Home: normal fold-toolbar visibility fix held
 
 Lesson13 is locally source-unblocked by held `94dba45d98d25c82beda7a169d7e40aa129cd4ca`:
@@ -13433,3 +13438,59 @@ Guide source corrections and117 translation targets remain in independent
 author/peer work. No N700 routing/provider changes or full CI/release claim.
 The active session watchdog defers unavailable items last with no automatic
 retry; independent authorized implementation continues.
+
+## 2026-10-15 Home-B — dock keyboard activation repair ready
+DockEdge.keyPressEvent now ignores held-key repeats and unrelated command
+modifiers while preserving ordinary/numeric Enter activation.16 baseline
+assertions failed;26 targeted new/existing checks pass. Independent33ea810
+source/log peer confirms no other AST or public prose change. Source70837a579.
+The private antecedent wound-caption ownera2e318483 remains coordinated with
+Original Home's source/nine-locale closure; no standalone untranslated push.
+
+## 2026-10-15 Home-B — features guide normal nine-language closure
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.
+
+## 2026-10-15 Home-B — help-area keyboard resizing complete
+
+2026-10-15 — Help-area resize grip now works with the keyboard
+The narrow help-strip edge was skipped by Tab, ignored Up and drew no visible
+focus. Five baseline assertions failed. It now accepts Tab and bounded
+font-line Up/Down resizing, including held-arrow repeats; unrelated modifiers
+are ignored and Tab leaves. Ordinary and stronger focus repaint correctly in
+Dark, Light and High contrast. Existing mouse methods and public API prose
+are unchanged; all five new private overrides are excluded by normal policy.
+Final46PASS5.16s covers9new+37existing checks,2G/offscreen/thread1/GPUhidden.
+An actual Preferences probe reaches the grip with two Tab presses from
+Cancel, changes97 to115, writes the existing private saved-height key and
+restores115 after actual close/reopen. It takes3.39s/340456KiB/4G, attempts no
+network connection and leaves source unchanged. This is offscreen consumer
+acceptance, not native/human or other-platform acceptance.
+One shared hover/accessibility caption has9 independent reviewed targets and
+normal runtime artifacts, preserving10777 unrelated targets perlocale. Nine
+obsolete mouse-only review rows are retained as retired provenance, every
+other record unchanged. Normal source audit passes; no gate is weakened.
+The guide adds9 reviewed/compiled targets;1539 existing records (including
+the prior117 targets) and297 other-domain files remain unchanged.126 actual
+compiled gettext lookups pass. Source, runtime target, guide target and old
+record retirement each have separate independent peer evidence.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/,
+data/655_hint_resize_preferences_consumer_2026-10-15/,
+data/655_hint_resize_runtime_artifacts_2026-10-15/ and corresponding peer/
+guide evidence. Broader N655 native/human/macOS/Windows/tutorial gates remain.
+
+Original Home owns unsettled N703 cleanup behavior. Home-B is separately
+repairing the current normal README picker audit contract; no final full CI.

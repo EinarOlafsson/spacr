@@ -1,0 +1,117 @@
+{
+  "status": "PASS: bounded software acceptance; runtime caption artifacts and independent peer pending parent integration",
+  "tested_private_base": "ac5afd18d244a633ee6e7ff8d6d3f09e567be0b9",
+  "incoming_public_nightly": "8d23aa1d9",
+  "source_scope": {
+    "tested_private_base": "ac5afd18d244a633ee6e7ff8d6d3f09e567be0b9",
+    "incoming_public_nightly": "8d23aa1d9",
+    "files": {
+      "spacr/qt/widgets/hint_bar.py": {
+        "before_sha256": "033db275dd109f1823f5e9b582ac4836b9779db17208af9192664eaed035ccd6",
+        "after_sha256": "0efad77e9991951b19f5363325fbf78b737231a457bd0239d95274a6ae95c202",
+        "existing_comments_identical": true,
+        "outside_authorized_scope_ast_identical": true
+      },
+      "spacr/qt/preferences.py": {
+        "before_sha256": "b1b9edbc6729cf4e62e38cdfb31d6490a5c9e71857070e922975c6da99e26b47",
+        "after_sha256": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680",
+        "existing_comments_identical": true,
+        "outside_authorized_scope_ast_identical": true
+      }
+    },
+    "private_methods": [
+      {
+        "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.changeEvent",
+        "actual_public_symbol_result": false,
+        "direct_class_method": true,
+        "nested_functions": 0
+      },
+      {
+        "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.focusInEvent",
+        "actual_public_symbol_result": false,
+        "direct_class_method": true,
+        "nested_functions": 0
+      },
+      {
+        "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.focusOutEvent",
+        "actual_public_symbol_result": false,
+        "direct_class_method": true,
+        "nested_functions": 0
+      },
+      {
+        "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.keyPressEvent",
+        "actual_public_symbol_result": false,
+        "direct_class_method": true,
+        "nested_functions": 0
+      },
+      {
+        "symbol": "spacr.qt.widgets.hint_bar._HintResizeHandle.paintEvent",
+        "actual_public_symbol_result": false,
+        "direct_class_method": true,
+        "nested_functions": 0
+      }
+    ],
+    "api_policy_sha256": "d46429cb4299aa055053f15beb2673b29c3971fd8dbd2f9a3fb974567ee65df6",
+    "public_api_effect": "Five actual policy calls exclude the direct methods of the private class; no nested helper definitions or public docstrings changed."
+  },
+  "behavior": [
+    "Tab enters grip and leaves for help text; Shift+Tab returns",
+    "Up increases and Down decreases help height by current font line spacing through existing min/max clamp",
+    "Only actual keyboard height changes emit existing helpHeightCommitted signal; held arrows repeat; modifiers and unrelated keys leave height alone",
+    "Already-open grip tracks ordinary/strong focus in dark/light/high-contrast, with no preference reads during paint"
+  ],
+  "caption": "Drag this edge or use Up and Down to resize the help area.",
+  "caption_sites": [
+    "HintBar constructor accessible name/description through tr with existing import fallback",
+    "Preferences existing hints.explain call, which translates its source"
+  ],
+  "baseline": {
+    "result": "5 failed, 4 deselected",
+    "pytest_seconds": 2.94,
+    "wall_seconds": 5.93,
+    "peak_rss_kib": 605912,
+    "exit_code": 1
+  },
+  "final": {
+    "result": "46 passed",
+    "new_cases": 9,
+    "existing_cases": 37,
+    "pytest_seconds": 5.16,
+    "wall_seconds": 7.67,
+    "peak_rss_kib": 612364,
+    "exit_code": 0,
+    "swap": 0
+  },
+  "environment": {
+    "cap": "2G",
+    "qt": "6.12 overlay",
+    "platform": "Linux offscreen",
+    "threads": 1,
+    "gpu": "hidden",
+    "settings": "private XDG_CONFIG_HOME and test-specific QSettings"
+  },
+  "persistence_boundary": "Existing owning Preferences mouse-resize/save/reopen test passes unchanged; new keyboard test verifies the same persistence signal receives each actual changed height. No direct keyboard-reopen test or new native/human acceptance is claimed.",
+  "unchanged": [
+    "mouse event methods AST",
+    "existing height/minimum/maximum/show/restore code",
+    "existing public docstrings",
+    "all code outside private handle/imports and exact approved caption literals",
+    "all existing comments"
+  ],
+  "limits": [
+    "No Windows/macOS/native screen reader or whole-N655 acceptance",
+    "No generated artifacts edited by source owner; root owns normal runtime/guide closure",
+    "No automatic push"
+  ],
+  "evidence_sha256": {
+    "after.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "after.log.gz": "7e28f5e66733d561efebfe67066e4c283d09c6c8676f3833bf955b1af6318c81",
+    "after.time": "bf56a1c86ee5191becc6e41d5b665d771d9c434d86eb88521159d8fecf3e5d5f",
+    "before.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "before.log.gz": "dfdc79c002a9ff3378040997ec93f472c9e0c87889debb115ee470e066ab1f61",
+    "before.time": "9548a3be7acee7c83c4d989aac8b42c9d5489242ad6f018b1731656c57cca418",
+    "run.sh": "b6a45a88f3370eb24a406c6061828de5c7fe0c6a483a57eb18572144a6173922",
+    "source-scope.json": "dc0e660d093d2f87baf512b63798edb32d27c6ef52291d77cce6e8889a748c94",
+    "verify_scope.py": "fe86344a1505100de2fb674d991ec8da07a546d3ae9247e17de2fac3b0e2b7ed"
+  }
+}

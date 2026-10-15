@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "status": "Nine final source-bound normal review inputs; canonical loader/write_language validation pending coordinator normal generation.",
+  "source_commit": "58a19d0775b6337d184c8d4caffdadff643ebf93",
+  "source_file_sha256": {
+    "spacr/qt/widgets/hint_bar.py": "0efad77e9991951b19f5363325fbf78b737231a457bd0239d95274a6ae95c202",
+    "spacr/qt/preferences.py": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680"
+  },
+  "source": "Drag this edge or use Up and Down to resize the help area.",
+  "source_sha256": "169cc6d96042851c27ca15505804bba3132235f348f6eff4918d1febe9ca682c",
+  "targets": 9,
+  "input_file_sha256": {
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-hint-resize-keyboard.json": "a2f3ef89dfa184fce16cec8e01779fe26da99a7d3eb205cab1ad7a13b6ae5211",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-hint-resize-keyboard.json": "a76175f209fa7d30109c04bb645e8c107cfbf46376f689ca3d9f94ddfd5c8223",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-hint-resize-keyboard.json": "8a7d6540bfa4b4bc0f1bbaad8bd6060fbdd0ff0b2327b8b4f04faa97fd711ee1",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-hint-resize-keyboard.json": "309342c9c945369a4c6b6902667b5f7f55445075edd458a355d7374df892d628",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-hint-resize-keyboard.json": "49169e0f623a60eba6223e793e03cd467bfe1fba5ec840ff245311fab79f7599",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-hint-resize-keyboard.json": "f16bebb116872a93ec2a3caaaf7c89a2b9ffe15b328acadb21d55b1621ca2802",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-hint-resize-keyboard.json": "903f9a012b4c7be76aa2236a4305fa423f0bff587fbb4b5b2f2c50a2a652e02c",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-hint-resize-keyboard.json": "13e070815bcb043b8cfa73ea08363ea2fc6c8886c63218784f3e481bd6e8eb39",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-hint-resize-keyboard.json": "1073d2f137487bd1c45feb7c47218a25d70c3667da02c6d4e040737c844b6c89"
+  },
+  "independent_target_peer": "independent-target-peer.json",
+  "independent_target_peer_sha256": "6419fc50b569b26434e8b23406cb59269359c09b1d0b65133284a38826da33a9",
+  "author": "website_686_687",
+  "independent_target_reviewer": "Home-B coordinator",
+  "source_binding": "Exact approved caption is an AST literal in both final source files. Targets exactly match independently approved frozen draft hashes.",
+  "limits": [
+    "No canonical collector, catalog writer, decoder or runtime import executed by this author.",
+    "Normal candidate/load gates remain required before publication.",
+    "Existing mouse-only caption retirement is left to actual canonical-source census by normal coordinator writer."
+  ]
+}
