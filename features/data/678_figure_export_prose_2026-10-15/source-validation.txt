@@ -1,0 +1,2 @@
+PASS behavior/source scope; changed rendered API symbols: ['spacr.qt.widgets.figure_settings.FigureSettingsDialog', 'spacr.qt.widgets.figure_settings.graph_style_as_dict', 'spacr.qt.widgets.figure_settings.apply_graph_style', 'spacr.qt.widgets.save_figure_dialog', 'spacr.qt.widgets.save_figure_dialog.style_for_file', 'spacr.qt.widgets.save_figure_dialog.SaveFigureDialog']
+Runtime source replacements: 6
