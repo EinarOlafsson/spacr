@@ -72,6 +72,24 @@ def _validated(image, masks, image_axes, flows, cell_probability, probability_ki
     return image, masks, flows, cell_probability
 
 
+def _publish_staged_zip(stage, destination):
+    pending = None
+    try:
+        descriptor, pending = tempfile.mkstemp(prefix=".spacr-web-result-", suffix=".zip", dir=destination.parent)
+        os.close(descriptor)
+        with zipfile.ZipFile(pending, "w", zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(stage.rglob("*")):
+                if path.is_file():
+                    archive.write(path, path.relative_to(stage).as_posix())
+        with open(pending, "rb") as handle:
+            os.fsync(handle.fileno())
+        os.replace(pending, destination)
+        pending = None
+    finally:
+        if pending is not None:
+            Path(pending).unlink(missing_ok=True)
+
+
 def build_result_zip(
     destination, *, input_file, image, masks, image_axes="YX", model_id,
     model_version, weights_sha256, settings, flows=None,
@@ -110,81 +128,68 @@ def build_result_zip(
     if not isinstance(settings, dict):
         raise ValueError(tr("settings must be a JSON object"))
     destination.parent.mkdir(parents=True, exist_ok=True)
-    pending = None
-    try:
-        with tempfile.TemporaryDirectory(prefix="spacr-web-result-", dir=destination.parent) as temporary:
-            stage = Path(temporary)
-            source = stage / "input" / input_file.name
-            source.parent.mkdir()
-            shutil.copyfile(input_file, source)
-            tifffile.imwrite(stage / "image.tif", image, metadata={"axes": image_axes}, photometric="minisblack")
-            tifffile.imwrite(stage / "mask.tif", masks, metadata={"axes": "YX"}, photometric="minisblack")
-            if flows is not None:
-                np.save(stage / "flows.npy", flows, allow_pickle=False)
-            if cell_probability is not None:
-                np.save(stage / "cell_probability.npy", cell_probability, allow_pickle=False)
-            intensity = image if image_axes == "YX" else np.moveaxis(image, 0, -1)
-            labels, compact = np.unique(masks, return_inverse=True)
-            compact = compact.reshape(masks.shape)
-            if labels[0] != 0:
-                compact = compact + 1
-                labels = np.concatenate(([0], labels))
-            properties = regionprops_table(
-                compact, intensity_image=intensity,
-                properties=("label", "area", "centroid", "intensity_mean"))
-            properties["label"] = labels[properties["label"]]
-            frame = pd.DataFrame(properties).rename(columns={
-                "centroid-0": "centroid_y", "centroid-1": "centroid_x",
-                "intensity_mean": "intensity_mean_channel_0",
-                **{f"intensity_mean-{channel}": f"intensity_mean_channel_{channel}"
-                   for channel in range(image.shape[0] if image_axes == "CYX" else 1)},
-            })
-            write_table(frame, stage / "objects.csv")
-            manifest = {
-                "schema_version": 1, "spacr_version": __version__,
-                "model": {"id": model_id, "version": model_version,
-                          "weights_sha256": weights_sha256.lower()},
-                "settings": settings, "image_axes": image_axes,
-                "shape_yx": list(masks.shape), "object_count": len(frame),
-                "measurements": {"area_unit": "pixel^2", "centroid_unit": "pixel",
-                                 "centroid_origin": 0, "intensity": "selected image values"},
-                "outputs": {
-                    "flows": {"available": flows is not None, "axes": "vector_yx,Y,X"},
-                    "cell_probability": {"available": cell_probability is not None,
-                                         "kind": probability_kind, "calibrated": False},
-                },
-                "unavailable": unavailable,
-            }
-            text = tr(
-                "spaCR web mask result (research use only)\n"
-                "Model: {id}; version: {version}; spaCR: {spacr}\n"
-                "Selected image: image.tif; labels: mask.tif; objects: objects.csv.\n"
-                "The input/ folder preserves the uploaded bytes.\n"
-                "Measurements use pixels, zero-based centroid coordinates and the selected image intensities.\n"
-                "flows.npy stores actual backend Y/X vector components when available.\n"
-                "cell_probability.npy stores actual backend scores when available.\n"
-                "Raw logits are not calibrated probabilities; no calibration is claimed.\n"
-                "Missing backend outputs are omitted, with reasons in manifest.json.\n"
-                "Exact model weights SHA-256, settings and file hashes are in manifest.json.\n"
-                , id=model_id, version=model_version, spacr=__version__)
-            (stage / "README.txt").write_text(text, encoding="utf-8")
-            manifest["files"] = {
-                path.relative_to(stage).as_posix(): {"sha256": _sha256(path), "bytes": path.stat().st_size}
-                for path in sorted(stage.rglob("*")) if path.is_file()
-            }
-            (stage / "manifest.json").write_text(
-                json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
-            descriptor, pending = tempfile.mkstemp(prefix=".spacr-web-result-", suffix=".zip", dir=destination.parent)
-            os.close(descriptor)
-            with zipfile.ZipFile(pending, "w", zipfile.ZIP_DEFLATED) as archive:
-                for path in sorted(stage.rglob("*")):
-                    if path.is_file():
-                        archive.write(path, path.relative_to(stage).as_posix())
-            with open(pending, "rb") as handle:
-                os.fsync(handle.fileno())
-            os.replace(pending, destination)
-            pending = None
-    finally:
-        if pending is not None:
-            Path(pending).unlink(missing_ok=True)
+    with tempfile.TemporaryDirectory(prefix="spacr-web-result-", dir=destination.parent) as temporary:
+        stage = Path(temporary)
+        source = stage / "input" / input_file.name
+        source.parent.mkdir()
+        shutil.copyfile(input_file, source)
+        tifffile.imwrite(stage / "image.tif", image, metadata={"axes": image_axes}, photometric="minisblack")
+        tifffile.imwrite(stage / "mask.tif", masks, metadata={"axes": "YX"}, photometric="minisblack")
+        if flows is not None:
+            np.save(stage / "flows.npy", flows, allow_pickle=False)
+        if cell_probability is not None:
+            np.save(stage / "cell_probability.npy", cell_probability, allow_pickle=False)
+        intensity = image if image_axes == "YX" else np.moveaxis(image, 0, -1)
+        labels, compact = np.unique(masks, return_inverse=True)
+        compact = compact.reshape(masks.shape)
+        if labels[0] != 0:
+            compact = compact + 1
+            labels = np.concatenate(([0], labels))
+        properties = regionprops_table(
+            compact, intensity_image=intensity,
+            properties=("label", "area", "centroid", "intensity_mean"))
+        properties["label"] = labels[properties["label"]]
+        frame = pd.DataFrame(properties).rename(columns={
+            "centroid-0": "centroid_y", "centroid-1": "centroid_x",
+            "intensity_mean": "intensity_mean_channel_0",
+            **{f"intensity_mean-{channel}": f"intensity_mean_channel_{channel}"
+               for channel in range(image.shape[0] if image_axes == "CYX" else 1)},
+        })
+        write_table(frame, stage / "objects.csv")
+        manifest = {
+            "schema_version": 1, "spacr_version": __version__,
+            "model": {"id": model_id, "version": model_version,
+                      "weights_sha256": weights_sha256.lower()},
+            "settings": settings, "image_axes": image_axes,
+            "shape_yx": list(masks.shape), "object_count": len(frame),
+            "measurements": {"area_unit": "pixel^2", "centroid_unit": "pixel",
+                             "centroid_origin": 0, "intensity": "selected image values"},
+            "outputs": {
+                "flows": {"available": flows is not None, "axes": "vector_yx,Y,X"},
+                "cell_probability": {"available": cell_probability is not None,
+                                     "kind": probability_kind, "calibrated": False},
+            },
+            "unavailable": unavailable,
+        }
+        text = tr(
+            "spaCR web mask result (research use only)\n"
+            "Model: {id}; version: {version}; spaCR: {spacr}\n"
+            "Selected image: image.tif; labels: mask.tif; objects: objects.csv.\n"
+            "The input/ folder preserves the uploaded bytes.\n"
+            "Measurements use pixels, zero-based centroid coordinates and the selected image intensities.\n"
+            "flows.npy stores actual backend Y/X vector components when available.\n"
+            "cell_probability.npy stores actual backend scores when available.\n"
+            "Raw logits are not calibrated probabilities; no calibration is claimed.\n"
+            "Missing backend outputs are omitted, with reasons in manifest.json.\n"
+            "Exact model weights SHA-256, settings and file hashes are in manifest.json.\n"
+            , id=model_id, version=model_version, spacr=__version__)
+        (stage / "README.txt").write_text(text, encoding="utf-8")
+        manifest["files"] = {
+            path.relative_to(stage).as_posix(): {"sha256": _sha256(path), "bytes": path.stat().st_size}
+            for path in sorted(stage.rglob("*")) if path.is_file()
+        }
+        (stage / "manifest.json").write_text(
+            json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
+        _publish_staged_zip(stage, destination)
+
     return destination

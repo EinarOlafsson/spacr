@@ -246,3 +246,16 @@ C. IDR (curators assign the idrNNNN accession and screen names; spaCR leaves
         the study suits IDR and how to transfer the data.
    2. Apply the curators' accession and screen names to idr/*.txt (rename
       "<title>/screenA"), answer their review, and record the idr number here.
+
+2026-10-14 Home-B — corrected generated checksum verification guide
+The old README prescribed md5sum without a manifest or working folder. For
+referenced images, image paths resolve from source while package paths resolve
+from package, so one md5sum invocation cannot validate the mixed bases. Generated
+README now provides the existing spaCR validator command from the package folder,
+explains retained source availability, and limits md5sum advice to copied images.
+Executed exact generated command for both modes using private synthetic paths
+with spaces: two valid packages exit0 and two deliberately altered manifests
+exit1 with checksum diagnostics. No uploads/real data changes. Prose is tr-wrapped
+with English fallback pending reviewed locale records. Evidence:
+features/data/574_checksum_verification_guide_2026-10-14/. External curator/service
+acceptance remains deferred; no whole-feature external closure is claimed.
