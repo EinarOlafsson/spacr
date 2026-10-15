@@ -9561,6 +9561,12 @@ class SettingsWidgets:
 
         shipped = resolve_default_settings(app_key)
         current_values = {str(k): v for k, v in (current or {}).items()}
+        self._model_metadata = None
+        if "model_metadata" in current_values:
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            self._model_metadata = _validate_model_metadata(
+                current_values, model_kinds=_model_input_kinds(app_key, current_values))
         if "image_source" in shipped:
             current_values = _image_source_seeded_from_crop_source(
                 current_values)
@@ -10896,6 +10902,9 @@ class SettingsWidgets:
         self._record_setting_undo(key, rebase=quiet)
         if quiet:
             return
+        metadata = getattr(self, "_model_metadata", None)
+        if metadata is not None:
+            metadata["settings"].pop(key, None)
         callback = getattr(self, "_commit_observer", None)
         if callable(callback):
             callback(key)
@@ -10961,7 +10970,19 @@ class SettingsWidgets:
                 key, self._coerce_to_expected_type(key, self._read_value(key)))
         for k, v in self._defaults.items():
             out.setdefault(k, v)
-        return self._organelle_slots_worth_keeping(out)
+        out = self._organelle_slots_worth_keeping(out)
+        metadata = getattr(self, "_model_metadata", None)
+        if metadata is not None:
+            from copy import deepcopy
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            retained = deepcopy(metadata)
+            retained["settings"] = {key: record for key, record in retained["settings"].items()
+                                    if key in out}
+            out["model_metadata"] = retained
+            out["model_metadata"] = _validate_model_metadata(
+                out, model_kinds=_model_input_kinds(self.app_key, out))
+        return out
 
     def _organelle_slots_worth_keeping(self,
                                        settings: Dict[str, Any]
@@ -11090,12 +11111,20 @@ class SettingsWidgets:
         above the current count is accepted only when this app owns the count
         and the key is a declared setting; foreign-app keys remain rejected.
 
-        :param key: setting key; it must already be a run setting, or an
-            organelle-slot key declared in ``expected_types`` when this form
-            owns the organelle count, otherwise ``False`` is returned.
+        :param key: a known run setting, a declared organelle-slot key when
+            this form owns the count, or reserved ``model_metadata``.
+            Other keys return ``False``.
         :param value: new value, coerced to the setting's expected type before
             it is stored.
         """
+        if key == "model_metadata":
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            supplied = self.collect()
+            supplied[key] = value
+            self._model_metadata = _validate_model_metadata(
+                supplied, model_kinds=_model_input_kinds(self.app_key, supplied))
+            return True
         current = self._defaults.get(key)
         if value is None and isinstance(current, str) and not current:
             value = ""

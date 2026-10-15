@@ -26,7 +26,9 @@
       "source_sha256": "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
       "context": "setting name; it must already be a processing session setting, or an organelle-slot structured-data name declared in ``expected_types`` when this form owns the organelle count, otherwise ``False`` is returned.",
       "translation": "stillingalykill; hann verður þegar að vera keyrslustilling, eða lykill frumulíffærahólfs sem tilgreindur er í ``expected_types`` þegar þetta form á fjölda frumulíffæra, annars er ``False`` skilað.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#5",

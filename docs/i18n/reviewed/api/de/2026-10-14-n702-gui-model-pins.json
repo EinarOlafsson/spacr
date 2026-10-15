@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+      "source": "settings to submit. A deep copy with exact model identities is retained until the settings path is edited.",
+      "source_sha256": "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e",
+      "context": "settings to submit. A deep copy with exact model identities is retained until the settings path is edited.",
+      "translation": "die zu übermittelnden Einstellungen. Eine tiefe Kopie mit exakten Modellidentitäten bleibt erhalten, bis der Einstellungspfad bearbeitet wird.",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves independent deep copying, exact model identities, edit lifetime, reserved metadata and False semantics. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#4",
+      "source": "a known run setting, a declared organelle-slot key when this form owns the count, or reserved ``model_metadata``. Other keys return ``False``.",
+      "source_sha256": "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
+      "context": "a known run setting, a declared organelle-slot structured-data name when this form owns the count, or reserved ``model_metadata``. Other structured-data names return ``False``.",
+      "translation": "eine bekannte Laufeinstellung, ein deklarierter Organellplatzschlüssel, wenn dieses Formular die Anzahl verwaltet, oder das reservierte ``model_metadata``. Andere Schlüssel geben ``False`` zurück.",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves independent deep copying, exact model identities, edit lifetime, reserved metadata and False semantics. No human/native-speaker signoff."
+    }
+  ]
+}
