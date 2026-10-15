@@ -161920,6 +161920,16 @@
         "04355ccf97168b9bdf253c068f116b846123b9c623baa83864305b717f739c3e"
       ]
     },
+    "spacr.qt.widgets.object_settings_grid.AUTO_TEXT": {
+      "source_blocks_sha256": [
+        "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+      ],
+      "source_sha256": "c893aa4e897119493efa9c1e2d097eff9ac73485f95059bff4f74125c4331996",
+      "text": "निर्धारित न किए गए मान को कैसे दिखाया जाता है। ऐसे अधिकांश मानों के लिए ``None`` का अर्थ \"work it out\" (स्वतः निर्धारित करें) है, जबकि खाली सेल से \"अभी तक किसी ने इसे भरा नहीं है\" समझा जाएगा, जो एक अलग बात है। ऑब्जेक्ट का व्यास इसका अपवाद है: उसका ``None`` आवर्धन के अनुरूप डिफ़ॉल्ट मान है, जिसे धूसर रंग में दिखाया जाता है (मद 696)।",
+      "translation_source_blocks_sha256": [
+        "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567"
+      ]
+    },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid": {
       "source_blocks_sha256": [
         "7729639fd6a5bc1998f6efb0f6fccbffaa5181674944d4855944ee4a980fed27",
