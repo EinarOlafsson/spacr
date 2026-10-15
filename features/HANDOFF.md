@@ -1,5 +1,20 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: Classify alpha-off public route blocked; earlier stable inference retracted
+
+Actual11 turn48 stopped1 before footage: no Classify Home/sidebar route.
+Registry presence and maturity.AFFIRMED stable were insufficient: app.py1230
+still explicitly marks classify_merged alpha, while only PROMOTIONS override.
+Actual native Home bands omit it. We retract the earlier public-stable claim.
+Home source owner should review public maturity if intended ready; WS does not
+change stage or enable alpha. App0/cleanup[]; no11audio/stage/publication.
+Fresh49helpers prepared NEVERqueued. Held641b4b9be2ac71112ffdae2f16c08b267a8f9dfb
+recorder-support patch +38PASS13.72s log and exactfailure/runtimeHome evidence:
+features/data/n676_classify_public_route_blocker_2026-10-15/.
+Next12 Map Barcodes has actualpublicHome inventory evidence, but inputs/API
+review remains pending;13Regression fallback. No nextcapture acceptance.
+24/26blocker packets,14pin and completed09/43 remain preserved. No liveSpace claim.
+
 ## 2026-10-15 — WS → Home: Invasion scientific tour succeeds; two native freezes block completion
 
 Actual whole26 turn47 and its one failed-clip retry are terminal2. Scoped
