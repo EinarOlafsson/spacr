@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review; independent parent peer review requested; no native-speaker signoff",
+  "note": "Eight changed blocks in three rendered symbols from picture-export source7b35494ba06. Full normal collector matches source-owner ledger. Superseded reviews retain their original source/translation with retirement metadata. Runtime and private-only docstrings outside this API scope.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Save a rendered picture as a PNG or a one-page PDF.",
+      "context": "Save a rendered picture as a PNG or a one-page PDF.",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "translation": "Guarda una imagen renderizada como PNG o como PDF de una página.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "Exports use the supplied ``QImage`` or ``QPixmap`` rather than capturing the surrounding widget. PNG preserves the image's pixel dimensions and records the selected resolution as dots-per-metre metadata. PDF embeds the raster image on a page; it does not convert pixels into vector artwork.",
+      "context": "Exports use the supplied ``QImage`` or ``QPixmap`` rather than capturing the surrounding widget. PNG preserves the image's pixel dimensions and records the selected resolution as dots-per-metre metadata. PDF embeds the raster image on a page; it does not convert pixels into vector artwork.",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "translation": "Las exportaciones utilizan el ``QImage`` o ``QPixmap`` proporcionado en vez de capturar el widget que lo rodea. PNG conserva las dimensiones en píxeles de la imagen y registra la resolución seleccionada como metadatos en puntos por metro. PDF incorpora la imagen rasterizada en una página; no convierte los píxeles en gráficos vectoriales.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "PDF page dimensions are computed from the image's pixel dimensions and export DPI, with a minimum of one millimetre for each dimension. The image fills the page with zero margins. This sets the printed size without using microscope pixel calibration.",
+      "context": "PDF page dimensions are computed from the image's pixel dimensions and export DPI, with a minimum of one millimetre for each dimension. The image fills the page with zero margins. This sets the printed size without using microscope pixel calibration.",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "translation": "Las dimensiones de la página PDF se calculan a partir de las dimensiones en píxeles de la imagen y los DPI de exportación, con un mínimo de un milímetro por dimensión. La imagen ocupa toda la página, sin márgenes. Así se establece el tamaño impreso sin utilizar la calibración de píxeles del microscopio.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "Default resolution and filename suffix come from :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format`. The right-click menu's explicit PNG or PDF choice determines the final export format.",
+      "context": "Default resolution and filename suffix come from :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format`. The right-click menu's explicit PNG or PDF choice determines the final export format.",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "translation": "La resolución predeterminada y el sufijo del archivo proceden de :func:`spacr.qt.preferences.get_figure_png_dpi` y :func:`spacr.qt.preferences.get_figure_format`. La elección explícita de PNG o PDF en el menú contextual determina el formato final de exportación.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for an output path; return ``\"\"`` when the dialog is cancelled.",
+      "context": "Ask for an output path; return ``\"\"`` when the dialog is cancelled.",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "translation": "Solicita una ruta de salida; devuelve ``\"\"`` cuando se cancela el diálogo.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "If the chosen name has no suffix, append ``.pdf`` or ``.png`` according to the selected file filter. An existing suffix is retained here; :func:`save_as` subsequently enforces the format chosen in the menu.",
+      "context": "If the chosen name has no suffix, append ``.pdf`` or ``.png`` according to the selected file filter. An existing suffix is retained here; :func:`save_as` subsequently enforces the format chosen in the menu.",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "translation": "Si el nombre elegido no tiene sufijo, añade ``.pdf`` o ``.png`` según el filtro de archivos seleccionado. Aquí se conserva un sufijo existente; después, :func:`save_as` impone el formato elegido en el menú.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called before the context menu opens; returns the ``QPixmap`` or ``QImage`` to write. The returned image is used after the format and path dialogs; the callback is not called again immediately before writing.",
+      "context": "called before the context menu opens; returns the ``QPixmap`` or ``QImage`` to write. The returned image is used after the format and path dialogs; the callback is not called again immediately before writing.",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "translation": "se llama antes de abrir el menú contextual; devuelve el ``QPixmap`` o ``QImage`` que se escribirá. La imagen devuelta se utiliza después de los diálogos de formato y ruta; la función de retorno no se llama de nuevo justo antes de escribir.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is called after the format is selected and before the path dialog opens.",
+      "context": "the file name offered, without a suffix. A callable is called after the format is selected and before the path dialog opens.",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "translation": "el nombre de archivo propuesto, sin sufijo. Un objeto invocable se llama después de seleccionar el formato y antes de abrir el diálogo de ruta.",
+      "review_basis": "Exact-source AI technical review: raster pixels remain raster in PDF; PNG pixel dimensions and dots-per-metre metadata; per-dimension one-millimetre PDF minimum, zero margins and no microscope calibration; menu-selected final suffix; image callback before menus and filename callback after format selection. Protected RST references and literals preserved. No native-speaker claim."
+    }
+  ]
+}

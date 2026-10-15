@@ -1,0 +1,521 @@
+{
+  "schema": 1,
+  "source_commit": "7b35494ba062f98bebf5b9c7b30416e333d35abd",
+  "normal_collector": "Three rendered symbols/eight blocks match source-owner ledger. Full source cache retained for combined writer; all Python source file hashes captured.",
+  "review_count": 72,
+  "source_docs_sha256": {
+    "spacr.qt.widgets.picture_export": "98d11f91777723d4f06f53afec8a33736804e167b61ec424928ab4cd1ce5417b",
+    "spacr.qt.widgets.picture_export.ask_where_to_save": "2880b071c16629d1e930dd95d63f52a61bc1b2908a78b0919db9111cd79aa21d",
+    "spacr.qt.widgets.picture_export.install_picture_save": "75d1d33693e0b475928bfec28e99c4c4c76cb80e7369ee6aaef9f9c2fb49dad1"
+  },
+  "source_and_context_gates": "PASS all72; normal reviewed_api_block_translations passes for nine complete selected document sets.",
+  "retired_review_rows": [
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 174,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 176,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 177,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 178,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 182,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 183,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 197,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "record_index": 198,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 385,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 387,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 388,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 389,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 393,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 394,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 408,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "record_index": 409,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 496,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 498,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 499,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 500,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 504,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 505,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 519,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "record_index": 520,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 505,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 507,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 508,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 509,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 513,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 514,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 528,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "record_index": 529,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 234,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 236,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 237,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 238,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 242,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 243,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 257,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-011.json",
+      "record_index": 258,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 92,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 94,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 95,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 96,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 100,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 101,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 115,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 116,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 575,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 577,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 578,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 579,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 583,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 584,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 598,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-008.json",
+      "record_index": 599,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 431,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 433,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 434,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 435,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 439,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 440,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 454,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-005.json",
+      "record_index": 455,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-010.json",
+      "record_index": 229,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
+      "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-010.json",
+      "record_index": 230,
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
+      "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "record_index": 566,
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source": "Right-click a picture and save it, as a PNG or as a PDF.",
+      "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "record_index": 568,
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
+      "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "record_index": 569,
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
+      "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "record_index": 570,
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
+      "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "record_index": 574,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source": "Ask for a path. ``\"\"`` when the user walked away.",
+      "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "record_index": 575,
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
+      "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e"
+    }
+  ],
+  "unrelated_review_rows": "Exact preservation asserted. Retired source/translation content retained.",
+  "scope": "Review inputs; normal catalog generation separate.",
+  "review_claim": "AI technical review; independent peer review requested, no native-speaker claim."
+}

@@ -4014,7 +4014,10 @@
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
       "context": "Right-click a picture and save it, as a PNG or as a PDF.",
       "translation": "그림을 오른쪽 클릭하여 PNG 또는 PDF 로 저장합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#1",
@@ -4033,7 +4036,10 @@
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "화면의 그림은 한 시간 뒤 누군가가 슬라이드에 넣고 싶어 하는 것일 때가 많은데, 지금까지는 창의 해상도로, 주변 창 장식까지 포함해 창을 스크린샷하는 방법밖에 없었습니다. 이 모듈은 우연히 표시된 크기가 아니라 렌더링된 해상도로 그림 자체를 사용자가 고른 파일에 저장합니다.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#2"
+      "rebound_from": "spacr.qt.widgets.picture_export#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#2",
@@ -4042,7 +4048,10 @@
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "두 가지 형식이 있으며, PDF 는 확장자만 다른 PNG 가 아닙니다. PDF 에 래스터를 넣기만 하면 파일 이름만 맞출 뿐입니다. 그림 패널은 페이지이고, 페이지에는 밀리미터 단위의 크기가 있습니다. :func:`save_picture` 는 PDF 에 이미지 자체의 모양을 가진 페이지를 주고 Preferences 의 해상도를 작성기에 알려 주므로, 그림은 측정된 크기로 배치되고 그 해상도로 인쇄됩니다.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#3"
+      "rebound_from": "spacr.qt.widgets.picture_export#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#3",
@@ -4051,7 +4060,10 @@
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "해상도와 기본 형식은 Figures 환경 설정이 이미 가지고 있는 것 -- :func:`spacr.qt.preferences.get_figure_png_dpi` 와 :func:`spacr.qt.preferences.get_figure_format` -- 이므로, 이미 \"300 DPI, PDF\" 라고 말한 사용자에게 다른 말로 두 번 묻지 않습니다.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#4"
+      "rebound_from": "spacr.qt.widgets.picture_export#4",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",
@@ -4083,7 +4095,10 @@
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
       "context": "Ask for a path. ``\"\"`` when the user walked away.",
       "translation": "경로를 묻습니다. 사용자가 취소하면 ``\"\"`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
@@ -4091,7 +4106,10 @@
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "translation": "사용자가 확장자를 빼면 다시 붙입니다. 그렇지 않으면 확장자 없이 입력한 이름은 어떤 필터를 선택했든 PNG 로 기록되며, 이것이 \"save as PDF\" 가 조용히 래스터를 만드는 경로입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#2",
@@ -4203,7 +4221,10 @@
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
       "context": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called at save time rather than now, so the menu always writes the picture currently on application view.",
       "translation": "메뉴를 사용할 때 호출되며, 기록할 ``QPixmap`` 또는 ``QImage`` 를 반환합니다. 지금이 아니라 반드시 저장 시점에 호출되므로, 메뉴는 항상 현재 화면에 있는 그림을 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
@@ -4211,7 +4232,10 @@
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "translation": "제안되는 파일 이름이며, 확장자는 없습니다. 호출 가능 객체이면 저장 시점에 호출되므로, 내용이 바뀌는 뷰 -- 어느 순간에는 Overlay, 다음 순간에는 Flows -- 는 현재 표시 중인 것의 이름을 제안합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.install_picture_save#4",
