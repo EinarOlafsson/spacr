@@ -1,5 +1,14 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15T17:27:19.224117+00:00 Work — ordered04 review complete; targeted video9/10 repair
+
+After completed02 push3e5d4db54, all three component reviews are complete for04. KEEP all50audio/50sidecars and14cataloglessonobjects/13reviews. Twelve video sections remain suitable. Two concrete video faults need repair: scene9 shows only Core/Data/Tools while correct current narration also names Organism; scene10 doctor output includes Spaceout, which the maintainer instructed us to remove from all recordings. Performance8 was checked with five additional UI states plus source/action/372pointer events (no scrolling); no concrete Spaceout exposure found there, so its existing footage stays.
+
+The generated doctor reference card is rendered/root visually accepted, accurately summarizing the recorded1.5.1.3 CPU checks and clearly stating no new terminal run; no Spaceout wording. Fresh recording is scoped only to Home9: complete28.0s/840frames at1x in its original slot, strict unchanged gate, current Core/Data/Tools/Organism, alpha and Spaceout off. All original333.5667s/10007frame clocks and other12sections remain fixed; old Performance818frame selection stays explicitly legacy, with no whole-native freshness claim. Source implementation/independent review of this explicit mixed visual path is active; no capture queued or live yet. Default GPU guard/idle/gap and all-helper pause still apply. No installer/doctor/package/environment/curation operation has run.
+
+Root repair-scope authorization48959f634aff43cbec64c1c3b416e0e97ad4a4ff711bda8537c41d2f3a004e42 is not native/publication acceptance. Work continues04 end to end before05. Exact evidence remains in Work W04 until the completed packet is ready; no04 completion claim.
+
+
 ## 2026-10-15 Work — tutorial 02 selective repair completed; ordered 04 next
 
 Tutorial 02 now shows the complete Conda environment-creation, activation and prefix-check commands in scene 7. Only that generated command-reference section was replaced (frames 4420–5111); all 50 narration tracks, 50 timing sidecars, 14 catalog lesson objects and the other 83 tutorials remain unchanged. Root checked four actual boundary frames; full master decode, all presentation timestamps, normal poster/web rendition and 72 component playback cases passed. All 84 candidate routes and all 84 prepared Pages routes passed, and the publication record completed. No fresh native recording or new narration/translation was needed.
