@@ -496,11 +496,14 @@ def test_a_field_the_table_cannot_index_takes_the_two_passes():
     assert mm._box_grey_table(np.dtype(np.uint32), 0, 9) is None
 
 
-def test_the_table_is_one_entry_and_follows_the_levels():
+def test_the_table_keeps_a_few_entries_and_follows_the_levels():
+    """The box and the canvas each keep their levels' table; no more than four live."""
     first = mm._box_grey_table(np.dtype(np.uint16), 100.0, 5000.0)
     assert mm._box_grey_table(np.dtype(np.uint16), 100.0, 5000.0) is first
-    mm._box_grey_table(np.dtype(np.uint16), 200.0, 5000.0)
-    assert len(mm._BOX_GREY_TABLE) == 1
+    for low in (200.0, 300.0, 400.0, 500.0, 600.0):
+        latest = mm._box_grey_table(np.dtype(np.uint16), low, 5000.0)
+        assert mm._box_grey_table(np.dtype(np.uint16), low, 5000.0) is latest
+    assert 1 <= len(mm._BOX_GREY_TABLE) <= 4
 
 
 def test_a_thinned_picture_covers_the_same_rect(screen):

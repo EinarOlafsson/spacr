@@ -3809,8 +3809,11 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
     record = metadata["settings"][name]
     if kinds and record["kind"] not in kinds:
         _bad_model_metadata(f"model_metadata.settings[{name!r}].kind", ", ".join(kinds))
-    requested = Path(record["requested_value"]).expanduser()
-    if requested.is_file():
+    try:
+        requested = Path(record["requested_value"]).expanduser()
+    except RuntimeError:
+        requested = None
+    if requested is not None and requested.is_file():
         actual = sha256_file(requested)
         if actual != record["sha256"]:
             _bad_model_metadata(str(requested), f"sha256={record['sha256']}; actual={actual}")
@@ -3850,8 +3853,11 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
     text = os.fspath(requested).strip() if requested is not None else ""
     if not text:
         return None
-    local = Path(text).expanduser()
-    if local.is_file():
+    try:
+        local = Path(text).expanduser()
+    except RuntimeError:
+        local = None
+    if local is not None and local.is_file():
         return local
     if "://" in text:
         return None

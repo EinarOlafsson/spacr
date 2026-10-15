@@ -301,6 +301,10 @@ def preprocess_generate_masks(settings):
         from ._v1_v2_bridge import (
             v2_channels_from_settings, report_disk_savings,
         )
+        from .object import _note_the_diameter
+        from .object_settings_table import _default_diameter_of
+
+        _note_the_diameter(settings, 'cell')
         srcs = settings['src'] if isinstance(settings['src'], list) \
                                 else [settings['src']]
         for src in srcs:
@@ -318,7 +322,8 @@ def preprocess_generate_masks(settings):
                 model_name=settings.get('cell_model_name', 'cpsam'),
                 channels_for_cellpose=tuple(cellpose_channels),
                 diameter=_eval_diameter(
-                    settings.get('cell_diameter'), 'cell'),
+                    settings.get('cell_diameter'), 'cell',
+                    _default_diameter_of(settings, 'cell')),
                 batch_fields=int(settings.get('batch_fields', 8)),
                 metadata_type=settings.get('metadata_type', 'auto'),
                 custom_regex=settings.get('custom_regex'),
@@ -512,6 +517,8 @@ def preprocess_generate_masks(settings):
                                     generate_cellpose_masks_sam(mask_src, settings, 'cell')
                                 else:
                                     from ._mask_workers import _generate_masks_in_parallel
+                                    from .object import _note_the_diameter
+                                    _note_the_diameter(settings, 'cell')
                                     _generate_masks_in_parallel(mask_src, settings, 'cell', gpu_plan)
                                 stop = time.time()
                                 duration = (stop - start)
@@ -530,6 +537,8 @@ def preprocess_generate_masks(settings):
                                     generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
                                 else:
                                     from ._mask_workers import _generate_masks_in_parallel
+                                    from .object import _note_the_diameter
+                                    _note_the_diameter(settings, 'nucleus')
                                     _generate_masks_in_parallel(mask_src, settings, 'nucleus', gpu_plan)
                                 stop = time.time()
                                 duration = (stop - start)
@@ -548,6 +557,8 @@ def preprocess_generate_masks(settings):
                                     generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
                                 else:
                                     from ._mask_workers import _generate_masks_in_parallel
+                                    from .object import _note_the_diameter
+                                    _note_the_diameter(settings, 'pathogen')
                                     _generate_masks_in_parallel(mask_src, settings, 'pathogen', gpu_plan)
                                 stop = time.time()
                                 duration = (stop - start)

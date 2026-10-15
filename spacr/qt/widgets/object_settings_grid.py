@@ -41,6 +41,7 @@ from PySide6.QtCore import (QAbstractTableModel, QEvent, QModelIndex, QSize,
                             Qt, QTimer, Signal)
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QApplication,
     QFrame,
     QHBoxLayout,
     QHeaderView,
@@ -55,8 +56,11 @@ from PySide6.QtWidgets import (
 LOG = logging.getLogger(__name__)
 
 from ...object_roles import setting_label
-from ...object_settings_table import (OBJECT_ORDER, _FILTER_PREFIX,
-                                      _SINGLE_OBJECT_QUESTIONS, _filter_text,
+from ...object_settings_table import (OBJECT_ORDER, _AUTO_DIAMETER,
+                                      _DIAMETER_OBJECTS, _FILTER_PREFIX,
+                                      _SINGLE_OBJECT_QUESTIONS,
+                                      _diameter_setting, _filter_text,
+                                      _magnification_default,
                                       _parse_filter_text, _settings_key,
                                       column_label, from_table, to_table,
                                       widen)
@@ -67,10 +71,12 @@ from .sortable_table import install_sorting
 __all__ = ["AUTO_TEXT", "OFF_TEXT", "ObjectSettingsGrid",
            "ObjectSettingsModel"]
 
-#: What an unset value reads as. ``None`` means "work it out" for most of
-#: these -- a diameter of None is Cellpose estimating it -- and an empty cell
-#: would read as "nobody has filled this in yet", which is a different claim.
 AUTO_TEXT = "auto"
+"""What an unset value reads as. ``None`` means "work it out" for most of
+these, and an empty cell would read as "nobody has filled this in yet",
+which is a different claim. An object diameter is the exception: its
+``None`` is the magnification default, drawn greyed (item 696).
+"""
 
 #: What an unset CHANNEL reads as, and it is not "auto".
 #:
@@ -96,6 +102,28 @@ def _unset_text(question: str) -> str:
     if question in _OFF_QUESTIONS or _is_filter(question):
         return OFF_TEXT
     return AUTO_TEXT
+
+
+_DIAMETER_QUESTION = "diameter"
+"""The row whose blank cell shows the magnification default (item 696)."""
+
+
+def _is_magnification_diameter(question: str, obj: str) -> bool:
+    """Whether the cell is an object diameter read by the 0/"auto" rule.
+
+    Cell, nucleus and pathogen. An organelle's diameter is deprecated, read
+    by nothing, and keeps its old reading.
+    """
+    return question == _DIAMETER_QUESTION and obj in _DIAMETER_OBJECTS
+
+
+def _refusal_text(text: str) -> str:
+    """Why a diameter typed into the table was not taken, in the reader's language."""
+    from ..i18n import tr
+
+    return tr("{value} is not a diameter: type a number of pixels, 0 or auto "
+              "to let Cellpose estimate it, or clear the cell for the "
+              "magnification default.").format(value=repr(str(text)))
 
 
 def _is_filter(question: str) -> bool:
@@ -254,6 +282,7 @@ class ObjectSettingsModel(QAbstractTableModel):
 
     #: Emitted when a cell's value actually changed.
     edited = Signal()
+    _refused = Signal(str)
 
     def __init__(self, parent=None):
         """Create the empty per-object settings table model.
@@ -264,6 +293,7 @@ class ObjectSettingsModel(QAbstractTableModel):
         self._table: Dict[str, Dict[str, Any]] = {}
         self._questions: Tuple[str, ...] = ()
         self._objects: Tuple[str, ...] = ()
+        self._magnification: Any = None
 
 
     def set_table(self, table: Mapping[str, Mapping[str, Any]]) -> None:
@@ -375,6 +405,21 @@ class ObjectSettingsModel(QAbstractTableModel):
             return None
         value = self.value_at(question, obj)
         unset = _unset_text(question)
+        if _is_magnification_diameter(question, obj) and value is None:
+            default = _magnification_default(self._magnification, obj)
+            if default is not None:
+                unset = f"{default:g}"
+                if role == Qt.ForegroundRole:
+                    from PySide6.QtGui import QPalette
+
+                    return QApplication.palette().color(
+                        QPalette.PlaceholderText)
+                if role == Qt.FontRole:
+                    from PySide6.QtGui import QFont
+
+                    font = QFont()
+                    font.setItalic(True)
+                    return font
         if role == Qt.CheckStateRole and isinstance(value, bool):
             return Qt.Checked if value else Qt.Unchecked
         if role == Qt.DisplayRole:
@@ -397,6 +442,13 @@ class ObjectSettingsModel(QAbstractTableModel):
             if question in _OFF_QUESTIONS and value is None:
                 head += (f"\n\n{column_label(obj)} is NOT SEGMENTED. "
                          f"Give it a channel number to turn it on.")
+            if _is_magnification_diameter(question, obj):
+                from ..i18n import tr
+
+                head += "\n\n" + tr(
+                    "Pixels. Blank uses the magnification default "
+                    "(shown greyed); 0 or auto lets Cellpose estimate "
+                    "the diameter.")
             return f"{head}\n\n{help_text}" if help_text else head
         return None
 
@@ -431,6 +483,18 @@ class ObjectSettingsModel(QAbstractTableModel):
             return True
         if role == Qt.CheckStateRole:
             value = "true" if _checked(value) else "false"
+        if _is_magnification_diameter(question, obj):
+            try:
+                new = _diameter_setting(value)
+            except ValueError:
+                self._refused.emit(_refusal_text(value))
+                return False
+            if new == current and type(new) is type(current):
+                return False
+            row[obj] = new
+            self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.EditRole])
+            self.edited.emit()
+            return True
         like = current
         if like is None:
             like = next((v for o, v in row.items()
@@ -458,6 +522,10 @@ class ObjectSettingsModel(QAbstractTableModel):
             if _is_filter(question):
                 return (f"Filter: {question[len(_FILTER_PREFIX):]} "
                         f"(min \u2013 max)")
+            if question == _DIAMETER_QUESTION:
+                from ..i18n import tr
+
+                return tr("Diameter (px)")
             return setting_label(question)
         if role == Qt.ToolTipRole:
             if orientation == Qt.Vertical:
@@ -595,6 +663,7 @@ class ObjectSettingsGrid(QWidget):
         self._base: Dict[str, Any] = {}
         self._model = ObjectSettingsModel(self)
         self._model.edited.connect(self.settings_changed)
+        self._model._refused.connect(self._say_refused)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -1081,8 +1150,39 @@ class ObjectSettingsGrid(QWidget):
             ``<object>_<question>`` keys become the table.
         """
         self._base = dict(settings or {})
+        self._model._magnification = self._base.get("magnification")
         self._model.set_table(self._visible_table())
         self._announce()
+
+    def _say_refused(self, text: str) -> None:
+        """Show why a typed value was not taken, under the table."""
+        self._status.setText(text)
+
+    def _follow_magnification(self, magnification) -> bool:
+        """Show the diameter defaults of a new magnification (item 696).
+
+        A blank object diameter shows the magnification default greyed, so
+        it has to move when the magnification does; the stored value stays
+        blank.
+
+        :param magnification: the form's magnification now.
+        :returns: whether anything was redrawn.
+        """
+        self._base["magnification"] = magnification
+        if self._model._magnification == magnification:
+            return False
+        self._model._magnification = magnification
+        rows = self.questions()
+        if _DIAMETER_QUESTION not in rows:
+            return False
+        row = rows.index(_DIAMETER_QUESTION)
+        columns = self._model.columnCount()
+        if columns:
+            self._model.dataChanged.emit(
+                self._model.index(row, 0),
+                self._model.index(row, columns - 1),
+                [Qt.DisplayRole, Qt.ForegroundRole, Qt.ToolTipRole])
+        return True
 
     def _visible_table(self) -> Dict[str, Dict[str, Any]]:
         """The table as drawn: the claimed table less the objects the run lacks.

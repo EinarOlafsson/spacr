@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "Exactly eight new/changed paragraphs in seven API symbols. Untouched paragraphs retain their existing history/review evidence. Historical crash/timing descriptions are not current native acceptance.",
+  "records": [
+    {
+      "label": "spacr.api.MaskConfig#2",
+      "source": "src: Plate folder, or a sequence of plate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` uses the magnification default (``2*magnification+80`` for cells, ``0.75*magnification+45`` for nuclei, ``magnification`` for pathogens); ``0`` or ``\"auto\"`` requests size estimation with a Cellpose 3 size model, or native scale with Cellpose-SAM, which has no size model. channels: Intensity channels retained in the merged field arrays. magnification: Objective magnification recorded with the run. pipeline_style: ``\"v1\"`` for the stable disk-based pipeline or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed fields. Keys that repeat a typed field are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy pipeline imports, model loading, segmentation, or writes.",
+      "source_sha256": "4466592e71ffabc4dce79c4a52be7450d61528d7bff7ed1d2b108fb03c443593",
+      "context": "src: Laboratory microplate folder, or a sequence of laboratory microplate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity image data channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` uses the magnification default (``2*magnification+80`` for cells, ``0.75*magnification+45`` for nuclei, ``magnification`` for pathogens); ``0`` or ``\"auto\"`` requests size estimation with a Cellpose 3 size model, or native scale with Cellpose-SAM, which has no size model. image data channels: Intensity image data channels retained in the merged microscope field of view arrays. magnification: Objective magnification recorded with the processing session. pipeline_style: ``\"v1\"`` for the stable disk-based workflow or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed microscope fields of view. Structured-data names that repeat a typed microscope field of view are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy workflow imports, model loading, segmentation, or writes.",
+      "translation": "src: 包含原始显微图像的实验微孔板文件夹，或这些文件夹的序列。cell_channel, nucleus_channel, pathogen_channel: 各分割对象使用的从零开始的强度通道。不应分割的对象设为 ``None``；至少需要一个对象。cell_diameter, nucleus_diameter, pathogen_diameter: 预期对象直径，以像素计。``None`` 使用放大倍数默认值（细胞为 ``2*magnification+80``，细胞核为 ``0.75*magnification+45``，病原体为 ``magnification``）；``0`` 或 ``\"auto\"`` 请求 Cellpose 3 的大小模型估计大小，或让没有大小模型的 Cellpose-SAM 使用原始尺度。channels: 在合并后的图像视野数组中保留的强度通道。magnification: 随运行记录的物镜放大倍数。pipeline_style: ``\"v1\"`` 为稳定的磁盘工作流程，``\"v2\"`` 为实验性流式路径。extra: 未由具名类型配置字段表示的高级设置。重复具名字段的键会被拒绝，避免一个脚本提供两个答案。test_mode: 先在最多 ``test_images`` 组完整图像的随机子集上运行 Mask，该子集位于 ``<src>/test`` 下，并启用诊断图，再处理全部源图像。dry_run: 执行 Mask 预检查并返回问题，然后才进行大型流程模块导入、模型加载、分割或写入。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli.resolve_settings#1",
+      "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one. An object diameter of 0 or \"auto\" comes out as \"auto\", the one form both are stored in (item 696).",
+      "source_sha256": "f1dec972ba7a0799e3ffa687babdcdfff587d8308d71ce3d3ac832f92cb6c00d",
+      "context": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one. An object diameter of 0 or \"auto\" comes out as \"auto\", the one form both are stored in (item 696).",
+      "translation": "按优先级从低到高依次叠加：模块自身默认值、设置文件、``--set`` 覆盖值。首先按当前名称读取文件 -- 参见 :func:`_under_todays_names`；否则文件中使用旧名称的值会被新名称下已有的默认值压过。对象直径为 0 或 \"auto\" 时均输出为 \"auto\"，即两者唯一的保存形式（项目 696）。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter#5",
+      "source": "The interface language is read once for the run (:func:`spacr.qt.i18n.ui_language_resolved_once`): the ledger's rows ask :func:`spacr.qt.i18n.tr` seven times each, and 286 hidden objects on the lesson's field cost 150 ms of preference reads on the GUI thread.",
+      "source_sha256": "23c53da4fb3f076808686ed4a7fe1c858727be4da25818188d1dad5ef4a44aea",
+      "context": "The interface language is read once for the processing session (:func:`spacr.qt.i18n.ui_language_resolved_once`): the ledger's rows ask :func:`spacr.qt.i18n.tr` seven times each, and 286 hidden objects on the lesson's microscope field of view cost 150 ms of preference reads on the main GUI execution path.",
+      "translation": "每次运行只读取一次界面语言（:func:`spacr.qt.i18n.ui_language_resolved_once`）：记录表每行调用 :func:`spacr.qt.i18n.tr` 七次；课程图像视野中的 286 个隐藏对象曾使 GUI 线程花费 150 ms 读取首选项。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._main_stack#0",
+      "source": "The GUI thread's stack as text-only frame summaries, or None.",
+      "source_sha256": "9aa9ec84dc3a6eb2e02d87eca4e26f8c6124ccdfd4ef19a1698b7507afa68732",
+      "context": "The main GUI execution path's stack as text-only frame summaries, or None.",
+      "translation": "将 GUI 线程的调用栈表示为纯文本栈帧摘要，或返回 None。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._main_stack#1",
+      "source": "No frame object outlives this call. A frame held by the watcher keeps its function's locals alive after the GUI thread has returned from it, and the watcher then drops them on its own thread: a ``QPainter`` made in a ``paintEvent`` stayed active past the paint (\"QBackingStore::endPaint() called with active painter\") and was destroyed off the GUI thread, a segmentation fault in the next window repaint. Measured on the lesson 14 driver with a watcher that kept its last frame: 4 crashes in 6 runs.",
+      "source_sha256": "935bba3f4daeaeb1b6e0ce64086ccba74fa5d8fd6feb4a3a25bf155961ba9c1a",
+      "context": "No frame object outlives this call. A frame held by the watcher keeps its function's locals alive after the main GUI execution path has returned from it, and the watcher then drops them on its own independent execution path: a ``QPainter`` made in a ``paintEvent`` stayed active past the paint (\"QBackingStore::endPaint() called with active painter\") and was destroyed off the main GUI execution path, a segmentation fault in the next window repaint. Measured on the lesson 14 driver with a watcher that kept its last frame: 4 crashes in 6 runs.",
+      "translation": "任何栈帧对象都不会存活到本次调用结束之后。监视器保留的栈帧会在 GUI 线程退出函数后继续保持该函数局部对象存活，随后监视器会在自己的线程上释放它们。``QPainter`` 在 ``paintEvent`` 中创建后 曾在绘制结束后仍然活动（\"QBackingStore::endPaint() called with active painter\"），并在 GUI 线程之外被销毁，导致下次重绘窗口时发生段错误。在课程 14 驱动程序中，使用保留最后栈帧的监视器测得：6 次运行中崩溃 4 次。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._where#0",
+      "source": "The innermost frame of ``stack``, as ``file:line function``.",
+      "source_sha256": "be816195e9dd4352acb32ab8b3934b4b9103c94ef4a705d11e41fbac40830ab4",
+      "context": "The innermost frame of ``stack``, as ``file:line function``.",
+      "translation": "``stack`` 中最内层的栈帧，格式为 ``file:line function``。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.follow_the_form#3",
+      "source": "The magnification field is followed as well: a blank object diameter shows the magnification default, which moves with it (item 696).",
+      "source_sha256": "30dcec65e2aa650f79507b49f7e0e1a710e7774d2946631f78155fcc4c322910",
+      "context": "The magnification microscope field of view is followed as well: a blank object diameter shows the magnification default, which moves with it (item 696).",
+      "translation": "也会跟随放大倍数输入字段：对象直径留空时显示放大倍数默认值，并随其变化（项目 696）。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.run_journal.Run#19",
+      "source": "per object, the diameter it was segmented with, e.g. ``\"120 px (magnification 20x default)\"`` or ``\"auto (Cellpose estimated 57.3 px)\"`` (item 696).",
+      "source_sha256": "0de34957f1d265e137f6ab4fd63830547b5058a8345b9a9da1f78d553fae8417",
+      "context": "per object, the diameter it was segmented with, e.g. ``\"120 px (magnification 20x default)\"`` or ``\"auto (Cellpose estimated 57.3 px)\"`` (item 696).",
+      "translation": "记录每个对象实际分割时所用的直径，例如 ``\"120 px (magnification 20x default)\"`` 或 ``\"auto (Cellpose estimated 57.3 px)\"``（项目 696）。",
+      "review_basis": "AI technical review (Codex), authored from current canonical English. Checked formula literals, blank/default versus auto, Cellpose 3 estimation versus Cellpose-SAM native scale, configuration-field versus image-field sense, GUI thread ownership and historical measurements. No human or native-speaker signoff."
+    }
+  ]
+}

@@ -1600,6 +1600,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
     assert not launcher_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
+    ssh_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text())
+    assert len(ssh_arrivals) == 1
+    assert {key: docs[key] for key in ssh_arrivals} == ssh_arrivals
+    assert not ssh_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **ssh_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

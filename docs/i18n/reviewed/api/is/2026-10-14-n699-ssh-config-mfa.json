@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.remote_execution.ExecutionProfile#17",
+      "source": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+      "source_sha256": "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+      "context": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+      "translation": "SSH-stillingar sem yfirskrifa án leyndarmála, svo sem notandi, gátt, slóði auðkennisskrár og stökkvél; lykilorð og einnota kóðar (OTP) eru bannaðir.",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves non-secret metadata, forbidden password/OTP persistence, verified persistent transport, GUI keyboard-interactive prompts and hostname-before-Slurm worker ordering. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.remote_execution.ExecutionProfile#18",
+      "source": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+      "source_sha256": "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa",
+      "context": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+      "translation": "nota staðfesta viðvarandi SSH-setu með gagnvirkum lyklaborðsbeiðnum í myndræna viðmótinu (GUI) í stað ytri OpenSSH-skipunarinnar.",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves non-secret metadata, forbidden password/OTP persistence, verified persistent transport, GUI keyboard-interactive prompts and hostname-before-Slurm worker ordering. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation#0",
+      "source": "Check the remote hostname before querying Slurm on the worker thread.",
+      "source_sha256": "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c",
+      "context": "Check the remote hostname before querying Slurm on the background execution unit.",
+      "translation": "Athuga heiti fjartengdu vélarinnar áður en Slurm er kannað á vinnuþræðinum.",
+      "review_basis": "AI technical review (Codex), exact current source. Preserves non-secret metadata, forbidden password/OTP persistence, verified persistent transport, GUI keyboard-interactive prompts and hostname-before-Slurm worker ordering. No human/native-speaker signoff."
+    }
+  ]
+}

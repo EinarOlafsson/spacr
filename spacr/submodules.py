@@ -585,10 +585,17 @@ def test_cellpose_model(settings):
     test_dataset = CellposeLazyDataset(test_image_files, test_label_files, settings, randomize=False, augment=False)
 
     from .accelerator import cellpose_kwargs
+    from .model_zoo import _resolve_pinned_model_file
+    from .run_journal import current_run
 
+    pinned = _resolve_pinned_model_file(settings, 'model_path', kinds=('cellpose',))
+    model_path = str(pinned) if pinned is not None else _resolve_training_base(settings['model_path'])
     model = cp_models.CellposeModel(
-        pretrained_model=settings['model_path'], **cellpose_kwargs()
+        pretrained_model=model_path, **cellpose_kwargs()
     )
+    active_run = current_run()
+    if active_run is not None and os.path.isfile(model_path):
+        active_run.record_model('model_path', model_path)
 
     batch_size = settings['batch_size']
     scores = []
@@ -776,10 +783,17 @@ def apply_cellpose_model(settings):
     dataset = CellposeLazyDataset(image_files, dummy_labels, settings, randomize=False, augment=False)
 
     from .accelerator import cellpose_kwargs
+    from .model_zoo import _resolve_pinned_model_file
+    from .run_journal import current_run
 
+    pinned = _resolve_pinned_model_file(settings, 'model_path', kinds=('cellpose',))
+    model_path = str(pinned) if pinned is not None else _resolve_training_base(settings['model_path'])
     model = cp_models.CellposeModel(
-        pretrained_model=settings['model_path'], **cellpose_kwargs()
+        pretrained_model=model_path, **cellpose_kwargs()
     )
+    active_run = current_run()
+    if active_run is not None and os.path.isfile(model_path):
+        active_run.record_model('model_path', model_path)
     batch_size = settings['batch_size']
     measurements = []
     

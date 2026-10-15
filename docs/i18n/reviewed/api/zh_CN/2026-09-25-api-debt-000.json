@@ -870,7 +870,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
       "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
-      "translation": "按从低到高的顺序分层：模块自身的默认值、设置文件，然后是 ``--set`` 覆盖值。文件会先按当前名称读取——参见 :func:`_under_todays_names`；没有它，文件中以旧名称设置的值会输给已经位于新名称下的默认值。"
+      "translation": "按从低到高的顺序分层：模块自身的默认值、设置文件，然后是 ``--set`` 覆盖值。文件会先按当前名称读取——参见 :func:`_under_todays_names`；没有它，文件中以旧名称设置的值会输给已经位于新名称下的默认值。",
+      "retired": true,
+      "retired_reason": "2026-10-14: canonical paragraph or source context changed during MakeMasks lifecycle/N696 integration. Original review/target retained as historical evidence; new current-source AI technical review is separate."
     },
     {
       "context": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
