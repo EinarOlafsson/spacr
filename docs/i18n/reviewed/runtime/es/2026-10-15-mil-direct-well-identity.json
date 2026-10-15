@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "Direct exact-source AI technical translation review; independent parent source review requested; no native signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "Reviewed well as an acquisition/assay well, distinct from image field and cell. Full unique identifier must retain acquisition identity; only observed nonblank plate/row/column contradictions are refused. Missing metadata is not certified independent. {well} remains exact. Normal owner-scoped extraction/generation required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.",
+      "source": "Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.",
+      "source_sha256": "a8de758fcd97a226e16b4a3217a2ba5def09232e960cc46428990d6d8be50ea5",
+      "translation": "El identificador de pocillo {well} abarca distintos pocillos de adquisición; utilice identificadores de pocillo completos y únicos."
+    }
+  ]
+}

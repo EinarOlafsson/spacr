@@ -192,3 +192,18 @@ publication does not claim green global CI/release or waive this owner gap.
 Actual normal caption-arrival refresh also refuses missing explicit
 sv/UI/AI Error report review (exit 1); its raw failure is retained. No
 caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 — Original Home: direct per-cell table acquisition identity guard.
+_mil_bags now refuses a selected well identifier whose participating cells
+contain contradictory nonblank plateID, rowID or columnID observations. The
+actual old helper merged8native acquisition wells on2plates into4bags, even
+with agreeing labels. Full/custom unique IDs and multiplefields remain valid;
+no identifiers or labels are rewritten. Null/blank/absent metadata is not
+represented as proof of independence, and legacy metadata-free input remains
+supported. Only _mil_bags changes; no UMAP/render/schema/UI/model changes.
+Actual18case baseline11FAIL7PASS ->18PASS2.59s,exit0, plus1existing legacy
+label-refusal case PASS2.34s. Input frames remain exact. No modeltraining/GPU
+or biological accuracy claim. Nine exact-source technical AI reviews preserve
+{well}; normal scoped extraction/candidate/runtime closure and parent source
+review pending. No generated catalog rows edited; parent562 stays partial.
+Evidence:data/562_direct_table_identity_2026-10-15/.

@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-15",
+  "baseline": "391dda3ab454e95b23b8104d0827b8ebc13ccfc5",
+  "scope": "Only _mil_bags contradictory observed acquisition identity refusal",
+  "source_boundary": "Every other top-level embeddings.py AST node unchanged; no UMAP/render/UI/schema/renaming edits",
+  "counterexample": "Actual16cell/8nativewell input silently merged into4bags, everybag spanning2plates; no training, original input unchanged",
+  "before": {
+    "failed": 11,
+    "passed": 7,
+    "deselected": 20,
+    "seconds": 5.72,
+    "exit": 1
+  },
+  "after": {
+    "passed": 18,
+    "deselected": 20,
+    "seconds": 2.59,
+    "exit": 0
+  },
+  "existing_legacy_labels": {
+    "passed": 1,
+    "seconds": 2.34,
+    "exit": 0
+  },
+  "native_contract": [
+    "Known contradictory nonblank plate/row/column observations within selectedwell refuse",
+    "Full/customwellIDs, validmultiplefields and feature-excludedrows preserved",
+    "Mixednull/blank/partialmetadata still detects known contradiction",
+    "Absent/incomplete metadata is NOT independence proof; legacyidentifier behavior preserved"
+  ],
+  "translation": {
+    "technical_exact_source_reviews": 9,
+    "hashes_and_well_placeholders": "PASS9",
+    "normal_owner_extraction_candidate_runtime_generation": "Pending scoped Home-B _mil_bags owner patch; no catalog rows edited",
+    "review_kind": "AI technical self-review, no native/human signoff; independent parent source review requested"
+  },
+  "not_claimed": [
+    "Real-screen/biological responder accuracy",
+    "Model training, checkpoints, GPU",
+    "WholeF562/CI/release acceptance"
+  ],
+  "source_sha256": {
+    "spacr/embeddings.py": "2e3bbad8aeddd755b3b049083f0df5cbf8e9c9f4b2db5fb4547fe27da4c7f821",
+    "tests/test_multiple_instance_learning.py": "1bf4571eb63b33d7aaa99a21feb556aa491b2d22bcc3232225bd9adab97ff72f",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-mil-direct-well-identity.json": "4d8f082a5837aeffc9b3408afd82400e43a882faba97f21aa22afc598d206c34",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-mil-direct-well-identity.json": "6d4473872f2ddcefc1538f866216953250ac801999008e93b06fb5e910300c1a",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-mil-direct-well-identity.json": "ecd245197e9666cfc1a19d3829ccb715f55f1f0ba9086845d6b71bf22580e4fa",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-mil-direct-well-identity.json": "50c3927c12e585e8785bb5cdb16b9c43be3eb3c29ca28711bce5c2f90e8d25ad",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-mil-direct-well-identity.json": "02a86ba6f4611aa011eeca3dfc11dc64716df23ce71bf56be8e3ec273ece4a65",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-mil-direct-well-identity.json": "6d9620bf49536e001845cc58ddf1bdb9049883d94fe339fb61a4d8f159101cd4",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-mil-direct-well-identity.json": "627ec401e4554f7785222a694c8d8a32b2e2b618bcfbf6ef296b98d40fd992fa",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-mil-direct-well-identity.json": "f1f19379353a2887ba90bd8bf1cbb77a07204aa958cea62e6bb248812c591d03",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-mil-direct-well-identity.json": "a95c343a4850bcea87db41e5dbafb0b1124d6bdd03193bc43e21bb339f56076e"
+  }
+}
