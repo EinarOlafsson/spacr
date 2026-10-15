@@ -30,3 +30,24 @@ Remaining N698 work includes model-class routing, actual inference integration,
 image/PDF/multichannel readers, both chosen GPU paths, browser exports and
 postprocessing, accessible localized site UI, random approved HF examples,
 privacy/size/quota controls, hosting, and desktop/GPU/browser parity acceptance.
+
+`inputs.describe_upload` reads upload choices from headers, and
+`inputs.read_upload_plane` returns `image`, `image_axes`, and a `selection`
+receipt suitable for recording under the effective settings. TIFF/OME-TIFF
+uses authoritative axes, with explicit indices for every non-singleton T/Z or
+other nonspatial dimension. Channels retain their chosen order; no projection,
+normalization, RGB blending or automatic orientation is applied. PNG/JPEG/BMP
+retain the actual decoder values and supported ordinary color modes. PDF pages
+render through optional `pypdfium2` at the explicitly requested DPI, with a
+receipt identifying these as page renderings, not calibrated acquisitions.
+
+Defaults bound uploaded files to 64 MiB, decoded images to 256 MiB, selected
+planes to 25 million pixels and PDFs to 256 pages. TIFF currently decodes a
+whole selected series, so its preflight uses that series' complete decoded
+size, even if only one T/Z plane is requested. Selection and size refusals
+occur before TIFF decode or PDF render. Unsupported palette/multiframe ordinary
+images and vendor formats are refused explicitly; CZI/ND2 adapters remain open.
+
+Python dependencies are the existing spaCR NumPy, pandas, tifffile,
+scikit-image and Pillow packages, with `pypdfium2` required only for PDF input.
+No dependency is installed automatically by these components.

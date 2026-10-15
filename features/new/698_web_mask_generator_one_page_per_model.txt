@@ -122,3 +122,20 @@ object IDs/areas/centroids/per-channel intensities and every manifest hash check
 invalid inputs and simulated full-disk/writer/final-replace failures preserve
 previous output. Normal feature-index check and diff check pass. No native,
 scientific real-data, hosted GPU or full-CI acceptance inferred from these tests.
+
+2026-10-14 — Original Home: implemented bounded offline upload decoding.
+The second N698 backend component reads TIFF/OME-TIFF, PNG/JPEG/BMP and PDF
+pages. Header choices precede pixel decode; non-singleton T/Z/other axes require
+explicit indices and selected channels keep their chosen order and exact dtype.
+PDF rasterization records page and DPI. No projection/normalization/blending or
+microscope calibration is inferred. Configured file/decoded-byte/plane-pixel
+limits and a PDF page limit reject before decode/render. CZI/ND2 adapters and
+actual inference/web routes remain open. The reader's selection receipt can
+travel in the download manifest alongside the true inference settings.
+Owning closure: 40 reader cases plus 35 package cases PASS (actual exit 0,
+3.51s); new reader 135/135 statements and 52/52 branch arcs covered. Real local
+OME/time/Z/channel, multiple TIFF series, ordinary image and two-page PDF fixtures
+exercise actual decoders. Initial 68 PASS/1 FAIL identified unsupported PDF page
+context management; explicit native handle closes fixed it; original result is
+retained. No hosted/GPU/browser or scientific parity acceptance is claimed.
+Evidence: features/data/698_upload_inputs_2026-10-14/.
