@@ -5718,6 +5718,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                           f"{index + 1:03d}_{name}"):
                 if label.lower() not in taken:
                     break
+            else:
+                suffix = index + 2
+                label = f"{suffix:03d}_{name}"
+                while label.lower() in taken:
+                    suffix += 1
+                    label = f"{suffix:03d}_{name}"
             taken.add(label.lower())
             todo.append((pdf, folder / label))
         self._paper_batch = {"todo": todo, "n": len(todo), "read": [],
