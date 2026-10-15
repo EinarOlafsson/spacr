@@ -481,3 +481,16 @@ Existing nonempty legacy packs remain trusted without a manifest; abrupt OS
 termination may leave a hidden staging sibling, never a final partial pack.
 No real network/model/GPU/fullCI or native other-OS acceptance. Parent702 partial.
 Evidence: data/702_atomic_bulk_model_download_2026-10-14/receipt.json.
+
+2026-10-15 — legacy/offline implementation publication closure:
+Normal current-public merge preserves all six owning source hashes from the
+275PASS cohort. All nine actual offline target/hash pairs still exactly match
+reviewed inputs; normal English generation reconstructs the merged inventory
+(1273settings,242categories,7661UI) instead of hand-merging its conflict.
+The earlier missing offline-artifact/extractor hold is closed. Existing foreign
+N700 global failures remain explicitly open:37 exact-English runtime rows and
+missing AI Error report reviewed evidence. Nightly SOURCE publication does not
+claim those shared gates, finalCI, native cluster/scientific acceptance or whole
+702 completion. Original nonempty bulk packs/external raw catalogues and
+remaining historical provenance are separate work.
+Evidence: data/702_legacy_offline_integration_2026-10-14/receipt.json.

@@ -1,6 +1,6 @@
 {
   "component": "Legacy exact-key acquisition and offline model policy",
-  "publication": "held locally pending caption contract owner/global review closure",
+  "publication": "coherent nightly implementation; global caption/full-audit/release acceptance remains open",
   "validation": {
     "owning_tests": 275,
     "seconds": 29.16,
@@ -25,5 +25,16 @@
   "limits": [
     "No weights, live network, GPU, native cluster acceptance or full CI.",
     "External raw catalogue planning and whole N702 acceptance remain open."
-  ]
+  ],
+  "current_public_merge": {
+    "own_tested_source_files_unchanged": 6,
+    "offline_targets_and_hashes_verified_after_merge": 9,
+    "english_source_generator": "actual exit0;1273settings/242categories/7661UI",
+    "generated_conflict_resolution": "published English baseline restored, then normal sources-only regeneration; no hand merge"
+  },
+  "known_foreign_gates": {
+    "caption_refresh": "Actual current-public helper observed exit1 in installer/scientific integration: missing sv/UI/AI Error report explicit review; root does not claim executing that same check again.",
+    "full_runtime_audit": "37 N700 exact-English rows across nine locales; raw log /mnt/wd4tb/scratch/scientific-backends-integration-20261015/audit.log",
+    "policy": "No gates, historical pins or N700 source were changed; no global CI/release pass is claimed."
+  }
 }
