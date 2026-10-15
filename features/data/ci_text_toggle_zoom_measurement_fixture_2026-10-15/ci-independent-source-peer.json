@@ -1,0 +1,30 @@
+{
+  "status": "ACCEPT: test-only zoom measurement fixture; no product or platform acceptance claim",
+  "reviewed_commit": "a595963355a996050309f8b51e617f1cdfb85c80",
+  "receipt_sha256": "591a69b1f3175af47baad9f1359363408d2bb3fc4c226aa82ee783fee1f06d7a",
+  "test_sha256": "124b1d57ef7441a78716c6c65994330f9764bd5201dbe3de0d482e341eb9bff8",
+  "checks": {
+    "all_receipt_file_hashes_verified": 63,
+    "only_one_test_body_changed": true,
+    "outside_body_module_AST_exact": true,
+    "original_assert_ASTs_preserved": 1,
+    "original_grew_call_and_threshold_helper_preserved": true,
+    "production_and_shared_fixtures_unchanged": true,
+    "baseline": "2 FAIL / 2.70s / exit 1",
+    "final": "2 PASS / 2.26s / exit 0",
+    "all_five_recorded_network_event_lists_empty": true,
+    "pinned_diagnostic_actual_module_paths_and_hashes_verified": true
+  },
+  "findings": [],
+  "reasoning": [
+    "Original font-metric growth check remains exact; original strict rendered-ink growth assertion remains exact.",
+    "The same widget stays inside the same real QHBoxLayout across 100% and 150%; layout allocation guards prevent clipped glyph measurement.",
+    "clearFocus isolates rendered glyph rows from the existing focus-outline pixels; no product focus policy or focus styling is changed.",
+    "Pinned actual layout diagnostics show allocation height 26 to 40, Live glyph rows 10 to 15 and AI glyph rows 9 to 14.",
+    "Initial diagnostic missing explicit own-import provenance is honestly limited and separately retained; later bound diagnostics prove exact module paths/hashes."
+  ],
+  "limits": [
+    "Read-only source/evidence peer only; no test replay, Qt/model imports, network or writer.",
+    "Recorded offscreen evidence is accepted at fixture scope only; no native display, full CI, whole-feature, model or platform acceptance."
+  ]
+}
