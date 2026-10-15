@@ -200,7 +200,7 @@ def _hosted_web_copies():
     flagged = {lesson["id"]: lesson["web"] for lesson in catalog["lessons"] if "web" in lesson}
     if not flagged:
         return {}
-    checkpoint = REPO_ROOT / "tools" / "tutorials" / "release_candidate"
+    checkpoint = REPO_ROOT / "features/data/n676_install_selective_completed_2026-10-15/export/checkpoint"
     receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
     manifest = json.loads((checkpoint / "release-manifest.json").read_text())
     readback = receipt["readback"]
@@ -343,7 +343,7 @@ def test_narration_is_the_stable_mobile_clock():
     # the historical published manifest to imply an upload that did not occur.
     _checked_player_source(
         _LIBRARY / "tutorials",
-        REPO_ROOT / "tools/tutorials/release_candidate",
+        REPO_ROOT / "features/data/n676_install_selective_completed_2026-10-15/export/checkpoint",
         REPO_ROOT / "tools/tutorials/evidence/2026-10-02-player-source-checks.json")
     assert 'app_v2.js?v=20260923-workflow78-learning-order' not in index
     assert 'app_v2.js?v=20260911-narration-captions' not in index
