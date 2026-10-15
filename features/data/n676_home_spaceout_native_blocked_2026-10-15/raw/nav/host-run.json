@@ -1,0 +1,436 @@
+{
+  "app_exit_code": 0,
+  "recorder_rc": 0,
+  "failure": null,
+  "clips": {
+    "home_module_mask": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.64,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.7,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 62.67,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        5.39404296875,
+        5.52685546875
+      ],
+      "file": "home_module_mask.gate.json"
+    },
+    "home_module_measure": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.77,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 27.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.15,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        5.52685546875,
+        5.76123046875
+      ],
+      "file": "home_module_measure.gate.json"
+    },
+    "home_module_map_barcodes": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.67,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 23.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.6,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0
+      ],
+      "loadavg": [
+        5.82080078125,
+        6.15673828125
+      ],
+      "file": "home_module_map_barcodes.gate.json"
+    },
+    "home_module_annotate": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.67,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 26.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.55,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        5.76123046875,
+        5.82080078125
+      ],
+      "file": "home_module_annotate.gate.json"
+    },
+    "00_home": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.66,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 0.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 59.25,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        3,
+        4
+      ],
+      "loadavg": [
+        4.31005859375,
+        5.39404296875
+      ],
+      "file": "00_home.gate.json"
+    },
+    "home_module_run_compare": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.83,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 25.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.7,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.51708984375,
+        6.697265625
+      ],
+      "file": "home_module_run_compare.gate.json"
+    },
+    "home_module_foreign": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.69,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 44.3,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 62.89,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.287109375,
+        6.51708984375
+      ],
+      "file": "home_module_foreign.gate.json"
+    },
+    "home_module_regression": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.69,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 26.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 61.0,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        2
+      ],
+      "loadavg": [
+        6.15673828125,
+        6.287109375
+      ],
+      "file": "home_module_regression.gate.json"
+    },
+    "home_module_align": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.75,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 28.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.68,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.4072265625,
+        6.39697265625
+      ],
+      "file": "home_module_align.gate.json"
+    },
+    "home_module_make_masks": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.84,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 34.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 61.51,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.904296875,
+        6.4072265625
+      ],
+      "file": "home_module_make_masks.gate.json"
+    },
+    "home_module_power": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.85,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 28.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.58,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.697265625,
+        6.904296875
+      ],
+      "file": "home_module_power.gate.json"
+    },
+    "home_module_graph_builder": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.77,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 27.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 61.02,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.83837890625,
+        6.86376953125
+      ],
+      "file": "home_module_graph_builder.gate.json"
+    },
+    "home_module_umap": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.8,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 28.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.62,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.39697265625,
+        6.83837890625
+      ],
+      "file": "home_module_umap.gate.json"
+    },
+    "06_mask_host": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.12,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 37.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 59.16,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        3,
+        27
+      ],
+      "loadavg": [
+        6.71435546875,
+        6.0888671875
+      ],
+      "file": "06_mask_host.gate.json"
+    },
+    "06b_mask_settings": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.82,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 46.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 57.76,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        1,
+        7,
+        22
+      ],
+      "loadavg": [
+        6.0888671875,
+        5.8974609375
+      ],
+      "file": "06b_mask_settings.gate.json"
+    },
+    "06c_mask_actions": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.97,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 37.5,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 59.96,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        3,
+        13
+      ],
+      "loadavg": [
+        5.8974609375,
+        6.3544921875
+      ],
+      "file": "06c_mask_actions.gate.json"
+    },
+    "14_resize_panels": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.65,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 45.9,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 58.24,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        8,
+        9,
+        10
+      ],
+      "loadavg": [
+        6.3544921875,
+        6.16650390625
+      ],
+      "file": "14_resize_panels.gate.json"
+    },
+    "11_column_folded": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.75,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.8,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.85,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        23
+      ],
+      "loadavg": [
+        6.77099609375,
+        6.61328125
+      ],
+      "file": "11_column_folded.gate.json"
+    },
+    "10_home_column": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.8,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 60.4,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 61.69,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        5.90771484375,
+        6.77099609375
+      ],
+      "file": "10_home_column.gate.json"
+    },
+    "08_help_search": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.47,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 61.4,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 60.34,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        5,
+        14
+      ],
+      "loadavg": [
+        6.61328125,
+        7.4521484375
+      ],
+      "file": "08_help_search.gate.json"
+    },
+    "12_command_palette": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.7,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 0.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 58.77,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        7.25537109375,
+        6.93505859375
+      ],
+      "file": "12_command_palette.gate.json"
+    }
+  },
+  "gate_failed": []
+}

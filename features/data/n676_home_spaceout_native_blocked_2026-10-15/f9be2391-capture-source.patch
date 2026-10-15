@@ -1,0 +1,836 @@
+From f9be2391fa3e7d4ef86676bdcf001563517be87a Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 09:27:14 -0400
+Subject: [PATCH] Remove hidden Spaceout from Home tutorial and capture recipes
+
+---
+ tests/qt/test_tutorial_capture_policy.py      |   3 +-
+ tools/tutorials/capture_home.py               |  60 -----------
+ tools/tutorials/capture_home_live.py          |  54 ----------
+ tools/tutorials/capture_host_mode.py          |  29 ++---
+ tools/tutorials/capture_policy.py             |  19 +---
+ tools/tutorials/capture_refresh.py            |  37 ++-----
+ tools/tutorials/lessons/05_home.json          |   5 -
+ .../tutorials/lessons/reviews/05_home.da.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.de.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.es.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.fr.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.hi.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.is.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.it.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.ja.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.ko.json |   5 +-
+ .../tutorials/lessons/reviews/05_home.nb.json |   5 +-
+ .../lessons/reviews/05_home.pt-BR.json        |   5 +-
+ .../tutorials/lessons/reviews/05_home.sv.json |   5 +-
+ .../lessons/reviews/05_home.zh-CN.json        |   5 +-
+ .../tests/test_capture_no_spaceout.py         | 100 ++++++++++++++++++
+ 21 files changed, 147 insertions(+), 225 deletions(-)
+ create mode 100644 tools/tutorials/tests/test_capture_no_spaceout.py
+
+diff --git a/tests/qt/test_tutorial_capture_policy.py b/tests/qt/test_tutorial_capture_policy.py
+index 4ef8e8c41..e6b093461 100644
+--- a/tests/qt/test_tutorial_capture_policy.py
++++ b/tests/qt/test_tutorial_capture_policy.py
+@@ -8,7 +8,7 @@ from PySide6.QtGui import QColor, QPalette
+ from PySide6.QtWidgets import QLabel, QListWidget, QTableWidget, QTableWidgetItem, QWidget
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "tutorials"))
+-from capture_policy import (CAPTURE_BACKDROP, configure_appearance, exclude_special_backdrops,
++from capture_policy import (CAPTURE_BACKDROP, CAPTURE_POPUP_BACKDROP, configure_appearance, exclude_special_backdrops,
+                             verify_appearance, verify_visible_paths)
+ 
+ 
+@@ -21,6 +21,7 @@ def recording(qtbot, monkeypatch, tmp_path):
+     monkeypatch.setattr(prefs, "_settings", lambda: store)
+     monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)
+     configure_appearance()
++    prefs.set_popup_backdrop(CAPTURE_POPUP_BACKDROP)
+     window = QWidget()
+     qtbot.addWidget(window)
+     window.resize(400, 300)
+diff --git a/tools/tutorials/capture_home.py b/tools/tutorials/capture_home.py
+index 640e52686..b2b3e6ebc 100644
+--- a/tools/tutorials/capture_home.py
++++ b/tools/tutorials/capture_home.py
+@@ -461,66 +461,6 @@ def _open_preferences_tab(window, settle, object_name, height=1200):
+     return dialog, page
+ 
+ 
+-def record_spaceout_effects(window, capture, settle):
+-    """Capture all eight actual Spaceout switches and their reversible Apply path."""
+-    from PySide6.QtCore import Qt
+-    from PySide6.QtTest import QTest
+-    from PySide6.QtWidgets import QDialogButtonBox, QScrollArea, QWidget
+-    from spacr.qt import preferences
+-    from spacr.qt.widgets.section import Section
+-
+-    names = {"attractors": "SpaceoutFieldAttractors", "relaxation": "SpaceoutFieldRelaxation",
+-             "elastic_release": "SpaceoutFieldElasticRelease", "vortex": "SpaceoutFieldVortex",
+-             "density_pulses": "SpaceoutFieldDensityPulses", "density_waves": "SpaceoutFieldDensityWaves",
+-             "color_waves": "SpaceoutFieldColorWaves", "spirals": "SpaceoutFieldSpirals"}
+-    dialog, page = _open_preferences_tab(window, settle, "PreferencesTabAppearance", 1500)
+-    proof = {"saved_defaults": preferences._spaceout_field_effects(), "independent_controls": {}}
+-    try:
+-        sections = {section.title().casefold(): section for section in page.findChildren(Section)}
+-        section = sections["spacr field"]
+-        QTest.mouseClick(section.header(), Qt.LeftButton)
+-        settle(.5)
+-        if not section.is_expanded():
+-            raise RuntimeError("The Spaceout field section did not open through its header")
+-        scroll = page.parentWidget()
+-        while scroll is not None and not isinstance(scroll, QScrollArea):
+-            scroll = scroll.parentWidget()
+-        scroll.ensureWidgetVisible(section.header(), 0, 0)
+-        settle(.5)
+-        controls = {key: dialog.findChild(QWidget, name) for key, name in names.items()}
+-        for key, control in controls.items():
+-            if control is None or not control.isVisible() or not control.isChecked():
+-                raise RuntimeError(f"The default Spaceout effect is not visible and on: {key}")
+-            viewport = scroll.viewport()
+-            if not viewport.rect().contains(control.mapTo(viewport, control.rect().bottomRight())):
+-                raise RuntimeError(f"Spaceout effect leaves the actual viewport: {key}")
+-        capture("02_spaceout_field_effects")
+-        for key, control in controls.items():
+-            QTest.mouseClick(control, Qt.LeftButton)
+-            if control.isChecked() or any(not other.isChecked()
+-                                         for other_key, other in controls.items() if other_key != key):
+-                raise RuntimeError(f"Spaceout effect control is not independent: {key}")
+-            proof["independent_controls"][key] = {"off": True, "other_seven_unchanged": True}
+-            QTest.mouseClick(control, Qt.LeftButton)
+-        QTest.mouseClick(controls["vortex"], Qt.LeftButton)
+-        dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Apply).click()
+-        settle(.6)
+-        question = dialog._apply_confirmation
+-        if question is None or not question.isVisible() or preferences._spaceout_field_effects()["vortex"]:
+-            raise RuntimeError("Spaceout Vortices edit was not previewed through real Apply")
+-        capture("03_spaceout_effect_apply_revert")
+-        next(button for button in question.buttons() if button.text() == "Revert").click()
+-        settle(.5)
+-        if preferences._spaceout_field_effects() != proof["saved_defaults"] or not dialog.isVisible():
+-            raise RuntimeError("Spaceout Revert failed to restore the exact eight-effect state")
+-        proof["apply_revert_verified"] = True
+-        proof["published"] = False
+-        proof["scope"] = "Current Spaceout companion; ordinary Home lesson stays alpha-off"
+-        return proof
+-    finally:
+-        dialog.reject()
+-        dialog.deleteLater()
+-        settle()
+ 
+ 
+ def record_session_and_updates(window, capture, settle, name="13e_session_updates"):
+diff --git a/tools/tutorials/capture_home_live.py b/tools/tutorials/capture_home_live.py
+index 7ec279857..94428208b 100644
+--- a/tools/tutorials/capture_home_live.py
++++ b/tools/tutorials/capture_home_live.py
+@@ -948,57 +948,3 @@ def record_home_navigation_live(app, window, capture, settle):
+     focus['12_command_palette'] = palette_steps.get('region')
+     proof['modules_not_on_home'] = hidden
+     return {'focus': focus, 'proof': proof}
+-
+-
+-def record_spaceout_live(app, window, capture, settle):
+-    """The Spaceout companion scene: eight field effects in the real Preferences, Apply + Revert."""
+-    from PySide6.QtCore import QPoint
+-    from PySide6.QtWidgets import QDialogButtonBox, QMessageBox, QWidget
+-    from spacr.qt import preferences
+-
+-    names = {'attractors': 'SpaceoutFieldAttractors', 'relaxation': 'SpaceoutFieldRelaxation',
+-             'elastic_release': 'SpaceoutFieldElasticRelease', 'vortex': 'SpaceoutFieldVortex',
+-             'density_pulses': 'SpaceoutFieldDensityPulses', 'density_waves': 'SpaceoutFieldDensityWaves',
+-             'color_waves': 'SpaceoutFieldColorWaves', 'spirals': 'SpaceoutFieldSpirals'}
+-    proof = {'saved_defaults': preferences._spaceout_field_effects()}
+-    focus = {}
+-
+-    def steps(dialog):
+-        settle(0.8)
+-        _, page = show_tab(capture, dialog, 'PreferencesTabAppearance')
+-        section = sections_of(page)['spacr field']
+-        toggle_section(capture, section, True)
+-        scroll = scroll_area_of(section)
+-        controls = {k: dialog.findChild(QWidget, n) for k, n in names.items()}
+-        scroll_into_view(capture, scroll, controls['spirals'])
+-        focus['02_spaceout_field_effects'] = handoff(capture, dialog)
+-        for control in controls.values():
+-            hover(control)
+-            pause(capture, 0.6)
+-        click(controls['vortex'])
+-        if controls['vortex'].isChecked():
+-            raise RuntimeError('Vortices did not switch off')
+-        apply_button = dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Apply)
+-        click(apply_button)
+-        box = wait_until(capture, lambda: (getattr(dialog, '_apply_confirmation', None)
+-                                           if isinstance(getattr(dialog, '_apply_confirmation', None), QMessageBox)
+-                                           and dialog._apply_confirmation.isVisible() else None),
+-                         10, 'Apply did not ask Keep or Revert')
+-        if preferences._spaceout_field_effects()['vortex']:
+-            raise RuntimeError('Apply did not preview Vortices off')
+-        pause(capture, 1.5)
+-        click(next(b for b in box.buttons() if b.text().replace('&', '') == 'Revert'))
+-        from shiboken6 import isValid
+-        wait_until(capture, lambda: not isValid(box) or not box.isVisible(), 10, 'Revert did not close the question')
+-        if preferences._spaceout_field_effects() != proof['saved_defaults']:
+-            raise RuntimeError('Revert did not restore the eight effects')
+-        click(controls['vortex'])
+-        hold_until(capture, clip_seconds(capture) - 1.5)
+-        capture.end()
+-        close_preferences(dialog, 'cancel')
+-        return {'apply_revert_verified': True}
+-
+-    if capture.begin('02_spaceout_field_effects') is False:
+-        raise RuntimeError('02_spaceout_field_effects must be recorded')
+-    proof.update(open_preferences(app, window, capture, steps))
+-    return {'focus': focus, 'proof': proof}
+diff --git a/tools/tutorials/capture_host_mode.py b/tools/tutorials/capture_host_mode.py
+index 0f45609d1..20838f8f7 100644
+--- a/tools/tutorials/capture_host_mode.py
++++ b/tools/tutorials/capture_host_mode.py
+@@ -127,7 +127,7 @@ def prepare_report_notice() -> dict:
+     return actual
+ 
+ 
+-def prepare_profile(font_scale: float, spaceout: bool = False) -> dict:
++def prepare_profile(font_scale: float) -> dict:
+     """Offscreen child: write the capture profile into the private Qt store, read it back."""
+     use_this_checkout()
+     report_notice = prepare_report_notice()
+@@ -156,14 +156,7 @@ def prepare_profile(font_scale: float, spaceout: bool = False) -> dict:
+     prefs.set_ai_on_by_default(False)
+     # Theme, field, its shipped density and default palette, alpha features
+     # and species off, --fresh (no remembered session, no crash drafts).
+-    if spaceout:
+-        # The Spaceout companion scene: the spaceout command, its own field
+-        # (only a Spaceout process offers that field, so enable it here too).
+-        from spacr.qt.theme import enable_spaceout
+-        enable_spaceout()
+-        configure_appearance(CAPTURE_PROFILE['theme'], 'data_art_spaceout_field', spaceout_effects=True)
+-    else:
+-        configure_appearance(CAPTURE_PROFILE['theme'], CAPTURE_PROFILE['field'], default_field=True)
++    configure_appearance(CAPTURE_PROFILE['theme'], CAPTURE_PROFILE['field'], default_field=True)
+     prefs.set_show_alpha(CAPTURE_PROFILE['show_alpha'])          # Feature maturity -> Show alpha
+     prefs.set_popup_backdrop(CAPTURE_PROFILE['popup_backdrop'])
+     prefs._set_popup_backdrop_motion('density', CAPTURE_PROFILE['popup_density'])
+@@ -190,8 +183,8 @@ def prepare_profile(font_scale: float, spaceout: bool = False) -> dict:
+         'font_scale': font_scale,
+         'store': prefs._settings().fileName(),
+     }
+-    skip = {'theme'} | ({'field', 'field_density', 'field_palette'} if spaceout else set())
+-    actual['spaceout'] = spaceout
++    skip = {'theme'}
++    actual['spaceout'] = False
+     actual.update(report_notice)
+     wrong = {k: (v, actual.get(k)) for k, v in CAPTURE_PROFILE.items()
+              if k not in skip and (actual.get(k) != v if not isinstance(v, float)
+@@ -598,10 +591,8 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
+     import faulthandler
+     import signal as _signal
+     faulthandler.register(_signal.SIGUSR1, file=(logs / 'stacks.txt').open('a'), all_threads=True)
+-    spaceout = bool(args.spaceout_effects_only)
+     profile = subprocess.run([sys.executable, str(Path(__file__).resolve()), '--prepare-profile',
+-                              '--font-scale', str(args.font_scale), '--out', str(stage / 'capture-profile.json'),
+-                              *(['--spaceout'] if spaceout else [])],
++                              '--font-scale', str(args.font_scale), '--out', str(stage / 'capture-profile.json')],
+                              env={**os.environ, 'QT_QPA_PLATFORM': 'offscreen'},
+                              capture_output=True, text=True)
+     if profile.returncode:
+@@ -675,12 +666,7 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
+             os._exit(4)
+ 
+     threading.Thread(target=watcher, name='capture-host-watcher', daemon=True).start()
+-    if spaceout:
+-        # The real `spaceout` command (process-local Spaceout mode).
+-        from spacr.qt.spaceout import main as spaceout_main
+-        app_rc = spaceout_main(['--fresh', '--no-setup'])
+-    else:
+-        app_rc = spacr.qt.run(['--fresh', '--no-setup'])
++    app_rc = spacr.qt.run(['--fresh', '--no-setup'])
+     human.close()
+     summary = _RUNTIME.gates if _RUNTIME is not None else {}
+     failed = _RUNTIME.failed if _RUNTIME is not None else []
+@@ -697,9 +683,8 @@ def main() -> int:
+     parser.add_argument('--prepare-profile', action='store_true', required=True)
+     parser.add_argument('--font-scale', type=float, required=True)
+     parser.add_argument('--out', type=Path, required=True)
+-    parser.add_argument('--spaceout', action='store_true')
+     args = parser.parse_args()
+-    args.out.write_text(json.dumps(prepare_profile(args.font_scale, args.spaceout), indent=2) + '\n')
++    args.out.write_text(json.dumps(prepare_profile(args.font_scale), indent=2) + '\n')
+     return 0
+ 
+ 
+diff --git a/tools/tutorials/capture_policy.py b/tools/tutorials/capture_policy.py
+index 969e827c9..f525a2e54 100644
+--- a/tools/tutorials/capture_policy.py
++++ b/tools/tutorials/capture_policy.py
+@@ -13,9 +13,6 @@ CAPTURE_BACKDROP = "data_art_impulse_lens"
+ #: Settings windows (Preferences, ...) show plain glass in tutorials: no popup
+ #: backdrop animation (maintainer decision, 2026-10-13).
+ CAPTURE_POPUP_BACKDROP = "off"
+-#: The one exception: the Spaceout companion recorded with
+-#: ``--spaceout-effects-only`` (05_home scene 39) shows the Spaceout field,
+-#: because that scene demonstrates Spaceout mode (agreed 2026-10-11).
+ _PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users[\\/][^\\/\s]+|/mnt/[^\s<>\"']+|/(?:run/)?media/[^\s<>\"']+|/nas_mnt(?:/[^\s<>\"']*)?)")
+ 
+ 
+@@ -347,7 +344,7 @@ def verify_alpha_features_off(*, allow_alpha_toggle_scene=False, alpha_lesson=No
+ 
+ 
+ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home_preferences=False,
+-                         spaceout_effects=False, default_field=False):
++                         default_field=False):
+     """Set the requested recording appearance in the isolated Qt store.
+ 
+     Also turns Show alpha features off: no recording shows alpha features.
+@@ -355,8 +352,7 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home
+     drafts; Preferences -> Session stays at its default): no recording
+     reopens a remembered session.
+     """
+-    expected = ("data_art_spaceout_field" if spaceout_effects else
+-                "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP)
++    expected = "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP
+     if (theme, backdrop) != (CAPTURE_THEME, expected):
+         raise ValueError("Tutorial appearance does not match its declared recording profile")
+     from spacr.qt import preferences as prefs
+@@ -375,7 +371,7 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home
+ 
+ 
+ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=None,
+-                      home_preferences=False, spaceout_effects=False, default_field=False):
++                      home_preferences=False, default_field=False):
+     """Check the effective palette and the backdrop widgets being painted.
+ 
+     Also refuses the frame while Show alpha features is on, unless
+@@ -392,12 +388,7 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
+     verify_fresh_start(window)
+     if prefs.resolve_effective_theme() != CAPTURE_THEME:
+         raise RuntimeError("Capture refused: the effective theme is not dark")
+-    expected = ("data_art_spaceout_field" if spaceout_effects else
+-                "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP)
+-    if spaceout_effects:
+-        from spacr.qt.theme import spaceout_enabled
+-        if not spaceout_enabled():
+-            raise RuntimeError("Spaceout companion requires the actual Spaceout process mode")
++    expected = "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP
+     if not prefs.get_ambient_enabled() or prefs.get_ambient_animation() != expected:
+         raise RuntimeError("Capture refused: the backdrop is disabled or another backdrop is selected")
+     if expected == "data_art_impulse_lens":
+@@ -437,8 +428,6 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
+         raise RuntimeError("Capture refused: DNA rain covers the requested backdrop")
+     receipt = {"theme": CAPTURE_THEME, "backdrop": expected,
+                "painted_frames": sum(widget.frames_painted for widget in visible)}
+-    if spaceout_effects:
+-        receipt["spaceout_process_mode"] = True
+     if alpha_shown:
+         receipt["alpha_features_shown_for_toggle_scene"] = True
+     return receipt
+diff --git a/tools/tutorials/capture_refresh.py b/tools/tutorials/capture_refresh.py
+index 54e635905..0a696c571 100644
+--- a/tools/tutorials/capture_refresh.py
++++ b/tools/tutorials/capture_refresh.py
+@@ -150,8 +150,6 @@ def build_parser() -> argparse.ArgumentParser:
+                         help='Refresh only current Home/navigation/host chrome through real tabs and sidebar controls; no Preferences, download or analysis')
+     parser.add_argument('--gate-chrome-only', action='store_true',
+                         help='Record current Gate plot chrome and its real figure menu on a private existing measurement database; no gating or export')
+-    parser.add_argument('--spaceout-effects-only', action='store_true',
+-                        help='Record a separate fresh Spaceout field Preferences companion with eight effect controls; ordinary lessons stay unchanged')
+     parser.add_argument('--gate-database', type=Path,
+                         help='Private completed measurement database for --gate-chrome-only')
+     parser.add_argument('--stage', type=Path,
+@@ -260,28 +258,23 @@ def main() -> int:
+     parser = build_parser()
+     args = parser.parse_args()
+     clip_durations = json.loads(args.clip_durations.read_text()) if args.clip_durations else {}
+-    if args.spaceout_effects_only and (args.module != 'home' or args.home_preferences_only
+-                                     or args.run or args.download or args.preview or args.openings):
+-        parser.error('--spaceout-effects-only requires Home alone, without another tour')
+-    if args.spaceout_effects_only:
+-        args.backdrop = 'data_art_spaceout_field'
+     if args.gate_chrome_only and (args.module != 'gate_editor' or args.gate_database is None
+                                  or args.run or args.download or args.preview):
+         parser.error('--gate-chrome-only requires --module gate_editor and --gate-database, without run/download/preview')
+     if args.home_navigation_only and (args.module != 'home' or args.openings or args.home_preferences_only
+-                                     or args.spaceout_effects_only or args.run or args.download or args.preview):
+-        parser.error('--home-navigation-only requires Home alone without Preferences, Spaceout, download or analysis')
++                                     or args.run or args.download or args.preview):
++        parser.error('--home-navigation-only requires Home alone without Preferences, download or analysis')
+     if args.home_preferences_only and (args.module != 'home' or args.openings):
+         parser.error('--home-preferences-only requires --module home without --openings')
+     if args.record_startup and (args.module != 'home' or args.openings or args.home_preferences_only
+-                                or args.home_navigation_only or args.spaceout_effects_only
++                                or args.home_navigation_only
+                                 or args.home_host_smoke or args.run or args.download or args.preview):
+         parser.error('--record-startup requires Home alone, without another tour')
+     if (args.home_preferences_only or args.home_navigation_only or args.home_host_smoke
+             or args.record_startup):
+         args.backdrop = 'data_art_impulse_lens'
+     if args.home_host_smoke and (args.module != 'home' or args.openings or args.home_preferences_only
+-                                 or args.home_navigation_only or args.spaceout_effects_only
++                                 or args.home_navigation_only
+                                  or args.run or args.download or args.preview):
+         parser.error('--home-host-smoke requires Home alone, without another tour')
+     # Inside the headless GNOME capture host (run_native_capture.py --host gnome)
+@@ -511,9 +504,6 @@ def main() -> int:
+         # imported module and emit a traceback with local installation paths.
+         import torch  # noqa: F401
+     app = QApplication.instance() or QApplication([])
+-    if args.spaceout_effects_only:
+-        from spacr.qt.theme import enable_spaceout
+-        enable_spaceout()
+     mark_tour_seen()
+     for key, *_ in gui.APPS:
+         mark_seen(key)
+@@ -524,7 +514,6 @@ def main() -> int:
+     # Also turns Show alpha features off: alpha features get no tutorials.
+     configure_appearance(args.theme, args.backdrop,
+                          home_preferences=args.home_preferences_only or args.home_navigation_only,
+-                         spaceout_effects=args.spaceout_effects_only,
+                          default_field=args.backdrop == 'data_art_impulse_lens')
+     set_font_scale(args.font_scale)
+     if args.module in ('regression', 'queue', 'train_cellpose'):
+@@ -583,7 +572,7 @@ def main() -> int:
+             return False
+         if args.live_video and (name in frames or (captures / f'{name}.mp4').exists()):
+             raise FileExistsError(f'Native capture already exists: {name}')
+-        if args.home_preferences_only or args.home_navigation_only or args.spaceout_effects_only:
++        if args.home_preferences_only or args.home_navigation_only:
+             exclude_release_history(window)
+         hidden_backdrops = exclude_special_backdrops(window)
+         if hidden_backdrops:
+@@ -592,7 +581,6 @@ def main() -> int:
+             window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,
+             alpha_lesson=args.alpha_lesson,
+             home_preferences=args.home_preferences_only or args.home_navigation_only,
+-            spaceout_effects=args.spaceout_effects_only,
+             default_field=args.backdrop == 'data_art_impulse_lens')
+         try:
+             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
+@@ -753,11 +741,11 @@ def main() -> int:
+         frames.update(end_startup_clip(window, host, capture, settle, captures))
+         write_json(captures / 'frames.json', frames)
+     if (host is not None and args.module == 'home' and not args.openings and not args.home_preferences_only
+-            and not args.home_navigation_only and not args.spaceout_effects_only and not args.home_host_smoke
++            and not args.home_navigation_only and not args.home_host_smoke
+             and not args.record_startup):
+         raise RuntimeError('In the capture host record Home with --home-navigation-only, '
+-                           '--home-preferences-only or --spaceout-effects-only (capture_home_live.py)')
+-    if args.module == 'home' and not args.openings and not args.home_preferences_only and not args.home_navigation_only and not args.spaceout_effects_only and not args.home_host_smoke and not args.record_startup:
++                           '--home-preferences-only (capture_home_live.py)')
++    if args.module == 'home' and not args.openings and not args.home_preferences_only and not args.home_navigation_only and not args.home_host_smoke and not args.record_startup:
+         home = window._startup
+         tabs = home._tabs
+         for index in range(1, tabs.count()):
+@@ -827,15 +815,6 @@ def main() -> int:
+                  '13g_storage_prune': record_storage(window, capture, settle),
+                  '13h_preferences_apply': record_preferences_apply(window, capture, settle)}
+         write_json(captures / 'home_focus.json', focus)
+-    if args.spaceout_effects_only and host is not None:
+-        from capture_home_live import record_spaceout_live
+-        live = record_spaceout_live(app, window, capture, settle)
+-        write_json(captures / 'spaceout_effects.json', live['proof'])
+-        write_json(captures / 'home_focus.json', live['focus'])
+-    elif args.spaceout_effects_only:
+-        from capture_home import record_spaceout_effects
+-        write_json(captures / 'spaceout_effects.json',
+-                   record_spaceout_effects(window, capture, settle))
+     if args.workflow_overview:
+         from capture_workflow_overview import record_overview
+         browser = None
+diff --git a/tools/tutorials/lessons/05_home.json b/tools/tutorials/lessons/05_home.json
+index f4ff9b410..ac63739b9 100644
+--- a/tools/tutorials/lessons/05_home.json
++++ b/tools/tutorials/lessons/05_home.json
+@@ -301,11 +301,6 @@
+         1200,
+         1500
+       ]
+-    },
+-    {
+-      "visual": "24_spaceout_field",
+-      "narration": "In Spaceout mode, Preferences includes spaCR field controls for eight independent effects. Turn each effect on or off separately. Ordinary appearance and settings-window animation controls remain available; Apply previews a change, Keep accepts it and Revert restores the previous choice.",
+-      "hold_after": 0.7
+     }
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.da.json b/tools/tutorials/lessons/reviews/05_home.da.json
+index e4fe92651..4afb12d9e 100644
+--- a/tools/tutorials/lessons/reviews/05_home.da.json
++++ b/tools/tutorials/lessons/reviews/05_home.da.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep accepterer de anvendte indstillinger og lader Preferences være åbent. Fortsæt med at justere en anden fane, eller klik på Save, når du vil beholde de aktuelle værdier og lukke vinduet.",
+     "På fanen Modules bestemmer Session, om spaCR genåbner det sidste modul, indstillingerne og mappen ved start; denne optagelse starter forfra. Update channel vælger stabile udgivelser eller natlige builds, og med Proxy og Certificate bundle virker downloads bag en institutionel proxy.",
+     "Fanen Storage indstiller, hvor længe spaCR beholder sine daglige logfiler, kørselslogfiler og kørselsmapper, og en størrelsesgrænse for hver. Nedenunder viser cachelisten, hvor modeller og downloads ligger, med Clear og Move for hver cache.",
+-    "Prune now sletter aldrig uden at spørge. Med en kort eksempelgrænse for kørselsmapper viser den, hvad den ville slette i hver mappe, og venter på svar. Klik på Cancel, så fjernes intet.",
+-    "I Spaceout-tilstand indeholder Preferences spaCR field-kontroller for otte uafhængige effekter. Slå hver effekt til eller fra separat. De normale kontroller for udseende og animation i indstillingsvinduet er stadig tilgængelige. Apply forhåndsviser, Keep accepterer, og Revert gendanner det tidligere valg."
++    "Prune now sletter aldrig uden at spørge. Med en kort eksempelgrænse for kørselsmapper viser den, hvad den ville slette i hver mappe, og venter på svar. Klik på Cancel, så fjernes intet."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.de.json b/tools/tutorials/lessons/reviews/05_home.de.json
+index ce29cd7aa..5e8d02e8f 100644
+--- a/tools/tutorials/lessons/reviews/05_home.de.json
++++ b/tools/tutorials/lessons/reviews/05_home.de.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep übernimmt die angewendeten Einstellungen und lässt Preferences geöffnet. Bearbeiten Sie eine weitere Registerkarte, oder klicken Sie auf Save, wenn Sie die aktuellen Werte behalten und das Fenster schließen möchten.",
+     "Auf der Registerkarte Modules legt Session fest, ob spaCR beim Start das letzte Modul, die Einstellungen und den Ordner wieder öffnet; diese Aufnahme startet frisch. Update channel wählt stabile Versionen oder nächtliche Builds, und mit Proxy und Certificate bundle funktionieren Downloads hinter einem institutionellen Proxy.",
+     "Die Registerkarte Storage legt fest, wie lange spaCR seine täglichen Logs, Lauf-Logs und Laufordner behält, und eine Größenobergrenze für jede Art. Darunter zeigt die Cache-Liste, wo Modelle und Downloads liegen, mit Clear und Move für jeden Cache.",
+-    "Prune now löscht nie ohne Nachfrage. Mit einer kurzen Beispielgrenze für Laufordner listet es auf, was es in jedem Ordner löschen würde, und wartet auf eine Antwort. Klicken Sie auf Cancel, dann wird nichts entfernt.",
+-    "Im Modus Spaceout enthält Preferences die spaCR field-Bedienelemente für acht unabhängige Effekte. Schalten Sie jeden Effekt einzeln ein oder aus. Die üblichen Einstellungen für Erscheinungsbild und Animation des Einstellungsfensters bleiben verfügbar. Apply zeigt eine Vorschau, Keep übernimmt die Änderung und Revert stellt die vorherige Wahl wieder her."
++    "Prune now löscht nie ohne Nachfrage. Mit einer kurzen Beispielgrenze für Laufordner listet es auf, was es in jedem Ordner löschen würde, und wartet auf eine Antwort. Klicken Sie auf Cancel, dann wird nichts entfernt."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.es.json b/tools/tutorials/lessons/reviews/05_home.es.json
+index b88c2cc62..1de7a7e6b 100644
+--- a/tools/tutorials/lessons/reviews/05_home.es.json
++++ b/tools/tutorials/lessons/reviews/05_home.es.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep acepta los ajustes aplicados y mantiene Preferences abierto. Continúe modificando otra pestaña, o haga clic en Save cuando quiera conservar los valores actuales y cerrar la ventana.",
+     "En la pestaña Modules, Session decide si spaCR vuelve a abrir el último módulo, los ajustes y la carpeta al iniciarse; esta grabación empieza de cero. Update channel elige versiones estables o compilaciones nocturnas, y Proxy y Certificate bundle permiten descargar detrás de un proxy institucional.",
+     "La pestaña Storage fija cuánto tiempo conserva spaCR sus registros diarios, los registros de ejecución y las carpetas de ejecución, y un límite de tamaño para cada uno. Debajo, la lista de cachés muestra dónde se guardan modelos y descargas, con Clear y Move para cada caché.",
+-    "Prune now nunca borra sin preguntar. Con un límite de ejemplo corto para las carpetas de ejecución, enumera lo que borraría en cada carpeta y espera una respuesta. Haga clic en Cancel y no se elimina nada.",
+-    "En modo Spaceout, Preferences incluye controles de spaCR field para ocho efectos independientes. Activa o desactiva cada efecto por separado. Siguen disponibles los controles habituales de apariencia y animación del panel de ajustes; Apply previsualiza un cambio, Keep lo acepta y Revert restaura la elección anterior."
++    "Prune now nunca borra sin preguntar. Con un límite de ejemplo corto para las carpetas de ejecución, enumera lo que borraría en cada carpeta y espera una respuesta. Haga clic en Cancel y no se elimina nada."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.fr.json b/tools/tutorials/lessons/reviews/05_home.fr.json
+index 1c6db9eae..79f9426ce 100644
+--- a/tools/tutorials/lessons/reviews/05_home.fr.json
++++ b/tools/tutorials/lessons/reviews/05_home.fr.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep accepte les paramètres appliqués et laisse Preferences ouvert. Continuez à modifier un autre onglet, ou cliquez sur Save lorsque vous souhaitez conserver les valeurs actuelles et fermer la fenêtre.",
+     "Dans l’onglet Modules, Session décide si spaCR rouvre au démarrage le dernier module, les réglages et le dossier ; cet enregistrement démarre à neuf. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel.",
+     "L’onglet Storage règle combien de temps spaCR conserve ses journaux quotidiens, ses journaux d’exécution et ses dossiers d’exécution, avec une limite de taille pour chacun. En dessous, la liste des caches montre où sont stockés les modèles et les téléchargements, avec Clear et Move pour chaque cache.",
+-    "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé.",
+-    "En mode Spaceout, Preferences propose les commandes spaCR field pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les réglages habituels d’apparence et d’animation du panneau de réglages restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent."
++    "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.hi.json b/tools/tutorials/lessons/reviews/05_home.hi.json
+index 74a0cb820..a5680b996 100644
+--- a/tools/tutorials/lessons/reviews/05_home.hi.json
++++ b/tools/tutorials/lessons/reviews/05_home.hi.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep लागू सेटिंग्स स्वीकार करता है और Preferences खुला रखता है। किसी दूसरे टैब में बदलाव करते रहें, या जब आप मौजूदा मान रखना और विंडो बंद करना चाहें तो Save पर क्लिक करें।",
+     "Modules टैब पर Session तय करता है कि शुरू होने पर spaCR आखिरी मॉड्यूल, सेटिंग और फ़ोल्डर फिर से खोले या नहीं; यह रिकॉर्डिंग नए सिरे से शुरू होती है। Update channel स्थिर रिलीज़ या रात्रि बिल्ड चुनता है, और Proxy तथा Certificate bundle से संस्थागत प्रॉक्सी के पीछे भी डाउनलोड काम करते हैं।",
+     "Storage टैब तय करता है कि spaCR अपने दैनिक लॉग, रन लॉग और रन फ़ोल्डर कितने समय तक रखे, और हर एक की आकार सीमा। उसके नीचे कैश सूची दिखाती है कि मॉडल और डाउनलोड कहाँ रखे हैं, हर कैश के लिए Clear और Move के साथ।",
+-    "Prune now बिना पूछे कभी कुछ नहीं हटाता। रन फ़ोल्डर के लिए एक छोटी उदाहरण सीमा के साथ, यह बताता है कि हर फ़ोल्डर में क्या हटाया जाएगा और जवाब का इंतज़ार करता है। Cancel पर क्लिक करें, तो कुछ नहीं हटता।",
+-    "Spaceout मोड में Preferences के spaCR field नियंत्रण आठ स्वतंत्र प्रभावों के लिए हैं। हर प्रभाव अलग से चालू या बंद करें। रूप और सेटिंग विंडो के ऐनिमेशन के सामान्य नियंत्रण उपलब्ध रहते हैं। Apply बदलाव का पूर्वावलोकन दिखाता है, Keep स्वीकार करता है और Revert पिछला चुनाव बहाल करता है।"
++    "Prune now बिना पूछे कभी कुछ नहीं हटाता। रन फ़ोल्डर के लिए एक छोटी उदाहरण सीमा के साथ, यह बताता है कि हर फ़ोल्डर में क्या हटाया जाएगा और जवाब का इंतज़ार करता है। Cancel पर क्लिक करें, तो कुछ नहीं हटता।"
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.is.json b/tools/tutorials/lessons/reviews/05_home.is.json
+index 5dedf69f1..f654fda5e 100644
+--- a/tools/tutorials/lessons/reviews/05_home.is.json
++++ b/tools/tutorials/lessons/reviews/05_home.is.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep samþykkir stillingarnar sem hafa verið notaðar og heldur Preferences opnu. Haltu áfram að breyta öðrum flipa eða smelltu á Save þegar þú vilt halda núverandi gildum og loka glugganum.",
+     "Á flipanum Modules ræður Session hvort spaCR opni aftur síðustu einingu, stillingar og möppu við ræsingu; þessi upptaka byrjar upp á nýtt. Update channel velur stöðugar útgáfur eða næturútgáfur, og Proxy og Certificate bundle láta niðurhal virka á bak við stofnanaproxy.",
+     "Flipinn Storage stillir hve lengi spaCR geymir daglegar annálaskrár, keyrsluannála og keyrslumöppur, og stærðarmörk fyrir hvert. Fyrir neðan sýnir skyndiminnislistinn hvar líkön og niðurhal eru geymd, með Clear og Move fyrir hvert skyndiminni.",
+-    "Prune now eyðir aldrei án þess að spyrja. Með stuttum dæmamörkum fyrir keyrslumöppur sýnir það hvað það myndi eyða í hverri möppu og bíður svars. Smelltu á Cancel og ekkert er fjarlægt.",
+-    "Í Spaceout-ham inniheldur Preferences spaCR field-stjórntæki fyrir átta óháð áhrif. Kveiktu eða slökktu á hverju fyrir sig. Venjuleg stjórntæki fyrir útlit og hreyfimyndir stillingagluggans eru áfram tiltæk. Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val."
++    "Prune now eyðir aldrei án þess að spyrja. Með stuttum dæmamörkum fyrir keyrslumöppur sýnir það hvað það myndi eyða í hverri möppu og bíður svars. Smelltu á Cancel og ekkert er fjarlægt."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.it.json b/tools/tutorials/lessons/reviews/05_home.it.json
+index e75a99ed3..8e19125b6 100644
+--- a/tools/tutorials/lessons/reviews/05_home.it.json
++++ b/tools/tutorials/lessons/reviews/05_home.it.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep accetta le impostazioni applicate e lascia Preferences aperto. Continua a modificare un’altra scheda, oppure fai clic su Save quando vuoi conservare i valori attuali e chiudere la finestra.",
+     "Nella scheda Modules, Session decide se spaCR riapre all’avvio l’ultimo modulo, le impostazioni e la cartella; questa registrazione parte da zero. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale.",
+     "La scheda Storage imposta per quanto tempo spaCR conserva i log giornalieri, i log delle esecuzioni e le cartelle delle esecuzioni, con un limite di dimensione per ciascuno. Sotto, l’elenco delle cache mostra dove sono salvati modelli e download, con Clear e Move per ogni cache.",
+-    "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla.",
+-    "In modalità Spaceout, Preferences include i controlli spaCR field per otto effetti indipendenti. Attiva o disattiva ogni effetto separatamente. Restano disponibili i normali controlli di aspetto e animazione del pannello delle impostazioni; Apply mostra l’anteprima, Keep accetta e Revert ripristina la scelta precedente."
++    "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.ja.json b/tools/tutorials/lessons/reviews/05_home.ja.json
+index 5c5d5be96..e52d4756d 100644
+--- a/tools/tutorials/lessons/reviews/05_home.ja.json
++++ b/tools/tutorials/lessons/reviews/05_home.ja.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep は適用した設定を受け入れ、Preferences を開いたままにします。別のタブの調整を続けるか、現在の値を保持してウィンドウを閉じる準備ができたら Save をクリックします。",
+     "ModulesタブのSessionでは、起動時に最後のモジュール、設定、フォルダーを開き直すかどうかを決めます。この録画は新しい状態から始めています。Update channelでは安定版か夜間ビルドかを選び、ProxyとCertificate bundleを使うと、組織のプロキシの内側でもダウンロードできます。",
+     "Storageタブでは、毎日のログ、実行ログ、実行フォルダーをspaCRがどれだけの期間保持するかと、それぞれのサイズ上限を設定します。その下のキャッシュ一覧には、モデルやダウンロードの保存場所が表示され、キャッシュごとにClearとMoveがあります。",
+-    "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。",
+-    "Spaceout モードでは、Preferences に spaCR field の八つの独立した効果の操作が表示されます。それぞれを別々にオンまたはオフにできます。通常の外観や設定画面のアニメーションも調整できます。Apply で変更を試し、Keep で採用し、Revert で前の選択に戻します。"
++    "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。"
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.ko.json b/tools/tutorials/lessons/reviews/05_home.ko.json
+index e5a4c05e6..302d8c2dc 100644
+--- a/tools/tutorials/lessons/reviews/05_home.ko.json
++++ b/tools/tutorials/lessons/reviews/05_home.ko.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep는 적용한 설정을 유지하고 Preferences를 열린 상태로 둡니다. 다른 탭을 계속 조정하거나, 현재 값을 유지하고 창을 닫을 준비가 되면 Save를 클릭합니다.",
+     "Modules 탭의 Session은 spaCR이 시작할 때 마지막 모듈, 설정, 폴더를 다시 열지 정합니다. 이 녹화는 새로 시작합니다. Update channel은 안정 릴리스와 야간 빌드 중에서 고르며, Proxy와 Certificate bundle을 쓰면 기관 프록시 뒤에서도 다운로드가 됩니다.",
+     "Storage 탭에서는 spaCR이 일일 로그, 실행 로그, 실행 폴더를 얼마나 오래 보관할지와 각각의 크기 상한을 정합니다. 그 아래 캐시 목록은 모델과 다운로드가 저장된 위치를 보여 주며, 캐시마다 Clear와 Move가 있습니다.",
+-    "Prune now는 묻지 않고 삭제하지 않습니다. 실행 폴더에 짧은 예시 상한을 두면 각 폴더에서 삭제할 항목을 나열하고 답을 기다립니다. Cancel을 클릭하면 아무것도 삭제되지 않습니다.",
+-    "Spaceout 모드의 Preferences에는 독립적인 여덟 효과를 위한 spaCR field 항목이 있습니다. 각 효과를 따로 켜거나 끌 수 있습니다. 일반적인 모양과 설정 창 애니메이션 항목도 계속 사용할 수 있습니다. Apply는 변경을 미리 보고 Keep은 적용을 확정하며 Revert는 이전 선택으로 되돌립니다."
++    "Prune now는 묻지 않고 삭제하지 않습니다. 실행 폴더에 짧은 예시 상한을 두면 각 폴더에서 삭제할 항목을 나열하고 답을 기다립니다. Cancel을 클릭하면 아무것도 삭제되지 않습니다."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.nb.json b/tools/tutorials/lessons/reviews/05_home.nb.json
+index eac14cfaa..72dfe06b3 100644
+--- a/tools/tutorials/lessons/reviews/05_home.nb.json
++++ b/tools/tutorials/lessons/reviews/05_home.nb.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep godtar de anvendte innstillingene og lar Preferences være åpent. Fortsett å justere en annen fane, eller klikk på Save når du vil beholde de gjeldende verdiene og lukke vinduet.",
+     "På fanen Modules bestemmer Session om spaCR åpner siste modul, innstillinger og mappe igjen ved oppstart; dette opptaket starter på nytt. Update channel velger stabile utgivelser eller nattlige bygg, og med Proxy og Certificate bundle fungerer nedlastinger bak en institusjonell proxy.",
+     "Fanen Storage bestemmer hvor lenge spaCR beholder daglige logger, kjørelogger og kjøremapper, og en størrelsesgrense for hver. Under viser hurtigbufferlisten hvor modeller og nedlastinger lagres, med Clear og Move for hver hurtigbuffer.",
+-    "Prune now sletter aldri uten å spørre. Med en kort eksempelgrense for kjøremapper lister den opp hva den ville slettet i hver mappe og venter på svar. Klikk Cancel, så fjernes ingenting.",
+-    "I Spaceout-modus inneholder Preferences spaCR field-kontroller for åtte uavhengige effekter. Slå hver effekt av eller på separat. De vanlige kontrollene for utseende og animasjon i innstillingsvinduet er fortsatt tilgjengelige. Apply forhåndsviser, Keep godtar, og Revert gjenoppretter det tidligere valget."
++    "Prune now sletter aldri uten å spørre. Med en kort eksempelgrense for kjøremapper lister den opp hva den ville slettet i hver mappe og venter på svar. Klikk Cancel, så fjernes ingenting."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.pt-BR.json b/tools/tutorials/lessons/reviews/05_home.pt-BR.json
+index 23029efbb..4587d65fd 100644
+--- a/tools/tutorials/lessons/reviews/05_home.pt-BR.json
++++ b/tools/tutorials/lessons/reviews/05_home.pt-BR.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep aceita as configurações aplicadas e mantém Preferences aberto. Continue ajustando outra aba, ou clique em Save quando quiser manter os valores atuais e fechar a janela.",
+     "Na aba Modules, Session decide se o spaCR reabre o último módulo, as configurações e a pasta ao iniciar; esta gravação começa do zero. Update channel escolhe versões estáveis ou compilações noturnas, e Proxy e Certificate bundle permitem downloads atrás de um proxy institucional.",
+     "A aba Storage define por quanto tempo o spaCR mantém seus logs diários, logs de execução e pastas de execução, e um limite de tamanho para cada um. Abaixo, a lista de caches mostra onde ficam os modelos e downloads, com Clear e Move para cada cache.",
+-    "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido.",
+-    "No modo Spaceout, Preferences inclui os controles spaCR field para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles comuns de aparência e animação da janela de configurações continuam disponíveis; Apply mostra a prévia, Keep aceita e Revert restaura a escolha anterior."
++    "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.sv.json b/tools/tutorials/lessons/reviews/05_home.sv.json
+index 8b6794cbd..e86e42d30 100644
+--- a/tools/tutorials/lessons/reviews/05_home.sv.json
++++ b/tools/tutorials/lessons/reviews/05_home.sv.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep accepterar de tillämpade inställningarna och lämnar Preferences öppet. Fortsätt att ändra en annan flik, eller klicka på Save när du är redo att behålla de aktuella värdena och stänga fönstret.",
+     "På fliken Modules bestämmer Session om spaCR öppnar den senaste modulen, inställningarna och mappen igen vid start; den här inspelningen börjar från början. Update channel väljer stabila versioner eller nattliga byggen, och med Proxy och Certificate bundle fungerar nedladdningar bakom en institutionell proxy.",
+     "Fliken Storage anger hur länge spaCR behåller sina dagliga loggar, körloggar och körmappar, och en storleksgräns för var och en. Under dem visar cachelistan var modeller och nedladdningar lagras, med Clear och Move för varje cache.",
+-    "Prune now raderar aldrig utan att fråga. Med en kort exempelgräns för körmappar listar den vad den skulle radera i varje mapp och väntar på svar. Klicka på Cancel så tas inget bort.",
+-    "I Spaceout-läge innehåller Preferences spaCR field-kontroller för åtta oberoende effekter. Slå på eller av varje effekt separat. Vanliga kontroller för utseende och animation i inställningsfönstret finns kvar. Apply förhandsvisar, Keep godtar och Revert återställer föregående val."
++    "Prune now raderar aldrig utan att fråga. Med en kort exempelgräns för körmappar listar den vad den skulle radera i varje mapp och väntar på svar. Klicka på Cancel så tas inget bort."
+   ]
+ }
+diff --git a/tools/tutorials/lessons/reviews/05_home.zh-CN.json b/tools/tutorials/lessons/reviews/05_home.zh-CN.json
+index 6d5f7cb97..dfab9242d 100644
+--- a/tools/tutorials/lessons/reviews/05_home.zh-CN.json
++++ b/tools/tutorials/lessons/reviews/05_home.zh-CN.json
+@@ -1,6 +1,6 @@
+ {
+   "lesson": "05_home",
+-  "english_sha256": "0e90ee39e41558e42b8cd7e365fc418351c0f9c5f04b9549a2cd62a41167fc7c",
++  "english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+   "review": {
+     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+     "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+@@ -146,7 +146,6 @@
+     "Keep 接受已应用的设置，并保持 Preferences 打开。您可以继续调整其他选项卡，或在准备保留当前值并关闭窗口时点击 Save。",
+     "在 Modules 选项卡中，Session 决定 spaCR 启动时是否重新打开上次的模块、设置和文件夹；本录制从全新状态开始。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。",
+     "Storage 选项卡设置 spaCR 保留每日日志、运行日志和运行文件夹的时长，以及每类的大小上限。下方的缓存列表显示模型和下载内容的存放位置，每个缓存都有 Clear 和 Move。",
+-    "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。",
+-    "在 Spaceout 模式下，Preferences 提供 spaCR field 的八个独立效果控件。可分别开启或关闭各效果。常规外观和设置窗口动画控件仍可使用。Apply 预览修改，Keep 接受修改，Revert 恢复之前的选择。"
++    "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。"
+   ]
+ }
+diff --git a/tools/tutorials/tests/test_capture_no_spaceout.py b/tools/tutorials/tests/test_capture_no_spaceout.py
+new file mode 100644
+index 000000000..e73800edb
+--- /dev/null
++++ b/tools/tutorials/tests/test_capture_no_spaceout.py
+@@ -0,0 +1,100 @@
++"""Hidden Spaceout is unavailable to tutorial recipes; normal UI stays public."""
++from pathlib import Path
++import sys
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[3]
++sys.path[:0] = [str(ROOT), str(ROOT / 'tools/tutorials')]
++
++
++def test_retired_capture_cli_cannot_select_hidden_mode():
++    import capture_refresh
++
++    with pytest.raises(SystemExit) as error:
++        capture_refresh.build_parser().parse_args(['--module', 'home', '--spaceout-effects-only'])
++    assert error.value.code == 2
++    normal = capture_refresh.build_parser().parse_args(['--module', 'home', '--home-navigation-only'])
++    assert normal.home_navigation_only and normal.backdrop == 'data_art_impulse_lens'
++    assert not hasattr(normal, 'spaceout_effects_only')
++
++
++def test_profile_cli_rejects_retired_mode_before_writing(tmp_path, monkeypatch):
++    import capture_host_mode
++
++    output = tmp_path / 'forbidden-profile.json'
++    monkeypatch.setattr(sys, 'argv', ['capture_host_mode', '--prepare-profile',
++                        '--font-scale', '1.0', '--out', str(output), '--spaceout'])
++    with pytest.raises(SystemExit) as error:
++        capture_host_mode.main()
++    assert error.value.code == 2 and not output.exists()
++
++
++def test_hidden_backdrop_has_no_tutorial_policy_exception():
++    from capture_policy import configure_appearance, verify_appearance
++
++    with pytest.raises(ValueError):
++        configure_appearance('dark', 'data_art_spaceout_field')
++    with pytest.raises(TypeError):
++        configure_appearance(spaceout_effects=True)
++    with pytest.raises(TypeError):
++        verify_appearance(None, spaceout_effects=True)
++
++
++@pytest.fixture
++def normal_store(tmp_path, monkeypatch):
++    from PySide6.QtCore import QSettings
++    from spacr.qt import preferences, theme
++
++    store = QSettings(str(tmp_path / 'ordinary.ini'), QSettings.IniFormat)
++    monkeypatch.setattr(preferences, '_settings', lambda: store)
++    previous = theme.spaceout_enabled()
++    theme.disable_spaceout()
++    preferences.set_show_alpha(False)
++    preferences._set_show_alpha_features(False)
++    preferences._set_show_alpha_species(False)
++    yield preferences
++    theme.enable_spaceout() if previous else theme.disable_spaceout()
++
++
++def test_normal_preferences_retains_recorded_controls_without_hidden_effects(normal_store, qtbot):
++    from PySide6.QtWidgets import QComboBox, QTabWidget, QWidget
++    from spacr.qt.widgets.ambient import SPACEOUT_ONLY_THEMES
++
++    prefs = normal_store
++    dialog = prefs.PreferencesDialog()
++    qtbot.addWidget(dialog)
++    required = ['PerformanceLevel', 'PreferencesTabGeneral', 'PreferencesTabAppearance',
++                'PreferencesTabModules', 'PreferencesTabStorage', 'PaneOpacity',
++                'RestoreLastSession', 'UpdateChannel', 'ShowAlphaFeatures', 'StoragePruneButton']
++    assert dialog.findChild(QTabWidget, 'PreferencesTabs') is not None
++    assert all(dialog.findChild(QWidget, name) is not None for name in required)
++    for name in ('AmbientTheme', 'PopupBackdrop'):
++        control = dialog.findChild(QComboBox, name)
++        assert control is not None
++        assert not set(control.itemData(i) for i in range(control.count())) & set(SPACEOUT_ONLY_THEMES)
++    assert dialog.findChild(QWidget, 'SpaceoutFieldVortex') is None
++    assert len(dialog._storage_page.spins['run_folders']) == 2
++    assert prefs.get_show_beta() is True
++    assert not prefs.get_show_alpha() and not prefs._get_show_alpha_features() and not prefs._get_show_alpha_species()
++    dialog.reject()
++
++
++def test_all_selected_home_module_tiles_exist_under_normal_maturity(normal_store, qtbot, monkeypatch):
++    import json
++    from spacr.qt import app, register_self_registering_modules
++    from spacr.qt.widgets.home import AppTile
++
++    monkeypatch.setattr(app, 'APP_STAGE', dict(app.APP_STAGE))
++    register_self_registering_modules()
++    home = app.make_home_page()
++    qtbot.addWidget(home)
++    canonical = json.loads((ROOT / 'tools/tutorials/lessons/05_home.json').read_text())
++    keys = {s['visual'].removeprefix('home_module_') for s in canonical['scenes']
++            if s['visual'].startswith('home_module_')}
++    tiles = {str(tile.property('moduleAppKey')) for tile in home.findChildren(AppTile)}
++    assert keys <= tiles, sorted(keys - tiles)
++    assert keys <= {row[0] for row in app.tiled_apps(app.visible_apps())}
++    assert all(any(home._tabs.widget(i).isAncestorOf(tile) for i in range(home._tabs.count()))
++               for tile in home.findChildren(AppTile) if tile.property('moduleAppKey') in keys)
++    assert hasattr(home, '_aside_split') and hasattr(home, '_aside') and hasattr(home, '_aside_controls')
+-- 
+2.34.1
+
